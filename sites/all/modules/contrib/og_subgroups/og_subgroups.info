@@ -1,0 +1,11 @@
+; $Id:$
+name = Organic groups subgroups
+description = "Enable the permission system to be aware of the group hierarchy."
+package = "Organic groups"
+dependencies[] = og
+core = 7.x
+version = VERSION
+files[] = og_subgroups.module
+
+; Test files.
+files[] = og_subgroups.test

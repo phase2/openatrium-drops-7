@@ -1,0 +1,7 @@
+name = Panel nodes
+description = Create nodes that are divided into areas with selectable content.
+package = "Panels"
+dependencies[] = panels
+configure = admin/structure/panels
+core = 7.x
+files[] = panels_node.module

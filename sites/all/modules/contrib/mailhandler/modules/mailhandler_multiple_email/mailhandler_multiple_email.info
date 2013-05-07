@@ -1,0 +1,8 @@
+name = Mailhandler Multiple Email support
+description = Allows Mailhandler to work with the Multiple Email module.
+core = 7.x
+dependencies[] = "mailhandler"
+dependencies[] = "multiple_email"
+package = "Mailhandler"
+
+files[] = plugins/mailhandler/authenticate/MailhandlerMultipleEmailAuthenticate.class.php
