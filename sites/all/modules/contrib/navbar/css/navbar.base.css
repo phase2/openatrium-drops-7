@@ -1,0 +1,208 @@
+/**
+ * @file navbar.admin.css
+ *
+ *
+ * Aggressive resets so we can achieve a consistent look in hostile CSS
+ * environments.
+ */
+body.navbar {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 100%;
+}
+#navbar,
+#navbar * {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  list-style: none;
+  margin: 0;
+  outline: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+  text-align: left; /* LTR */
+  -webkit-text-size-adjust: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  vertical-align: baseline;
+}
+#navbar {
+  font-size: 100%;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+/**
+ * Administration menu.
+ */
+#navbar-actions {
+  float: left; /* LTR */
+}
+#navbar-user {
+  float: right; /* LTR */
+}
+#navbar .navbar-bar {
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: 600;
+}
+@media screen and (max-width:28.124em) {
+  #navbar .navbar-bar {
+    position: absolute;
+  }
+}
+#navbar .navbar-bar .section {
+  float: left;
+  min-height: 2.875em;
+  min-height: 2.875rem;
+}
+#navbar .columns-8 .col-2 {
+  width: 25%;
+}
+#navbar .columns-8 .col-4 {
+  width: 50%;
+}
+#navbar .navbar-bar .menu li {
+  display: block;
+  float: left; /* LTR */
+}
+#navbar .navbar-bar .menu a {
+  display: inline-block;
+}
+/**
+ * Toolbar tray.
+ */
+#navbar .navbar-tray.positioned {
+  bottom: 0;
+  left: -320px;
+  left: -20rem;
+  max-width: 92%;
+  overflow-y: auto;
+  position: fixed;
+  width: 320px;
+  width: 20rem;
+  z-index: 600;
+}
+#navbar .navbar-tray.positioned > .slider {
+  left: -100%; /* LTR */
+  overflow:hidden;
+  position: absolute;
+  -moz-transition: left, 0.2s ease-out;
+  -webkit-transition: left, 0.2s ease-out;
+  transition: left, 0.2s ease-out;
+  width: 100%;
+}
+#navbar .navbar-tray.positioned.active,
+#navbar .navbar-tray.positioned.active > .slider {
+  left: 0; /* LTR */
+}
+/**
+ * At larger screen sizes, the tray pushes the page content
+ * using padding instead of left.
+ */
+@media screen and (max-width:28.124em) {
+  body.menu-tray-open {
+    overflow: hidden;
+  }
+  #navbar .navbar-tray.positioned {
+    position: absolute;
+  }
+}
+/**
+ * At larger screen sizes, the tray pushes the page content
+ * using padding instead of left.
+ */
+@media screen and (min-width:28.125em) {
+  body.menu-tray-open {
+    padding-left: 320px;
+    padding-left: 20rem;
+  }
+}
+#navbar .navbar-tray .navbar-menu li a {
+  display: block;
+}
+/* This style seems to belong neither in navbar nor in shortcut. */
+#navbar .navbar-tray #shortcut-navbar + a {
+  margin-top: 0.3333em;
+}
+/**
+ * Accordion
+ */
+/* @group Behavior */
+
+#navbar .fleximenu {
+  position: relative;
+  overflow: hidden;
+}
+#navbar ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+#navbar .fleximenu li {
+  display: block;
+}
+#navbar .box {
+  position: relative;
+}
+#navbar .dormant {
+  display: none;
+}
+#navbar .trail > ul { /* Show the sub-menus */
+  display: block;
+}
+#navbar .active > ul {
+  z-index: 51; /* Pull the active trail li's above the other li's */
+}
+#navbar .fleximenu .box {
+  display: block;
+  line-height: 1em; /* this prevents the value "normal" from being returned as the line-height */
+  width: auto;
+}
+#navbar .fleximenu a {
+  display: block;
+  line-height: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#navbar .handle {
+  background-attachment: scroll;
+  background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxNi4wLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB3aWR0aD0iMTAwcHgiIGhlaWdodD0iMTAwcHgiIHZpZXdCb3g9IjAgMCAxMDAgMTAwIiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAxMDAgMTAwIiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxwb2x5Z29uIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBmaWxsPSIjNzc3Nzc3IiBwb2ludHM9IjIyLjUsODguNSAzMi4wMTUsOTkuNSA3Ny41LDUwIDMyLjAxNSwwLjUgMjIuNSwxMS41IA0KCTU3LjM2OSw1MCAiLz4NCjwvc3ZnPg0K);
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: 100% 70%;
+  bottom: 0;
+  display: block;
+  height: 100%;
+  position: absolute;
+  right: 0;
+  top: 0;
+  -moz-transform: rotate(0deg);
+  -moz-transition: -webkit-transform 0.1s ease-in;
+  -webkit-transform: rotate(0deg);
+  -webkit-transition: -webkit-transform 0.1s ease-in;
+  transform: rotate(0deg);
+  transition: -webkit-transform 0.1s ease-in;
+  width: 6em;
+  z-index: 1;
+}
+#navbar .handle.open {
+  -moz-transform: rotate(90deg);
+  -webkit-transform: rotate(90deg);
+  transform: rotate(90deg);
+}
+#navbar .handle + * {
+  margin-right: 6em;
+}
+#navbar .handle:hover {
+  cursor: pointer;
+}
+/* Shortcuts */
+#navbar #edit-shortcuts {
+  clear: left;
+  display: block;
+}

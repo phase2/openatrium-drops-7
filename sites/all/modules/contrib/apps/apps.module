@@ -1,0 +1,175 @@
+<?php
+/**
+ * @file apps.module
+ */
+
+define("APPSERVER_BASEPATH", 'admin/apps');
+define("APPSERVER_BASEPATH_DEPTH", 1);
+define("APPS_INSTALL_PATH", 'sites/all/modules');
+
+require_once(drupal_get_path('module', 'apps') . '/theme/apps.theme.inc');
+
+/**
+ * Implements hook_permission().
+ */
+function apps_permission() {
+  apps_include('register');
+  return _apps_permission();
+}
+
+/**
+ * Implements hook_menu().
+ */
+function apps_menu() {
+  apps_include('register');
+  return _apps_menu();
+}
+
+/**
+ * Implements hook_theme().
+ */
+function apps_theme() {
+  apps_include('register');
+  return _apps_theme();
+}
+
+
+/**
+ * Implements hook_admin_paths().
+ *
+ * Trick to make page refresh when app installs.
+ * @TODO clean this up
+ */
+function apps_admin_paths() {
+  $paths = array(
+    'admin/apps/*/app/*/enable' => FALSE, 
+    'admin/apps/*/app/*/disable' => FALSE,
+  );
+  return $paths;
+}
+
+
+/**
+ * Implements hook_image_default_styles().
+ */
+function apps_image_default_styles() { 
+  apps_include('register');
+  return _apps_image_default_styles();
+}
+
+/**
+ * Implements hook_cron().
+ *
+ * Cache Manifest so we are not pulling
+ * images and manifest when we hit the page
+ */
+function apps_cron() {
+  apps_include('manifest');
+  foreach(apps_servers() as $server) {
+    return apps_request_manifest($server);
+  }
+}
+
+/**
+ * Implements hook_hook_info().
+ */
+function apps_hook_info() {
+  return array(
+    'apps_app_info' => array('group' => 'app'),
+    'apps_server',
+  );
+}
+
+/**
+ * Check whether Apps has write access to libraries and modules directories.
+ *
+ * @return boolean
+ */
+function apps_installer_has_write_access() {
+  $libraries_dir = (is_dir('sites/all/libraries')) ? 'sites/all/libraries' : 'sites/all';
+  return is_writable(drupal_realpath($libraries_dir)) && is_writable(drupal_realpath(APPS_INSTALL_PATH));
+}
+
+
+/**
+ * Implements hook_block_info().
+ */
+function apps_block_info() {
+  apps_include('manifest');
+  $blocks = array();
+  foreach(apps_servers() as $id => $server) {
+    $blocks["manage_apps__$id"] = array(
+      'info' => t('Manage Apps for ') . $server['title'],
+    );
+     
+  }
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function apps_block_view($delta) {
+  apps_include('manifest');
+  apps_include('pages');
+  list($type, $server_name) = explode("__", $delta);
+  $server = apps_servers($server_name);
+  $element= apps_manage_page($server_name);
+  return array(
+    'subject' => t('Installed Apps for ') . $server['title'],
+    'content' => $element,
+  );
+}
+
+/*
+ * module_load_include wrapper for apps
+ *
+ * PARAM group: the name of a include file in the from apps.$group.inc
+ * RETURN: the results of module_load_include
+ */
+function apps_include($group) {
+  if($group == 'theme') {
+    module_load_include("inc", "apps", "theme/apps.$group");
+  }
+  module_load_include("inc", "apps", "apps.$group");
+}
+
+/**
+ * Does an Include and then calls a method
+ *
+ * Used to place menu access callbacks in the .page.inc file
+ *
+ * @param $group
+ *    a group name to apps_include
+ * @param callback
+ *    the name of the function to all
+ */
+function apps_tunnel($group, $callback) {
+  $args = func_get_args();
+  unset($args[0]);
+  unset($args[1]);
+  apps_include($group);
+  return call_user_func_array($callback, $args);
+}
+
+/**
+ * Handle the submissions of the filetransfer form.
+ */
+function apps_authorize_filetransfer_form_submit() {
+  require_once DRUPAL_ROOT . '/includes/authorize.inc';
+  $form = drupal_get_form('authorize_filetransfer_form');
+}
+
+/**
+ * Implements hook_updater_info().
+ */
+function apps_updater_info() {
+  return array(
+    'library' => array(
+      'class' => 'LibraryUpdater', 
+      'name' => t('Update Library'), 
+      'weight' => -10,
+    ), 
+  );
+}
+

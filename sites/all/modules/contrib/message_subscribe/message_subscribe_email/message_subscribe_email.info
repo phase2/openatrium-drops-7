@@ -1,0 +1,16 @@
+name = Message subscribe email
+core = 7.x
+php = 5.2.4
+version = 7.x-1.0
+project = message_subscribe_email
+dependencies[] = flag
+dependencies[] = list
+dependencies[] = message_subscribe_ui
+dependencies[] = views
+
+; Information added by drupal.org packaging script on 2013-04-22
+version = "7.x-1.0-alpha5"
+core = "7.x"
+project = "message_subscribe"
+datestamp = "1366630878"
+
