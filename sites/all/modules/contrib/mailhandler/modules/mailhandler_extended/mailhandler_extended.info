@@ -1,7 +1,0 @@
-name = Mailhandler Extended Headers
-description = Allows arbitrary headers to be mapped in Mailhandler
-core = 7.x
-dependencies[] = "mailhandler"
-package = "Mailhandler extras"
-
-files[] = plugins/mailhandler/commands/MailhandlerCommandsExtendedHeaders.class.php

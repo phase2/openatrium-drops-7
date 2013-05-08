@@ -1,9 +1,0 @@
-<?php
-
-/**
- * Implements hook_uninstall().
- */
-function respondjs_uninstall() {
-  variable_del('respondjs_scope');
-  variable_del('respondjs_quiet');
-}

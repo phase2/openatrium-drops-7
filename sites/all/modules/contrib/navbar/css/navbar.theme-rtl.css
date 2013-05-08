@@ -1,7 +1,0 @@
-#navbar .navbar-bar .menu li + li {
-  margin-left: auto;
-  margin-right: 1em;
-}
-#navbar .navbar-shortcuts .menu li {
-  float: right;
-}
