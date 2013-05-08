@@ -1,0 +1,7 @@
+name = Section Session Context
+description = Prepopulate section references from session variable.
+package = Open Atrium
+core = 7.x
+php = 5.1
+
+dependencies[] = oa_core

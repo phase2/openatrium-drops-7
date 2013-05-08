@@ -1,0 +1,304 @@
+<?php
+
+/**
+ * @file
+ * Provides hook implementations and functionality for oa_dashboard.
+ */
+
+/**
+ * @param $form
+ * @param $form_state
+ * @param $form_id
+ */
+function oa_dashboard_form_oa_core_configure_form_alter(&$form, &$form_state, $form_id) {
+
+  $form['oa_toolbar'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Toolbar settings'),
+  );
+
+  // add config settings for toolbar
+  $form['oa_toolbar']['oa_toolbar_style'] = array(
+    '#title' => t('Toolbar Style'),
+    '#type' => 'select',
+    '#required' => TRUE,
+    '#options' => array(
+      '1' => 'Normal (light)',
+      '0' => 'Inverted (dark)',
+    ),
+    '#default_value' => variable_get('oa_toolbar_style', 0),
+    '#description' => t('Select the color/style of the site toolbar.'),
+  );
+
+  $form['oa_toolbar']['oa_toolbar_sticky'] = array(
+    '#title' => t('Toolbar Sticky'),
+    '#type' => 'select',
+    '#required' => TRUE,
+    '#options' => array(
+      '1' => 'Yes',
+      '0' => 'No',
+    ),
+    '#default_value' => variable_get('oa_toolbar_sticky', 1),
+    '#description' => t('Select whether the toolbar sticks to the top of the page.'),
+  );
+
+}
+
+/**
+ * Implements template_preprocess_page().
+ */
+function oa_dashboard_preprocess_page(&$vars) {
+  $vars['oa_toolbar_class'] = variable_get('oa_toolbar_style', 0) ? '' : 'navbar-inverse';
+  $vars['oa_toolbar_btn_class'] = variable_get('oa_toolbar_style', 0) ? '' : 'btn-inverse';
+  $vars['oa_toolbar_sticky'] = variable_get('oa_toolbar_sticky', 1) ? 'navbar-fixed-top' : '';
+}
+
+/**
+ * Implements hook_block_info()
+ */
+function oa_dashboard_block_info() {
+  $blocks['oa_toolbar'] = array(
+    'info' => t('Open Atrium Toolbar'),
+    'cache' => DRUPAL_NO_CACHE,
+  );
+  $blocks['oa_user_badge'] = array(
+    'info' => t('Open Atrium User Badge'),
+    'cache' => DRUPAL_CACHE_PER_USER,
+  );
+  $blocks['oa_toolbar_menu_button'] = array(
+    'info' => t('Open Atrium Toolbar Menu Button'),
+    'cache' => DRUPAL_CACHE_GLOBAL,
+  );
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view()
+ */
+function oa_dashboard_block_view($delta = '') {
+  $block = array();
+
+  switch ($delta) {
+    case 'oa_toolbar':
+      $block['subject'] = '';
+      $block['content'] = theme('oa_toolbar');
+      break;
+    case 'oa_user_badge':
+      $block['subject'] = '';
+      $block['content'] = theme('oa_user_badge');
+      break;
+    case 'oa_toolbar_menu_button':
+      $block['subject'] = '';
+      if (module_exists('navbar')) {
+        $tree = navbar_get_menu_tree();
+        if (!empty($tree)) {
+          $block['content'] = theme('oa_toolbar_menu_button');
+        }
+      }
+      break;
+  }
+
+  return $block;
+}
+
+/**
+ * Implements hook_theme()
+ */
+function oa_dashboard_theme() {
+  return array(
+    'oa_toolbar' => array(
+      'template' => 'oa_toolbar',
+    ),
+    'oa_user_badge' => array(
+      'template' => 'oa_user_badge',
+    ),
+    'oa_toolbar_menu_button' => array(
+      'template' => 'oa_toolbar_menu_button',
+    ),
+  );
+}
+
+/**
+ * Preprocess function for the oa_toolbar block.
+ */
+function oa_dashboard_preprocess_oa_toolbar(&$vars) {
+  global $user;
+
+  drupal_add_js(array(
+    'oa_toolbar_sticky' => variable_get('oa_toolbar_sticky', 1),
+  ), array('type' => 'setting'));
+  drupal_add_js(drupal_get_path('module', 'oa_dashboard') . '/js/oa-dashboard.js');
+
+  // Separators
+  $vars['oa_toolbar_separator'] = t('&gt;');
+  $vars['home_url'] = url('<front>', array('absolute' => TRUE));
+
+  // Spaces
+  $space_id = oa_core_get_space_context();
+  $vars['spaces_label'] = '';
+  $vars['spaces_recent'] = '';
+  $vars['spaces_favorite'] = '';
+  $vars['sections_label'] = '';
+  $vars['sections_list'] = '';
+
+  // grab list of user's spaces and sections
+  $vars['space_label'] = t('Spaces');
+  $vars['space_url'] = url('spaces');
+  if (isset($space_id)) {
+    // get name of current space (without fully loading node)
+    $title = oa_core_get_titles(array($space_id));
+    if (!empty($title['titles'][0])) {
+      $vars['space_label'] = $title['titles'][0];
+      $vars['space_url'] = url('node/' . $space_id);
+    }
+  }
+
+  // get names of spaces
+  if ($user->uid == 0) {
+    // og_get_entity_groups doesn't return anything for anonymous users
+    // so return list of all public spaces
+    $spaces = oa_core_get_public_spaces();
+    $menu_title = t('Public Spaces');
+  }
+  else {
+    $spaces = og_get_entity_groups('user', $user);
+    $menu_title = t('Subscribed Spaces');
+  }
+  if (empty($spaces['node'])) {
+    $list = array();
+  }
+  else {
+    $items = oa_core_get_titles($spaces['node'], OA_SPACE_TYPE);
+    $list = oa_core_truncate_list($items['links'], 15,
+      l(t('All spaces...'), 'spaces',
+        array('attributes' => array('class' => array('more-link')))),
+      TRUE);
+  }
+  if (!empty($list)) {
+    $vars['spaces_recent'] = theme('item_list', array(
+      'items' => $list,
+      'title' => $menu_title,
+      'type' => 'ul',
+    ));
+  }
+
+  if (module_exists('oa_favorites')) {
+    // get list of favorite spaces
+    $items = oa_favorites_get_spaces($user);
+    if (!empty($items['links'])) {
+      $vars['spaces_favorite'] = theme('item_list', array(
+        'items' => $items['links'],
+        'title' => t('Favorite Spaces'),
+        'type' => 'ul',
+      ));
+    }
+  }
+
+  $current_section = oa_core_get_section_context();
+
+  $home_name = t('Space home');
+  $section_name = '';
+  $section_url = '';
+  if ($space_id) {
+    $space_link = l($home_name, 'node/' . $space_id);
+    $section_name = $home_name;
+    $section_url = url('node/' . $space_id);
+    $items = array();
+    // grab the titles of the sections for the current space
+    $sections = oa_core_space_sections($space_id);
+    if (!empty($sections)) {
+      // check for match with current section id
+      foreach ($sections as $sid => $title) {
+        $items[] = l($title, 'node/' . $sid);
+        if ($sid == $current_section) {
+          $section_name = $title;
+          $section_url = url('node/' . $sid);
+        }
+      }
+      // add the Space home page link and create the ul list
+      array_unshift($items, $space_link);
+    }
+    else {
+      $items[] = $space_link;
+    }
+    if (!empty($items)) {
+      $vars['sections_list'] = theme('item_list', array(
+        'items' => $items,
+        'type' => 'ul',
+      ));
+    }
+  }
+  // Current Section Name from current page name
+  $node = menu_get_object();
+  if (isset($node->type)) {
+    switch ($node->type) {
+      case OA_SECTION_TYPE:
+        $section_name = $node->title;
+        $section_url = url('node/' . $node->nid);
+        break;
+      case OA_SPACE_TYPE:
+        $section_name = $home_name;
+        $section_url = url('node/' . $node->nid);
+        break;
+      case OA_GROUP_TYPE:
+        $section_name = t('Group home');
+        $section_url = url('node/' . $node->nid);
+        break;
+    }
+  }
+
+  $vars['section_label'] = $section_name;
+  $vars['section_url'] = $section_url;
+  $vars['oa_toolbar_btn_class'] = variable_get('oa_toolbar_style', 0) ? '' : 'btn-inverse';
+}
+
+
+/**
+ * Preprocess function for the oa_user_badge block.
+ */
+function oa_dashboard_preprocess_oa_user_badge(&$vars) {
+  global $user;
+
+  if ($user->uid) {
+    $user = user_load($user->uid);
+    if (module_exists('oa_users')) {
+      $vars = array_merge($vars, oa_users_build_user_details($user));
+    }
+  }
+  else {
+    $vars['login'] = url('user/login');
+  }
+  $vars['oa_toolbar_btn_class'] = variable_get('oa_toolbar_style', 0) ? '' : 'btn-inverse';
+}
+
+/**
+ * Builds a user thumbnail picture from user entity.
+ */
+function oa_dashboard_render_user_picture($user, $image_style = 'oa_small_thumbnail') {
+  if (!empty($user->field_user_picture)) {
+    $picture = $user->field_user_picture[LANGUAGE_NONE][0];
+    $image = array(
+      'style_name' => $image_style,
+      'path' => $picture['uri'],
+      'width' => $picture['width'],
+      'height' => $picture['height'],
+      'alt' => t('Your profile picture'),
+    );
+    return theme('image_style', $image);
+  }
+  return '';
+}
+
+
+/**
+ * Preprocess function for the oa_toolbar_menu_button block.
+ */
+function oa_dashboard_preprocess_oa_toolbar_menu_button(&$vars) {
+  drupal_add_js(drupal_get_path('module', 'oa_dashboard') . '/js/toolbar-menu-toggle.js');
+  drupal_add_js(array(
+    'oa_toolbar_sticky' => variable_get('oa_toolbar_sticky', 1),
+  ), array('type' => 'setting'));
+
+  $vars['oa_toolbar_btn_class'] = variable_get('oa_toolbar_style', 0) ? '' : 'btn-inverse';
+}

@@ -1,0 +1,128 @@
+/***********/
+/* Toolbar */
+/***********/
+
+#oa_toolbar {
+  list-style: none;
+	font-weight: normal;
+	position: relative;
+}
+
+.navbar-inverse #oa_toolbar .btn.btn-inverse {
+  color: #BBB;
+}
+
+.navbar-inverse #oa_toolbar .caret {
+  border-top-color: #BBB;
+  border-bottom-color: #BBB;
+}
+
+.navbar-inverse #oa_toolbar .icon-home {
+  color: #BBB;
+}
+
+#oa_toolbar .btn {
+	padding: 0.5em 1em;
+	margin: 0 0;
+}
+#oa_toolbar .btn-group {
+	margin: 0;
+}
+
+#oa_toolbar ul.dropdown-menu .dropdown-column {
+	float: left;
+	margin: 0.5em;
+	padding: 0;
+}
+#oa_toolbar ul.dropdown-menu h3 {
+	color: white;
+	font-size: 14px;
+	line-height: 30px;
+	margin: 0;
+	padding: 0 20px;
+	background-color: #333
+}
+
+#oa_toolbar {
+	padding: 0;
+	margin: 0;
+}
+
+#oa_toolbar li ul li {
+  margin: 0;
+}
+
+#oa_toolbar li ul li ul {
+  margin: 0;
+}
+
+#oa_toolbar li a.active {
+	font-style: italic;
+}
+
+#oa_toolbar .icon-home {
+	font-size: 24px;
+	vertical-align: baseline;
+	padding: 0 0 0 0;
+	margin: 0;
+  line-height: 0px;
+}
+
+#oa_toolbar .more-link {
+	font-size: 14px;
+}
+
+/**************/
+/* User badge */
+/**************/
+
+#oa-user-badge {
+  position: relative;
+  padding: 0;
+}
+
+/* override the normal .user-badge styles to let toolbar set colors */
+#oa-user-badge .user-badge {
+  min-width: 110px;
+  padding: 3px;
+  margin: 0;
+  background-color: transparent;
+  border-color: transparent;
+}
+
+.navbar-inverse #oa-user-badge .user-badge {
+  color: #BBB;
+}
+
+#oa-user-badge .user-badge img {
+  margin: 0;
+}
+
+#oa-user-badge .dropdown-menu {
+  float: left;
+  width: 100%;
+  min-width: 110px;
+}
+#oa-user-badge .dropdown-menu ul {
+  margin: 0;
+}
+#oa-user-badge .dropdown-menu ul li {
+  margin: 0;
+}
+
+/***************/
+/* Menu button */
+/***************/
+
+#toolbar-menu-button {
+  margin-top: 5px;
+  margin-right: 10px;
+  padding: 0.5em 1em;
+  font-size: 12px;
+  line-height: 22px;
+  text-transform: uppercase;
+}
+
+.navbar-inverse #toolbar-menu-button {
+  color: #999;
+}

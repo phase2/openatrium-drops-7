@@ -1,0 +1,117 @@
+//
+// Styles for navbar
+// --------------------------------------------------
+.navbar {
+  .navbar-inner {
+    padding: 5px 10px;
+    @include border-radius(0);
+  }
+  // Brand: website or project name
+  // -------------------------
+  .brand {
+    margin-left: 0;
+    padding-left: 5px;
+    font-weight: bold;
+    color: $gray;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .1);
+    @include transition(all .2s linear);
+  }
+  .icon-home {
+    color: $white;
+  }
+  .toolbar-search {
+    margin: 10px 10px 0 0;
+    form,
+    .btn-group {
+      margin: 0;
+    }
+    .input-append {
+      margin: 0;
+    }
+    // Radios in dropdowns have weird behavior.
+    .dropdown-menu {
+      margin: 5px;
+      .radio {
+        margin: 0;
+        input[type="radio"] {
+          margin-top: 3px;
+          margin-left: -17px;
+        }
+      }
+      li {
+        padding: 2px;
+      }
+      li:hover {
+        background: #0081C2;
+        color: #FFF;
+      }
+    }
+  }
+}
+
+#navbar div.devel-querylog div.cell-5 {
+  padding: 1em .5em !important;
+}
+
+// Move the Panels IPE buttons from bottom to the top
+div#panels-ipe-control-container {
+  background-color: transparent;
+  position: fixed;
+  top: 50px;
+  right: 0;
+  bottom: auto;
+  width: auto;
+  z-index: 999;
+  @include box-shadow(none);
+  a {
+    font-weight: normal;
+  }
+}
+@media screen and (max-width: $tabletBreakpoint) {
+  div#panels-ipe-control-container {
+    position: absolute;
+  }
+}
+
+
+body.panels-ipe {
+  margin-bottom: 0px !important
+}
+
+div.tabs {
+  @extend .navbar;
+  @extend .navbar-inner;
+  ul.tabs {
+    @extend .nav;
+    border-bottom: 0;
+  }
+  li.active a {
+    @include border-radius(0);
+    border-bottom: 0;
+  }
+}
+
+.oa-dropdown {
+  display: inline-block;
+	margin: 0 0.25em 0 0.25em;
+	vertical-align: middle;
+	ul {
+	  margin: 0.5em 0;
+	  li {
+	    margin: 0;
+	  }
+	}
+}
+
+.sutro-double-container {
+  margin-bottom: 0;
+}
+
+.footer .menu li {
+  list-style-type: none;
+  list-style-image: none;
+  float: left;
+  a {
+    color: $grayDark;
+  }
+}

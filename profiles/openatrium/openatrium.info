@@ -1,0 +1,126 @@
+name = OpenAtrium
+distribution_name = openatrium
+description = A team collaboration platform
+core = 7.x
+exclusive = TRUE
+
+base[] = panopoly
+
+files[] = openatrium.profile
+
+; Drupal Core
+dependencies[] = menu
+dependencies[] = image
+dependencies[] = list
+dependencies[] = number
+dependencies[] = options
+dependencies[] = path
+dependencies[] = taxonomy
+dependencies[] = search
+dependencies[] = shortcut
+dependencies[] = field
+dependencies[] = field_ui
+dependencies[] = file
+
+;
+; Panopoly Modules
+;
+
+; Panopoly Foundation
+dependencies[] = panopoly_core
+dependencies[] = panopoly_images
+dependencies[] = panopoly_theme
+dependencies[] = panopoly_magic
+dependencies[] = panopoly_widgets
+dependencies[] = panopoly_admin
+dependencies[] = panopoly_users
+
+; Panopoly Toolset
+dependencies[] = panopoly_pages
+dependencies[] = panopoly_search
+dependencies[] = panopoly_wysiwyg
+
+; Panopoly Recommended - Admin
+dependencies[] = navbar
+dependencies[] = backports
+dependencies[] = simplified_menu_admin
+dependencies[] = save_draft
+dependencies[] = module_filter
+dependencies[] = date_popup_authored
+
+;
+; Open Atrium required modules
+;
+dependencies[] = entity
+dependencies[] = panelizer
+dependencies[] = libraries
+dependencies[] = rules
+dependencies[] = rules_admin
+dependencies[] = message
+dependencies[] = message_notify
+dependencies[] = navbar
+dependencies[] = module_filter
+dependencies[] = chosen
+dependencies[] = message_subscribe
+dependencies[] = message_subscribe_email
+dependencies[] = message_subscribe_ui
+dependencies[] = flag
+dependencies[] = realname
+dependencies[] = features_override
+dependencies[] = panels_mini
+dependencies[] = job_scheduler
+dependencies[] = feeds
+dependencies[] = mailhandler
+
+; Organic Groups
+dependencies[] = og
+dependencies[] = og_access
+dependencies[] = og_context
+dependencies[] = og_register
+dependencies[] = og_ui
+dependencies[] = og_subgroups
+dependencies[] = og_menu_single
+
+; Libraries
+; not until drupal is GPLv3
+; for now, include twitter js in theme from cdn
+;dependencies[] = twitter_bootstrap_ui
+
+; Open Atrium 2.0 Modules
+dependencies[] = oa_core
+dependencies[] = oa_date
+dependencies[] = oa_diff
+dependencies[] = oa_dashboard
+dependencies[] = oa_notifications
+dependencies[] = og_session_context
+dependencies[] = oa_section_context
+
+; Open Atrium 2.0 Features
+dependencies[] = oa_config
+dependencies[] = oa_widgets
+dependencies[] = oa_teams
+dependencies[] = oa_sections
+dependencies[] = oa_subspaces
+dependencies[] = oa_messages
+dependencies[] = oa_layouts
+dependencies[] = oa_news
+dependencies[] = oa_favorites
+dependencies[] = oa_river
+dependencies[] = oa_users
+dependencies[] = oa_panopoly_users
+dependencies[] = oa_styles
+dependencies[] = oa_media
+dependencies[] = oa_permissions
+dependencies[] = oa_admin
+dependencies[] = oa_search
+
+; Open Atrium 2.0 Plugins
+dependencies[] = oa_discussion
+dependencies[] = oa_wiki
+
+; Open Atrium 2.0 Optional
+dependencies[] = oa_home
+
+; Development Modules - Temporary
+dependencies[] = devel
+dependencies[] = diff

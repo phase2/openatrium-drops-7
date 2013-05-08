@@ -1,0 +1,53 @@
+<?php
+
+/**
+ * @file
+ * Tests the public interface of the oa_core_section_is_public function
+ */
+
+class oa_core_AccessWebTest extends oa_coreBaseWebTest {
+  static function getInfo() {
+    return array(
+      'name' => 'oa_core_section_is_public function Tests',
+      'description' => 'Test the public interface of the oa_core_section_is_public function',
+      'group' => 'OAWeb',
+    );
+  }
+  public function setUp() {
+    parent::setUp();
+  }
+  /* Turn of non working test
+  public function testoa_core_test_create_group() {
+    $this->assertEqual(
+      $this->createGroup("test_space", array()),
+      "bobby"
+    );
+  }
+  */
+  protected function createUser($name) {
+    $newUser = array(
+      'name' => $name,
+      'pass' => 'password', // note: do not md5 the password
+      'mail' => $name . "@bob",
+      'status' => 1,
+      'init' => $name . "@bob"
+    );
+    user_save(null, $newUser);
+  }
+  protected function createGroup($name, $users) {
+    $group = (object) array(
+      'type' => 'oa_group',
+      'title' => $name,
+    );
+    print_r($group);
+    return $group;
+    if ($node = node_save($group)) {
+      return $node;
+    }
+  }
+  protected function createSpace($name, $users) {
+  }
+  protected function createTeam($name, $users) {
+  }
+
+}

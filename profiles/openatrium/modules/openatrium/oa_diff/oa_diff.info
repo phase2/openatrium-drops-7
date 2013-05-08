@@ -1,0 +1,8 @@
+name = Open Atrium Diff
+description = Provides Diff tokens for notification messages.
+package = Open Atrium
+core = 7.x
+php = 5.1
+
+dependencies[] = token
+dependencies[] = diff

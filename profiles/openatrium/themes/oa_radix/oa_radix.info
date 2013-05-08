@@ -1,0 +1,32 @@
+name        = Open Atrium Radix
+description = An Open Atrium theme based on Radix
+screenshot  = screenshot.png
+core        = 7.x
+
+; Base - Radix
+base theme  = radix
+
+; Regions
+regions[help]         = Help
+regions[navigation]   = Navigation
+regions[menu]         = Menu
+regions[content]      = Content
+regions[footer]       = Footer
+
+; CSS - General
+stylesheets[all][]     = assets/stylesheets/screen.css
+stylesheets[all][]     = assets/stylesheets/font-awesome.min.css
+stylesheets[print][]   = assets/stylesheets/print.css
+
+; CSS - Conditional
+stylesheets-conditional[IE 7][all][] = assets/stylesheets/ie7.css
+stylesheets-conditional[IE 8][all][] = assets/stylesheets/ie8.css
+
+; Javascript
+scripts[] = assets/javascripts/script.js
+; Information added by drupal.org packaging script on 2013-02-02
+version = "7.x-2.0-alpha3"
+core = "7.x"
+project = "radix"
+datestamp = "1359826703"
+

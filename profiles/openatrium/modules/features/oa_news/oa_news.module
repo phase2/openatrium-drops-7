@@ -1,0 +1,35 @@
+<?php
+/**
+ * @file
+ * Code for the Open Atrium News feature.
+ */
+
+include_once 'oa_news.features.inc';
+/**
+ * @file
+ * Code for the OpenAtrium News layout.
+ */
+
+/**
+ * Implements hook_theme()
+ */
+function oa_news_theme() {
+  $displays = array('oa_recent_news');
+  $theme = array();
+  foreach ($displays as $display) {
+    $key = 'views_view_fields__open_atrium_news__' . $display;
+    $filename = str_replace('_', '-', $key);
+    $theme[$key] = array(
+      'template'  => $filename,
+      'base hook' => 'views_view_fields',
+      'preprocess functions' => array(
+        'template_preprocess',
+        'template_preprocess_views_view_fields',
+        'oa_core_preprocess_views_view_fields',
+      ),
+      'arguments' => array('view' => NULL, 'options' => NULL, 'row' => NULL),
+      'path' => drupal_get_path('module', 'oa_news') . '/templates',
+    );
+  }
+  return $theme;
+}

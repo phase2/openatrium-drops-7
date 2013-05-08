@@ -1,0 +1,375 @@
+<?php
+/**
+ * @file
+ * Code for the OpenAtrium Core feature.
+ */
+
+include_once 'oa_core.features.inc';
+include_once 'includes/oa_core.util.inc';
+include_once 'includes/oa_core.access.inc';
+include_once 'includes/oa_core.login.inc';
+include_once 'includes/oa_core.theme.inc';
+include_once 'includes/oa_core.views.inc';
+
+/**
+ * Name of default OpenAtrium Space type.
+ */
+define('OA_SPACE_TYPE', 'oa_space');
+/**
+ * Name of OpenAtrium Section content type.
+ */
+define('OA_SECTION_TYPE', 'oa_section');
+/**
+ * Name of OpenAtrium Group content type.
+ */
+define('OA_GROUP_TYPE', 'oa_group');
+/**
+ * Name of OpenAtrium Team content type.
+ */
+define('OA_TEAM_TYPE', 'oa_team');
+/**
+ * Name of default OpenAtrium Section field (for Organic Groups Fields UI).
+ */
+define('OA_SECTION_FIELD', 'oa_section_ref');
+/**
+ * Name of default OpenAtrium Group field (for Organic Groups Fields UI).
+ */
+define('OA_SPACE_FIELD', 'og_group_ref');
+/**
+ * The access realm of space member.
+ */
+define('OA_ACCESS_REALM', 'oa_access');
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function oa_core_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'ctools' && $plugin_type == 'content_types') {
+    return 'plugins/content_types';
+  }
+}
+
+/**
+ * Implementation of hook_menu
+ */
+function oa_core_menu() {
+ // Add an administration section for Open Atrium settings
+  $items['admin/openatrium/settings'] = array(
+    'title' => 'Open Atrium Settings',
+    'description' => 'Configuration related to Open Atrium',
+    'weight' => 0,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('oa_core_configure_form'),
+    'access arguments' => array('administer site configuration'),
+  );
+  $items['group/%/%/remove/%'] = array(
+    'title' => 'Remove member',
+    'type' => MENU_CALLBACK,
+    'page callback' => 'oa_core_remove_member',
+    'page arguments' => array(1, 2, 4),
+    'access callback' => 'oa_core_user_access_group',
+    'access arguments' => array('manage members', 1, 2),
+  );
+  $items['group/%/%/add-member/%'] = array(
+    'title' => 'Add member',
+    'type' => MENU_CALLBACK,
+    'page callback' => 'oa_core_add_member',
+    'page arguments' => array(1, 2, 4),
+    'access callback' => 'oa_core_user_access_group',
+    'access arguments' => array('manage members', 1, 2),
+  );
+  $items['group/%/%/add-admin/%'] = array(
+    'title' => 'Add Admin',
+    'type' => MENU_CALLBACK,
+    'page callback' => 'oa_core_add_admin',
+    'page arguments' => array(1, 2, 4),
+    'access callback' => 'oa_core_user_access_group',
+    'access arguments' => array('manage members', 1, 2),
+  );
+  $items['group/%/%/remove-admin/%'] = array(
+    'title' => 'Add Admin',
+    'type' => MENU_CALLBACK,
+    'page callback' => 'oa_core_remove_admin',
+    'page arguments' => array(1, 2, 4),
+    'access callback' => 'oa_core_user_access_group',
+    'access arguments' => array('manage members', 1, 2),
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_menu_alter
+ */
+function oa_core_menu_alter(&$items) {
+  if (!empty($items['node/%/group'])) {
+    $items['node/%/group']['title'] = 'Config';
+  }
+}
+
+/**
+ * Implements hook_views_data().
+ */
+function oa_core_views_data() {
+  $data = array();
+
+  $data['field_data_oa_parent']['is_parent'] = array(
+    'title' => t('Is Parent'),
+    'help' => t('Content is a parent'),
+    'filter' => array(
+      'handler' => 'views_handler_filter_is_parent',
+    ),
+  );
+
+  return $data;
+}
+
+/**
+ * Configuration Form for Open Atrium
+ */
+function oa_core_configure_form($form, &$form_state) {
+  // blank for for now.  Other modules can alter this to add stuff
+  $form = array();
+  return system_settings_form($form);
+}
+
+/**
+ * Wrapper around og_ui_user_access_group
+ * Always give user-1 permission
+ */
+function oa_core_user_access_group($perm, $group_type, $gid) {
+  global $user;
+  if ($user->uid == 1) {
+    return TRUE;
+  }
+  return og_ui_user_access_group($perm, $group_type, $gid);
+}
+
+/**
+ * Implements hook_og_fields_info().
+ */
+function oa_core_og_fields_info() {
+  $items[OA_SECTION_FIELD] = array(
+    'no ui' => TRUE,
+    'type' => array('group content'),
+    'description' => t('Determine to which Open Atrium section this space content is assigned to.'),
+    'field' => array(
+      'field_name' => OA_SECTION_FIELD,
+      'type' => 'entityreference',
+      'cardinality' => 1,
+      'module' => 'entityreference',
+      'settings' => array(
+        'handler' => 'base',
+        'handler_settings' => array(
+          'behaviors' => array(
+            'views-select-list' => array(
+              'status' => 0,
+            ),
+          ),
+          'sort' => array(
+            'type' => 'none',
+          ),
+          'target_bundles' => array(
+            OA_SECTION_TYPE => OA_SECTION_TYPE,
+          ),
+        ),
+        'target_type' => 'node',
+      ),
+      'translatable' => '0',
+      'type' => 'entityreference',
+    ),
+    'instance' => array(
+      'label' => t('Open Atrium Section'),
+      'widget' => array(
+        'active' => 0,
+        'module' => 'options',
+        'settings' => array(
+          'match_operator' => 'CONTAINS',
+          'path' => '',
+          'size' => 60,
+        ),
+        'type' => 'options_select',
+        'weight' => '7',
+      ),
+    ),
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_form_alter for node edit forms
+ */
+function oa_core_form_node_form_alter(&$form, &$form_state, $form_id) {
+  global $user;
+
+  // we are in an edit form
+  // autofill empty group audience field
+  if (isset($form[OA_SPACE_FIELD]) && empty($form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['default']['#default_value'])) {
+    if (!empty($_SESSION['og_context']['gid'])) {
+      $form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['default']['#default_value'] = $_SESSION['og_context']['gid'];
+    }
+  }
+
+  // modify label on Panelizer layout field
+  if (isset($form['panelizer'])) {
+    $form['panelizer']['page_manager']['name']['#title'] = t('Select Layout');
+  }
+}
+
+/**
+ * Implements hook_views_pre_build().
+ */
+function oa_core_views_pre_build(&$view) {
+  if ($view->name == 'oa_recent_activity') {
+    // Set the override path to the current page. This will redirect the back view to
+    // the current page when submitted in case AJAX fails.
+    $view->override_path = $_GET['q'];
+  }
+}
+
+/**
+ * Implements hook_preprocess_views_view_fields().
+ * Perform field-level replacement/processing here
+ */
+function oa_core_preprocess_views_view_fields(&$vars) {
+  $vars['index'] = $vars['view']->row_index;
+  $vars['display'] = $vars['view']->current_display;
+  foreach ($vars['fields'] as $id => $field) {
+    $vars[$id] = $field->content;
+    if ($id == 'timestamp') {
+      $vars[$id . '_raw'] = $field->raw;
+    }
+  }
+}
+
+/**
+ * Replace "group" term in OG with "space"
+ */
+function oa_core_replace_group(&$field, $context) {
+  if (isset($field)) {
+    if (isset($context['entity']->type) && ($context['entity']->type == OA_SPACE_TYPE)) {
+      $field = str_replace(t('group'), t('space'), $field);
+      $field = str_replace(t('Group'), t('Space'), $field);
+    }
+  }
+}
+
+/**
+ * Implements hook_field_attach_view_alter
+ */
+function oa_core_field_attach_view_alter(&$output, $context) {
+  if ($context['entity_type'] == 'node') {
+    if (!empty($output['group_group'][0]['#title'])) {
+      oa_core_replace_group($output['group_group'][0]['#title'], $context);
+    }
+    if (!empty($output['group_group'][0]['#markup'])) {
+      oa_core_replace_group($output['group_group'][0]['#markup'], $context);
+    }
+  }
+}
+
+/**
+ * Menu callback to add user to group
+ * @param  $group_type
+ * @param  $gid
+ * @param  $uid
+ */
+function oa_core_add_member($group_type, $gid, $uid, $goto = TRUE) {
+  $account = user_load($uid);
+  $group = entity_load_single($group_type, $gid);
+  $label = entity_label($group_type, $group);
+
+  // Ungroup user, in case they were already registered.
+  og_ungroup('node', $group->nid, 'user', $account);
+  // add user to group
+  og_group('node', $group->nid, array('entity' => $account));
+
+  drupal_set_message(t('%user has been added to the space %title.', array('%user' => format_username($account), '%title' => $label)));
+  if ($goto) {
+    if ($group->type == OA_SPACE_TYPE) {
+      drupal_goto('node/' . $gid . '/members');
+    }
+    else {
+      drupal_goto('node/' . $gid);
+    }
+  }
+  return;
+}
+
+/**
+ * Menu callback to remove user from group
+ * @param  $group_type
+ * @param  $gid
+ * @param  $uid
+ */
+function oa_core_remove_member($group_type, $gid, $uid) {
+  $account = user_load($uid);
+  $group = entity_load_single($group_type, $gid);
+  $label = entity_label($group_type, $group);
+  og_ungroup('node', $group->nid, 'user', $account);
+
+  drupal_set_message(t('%user has been removed from the space %title.', array('%user' => format_username($account), '%title' => $label)));
+  if ($group->type == OA_SPACE_TYPE) {
+    drupal_goto('node/' . $gid . '/members');
+  }
+  else {
+    drupal_goto('node/' . $gid);
+  }
+  return;
+}
+
+/**
+ * Menu callback to make user an admin
+ * @param  $group_type
+ * @param  $gid
+ * @param  $uid
+ */
+function oa_core_add_admin($group_type, $gid, $uid) {
+  $account = user_load($uid);
+  $group = entity_load_single($group_type, $gid);
+  $label = entity_label($group_type, $group);
+
+  $og_roles = og_roles($group_type, $group->type, $gid, FALSE, FALSE);
+  $rid = array_search(OG_ADMINISTRATOR_ROLE, $og_roles);
+  if ($rid > 0) {
+    og_role_grant($group_type, $gid, $uid, $rid);
+    og_invalidate_cache();
+
+    drupal_set_message(t('%user has been added as an Admin to the space %title.', array('%user' => format_username($account), '%title' => $label)));
+  }
+  if ($group->type == OA_SPACE_TYPE) {
+    drupal_goto('node/' . $gid . '/members');
+  }
+  else {
+    drupal_goto('node/' . $gid);
+  }
+  return;
+}
+
+/**
+ * Menu callback to remove user as admin
+ * @param  $group_type
+ * @param  $gid
+ * @param  $uid
+ */
+function oa_core_remove_admin($group_type, $gid, $uid) {
+  $account = user_load($uid);
+  $group = entity_load_single($group_type, $gid);
+  $label = entity_label($group_type, $group);
+
+  $og_roles = og_roles($group_type, $group->type, $gid, FALSE, FALSE);
+  $rid = array_search(OG_ADMINISTRATOR_ROLE, $og_roles);
+  if ($rid > 0) {
+    og_role_revoke($group_type, $gid, $uid, $rid);
+    og_invalidate_cache();
+
+    drupal_set_message(t('%user has been removed as Admin of space %title.', array('%user' => format_username($account), '%title' => $label)));
+  }
+  if ($group->type == OA_SPACE_TYPE) {
+    drupal_goto('node/' . $gid . '/members');
+  }
+  else {
+    drupal_goto('node/' . $gid);
+  }
+  return;
+}

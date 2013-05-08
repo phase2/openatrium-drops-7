@@ -1,0 +1,7 @@
+name = Open Atrium Widgets
+description = A collection of widgets for Open Atrium
+core = 7.x
+
+dependencies[] = ctools
+dependencies[] = oa_core
+dependencies[] = oa_sections
