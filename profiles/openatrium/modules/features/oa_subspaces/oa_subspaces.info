@@ -1,0 +1,30 @@
+name = Open Atrium Subgroup Intergration for Spaces
+description = Provides subgroup functionality for spaces
+core = 7.x
+package = Open Atrium
+php = 5.2.4
+version = 7.x-2.0
+project = oa_subspaces
+dependencies[] = entityreference
+dependencies[] = features
+dependencies[] = list
+dependencies[] = oa_core
+dependencies[] = og
+dependencies[] = og_subgroups
+dependencies[] = og_ui
+dependencies[] = options
+features[features_api][] = api:1
+features[field_base][] = oa_parent_space
+features[field_base][] = og_user_inheritance
+features[field_instance][] = node-oa_group-oa_parent_space
+features[field_instance][] = node-oa_group-og_user_inheritance
+features[field_instance][] = node-oa_space-oa_parent_space
+features[field_instance][] = node-oa_space-og_user_inheritance
+project path = profiles/openatrium/modules/features
+
+; Information added by drupal.org packaging script on 2013-05-03
+version = "7.x-2.0-alpha3"
+core = "7.x"
+project = "openatrium"
+datestamp = "1367592348"
+

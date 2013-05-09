@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the OpenAtrium Wiki feature.
+ */
+
+include_once 'oa_wiki.features.inc';

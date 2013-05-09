@@ -1,0 +1,413 @@
+<?php
+
+include_once('panopoly_widgets.features.inc');
+include_once('panopoly_widgets.spotlight.inc');
+
+
+/**
+ * Implements hook_init()
+ */
+function panopoly_widgets_init() {
+  
+  // Load the seven theme CSS for the media browser. This is done
+  // because the seven theme may not be the admin theme, but the
+  // media browser assumes that it is....
+  if (arg(0) == 'media' && arg(1) == 'browser' && $GLOBALS['theme'] != 'seven') {
+    drupal_add_css(drupal_get_path('theme', 'seven') . '/reset.css', array('basename' => 'seven_reset', 'group' => CSS_THEME));
+    drupal_add_css(drupal_get_path('theme', 'seven') . '/style.css', array('basename' => 'seven_style', 'group' => CSS_THEME));
+  }
+}
+
+/**
+ * Implements hook_apps_app_info()
+ */
+function panopoly_widgets_apps_app_info() {
+  return array(
+    'configure form' => 'panopoly_widgets_configure_form',
+  );
+}
+
+/**
+ * Configuration Form for Panopoly Magic
+ */
+function panopoly_widgets_configure_form($form, &$form_state) {
+  $form = array();
+
+  $form['panopoly_widgets_spotlight_rotation_time'] = array(
+    '#title' => t('Spotlight Rotation Time'),
+    '#type' => 'textfield',
+    '#required' => TRUE,
+    '#default_value' => variable_get('panopoly_widgets_spotlight_rotation_time', 4),
+    '#description' => t('How many seconds do you want between rotations of the spotlight widget?'),
+  );
+
+  return system_settings_form($form);
+}
+
+/**
+ * Implements hook_page_build()
+ */
+function panopoly_widgets_page_build(&$page) {
+
+  // Include the Spotlight Rotation time setting
+  $rotation_time = 1000 * variable_get('panopoly_widgets_spotlight_rotation_time', 4);
+  $js_variables = array('spotlight_settings' => array('rotation_time' => $rotation_time));
+  drupal_add_js($js_variables, 'setting');
+
+  // Add our custom javascript to the footer to override other things.
+  drupal_add_js(drupal_get_path('module', 'panopoly_widgets') . '/panopoly-widgets.js', array('scope' => 'footer'));
+}
+    
+/**
+ * Implementation of hook_ctools_plugin_directory()
+ */
+function panopoly_widgets_ctools_plugin_directory($module, $plugin) {
+  return 'plugins/' . $plugin;
+}
+
+/**
+ * Implementation of hook_ctools_content_subtype_alter()
+ */
+function panopoly_widgets_ctools_content_subtype_alter(&$subtype, &$plugin) {
+
+  // Modify the menu block plugin to better fit into our UI
+  if ($plugin['module'] == 'menu_block' && $subtype['menu_title'] == 'Main menu') {
+    $subtype['category'][0] = 'Custom';
+    $subtype['top level'] = TRUE;
+    $subtype['title'] = 'Add submenu';
+    $subtype['icon'] = drupal_get_path('module', 'panopoly_widgets') . '/images/icon_submenu.png';
+    $subtype['admin css'] = array(drupal_get_path('module', 'menu_block') . '/menu-block-admin.css');
+    $subtype['admin js'] = array(drupal_get_path('module', 'menu_block') . '/menu-block.js');
+  }
+
+  // Modify the general content item to appear in the generic content sidebar area
+  if ($plugin['module'] == 'views_content' && $subtype['title'] == 'Piece of Content') {
+    $subtype['category'][0] = 'Custom';
+    $subtype['top level'] = TRUE;
+    $subtype['title'] = 'Add content item';
+    $subtype['icon'] = drupal_get_path('module', 'panopoly_widgets') . '/images/icon_content_item.png';
+  }
+
+  // Modify the general content listing to appear in the generic content sidebar area
+  if ($plugin['module'] == 'views_content' && $subtype['title'] == 'List of Content') {
+    $subtype['category'][0] = 'Custom';
+    $subtype['top level'] = TRUE;
+    $subtype['title'] = 'Add content list';
+    $subtype['icon'] = drupal_get_path('module', 'panopoly_widgets') . '/images/icon_content_list.png';
+  }
+
+  // Modify the plugins so we do away with this "node" and "entity" thing
+  if ($subtype['category'] == 'Node' || $subtype['category'] == 'Entity') {
+    $subtype['category'] = t('Page Content');
+  }
+  if ($subtype['category'] == 'User') {
+    $subtype['category'] = t('User Content');
+  }
+  if ($subtype['category'] == 'Taxonomy_term' || $subtype['category'] == 'Taxonomy term') {
+    $subtype['category'] = t('Category Content');
+  }
+
+  // Modify the plugins so we have consistent language around "form" content
+  if ($subtype['category'] == 'Form') {
+    $subtype['category'] = t('Form Content');
+  }
+}
+
+/**
+ * Implementation of hook_form_alter()
+ */
+function panopoly_widgets_form_alter(&$form, &$form_state, $form_id) {
+
+  // Simplify the menu block edit form
+  if ($form_id == 'menu_block_menu_tree_content_type_edit_form') {
+    $form['admin_title']['#access'] = FALSE;
+    $form['depth']['#access'] = FALSE;
+    $form['display_options']['#default_value'] = 'advanced';
+    $form['display_options']['#access'] = FALSE;
+    $form['title_link']['#access'] = FALSE;
+    $form['buttons']['#prefix'] = '<div class="menu-block-ctools-buttons">';
+
+    // Disable some options since they appear busted or confusing in Menu Block
+    // TODO - http://drupal.org/node/1649112
+    $form['parent_mlid']['#access'] = FALSE;
+    $form['sort']['#access'] = FALSE;
+  }
+
+  if ($form_id == 'fieldable_panels_panes_fieldable_panels_pane_content_type_edit_form') {
+
+    // Add fields to the FPP object if we are adding a reusable object for the first time
+    if ($form_state['entity']->reusable && $form_state['op'] == 'add' && $form_state['rebuild'] == FALSE) {
+      $form = fieldable_panels_panes_entity_edit_form($form, $form_state);
+    }
+
+    // Add a custom pre-render method to deal with "Content Settings" fieldset.
+    $form['#pre_render'][] = 'panopoly_widgets_fieldable_panel_pane_pre_render';
+    
+    // Remove the revisioning information
+    $form['revision']['revision']['#type'] = 'value';
+    $form['revision']['log']['#access'] = FALSE;
+
+    // Add a widget setting
+    $form['widget_settings']['#type'] = 'fieldset';
+    $form['widget_settings']['#title'] = t('General Settings');
+    $form['title']['#attributes']['placeholder'] = $form['title']['#title'];
+    unset($form['title']['#title']);
+    $form['widget_settings']['title'] = $form['title'];
+    unset($form['title']);
+
+    // Move the link field into the general settings tab.
+    $form['widget_settings']['link'] = $form['link'];
+    unset($form['link']);
+
+    // Improve the reusable interface
+    $form['reusable']['#title'] = t('Reusable Settings');
+    $form['reusable']['#type'] = 'fieldset';
+    $form['reusable']['#process'] = array('ctools_dependent_process');
+    $form['reusable']['#id'] = 'reusable-settings';
+    $form['reusable']['category']['#value'] = 'Reusable Content';
+    $form['reusable']['category']['#type'] = 'value';
+    $form['reusable']['admin_description']['#access'] = FALSE;
+
+    // Set the proper dependencies for the reusable markup
+    $form['reusable']['warning']['#dependency'] = array('edit-reusable' => array(1));
+    $form['reusable']['warning']['#prefix'] = '<div id="reusable-wrapper">';
+    $form['reusable']['warning']['#suffix'] = '</div>';
+    $form['reusable']['warning']['#type'] = 'item';
+
+    // Update the text for the reusable markup
+    $form['reusable']['warning']['#markup'] = '<div class="description">' . t('Note: This item is reusable! Any changes made will be applied globally.') . '</div>';
+  }
+
+  // Improve the usability and functionality of the table field widget
+  if (!empty($form['field_basic_table_table'])) {
+    $form['field_basic_table_table'][LANGUAGE_NONE][0]['tablefield']['import']['#access'] = FALSE; // Remove importing from CSV
+    $form['field_basic_table_table'][LANGUAGE_NONE][0]['tablefield']['rebuild']['#collapsible'] = FALSE;
+    $form['field_basic_table_table'][LANGUAGE_NONE][0]['tablefield']['rebuild']['#collapsed'] = FALSE;
+    $form['field_basic_table_table'][LANGUAGE_NONE][0]['tablefield']['rebuild']['count_cols']['#field_prefix'] = $form['field_basic_table_table'][LANGUAGE_NONE][0]['tablefield']['rebuild']['count_cols']['#title'] . '? ';
+    $form['field_basic_table_table'][LANGUAGE_NONE][0]['tablefield']['rebuild']['count_cols']['#title'] = '';
+    $form['field_basic_table_table'][LANGUAGE_NONE][0]['tablefield']['rebuild']['count_rows']['#field_prefix'] = $form['field_basic_table_table'][LANGUAGE_NONE][0]['tablefield']['rebuild']['count_rows']['#title'] . '? ';
+    $form['field_basic_table_table'][LANGUAGE_NONE][0]['tablefield']['rebuild']['count_rows']['#title'] = '';
+  }
+}
+
+/**
+ * Implement the "Content Settings" fieldset in a pre-render. This fixes issues with image caused by initially
+ * doing this in a form_alter.
+ *
+ * @see http://drupal.org/node/1567704
+ */
+function panopoly_widgets_fieldable_panel_pane_pre_render($element) {
+  // Add a content settings fieldset.
+  $element['content_settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Content Settings'),
+    '#weight' => 1,
+  );
+
+  // Add any remaining fields to the content settings fieldset.
+  foreach ($element as $key => $value) {
+    if (substr($key, 0, 6) == 'field_' || $key == 'body') {
+      $element['content_settings'][$key] = $value;
+      unset($element[$key]);
+    }
+  }
+
+  return $element;
+}
+
+/** 
+ * Implementation of hook_entity_info_alter()
+ */
+function panopoly_widgets_entity_info_alter(&$entity_info) {
+
+  // Quick links
+  $entity_info['fieldable_panels_pane']['bundles']['quick_links'] = array(
+    'label' => t('Add links'),
+    'pane category' => t('Custom'),
+    'pane top level' => TRUE,
+    'pane icon' => drupal_get_path('module', 'panopoly_widgets') . '/images/icon_link.png',
+    'admin' => array(
+      'path' => 'admin/structure/fieldable-panels-panes/manage/%fieldable_panels_panes_type',
+      'bundle argument' => 4,
+      'real path' => 'admin/structure/fieldable-panels-panes/manage/quick-links',
+      'access arguments' => array('administer fieldable panels panes'),
+    ),
+  );
+
+  // Basic file
+  $entity_info['fieldable_panels_pane']['bundles']['basic_file'] = array(
+    'label' => t('Add file'),
+    'pane category' => t('Custom'),
+    'pane top level' => TRUE,
+    'pane icon' => drupal_get_path('module', 'panopoly_widgets') . '/images/icon_file.png',
+    'admin' => array(
+      'path' => 'admin/structure/fieldable-panels-panes/manage/%fieldable_panels_panes_type',
+      'bundle argument' => 4,
+      'real path' => 'admin/structure/fieldable-panels-panes/manage/basic-file',
+      'access arguments' => array('administer fieldable panels panes'),
+    ),
+  );
+
+  // Basic Image
+  $entity_info['fieldable_panels_pane']['bundles']['image'] = array(
+    'label' => t('Add image'),
+    'pane category' => t('Custom'),
+    'pane top level' => TRUE,
+    'pane icon' => drupal_get_path('module', 'panopoly_widgets') . '/images/icon_image.png',
+    'admin' => array(
+      'path' => 'admin/structure/fieldable-panels-panes/manage/%fieldable_panels_panes_type',
+      'bundle argument' => 4,
+      'real path' => 'admin/structure/fieldable-panels-panes/manage/image',
+      'access arguments' => array('administer fieldable panels panes'),
+    ),
+  );
+
+  // Basic text
+  $entity_info['fieldable_panels_pane']['bundles']['text'] = array(
+    'label' => t('Add text'),
+    'pane category' => t('Custom'),
+    'pane top level' => TRUE,
+    'pane icon' => drupal_get_path('module', 'panopoly_widgets') . '/images/icon_text.png',
+    'admin' => array(
+      'path' => 'admin/structure/fieldable-panels-panes/manage/%fieldable_panels_panes_type',
+      'bundle argument' => 4,
+      'real path' => 'admin/structure/fieldable-panels-panes/manage/text',
+      'access arguments' => array('administer fieldable panels panes'),
+    ),
+  );
+
+  // Basic Map
+  $entity_info['fieldable_panels_pane']['bundles']['map'] = array(
+    'label' => t('Add map'),
+    'pane category' => t('Custom'),
+    'pane top level' => TRUE,
+    'pane icon' => drupal_get_path('module', 'panopoly_widgets') . '/images/icon_map.png',
+    'admin' => array(
+      'path' => 'admin/structure/fieldable-panels-panes/manage/%fieldable_panels_panes_type',
+      'bundle argument' => 4,
+      'real path' => 'admin/structure/fieldable-panels-panes/manage/map',
+      'access arguments' => array('administer fieldable panels panes'),
+    ),
+  );
+ 
+  // Basic table
+  $entity_info['fieldable_panels_pane']['bundles']['table'] = array(
+    'label' => t('Add table'),
+    'pane category' => t('Custom'),
+    'pane top level' => TRUE,
+    'pane icon' => drupal_get_path('module', 'panopoly_widgets') . '/images/icon_table.png',
+    'admin' => array(
+      'path' => 'admin/structure/fieldable-panels-panes/manage/%fieldable_panels_panes_type',
+      'bundle argument' => 4,
+      'real path' => 'admin/structure/fieldable-panels-panes/manage/table',
+      'access arguments' => array('administer fieldable panels panes'),
+    ),
+  );
+
+  // Basic video
+  $entity_info['fieldable_panels_pane']['bundles']['video'] = array(
+    'label' => t('Add video'),
+    'pane category' => t('Custom'),
+    'pane top level' => TRUE,
+    'pane icon' => drupal_get_path('module', 'panopoly_widgets') . '/images/icon_video.png',
+    'admin' => array(
+      'path' => 'admin/structure/fieldable-panels-panes/manage/%fieldable_panels_panes_type',
+      'bundle argument' => 4,
+      'real path' => 'admin/structure/fieldable-panels-panes/manage/video',
+      'access arguments' => array('administer fieldable panels panes'),
+    ),
+  );
+
+  // Spotlight
+  $entity_info['fieldable_panels_pane']['bundles']['spotlight'] = array(
+    'label' => t('Add spotlight'),
+    'pane category' => t('Custom'),
+    'pane top level' => TRUE,
+    'pane icon' => drupal_get_path('module', 'panopoly_widgets') . '/images/icon_spotlight.png',
+    'admin' => array(
+      'path' => 'admin/structure/fieldable-panels-panes/manage/%fieldable_panels_panes_type',
+      'bundle argument' => 4,
+      'real path' => 'admin/structure/fieldable-panels-panes/manage/spotlight',
+      'access arguments' => array('administer fieldable panels panes'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function panopoly_widgets_theme($existing, $type, $theme, $path) {
+  return array(
+    'panopoly_spotlight_view' => array(
+      'variables' => array(
+        'items' => NULL,
+        'delta' => NULL,
+        'settings' => NULL,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_field_display_ENTITY_TYPE_alter().
+ *
+ * Update the display settings with the option selected on the entity view mode field.
+ */
+function panopoly_widgets_field_display_fieldable_panels_pane_alter(&$display, $context) {
+  if ($context['field']['field_name'] == 'field_existing_content') {
+    $view_mode = $context['entity']->field_view_mode[LANGUAGE_NONE][0]['value'];
+
+    if (!empty($view_mode)) {
+      $display['settings']['view_mode'] = $view_mode;
+    }
+  }
+}
+
+/**
+ * Implementation of hook_file_default_displays_alter()
+ */
+function panopoly_widgets_file_default_displays_alter(&$default_displays) {
+
+  // Set the default video configuration for videos
+  if (!empty($default_displays['video__default__media_vimeo_video'])) {
+    $default_displays['video__default__media_vimeo_video']->settings['protocol'] = '//';
+  }
+  if (!empty($default_displays['video__default__media_youtube_video'])) {
+    $default_displays['video__default__media_youtube_video']->settings['modestbranding'] = 1;
+  }
+
+  // Set the default image style for videos to be our custom video image style
+  if (!empty($default_displays['video__default__media_youtube_image'])) {
+    $default_displays['video__default__media_youtube_image']->settings['image_style'] = 'panopoly_image_video';
+  }
+  if (!empty($default_displays['video__default__media_vimeo_image'])) {
+    $default_displays['video__default__media_vimeo_image']->settings['image_style'] = 'panopoly_image_video';
+  }
+
+  // Set the teaser image style for videos to be our custom video image style
+  if (!empty($default_displays['video__teaser__media_vimeo_image'])) {
+    $default_displays['video__teaser__media_vimeo_image']->settings['image_style'] = 'panopoly_image_video';
+  }
+  if (!empty($default_displays['video__teaser__media_youtube_image'])) {
+    $default_displays['video__teaser__media_youtube_image']->settings['image_style'] = 'panopoly_image_video';
+  }
+
+  // Set the preview image style for videos to be our custom thumbnail image style
+  if (!empty($default_displays['video__preview__media_youtube_image'])) {
+    $default_displays['video__preview__media_youtube_image']->settings['image_style'] = 'panopoly_image_thumbnail';
+  }
+  if (!empty($default_displays['video__preview__media_vimeo_image'])) {
+    $default_displays['video__preview__media_vimeo_image']->settings['image_style'] = 'panopoly_image_thumbnail';
+  }
+}
+
+/**
+ * Implementation of hook_file_type_alter()
+ *
+ * Alters list of file types that can be assigned to a file.
+ */
+function panopoly_widgets_file_type_alter(&$types, $file) {
+  if ($file->filemime == 'video/youtube' || $file->filemime == 'video/vimeo') {
+    $types[] = 'video';
+  }
+}

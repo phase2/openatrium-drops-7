@@ -1,0 +1,30 @@
+name = "Fieldable Panels Panes"
+description = "Allow the creation of fieldable panels pane entities."
+package = "Panels"
+core = "7.x"
+dependencies[] = "panels"
+dependencies[] = "views"
+
+files[] = includes/PanelsPaneController.class.php
+files[] = includes/translation.handler.fieldable_panels_pane.inc
+files[] = plugins/views/fieldable_panels_panes_handler_argument_bundle.inc
+files[] = plugins/views/fieldable_panels_panes_handler_field_bundle.inc
+files[] = plugins/views/fieldable_panels_panes_handler_field_delete_entity.inc
+files[] = plugins/views/fieldable_panels_panes_handler_field_edit_entity.inc
+files[] = plugins/views/fieldable_panels_panes_handler_field_view_entity.inc
+files[] = plugins/views/fieldable_panels_panes_handler_filter_bundle.inc
+
+files[] = plugins/views/fieldable_panels_panes_handler_field_delete_revision.inc
+files[] = plugins/views/fieldable_panels_panes_handler_field_edit_revision.inc
+files[] = plugins/views/fieldable_panels_panes_handler_field_view_revision.inc
+
+files[] = plugins/views/fieldable_panels_panes_handler_field_is_current.inc
+files[] = plugins/views/fieldable_panels_panes_handler_field_make_current.inc
+
+
+; Information added by drush on 2013-05-03
+version = "7.x-1.4+5-dev"
+core = "7.x"
+project = "fieldable_panels_panes"
+datestamp = "1367592418"
+

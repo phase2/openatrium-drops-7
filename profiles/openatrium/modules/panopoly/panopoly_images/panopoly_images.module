@@ -1,0 +1,100 @@
+<?php
+
+include_once('panopoly_images.features.inc');
+
+/**
+ * Implementation of hook_init()
+ */
+function panopoly_images_init() {
+
+  // Adding the panopoly images file to the theme so it will show up in the WYSIWYG
+  drupal_add_css(drupal_get_path('module', 'panopoly_images') . '/panopoly-images.css', array('group' => CSS_THEME));
+}
+
+
+/**
+ * Implementation of drupal_alter() for media_wysiwyg_allowed_view_modes
+ */
+function panopoly_images_media_wysiwyg_allowed_view_modes_alter(&$options, $context) {
+
+  // Relabel some options
+  $options['default']['label'] = t('Original Size');
+  $options['teaser']['label'] = t('Quarter Size');
+  $options['preview']['label'] = t('Thumbnail');
+}
+
+/**
+ * Implementation of hook_jorm_alter()
+ */
+function panopoly_images_form_alter(&$form, &$form_state, $form_id) {
+
+  // Remove some necessary image styles
+  if ($form_id == 'ctools_entity_field_content_type_formatter_styles') {
+    if (!empty($form['image_style']['#options'])) {
+      $styles_to_remove = array('apps_logo', 'apps_logo_small', 'apps_screenshot', 'apps_featured_screenshot', 'linkit_thumb');
+      foreach($styles_to_remove as $style_name) {
+        if (!empty($form['image_style']['#options'][$style_name])) {
+          unset($form['image_style']['#options'][$style_name]);
+        }
+      }
+    }
+  }
+
+  // Improve the media upload form
+  if (!empty($form['upload'])) {
+    $form['upload']['#size'] = 30;
+  }
+
+  // Warm the image style cache by preloading some images. This is needed when the images are
+  // added in the WYSIWYG so they will be fully rendered and can be sized on insert.
+  if ($form_id == 'media_format_form') {
+    $form['preload'] = array(
+      '#prefix' => '<div style="display: none">',
+      '#suffix' => '</div>',
+    );
+    $image_path = $form['#media']->uri;
+    $image_formats = array('panopoly_image_full', 'panopoly_image_half', 'panopoly_image_quarter');
+    foreach ($image_formats as $format) {
+      $form['preload'][$format] = array(
+        '#markup' => theme('image', array('path' => image_style_url($format, $image_path))),
+      );
+    }
+  }
+
+  // Set the default media style to be default
+  if ($form_id == 'media_format_form' && !empty($form['options']['format'])) {
+    $form['options']['format']['#default_value'] = 'default';
+  }
+}
+
+/**
+ * Implementation of hook_file_displays_alter()
+ *
+ * This function is designed to readjust the width and height properties in the WYSIWYG.
+ * See this issue for more background - http://drupal.org/node/1801308.
+ */
+function panopoly_images_file_displays_alter(&$displays, &$file, &$view_mode) {
+  if (!empty($file->override['attributes']['width'])) {
+    $file->image_dimensions['width'] = $file->override['attributes']['width'];
+  }
+  if (!empty($file->override['attributes']['height'])) {
+    $file->image_dimensions['height'] = $file->override['attributes']['height'];
+  }
+}
+
+/**
+ * Implementation of hook_preprocess_image_style()
+ */
+function panopoly_images_preprocess_image_style(&$variables) {
+  $variables['attributes']['class'][] = str_replace('_', '-', $variables['style_name']);
+}
+
+/**
+  * Implements hook_entity_info_alter().
+  */
+function panopoly_images_entity_info_alter(&$entity_info) {
+  $entity_info['file']['view modes']['link'] = array(
+    'label' => t('Link'),
+    'custom settings' => TRUE,
+  );
+}

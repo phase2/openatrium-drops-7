@@ -1,0 +1,16 @@
+name = Field API Pane Editor
+description = Adds a contextual link to Field API Panel Panes to edit that field value.
+core = 7.x
+package = Chaos tool suite
+dependencies[] = ctools
+; The dependency on Panels is now optional so that the back end can be used
+; by non-Panels modules if they desire.
+; dependencies[] = panels
+dependencies[] = entity
+
+; Information added by drush on 2013-05-03
+version = "7.x-1.1+2-dev"
+core = "7.x"
+project = "fape"
+datestamp = "1367592414"
+

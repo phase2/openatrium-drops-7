@@ -1,0 +1,75 @@
+<?php
+/**
+ * @file
+ * Code for the Open Atrium Users feature.
+ */
+
+include_once 'oa_users.features.inc';
+
+/**
+ * Implements hook_menu().
+ */
+function oa_users_menu() {
+  $items['user/%user/settings'] = array(
+    'title' => 'Settings',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('oa_users_settings_form', 1),
+    'access callback' => 'user_edit_access',
+    'access arguments' => array(1),
+  );
+
+  return $items;
+}
+
+/**
+ * Page callback for user/%user/settings. Provide a settings form, and hooks
+ * for modules to add their own settings.
+ */
+function oa_users_settings_form($form, &$form_state, $user) {
+  $form['#submit'][] = 'oa_users_settings_form_submit';
+
+  drupal_alter('oa_user_settings_form', $form, $form_state, $user);
+
+  return system_settings_form($form);
+}
+
+/**
+ * Form submit callback for user/%user/settings. Provides a hook for modules
+ * that added fields to the form to add them to the user's data column.
+ */
+function oa_users_settings_form_submit($form, &$form_state) {
+  $user = $form_state['build_info']['args'][0];
+  $settings['data'] = module_invoke_all('oa_user_settings_form_submit', $form_state, $user);
+
+  user_save($user, $settings);
+}
+
+/**
+ * Provide information for rendering a user.
+ */
+function oa_users_build_user_details($user, $image_style = 'oa_small_thumbnail') {
+  $details = array();
+  $details['user'] = $user;
+  $details['realname'] = empty($user->realname) ? $user->name : $user->realname;
+  $details['name'] = $user->name;
+  $details['picture'] = '';
+
+  if (!empty($user->field_user_picture)) {
+    $picture = $user->field_user_picture[LANGUAGE_NONE][0];
+    $image = array(
+      'style_name' => $image_style,
+      'path' => $picture['uri'],
+      'width' => $picture['width'],
+      'height' => $picture['height'],
+      'alt' => t('Your profile picture'),
+    );
+    $details['picture'] = theme('image_style', $image);
+  }
+
+  //Build out links
+  $details['links']['dashboard'] = 'user';
+  $details['links']['edit_profile'] = 'user/' . $user->uid . '/edit';
+  $details['links']['logout'] = 'user/logout';
+  return $details;
+}

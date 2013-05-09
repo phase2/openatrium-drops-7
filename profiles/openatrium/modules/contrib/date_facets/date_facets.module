@@ -1,0 +1,106 @@
+<?php
+
+/**
+ * @file
+ * Provides date range facets that are similar to implementations in major search engines.
+ */
+
+/**
+ * Implements hook_facetapi_facet_info_alter().
+ *
+ * @see date_facets_add_widget()
+ */
+function date_facets_facetapi_facet_info_alter(array &$facet_info, array $searcher_info) {
+  switch ($searcher_info['adapter']) {
+    case 'apachesolr':
+    case 'search':
+    case 'search_api':
+      date_facets_associate_widget($facet_info);
+      break;
+  }
+}
+
+/**
+ * Associates all date fields with the "date_range" query type.
+ *
+ * @param array &$facet_info
+ *   The facet definitions passed to hook_facetapi_facet_info_alter().
+ */
+function date_facets_associate_widget(array &$facet_info) {
+  foreach ($facet_info as $name => $info) {
+    $query_types = array_flip($info['query types']);
+    // The check on field_type is specific for search api.
+    // @todo check if there is a beter way to do this.
+    if (isset($query_types['date']) || $info['field type'] == 'list<date>') {
+      $facet_info[$name]['query types'][] = 'date_range';
+      // This widget needs a different way to set labels
+      // so we add our own callback.
+      $facet_info[$name]['map options']['value callback'] = '_date_facets_api_facet_create_label';
+      $facet_info[$name]['query types'][] = 'date_range';
+    }
+  }
+}
+
+/**
+ * Value callback for labels with the date range type.
+ *
+ * Just added a basic functionality.
+ * Might need to be expanded for more functionality.
+ *
+ * @param array $values
+ * @param array $options
+ * @return array
+ */
+function _date_facets_api_facet_create_label(array $values, array $options) {
+  $map = array();
+
+  // Loop through all the values to create a map.
+  // It does nothing yet but more functionality might be added.
+  foreach ($values as $key => $value) {
+    $map[$key] = $value;
+  }
+
+  return $map;
+}
+
+/**
+ * Returns render arrays for all date ranges.
+ *
+ * @return array
+ *   An associative array of date ranges.
+ */
+function date_facets_get_ranges() {
+  $build = array();
+
+  $build['past_hour'] = array(
+    '#count' => NULL,
+    '#markup' => t('Past hour'),
+    '#time_interval' => 3600,
+  );
+
+  $build['past_24_hours'] = array(
+    '#count' => NULL,
+    '#markup' => t('Past 24 hours'),
+    '#time_interval' => 86400,
+  );
+
+  $build['past_week'] = array(
+    '#count' => NULL,
+    '#markup' => t('Past week'),
+    '#time_interval' => 604800,
+  );
+
+  $build['past_month'] = array(
+    '#count' => NULL,
+    '#markup' => t('Past month'),
+    '#time_interval' => strtotime('-1 month'),
+  );
+
+  $build['past_year'] = array(
+    '#count' => NULL,
+    '#markup' => t('Past year'),
+    '#time_interval' => strtotime('-1 year'),
+  );
+
+  return $build;
+}

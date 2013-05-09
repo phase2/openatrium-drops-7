@@ -1,0 +1,18 @@
+name = Open Atrium Favorites
+description = Favorite Space
+core = 7.x
+package = Open Atrium
+php = 5.2.4
+version = 7.x-2.0
+project = oa_favorites
+dependencies[] = flag
+features[features_api][] = api:1
+features[flag][] = favorite_space
+project path = profiles/openatrium/modules/features
+
+; Information added by drupal.org packaging script on 2013-05-03
+version = "7.x-2.0-alpha3"
+core = "7.x"
+project = "openatrium"
+datestamp = "1367592348"
+

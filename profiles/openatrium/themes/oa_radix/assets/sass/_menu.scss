@@ -1,0 +1,74 @@
+// Menu
+// Styles for Menus and Navs
+// --------------------------------------------------
+#main-menu {
+  clear: left;
+  > ul.menu {
+    > li {
+      > a {
+        color: white;
+        text-decoration: none;
+        text-shadow: 0 1px 0 gray;
+        &:hover {
+          text-decoration: none;
+          background-color: transparent;
+        }
+        &:focus, &.active {
+          text-decoration: none;
+          background-color: transparent;
+          @include box-shadow(inset 0 3px 8px rgba(0, 0, 0, 0.125));
+        }
+      }
+      > ul.menu {
+        background-color: white;
+        border: 1px solid #CCC;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        @include border-radius(6px 6px 6px 6px);
+        @include box-shadow(0 5px 10px rgba(0, 0, 0, 0.2));
+        li {
+          a {
+            color: #333;
+            &:focus, &:hover {
+              color: $dropdownLinkColorHover;
+              text-decoration: none;
+              background-color: $dropdownLinkBackgroundActive;
+              @include gradient-vertical($dropdownLinkBackgroundActive, darken($dropdownLinkBackgroundActive, 5%));
+            }
+          }
+        }
+      }
+      &.open {
+        > a {
+          color: #555;
+          background-color: #E5E5E5;
+        }
+      }
+    }
+  }
+}
+
+//
+// Footer styles
+//
+// Applies formatting to drupal menu blocks that appear within the footer region
+//
+.region-footer {
+  background-image: url('../../logo.png');
+  background-repeat: no-repeat;
+  background-position: 1% center;
+}
+
+.region-footer .menu {
+  float: right;
+}
+
+.region-footer .menu li {
+  list-style: none !important;
+  float: left;
+}
+
+.region-footer .menu li a {
+  line-height: 52px;
+  color: white;
+  display: block;
+}

@@ -1,0 +1,17 @@
+name = Mailhandler PHP IMAP
+description = Retrieves messages from IMAP and POP mailboxes using the PHP IMAP library.
+core = 7.x
+dependencies[] = "mailhandler"
+package = "Mailhandler"
+
+files[] = mailhandler_php_imap.install
+files[] = mailhandler_php_imap.module
+files[] = plugins/mailhandler/retrieve/MailhandlerPhpImapRetrieve.class.php
+
+
+; Information added by drush on 2013-05-03
+version = "7.x-2.5+21-dev"
+core = "7.x"
+project = "mailhandler"
+datestamp = "1367592380"
+

@@ -1,0 +1,52 @@
+name = Panopoly Pages
+description = Provides a basic page, suitable for Panelizing.
+core = 7.x
+package = Panopoly
+php = 5.2.4
+project = panopoly_pages
+dependencies[] = ctools
+dependencies[] = defaultconfig
+dependencies[] = features
+dependencies[] = menu_block
+dependencies[] = node
+dependencies[] = page_manager
+dependencies[] = panelizer
+dependencies[] = taxonomy
+dependencies[] = strongarm
+features[ctools][] = page_manager:pages_default:1
+features[ctools][] = panelizer:panelizer:1
+features[ctools][] = strongarm:strongarm:1
+features[defaultconfig][] = user_default_permissions:create panopoly_page content
+features[defaultconfig][] = user_default_permissions:delete any panopoly_page content
+features[defaultconfig][] = user_default_permissions:delete own panopoly_page content
+features[defaultconfig][] = user_default_permissions:edit any panopoly_page content
+features[defaultconfig][] = user_default_permissions:edit own panopoly_page content
+features[features_api][] = api:1
+features[field][] = node-panopoly_page-body
+features[field][] = node-panopoly_page-field_featured_categories
+features[field][] = node-panopoly_page-field_featured_image
+features[field][] = node-panopoly_page-field_featured_status
+features[node][] = panopoly_page
+features[panelizer_defaults][] = node:panopoly_page:default
+features[panelizer_defaults][] = node:panopoly_page:default:default
+features[panelizer_defaults][] = node:panopoly_page:default:featured
+features[panelizer_defaults][] = node:panopoly_page:default:teaser
+features[variable][] = additional_settings__active_tab_panopoly_page
+features[variable][] = field_bundle_settings_node__panopoly_page
+features[variable][] = menu_options_panopoly_page
+features[variable][] = menu_parent_panopoly_page
+features[variable][] = node_options_panopoly_page
+features[variable][] = node_preview_panopoly_page
+features[variable][] = node_submitted_panopoly_page
+features[variable][] = panelizer_defaults_node_panopoly_page
+features[variable][] = panelizer_node:panopoly_page_allowed_layouts_default
+features[variable][] = panelizer_node:panopoly_page_allowed_types_default
+features[variable][] = save_continue_panopoly_page
+
+
+; Information added by drush on 2013-05-03
+version = "7.x-1.0-rc4+0-dev"
+core = "7.x"
+project = "panopoly_pages"
+datestamp = "1367592393"
+

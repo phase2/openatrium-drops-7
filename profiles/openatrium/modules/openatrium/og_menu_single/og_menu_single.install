@@ -1,0 +1,29 @@
+<?php
+/**
+ * @file
+ * Install hooks for OG menu single.
+ */
+
+
+/**
+ * Implements hook_install().
+ */
+function og_menu_single_install() {
+  module_load_include('module', 'og_menu_single');
+  $t = get_t();
+  $menu = array(
+    'menu_name' => OG_MENU_SINGLE_MENU_NAME,
+    'title' => $t('OG menu'),
+    'description' => $t('Contains all the links for organic groups and their menus'),
+  );
+  menu_save($menu);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function og_menu_single_uninstall() {
+  if ($menu = menu_load(OG_MENU_SINGLE_MENU_NAME)) {
+    menu_delete($menu);
+  }
+}

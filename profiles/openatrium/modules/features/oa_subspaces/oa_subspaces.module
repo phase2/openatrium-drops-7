@@ -1,0 +1,77 @@
+<?php
+/**
+ * @file
+ * Enhance the OG Subgroups module
+ */
+
+/**
+ * Name of default Parent Space field.
+ */
+define('OA_PARENT_SPACE', 'oa_parent_space');
+
+/**
+ * Implements hook_form_alter().
+ * Hook into the Node Edit form
+ */
+function oa_subspaces_form_node_form_alter(&$form, $form_state, $form_id) {
+  $node = $form['#node'];
+
+  if (isset($form[OA_PARENT_SPACE][LANGUAGE_NONE][0])) {
+    $form['#validate'][] = 'oa_subspaces_form_node_form_validate';
+
+    // clean up the edit form
+    unset($form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['admin']);
+    $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default']['#title'] = t('Parent Spaces');
+    $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default']['#description'] = t('Inherit membership from the selected spaces.');
+
+    // remove any children of this space from the selection list
+    $children = array();
+    _oa_subspaces_get_children_groups('node', $node->nid, $children);
+    foreach ($form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default']['#options'] as $key => $option) {
+      if (($key == $node->nid) || (in_array($key, $children))) {
+        unset($form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default']['#options'][$key]);
+      }
+    }
+  }
+}
+
+/**
+ * Validation function for node edit form
+ */
+function oa_subspaces_form_node_form_validate($form, &$form_state) {
+  $node = $form['#node'];
+  if (!empty($form_state['values'][OA_PARENT_SPACE][LANGUAGE_NONE])) {
+    foreach ($form_state['values'][OA_PARENT_SPACE][LANGUAGE_NONE] as $oa_parent) {
+      if (!empty($oa_parent['target_id']) && ($oa_parent['target_id'] == $node->nid)) {
+        form_set_error(OA_PARENT_SPACE, t('You cannot set the Parent Space to itself.'));
+        return;
+      }
+    }
+  }
+}
+
+/**
+ * Return possible children of a space, regardless of the Inheritence field
+ * we don't want to load all the nodes and for preventing recursive parents
+ * we really don't care if the inheritence field is enabled or not
+ *
+ * @param $group_type
+ *   The group type.
+ * @param $group_id
+ *   The group ID.
+ * @param $children_groups
+ *   An array of children groups.
+ *
+ * @see: _og_subgroup_get_user_inherited_groups().
+ */
+function _oa_subspaces_get_children_groups($group_type, $group_id, &$children_groups) {
+  $children = og_subgroups_get_associated_entities($group_type, $group_id);
+  foreach ($children as $children_type => $children_ids) {
+    foreach ($children_ids as $child_id) {
+      if (!in_array($child_id, $children_groups)) { // prevent recursion
+        $children_groups[] = $child_id;
+        _oa_subspaces_get_children_groups($children_type, $child_id, $children_groups);
+      }
+    }
+  }
+}

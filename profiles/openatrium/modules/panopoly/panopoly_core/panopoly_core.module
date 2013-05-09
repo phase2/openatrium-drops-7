@@ -1,0 +1,218 @@
+<?php
+
+include_once('panopoly_core.features.inc');
+
+/**
+ * Implementation of hook_init()
+ */
+function panopoly_core_init() {
+
+  // Set the current page title in the breadcrumb
+  if (variable_get('panopoly_core_breadcrumb_title', TRUE)) {
+    $breadcrumb = drupal_get_breadcrumb();
+    if (count($breadcrumb) && drupal_get_title()) {
+      $breadcrumb[] = drupal_get_title();
+
+      // If it is the homepage, remove the breadcrumb
+      if (drupal_is_front_page()) {
+        $breadcrumb = array();
+      }
+      drupal_set_breadcrumb($breadcrumb);
+    }
+  }
+}
+
+/**
+ * Implements hook_apps_app_info()
+ */
+function panopoly_core_apps_app_info() {
+  return array(
+    'configure form' => 'panopoly_core_configure_form',
+  );
+}
+
+/**
+ * Configuration Form for Panopoly Core
+ */
+function panopoly_core_configure_form($form, &$form_state) {
+  $form = array();
+
+  $form['panopoly_core_breadcrumb_title'] = array(
+    '#title' => t('Append Page Title to Site Breadcrumb'),
+    '#type' => 'select',
+    '#required' => TRUE,
+    '#options' => array(
+      '1' => 'Enabled',
+      '0' => 'Disabled',
+    ),
+    '#default_value' => variable_get('panopoly_core_breadcrumb_title', 1),
+    '#description' => t('Do you want Panopoly to append the page title to the site breadcrumb?'),
+  );
+
+  return system_settings_form($form);
+}
+
+/**
+ * Implementation of hook_preprocess_html()
+ *
+ * We are telling the site that everything is a region-content. This is important since
+ * when we disable the block module it loses this classes which some things assume for generalized
+ * CSS considerations (i.e. Bartik's spacing of ul/ol).
+ */
+function panopoly_core_preprocess_html(&$variables) {
+  $variables['classes_array'][] = 'region-content';
+}
+
+/**
+ * Implements hook_apps_servers_info()
+ */
+function panopoly_core_apps_servers_info() {
+  $info =  drupal_parse_info_file(drupal_get_path('module', 'panopoly_core') . '/panopoly_core.info');
+  return array(
+    'panopoly' => array(
+      'title' => 'Panopoly',
+      'description' => 'Apps for Panopoly',
+      'manifest' => (empty($info['version']) || $info['version'] == '7.x-1.x-dev' || strpos($info['version'], '-dev')) ? 'http://apps.getpantheon.com/panopoly-dev' : 'http://apps.getpantheon.com/panopoly',
+    ),
+  );
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ */
+function panopoly_core_module_implements_alter(&$implementations, $hook) {
+  if ($hook == 'css_alter' || $hook == 'modules_enabled') {
+    $group = $implementations['panopoly_core'];
+    unset($implementations['panopoly_core']);
+    $implementations['panopoly_core'] = $group;
+  }
+}
+
+/**
+ * Implementation hook_element_info_alter().
+ */
+function panopoly_core_element_info_alter(&$type) {
+  // Rather than implementing hook_css_alter(), we'll add a custom pre render
+  // function for the styles elemement. This is to allow us to override
+  // seven_css_alter(), which always runs after any module's implementation.
+  if (isset($type['styles']['#pre_render'])) {
+    array_unshift($type['styles']['#pre_render'], 'panopoly_core_pre_render_styles');
+  }
+}
+
+/**
+ * Implements hook_modules_enabled().
+ *
+ * This hook is implemented to assign some default permissions for panelizer's handling
+ * of taxonomy terms. This has to be done in this hook to run after both features
+ * and defaultconfig which power the functionality. Hopefully a more general solution
+ * can be found. More information - http://drupal.org/node/1837312.
+ */
+function panopoly_core_modules_enabled($modules) {
+
+  // Only run this logic if we are executing as part of an install profile
+  if (variable_get('install_task', 'done') != 'done') {
+
+    // Rebuild some caches so this all works right
+    features_flush_caches();
+    drupal_static_reset();
+
+    // Define some permissions for the editor role
+    if ($editor = user_role_load_by_name('editor')) {
+      user_role_grant_permissions($editor->rid, array('administer panelizer taxonomy_term panopoly_categories breadcrumbs'));
+      user_role_grant_permissions($editor->rid, array('administer panelizer taxonomy_term panopoly_categories content'));
+      user_role_grant_permissions($editor->rid, array('administer panelizer taxonomy_term panopoly_categories context'));
+      user_role_grant_permissions($editor->rid, array('administer panelizer taxonomy_term panopoly_categories defaults'));
+      user_role_grant_permissions($editor->rid, array('administer panelizer taxonomy_term panopoly_categories layout'));
+      user_role_grant_permissions($editor->rid, array('administer panelizer taxonomy_term panopoly_categories overview'));
+      user_role_grant_permissions($editor->rid, array('administer panelizer taxonomy_term panopoly_categories settings'));
+    }
+
+    // Define some permissions for the admin role
+    if ($administrator = user_role_load_by_name('administrator')) {
+      user_role_grant_permissions($administrator->rid, array('administer panelizer taxonomy_term panopoly_categories breadcrumbs'));
+      user_role_grant_permissions($administrator->rid, array('administer panelizer taxonomy_term panopoly_categories content'));
+      user_role_grant_permissions($administrator->rid, array('administer panelizer taxonomy_term panopoly_categories context'));
+      user_role_grant_permissions($administrator->rid, array('administer panelizer taxonomy_term panopoly_categories defaults'));
+      user_role_grant_permissions($administrator->rid, array('administer panelizer taxonomy_term panopoly_categories layout'));
+      user_role_grant_permissions($administrator->rid, array('administer panelizer taxonomy_term panopoly_categories overview'));
+      user_role_grant_permissions($administrator->rid, array('administer panelizer taxonomy_term panopoly_categories settings'));
+    }
+  }
+}
+
+/**
+ * Implementation of hook_css_alter()
+ */
+function panopoly_core_css_alter() {
+  // Deprecated
+}
+
+/**
+ * Pre render the styles element.
+ */
+function panopoly_core_pre_render_styles($elements) {
+  $css = &$elements['#items'];
+
+  // Installs the jQuery.UI themeroller theme to the theme.
+  if (isset($css['misc/ui/jquery.ui.theme.css'])) {
+    $css['misc/ui/jquery.ui.theme.css']['data'] = drupal_get_path('module', 'panopoly_core') . '/css/panopoly-jquery-ui-theme.css';
+  }
+
+  if (isset($css['misc/ui/jquery.ui.dialog.css'])) {
+    unset($css['misc/ui/jquery.ui.dialog.css']);
+  }
+
+  if (isset($css['misc/ui/jquery.ui.tabs.css'])) {
+    unset($css['misc/ui/jquery.ui.tabs.css']);
+  }
+
+  return $elements;
+}
+
+/**
+ * Implements hook_date_format_types()
+ */
+function panopoly_core_date_format_types() {
+  return array(
+    'panopoly_time' => t('Time'),
+    'panopoly_day' => t('Day'),
+  );
+}
+
+/**
+ * Implements hook_date_formats().
+ */
+function panopoly_core_date_formats() {
+  $formats = array();
+
+  $formats[] = array(
+    'type' => 'panopoly_time',
+    'format' => 'g:ia',
+    'locales' => array(),
+  );
+
+  $formats[] = array(
+    'type' => 'panopoly_day',
+    'format' => 'F j, Y',
+    'locales' => array(),
+  );
+
+  return $formats;
+}
+
+/**
+ * Helpfer function to get view modes
+ */
+function panopoly_core_view_mode_options() {
+  $entity_info = entity_get_info('node');
+  $options = array();
+  if (!empty($entity_info['view modes'])) {
+    foreach ($entity_info['view modes'] as $mode => $settings) {
+      if (!in_array($mode, array('rss', 'search_index', 'search_result', 'token'))) {
+        $options[$mode] = $settings['label'];
+      }
+    }
+  }
+  return $options;
+}

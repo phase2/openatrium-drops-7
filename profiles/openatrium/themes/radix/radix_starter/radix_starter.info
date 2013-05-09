@@ -1,0 +1,30 @@
+name        = Radix Starter
+description = A starter theme based on Radix
+screenshot  = screenshot.png
+core        = 7.x
+
+; Base - Radix
+base theme  = radix
+hidden = true
+
+; Regions
+regions[content]      = Content
+regions[footer]       = Footer
+
+; CSS - General
+stylesheets[all][]     = assets/stylesheets/screen.css
+stylesheets[print][]   = assets/stylesheets/print.css
+
+; CSS - Conditional
+stylesheets-conditional[IE 7][all][] = assets/stylesheets/ie7.css
+stylesheets-conditional[IE 8][all][] = assets/stylesheets/ie8.css
+
+; Javascript
+scripts[] = assets/javascripts/script.js
+
+; Information added by drush on 2013-05-03
+version = "7.x-2.0-alpha3+8-dev"
+core = "7.x"
+project = "radix"
+datestamp = "1367592385"
+

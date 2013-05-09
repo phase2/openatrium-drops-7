@@ -1,0 +1,82 @@
+Prerequisite:
+- Java 6 or higher
+
+Steps necessary:
+- Download Solr PHP client
+- Setting up Solr
+
+Download Solr PHP client
+------------------------
+
+This module uses an external PHP library for communicating with Solr servers. Go
+to [1] and download version r60 of this library. (The older version r22 is also
+still supported, but this might change in the future.)
+
+[1] http://code.google.com/p/solr-php-client/downloads/list
+
+Afterwards, unpack this archive to Drupal's libraries folder, so the directory
+tree looks like this:
+
+DRUPAL_ROOT/sites/all/libraries/
+  |- SolrPhpClient
+     |- Apache/
+     |- ChangeLog
+     ...
+
+The library should then be found by the module.
+
+Note: If you have the Libraries API [2] module installed, you can also place the
+library into any other directory recognized by the Libraries API, e.g.
+(depending on the module version):
+- DRUPAL_ROOT/libraries
+- DRUPAL_ROOT/profiles/PROFILE/libraries
+- DRUPAL_ROOT/sites/CONF_DIR/libraries
+
+[2] http://drupal.org/project/libraries
+
+Setting up Solr
+---------------
+
+In order for this module to work, you will first need to set up a Solr server.
+For this, you can either purchase a server from a web Solr hosts or set up your
+own Solr server on your web server (if you have the necessary rights to do so).
+If you want to use a hosted solution, a number of companies are listed on the
+module's project page [3]. Otherwise, please follow the instructions below.
+
+[3] http://drupal.org/project/search_api_solr
+
+Download the latest version of Solr 3.x from [4] and unpack the archive
+somewhere outside of your web server's document tree.
+
+[4] http://www.apache.org/dyn/closer.cgi/lucene/solr/
+
+This module also supports Solr 1.4, but its use is discouraged due to worse
+performance and some features not being supported. Solr 4.x is not supported by
+this module yet.
+
+For small websites, using the example application, located in $SOLR/example/,
+usually suffices. In any case, you can use it for developing andd testing. The
+following instructions will assume you are using the example application,
+otherwise you should be able to substitute the corresponding paths.
+
+Before starting the Solr server you will have to make sure it uses the proper
+configuration files. These are located in the solr-conf/ directory in this
+module, in a sub-directory according to the Solr version you are using. Copy all
+the files from that directory into Solr's configuration directory
+($SOLR/example/solr/conf/ in case of the example application), after backing up
+all files that would be overwritten.
+You can then start Solr. For the example application, go to $SOLR/example/ and
+issue the following command (assuming Java is correctly installed):
+
+java -jar start.jar
+
+Afterwards, go to [5] in your web browser to ensure Solr is running correctly.
+
+[5] http://localhost:8983/solr/admin/
+
+You can then enable this module and create a new server, using the "Solr search"
+service class. Enter the hostname, port and path corresponding to your Solr
+server in the appropriate fields. The default values already correspond to the
+example application, so you won't have to change the values if you use that.
+If you are using HTTP Authentication to protect your Solr server you also have
+to provide the appropriate user and password here.

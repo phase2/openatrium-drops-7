@@ -1,0 +1,19 @@
+name = Panopoly Theme
+description = Helps with theming and provides many layouts.
+core = 7.x
+package = Panopoly
+php = 5.2.4
+project = panopoly_theme
+dependencies[] = panels
+scripts[] = js/panopoly-accordion.js
+stylesheets[all][] = css/panopoly-featured.css
+stylesheets[all][] = css/panopoly-accordian.css
+features[features_api][] = api:1
+
+
+; Information added by drush on 2013-05-03
+version = "7.x-1.0-rc4+0-dev"
+core = "7.x"
+project = "panopoly_theme"
+datestamp = "1367592400"
+

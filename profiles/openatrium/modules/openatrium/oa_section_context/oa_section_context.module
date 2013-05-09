@@ -1,0 +1,56 @@
+<?php
+
+/**
+ * @file
+ * Provides hook implementations and functionality for oa_section_context.
+ */
+
+/**
+ * Name of Session variable used for saving Section ID.
+ */
+define('OA_SESSION_SECTION', 'oa_section_id');
+
+/**
+ * Determines the current section id value
+ */
+function oa_section_context_init() {
+  $menu = menu_get_object();
+  if (!isset($menu->nid)) {
+    return;
+  }
+
+  $nid = $menu->nid;
+  $node = node_load($nid);
+  if (empty($node)) {
+    return;
+  }
+
+  if ($node->type == 'oa_section') {
+    // get section id directly from section nodes
+    $_SESSION[OA_SESSION_SECTION] = $node->nid;
+  }
+  elseif (isset($node->{OA_SECTION_FIELD})) {
+    // otherwise get section id from any section field reference
+    if (isset($node->{OA_SECTION_FIELD}[LANGUAGE_NONE][0]['target_id'])) {
+      $_SESSION[OA_SESSION_SECTION] = $node->{OA_SECTION_FIELD}[LANGUAGE_NONE][0]['target_id'];
+    }
+    else {
+      // clear this when there is a section field but it doesn't have any value
+      unset($_SESSION[OA_SESSION_SECTION]);
+    }
+  }
+}
+
+/**
+ * Implements hook_form_alter
+ *
+ * Instantiates the default value for the field 'oa_section_ref' from
+ * session context if it exists.
+ */
+function oa_section_context_form_node_form_alter(&$form, &$form_state, $form_id) {
+  if (empty($form[OA_SECTION_FIELD][LANGUAGE_NONE]['#default_value'])) {
+    if (!empty($_SESSION[OA_SESSION_SECTION])) {
+      $form[OA_SECTION_FIELD][LANGUAGE_NONE]['#default_value'] = $_SESSION[OA_SESSION_SECTION];
+    }
+  }
+}

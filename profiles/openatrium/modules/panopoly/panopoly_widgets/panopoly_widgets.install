@@ -1,0 +1,180 @@
+<?php
+
+/**
+ * @file
+ * An installation file for Panopoly Widgets
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function panopoly_widgets_install() {
+
+}
+
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function panopoly_widgets_uninstall() {
+
+  // Retrieve the file IDs for default files
+  $fids = array(
+    'panopoly_widgets_default_spotlight_fid' => variable_get('panopoly_widgets_default_spotlight_fid', NULL), 
+    'panopoly_widgets_default_image_fid' => variable_get('panopoly_widgets_default_image_fid', NULL), 
+    'panopoly_widgets_default_video_fid' => variable_get('panopoly_widgets_default_video_fid', NULL)
+  );
+
+  foreach($fids as $variable_name => $fid) {
+
+    // Deletes the file
+    if (!empty($fid) && $file = file_load($fid)) {
+      file_delete($file);
+    }
+
+    // Deletes the variable
+    variable_del($variable_name);
+  }
+}
+
+/**
+ * Implementation of hook_field_schema().
+ */
+function panopoly_widgets_field_schema($field) {
+  if ($field['type'] == 'panopoly_spotlight') {
+    $schema['columns']['title'] = array(
+      'type' => 'varchar',
+      'length' => '255',
+      'not null' => FALSE,
+    );
+
+    $schema['columns']['description'] = array(
+      'type' => 'text',
+      'size' => 'big',
+      'not null' => FALSE,
+    );
+
+    $schema['columns']['fid'] = array(
+      'type' => 'int', 
+      'not null' => FALSE,
+      'unsigned' => TRUE,
+    );
+
+    $schema['columns']['link'] = array(
+      'type' => 'varchar',
+      'length' => '255',
+      'not null' => FALSE,
+    );
+
+    $schema['indexes'] = array(
+      'fid' => array('fid'),
+    );
+
+    $schema['foreign keys'] = array(
+      'fid' => array(
+        'table' => 'file_managed',
+        'columns' => array('fid' => 'fid'),
+      ),
+    );
+
+    return $schema;
+  }
+}
+
+/**
+ * Implementation of hook_update_N().
+ *
+ * Adding the default files for images, spotlights, and files to the database
+ */
+function panopoly_widgets_update_7001(&$sandbox) {
+  // This section has been removed
+}
+
+/**
+ * Implementation of hook_update_N().
+ *
+ * Revert panopoly_widget fields to avoid data loss in update 7003.
+ */
+function panopoly_widgets_update_7002(&$sandbox) {
+  module_load_include('inc', 'features', 'features.export');
+  features_include();
+  features_revert(array('panopoly_widgets' => array('field')));
+}
+
+/**
+ * Implementation of hook_update_N().
+ *
+ * Move video mediafield data into a file field.
+ */
+function panopoly_widgets_update_7003(&$sandbox) {
+  $results = entity_load('fieldable_panels_pane');
+  foreach ($results as $entity) {
+    foreach ($entity->field_video_video[LANGUAGE_NONE] as $f) {
+      $entity->field_video_file[LANGUAGE_NONE][] = array(
+        'fid' => $f['fid'],
+        'display' => 1,
+      );
+    }
+    $form_state['entity'] = $entity;
+    $form_state['values'] = (array) $entity;
+    $form_state['values']['link'] = ($form_state['values']['link'] == 0) ? NULL : $form_state['values']['link'];
+    $form_state['values']['reusable'] = ($$form_state['values']['reusable'] == 0) ? NULL : $form_state['values']['reusable'];
+    drupal_form_submit('fieldable_panels_panes_entity_edit_form', $form_state);
+  }
+  field_delete_field('field_video_video');
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Convert panel panes with "uuid" style subtypes into "fpid" style subtypes.
+ */
+function panopoly_widgets_update_7004(&$sandbox) {
+  $results = db_select('panels_pane', 'p')
+    ->fields('p', array('pid', 'subtype'))
+    ->execute()
+    ->fetchAll();
+  foreach ($results as $result) {
+    if (substr($result->subtype, 0, 5) == 'uuid:') {
+      $uuid = substr($result->subtype, 5);
+      $fpid = db_select('fieldable_panels_panes', 'fpp')
+        ->fields('fpp', array('fpid'))
+        ->condition('uuid', $uuid)
+        ->execute()
+        ->fetchField();
+      if (!empty($fpid)) {
+        $subtype = "fpid:" . $fpid;
+        db_update('panels_pane')
+        ->fields(array('subtype' => $subtype))
+        ->condition('pid', $result->pid)
+        ->execute();
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Removes the default content from the database and file system
+ */
+function panopoly_widgets_update_7005(&$sandbox) {
+
+  // Retrieve the file IDs for default files
+  $fids = array(
+    'panopoly_widgets_default_spotlight_fid' => variable_get('panopoly_widgets_default_spotlight_fid', NULL),
+    'panopoly_widgets_default_image_fid' => variable_get('panopoly_widgets_default_image_fid', NULL),
+    'panopoly_widgets_default_video_fid' => variable_get('panopoly_widgets_default_video_fid', NULL)
+  );
+
+  foreach($fids as $variable_name => $fid) {
+
+    // Deletes the file
+    if (!empty($fid) && $file = file_load($fid)) {
+      file_delete($file);
+    }
+
+    // Deletes the variable
+    variable_del($variable_name);
+  }
+}

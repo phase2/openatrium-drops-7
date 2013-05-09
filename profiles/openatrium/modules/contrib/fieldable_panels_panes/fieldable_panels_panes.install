@@ -1,0 +1,250 @@
+<?php
+/**
+ * @file
+ * fieldable panel panes install file
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function fieldable_panels_panes_schema() {
+  $schema = array();
+
+  $schema['fieldable_panels_panes'] = array(
+    'description' => 'Entity table for panel pane content with fields.',
+    'fields' => array(
+      'fpid' => array(
+        'description' => 'The primary identifier for the entity.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'vid' => array(
+        'description' => 'The current version in use for this entity.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'bundle' => array(
+        'description' => 'The bundle of the entity.',
+        'type' => 'varchar',
+        'length' => 255,
+      ),
+      'title' => array(
+        'description' => 'The title of the entity.',
+        'type' => 'varchar',
+        'length' => 255,
+      ),
+      'link' => array(
+        'description' => 'Whether or not this entity title will link to another page.',
+        'type' => 'int',
+        'size' => 'tiny',
+      ),
+      'path' => array(
+        'description' => 'The path the title should link to.',
+        'type' => 'varchar',
+        'length' => 255,
+      ),
+      'reusable' => array(
+        'description' => 'Whether or not this entity will appear in the Add Content dialog.',
+        'type' => 'int',
+        'size' => 'tiny',
+      ),
+      'admin_title' => array(
+        'description' => 'The title it will appear in the Add Content dialog as.',
+        'type' => 'varchar',
+        'length' => 255,
+      ),
+      'admin_description' => array(
+        'description' => 'The description it will appear in the Add Content dialog with.',
+        'type' => 'text',
+      ),
+      'category' => array(
+        'description' => 'The category it will appear in the Add Content dialog under.',
+        'type' => 'text',
+      ),
+      'view_access' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Access rules to describe if the user has view access to this entity.',
+        'serialize' => TRUE,
+        'object default' => array(),
+      ),
+      'edit_access' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'description' => 'Access rules to describe if the user has view access to this entity.',
+        'serialize' => TRUE,
+        'object default' => array(),
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the entity was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+        'description' => 'The Unix timestamp when the entity was most recently saved.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'uuid' => array(
+        'type' => 'char',
+        'length' => 36,
+        'default' => '',
+        'description' => 'The Universally Unique Identifier.',
+      ),
+      'language' => array(
+        'description' => 'The {languages}.language of this entity.',
+        'type' => 'varchar',
+        'length' => 12,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('fpid'),
+    'indexes' => array(
+      'reusable' => array('reusable'),
+    ),
+  );
+
+  $schema['fieldable_panels_panes_revision'] = array(
+    'description' => 'Entity revision table for panel pane content with fields.',
+    'fields' => array(
+      'fpid' => array(
+        'description' => 'The id this revision belongs to',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'vid' => array(
+        'description' => 'The primary identifier for this version.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'timestamp' => array(
+        'description' => 'The Unix timestamp when the revision was most recently saved.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'uid' => array(
+        'description' => 'The author of the revision.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'title' => array(
+        'description' => 'The title of the entity.',
+        'type' => 'varchar',
+        'length' => 255,
+      ),
+      'log' => array(
+        'description' => t('A log message associated with the revision.'),
+        'type' => 'text',
+        'size' => 'big',
+      ),
+      'vuuid' => array(
+        'type' => 'char',
+        'length' => 36,
+        'default' => '',
+        'description' => 'The Universally Unique Identifier.',
+      ),
+    ),
+    'primary key' => array('vid'),
+    'indexes' => array(
+      'fpid' => array('fpid', 'vid'),
+    ),
+  );
+
+  // Optional cache table for entitycache support.
+  $schema['cache_entity_fieldable_panels_pane'] = drupal_get_schema_unprocessed('system', 'cache');
+  $schema['cache_entity_fieldable_panels_pane']['description'] = 'Cache table used to store fieldable_panels_pane entity records.';
+
+  return $schema;
+}
+
+  /**
+   * Add UUID support.
+   */
+function fieldable_panels_panes_update_7101(&$sandbox) {
+
+  // Make sure to add UUID field
+  if (!db_field_exists('fieldable_panels_panes', 'uuid')) {
+    db_add_field('fieldable_panels_panes', 'uuid', array('type' => 'char', 'length' => 36, 'default' => '', 'description' => 'The Universally Unique Identifier.'));
+  }
+
+  // Make sure to add VUUID field
+  if (!db_field_exists('fieldable_panels_panes_revision', 'vuuid')) {
+    db_add_field('fieldable_panels_panes_revision', 'vuuid', array('type' => 'char', 'length' => 36, 'default' => '', 'description' => 'The Universally Unique Identifier.'));
+  }
+}
+
+/**
+ * Delete stale revisions.
+ */
+function fieldable_panels_panes_update_7102(&$sandbox) {
+  $existing = db_select('fieldable_panels_panes', 'f');
+  $existing->fields('f', array('fpid'));
+
+  db_delete('fieldable_panels_panes_revision')
+    ->condition('fpid', $existing, 'NOT IN')
+    ->execute();
+}
+
+/**
+ * Reset the theme registry.
+ */
+function fieldable_panels_panes_update_7103(&$sandbox) {
+  // All caches are flushed during the update process, so we do nothing.
+  return t('Theme registry cache has been cleared.');
+}
+
+/*
+ * Update menu paths.
+ */
+function fieldable_panels_panes_update_7104(&$sandbox) {
+  // We don't have to flush caches manually since the update process will flush
+  // all caches anyway.
+  return t('Menu cache has been flushed.');
+}
+
+/**
+ * Add support to link pane titles to paths.
+ */
+function fieldable_panels_panes_update_7105() {
+  db_add_field('fieldable_panels_panes', 'link', array('type' => 'int', 'size' => 'tiny', 'description' => 'Whether or not this entity title will link to another page.'));
+  db_add_field('fieldable_panels_panes', 'path', array('type' => 'varchar', 'length' => 255, 'description' => 'The path the title should link to.'));
+}
+
+/**
+ * Add language column.
+ */
+function fieldable_panels_panes_update_7106() {
+  // Make sure to add language field
+  if (!db_field_exists('fieldable_panels_panes', 'language')) {
+    db_add_field('fieldable_panels_panes', 'language', array(
+      'description' => 'The {languages}.language of this entity.',
+      'type' => 'varchar',
+      'length' => 12,
+      'not null' => TRUE,
+      'default' => '',
+    ));
+  }
+}
+
+/**
+ * Add cache table for optional entitycache support.
+ */
+function fieldable_panels_panes_update_7107() {
+  if (!db_table_exists('cache_entity_fieldable_panels_pane')) {
+    $schema = drupal_get_schema_unprocessed('system', 'cache');
+    $schema['description'] = 'Cache table used to store fieldable_panel_pane entity records.';
+    db_create_table('cache_entity_fieldable_panels_pane', $schema);
+  }
+}

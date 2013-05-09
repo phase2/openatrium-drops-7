@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Open Atrium Admin feature.
+ */
+
+include_once 'oa_admin.features.inc';

@@ -1,0 +1,161 @@
+<?php
+
+/**
+ * @file
+ * Provides a base unit test class.
+ */
+
+abstract class og_menu_singleBase extends DrupalWebTestCase {
+  /**
+   * One using of this function is to enable the module used for testing, any dependencies
+   * or anything else that might be universal for all tests
+   */
+  public function setUp() {
+    parent::setUp('og_menu_single', 'og_context');
+    // Add OG group field to a the node's "group" bundle.
+    $this->drupalCreateContentType(array('type' => 'group'));
+    og_create_field(OG_GROUP_FIELD, 'node', 'group');
+
+    // Add OG audience field to the node's "post" bundle.
+    $this->drupalCreateContentType(array('type' => 'post', 'menu_options' => array('main-menu' => TRUE, 'navigation' => TRUE)));
+    $og_field = og_fields_info(OG_AUDIENCE_FIELD);
+    $og_field['instance']['required'] = TRUE;
+    og_create_field(OG_AUDIENCE_FIELD, 'node', 'post', $og_field);
+    $this->drupalCreateContentType(array('type' => 'post_no_menu'));
+    og_create_field(OG_AUDIENCE_FIELD, 'node', 'post_no_menu', $og_field);
+  }
+}
+
+class og_menu_singleMenuItemNodeCreateTest extends og_menu_singleBase {
+  static function getInfo() {
+    return array(
+      'name' => 'og_menu_singleMenuItemNodeCreateTest Tests',
+      'description' => 'Test that menu item appears',
+      'group' => 'OG Menu Single',
+    );
+  }
+
+  /**
+   * Test skipping OgBehaviorHandler.
+   */
+  function testMenuLinkCreated() {
+    $user1 = $this->drupalCreateUser(array('administer group', 'access content', 'create post content', 'administer menu'));
+    // Create group nodes.
+    $settings = array(
+      'type' => 'group',
+      'uid' => $user1->uid,
+    );
+    $posts = array();
+    $group1 = $this->drupalCreateNode($settings);
+    $this->drupalLogin($user1);
+    $group1_mlid = og_menu_single_get_link_mlid('node', $group1->nid); 
+
+    $posts[0] = $this->createPostInGroup($group1, $user1, 'post');
+    $this->drupalGet("node/" . $posts[0]->nid . "/edit");
+    $this->assertOption('edit-menu-parent', OG_MENU_SINGLE_MENU_NAME . ':' . $group1_mlid, t('Option to add to group menu exists'));
+
+
+    $posts[1] = $this->createPostInGroup($group1, $user1, 'post_no_menu');
+    $this->drupalGet("node/" . $posts[1]->nid . "/edit");
+    $this->assertOption('edit-menu-parent', OG_MENU_SINGLE_MENU_NAME . ':' . $group1_mlid, t('Option to add to group menu exists when no regular menus enabled'));
+
+    // Add both posts to menu.
+    foreach ($posts as $key => $post) {
+      $this->addPostToMenu($post, $group1_mlid);
+      $posts[$key]->mlid = og_menu_single_get_link_mlid('node', $posts[$key]->nid); 
+    }
+
+    // Check that a new post in group has both menu links.
+    $posts[2] = $this->createPostInGroup($group1, $user1, 'post');
+    $this->drupalGet("node/" . $posts[2]->nid . "/edit");
+    $this->assertOption('edit-menu-parent', OG_MENU_SINGLE_MENU_NAME . ':' . $posts[0]->mlid, t('Menu link appears for post'));
+    $this->assertOption('edit-menu-parent', OG_MENU_SINGLE_MENU_NAME . ':' . $posts[1]->mlid, t('Menu link appears for post'));
+
+    // Add posts below each menu
+    for ($i = 0; $i < 2; $i++) {
+      $posts[$i]->children_posts = array();
+      for ($j = 0; $j < 2; $j++) {
+        $posts[$i]->children_posts[$j] = $this->createPostInGroup($group1, $user1, 'post');
+        $this->addPostToMenu($posts[$i]->children_posts[$j], $posts[$i]->mlid);
+      }
+      $this->drupalGet("node/" . $posts[2]->nid . "/edit");
+      $options = $this->gatherMenuOptions();
+      foreach ($posts[$i]->children_posts as $child_post) {
+        $child_mlid = og_menu_single_get_link_mlid('node', $child_post->nid);
+        $this->assertOption('edit-menu-parent', OG_MENU_SINGLE_MENU_NAME . ':' . $child_mlid, t('Menu link appears for post as child'), '---- ' . check_plain($child_post->title));
+        $this->assertTrue(!empty($options[$posts[$i]->mlid][$child_mlid]), t('Child option has correct parent'));
+      }
+    }
+    $settings = array(
+      'type' => 'group',
+      'uid' => $user1->uid,
+    );
+    $group2 = $this->drupalCreateNode($settings);
+    $group2_posts = array();
+    $group2_mlid = og_menu_single_get_link_mlid('node', $group2->nid); 
+    $group2_posts[0] = $this->createPostInGroup($group2, $user1, 'post');
+    $this->drupalGet("node/" . $group2_posts[0]->nid . "/edit");
+    $this->assertOption('edit-menu-parent', OG_MENU_SINGLE_MENU_NAME . ':' . $group2_mlid, t('Option to add to group menu exists'));
+    $this->assertNoOption('edit-menu-parent', OG_MENU_SINGLE_MENU_NAME . ':' . $group1_mlid, t('Option to add to a different group does not exist'));
+  }
+
+  protected function gatherMenuOptions() {
+    $options = array();
+    $parent = 0;
+    foreach ($this->xpath('//select[@id="edit-menu-parent"]//option') as $option) {
+      list($menu_name, $mlid) = explode(':', (string)$option['value']);
+      if ($menu_name == OG_MENU_SINGLE_MENU_NAME) {
+        $title = (string)$option[0];
+        if (strpos($title, '<Group Menu>') === 0) {
+          continue;
+        }
+        elseif (strpos($title, '-- ') === 0) {
+          $parent = $mlid;
+        }
+        else {
+          $options[$parent][$mlid] = $title;
+        }
+      }
+    }
+    return $options;
+  }
+
+  protected function addPostToMenu($post, $mlid) {
+    $edit = array(
+      'menu[enabled]' => TRUE,
+      'menu[link_title]' => $post->title,
+      'menu[parent]' => OG_MENU_SINGLE_MENU_NAME . ':' . $mlid,
+    );
+    $this->drupalPost('node/' . $post->nid . '/edit', $edit, t('Save'));
+  }
+  protected function createPostInGroup($group, $account, $type = 'post') {
+    $settings = array(
+      'type' => 'post',
+      'uid' => $account->uid,
+    );
+    $node = $this->drupalCreateNode($settings);
+    og_group('node', $group->nid, array('entity_type' => 'node', 'entity' => $node));
+    return $node;
+    
+  }
+
+  /**
+   * Asserts that a select option in the current page does not exist.
+   */
+  protected function assertOption($id, $option, $message = '', $title = NULL) {
+    $options = $this->xpath('//select[@id=:id]//option[@value=:option]', array(':id' => $id, ':option' => $option));
+    $return = $this->assertTrue(!empty($options[0]), $message ? $message : t('Option @option for field @id does exist.', array('@option' => $option, '@id' => $id)), t('Browser'));
+    if ($return && $title) {
+      $return = $return && $this->assertTrue((string)$options[0][0] === $title, t('Option @option for field @id has the title !title.', array('@option' => $option, '@id' => $id, '!title' => $title)), t('Browser'));
+    }
+    return $return;
+  }
+  /**
+   * Asserts that a select option in the current page does exist.
+   */
+  protected function assertNoOption($id, $option, $message = '') {
+    $selects = $this->xpath('//select[@id=:id]', array(':id' => $id));
+    $options = $this->xpath('//select[@id=:id]//option[@value=:option]', array(':id' => $id, ':option' => $option));
+    return $this->assertTrue(isset($selects[0]) && empty($options[0]), $message ? $message : t('Option @option for field @id does not exist.', array('@option' => $option, '@id' => $id)), t('Browser'));
+  }
+}

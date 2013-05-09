@@ -1,0 +1,378 @@
+<?php
+
+/**
+ * @file
+ * Creates a single menu per organic group on a site.
+ */
+
+
+// Name of the menu the links are stored in.
+define('OG_MENU_SINGLE_MENU_NAME', 'og-menu-single');
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function og_menu_single_form_node_type_form_alter(&$form, $form_state) {
+  $type = $form['#node_type']->type;
+  $form['menu']['og_menu_single'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Og Menu Single'),
+    '#collapsible' => TRUE,
+    '#collapsed' => !og_menu_single_is_enabled_group_content('node', $type) && !og_menu_single_is_enabled_group('node', $type),
+  );
+  $form['menu']['og_menu_single']['og_menu_single_group_content__node__' . $type] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Content of this type may be placed in a group menu. Must also be a group content type'),
+    '#default_value' => og_menu_single_is_enabled_group_content($type),
+  );
+  $form['menu']['og_menu_single']['og_menu_single_group_content__node__' . $type] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Groups of this type may have a group menu. Must also be a group type'),
+    '#default_value' => og_menu_single_is_enabled_group_content($type),
+  );
+}
+
+/**
+ * Implements hook_node_prepare().
+ */
+function og_menu_single_node_prepare($node) {
+  if (og_menu_single_is_enabled_group_content('node', $node->type)) {
+    // Set PLID for form use later.
+    $node->group_plid = og_menu_single_get_active_plid();
+    if ($node->group_plid && !empty($node->nid)) {
+      if ($mlid = og_menu_single_get_link_mlid('node', $node->nid)) {
+        $link = menu_link_load($mlid);
+        $node->menu = $node->menu ? $link + $node->menu : $link;
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORMID_alter().
+ */
+function og_menu_single_form_node_form_alter(&$form, $form_state) {
+  if (!og_menu_single_is_enabled_group_content('node', $form['#node']->type) || empty($form['#node']->group_plid)) {
+    return;
+  }
+  $link = $form['#node']->menu;
+  $type = $form['#node']->type;
+
+  $options = array();
+  $options[OG_MENU_SINGLE_MENU_NAME . ':' . $form['#node']->group_plid] = '<' . t('Group Menu') . '>';
+  if ($tree = og_menu_single_children_items($form['#node']->group_plid)) {
+     _menu_parents_recurse($tree, OG_MENU_SINGLE_MENU_NAME, '--', $options, $link['mlid'] ? $link['mlid'] : 0, 8);
+  }
+
+  if (!empty($form['menu'])) {
+    $form['menu']['link']['parent']['#options'] += $options;
+    // Restore default
+    $default = ($link['mlid'] ? $link['menu_name'] . ':' . $link['plid'] : variable_get('menu_parent_' . $type, 'main-menu:0'));
+    if (isset($form['menu']['link']['parent']['#options'][$default])) {
+      $form['menu']['link']['parent']['#default_value'] = $default;
+    }
+  }
+  else {
+    // @see menu_form_node_form_alter().
+    $form['menu'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Menu settings'),
+      '#access' => user_access('administer menu'),
+      '#collapsible' => TRUE,
+      '#collapsed' => !$link['link_title'],
+      '#group' => 'additional_settings',
+      '#attached' => array(
+        'js' => array(drupal_get_path('module', 'menu') . '/menu.js'),
+      ),
+      '#tree' => TRUE,
+      '#weight' => -2,
+      '#attributes' => array('class' => array('menu-link-form')),
+    );
+    $form['menu']['enabled'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Provide a menu link'),
+      '#default_value' => (int) (bool) $link['mlid'],
+    );
+    $form['menu']['link'] = array(
+      '#type' => 'container',
+      '#parents' => array('menu'),
+      '#states' => array(
+        'invisible' => array(
+          'input[name="menu[enabled]"]' => array('checked' => FALSE),
+        ),
+      ),
+    );
+
+    // Populate the element with the link data.
+    foreach (array(
+      'mlid',
+      'module',
+      'hidden',
+      'has_children',
+      'customized',
+      'options',
+      'expanded',
+      'hidden',
+      'parent_depth_limit',
+    ) as $key) {
+      $form['menu']['link'][$key] = array(
+        '#type' => 'value',
+        '#value' => $link[$key],
+      );
+    }
+
+    $form['menu']['link']['link_title'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Menu link title'),
+      '#default_value' => $link['link_title'],
+    );
+
+    $form['menu']['link']['description'] = array(
+      '#type' => 'textarea',
+      '#title' => t('Description'),
+      '#default_value' => isset($link['options']['attributes']['title']) ? $link['options']['attributes']['title'] : '',
+      '#rows' => 1,
+      '#description' => t('Shown when hovering over the menu link.'),
+    );
+
+    $default = ($link['mlid'] ? $link['menu_name'] . ':' . $link['plid'] : variable_get('menu_parent_' . $type, 'main-menu:0'));
+    // If the current parent menu item is not present in options, use the first
+    // available option as default value.
+    // @todo User should not be allowed to access menu link settings in such a
+    // case.
+    if (!isset($options[$default])) {
+      $array = array_keys($options);
+      $default = reset($array);
+    }
+    $form['menu']['link']['parent'] = array(
+      '#type' => 'select',
+      '#title' => t('Parent item'),
+      '#default_value' => $default,
+      '#options' => $options,
+      '#attributes' => array('class' => array('menu-parent-select')),
+    );
+    $form['menu']['link']['weight'] = array(
+      '#type' => 'weight',
+      '#title' => t('Weight'),
+      '#delta' => 50,
+      '#default_value' => $link['weight'],
+      '#description' => t('Menu links with smaller weights are displayed before links with larger weights.'),
+    );
+  }
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function og_menu_single_node_insert($node) {
+  if (og_menu_single_is_enabled_group('node', $node->type)) {
+    _og_menu_single_save_group_link($node);
+  }
+}
+
+
+/**
+ * Implements hook_node_update().
+ */
+function og_menu_single_node_update($node) {
+  if (og_menu_single_is_enabled_group('node', $node->type)) {
+    _og_menu_single_save_group_link($node, og_menu_single_get_link_mlid('node', $node->nid));
+  }
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function og_menu_single_block_info() {
+  $blocks['menu'] = array(
+    'info' => t('OG Menu (active space menu)'),
+    'cache' => DRUPAL_CACHE_PER_PAGE,
+  );
+
+  return $blocks;
+}
+/**
+ * Implements hook_block_configure().
+ */
+function og_menu_single_block_configure($delta = '') {
+  // This example comes from node.module.
+  $form = array();
+  if ($delta == 'menu') {
+    $form['settings']['og_menu_single_block_menu_depth'] = array(
+      '#title' => t('Depth'),
+      '#type' => 'select',
+      '#options' => array(0 => t('All'), 1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6, 7 => 7),
+      '#default_value' => variable_get('og_menu_single_block_menu_depth', 0),
+      '#description' => t('Select how deep/how many levels of the menu to display.'),
+    );
+  }
+  return $form;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function og_menu_single_block_view($delta = '') {
+  $block = array();
+  if ($plid = og_menu_single_get_active_plid()) {
+    $tree = og_menu_single_children_items($plid,  variable_get('og_menu_single_block_menu_depth', MENU_MAX_DEPTH));
+    if ($tree && ($output = menu_tree_output($tree))) {
+      $block['content'] =  $output;
+    }
+  }
+  return $block;
+}
+
+/**
+ * Returns whether the group type is a considered group content.
+ */
+function og_menu_single_is_enabled_group_content($entity_type = 'node', $bundle) {
+  $is_group_content_type = og_is_group_content_type($entity_type, $bundle);
+  return $is_group_content_type && variable_get('og_menu_single_group_content__' . $entity_type . '__' . $bundle, $is_group_content_type && (!og_is_group_type($entity_type, $bundle)));
+}
+
+/**
+ * Returns whether the group type is a considered a group.
+ */
+function og_menu_single_is_enabled_group($entity_type = 'node', $bundle) {
+  $is_group_type = og_is_group_type($entity_type, $bundle);
+  return $is_group_type && variable_get('og_menu_single_group__' . $entity_type . '__' . $bundle, $is_group_type);
+}
+
+/**
+ * Fetches the link for given item in menu.
+ *
+ * @param $type
+ *   What type of group it is -- currently only node is supported.
+ * @param $id
+ *   ID of group.
+ * @param $reset
+ *   Reset the internal cache for this $type/id.
+ *
+ * @return
+ *   A menu link in og menu single menu for given entity if exists.
+ */
+function og_menu_single_get_link_mlid($type, $id, $reset = FALSE) {
+  $mlids = &drupal_static(__FUNCTION__, array());
+  $cid = $type . '_' . $id;
+  if ($reset || !isset($mlids[$cid])) {
+
+    $mlids[$cid] = db_select('menu_links', 'ml')
+      ->fields('ml', array('mlid'))
+      ->orderBy('mlid', 'ASC')
+      ->condition('ml.link_path', 'node/' . $id)
+      ->condition('ml.module', 'menu')
+      ->condition('ml.menu_name', OG_MENU_SINGLE_MENU_NAME)
+      ->range(0, 1)
+      ->execute()
+      ->fetchField();
+  }
+  return $mlids[$cid];
+}
+
+/**
+ * Fetched the space mlid of the current space in the menu.
+ *
+ * @return
+ *   The active menu link ID for current group.
+ */
+function og_menu_single_get_active_plid() {
+  $context = og_context();
+  // TODO
+  if (!$context || $context['group_type'] != 'node' || !$context['gid']) {
+    return NULL;
+  }
+  // If group does not have a menu entry, retroactivially create.
+  $mlid = og_menu_single_get_link_mlid('node', $context['gid']);
+  if (!$mlid) {
+    _og_menu_single_save_group_link(node_load($context['gid']));
+    $mlid = og_menu_single_get_link_mlid('node', $context['gid'], TRUE);
+    if (!$mlid) {
+      return NULL;
+    }
+  }
+  // Set PLID for form use later.
+  return $mlid;
+}
+
+/**
+ * Fetches all children of a given parent link.
+ *
+ * @param $mlid
+ *   Parent link ID to build a tree of menu links below.
+ * @param $max_depth
+ *   The maxium depth of the tree to fetch, defaults to menu's max depth.
+ *
+ * @return
+ *   An array of menu links and their children (as determined by depth).
+ */
+function og_menu_single_children_items($plid, $max_depth = NULL) {
+  if (!isset($max_depth)) {
+    $max_depth = MENU_MAX_DEPTH - 1;
+  }
+  $menu_link = og_menu_single_menu_link_load($plid);
+  return _og_menu_single_children_items($plid, $menu_link['depth'] + 1, $max_depth + 1);
+}
+
+/**
+ * Helper function to populate the menu tree without loading the entire tree.
+ */
+function _og_menu_single_children_items($plid, $current_depth, $max_depth) {
+  $menu_links = &drupal_static(__FUNCTION__, array());
+  $tree = array();
+  // current depth should always be same for a given plid.
+  if (!isset($menu_links[$plid])) {
+    $menu_links[$plid] = menu_build_tree(OG_MENU_SINGLE_MENU_NAME, array('expanded' => array($plid), 'min_depth' => $current_depth));
+  }
+  foreach ($menu_links[$plid] as $key => $item) {
+    $tree[$key] = $item;
+    if ($current_depth < $max_depth) {
+      $tree[$key]['below'] = _og_menu_single_children_items($item['link']['mlid'], $current_depth+1, $max_depth);
+    }
+  }
+  return $tree;
+}
+
+/**
+ * Cached menu_link_load as may call for same mlid during same page load.
+ */
+function og_menu_single_menu_link_load($mlid) {
+  $menu_links = &drupal_static(__FUNCTION__, array());
+  if (!isset($menu_links[$mlid])) {
+    $menu_links[$mlid] = menu_link_load($mlid);
+  }
+  return $menu_links[$mlid];
+}
+
+
+/**
+ * Saves menu link to single menu for group.
+ *
+ * @param $node
+ *   A group node object that link will be created/updated for.
+ * @param $mlid
+ *   Current link ID if exists for that group.
+ */
+function _og_menu_single_save_group_link($node, $mlid = null) {
+  $link = array(
+    'mlid' => $mlid,
+    'link_title' => $node->title . "'s Menu",
+    'link_path' => 'node/' . $node->nid,
+    'menu_name' => OG_MENU_SINGLE_MENU_NAME,
+    'options' => array(
+      'attributes' => array(
+        'title' => t('Menu for group') . ' ' . $node->title,
+      ),
+    ),
+  );
+  menu_link_save($link);
+}
+
+/*
+ * Implements hook_ctools_plugin_directory
+ */
+function og_menu_single_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'ctools' && $plugin_type == 'content_types') {
+    return 'plugins/content_types';
+  }
+}

@@ -1,0 +1,16 @@
+core = 7.x
+name = Open Atrium date
+description = Adds a custom relative date format for Open Atrium
+package = Open Atrium
+
+dependencies[] = date_api
+dependencies[] = views
+
+files[] = views/oa_date_handler_field_date.inc
+
+; Information added by drupal.org packaging script on 2013-05-03
+version = "7.x-2.0-alpha3"
+core = "7.x"
+project = "openatrium"
+datestamp = "1367592348"
+

@@ -1,0 +1,32 @@
+<?php
+
+/**
+ * Implementation of hook_install
+ */
+function panopoly_images_install() {
+
+  // Remove initial display settings.
+  module_load_include('inc', 'file_entity', 'file_entity.file_api');
+  ctools_include('export');
+
+  $default_image_styles = array(
+    'preview' => 'square_thumbnail',
+    'teaser' => 'medium',
+    'full' => 'large',
+  );
+
+  foreach ($default_image_styles as $view_mode => $image_style) {
+    $display_name = 'image__' . $view_mode . '__file_image';
+    $display = array(
+      'api_version' => 1,
+      'name' => $display_name,
+      'status' => 1,
+      'weight' => 5,
+      'settings' => array('image_style' => $image_style),
+      'export_type' => NULL,
+    );
+    ctools_export_crud_delete('file_display', (object) $display);
+  }
+
+  file_info_cache_clear();
+}

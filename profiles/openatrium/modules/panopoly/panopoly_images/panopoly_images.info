@@ -1,0 +1,54 @@
+name = Panopoly Images
+description = Provides scaling and cropping to images.
+core = 7.x
+package = Panopoly
+php = 5.2.4
+project = panopoly_images
+dependencies[] = ctools
+dependencies[] = features
+dependencies[] = file_entity
+dependencies[] = image
+dependencies[] = media
+features[ctools][] = file_entity:file_default_displays:1
+features[features_api][] = api:1
+features[file_display][] = image__default__file_field_file_default
+features[file_display][] = image__default__file_field_file_rendered
+features[file_display][] = image__default__file_field_file_table
+features[file_display][] = image__default__file_field_file_url_plain
+features[file_display][] = image__default__file_field_media_large_icon
+features[file_display][] = image__default__file_image
+features[file_display][] = image__full__file_image
+features[file_display][] = image__link__file_field_file_default
+features[file_display][] = image__link__file_field_file_rendered
+features[file_display][] = image__link__file_field_file_table
+features[file_display][] = image__link__file_field_file_url_plain
+features[file_display][] = image__link__file_field_media_large_icon
+features[file_display][] = image__link__file_image
+features[file_display][] = image__preview__file_field_file_default
+features[file_display][] = image__preview__file_field_file_rendered
+features[file_display][] = image__preview__file_field_file_table
+features[file_display][] = image__preview__file_field_file_url_plain
+features[file_display][] = image__preview__file_field_media_large_icon
+features[file_display][] = image__preview__file_image
+features[file_display][] = image__teaser__file_field_file_default
+features[file_display][] = image__teaser__file_field_file_rendered
+features[file_display][] = image__teaser__file_field_file_table
+features[file_display][] = image__teaser__file_field_file_url_plain
+features[file_display][] = image__teaser__file_field_media_large_icon
+features[file_display][] = image__teaser__file_image
+features[image][] = panopoly_image_featured
+features[image][] = panopoly_image_full
+features[image][] = panopoly_image_half
+features[image][] = panopoly_image_quarter
+features[image][] = panopoly_image_spotlight
+features[image][] = panopoly_image_square
+features[image][] = panopoly_image_thumbnail
+features[image][] = panopoly_image_video
+
+
+; Information added by drush on 2013-05-03
+version = "7.x-1.0-rc4+0-dev"
+core = "7.x"
+project = "panopoly_images"
+datestamp = "1367592403"
+

@@ -1,0 +1,131 @@
+<?php
+
+/**
+ * @file
+ * Provides functions that run on (un)install and update for oa_notifications.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function oa_notifications_schema() {
+  $schema = array();
+
+  $schema['oa_notifications'] = array(
+    'description' => 'The database table for OA Notifications',
+    'fields' => array(
+      'notification_id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'source_type' => array(
+        'description' => 'The type of the item requiring notification, eg "node"',
+        'type' => 'varchar',
+        'length' => '128',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'source_id' => array(
+        'description' => 'The unique ID of the object, such as {nid}.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'target_type' => array(
+        'description' => 'The type of entity to be notified, eg "user", "group", "team".',
+        'type' => 'varchar',
+        'length' => '128',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'target_id' => array(
+        'description' => 'The unique ID of the object, such as either the {uid} or {nid}.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('notification_id'),
+    'indexes' => array(
+      'source_type_id' => array('source_type', 'source_id'),
+      'target_type_id' => array('target_type', 'target_id'),
+    ),
+  );
+  
+  $schema['oa_notifications_override'] = array(
+    'description' => 'Keeps track of which nodes are overriding default notifications.',
+    'fields' => array(
+      'entity_type' => array(
+        'description' => 'The entity type of the object, i.e. "node"',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'entity_id' => array(
+        'description' => 'The ID of the object that is, or is not, overriding default notifications.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'override' => array(
+        'description' => 'Whether or not the source object is overriding its default notifications.',
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'unique keys' => array(
+      'entity' => array(
+        'entity_type',
+        'entity_id',
+      )
+    ),
+  );
+
+  return $schema;
+}
+
+/**
+ * Create the oa_notifications_override table.
+ */
+function oa_notifications_update_7001() {
+  db_create_table('oa_notifications_override', array(
+    'description' => 'Keeps track of which nodes are overriding default notifications.',
+    'fields' => array(
+      'entity_type' => array(
+        'description' => 'The entity type of the object, i.e. "node"',
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'entity_id' => array(
+        'description' => 'The ID of the object that is, or is not, overriding default notifications.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'override' => array(
+        'description' => 'Whether or not the source object is overriding its default notifications.',
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'unique keys' => array(
+      'entity' => array(
+        'entity_type',
+        'entity_id',
+      )
+    ),
+  ));
+}

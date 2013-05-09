@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * @file
+ * Provides update and install hooks to oa_core.
+ */
+
+/**
+ * Enable oa_search.
+ */
+function oa_core_update_7001() {
+  module_enable(array('oa_search'));
+}

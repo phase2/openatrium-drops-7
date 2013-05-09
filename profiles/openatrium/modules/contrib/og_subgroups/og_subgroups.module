@@ -1,0 +1,107 @@
+<?php
+
+/**
+ * @file
+ * Provides users the ability to inherit permissions on subgroups.
+ */
+
+// Add field widget related code.
+require drupal_get_path('module', 'og_subgroups') . '/og_subgroups.common.inc';
+
+/**
+ * Group default roles and permissions field.
+ */
+define('OG_USER_INHERITANCE_FIELD', 'og_user_inheritance');
+
+/**
+ * Implements hook_og_fields_info().
+ */
+function og_subgroups_og_fields_info() {
+  $allowed_values = array(
+    0 => 'No - subgroups of this group won\'t inherit its users.',
+    1 => 'Yes - subgroups of this group will inherit its users.',
+  );
+  $items[OG_USER_INHERITANCE_FIELD] = array(
+    'type' => array('group'),
+    'description' => t('Determine if the subgroups of a group will inherit its users.'),
+    'entity' => array('node'),
+    'field' => array(
+      'field_name' => OG_USER_INHERITANCE_FIELD,
+      'no_ui' => TRUE,
+      'type' => 'list_boolean',
+      'cardinality' => 1,
+      'settings' => array('allowed_values' => $allowed_values, 'allowed_values_function' => ''),
+    ),
+    'instance' => array(
+      'label' => t('Group user inheritance'),
+      'required' => TRUE,
+      'default_value' => array(0 => array('value' => 1)),
+      'widget_type' => 'options_select',
+      'view modes' => array(
+        'full' => array(
+          'label' => 'above',
+          'type' => 'options_onoff',
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'type' => 'options_onoff',
+        ),
+      ),
+    ),
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function og_subgroups_views_api() {
+  return array(
+    'api' => 3.0,
+  );
+}
+
+/**
+ * Implements hook_node_grants().
+ */
+function og_subgroups_node_grants($account, $op) {
+  if ($op != 'view') {
+    return;
+  }
+  $groups = _og_subgroup_get_user_inherited_groups($account);
+  if (!empty($groups)) {
+    foreach ($groups as $group_type => $gids) {
+      foreach (array_keys($gids) as $gid) {
+        $realm = OG_ACCESS_REALM . ':' . $group_type;
+        $grants[$realm][] = $gid;
+      }
+    }
+  }
+  return !empty($grants) ? $grants : array();
+}
+
+/**
+ * Implements hook_og_user_access_alter().
+ *
+ * Inherit every permission the user had in the parent groups;
+ * i.e. we only "add" permissions.
+ */
+function og_subgroups_og_user_access_alter(&$perms, $context) {
+  if (!empty($perms[$context['string']])) {
+    // Permission is already TRUE, no need to check.
+    return;
+  }
+  $group_type = $context['group_type'];
+  $group = $context['group'];
+  list($id) = entity_extract_ids($group_type, $group);
+  $parent_groups = _og_subgroups_get_unique_parents($group_type, $id);
+  if (!empty($parent_groups)) {
+    foreach ($parent_groups as $parent_group) {
+      // Recursion is prevented by $skip_alter = TRUE.
+      if (og_user_access($parent_group['type'], $parent_group['id'], $context['string'], $context['account'], TRUE)) {
+        $perms[$context['string']] = TRUE;
+        break;
+      }
+    }
+  }
+}

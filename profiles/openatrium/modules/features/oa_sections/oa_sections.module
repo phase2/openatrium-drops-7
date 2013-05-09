@@ -1,0 +1,64 @@
+<?php
+/**
+ * @file
+ * Code for the OpenAtrium2 Section Pages feature.
+ */
+
+include_once 'oa_sections.features.inc';
+
+/**
+ * Name of default OpenAtrium Group field in Section.
+ */
+define('OA_GROUP_FIELD', 'field_oa_group_ref');
+/**
+ * Name of default OpenAtrium Team field in Section.
+ */
+define('OA_TEAM_FIELD', 'field_oa_team_ref');
+/**
+ * Name of default OpenAtrium User field in Section.
+ */
+define('OA_USER_FIELD', 'field_oa_user_ref');
+
+/**
+ * Implements hook_og_menu_single_menu_parent().
+ */
+function oa_sections_og_menu_single_menu_parent($conf) {
+  if ($plid = og_menu_single_get_active_plid()) {
+    $node = menu_get_object();
+    if ($node && $node->type == 'oa_section') {
+      // Menu will be cached via core, so just get it.and look for the parent
+      $section_id = $node->nid;
+    }
+    elseif ($node && ($values = field_get_items('node', $node, 'oa_section_ref'))) {
+      $value = reset($values);
+      $section_id = $value['target_id'];
+    }
+    else {
+      $section_id = oa_core_get_section_context();
+    }
+    // If in a section, find the the secondary link that section is in.
+    if ($section_id) {
+      if ($mlid = og_menu_single_get_link_mlid('node', $section_id)) {
+        foreach (og_menu_single_children_items($plid) as $item) {
+          if (_oa_sections_is_parent($item, $mlid)) {
+            return $item['link']['mlid'];
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Helpder function to determine if an item or it's children have a mlid.
+ */
+function _oa_sections_is_parent($item, $mlid) {
+  if ($item['link']['mlid'] == $mlid) {
+    return TRUE;
+  }
+  foreach ($item['below'] as $child_item) {
+    if (_oa_sections_is_parent($child_item, $mlid)) {
+      return TRUE;
+    }
+  }
+}

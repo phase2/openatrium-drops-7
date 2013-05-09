@@ -1,0 +1,42 @@
+<?php
+
+/**
+ * @file
+ * Provides a base unit test class.
+ */
+
+abstract class oa_coreBaseWebTest extends DrupalWebTestCase {
+  /**
+   * One using of this function is to enable the module used for testing, any dependencies
+   * or anything else that might be universal for all tests
+   */
+  public function setUp() {
+    parent::setUp(array('ctools', 'entityreference', 'features', 'image', 'list', 'number', 'og', 'og_ui', 'options', 'panelizer', 'strangarm', 'text', 'views', 'views_content', 'oa_core'));
+  }
+}
+abstract class oa_coreBaseUnitTest extends DrupalUnitTestCase {
+  /**
+   * One using of this function is to enable the module used for testing, any dependencies
+   * or anything else that might be universal for all tests
+   */
+  public function setUp() {
+    parent::setUp();
+    //enable module
+    $this->enableModule('oa_core');
+
+    // enable dep and other thing for all tests
+  }
+
+  /**
+   * Fake enables a module for the purpose of a unit test
+   *
+   * @param $name
+   *  The module's machine name (i.e. ctools not Chaos Tools)
+   */
+  protected function enableModule($name) {
+    $modules = module_list();
+    $modules[$name] = $name;
+    module_list(TRUE, FALSE, FALSE, $modules);
+  }
+
+}
