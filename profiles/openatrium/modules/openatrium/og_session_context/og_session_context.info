@@ -1,8 +1,0 @@
-name = Session Context
-description = Provides og_context value from session variable.
-package = Open Atrium
-core = 7.x
-php = 5.1
-
-dependencies[] = og
-dependencies[] = og_context

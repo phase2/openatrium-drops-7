@@ -1,8 +1,0 @@
-name = Open Atrium Notifications
-description = A module that handles all of the functionality for notifications for Open Atrium
-package = Open Atrium
-core = 7.x
-
-dependencies[] = ctools
-dependencies[] = oa_core
-
