@@ -80,15 +80,6 @@ function media_youtube_file_mimetype_mapping_alter(&$mapping) {
   $mapping['mimetypes'][] = 'video/youtube';
 }
 
-/*
- * Implements hook_file_default_types_alter().
- *
- * Adds the video/youtube fake mimetype to video files.
- */
-function media_youtube_file_default_types_alter(&$types) {
-  $types['video']->mimetypes[] = 'video/youtube';
-}
-
 /**
  * Implements hook_ctools_plugin_api().
  */

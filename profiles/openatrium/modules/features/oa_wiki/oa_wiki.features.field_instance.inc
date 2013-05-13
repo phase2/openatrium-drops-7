@@ -158,6 +158,14 @@ function oa_wiki_field_default_field_instances() {
     'entity_type' => 'node',
     'field_name' => 'oa_section_ref',
     'label' => 'OpenAtrium Section',
+    'options_limit' => 1,
+    'options_limit_empty_behaviour' => 1,
+    'options_limit_fields' => array(
+      'body' => 0,
+      'oa_section_ref' => 0,
+      'og_group_ref' => 'og_group_ref',
+    ),
+    'options_optomize_entityreferences' => 1,
     'required' => 0,
     'settings' => array(
       'user_register_form' => FALSE,

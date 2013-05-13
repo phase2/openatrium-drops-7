@@ -8,9 +8,9 @@ package = "Mailhandler"
 files[] = plugins/mailhandler/authenticate/MailhandlerMultipleEmailAuthenticate.class.php
 
 
-; Information added by drush on 2013-05-03
+; Information added by drush on 2013-05-10
 version = "7.x-2.5+21-dev"
 core = "7.x"
 project = "mailhandler"
-datestamp = "1367592380"
+datestamp = "1368219999"
 

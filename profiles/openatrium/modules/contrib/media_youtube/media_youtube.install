@@ -161,16 +161,8 @@ function media_youtube_update_7201() {
 }
 
 /**
-* Update Media YouTube files to the new video file_entity type.
-*/
+ * Empty update function.
+ */
 function media_youtube_update_7202() {
-  // Required to run file_displays_load() in update.php.
-  module_load_include('inc', 'file_entity', 'file_entity.file_api'); 
-  $video_type = file_type_load('video');
-  $video_type->mimetypes[] = 'video/youtube';
-  // maybe also add stream if is not there already?
-  file_type_save($video_type);
-
-  // Update existing files
-  db_query("UPDATE {file_managed} SET type = 'video' WHERE type = 'undefined' AND filemime = 'video/youtube'");
+  // Code removed in response to http://drupal.org/node/1911970.
 }

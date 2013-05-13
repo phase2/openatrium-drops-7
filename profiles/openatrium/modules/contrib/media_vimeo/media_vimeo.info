@@ -12,8 +12,8 @@ dependencies[] = media
 dependencies[] = media_internet
 
 
-; Information added by drush on 2013-05-03
+; Information added by drush on 2013-05-10
 version = ""
 project = "media_vimeo"
-datestamp = "1367592403"
+datestamp = "1368219928"
 

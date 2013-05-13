@@ -8,9 +8,9 @@ package = "Organic groups"
 core = 7.x
 
 files[] = tests/og_menu_singleBase.test
-; Information added by drupal.org packaging script on 2013-05-03
-version = "7.x-2.0-alpha3"
-core = "7.x"
-project = "openatrium"
-datestamp = "1367592348"
+
+; Information added by drush on 2013-05-10
+version = ""
+project = "og_menu_single"
+datestamp = "1368219936"
 

@@ -1,0 +1,30 @@
+<?php
+/**
+ * @file
+ * Code for the Open Atrium Mailhandler feature.
+ */
+
+include_once 'oa_mailhandler.feeds.inc';
+include_once 'oa_mailhandler.features.inc';
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function oa_mailhandler_ctools_plugin_directory($owner, $plugin_type) {
+  return 'plugins/' . $owner . '/' . $plugin_type;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function oa_mailhandler_form_system_site_information_settings_alter(&$form, &$form_state) {
+  $form['site_information']['mailbox_mail'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Mailbox E-mail address'),
+    '#description' => t("The email address that corresponds with the !mailbox that you've !ingest email replies. Like the site email address, this email address should use this site's domain to avoid being filtered as spam.", array(
+      '!mailbox' => l(t('mailbox'), 'admin/structure/mailhandler'),
+      '!ingest' => l(t('set up to ingest'), 'import/discussion_reply_email_importer'),
+    )),
+    '#default_value' => variable_get('mailbox_mail', ''),
+  );
+}

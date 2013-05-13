@@ -20,6 +20,79 @@ function oa_media_theme_registry_alter(&$theme_registry) {
   }
 }
 
+
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function oa_media_field_formatter_info() {
+  return array(
+   'oa_media_formatter' => array(
+      'label' => t('First Image'),
+      'field types' => array('file'),
+      'settings'  => array(
+        'image_style' => 'thumbnail',
+      ),
+    )
+  );
+}
+
+/**
+ * Implements hook_field_formatter_settings_form().
+ */
+function oa_media_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  // Grab the instance settings for this view mode.
+  $display = $instance['display'][$view_mode];
+  // Grab configuration options for this formatter.
+  $settings = $display['settings'];
+
+  $element = array();
+
+  if ($display['type'] == 'oa_media_formatter') {
+    // Build options array.
+    $styles = image_styles();
+    $style_options = array();
+    foreach ($styles as $style) {
+      $style_options[$style['name']] = $style['name'];
+    }
+
+    $element['image_style'] = array(
+      '#type' => 'select',
+      '#title' => t('Image Style'),
+      '#description' => t('Select the image style to use for this formatter'),
+      '#default_value' => $settings['image_style'],
+      '#options' => $style_options,
+    );
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function oa_media_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+
+  $element = array();
+  if ($display['type'] == 'oa_media_formatter') {
+    foreach ($items as $delta => $item) {
+      if ($item['type'] == 'image') {
+        $settings = $display['settings'];
+        dpm($settings);
+        $image = theme('image_style', array('style_name' => $settings['image_style'], 'path' => $item['uri']));
+
+        $element[0] = array(
+          '#markup' => '<div class="oa-media-first-thumbnail">' . $image . "</div>",
+        );
+
+        break;
+      }
+    }
+  }
+
+  return $element;
+}
+
 function oa_media_media_colorbox($variables) {
   $entity_id = $variables['entity_id'];
   $file_id = $variables['file_id'];

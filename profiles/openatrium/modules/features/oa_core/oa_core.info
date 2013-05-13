@@ -102,9 +102,9 @@ files[] = views/views_handler_filter_is_parent.inc
 files[] = plugins/views/oa_views_plugin_exposed_form.inc
 project path = profiles/openatrium/modules/features
 
-; Information added by drupal.org packaging script on 2013-05-03
-version = "7.x-2.0-alpha3"
+; Information added by drupal.org packaging script on 2013-05-10
+version = "7.x-2.0-alpha4"
 core = "7.x"
 project = "openatrium"
-datestamp = "1367592348"
+datestamp = "1368219913"
 

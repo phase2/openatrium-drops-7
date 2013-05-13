@@ -24,7 +24,10 @@ class MediaInternetYouTubeHandler extends MediaInternetBaseHandler {
   static public function validId($id) {
     $url = 'http://www.youtube.com/oembed?url=http%3A//youtube.com/watch%3Fv%3D'. $id;
     $response = drupal_http_request($url, array('method' => 'HEAD'));
-    if ($response->code != 200) {
+    if ($response->code == 401) {
+      throw new MediaInternetValidationException("Embedding has been disabled for this video.");
+    }
+    elseif ($response->code != 200) {
       throw new MediaInternetValidationException("The YouTube video ID is invalid or the video was deleted.");
     }
     return TRUE;

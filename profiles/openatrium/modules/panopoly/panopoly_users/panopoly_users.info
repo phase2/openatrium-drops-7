@@ -48,9 +48,9 @@ features[variable][] = pm_existing_pages_disabled_user_password
 features[variable][] = pm_existing_pages_disabled_user_register
 
 
-; Information added by drush on 2013-05-03
+; Information added by drush on 2013-05-10
 version = "7.x-1.0-rc4+0-dev"
 core = "7.x"
 project = "panopoly_users"
-datestamp = "1367592394"
+datestamp = "1368219917"
 

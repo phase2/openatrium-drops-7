@@ -6,9 +6,9 @@ configure = admin/config/system/uuid
 files[] = uuid.test
 
 
-; Information added by drush on 2013-05-03
+; Information added by drush on 2013-05-10
 version = "7.x-1.0-alpha3+47-dev"
 core = "7.x"
 project = "uuid"
-datestamp = "1367592418"
+datestamp = "1368219957"
 

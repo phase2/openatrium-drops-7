@@ -75,9 +75,9 @@ features[variable][] = panelizer_taxonomy_term:panopoly_categories_allowed_types
 features[views_view][] = panopoly_taxonomy
 
 
-; Information added by drush on 2013-05-03
+; Information added by drush on 2013-05-10
 version = "7.x-1.0-rc4+1-dev"
 core = "7.x"
 project = "panopoly_core"
-datestamp = "1367592410"
+datestamp = "1368219944"
 

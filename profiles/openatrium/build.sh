@@ -13,8 +13,8 @@ if [ -z "$TARGET" ]; then
   echo "Usage $0 target_build_diri"
   exit 2
 fi
-CALLPATH=`dirname $0`
-ABS_CALLPATH=`cd $CALLPATH; pwd -P`
+CALLPATH=`dirname "$0"`
+ABS_CALLPATH=`cd "$CALLPATH"; pwd -P`
 BASE_PATH=`cd ..; pwd`
 
 echo '_______      ___'
@@ -27,21 +27,21 @@ echo '================'
 
 # Temp move settings
 echo 'Backing up settings.php...'
-mv $TARGET/sites/default/settings.php settings.php
+mv "$TARGET/sites/default/settings.php" settings.php
 # Remove current drupal dir
 echo 'Wiping Drupal directory...'
-rm -rf $TARGET
+rm -rf "$TARGET"
 # Do the build
 echo 'Running drush make...'
-drush make $DRUSH_OPTS $ABS_CALLPATH/$MAKEFILE $TARGET
+drush make $DRUSH_OPTS "$ABS_CALLPATH/$MAKEFILE" "$TARGET"
 # Build Symlinks
 echo 'Setting up symlinks...'
-DRUPAL=`cd $TARGET; pwd -P`
-ln -s $ABS_CALLPATH $DRUPAL/profiles/openatrium
-ln -s /opt/files/openatrium $DRUPAL/sites/default/files
+DRUPAL=`cd "$TARGET"; pwd -P`
+ln -s "$ABS_CALLPATH" "$DRUPAL/profiles/openatrium"
+ln -s /opt/files/openatrium "$DRUPAL/sites/default/files"
 # Restore settings
 echo 'Restoring settings...'
-ln -s $BASE_PATH/settings.php $DRUPAL/sites/default/settings.php
+ln -s "$BASE_PATH/settings.php" "$DRUPAL/sites/default/settings.php"
 
 # Move libraries from inherited profiles into site libraries
 #   These instructions should be incorporated into the make file in the future
@@ -53,7 +53,7 @@ ln -s $BASE_PATH/settings.php $DRUPAL/sites/default/settings.php
 #mv -v $DRUPAL/profiles/panopoly/libraries/SolrPhpClient $DRUPAL/sites/all/libraries/SolrPhpClient
 
 # Clear caches and Run updates
-cd $DRUPAL;
+cd "$DRUPAL"
 echo 'Clearing caches...'
 drush cc all; drush cc all;
 echo 'Running updates...'

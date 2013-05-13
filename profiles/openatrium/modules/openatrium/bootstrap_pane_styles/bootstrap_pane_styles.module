@@ -1,0 +1,14 @@
+<?php
+/**
+ * @file
+ * Hooks for bootstrap pane styles.
+ */
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function bootstrap_pane_styles_ctools_plugin_directory($module, $plugin) {
+  if ($plugin == 'styles') {
+    return 'plugins/' . $plugin;
+  }
+}

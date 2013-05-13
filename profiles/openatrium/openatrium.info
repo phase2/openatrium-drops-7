@@ -1,5 +1,5 @@
 name = OpenAtrium
-distribution_name = openatrium
+distribution_name = Open Atrium 2
 description = A team collaboration platform
 core = 7.x
 exclusive = TRUE
@@ -70,7 +70,6 @@ dependencies[] = features_override
 dependencies[] = panels_mini
 dependencies[] = job_scheduler
 dependencies[] = feeds
-dependencies[] = mailhandler
 
 ; Organic Groups
 dependencies[] = og
@@ -113,6 +112,7 @@ dependencies[] = oa_media
 dependencies[] = oa_permissions
 dependencies[] = oa_admin
 dependencies[] = oa_search
+dependencies[] = oa_mailhandler
 
 ; Open Atrium 2.0 Plugins
 dependencies[] = oa_discussion
@@ -125,9 +125,9 @@ dependencies[] = oa_home
 dependencies[] = devel
 dependencies[] = diff
 
-; Information added by drupal.org packaging script on 2013-05-03
-version = "7.x-2.0-alpha3"
+; Information added by drupal.org packaging script on 2013-05-10
+version = "7.x-2.0-alpha4"
 core = "7.x"
 project = "openatrium"
-datestamp = "1367592348"
+datestamp = "1368219913"
 

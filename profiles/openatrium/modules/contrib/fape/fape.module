@@ -51,11 +51,12 @@ function fape_field_edit_page($entity_type, $entity_id, $field_name, $langcode =
   }
 
   // Ensure access to actually update this particular field is granted.
-  if (!field_access('edit', $field_name, $entity_type, $entity)) {
+  $field = field_info_field($field_name);
+  if (!field_access('edit', $field, $entity_type, $entity)) {
     return MENU_ACCESS_DENIED;
   }
 
-  list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
+  list( , , $bundle) = entity_extract_ids($entity_type, $entity);
 
   // This allows us to have limited support for non-field API fields.
   // Currently we support only node:title.
@@ -356,31 +357,28 @@ function fape_panels_pane_content_alter($content, $pane, $args, $context) {
 
   if ($pane->type == 'entity_field') {
     list($entity_type, $field_name) = explode(':', $pane->subtype);
-
-    // Extract the entity from the context.
     $plugin = ctools_get_content_type($pane->type);
-    $pane_context = ctools_content_select_context($plugin, $pane->subtype, $pane->configuration, $context);
-
-    list($id, $vid, $bundle) = entity_extract_ids($entity_type, $pane_context->data);
-    if (entity_access('update', $entity_type, $pane_context->data) &&
-        field_access('edit', $field_name, $entity_type, $pane_context->data)) {
-      $content->admin_links[] = array(
-        'title' => t('Edit field'),
-        'alt' => t("Edit the data in this field."),
-        'href' => "admin/field/edit/$entity_type/$id/$field_name",
-        'query' => drupal_get_destination(),
-      );
+    $entity = ctools_content_select_context($plugin, $pane->subtype, $pane->configuration, $context)->data;
+    if (entity_access('update', $entity_type, $entity)) {
+      $field = field_info_field($field_name);
+      if (field_access('edit', $field, $entity_type, $entity)) {
+        list($id, , ) = entity_extract_ids($entity_type, $entity);
+        $content->admin_links[] = array(
+          'title' => t('Edit field'),
+          'alt' => t("Edit the data in this field."),
+          'href' => "admin/field/edit/$entity_type/$id/$field_name",
+          'query' => drupal_get_destination(),
+        );
+      }
     }
   }
 
   // We also support the node title field specifically.
-  if ($pane->type == 'node_title') {
+  else if ($pane->type == 'node_title') {
     $plugin = ctools_get_content_type($pane->type);
-    $pane_context = ctools_content_select_context($plugin, $pane->subtype, $pane->configuration, $context);
-
-    $nid = $pane_context->data->nid;
-
-    if (node_access('update', $pane_context->data)) {
+    $entity = ctools_content_select_context($plugin, $pane->subtype, $pane->configuration, $context)->data;
+    if (node_access('update', $entity)) {
+      $nid = $entity->nid;
       $content->admin_links[] = array(
         'title' => t('Edit field'),
         'alt' => t("Edit the data in this field."),
@@ -389,6 +387,4 @@ function fape_panels_pane_content_alter($content, $pane, $args, $context) {
       );
     }
   }
-
 }
-

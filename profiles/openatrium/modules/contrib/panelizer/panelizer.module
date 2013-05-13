@@ -1546,18 +1546,12 @@ function panelizer_form_panels_ipe_edit_control_form_alter(&$form, &$form_state)
 
   // Calculate the proper name to add to the cache key, which
   // has some data stripped off of the true name.
-  if (empty($panelizer->name)) {
-    $name = 'default';
-  }
-  else {
+  $name = 'default';
+  if (!empty($panelizer->name)) {
     $pieces = explode(':', $panelizer->name);
-    // Strip off entity type
-    array_shift($pieces);
-    // Strip off entity bundle
-    array_shift($pieces);
-    // Strip off view mode
-    array_shift($pieces);
-    $name = implode(':', $pieces);
+    if (isset($pieces[2])) {
+      $name = $pieces[2];
+    }
   }
 
   // Add another button to save as the default instead:

@@ -60,7 +60,7 @@ function devel_admin_settings() {
   $form['xhprof']['settings']['devel_xhprof_directory'] = array(
     '#type' => 'textfield',
     '#title' => 'xhprof directory',
-    '#description' => t('Location of the xhprof source code on your system, usually somewhere in /usr/local/share or /usr/share, include the leading forward slash.'),
+    '#description' => t('Location of the xhprof source code on your system, where the directory "xhprof_lib" can be found, usually somewhere in /usr/local/share or /usr/share, include the leading forward slash.'),
     '#default_value' => variable_get('devel_xhprof_directory', ''),
     '#states' => array(
       'invisible' => array(

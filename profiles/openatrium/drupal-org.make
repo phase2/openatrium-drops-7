@@ -1,89 +1,26 @@
 api = 2
 core = 7.x
 
-; Panopoly Core
-; Drupal.org does not support recursive profiles
-; and also does not support include[]
-; so we need to copy the panopoly.make file here
-; #################### Panopoly #######################
-projects[panopoly_core][version] = 1.x-dev
-projects[panopoly_core][subdir] = panopoly
-projects[panopoly_core][download][type] = git
-projects[panopoly_core][download][revision] = 6a257ac
-projects[panopoly_core][download][branch] = 7.x-1.x
+; ************************************************
+; ************** PANOPOLY OVERRIDES **************
 
-projects[panopoly_images][version] = 1.x-dev
-projects[panopoly_images][subdir] = panopoly
-projects[panopoly_images][download][type] = git
-projects[panopoly_images][download][revision] = b57b48f
-projects[panopoly_images][download][branch] = 7.x-1.x
+; Note that makefiles are parsed bottom-up and that in Drush concurrency might
+; interfere with recursion.
+; Therefore PANOPOLY OVERRIDES need to be listed AT THE TOP of this makefile,
+; so we can patch or update certain projects fetched by Panopoly's makefiles.
 
-projects[panopoly_theme][version] = 1.x-dev
-projects[panopoly_theme][subdir] = panopoly
-projects[panopoly_theme][download][type] = git
-projects[panopoly_theme][download][revision] = 7715ded
-projects[panopoly_theme][download][branch] = 7.x-1.x
-
-projects[panopoly_magic][version] = 1.x-dev
-projects[panopoly_magic][subdir] = panopoly
-projects[panopoly_magic][download][type] = git
-projects[panopoly_magic][download][revision] = 623c6ff
-projects[panopoly_magic][download][branch] = 7.x-1.x
-
-projects[panopoly_widgets][version] = 1.x-dev
-projects[panopoly_widgets][subdir] = panopoly
-projects[panopoly_widgets][download][type] = git
-projects[panopoly_widgets][download][revision] = 6ca2f97
-projects[panopoly_widgets][download][branch] = 7.x-1.x
-
-projects[panopoly_admin][version] = 1.x-dev
-projects[panopoly_admin][subdir] = panopoly
-projects[panopoly_admin][download][type] = git
-projects[panopoly_admin][download][revision] = 4d9d071
-projects[panopoly_admin][download][branch] = 7.x-1.x
-
-projects[panopoly_users][version] = 1.x-dev
-projects[panopoly_users][subdir] = panopoly
-projects[panopoly_users][download][type] = git
-projects[panopoly_users][download][revision] = cb4ca09
-projects[panopoly_users][download][branch] = 7.x-1.x
-
-; The Panopoly Toolset
-
-projects[panopoly_pages][version] = 1.x-dev
-projects[panopoly_pages][subdir] = panopoly
-projects[panopoly_pages][download][type] = git
-projects[panopoly_pages][download][revision] = 4125aa6
-projects[panopoly_pages][download][branch] = 7.x-1.x
-
-projects[panopoly_wysiwyg][version] = 1.x-dev
-projects[panopoly_wysiwyg][subdir] = panopoly
-projects[panopoly_wysiwyg][download][type] = git
-projects[panopoly_wysiwyg][download][revision] = 227335f
-projects[panopoly_wysiwyg][download][branch] = 7.x-1.x
-
-projects[panopoly_search][version] = 1.x-dev
-projects[panopoly_search][subdir] = panopoly
-projects[panopoly_search][download][type] = git
-projects[panopoly_search][download][revision] = c981ec3
-projects[panopoly_search][download][branch] = 7.x-1.x
-; #################### END Panopoly #######################
-; Someday maybe we can turn this on to just inherit Panopoly
-;projects[panopoly][type] = profile
-;projects[panopoly][download][type] = git
-;projects[panopoly][download][url] = http://git.drupal.org/project/panopoly.git
-;projects[panopoly][download][branch] = 7.x-1.x
-
-; **** Panopoly Overrides ****
-; Update Panels to fix issue with custom region styles
-projects[panels][version] = 3.x-dev
+; Override panopoly_core.make: a915408
+; Patch Panels to fix issue with custom region styles (#1838544)
+projects[panels][type] = module
 projects[panels][subdir] = contrib
 projects[panels][download][type] = git
+projects[panels][download][url] = http://git.drupal.org/project/panels.git
 projects[panels][download][revision] = a915408
 projects[panels][download][branch] = 7.x-3.x
-projects[panels][patch][] = http://drupal.org/files/1838544-panels_ipe_region_style_0.patch
+projects[panels][patch][1838544] = http://drupal.org/files/1838544-panels_ipe_region_style_0.patch
 
-; Update Panelizer to latest with features override patch
+; Override panopoly_core.make: 3.1
+; Update Panelizer to latest dev version
 projects[panelizer][type] = module
 projects[panelizer][subdir] = contrib
 projects[panelizer][download][type] = git
@@ -91,15 +28,8 @@ projects[panelizer][download][url] = http://git.drupal.org/project/panelizer.git
 projects[panelizer][download][branch] = 7.x-3.x
 projects[panelizer][download][revision] = 1e050d3
 
-; Update File entity to handle private content
-projects[file_entity][type] = module
-projects[file_entity][subdir] = contrib
-projects[file_entity][download][type] = git
-projects[file_entity][download][url] = http://git.drupal.org/project/file_entity.git
-projects[file_entity][download][branch] = 7.x-2.x
-projects[file_entity][download][revision] = e6f091e
-
-; Entityreference to work with Devel Generate
+; Override panopoly_core.make: 1.0
+; Update Entity Reference to work with Devel Generate (#1852112)
 projects[entityreference][type] = module
 projects[entityreference][subdir] = contrib
 projects[entityreference][download][type] = git
@@ -107,15 +37,31 @@ projects[entityreference][download][url] = http://git.drupal.org/project/entityr
 projects[entityreference][download][branch] = 7.x-1.x
 projects[entityreference][download][revision] = 1c176da
 
-; Private file system fix
-projects[media_youtube][version] = 2.x-dev
+; Override panopoly_core.make: 1143ee2
+; Patch FAPE to fix warnings (#1846156)
+projects[fape][type] = module
+projects[fape][subdir] = contrib
+projects[fape][download][type] = git
+projects[fape][download][url] = http://git.drupal.org/project/fape.git
+projects[fape][download][branch] = 7.x-1.x
+projects[fape][download][revision] = 1143ee2
+projects[fape][patch][1846156] = http://drupal.org/files/fape-1846156-5.patch
+
+; Override panopoly_widgets.make: 5418cbe
+; Update Media Youtube to work with private filesystem (#1946002)
+projects[media_youtube][type] = module
 projects[media_youtube][subdir] = contrib
 projects[media_youtube][download][type] = git
-projects[media_youtube][download][revision] = c53660c
+projects[media_youtube][download][url] = http://git.drupal.org/project/media_youtube.git
 projects[media_youtube][download][branch] = 7.x-2.x
+projects[media_youtube][download][revision] = c53660c
 
-;
-; **** end of overrides ****
+; ************ End Panopoly Overrides ************
+; ************************************************
+
+
+; ************************************************
+; ********** OPEN ATRIUM'S DEPENDENCIES **********
 
 ; Parent Theme
 projects[radix][download][type] = git
@@ -260,3 +206,108 @@ projects[date_facets][download][type] = git
 projects[date_facets][download][url] = http://git.drupal.org/project/date_facets.git
 projects[date_facets][download][branch] = 7.x-1.x
 projects[date_facets][download][revision] = a7a35f8
+
+; Og menu single
+projects[og_menu_single][subdir] = contrib
+projects[og_menu_single][download][type] = git
+projects[og_menu_single][download][url] = http://git.drupal.org/project/og_menu_single.git
+projects[og_menu_single][download][branch] = 7.x-1.x
+projects[og_menu_single][download][revision] = 83dcd08
+projects[og_menu_single][type] = module
+
+; Reference Option Limit
+projects[reference_option_limit][subdir] = contrib
+projects[reference_option_limit][download][type] = git
+projects[reference_option_limit][download][url] = http://git.drupal.org/project/reference_option_limit.git
+projects[reference_option_limit][download][branch] = 7.x-1.x
+projects[reference_option_limit][download][revision] = 74bee91
+projects[reference_option_limit][type] = module
+projects[reference_option_limit][patch][1986532] = http://drupal.org/files/reference_option_limit_organic_groups.patch
+projects[reference_option_limit][patch][1986526] = http://drupal.org/files/1986526_reference_option_limit_3.patch
+projects[reference_option_limit][patch][1989262] = http://drupal.org/files/reference_option_limit_optomize_entityreference.patch
+
+; ******** End Open Atrium's Dependencies ********
+; ************************************************
+
+
+
+; ************************************************
+; ******************* PANOPOLY *******************
+
+; Note that makefiles are parsed bottom-up, and that in Drush concurrency might
+; interfere with recursion.
+; Therefore PANOPOLY needs to be listed AT THE BOTTOM of this makefile,
+; so we can patch or update certain projects fetched by Panopoly's makefiles.
+
+; Someday maybe we can turn this on to just inherit Panopoly
+;projects[panopoly][type] = profile
+;projects[panopoly][download][type] = git
+;projects[panopoly][download][url] = http://git.drupal.org/project/panopoly.git
+;projects[panopoly][download][branch] = 7.x-1.x
+
+; Drupal.org does not support recursive profiles
+; and also does not support include[]
+; so we need to copy the panopoly.make file here
+
+projects[panopoly_core][version] = 1.x-dev
+projects[panopoly_core][subdir] = panopoly
+projects[panopoly_core][download][type] = git
+projects[panopoly_core][download][revision] = 6a257ac
+projects[panopoly_core][download][branch] = 7.x-1.x
+
+projects[panopoly_images][version] = 1.x-dev
+projects[panopoly_images][subdir] = panopoly
+projects[panopoly_images][download][type] = git
+projects[panopoly_images][download][revision] = b57b48f
+projects[panopoly_images][download][branch] = 7.x-1.x
+
+projects[panopoly_theme][version] = 1.x-dev
+projects[panopoly_theme][subdir] = panopoly
+projects[panopoly_theme][download][type] = git
+projects[panopoly_theme][download][revision] = 7715ded
+projects[panopoly_theme][download][branch] = 7.x-1.x
+
+projects[panopoly_magic][version] = 1.x-dev
+projects[panopoly_magic][subdir] = panopoly
+projects[panopoly_magic][download][type] = git
+projects[panopoly_magic][download][revision] = 623c6ff
+projects[panopoly_magic][download][branch] = 7.x-1.x
+
+projects[panopoly_widgets][version] = 1.x-dev
+projects[panopoly_widgets][subdir] = panopoly
+projects[panopoly_widgets][download][type] = git
+projects[panopoly_widgets][download][revision] = 6ca2f97
+projects[panopoly_widgets][download][branch] = 7.x-1.x
+
+projects[panopoly_admin][version] = 1.x-dev
+projects[panopoly_admin][subdir] = panopoly
+projects[panopoly_admin][download][type] = git
+projects[panopoly_admin][download][revision] = 4d9d071
+projects[panopoly_admin][download][branch] = 7.x-1.x
+
+projects[panopoly_users][version] = 1.x-dev
+projects[panopoly_users][subdir] = panopoly
+projects[panopoly_users][download][type] = git
+projects[panopoly_users][download][revision] = cb4ca09
+projects[panopoly_users][download][branch] = 7.x-1.x
+
+projects[panopoly_pages][version] = 1.x-dev
+projects[panopoly_pages][subdir] = panopoly
+projects[panopoly_pages][download][type] = git
+projects[panopoly_pages][download][revision] = 4125aa6
+projects[panopoly_pages][download][branch] = 7.x-1.x
+
+projects[panopoly_wysiwyg][version] = 1.x-dev
+projects[panopoly_wysiwyg][subdir] = panopoly
+projects[panopoly_wysiwyg][download][type] = git
+projects[panopoly_wysiwyg][download][revision] = 227335f
+projects[panopoly_wysiwyg][download][branch] = 7.x-1.x
+
+projects[panopoly_search][version] = 1.x-dev
+projects[panopoly_search][subdir] = panopoly
+projects[panopoly_search][download][type] = git
+projects[panopoly_search][download][revision] = c981ec3
+projects[panopoly_search][download][branch] = 7.x-1.x
+
+; ***************** End Panopoly *****************
+; ************************************************

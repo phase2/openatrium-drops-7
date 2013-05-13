@@ -151,19 +151,3 @@ function oa_messages_oa_user_settings_form_submit($form_state, $user) {
   ));
 }
 
-
-
-/**
- * Implements hook_form_FORM_ID_alter().
- */
-function oa_messages_form_system_site_information_settings_alter(&$form, &$form_state) {
-  $form['site_information']['mailbox_mail'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Mailbox E-mail address'),
-    '#description' => t("The email address that corresponds with the !mailbox that you've !ingest email replies. Like the site email address, this email address should use this site's domain to avoid being filtered as spam.", array(
-      '!mailbox' => l(t('mailbox'), 'admin/structure/mailhandler'),
-      '!ingest' => l(t('set up to ingest'), 'import/discussion_reply_email_importer'),
-    )),
-    '#default_value' => variable_get('mailbox_mail', ''),
-  );
-}

@@ -50,9 +50,9 @@ features_exclude[field][node-oa_team-og_group_ref] = node-oa_team-og_group_ref
 features_exclude[field_base][body] = body
 project path = profiles/openatrium/modules/features
 
-; Information added by drupal.org packaging script on 2013-05-03
-version = "7.x-2.0-alpha3"
+; Information added by drupal.org packaging script on 2013-05-10
+version = "7.x-2.0-alpha4"
 core = "7.x"
 project = "openatrium"
-datestamp = "1367592348"
+datestamp = "1368219913"
 
