@@ -6,11 +6,3 @@ configure = admin/config/development/devel
 tags[] = developer
 files[] = devel.test
 files[] = devel.mail.inc
-
-
-; Information added by drush on 2013-05-10
-version = "7.x-1.3+49-dev"
-core = "7.x"
-project = "devel"
-datestamp = "1368219980"
-

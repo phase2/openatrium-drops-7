@@ -1,0 +1,44 @@
+<?php
+/**
+ * @file
+ * oa_events.install
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function oa_events_schema() {
+  $schema = array();
+
+  $schema['oa_events_notifications_log'] = array(
+    'description' => 'The database table for OA Notifications',
+    'fields' => array(
+      'entity_id' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'entity_type' => array(
+        'type' => 'varchar',
+        'length' => '128',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'timestamp' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+    ),
+    'indexes' => array(
+      'timestamp' => array('timestamp')
+    ),
+  );
+
+  return $schema;
+}
+
+/**
+ * Install the oa_events schema.
+ */
+function oa_events_update_7001() {
+  drupal_install_schema('oa_events');
+}

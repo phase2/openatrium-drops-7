@@ -40,3 +40,5 @@ function oa_radix_preprocess_page(&$vars) {
   $footer = panels_mini_block_view('oa_footer_panel');
   $vars['oa_footer_panel'] = isset($footer) ? $footer['content'] : '';
 }
+
+

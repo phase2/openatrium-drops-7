@@ -49,61 +49,62 @@ function oa_core_section_access($row, $spaces, $account) {
  * Define node access grant realm for Open Atrium sections
  */
 function oa_core_node_grants($account, $op) {
-  static $cache = array();
+  $cache = &drupal_static(__FUNCTION__, array());
 
-  if ($op != 'view') {
+  if ($op != 'view' || !$account->uid) {
     return;
   }
 
   if (isset($cache[$account->uid])) {
     return $cache[$account->uid];
   }
-  $member_spaces = og_get_entity_groups('user', $account);
-  // add the list of public spaces that user might not be explicitly
-  // a member of, but can access content within
+
+  // Combine the spaces the user is part of with public spaces.
+  $member_spaces = og_get_groups_by_user($account, 'node') ? og_get_groups_by_user($account, 'node') : array();;
   $spaces = array_merge($member_spaces, oa_core_get_public_spaces());
-  if (!empty($spaces['node'])) {
-    // get the list of all section nodes assigned to the list of spaces
+  if (!empty($spaces)) {
     $query = db_select('node', 'n');
-    $query->join('og_membership', 'og', 'n.nid = og.etid');
-    $query
-      ->fields('n', array('nid'))
-      ->condition('n.type', OA_SECTION_TYPE)
-      ->condition('og.entity_type', 'node')
-      ->condition('og.field_name', OA_SPACE_FIELD)
-      ->condition('og.gid', $spaces['node'], 'IN');
-    $result = $query->execute();
-    // get a list of sections that don't have any access fields
-    // loop through each result to determine access to section
-    $sections = $result->fetchCol(0);
 
-    if (!empty($sections)) {
-      // do a big complex query to grab all section access fields
-      // might be a way to merge this with the previous query
-      // but it makes my brain hurt
-      $query = db_select('node', 'n');
-      // we join with the Groups, Teams, Users fields
+    // Join the og table to filter by spaces.
+    $query->join('og_membership', 'og', "n.nid = og.etid AND og.entity_type = 'node' AND og.field_name = '" . OA_SPACE_FIELD . "'");
+    $query->condition('og.gid', $spaces, 'IN');
+
+    // we join with the Groups, Teams, Users fields
+    $query->fields('n', array('nid'));
+    $query->condition('n.type', OA_SECTION_TYPE);
+    // @todo status?
+    // Create an or condition that finds if section is allowed.
+    $db_or = db_or();
+
+    // Allow author of section.
+    $db_or->condition('n.nid', $account->uid , '=');
+
+    // If user is specified in user ref column.
+    $query->leftJoin('field_data_field_oa_user_ref', 'u', "n.nid = u.entity_id AND u.entity_type = 'node'");
+    $db_or->condition('u.field_oa_user_ref_target_id', $account->uid , '=');
+
+
+    // If one of the groups are included.
+    if ($member_spaces) {
       $query->leftJoin('field_data_field_oa_group_ref', 'o', "n.nid = o.entity_id AND o.entity_type = 'node'");
-      $query->leftJoin('field_data_field_oa_team_ref', 't', "n.nid = t.entity_id AND t.entity_type = 'node'");
-      $query->leftJoin('field_data_field_oa_user_ref', 'u', "n.nid = u.entity_id AND u.entity_type = 'node'");
-      $query
-        ->fields('n', array('nid'))
-        ->fields('o', array('field_oa_group_ref_target_id'))
-        ->fields('t', array('field_oa_team_ref_target_id'))
-        ->fields('u', array('field_oa_user_ref_target_id'))
-        ->condition('n.type', OA_SECTION_TYPE)
-        ->condition('n.nid', $sections, 'IN');
-      $result = $query->execute();
-
-      while ($row = $result->fetchAssoc()) {
-        $sid = $row['nid'];
-        // only check detailed access for non-public sections
-        $access = oa_core_section_access($row, $member_spaces, $account);
-        if (($access == NODE_ACCESS_ALLOW) || ($access == NODE_ACCESS_IGNORE)) {
-          $grants[OA_ACCESS_REALM][] = $sid;
-        }
-      }
+      $db_or->condition('o.field_oa_group_ref_target_id', $member_spaces , 'IN');
     }
+
+    // If one of the teams are included.
+    $query->leftJoin('field_data_field_oa_team_ref', 't', "n.nid = t.entity_id AND t.entity_type = 'node'");
+    $query->leftJoin('node', 'tn', "tn.nid = t.field_oa_team_ref_target_id");
+    // Add creater of team.
+    $db_or->condition('tn.uid', $account->uid , '=');
+    $query->leftJoin('field_data_field_oa_team_users', 'tu', "t.field_oa_team_ref_target_id = tu.entity_id AND tu.entity_type = 'node' AND tu.deleted=0");
+    // If user is part of team.
+    $db_or->condition('tu.field_oa_team_users_target_id', $account->uid , '=');
+
+    // Add or to query.
+    $query->condition($db_or);
+
+
+    // Set grants to nids, which should be only valid ones.
+    $grants[OA_ACCESS_REALM] = $query->execute()->fetchCol(0);
   }
 
   $cache[$account->uid] = !empty($grants) ? $grants : array();
@@ -144,7 +145,8 @@ function oa_core_node_access_records($node) {
       'grant_view' => 1,
       'grant_update' => 0,
       'grant_delete' => 0,
-      'priority' => 0,
+      // Priority 1 means lesser grants for this node will be ignored.
+      'priority' => 1,
     );
   }
 
@@ -207,7 +209,8 @@ function oa_core_node_update($node) {
 }
 
 /**
- * Implements hook_file_entity_access
+ * Implements hook_file_entity_access().
+ *
  * Check permissions of private files based upon the node they are attached to
  */
 function oa_core_file_entity_access($op, $file, $account) {
@@ -243,4 +246,12 @@ function oa_core_file_entity_access($op, $file, $account) {
     }
   }
   return FILE_ENTITY_ACCESS_IGNORE;
+}
+
+
+/**
+ * Implements hook_og_membership_insert().
+ */
+function oa_core_og_membership_insert($og_membership) {
+  drupal_static_reset('oa_core_node_grants');
 }

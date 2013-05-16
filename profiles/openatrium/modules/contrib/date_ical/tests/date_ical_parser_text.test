@@ -1,0 +1,91 @@
+<?php
+
+/**
+ * @file
+ * Test case for CCK ical date field text mapper.
+ */
+
+/**
+ * Common class for testing ical parsers text mapping.
+ */
+abstract class DateIcalFeedsParserTextTestCase extends DateIcalFeedsParserTestCase {
+  /**
+   * Basic test on simple ical file.
+   */
+  function test() {
+    // Create content type.
+    $typename = $this->createContentType(array(), array(
+      'alpha' => 'text',
+    ));
+
+    $this->createImporterConfiguration('iCal importer', 'ical');
+    $this->setSettings('ical', NULL, array('content_type' => '', 'import_period' => FEEDS_SCHEDULE_NEVER));
+    $this->setPlugin('ical', 'FeedsFileFetcher');
+    $this->setSettings('ical', 'FeedsFileFetcher', array('allowed_extensions' => 'ics ical'));
+    $this->configureParser();
+    $this->setSettings('ical', 'FeedsNodeProcessor', array('content_type' => $typename));
+    $this->addMappings('ical', array(
+      array(
+        'source' => 'summary',
+        'target' => 'title',
+      ),
+      array(
+        'source' => 'description',
+        'target' => 'body',
+      ),
+    ));
+
+    // Import iCal file
+    $this->importFile('ical', $this->absolutePath() . '/tests/feeds/basic.ics');
+    $this->assertText('Created 2 nodes');
+   
+    $this->drupalGet('node/1/edit');
+    $this->assertFieldByName('title', 'Only a short title (with no DESCRIPTION)', 'Feed item 1 title correct.');
+
+    $this->drupalGet('node/2/edit');
+    $this->assertFieldByName('title', 'This has a long description wrapped and escaped', 'Feed item 2 title correct.');
+    $body = "Oct. 26, 12:52 a.m. EDT - The Full Hunter's Moon. With theleaves falling and the deer fattened, it is time to hunt. Since the fields have been reaped, hunters can ride over the stubble, and can moreeasily see the fox, also other animals that have come out to glean andcan be caught for a thanksgiving banquet after the harvest. The Moon will also be at perigee later this day, at 7:00 a.m., at a distance of 221,676 miles from Earth. Very high tides can be expected from the coincidence of perigee with full Moon.
+
+http://www.space.com/spacewatch/061229_moonnames2007.html";
+    $this->assertFieldByName('body[und][0][value]', $body, 'Feed item 2 body correct.');
+  }
+
+  /**
+   * Set and configure the parser plugin.
+   */
+  abstract function configureParser();
+}
+
+/**
+ * Class for testing iCal (date api) text mapping.
+ */
+class DateIcalDateModuleTextCase extends DateIcalFeedsParserTextTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Text (date api)',
+      'description' => 'Test text import support.',
+      'group' => 'Parser iCal',
+    );
+  }
+
+  public function configureParser() {
+    $this->setPlugin('ical', 'DateIcalDateModuleParser');
+  }
+}
+
+/**
+ * Class for testing iCal (iCalCreator) text mapping.
+ */
+class DateIcalIcalcreatorTextCase extends DateIcalFeedsParserTextTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Text (iCalCreator)',
+      'description' => 'Test text import support.',
+      'group' => 'Parser iCal',
+    );
+  }
+
+  public function configureParser() {
+    $this->setPlugin('ical', 'DateIcalIcalcreatorParser');
+  }
+}

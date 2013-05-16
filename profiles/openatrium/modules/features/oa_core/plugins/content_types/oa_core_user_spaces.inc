@@ -39,8 +39,7 @@ function oa_core_user_spaces_render($subtype, $conf, $args, $context = NULL) {
   $user = $context->data;
   $vars = array();
 
-  $spaces = oa_core_get_public_spaces();
-  $spaces = node_load_multiple($spaces['node']);
+  $spaces = node_load_multiple(oa_core_get_public_spaces());
   $all_spaces = oa_core_build_space_display($spaces, $conf, $user);
 
   $spaces = oa_core_get_user_spaces($user->uid);

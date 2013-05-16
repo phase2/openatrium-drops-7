@@ -2092,7 +2092,7 @@ function devel_rebuild_node_comment_statistics() {
   $query->addExpression('NULL', 'last_comment_name');
   $query->isNull('ncs.comment_count');
 
-  db_insert('node_comment_statistics')
+  db_insert('node_comment_statistics', array('return' => Database::RETURN_NULL))
     ->from($query)
     ->execute();
 }

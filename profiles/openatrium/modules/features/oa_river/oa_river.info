@@ -16,10 +16,3 @@ features[features_api][] = api:1
 features[views_view][] = oa_recent_activity
 features_exclude[dependencies][ctools] = ctools
 project path = profiles/openatrium/modules/features
-
-; Information added by drupal.org packaging script on 2013-05-10
-version = "7.x-2.0-alpha4"
-core = "7.x"
-project = "openatrium"
-datestamp = "1368219913"
-

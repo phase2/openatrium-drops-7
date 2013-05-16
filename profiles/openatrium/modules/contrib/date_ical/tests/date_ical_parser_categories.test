@@ -1,0 +1,121 @@
+<?php
+
+/**
+ * @file
+ * Test case for CCK ical categories mapper.
+ */
+
+/**
+ * Common class for testing ical parsers categories mapping.
+ */
+abstract class DateIcalFeedsParserCategoriesTestCase extends DateIcalFeedsParserTestCase {
+  /**
+   * Additional set up.
+   */
+  function setUp() {
+    parent::setUp();
+
+    // Add a new taxonomy vocabulay.
+    $edit = array(
+      'name' => 'Tags',
+      'machine_name' => 'tags',
+    );
+    $this->drupalPost('admin/structure/taxonomy/add', $edit, 'Save');
+  }
+
+  /**
+   * Categories test on simple ical file.
+   */
+  function test() {
+    // create content type with taxonomy field attached.
+    $typename = $this->createContentType(array(), array(
+      'alpha' => array(
+        'type' => 'taxonomy_term_reference',
+        'widget' => 'taxonomy_autocomplete',
+        'settings' => array(
+          'field[settings][allowed_values][0][vocabulary]' => 'tags',
+        ),
+      ),
+    ));
+
+    // There's a quirk in taxonomy; fieldwide setting for
+    // ordinality is just on the content type page
+    $edit = array('field[cardinality]' => '-1');
+    $this->drupalPost("admin/structure/types/manage/$typename/fields/field_alpha", $edit, 'Save settings');
+    $this->assertText('Saved alpha_taxonomy_term_reference_label configuration.');
+ 
+    $this->createImporterConfiguration('iCal importer', 'ical');
+    $this->setSettings('ical', NULL, array('content_type' => '', 'import_period' => FEEDS_SCHEDULE_NEVER));
+    $this->setPlugin('ical', 'FeedsFileFetcher');
+    $this->setSettings('ical', 'FeedsFileFetcher', array('allowed_extensions' => 'ics ical'));
+    $this->configureParser();
+    $this->setSettings('ical', 'FeedsNodeProcessor', array('content_type' => $typename));
+    $this->addMappings('ical', array(
+      array(
+        'source' => 'summary',
+        'target' => 'title',
+      ),
+      array(
+        'source' => 'description',
+        'target' => 'body',
+      ),
+      array(
+        'source' => 'categories',
+        'target' => 'field_alpha',
+      ),
+    ));
+
+    // Import iCal file
+    $this->importFile('ical', $this->absolutePath() . '/tests/feeds/categories.ics');
+    $this->assertText('Created 3 nodes');
+   
+    $this->drupalGet('node/1/edit');
+    $this->assertFieldByName('field_alpha[und]', 'General, Athletics, QC Junior High School, QC Senior High School, Volleyball', 'Feed item 1 categories correct.');
+
+    $this->drupalGet('node/2/edit');
+    $this->assertFieldByName('field_alpha[und]', 'Office Hours', 'Feed item 2 categories correct.');
+
+    $this->drupalGet('node/3/edit');
+    $this->assertFieldByName('field_alpha[und]', '', 'Feed item 3 categories correct.');
+  }
+
+  /**
+   * Set and configure the parser plugin.
+   */
+  abstract function configureParser();
+}
+
+/**
+ * Class for testing iCal (date api) categories mapping.
+ *
+class DateIcalDateModuleCategoriesCase extends DateIcalFeedsParserCategoriesTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Categories (date api)',
+      'description' => 'Test categories import support.',
+      'group' => 'Parser iCal',
+    );
+  }
+
+  public function configureParser() {
+    $this->setPlugin('ical', 'DateIcalDateModuleParser');
+  }
+}
+*/
+
+/**
+ * Class for testing iCal (iCalCreator) categories mapping.
+ */
+class DateIcalIcalcreatorCategoriesCase extends DateIcalFeedsParserCategoriesTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Categories (iCalCreator)',
+      'description' => 'Test categories import support.',
+      'group' => 'Parser iCal',
+    );
+  }
+
+  public function configureParser() {
+    $this->setPlugin('ical', 'DateIcalIcalcreatorParser');
+  }
+}

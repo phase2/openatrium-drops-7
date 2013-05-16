@@ -1,0 +1,5 @@
+name = Quicktabs Styles
+description = Adds predefined tab styles to choose from per Quicktabs instance.
+core = 7.x
+configure=admin/structure/quicktabs/styles
+dependencies[] = "quicktabs"

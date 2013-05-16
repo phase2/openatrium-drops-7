@@ -78,7 +78,6 @@ function oa_media_field_formatter_view($entity_type, $entity, $field, $instance,
     foreach ($items as $delta => $item) {
       if ($item['type'] == 'image') {
         $settings = $display['settings'];
-        dpm($settings);
         $image = theme('image_style', array('style_name' => $settings['image_style'], 'path' => $item['uri']));
 
         $element[0] = array(

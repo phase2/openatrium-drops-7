@@ -14,10 +14,3 @@ features[features_api][] = api:1
 features[page_manager_pages][] = oa_homepage
 features[variable][] = site_frontpage
 project path = profiles/openatrium/modules/features
-
-; Information added by drupal.org packaging script on 2013-05-10
-version = "7.x-2.0-alpha4"
-core = "7.x"
-project = "openatrium"
-datestamp = "1368219913"
-

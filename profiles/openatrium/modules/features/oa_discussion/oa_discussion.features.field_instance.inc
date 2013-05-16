@@ -489,7 +489,6 @@ function oa_discussion_field_default_field_instances() {
       'oa_section_ref' => 0,
       'og_group_ref' => 'og_group_ref',
     ),
-    'options_optomize_entityreferences' => 1,
     'required' => 0,
     'settings' => array(
       'user_register_form' => FALSE,

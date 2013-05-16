@@ -50,7 +50,7 @@ function oa_core_ctools_plugin_directory($owner, $plugin_type) {
 }
 
 /**
- * Implementation of hook_menu
+ * Implementations hook_menu().
  */
 function oa_core_menu() {
  // Add an administration section for Open Atrium settings
@@ -98,7 +98,7 @@ function oa_core_menu() {
 }
 
 /**
- * Implements hook_menu_alter
+ * Implements hook_menu_alter().
  */
 function oa_core_menu_alter(&$items) {
   if (!empty($items['node/%/group'])) {
@@ -372,4 +372,57 @@ function oa_core_remove_admin($group_type, $gid, $uid) {
     drupal_goto('node/' . $gid);
   }
   return;
+}
+
+/**
+ * Implements hook_views_pre_view().
+ */
+function oa_core_views_pre_view(&$view) {
+  if (_oa_core_set_default_value_for_view($view->name)) {
+    $default_filters =& $view->display_handler->default_display->options['filters'];
+    $current_filters =& $view->display_handler->options['filters'];
+    // Default group to current group.
+    if (defined('OG_SESSION_CONTEXT_ID') && !empty($_SESSION[OG_SESSION_CONTEXT_ID])) {
+      $group = $_SESSION[OG_SESSION_CONTEXT_ID];
+      if (isset($default_filters['og_group_ref_target_id'])) {
+        $default_filters['og_group_ref_target_id']['value'] = $group;
+      }
+      if (isset($current_filters['og_group_ref_target_id'])) {
+        $current_filters['og_group_ref_target_id']['value'] = $group;
+      }
+    }
+    $node = menu_get_object();
+    // Default section to current group.
+    if (defined('OA_SESSION_SECTION') && !empty($_SESSION[OA_SESSION_SECTION]) && (!$node || $node->type != 'oa_space')) {
+      $section = $_SESSION[OA_SESSION_SECTION];
+      if (isset($default_filters['oa_section_ref_target_id'])) {
+        $default_filters['oa_section_ref_target_id']['value'] = isset($default_filters['oa_section_ref_target_id']['value']) && is_array($default_filters['oa_section_ref_target_id']['value']) ? array($section => $section) : $section;
+      }
+      if (isset($current_filters['oa_section_ref_target_id'])) {
+        $current_filters['oa_section_ref_target_id']['value'] =  isset($current_filters['oa_section_ref_target_id']['value']) && is_array($current_filters['oa_section_ref_target_id']['value']) ? array($section => $section) : $section;
+      }
+    }
+  }
+}
+
+/** 
+ * Implements hook_form_FORM_ID_alter().
+ */
+function oa_core_form_views_content_views_panes_content_type_edit_form_alter(&$form, &$form_state, $form_id) {
+  // Set default since hook_views_pre_view doesn't get called here?.
+  if (_oa_core_set_default_value_for_view($form_state['view']->name) && isset($form['exposed'])) {
+    if (empty($form_state['conf']['exposed']['og_group_ref_target_id']) && defined('OG_SESSION_CONTEXT_ID') && !empty($_SESSION[OG_SESSION_CONTEXT_ID])) {
+      $form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id']['#default_value'] = $_SESSION[OG_SESSION_CONTEXT_ID];
+    }
+    if (empty($form_state['conf']['exposed']['oa_section_ref_target_id']) && defined('OA_SESSION_SECTION') && !empty($_SESSION[OA_SESSION_SECTION])) {
+      $form['exposed']['filter-oa_section_ref_target_id']['oa_section_ref_target_id']['#default_value'] = $_SESSION[OA_SESSION_SECTION];
+    }
+  }
+}
+
+/** 
+ * See which views to setthe default value for exposed filters.
+ */
+function _oa_core_set_default_value_for_view($name) {
+  return in_array($name, array('open_atrium_content', 'oa_recent_activity'));
 }

@@ -105,3 +105,14 @@ function og_subgroups_og_user_access_alter(&$perms, $context) {
     }
   }
 }
+
+/**
+ * Implements hook_og_user_access_alter().
+ */
+function og_subgroups_og_get_groups_by_user_alter(&$og_memberships, $account) {
+  foreach (_og_subgroup_get_user_inherited_groups($account) as $group_type => $nids) {
+    foreach (array_keys($nids) as $nid) {
+      $og_memberships[$group_type][$nid] = $nid;
+    }
+  }
+}

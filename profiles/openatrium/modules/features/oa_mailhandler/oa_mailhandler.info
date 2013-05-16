@@ -15,10 +15,3 @@ features[ctools][] = feeds:feeds_importer_default:1
 features[features_api][] = api:1
 features[feeds_importer][] = discussion_reply_email_importer
 project path = profiles/openatrium/modules/features
-
-; Information added by drupal.org packaging script on 2013-05-10
-version = "7.x-2.0-alpha4"
-core = "7.x"
-project = "openatrium"
-datestamp = "1368219913"
-

@@ -1,0 +1,9 @@
+name = Quicktabs
+description = Render content with tabs and other display styles
+core = 7.x
+files[] = quicktabs.module
+files[] = quicktabs.classes.inc
+files[] = includes/quicktabs_style_plugin.inc
+files[] = tests/quicktabs.test
+configure = admin/structure/quicktabs
+dependencies[] = "ctools"

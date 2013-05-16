@@ -1,0 +1,43 @@
+BEGIN:VCALENDAR
+METHOD:PUBLISH
+VERSION:2.0
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+CREATED:20090720T231323Z
+UID:36457EF9-C015-4DBF-91FA-057B7799FBF9
+URL:http://example.com/node/1
+DTEND;VALUE=DATE:20090502
+RRULE:FREQ=YEARLY;INTERVAL=1
+TRANSP:TRANSPARENT
+SUMMARY:Only a short title (with no DESCRIPTION)
+DTSTART;VALUE=DATE:20090501
+DTSTAMP:20090720T231336Z
+SEQUENCE:4
+BEGIN:VALARM
+X-WR-ALARMUID:615F997A-FF91-4418-BA8D-52A7AAB6B919
+TRIGGER:-PT15M
+ATTACH;VALUE=URI:Basso
+ACTION:AUDIO
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+CREATED:20090619T191624Z
+UID:36726712-0001-41F3-A733-53FE5DBCD575
+URL;VALUE=URI:http://example.com/node/2
+DTEND:20071026T055200Z
+TRANSP:OPAQUE
+SUMMARY:This has a long description wrapped and escaped
+DTSTART:20071026T045200Z
+DTSTAMP:20070802T154950Z
+SEQUENCE:9
+DESCRIPTION:Oct. 26\, 12:52 a.m. EDT - The Full Hunter's Moon. With the
+ leaves falling and the deer fattened\, it is time to hunt. Since the fie
+ lds have been reaped\, hunters can ride over the stubble\, and can more
+ easily see the fox\, also other animals that have come out to glean and
+ can be caught for a thanksgiving banquet after the harvest. The Moon wil
+ l also be at perigee later this day\, at 7:00 a.m.\, at a distance of 22
+ 1\,676 miles from Earth. Very high tides can be expected from the coinci
+ dence of perigee with full Moon.\n\nhttp://www.space.com/spacewatch/0612
+ 29_moonnames2007.html
+END:VEVENT
+END:VCALENDAR

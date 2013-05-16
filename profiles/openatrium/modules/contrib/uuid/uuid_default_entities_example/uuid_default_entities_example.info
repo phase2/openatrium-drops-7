@@ -6,11 +6,3 @@ description = "Example feature mainly used for testing."
 features[uuid_entities][] = "deploy_example_plan"
 name = "UUID default entities example"
 package = "Features"
-
-
-; Information added by drush on 2013-05-10
-version = "7.x-1.0-alpha3+47-dev"
-core = "7.x"
-project = "uuid"
-datestamp = "1368219957"
-

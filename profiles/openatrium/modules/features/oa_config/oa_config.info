@@ -20,10 +20,3 @@ features[variable][] = og_context_providers_weight_group_context
 ;features[variable][] = twitter_bootstrap_ui_css
 ;features[variable][] = twitter_bootstrap_ui_js
 project path = profiles/openatrium/modules/features
-
-; Information added by drupal.org packaging script on 2013-05-10
-version = "7.x-2.0-alpha4"
-core = "7.x"
-project = "openatrium"
-datestamp = "1368219913"
-

@@ -62,9 +62,5 @@ features_exclude[field][node-oa_section-og_group_ref] = node-oa_section-og_group
 features_exclude[field][node-oa_section-field_oa_section_weight] = node-oa_section-field_oa_section_weight
 project path = profiles/openatrium/modules/features
 
-; Information added by drupal.org packaging script on 2013-05-10
-version = "7.x-2.0-alpha4"
-core = "7.x"
-project = "openatrium"
-datestamp = "1368219913"
+files[] = tests/oa_sectionsAccess.test
 

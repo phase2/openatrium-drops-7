@@ -1,0 +1,45 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the date_ical module.
+ *
+ */
+/**
+ * Implements hook_requirements().
+ */
+function date_ical_requirements($phase) {
+  $requirements = array();
+  
+  // Ensure translations don't break at install time
+  $t = get_t();
+  
+  switch ($phase) {
+    case 'runtime':
+      if (($library = libraries_detect('iCalcreator')) && !empty($library['installed'])) {
+        $requirements['date_ical'] = array(
+          'title' => $t('Date iCal'),
+          'value' => $t('iCalcreator library is installed, version: @version found', array('@version' => $library['version'])),
+          'severity' => REQUIREMENT_OK,
+        );
+      }
+      else {
+        $requirements['date_ical'] = array(
+          'title' => $t('Date iCal'),
+          'value' => $t('iCalcreator library could not be found, check the installation instructions for the Date iCal module.'),
+          'description' => $t('The error message was: @error<br>!error_message', array('@error' => $library['error'], '!error_message' => $library['error message'])),
+          'severity' => REQUIREMENT_ERROR,
+        );
+      }
+      break;
+  }
+  
+  return $requirements;
+}
+
+/**
+ * Implementation of hook_enable().
+ */
+function date_ical_enable() {
+  cache_clear_all('plugins:feeds:plugins', 'cache');
+}

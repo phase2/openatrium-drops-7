@@ -24,9 +24,25 @@ function oa_wiki_panelizer_defaults() {
   $panelizer->contexts = array();
   $panelizer->relationships = array(
     0 => array(
-      'identifier' => 'User from Node (on node.node_author)',
+      'identifier' => 'Wki Author',
       'keyword' => 'user',
       'name' => 'entity_from_schema:uid-node-user',
+      'context' => 'panelizer',
+      'id' => 1,
+    ),
+    1 => array(
+      'identifier' => 'Space',
+      'keyword' => 'space',
+      'name' => 'entity_from_field:og_group_ref-node-node',
+      'delta' => 0,
+      'context' => 'panelizer',
+      'id' => 1,
+    ),
+    2 => array(
+      'identifier' => 'Section',
+      'keyword' => 'space',
+      'name' => 'entity_from_field:oa_section_ref-node-node',
+      'delta' => 0,
       'context' => 'panelizer',
       'id' => 1,
     ),

@@ -214,7 +214,7 @@ function og_subgroups_get_users_group($entity_type = 'node', $entity = NULL, $st
  *  the OG membership ID and the Entity ID as the value. If nothing found,
  *  then an empty array.
  */
-function og_subgroups_get_associated_entities($entity_type, $entity) {
+function og_subgroups_get_associated_entities($entity_type, $entity, $fields = array()) {
   $cache = &drupal_static(__FUNCTION__, array());
   if (is_object($entity)) {
     // Get the entity ID.
@@ -234,6 +234,9 @@ function og_subgroups_get_associated_entities($entity_type, $entity) {
   ->propertyCondition('entity_type', 'user', '!=')
   ->propertyCondition('group_type', $entity_type, '=')
   ->propertyCondition('gid', $id, '=');
+  if ($fields || ($fields = variable_get('og_subgroups_default_fields_' . $entity_type, array()))) {
+    $query->propertyCondition('field_name', $fields, 'IN');
+  }
   $result = $query->execute();
   if (!empty($result['og_membership'])) {
     // Get the group ID from the group membership.

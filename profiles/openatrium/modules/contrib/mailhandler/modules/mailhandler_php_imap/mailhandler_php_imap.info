@@ -7,11 +7,3 @@ package = "Mailhandler"
 files[] = mailhandler_php_imap.install
 files[] = mailhandler_php_imap.module
 files[] = plugins/mailhandler/retrieve/MailhandlerPhpImapRetrieve.class.php
-
-
-; Information added by drush on 2013-05-10
-version = "7.x-2.5+21-dev"
-core = "7.x"
-project = "mailhandler"
-datestamp = "1368219999"
-

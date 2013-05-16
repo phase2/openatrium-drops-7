@@ -7,10 +7,3 @@ dependencies[] = ctools
 ; by non-Panels modules if they desire.
 ; dependencies[] = panels
 dependencies[] = entity
-
-; Information added by drush on 2013-05-10
-version = "7.x-1.1+2-dev"
-core = "7.x"
-project = "fape"
-datestamp = "1368219994"
-

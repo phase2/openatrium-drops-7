@@ -16,7 +16,10 @@ function oa_core_default_page_manager_pages() {
   $page->admin_title = 'Spaces';
   $page->admin_description = 'Show all spaces on the site';
   $page->path = 'spaces';
-  $page->access = array();
+  $page->access = array(
+    'type' => 'none',
+    'settings' => NULL,
+  );
   $page->menu = array();
   $page->arguments = array();
   $page->conf = array(

@@ -239,7 +239,7 @@ function oa_news_views_default_views() {
   $handler->display->display_options['argument_input'] = array(
     'gid' => array(
       'type' => 'context',
-      'context' => 'entity:node.group-group',
+      'context' => 'entity:node.nid',
       'context_optional' => 1,
       'panel' => '0',
       'fixed' => '31',

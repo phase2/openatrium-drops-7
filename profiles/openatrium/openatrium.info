@@ -117,6 +117,8 @@ dependencies[] = oa_mailhandler
 ; Open Atrium 2.0 Plugins
 dependencies[] = oa_discussion
 dependencies[] = oa_wiki
+dependencies[] = oa_events
+dependencies[] = oa_events_import
 
 ; Open Atrium 2.0 Optional
 dependencies[] = oa_home
@@ -124,10 +126,3 @@ dependencies[] = oa_home
 ; Development Modules - Temporary
 dependencies[] = devel
 dependencies[] = diff
-
-; Information added by drupal.org packaging script on 2013-05-10
-version = "7.x-2.0-alpha4"
-core = "7.x"
-project = "openatrium"
-datestamp = "1368219913"
-

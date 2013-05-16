@@ -1,0 +1,29 @@
+name = Date iCal
+description = Allows creation of iCal feeds using Views, and provides a Feeds plugin for parsing iCal feeds.
+package = Date/Time
+php = 5.3
+core = 7.x
+dependencies[] = views (>=7.x-3.5)
+dependencies[] = date_views
+dependencies[] = entity
+dependencies[] = libraries (>=7.x-2.0)
+dependencies[] = date
+dependencies[] = date_api
+
+; Date iCal doesn't actually depend on Feeds, but it's iCal import functionality won't work without it.
+;dependencies[] = feeds
+
+; Includes
+files[] = includes/date_ical_plugin_row_ical_entity.inc
+files[] = includes/date_ical_plugin_style_ical_feed.inc
+files[] = includes/DateIcalFeedParser.inc
+files[] = includes/DateIcalIcalcreatorParser.inc
+files[] = includes/DateIcalDateModuleParser.inc
+
+; Tests
+files[] = tests/date_ical_parser.test
+files[] = tests/date_ical_parser_text.test
+files[] = tests/date_ical_parser_link.test
+files[] = tests/date_ical_parser_date.test
+files[] = tests/date_ical_parser_location.test
+files[] = tests/date_ical_parser_categories.test

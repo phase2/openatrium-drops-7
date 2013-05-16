@@ -21,9 +21,9 @@
 }
 
 body.maintenance-page #logo {
-  background:transparent url(panopoly.png) no-repeat top left;
+  background:transparent url(openatrium.png) no-repeat top left;
   height:0;
   overflow:hidden;
-  padding-top: 180px; /* height of logo  */
-  width: 180px; /* width of logo  */
+  padding-top: 187px; /* height of logo  */
+  width: 622px; /* width of logo  */
 }

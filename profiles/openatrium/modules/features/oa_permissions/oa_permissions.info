@@ -70,10 +70,3 @@ features[user_permission][] = view own private files
 features[user_permission][] = view own unpublished content
 features[user_permission][] = view private files
 project path = profiles/openatrium/modules/features
-
-; Information added by drupal.org packaging script on 2013-05-10
-version = "7.x-2.0-alpha4"
-core = "7.x"
-project = "openatrium"
-datestamp = "1368219913"
-

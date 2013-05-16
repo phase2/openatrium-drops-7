@@ -109,7 +109,7 @@ function oa_river_views_default_views() {
   $handler->display->display_options['fields']['title']['relationship'] = 'field_oa_node_ref_target_id';
   $handler->display->display_options['fields']['title']['label'] = '';
   $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
-  /* Field: Message: Space */
+  /* Field: Field: Space */
   $handler->display->display_options['fields']['field_oa_message_space']['id'] = 'field_oa_message_space';
   $handler->display->display_options['fields']['field_oa_message_space']['table'] = 'field_data_field_oa_message_space';
   $handler->display->display_options['fields']['field_oa_message_space']['field'] = 'field_oa_message_space';
@@ -228,7 +228,7 @@ function oa_river_views_default_views() {
   $handler->display->display_options['sorts']['mid']['table'] = 'message';
   $handler->display->display_options['sorts']['mid']['field'] = 'mid';
   $handler->display->display_options['sorts']['mid']['order'] = 'DESC';
-  /* Contextual filter: Message: Space (field_oa_message_space) */
+  /* Contextual filter: Field: Space (field_oa_message_space) */
   $handler->display->display_options['arguments']['field_oa_message_space_target_id']['id'] = 'field_oa_message_space_target_id';
   $handler->display->display_options['arguments']['field_oa_message_space_target_id']['table'] = 'field_data_field_oa_message_space';
   $handler->display->display_options['arguments']['field_oa_message_space_target_id']['field'] = 'field_oa_message_space_target_id';
@@ -237,7 +237,7 @@ function oa_river_views_default_views() {
   $handler->display->display_options['arguments']['field_oa_message_space_target_id']['summary']['number_of_records'] = '0';
   $handler->display->display_options['arguments']['field_oa_message_space_target_id']['summary']['format'] = 'default_summary';
   $handler->display->display_options['arguments']['field_oa_message_space_target_id']['summary_options']['items_per_page'] = '25';
-  /* Filter criterion: Message: Space (field_oa_message_space) */
+  /* Filter criterion: Field: Space (field_oa_message_space) */
   $handler->display->display_options['filters']['field_oa_message_space_target_id']['id'] = 'field_oa_message_space_target_id';
   $handler->display->display_options['filters']['field_oa_message_space_target_id']['table'] = 'field_data_field_oa_message_space';
   $handler->display->display_options['filters']['field_oa_message_space_target_id']['field'] = 'field_oa_message_space_target_id';
@@ -318,99 +318,6 @@ function oa_river_views_default_views() {
   $handler->display->display_options['filters']['nid']['field'] = 'nid';
   $handler->display->display_options['filters']['nid']['relationship'] = 'field_oa_node_ref_target_id';
 
-  /* Display: Space Activity */
-  $handler = $view->new_display('panel_pane', 'Space Activity', 'space_activity');
-  $handler->display->display_options['display_description'] = 'Recent activity within a space';
-  $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
-  $handler->display->display_options['defaults']['filter_groups'] = FALSE;
-  $handler->display->display_options['defaults']['filters'] = FALSE;
-  /* Filter criterion: Message: Section (field_oa_message_section) */
-  $handler->display->display_options['filters']['field_oa_message_section_target_id']['id'] = 'field_oa_message_section_target_id';
-  $handler->display->display_options['filters']['field_oa_message_section_target_id']['table'] = 'field_data_field_oa_message_section';
-  $handler->display->display_options['filters']['field_oa_message_section_target_id']['field'] = 'field_oa_message_section_target_id';
-  $handler->display->display_options['filters']['field_oa_message_section_target_id']['group'] = 1;
-  $handler->display->display_options['filters']['field_oa_message_section_target_id']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['field_oa_message_section_target_id']['expose']['operator_id'] = 'field_oa_message_section_target_id_op';
-  $handler->display->display_options['filters']['field_oa_message_section_target_id']['expose']['label'] = 'Section';
-  $handler->display->display_options['filters']['field_oa_message_section_target_id']['expose']['operator'] = 'field_oa_message_section_target_id_op';
-  $handler->display->display_options['filters']['field_oa_message_section_target_id']['expose']['identifier'] = 'field_oa_message_section_target_id';
-  $handler->display->display_options['filters']['field_oa_message_section_target_id']['expose']['multiple'] = TRUE;
-  $handler->display->display_options['filters']['field_oa_message_section_target_id']['expose']['remember_roles'] = array(
-    2 => '2',
-    1 => 0,
-    3 => 0,
-    4 => 0,
-  );
-  /* Filter criterion: Content: Type */
-  $handler->display->display_options['filters']['type']['id'] = 'type';
-  $handler->display->display_options['filters']['type']['table'] = 'node';
-  $handler->display->display_options['filters']['type']['field'] = 'type';
-  $handler->display->display_options['filters']['type']['relationship'] = 'field_oa_node_ref_target_id';
-  $handler->display->display_options['filters']['type']['group'] = 1;
-  $handler->display->display_options['filters']['type']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['type']['expose']['operator_id'] = 'type_op';
-  $handler->display->display_options['filters']['type']['expose']['label'] = 'Type';
-  $handler->display->display_options['filters']['type']['expose']['operator'] = 'type_op';
-  $handler->display->display_options['filters']['type']['expose']['identifier'] = 'type';
-  $handler->display->display_options['filters']['type']['expose']['multiple'] = TRUE;
-  $handler->display->display_options['filters']['type']['expose']['remember_roles'] = array(
-    2 => '2',
-    1 => 0,
-    3 => 0,
-    4 => 0,
-  );
-  /* Filter criterion: Realname: Name */
-  $handler->display->display_options['filters']['realname']['id'] = 'realname';
-  $handler->display->display_options['filters']['realname']['table'] = 'realname';
-  $handler->display->display_options['filters']['realname']['field'] = 'realname';
-  $handler->display->display_options['filters']['realname']['relationship'] = 'user';
-  $handler->display->display_options['filters']['realname']['operator'] = 'contains';
-  $handler->display->display_options['filters']['realname']['group'] = 1;
-  $handler->display->display_options['filters']['realname']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['realname']['expose']['operator_id'] = 'realname_op';
-  $handler->display->display_options['filters']['realname']['expose']['label'] = 'User Name';
-  $handler->display->display_options['filters']['realname']['expose']['operator'] = 'realname_op';
-  $handler->display->display_options['filters']['realname']['expose']['identifier'] = 'realname';
-  $handler->display->display_options['filters']['realname']['expose']['remember_roles'] = array(
-    2 => '2',
-    1 => 0,
-    3 => 0,
-    4 => 0,
-  );
-  $handler->display->display_options['filters']['realname']['expose']['autocomplete_filter'] = 1;
-  $handler->display->display_options['filters']['realname']['expose']['autocomplete_items'] = '10';
-  $handler->display->display_options['filters']['realname']['expose']['autocomplete_field'] = 'realname';
-  $handler->display->display_options['filters']['realname']['expose']['autocomplete_raw_suggestion'] = 1;
-  $handler->display->display_options['filters']['realname']['expose']['autocomplete_raw_dropdown'] = 1;
-  $handler->display->display_options['filters']['realname']['expose']['autocomplete_dependent'] = 0;
-  /* Filter criterion: Content access: Access */
-  $handler->display->display_options['filters']['nid']['id'] = 'nid';
-  $handler->display->display_options['filters']['nid']['table'] = 'node_access';
-  $handler->display->display_options['filters']['nid']['field'] = 'nid';
-  $handler->display->display_options['filters']['nid']['relationship'] = 'field_oa_node_ref_target_id';
-  $handler->display->display_options['pane_category']['name'] = 'Open Atrium';
-  $handler->display->display_options['pane_category']['weight'] = '0';
-  $handler->display->display_options['allow']['use_pager'] = 0;
-  $handler->display->display_options['allow']['items_per_page'] = 'items_per_page';
-  $handler->display->display_options['allow']['offset'] = 0;
-  $handler->display->display_options['allow']['link_to_view'] = 0;
-  $handler->display->display_options['allow']['more_link'] = 0;
-  $handler->display->display_options['allow']['path_override'] = 0;
-  $handler->display->display_options['allow']['title_override'] = 0;
-  $handler->display->display_options['allow']['exposed_form'] = 0;
-  $handler->display->display_options['allow']['fields_override'] = 0;
-  $handler->display->display_options['argument_input'] = array(
-    'field_oa_message_space_target_id' => array(
-      'type' => 'context',
-      'context' => 'entity:node.nid',
-      'context_optional' => 1,
-      'panel' => '0',
-      'fixed' => '',
-      'label' => 'Message: Space (field_oa_message_space)',
-    ),
-  );
-  $handler->display->display_options['inherit_panels_path'] = '1';
-
   /* Display: User Activity */
   $handler = $view->new_display('panel_pane', 'User Activity', 'user_activity');
   $handler->display->display_options['display_description'] = 'Recent activity for a user';
@@ -428,7 +335,7 @@ function oa_river_views_default_views() {
   $handler->display->display_options['arguments']['user']['summary_options']['items_per_page'] = '25';
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
   $handler->display->display_options['defaults']['filters'] = FALSE;
-  /* Filter criterion: Message: Space (field_oa_message_space) */
+  /* Filter criterion: Field: Space (field_oa_message_space) */
   $handler->display->display_options['filters']['field_oa_message_space_target_id']['id'] = 'field_oa_message_space_target_id';
   $handler->display->display_options['filters']['field_oa_message_space_target_id']['table'] = 'field_data_field_oa_message_space';
   $handler->display->display_options['filters']['field_oa_message_space_target_id']['field'] = 'field_oa_message_space_target_id';
@@ -507,27 +414,10 @@ function oa_river_views_default_views() {
     ),
   );
 
-  /* Display: Section Activity */
-  $handler = $view->new_display('panel_pane', 'Section Activity', 'section_activity');
+  /* Display: Content Activity */
+  $handler = $view->new_display('panel_pane', 'Content Activity', 'section_activity');
   $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
   $handler->display->display_options['defaults']['arguments'] = FALSE;
-  /* Contextual filter: Message: Section (field_oa_message_section) */
-  $handler->display->display_options['arguments']['field_oa_message_section_target_id']['id'] = 'field_oa_message_section_target_id';
-  $handler->display->display_options['arguments']['field_oa_message_section_target_id']['table'] = 'field_data_field_oa_message_section';
-  $handler->display->display_options['arguments']['field_oa_message_section_target_id']['field'] = 'field_oa_message_section_target_id';
-  $handler->display->display_options['arguments']['field_oa_message_section_target_id']['default_argument_type'] = 'fixed';
-  $handler->display->display_options['arguments']['field_oa_message_section_target_id']['summary']['number_of_records'] = '0';
-  $handler->display->display_options['arguments']['field_oa_message_section_target_id']['summary']['format'] = 'default_summary';
-  $handler->display->display_options['arguments']['field_oa_message_section_target_id']['summary_options']['items_per_page'] = '25';
-  /* Contextual filter: Message: Space (field_oa_message_space) */
-  $handler->display->display_options['arguments']['field_oa_message_space_target_id']['id'] = 'field_oa_message_space_target_id';
-  $handler->display->display_options['arguments']['field_oa_message_space_target_id']['table'] = 'field_data_field_oa_message_space';
-  $handler->display->display_options['arguments']['field_oa_message_space_target_id']['field'] = 'field_oa_message_space_target_id';
-  $handler->display->display_options['arguments']['field_oa_message_space_target_id']['default_action'] = 'default';
-  $handler->display->display_options['arguments']['field_oa_message_space_target_id']['default_argument_type'] = 'og_context';
-  $handler->display->display_options['arguments']['field_oa_message_space_target_id']['summary']['number_of_records'] = '0';
-  $handler->display->display_options['arguments']['field_oa_message_space_target_id']['summary']['format'] = 'default_summary';
-  $handler->display->display_options['arguments']['field_oa_message_space_target_id']['summary_options']['items_per_page'] = '25';
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
   $handler->display->display_options['defaults']['filters'] = FALSE;
   /* Filter criterion: Content: Type */
@@ -576,6 +466,42 @@ function oa_river_views_default_views() {
   $handler->display->display_options['filters']['nid']['table'] = 'node_access';
   $handler->display->display_options['filters']['nid']['field'] = 'nid';
   $handler->display->display_options['filters']['nid']['relationship'] = 'field_oa_node_ref_target_id';
+  /* Filter criterion: Content: Groups audience (og_group_ref) */
+  $handler->display->display_options['filters']['og_group_ref_target_id']['id'] = 'og_group_ref_target_id';
+  $handler->display->display_options['filters']['og_group_ref_target_id']['table'] = 'og_membership';
+  $handler->display->display_options['filters']['og_group_ref_target_id']['field'] = 'og_group_ref_target_id';
+  $handler->display->display_options['filters']['og_group_ref_target_id']['relationship'] = 'field_oa_node_ref_target_id';
+  $handler->display->display_options['filters']['og_group_ref_target_id']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['operator_id'] = 'og_group_ref_target_id_op';
+  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['label'] = 'Space';
+  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['operator'] = 'og_group_ref_target_id_op';
+  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['identifier'] = 'og_group_ref_target_id';
+  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    5 => 0,
+    4 => 0,
+    6 => 0,
+  );
+  /* Filter criterion: Content: Open Atrium Section (oa_section_ref) */
+  $handler->display->display_options['filters']['oa_section_ref_target_id']['id'] = 'oa_section_ref_target_id';
+  $handler->display->display_options['filters']['oa_section_ref_target_id']['table'] = 'field_data_oa_section_ref';
+  $handler->display->display_options['filters']['oa_section_ref_target_id']['field'] = 'oa_section_ref_target_id';
+  $handler->display->display_options['filters']['oa_section_ref_target_id']['relationship'] = 'field_oa_node_ref_target_id';
+  $handler->display->display_options['filters']['oa_section_ref_target_id']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['oa_section_ref_target_id']['expose']['operator_id'] = 'oa_section_ref_target_id_op';
+  $handler->display->display_options['filters']['oa_section_ref_target_id']['expose']['label'] = 'Section';
+  $handler->display->display_options['filters']['oa_section_ref_target_id']['expose']['operator'] = 'oa_section_ref_target_id_op';
+  $handler->display->display_options['filters']['oa_section_ref_target_id']['expose']['identifier'] = 'oa_section_ref_target_id';
+  $handler->display->display_options['filters']['oa_section_ref_target_id']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    5 => 0,
+    4 => 0,
+    6 => 0,
+  );
   $handler->display->display_options['pane_category']['name'] = 'Open Atrium';
   $handler->display->display_options['pane_category']['weight'] = '0';
   $handler->display->display_options['argument_input'] = array(

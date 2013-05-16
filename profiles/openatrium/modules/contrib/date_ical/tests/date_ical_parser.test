@@ -1,0 +1,32 @@
+<?php
+
+/**
+ * @file
+ * Test case for CCK ical date field text mapper.
+ */
+
+/**
+ * Class for testing Feeds <em>content</em> mapper.
+ */
+class DateIcalFeedsParserTestCase extends FeedsMapperTestCase {
+  public function absolutePath() {
+    return $this->absolute() . '/' . drupal_get_path('module', 'date_ical');
+  }
+
+  /**
+   * Set up the test.
+   */
+  public function setUp() {
+    $modules = func_get_args();
+    if (!empty($modules[0]) && is_array($modules[0])) {
+      $modules = $modules[0];
+    }
+    $modules[] = 'date_ical';
+    parent::setUp($modules);
+
+    // site date settings : consistent site timezone to against
+    variable_set('date_default_timezone', 'Pacific/Apia');
+    // and just because I'll make mistakes working with tests with the US date format
+    variable_set('date_format_short', 'Y-m-d H:i');
+  }
+}

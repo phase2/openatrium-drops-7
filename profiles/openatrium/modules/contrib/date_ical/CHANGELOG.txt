@@ -1,0 +1,53 @@
+Date iCal 7.x
+===================
+
+===================
+Version 7.x-2.4 through 7.x-2.6
+===================
+- Issue #1905482, All Day events are now exported and imported correctly.
+- Issue #1894966, Date iCal now officially requires Views 3.5. Using an earlier version causes strange issues.
+- Added hook_date_ical_html_alter(), which lets modules tweak the HTML of a node before it gets converted to plaintext
+  for output in an iCal feed. This lets you control where newlines appear in the DESCRIPTION (only <p> tags are converted to newlines).
+- Fixed a few other minor issues. 
+
+===================
+Version 7.x-2.1 through 7.x-2.3
+===================
+- Issue #1529506, Added optional webcal:// support.
+- Issue #1890736, Added ability to exclude the X-WR-CALNAME property.
+- Issue #1565410, Sites with "Clean URLs" disabled can now download feeds normally.
+- Several minor bigfixes, and cleanup of the iCal icon theming.
+
+===================
+Version 7.x-2.0
+===================
+- Issue #1721678, incorporate abandoned Parser iCal module's Feeds plugin, allowing Date iCal to parse iCal feeds.
+- Issue #1833362, convert to using the iCalcreator library, rather than the theme system, for formatting iCal data.
+- Many other issues, which were closed during the week of Jan 14, 2013. 
+
+===================
+Version 7.x-1.2
+===================
+- Issue #1793868, fix error when adding iCal view mode to non-standard entities.
+- Issue #1863448, Remove extraneous div around the feed icon.
+- Many other issues, which were closed during the week of Jan 14, 2013. 
+
+===================
+Version 7.x-1.1
+===================
+
+- Issue #1535312, Use feed_icon class for ical icon.
+- Better methods to hide the title and comments.
+- Issue #1529326, Hide the links.
+- Add dependency on Entity module.
+- Add the Date/Time package to .info file.
+
+===================
+Version 7.x-1.0
+===================
+
+- Issue #1447194 by tim.plunkett, Prevent date_ical_preprocess from running for every theme function.
+- Issue #1447118 by tim.plunkett: Use properly namespaced template functions.
+- Issue #1447104 by tim.plunkett: Fixed code clean-up and undefined notices.
+- Issue #1446936 by tim.plunkett: Views display format will not save.
+- Initial commit of D7 code.

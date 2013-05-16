@@ -1,0 +1,166 @@
+<?php
+
+/**
+ * @file
+ * Test case for CCK ical date field text mapper.
+ */
+
+/**
+ * Common class for testing ical parsers link and guid mapping.
+ */
+abstract class DateIcalFeedsParserLocationTestCase extends DateIcalFeedsParserTestCase {
+  /**
+   * Set up the test.
+   *
+  public function setUp() {
+    // @todo additional location modules to test
+    parent::setUp();
+  }*/
+
+  /**
+   * Basic test on simple ical file.
+   */
+  function testLocation() {
+    // Create content type.
+    $typename = $this->createContentType(array(), array(
+      'alpha' => 'text',
+    ));
+
+    $this->createImporterConfiguration('iCal importer', 'ical');
+    $this->setSettings('ical', NULL, array('content_type' => '', 'import_period' => FEEDS_SCHEDULE_NEVER));
+    $this->setPlugin('ical', 'FeedsFileFetcher');
+    $this->setSettings('ical', 'FeedsFileFetcher', array('allowed_extensions' => 'ics ical'));
+    $this->configureParser();
+    $this->setSettings('ical', 'FeedsNodeProcessor', array('content_type' => $typename));
+    $this->addMappings('ical', array(
+      array(
+        'source' => 'uid',
+        'target' => 'guid',
+      ),
+      array(
+        'source' => 'summary',
+        'target' => 'title',
+      ),
+      array(
+        'source' => 'location',
+        'target' => 'field_alpha',
+      ),
+    ));
+
+    // Import iCal file
+    $this->importFile('ical', $this->absolutePath() . '/tests/feeds/location.ics');
+    $this->assertText('Created 3 nodes');
+
+    $this->locationAssertions();
+  }
+
+  /**
+   * Correct assertions. This is overridden in the (date api) test,
+   * as it's slightly broken.
+   */
+  function locationAssertions() {
+    $this->drupalGet('node/1/edit');
+    $this->assertFieldByName('field_alpha[und][0][value]', 'Conference Room - F123, Bldg. 002', 'Feed item 1 location text correct.');
+    $this->drupalGet('node/2/edit');
+    $this->assertFieldByName('field_alpha[und][0][value]', 'Conference Room - F123, Bldg. 002', 'Feed item 2 location text correct.');
+    $this->drupalGet('node/3/edit');
+    $this->assertFieldByName('field_alpha[und][0][value]', 'Regardz Meeting Center Eenhoorn @ Koningin Wilhelminalaan 33, Amersfoort, Utrecht 3818 HN', 'Feed item 3 location text correct.');
+  }
+
+  /**
+   * Set and configure the parser plugin.
+   */
+  abstract function configureParser();
+}
+
+/**
+ * Class for testing iCal (date api) location mapping.
+ */
+class DateIcalDateModuleLocationCase extends DateIcalFeedsParserLocationTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Location (date api)',
+      'description' => 'Test location import support.',
+      'group' => 'Parser iCal',
+    );
+  }
+
+  public function configureParser() {
+    $this->setPlugin('ical', 'DateIcalDateModuleParser');
+  }
+
+  /**
+   * Date module location assertions; restricted set as some are broken.
+   */
+  function locationAssertions() {
+    $this->drupalGet('node/1/edit');
+    $this->assertFieldByName('field_alpha[und][0][value]', 'Conference Room - F123, Bldg. 002', 'Feed item 1 location text correct.');
+    /**
+     * Broken as per https://drupal.org/node/282521
+     *
+    $this->drupalGet('node/2/edit');
+    $this->assertFieldByName('field_alpha[und][0][value]', 'Conference Room - F123, Bldg. 002', 'Feed item 2 location text correct.');
+    $this->drupalGet('node/3/edit');
+    $this->assertFieldByName('field_alpha[und][0][value]', 'Regardz Meeting Center Eenhoorn @ Koningin Wilhelminalaan 33, Amersfoort, Utrecht 3818 HN', 'Feed item 3 location text correct.');
+    */
+  }
+}
+
+/**
+ * Class for testing iCal (iCalCreator) location mapping.
+ */
+class DateIcalIcalcreatorLocationCase extends DateIcalFeedsParserLocationTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Location (iCalCreator)',
+      'description' => 'Test location import support.',
+      'group' => 'Parser iCal',
+    );
+  }
+
+  public function configureParser() {
+    $this->setPlugin('ical', 'DateIcalIcalcreatorParser');
+  }
+
+  /**
+   * Test location altrep. Only present in iCalCreator.
+   */
+  public function testLocationAlt() {
+    // Create content type.
+    $typename = $this->createContentType(array(), array(
+      'alpha' => 'text',
+    ));
+
+    $this->createImporterConfiguration('iCal importer', 'ical');
+    $this->setSettings('ical', NULL, array('content_type' => '', 'import_period' => FEEDS_SCHEDULE_NEVER));
+    $this->setPlugin('ical', 'FeedsFileFetcher');
+    $this->setSettings('ical', 'FeedsFileFetcher', array('allowed_extensions' => 'ics ical'));
+    $this->configureParser();
+    $this->setSettings('ical', 'FeedsNodeProcessor', array('content_type' => $typename));
+    $this->addMappings('ical', array(
+      array(
+        'source' => 'uid',
+        'target' => 'guid',
+      ),
+      array(
+        'source' => 'summary',
+        'target' => 'title',
+      ),
+      array(
+        'source' => 'location:altrep',
+        'target' => 'field_alpha',
+      ),
+    ));
+
+    // Import iCal file
+    $this->importFile('ical', $this->absolutePath() . '/tests/feeds/location.ics');
+    $this->assertText('Created 3 nodes');
+
+    $this->drupalGet('node/1/edit');
+    $this->assertFieldByName('field_alpha[und][0][value]', '', 'Feed item 1 location altparam text correct.');
+    $this->drupalGet('node/2/edit');
+    $this->assertFieldByName('field_alpha[und][0][value]', 'http://example.com/conf-rooms/f123.vcf', 'Feed item 2 location altparam text correct.');
+    $this->drupalGet('node/3/edit');
+    $this->assertFieldByName('field_alpha[und][0][value]', 'http://upcoming.yahoo.com/venue/915640/', 'Feed item 3 location altparam text correct.');
+  }
+}

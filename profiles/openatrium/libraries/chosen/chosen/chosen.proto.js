@@ -293,12 +293,11 @@ Copyright (c) 2011 by Harvest
     };
 
     AbstractChosen.prototype.container_width = function() {
-      var width;
       if (this.options.width != null) {
         return this.options.width;
+      } else {
+        return "" + this.form_field.offsetWidth + "px";
       }
-      width = window.getComputedStyle != null ? parseFloat(window.getComputedStyle(this.form_field).getPropertyValue('width')) : (typeof jQuery !== "undefined" && jQuery !== null) && (this.form_field_jq != null) ? this.form_field_jq.outerWidth() : this.form_field.getWidth();
-      return width + "px";
     };
 
     AbstractChosen.browser_is_supported = function() {
@@ -613,7 +612,7 @@ Copyright (c) 2011 by Harvest
       maxHeight = parseInt(this.search_results.getStyle('maxHeight'), 10);
       visible_top = this.search_results.scrollTop;
       visible_bottom = maxHeight + visible_top;
-      high_top = this.result_highlight.positionedOffset().top;
+      high_top = this.result_highlight.positionedOffset().top + this.search_results.scrollTop;
       high_bottom = high_top + this.result_highlight.getHeight();
       if (high_bottom >= visible_bottom) {
         return this.search_results.scrollTop = (high_bottom - maxHeight) > 0 ? high_bottom - maxHeight : 0;

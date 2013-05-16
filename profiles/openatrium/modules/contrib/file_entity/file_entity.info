@@ -22,11 +22,3 @@ configure = admin/structure/file-types
 
 ; We have to add a fake version so Git checkouts do not fail Media dependencies
 version = 7.x-2.x-dev
-
-
-; Information added by drush on 2013-05-10
-version = "7.x-2.0-unstable7+61-dev"
-core = "7.x"
-project = "file_entity"
-datestamp = "1368219938"
-

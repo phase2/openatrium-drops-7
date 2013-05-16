@@ -513,6 +513,10 @@ function oa_discussion_views_default_views() {
   );
   $handler->display->display_options['defaults']['row_options'] = FALSE;
   $handler->display->display_options['defaults']['relationships'] = FALSE;
+  /* Relationship: Entity Reference: Referenced Entity */
+  $handler->display->display_options['relationships']['oa_parent_target_id']['id'] = 'oa_parent_target_id';
+  $handler->display->display_options['relationships']['oa_parent_target_id']['table'] = 'field_data_oa_parent';
+  $handler->display->display_options['relationships']['oa_parent_target_id']['field'] = 'oa_parent_target_id';
   /* Relationship: Entity Reference: Referencing entity */
   $handler->display->display_options['relationships']['reverse_oa_parent_node']['id'] = 'reverse_oa_parent_node';
   $handler->display->display_options['relationships']['reverse_oa_parent_node']['table'] = 'node';
@@ -661,11 +665,12 @@ function oa_discussion_views_default_views() {
   $handler->display->display_options['arguments']['oa_section_ref_target_id']['summary_options']['items_per_page'] = '25';
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
   $handler->display->display_options['defaults']['filters'] = FALSE;
-  /* Filter criterion: Open Atrium: Is Parent */
-  $handler->display->display_options['filters']['is_parent']['id'] = 'is_parent';
-  $handler->display->display_options['filters']['is_parent']['table'] = 'field_data_oa_parent';
-  $handler->display->display_options['filters']['is_parent']['field'] = 'is_parent';
-  $handler->display->display_options['filters']['is_parent']['group'] = 1;
+  /* Filter criterion: Content: Parent (oa_parent) */
+  $handler->display->display_options['filters']['oa_parent_target_id']['id'] = 'oa_parent_target_id';
+  $handler->display->display_options['filters']['oa_parent_target_id']['table'] = 'field_data_oa_parent';
+  $handler->display->display_options['filters']['oa_parent_target_id']['field'] = 'oa_parent_target_id';
+  $handler->display->display_options['filters']['oa_parent_target_id']['operator'] = 'empty';
+  $handler->display->display_options['filters']['oa_parent_target_id']['group'] = 1;
   /* Filter criterion: Content: Type */
   $handler->display->display_options['filters']['type']['id'] = 'type';
   $handler->display->display_options['filters']['type']['table'] = 'node';

@@ -8,9 +8,3 @@ package = "Organic groups"
 core = 7.x
 
 files[] = tests/og_menu_singleBase.test
-
-; Information added by drush on 2013-05-10
-version = ""
-project = "og_menu_single"
-datestamp = "1368219936"
-

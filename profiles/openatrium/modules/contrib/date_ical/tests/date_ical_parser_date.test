@@ -1,0 +1,291 @@
+<?php
+
+/**
+ * @file
+ * Test case for CCK ical date field text mapper.
+ */
+
+/**
+ * Class for testing Feeds <em>content</em> mapper.
+ */
+abstract class DateIcalFeedsParserDateTestCase extends DateIcalFeedsParserTestCase {
+  /**
+   * Basic test.
+   *
+   * Covers: mapping onto different types of date field;
+   * Start and End dates;
+   * All day events; single and multiple day.
+   */
+  function testBasic() {
+    // Create content type for feed items.
+    $fields = array(
+      'pidt_date' => array(
+        'type' => 'date',
+        'settings' => array(
+          'field[settings][enddate_get]' => 1,
+        ),
+      ),
+      'pidt_datetime' => array(
+        'type' => 'datetime',
+        'settings' => array(
+          'field[settings][enddate_get]' => 1,
+        ),
+      ),
+      'pidt_datestamp' => array(
+        'type' => 'datestamp',
+        'settings' => array(
+          'field[settings][enddate_get]' => 1,
+        ),
+      ),
+    );
+    $typename = $this->createContentType(array(), $fields);
+
+    // Create and configure feed importer.
+    $this->createImporterConfiguration('iCal importer', 'ical');
+    $this->setSettings('ical', NULL, array('import_period' => FEEDS_SCHEDULE_NEVER));
+    $this->setPlugin('ical', 'FeedsFileFetcher');
+    $this->setSettings('ical', 'FeedsFileFetcher', array('allowed_extensions' => 'ics ical'));
+    $this->configureParser();
+    $this->setSettings('ical', 'FeedsNodeProcessor', array('content_type' => $typename));
+    $mappings = array(
+      array('source' => 'summary', 'target' => 'title', ),
+      array('source' => 'description', 'target' => 'body', ),
+    );
+    foreach ($fields as $name => $field) {
+      $mappings[] = array('source' => 'dtstart', 'target' => "field_{$name}:start", );
+      $mappings[] = array('source' => 'dtend', 'target' => "field_{$name}:end", );
+    }
+    $this->addMappings('ical', $mappings);
+
+    // Import iCal file
+    $this->importFile('ical', $this->absolutePath() . '/tests/feeds/date.ics');
+    $this->assertText('Created 7 nodes');
+
+    // Check dates
+    $dates = array(
+      // all timezone Pacific/Apia
+      1 => array('start' => '2009-01-31 19:30', 'end' => '2009-01-31 20:30'),
+      2 => array('start' => '2009-01-01 07:00', 'end' => '2009-01-01 08:00'),
+//      3 => array('start' => '2009-09-01 19:00', 'end' => '2009-09-01 20:00'), // broken but shouldn't be
+      4 => array('start' => '2009-09-30 08:00', 'end' => '2009-10-01 09:00'),
+// Failing Tests @see DateIcalIcalcreatorParser::formatDateTime 'aniversary' events comment.
+//      5 => array('start' => '2009-10-02 00:00', 'end' => '2009-10-02 00:00'),
+//      6 => array('start' => '2009-01-05 00:00', 'end' => ''), // end is correct
+//      7 => array('start' => '2009-10-05 00:00', 'end' => '2009-10-05 00:00'),
+    );
+    foreach ($dates as $nid => $date) {
+      $this->drupalGet("node/$nid/edit");
+      foreach ($fields as $name => $field) {
+        $this->assertNodeFieldValue($name, $date['start'], array(0, 'value'));
+        $this->assertNodeFieldValue($name, $date['end'], array(0, 'value2'));
+      }
+    }
+  }
+
+  /**
+   * Test timezone handling.
+   *
+   * Using feed node to have a user timezone
+   */
+  public function testTimezones() {
+    // set users timezone
+    $this->drupalPost("user/{$this->admin_user->uid}/edit", array('timezone' => 'Africa/Bangui'), t('Save'));
+
+    // Create content type for feed items.
+    $fields = array(
+      // Pacific/Apia
+      'pidt_site' => array(
+        'type' => 'date',
+        'settings' => array(
+          'field[settings][enddate_get]' => 1,
+          'field[settings][tz_handling]' => 'site',
+        ),
+      ),
+      // in field
+      'pidt_date' => array(
+        'type' => 'date',
+        'settings' => array(
+          'field[settings][enddate_get]' => 1,
+          'field[settings][tz_handling]' => 'date',
+        ),
+      ),
+      // Africa/Bangui (same user entering and viewing)
+      'pidt_user' => array(
+        'type' => 'date',
+        'settings' => array(
+          'field[settings][enddate_get]' => 1,
+          'field[settings][tz_handling]' => 'user',
+        ),
+      ),
+      // utc
+      'pidt_utc' => array(
+        'type' => 'date',
+        'settings' => array(
+          'field[settings][enddate_get]' => 1,
+          'field[settings][tz_handling]' => 'utc',
+        ),
+      ),
+      // none
+      'pidt_none' => array(
+        'type' => 'date',
+        'settings' => array(
+          'field[settings][enddate_get]' => 1,
+          'field[settings][tz_handling]' => 'none',
+        ),
+      ),
+    );
+    $typename = $this->createContentType(array(), $fields);
+
+    $this->createImporterConfiguration('iCal importer', 'ical');
+//    $this->setSettings('ical', NULL, array('content_type' => '', 'import_period' => FEEDS_SCHEDULE_NEVER));
+    $this->setPlugin('ical', 'DateIcalIcalcreatorParser');
+    $this->setSettings('ical', 'FeedsNodeProcessor', array('content_type' => $typename));
+    $mappings = array(
+      array('source' => 'summary', 'target' => 'title', ),
+      array('source' => 'description', 'target' => 'body', ),
+      array('source' => 'parent:uid', 'target' => 'uid', ),
+    );
+    foreach ($fields as $name => $field) {
+      $mappings[] = array('source' => 'dtstart', 'target' => "field_{$name}:start", );
+      $mappings[] = array('source' => 'dtend', 'target' => "field_{$name}:end", );
+    }
+    $this->addMappings('ical', $mappings);
+
+    $feed_url = $GLOBALS['base_url'] . '/' . drupal_get_path('module', 'date_ical') . '/tests/feeds/timezone.ics';
+    $nid = $this->createFeedNode('ical', $feed_url);
+    $this->assertText('Created 2 nodes');
+    
+    $dates = array(
+      // X-WR-TIMEZONE:America/Los_Angeles
+      // DTSTART;VALUE=DATE-TIME:20110730T120001
+      // DTEND;VALUE=DATE-TIME:20110730T120002
+      $nid + 1 => array(
+        // it's the site field, but being displayed in the users timezone
+        'pidt_site' => array('start' => '2011-07-30 20:00', 'end' => '2011-07-30 20:00'),
+        // this should have the orginial time and zone
+        'pidt_date' => array('start' => '2011-07-30 12:00', 'end' => '2011-07-30 12:00', 'timezone' => 'America/Los_Angeles'),
+        // user timezone version (so in this case as site field)
+        'pidt_user' => array('start' => '2011-07-30 20:00', 'end' => '2011-07-30 20:00'),
+        // ah simple utc
+        'pidt_utc'  => array('start' => '2011-07-30 19:00', 'end' => '2011-07-30 19:00'),
+        // this should not have under gone conversion on saving, but is altered for the user on display
+        // which is a date module feature - not an ical standard.
+        'pidt_none' => array('start' => '2011-07-30 12:00', 'end' => '2011-07-30 12:00'),
+      ),
+      // DTSTART;TZID=Indian/Maldives:19980119T020000
+      // DTEND;TZID=Indian/Maldives:19980119T030000
+      $nid + 2 => array(
+        'pidt_site' => array('start' => '1998-01-18 22:00', 'end' => '1998-01-18 23:00'),
+        'pidt_date' => array('start' => '1998-01-19 02:00', 'end' => '1998-01-19 03:00', 'timezone' => 'Indian/Maldives'),
+        'pidt_user' => array('start' => '1998-01-18 22:00', 'end' => '1998-01-18 23:00'),
+        'pidt_utc'  => array('start' => '1998-01-18 21:00', 'end' => '1998-01-18 22:00'),
+        'pidt_none' => array('start' => '1998-01-19 02:00', 'end' => '1998-01-19 03:00'),
+      ),
+    );
+
+    foreach ($dates as $nid => $date) {
+      $this->drupalGet("node/$nid/edit");
+      foreach ($fields as $name => $field) {
+        $this->assertNodeFieldValue($name, $date[$name]['start'], array(0, 'value'));
+        $this->assertNodeFieldValue($name, $date[$name]['end'], array(0, 'value2'));
+        if (isset($date[$name]['timezone'])) {
+          $this->assertNodeFieldValue($name, $date[$name]['timezone'], array(0, 'timezone'));
+        }
+      }
+    }
+
+    // Import date.ics iCal file
+    $feed_url = $GLOBALS['base_url'] . '/' . drupal_get_path('module', 'date_ical') . '/tests/feeds/date.ics';
+    $nid = $this->createFeedNode('ical', $feed_url);
+    $this->assertText('Created 7 nodes');
+
+    // of interest here is the 3rd entry, it has no timezone;
+    // and neither does the feed. This is defined as a 'floating' event, and
+    // should be set to the 'atendees' timezone, thus the timezone appropriate to the field.
+    $dates = array(
+      // DTSTART:20090901T190000
+      // DTEND:20090901T200000
+      $nid + 3 => array(
+        // This should be stored as site local time 1900; but it's being displayed in user timezone
+        'pidt_site' => array('start' => '2009-09-01 19:00', 'end' => '2009-09-01 20:00'),
+        'pidt_date' => array('start' => '2009-09-01 19:00', 'end' => '2009-09-01 20:00', 'timezone' => 'Pacific/Apia'),
+      
+        // Again once in the site this doesn't work as the iCalander value 'floating' value.
+        // Suggest it should be entered as the user's timezone; if a user zone then the sites;
+        // it is then displayed at the users timezone. So in this case it should be the
+        // same as entered.
+        'pidt_user' => array('start' => '2009-09-01 19:00', 'end' => '2009-09-01 20:00'),
+
+        'pidt_utc'  => array('start' => '2009-09-01 19:00', 'end' => '2009-09-01 20:00'),
+        'pidt_none' => array('start' => '2009-09-01 19:00', 'end' => '2009-09-01 20:00'),
+      ),
+    );
+
+    foreach ($dates as $nid => $date) {
+      $this->drupalGet("node/$nid/edit");
+      foreach ($fields as $name => $field) {
+        $this->assertNodeFieldValue($name, $date[$name]['start'], array(0, 'value'));
+        $this->assertNodeFieldValue($name, $date[$name]['end'], array(0, 'value2'));
+        if (isset($date[$name]['timezone'])) {
+          $this->assertNodeFieldValue($name, $date[$name]['start'], array(0, 'timezone'));
+        }
+      }
+    }
+  }
+
+  /**
+   * Override parent::getFormFieldsNames().
+   */
+  protected function getFormFieldsNames($field_name, $index) {
+    if (substr($field_name, 0, 5) == 'pidt_') {
+      list($delta, $value) = $index;
+      if ($value == 'timezone') {
+        return array("field_{$field_name}[und][{$delta}][timezone][timezone]");
+      }
+      else {
+        return array("field_{$field_name}[und][{$delta}][{$value}][date]");
+      }
+    }
+    else {
+      return parent::getFormFieldsNames($field_name, $index);
+    }
+  }
+
+  /**
+   * Override parent::getFormFieldsValues().
+   *
+   * Actually probably not needed, but left to check before other tests are sorted.
+   */
+  protected function getFormFieldsValues($field_name, $value) {
+    if (substr($field_name, 0, 5) == 'pidt_') {
+      if (!is_array($value)) {
+        $value = array('date' => $value);
+      }
+      $values = array($value['date']);
+      $values[] = isset($value['timezone']) ? $value['timezone'] : ''; // @todo
+      return $values;
+    }
+    else {
+      return parent::getFormFieldsValues($field_name, $value);
+    }
+  }
+
+  /**
+   * Set and configure the parser plugin.
+   */
+  abstract function configureParser();
+}
+
+class DateIcalDateTestCase extends DateIcalFeedsParserDateTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Basic date handling (iCalCreator)',
+      'description' => 'Date import support.',
+      'group' => 'Parser iCal',
+    );
+  }
+
+  public function configureParser() {
+    $this->setPlugin('ical', 'DateIcalDateParser');
+  }
+}

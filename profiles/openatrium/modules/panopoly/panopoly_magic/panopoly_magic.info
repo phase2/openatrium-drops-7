@@ -14,11 +14,3 @@ scripts[] = panopoly-magic.js
 stylesheets[all][] = css/panopoly-magic.css
 stylesheets[all][] = css/panopoly-modal.css
 features[features_api][] = api:1
-
-
-; Information added by drush on 2013-05-10
-version = "7.x-1.0-rc4+1-dev"
-core = "7.x"
-project = "panopoly_magic"
-datestamp = "1368219927"
-

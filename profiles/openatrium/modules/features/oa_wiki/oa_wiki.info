@@ -60,10 +60,3 @@ features_exclude[field][node-oa_wiki_page-oa_section_ref] = node-oa_wiki_page-oa
 features_exclude[field][node-oa_wiki_page-og_group_ref] = node-oa_wiki_page-og_group_ref
 features_exclude[field][node-oa_wiki_page-og_vocabulary] = node-oa_wiki_page-og_vocabulary
 project path = profiles/openatrium/modules/features
-
-; Information added by drupal.org packaging script on 2013-05-10
-version = "7.x-2.0-alpha4"
-core = "7.x"
-project = "openatrium"
-datestamp = "1368219913"
-

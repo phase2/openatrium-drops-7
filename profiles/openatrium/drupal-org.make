@@ -83,6 +83,7 @@ projects[features_override][version] = 2.0-beta2
 ; Organic Groups
 projects[og][subdir] = contrib
 projects[og][version] = 2.2
+projects[og][patch][1995012] = http://drupal.org/files/og_membership_alter.patch
 
 ; Organic Groups Vocabulary
 projects[og_vocab][subdir] = contrib
@@ -94,7 +95,9 @@ projects[og_subgroups][download][type] = git
 projects[og_subgroups][download][url] = http://git.drupal.org/project/og_subgroups.git
 projects[og_subgroups][download][branch] = 7.x-2.x
 projects[og_subgroups][download][revision] = 7693f8915cb4bd45ae01c39d7abd5b54128e6d31
-projects[og_subgroups][patch][] = http://drupal.org/files/og_subgroup-1985514-1.patch
+projects[og_subgroups][patch][1985514] = http://drupal.org/files/og_subgroup-1985514-1.patch
+projects[og_subgroups][patch][1993944] = http://drupal.org/files/1993944_og_subgroups_fields-1.patch
+projects[og_subgroups][patch][1995018] = http://drupal.org/files/og_subgroups_og_get_groups_by_user_alter.patch
 
 ; Rules
 projects[rules][subdir] = contrib
@@ -119,7 +122,7 @@ projects[flag][download][type] = git
 projects[flag][download][url] = http://git.drupal.org/project/flag.git
 projects[flag][download][branch] = 7.x-2.x
 projects[flag][download][revision] = 32cac54
-projects[flag][patch][] = http://drupal.org/files/flag-all-bundles-7.x-2.x-471212-13.patch
+projects[flag][patch][] = http://drupal.org/files/471212-14-flag-all-bundles.patch
 
 ; RealName
 projects[realname][subdir] = contrib
@@ -224,11 +227,51 @@ projects[reference_option_limit][download][revision] = 74bee91
 projects[reference_option_limit][type] = module
 projects[reference_option_limit][patch][1986532] = http://drupal.org/files/reference_option_limit_organic_groups.patch
 projects[reference_option_limit][patch][1986526] = http://drupal.org/files/1986526_reference_option_limit_3.patch
-projects[reference_option_limit][patch][1989262] = http://drupal.org/files/reference_option_limit_optomize_entityreference.patch
+
+; Quicktabs
+projects[quicktabs][type] = module
+projects[quicktabs][download][type] = git
+projects[quicktabs][version] = 3.4
+projects[quicktabs][subdir] = contrib
+projects[quicktabs][download][url] = http://git.drupal.org/project/quicktabs.git
+projects[quicktabs][download][branch] = 7.x-3.x
+
+; Open Atrium Events Makefile
+;; eventually this gets moved to oa_events when it's a full drupal.org project
+projects[calendar][type] = module
+projects[calendar][subdir] = contrib
+projects[calendar][version] = 3.4
+projects[calendar][download][url] = http://git.drupal.org/project/calendar.git
+projects[calendar][download][type] = git
+projects[calendar][download][branch] = 7.x-3.x
+projects[calendar][patch][1214940] = http://drupal.org/files/1214940-remove-resizeViewport.patch
+projects[calendar][patch][1995062] = http://drupal.org/files/1995062-no-weekno-in-weekly_0.patch
+
+projects[date_ical][type] = module
+projects[date_ical][subdir] = contrib
+projects[date_ical][version][branch] = 2.7
+projects[date_ical][download][url] = http://git.drupal.org/project/date_ical.git
+projects[date_ical][download][type] = git
+projects[date_ical][download][branch] = 7.x-2.x
+
+projects[geophp][type] = module
+projects[geophp][subdir] = contrib
+projects[geophp][version] = 1.7
+
+projects[geofield][type] = module
+projects[geofield][subdir] = contrib
+projects[geofield][version] = 1.1
+
+projects[geocoder][type] = module
+projects[geocoder][subdir] = contrib
+projects[geocoder][download][type] = git
+projects[geocoder][download][url] = http://git.drupal.org/project/geocoder.git
+projects[geocoder][download][branch] = 7.x-1.x
+projects[geocoder][download][revision] = f6b34bc
+projects[geocoder][patch][1996592] = http://drupal.org/files/1996592-geocoder_geocode_values.patch
 
 ; ******** End Open Atrium's Dependencies ********
 ; ************************************************
-
 
 
 ; ************************************************

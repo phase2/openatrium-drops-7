@@ -85,10 +85,3 @@ files[] = views/views_handler_field_oa_last_date.inc
 files[] = views/views_handler_field_oa_new_post.inc
 files[] = views/views_handler_field_oa_updated_post.inc
 project path = profiles/openatrium/modules/features
-
-; Information added by drupal.org packaging script on 2013-05-10
-version = "7.x-2.0-alpha4"
-core = "7.x"
-project = "openatrium"
-datestamp = "1368219913"
-

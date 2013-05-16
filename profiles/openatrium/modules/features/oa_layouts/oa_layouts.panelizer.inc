@@ -243,7 +243,16 @@ function oa_layouts_panelizer_defaults() {
   $panelizer->css = '';
   $panelizer->pipeline = 'ipe';
   $panelizer->contexts = array();
-  $panelizer->relationships = array();
+  $panelizer->relationships = array(
+    0 => array(
+      'identifier' => 'Space',
+      'keyword' => 'space',
+      'name' => 'entity_from_field:og_group_ref-node-node',
+      'delta' => 0,
+      'context' => 'panelizer',
+      'id' => 1,
+    ),
+  );
   $panelizer->access = array();
   $panelizer->view_mode = 'page_manager';
   $panelizer->css_class = '';
@@ -368,13 +377,13 @@ function oa_layouts_panelizer_defaults() {
     $pane->configuration = array(
       'return' => 'Finish',
       'cancel' => 'Cancel',
-      'context' => 'panelizer',
       'override_title' => 0,
       'override_title_text' => '',
       'form_build_id' => 'form-AHJUfpYPcZ4fsSHUHIFy0Adu0CXy4e79Kcslz2yLodI',
       'form_token' => 'BzH8uxEwTjsQGuqkcXBIlcjCxMTFGGufXWz-7ckhC2M',
       'form_id' => 'oa_widgets_content_visibility_edit_form',
       'op' => 'Finish',
+      'context' => 'panelizer',
     );
     $pane->cache = array();
     $pane->style = array(
@@ -382,7 +391,7 @@ function oa_layouts_panelizer_defaults() {
     );
     $pane->css = array();
     $pane->extras = array();
-    $pane->position = 0;
+    $pane->position = 1;
     $pane->locks = array();
     $display->content['new-10'] = $pane;
     $display->panels['sidebar'][0] = 'new-10';
@@ -419,7 +428,7 @@ function oa_layouts_panelizer_defaults() {
     );
     $pane->css = array();
     $pane->extras = array();
-    $pane->position = 1;
+    $pane->position = 2;
     $pane->locks = array();
     $display->content['new-11'] = $pane;
     $display->panels['sidebar'][1] = 'new-11';
@@ -493,7 +502,7 @@ function oa_layouts_panelizer_defaults() {
     $pane->pid = 'new-13';
     $pane->panel = 'contentmain';
     $pane->type = 'views_panes';
-    $pane->subtype = 'oa_recent_activity-space_activity';
+    $pane->subtype = 'oa_recent_activity-section_activity';
     $pane->shown = TRUE;
     $pane->access = array();
     $pane->configuration = array(

@@ -5,26 +5,3 @@
  * Perform actions to set up the site for this profile.
  */
 
-/**
- * Set the default site theme to oa_radix
- */
-function _openatrium_setup_theme() {
-  $default_theme = 'oa_radix';
-  theme_enable(array($default_theme));
-  variable_set('theme_default', $default_theme);
-  theme_disable(array('bartik', 'responsive_bartik'));
-}
-
-/**
- * Implements hook_install().
- */
-function openatrium_install() {
-  _openatrium_setup_theme();
-}
-
-function openatrium_update_7001() {
-   if (in_array(variable_get('theme_default', 'bartik'), array('bartik', 'responsive_bartik'))) {
-    _openatrium_setup_theme();
-  }
-}
-

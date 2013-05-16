@@ -22,7 +22,16 @@ function oa_news_panelizer_defaults() {
   $panelizer->css = '';
   $panelizer->pipeline = 'ipe';
   $panelizer->contexts = array();
-  $panelizer->relationships = array();
+  $panelizer->relationships = array(
+    0 => array(
+      'identifier' => 'Space',
+      'keyword' => 'space',
+      'name' => 'entity_from_field:og_group_ref-node-node',
+      'delta' => 0,
+      'context' => 'panelizer',
+      'id' => 1,
+    ),
+  );
   $panelizer->access = array();
   $panelizer->view_mode = 'page_manager';
   $panelizer->css_class = '';

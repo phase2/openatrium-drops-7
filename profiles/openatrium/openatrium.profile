@@ -13,6 +13,10 @@ function openatrium_install_tasks(&$install_state) {
   require_once(drupal_get_path('module', 'apps') . '/apps.profile.inc');
   $tasks = $tasks + apps_profile_install_tasks($install_state, array('machine name' => 'openatrium', 'default apps' => array()));
 
+  // Add the Panopoly theme selection to the installation process
+  require_once(drupal_get_path('module', 'panopoly_theme') . '/panopoly_theme.profile.inc');
+  $tasks = $tasks + panopoly_theme_profile_theme_selection_install_task($install_state);
+
   return $tasks;
 }
 
@@ -54,3 +58,14 @@ function openatrium_form_apps_profile_apps_select_form_alter(&$form, $form_state
   $form['default_content_fieldset']['#access'] = FALSE;
   // ########### END PANOPOLY ################
 }
+
+/**
+ * Implements hook_form_FORM_ID_alter()
+ */
+function openatrium_form_panopoly_theme_selection_form_alter(&$form, &$form_state, $form_id) {
+  // change the default theme in the selection form
+  unset($form['theme_wrapper']['theme']['#options']['radix']);
+  unset($form['theme_wrapper']['theme']['#options']['radix_starter']);
+  $form['theme_wrapper']['theme']['#default_value'] = 'oa_radix';
+}
+

@@ -136,16 +136,6 @@ function reference_option_limit_form_field_ui_field_edit_form_alter(&$form, &$fo
     '#default_value' => !empty($form['#instance']['options_limit_empty_behaviour']),
     '#parents' => array('instance', 'options_limit_empty_behaviour'),
   );
-
-  if ($form['#field']['type'] == 'entityreference') {
-    $form['instance']['options_limit_fieldset']['options_optomize_entityreferences'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Optimize entityreferences'),
-      '#description' => t('Prevent entityreference from loading all possible entities. May not work for all configurations; use with care.'),
-      '#default_value' => !empty($form['#instance']['options_optomize_entityreferences']),
-      '#parents' => array('instance', 'options_optomize_entityreferences'),
-    );
-  }
 }
 
 /**
@@ -517,54 +507,6 @@ function reference_option_limit_entity_query_alter($query) {
     }
   }
 }
-
-
-/**
- * Implements hook_query_TAG_alter().
- */
-function reference_option_limit_query_entityreference_alter($query) {
-  $instance = $query->alterMetaData['entityreference_selection_handler']->instance;
-  $current_query_conditions = $query->alterMetaData['entity_field_query']->entityConditions;
-  if (!empty($instance['options_limit']) && !empty($instance['options_limit_fields']) && !empty($instance['options_optomize_entityreferences']) && empty($current_query_conditions['entity_id'])) {
-    $field = $query->alterMetaData['entityreference_selection_handler']->field;
-    $entity = $query->alterMetaData['entityreference_selection_handler']->entity;
-    $empty = !empty($field['options_limit_empty_behaviour']);
-    $field_name = $field['field_name'];
-
-    foreach (array_filter($instance['options_limit_fields']) as $field_name_matching) {
-      // @TODO Actually change the query to return the correct results here.
-      // The query has been converted to a simple select query now so can't
-      // add field fieldCondition.
-      if (_reference_option_limit_get_entityreference_values($field_name_matching, $entity, $_POST) || !empty($instance['options_limit_empty_behaviour'])) {
-        $query->condition('1', '0', '=');
-      }
-    }
-  }
-}
-
-/**
- * Helper function to abstract the values of an entity reference field.
- */
-function _reference_option_limit_get_entityreference_values($field_name, $entity, $check_values = array()) {
-  $values = array();
-  if (isset($check_values[$field_name])) {
-    $process = $check_values[$field_name];
-  }
-  elseif (isset($entity->$field_name)) {
-    $process = $entity->$field_name;
-  }
-  if (isset($process) && is_array($process)) {
-    if (!empty($process[LANGUAGE_NONE])) {
-      foreach ($process[LANGUAGE_NONE] as $items) {
-        if (!empty($items['target_id'])) {
-          $values[] = $items['target_id'];
-        }
-      }
-    }
-  }
-  return $values;
-}
-
 
 /**
  * Helper to get the names of fields have instances set to limited options.

@@ -62,3 +62,62 @@ function _oa_sections_is_parent($item, $mlid) {
     }
   }
 }
+
+/**
+ * Implements hook_query_TAG_alter().
+ */
+function oa_sections_query_entityreference_alter($query) {
+  $field = $query->alterMetaData['entityreference_selection_handler']->field;
+  $current_query_conditions = $query->alterMetaData['entity_field_query']->entityConditions;
+  if ($field && $field['field_name'] == 'oa_section_ref' && empty($current_query_conditions['entity_id'])) {
+    $entity = $query->alterMetaData['entityreference_selection_handler']->entity;
+
+    // A space is active, limit to sections in that space.
+    if ($value = _oa_sections_get_current_selected_space($entity)) {
+      $query->join('og_membership', 'omrol', 'node.nid = omrol.etid and omrol.entity_type = :entity_type AND omrol.field_name = :field_name AND omrol.gid = :target_id', array(':target_id' => $value, ':entity_type' => 'node', ':field_name' => 'og_group_ref'));
+    }
+    // Don't want to show all sections ever, so zero it out.
+    else {
+      $query->condition('1', '0', '=');
+    }
+  }
+}
+
+/**
+ * Get the currently selected group.
+ */
+function _oa_sections_get_current_selected_space($entity) {
+  $value = NULL;
+  if (isset($_POST['og_group_ref'])) {
+    $process = $_POST['og_group_ref'];
+  }
+  elseif ($entity && isset($entity->og_group_ref)) {
+    $process = $entity->og_group_ref;
+  }
+  // First check active view filter
+  if (!empty($_GET['og_group_ref_target_id'])) {
+    $value = $_GET['og_group_ref_target_id'];
+  }
+  // For panelizer settings.
+  elseif (!empty($_POST['exposed']['og_group_ref_target_id'])) {
+    $value = $_POST['exposed']['og_group_ref_target_id'];
+  }
+  // Check post or entity values.
+  elseif (isset($process) && is_array($process)) {
+    if (!empty($process[LANGUAGE_NONE][0]['target_id'])) {
+      $value = $process[LANGUAGE_NONE][0]['target_id'];
+    }
+    elseif (!empty($process[LANGUAGE_NONE][0]['default'])) {
+      $value = $process[LANGUAGE_NONE][0]['default'];
+    }
+  }
+  // fallback to context.
+  elseif (defined('OG_SESSION_CONTEXT_ID') && !empty($_SESSION[OG_SESSION_CONTEXT_ID])) {
+    $value = $_SESSION[OG_SESSION_CONTEXT_ID];
+  }
+  // Make sure the current user has access.
+  if (!is_numeric($value) || !($node = node_load($value)) || !node_access('view', $node)) {
+    return NULL;
+  }
+  return $value;
+}

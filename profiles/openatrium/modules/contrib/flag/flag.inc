@@ -1556,16 +1556,18 @@ class flag_node extends flag_entity {
   function type_access_multiple($content_ids, $account) {
     $access = array();
 
-    // Ensure that only flaggable node types are granted access. This avoids a
-    // node_load() on every type, usually done by applies_to_content_id().
-    $result = db_select('node', 'n')->fields('n', array('nid'))
-      ->condition('nid', array_keys($content_ids), 'IN')
-      ->condition('type', $this->types, 'NOT IN')
-      ->execute();
-    foreach ($result as $row) {
-      $access[$row->nid] = FALSE;
+    // An empty types array indicates this flag is valid for all types.
+    if (!empty($this->types)) {
+      // Ensure that only flaggable node types are granted access. This avoids a
+      // node_load() on every type, usually done by applies_to_content_id().
+      $result = db_select('node', 'n')->fields('n', array('nid'))
+        ->condition('nid', array_keys($content_ids), 'IN')
+        ->condition('type', $this->types, 'NOT IN')
+        ->execute();
+      foreach ($result as $row) {
+        $access[$row->nid] = FALSE;
+      }
     }
-
     return $access;
   }
 

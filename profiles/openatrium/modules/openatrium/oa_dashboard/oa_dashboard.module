@@ -162,14 +162,14 @@ function oa_dashboard_preprocess_oa_toolbar(&$vars) {
     $menu_title = t('Public Spaces');
   }
   else {
-    $spaces = og_get_entity_groups('user', $user);
+    $spaces = og_get_groups_by_user($user, 'node');
     $menu_title = t('Subscribed Spaces');
   }
-  if (empty($spaces['node'])) {
+  if (empty($spaces)) {
     $list = array();
   }
   else {
-    $items = oa_core_get_titles($spaces['node'], OA_SPACE_TYPE);
+    $items = oa_core_get_titles($spaces, OA_SPACE_TYPE);
     $list = oa_core_truncate_list($items['links'], 15,
       l(t('All spaces...'), 'spaces',
         array('attributes' => array('class' => array('more-link')))),

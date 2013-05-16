@@ -1,0 +1,103 @@
+<?php
+
+/**
+ * @file
+ * Test case for CCK ical date field text mapper.
+ */
+
+/**
+ * Common class for testing ical parsers link and guid mapping.
+ */
+abstract class DateIcalFeedsParserLinkTestCase extends DateIcalFeedsParserTestCase {
+  /**
+   * Set up the test.
+   */
+  public function setUp() {
+    parent::setUp('link');
+  }
+
+  /**
+   * Basic test on simple ical file.
+   */
+  function test() {
+    // Create content type.
+    $typename = $this->createContentType(array(), array(
+      'alpha' => 'link_field',
+    ));
+
+    $this->createImporterConfiguration('iCal importer', 'ical');
+    $this->setSettings('ical', NULL, array('content_type' => '', 'import_period' => FEEDS_SCHEDULE_NEVER));
+    $this->setPlugin('ical', 'FeedsFileFetcher');
+    $this->setSettings('ical', 'FeedsFileFetcher', array('allowed_extensions' => 'ics ical'));
+    $this->configureParser();
+    $this->setSettings('ical', 'FeedsNodeProcessor', array('content_type' => $typename));
+    $this->addMappings('ical', array(
+      array(
+        'source' => 'uid',
+        'target' => 'guid',
+      ),
+      array(
+        'source' => 'url',
+        'target' => 'url',
+      ),
+      array(
+        'source' => 'url',
+        'target' => 'field_alpha:url',
+      ),
+    ));
+
+    // Import iCal file
+    $this->importFile('ical', $this->absolutePath() . '/tests/feeds/basic.ics');
+    $this->assertText('Created 2 nodes');
+
+    $item = db_query("SELECT * FROM {feeds_item} WHERE entity_type = 'node' AND entity_id = 1")->fetchObject();
+    $this->assertEqual($item->url, 'http://example.com/node/1', 'Feed item 1 correct url');
+    $this->assertEqual($item->guid, '36457EF9-C015-4DBF-91FA-057B7799FBF9', 'Feed item 1 correct uid');
+
+    $item = db_query("SELECT * FROM {feeds_item} WHERE entity_type = 'node' AND entity_id = 2")->fetchObject();
+    $this->assertEqual($item->url, 'http://example.com/node/2', 'Feed item 2 correct url');
+    $this->assertEqual($item->guid, '36726712-0001-41F3-A733-53FE5DBCD575', 'Feed item 2 correct uid');
+
+    $this->drupalGet('node/2/edit');
+    $this->assertFieldByName('field_alpha[und][0][url]', 'http://example.com/node/2', 'Feed item 2 correct url field value');
+  }
+
+  /**
+   * Set and configure the parser plugin.
+   */
+  abstract function configureParser();
+}
+
+/**
+ * Class for testing iCal (date api) link and uid mapping.
+ */
+class DateIcalDateModuleLinkCase extends DateIcalFeedsParserLinkTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Link & UID (date api)',
+      'description' => 'Test link and uid import support.',
+      'group' => 'Parser iCal',
+    );
+  }
+
+  public function configureParser() {
+    $this->setPlugin('ical', 'DateIcalDateModuleParser');
+  }
+}
+
+/**
+ * Class for testing iCal (iCalCreator) link and uid mapping.
+ */
+class DateIcalIcalcreatorLinkCase extends DateIcalFeedsParserLinkTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Link & UID (iCalCreator)',
+      'description' => 'Test link and uid import support.',
+      'group' => 'Parser iCal',
+    );
+  }
+
+  public function configureParser() {
+    $this->setPlugin('ical', 'DateIcalIcalcreatorParser');
+  }
+}

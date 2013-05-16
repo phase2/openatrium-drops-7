@@ -31,10 +31,3 @@ features[features_overrides][] = variable.search_active_modules.value|user
 features[page_manager_handlers][] = search_node_panel_context
 features[page_manager_handlers][] = search_user_panel_context
 files[] = oa_search.facetapi.inc
-
-; Information added by drupal.org packaging script on 2013-05-10
-version = "7.x-2.0-alpha4"
-core = "7.x"
-project = "openatrium"
-datestamp = "1368219913"
-
