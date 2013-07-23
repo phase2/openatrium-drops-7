@@ -1,0 +1,79 @@
+<?php
+
+/**
+ * @file
+ * Provides hook implementations and functionality for og_session_context.
+ */
+
+/**
+ * Session variable to store space ID
+ */
+define('OG_SESSION_CONTEXT_ID', 'oa_space_id');
+
+/**
+ * Implements hook_og_context.negotiation_info()
+ *
+ * Adds a method to /admin/config/group/context to grab the og context value
+ *   through a custom session variable.
+ */
+function og_session_context_og_context_negotiation_info() {
+  $providers = array();
+
+  $providers['sessions'] = array(
+    'name' => t('Sessions'),
+    'description' => t("Determine context by checking session variable."),
+    'callback' => 'og_session_context_og_context_handler_sessions',
+  );
+
+  return $providers;
+}
+
+/**
+ * Callback to pass the og context value based on the last space or space
+ *   content page visited.
+ */
+function og_session_context_og_context_handler_sessions() {
+  _og_session_context_set_context();  // update the session variable
+
+  $gids = FALSE;
+  if (!empty($_SESSION[OG_SESSION_CONTEXT_ID]) && ($node = node_load($_SESSION[OG_SESSION_CONTEXT_ID])) && node_access('view', $node)) {
+    $gids['node'][0] = $_SESSION[OG_SESSION_CONTEXT_ID];
+  }
+
+  return $gids;
+}
+
+/**
+ * Determines the og context value for og_session_context_og_context_handler_sessions
+ *   by looking the entity's node value or the og_group_ref field value on
+ *   space and space content page.
+ */
+function _og_session_context_set_context() {
+  global $user;
+
+  // don't create a session for anonymous users unless session already started
+  // needed to allow Varnish to cache anonymous pages
+  if (($user->uid == 0) && !drupal_session_started()) {
+    return;
+  }
+
+  $menu = menu_get_object();
+  if (!isset($menu->nid)) {
+    return;
+  }
+
+  $nid = $menu->nid;
+  $node = node_load($nid);
+  if (empty($node)) {
+    return;
+  }
+
+  if (og_is_group('node', $node)) {
+    // get space id directly from space nodes
+    $_SESSION[OG_SESSION_CONTEXT_ID] = $nid;
+  }
+  elseif (!empty($node->{OG_AUDIENCE_FIELD}[LANGUAGE_NONE][0]['target_id'])) {
+    // otherwise get space id from space field reference
+    $_SESSION[OG_SESSION_CONTEXT_ID] = $node->{OG_AUDIENCE_FIELD}[LANGUAGE_NONE][0]['target_id'];
+  }
+}

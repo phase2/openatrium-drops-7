@@ -10,8 +10,8 @@ $plugin = array(
   'description' => t('Display the menu for the group.'),
   'single' => TRUE,
   'category' => array(t('Menus'), -9),
-  'edit form' => 'og_menu_single_menu_edit_form',
-  'render callback' => 'og_menu_single_menu_render',
+  'edit form' => 'og_menu_single_pane_edit_form',
+  'render callback' => 'og_menu_single_pane_render',
   'defaults' => array(
     'parent' => 0,
   ),
@@ -22,7 +22,7 @@ $plugin = array(
  * Run-time rendering of the body of the block (content type)
  * See ctools_plugin_examples for more advanced info
  */
-function og_menu_single_menu_render($subtype, $conf, $args, $context = NULL) {
+function og_menu_single_pane_render($subtype, $conf, $args, $context = NULL) {
   $plid = og_menu_single_get_active_plid();
   if (!empty($conf['og_menu_single_parent'])) {
     $plid = $conf['og_menu_single_parent'];
@@ -52,7 +52,7 @@ function og_menu_single_menu_render($subtype, $conf, $args, $context = NULL) {
 /**
  * Custom edit form to allow users to enable/disable selectable content types
  */
-function og_menu_single_menu_edit_form($form, &$form_state) {
+function og_menu_single_pane_edit_form($form, &$form_state) {
   if ($plid = og_menu_single_get_active_plid()) {
     $conf = $form_state['conf'];
     $form['settings']['og_menu_single_depth'] = array(
@@ -89,7 +89,7 @@ function og_menu_single_menu_edit_form($form, &$form_state) {
 /**
  * Saves changes to the widget.
  */
-function og_menu_single_menu_edit_form_submit($form, &$form_state) {
+function og_menu_single_pane_edit_form_submit($form, &$form_state) {
   foreach (array_keys($form_state['values']) as $key) {
     if (isset($form_state['values'][$key])) {
       if ($key == 'og_menu_single_parent') {

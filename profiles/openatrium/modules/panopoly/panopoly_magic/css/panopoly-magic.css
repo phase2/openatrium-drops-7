@@ -135,6 +135,10 @@ div.modal-content-preview-button {
   margin-right: 5px;
 }
 
+#modal-content .general-settings-fieldset label.option {
+  float:none;
+}
+
 #modal-content #edit-context label {
   float: left;
   font-weight: normal;

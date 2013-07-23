@@ -1,0 +1,319 @@
+<?php
+/**
+ * @file
+ * Code for the Open Atrium Subgroup Intergration for Spaces feature.
+ */
+
+include_once 'oa_subspaces.features.inc';
+/**
+ * @file
+ * Enhance the OG Subgroups module
+ */
+
+/**
+ * Name of default Parent Space field.
+ */
+define('OA_PARENT_SPACE', 'oa_parent_space');
+
+/**
+ * Implements hook_form_alter().
+ * Hook into the Node Edit form
+ */
+function oa_subspaces_form_node_form_alter(&$form, $form_state, $form_id) {
+  $node = $form['#node'];
+
+  if (isset($form[OA_PARENT_SPACE][LANGUAGE_NONE][0])) {
+    $form['#validate'][] = 'oa_subspaces_form_node_form_validate';
+
+    // clean up the edit form
+    if (!empty($form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['admin']['#options'])) {
+      $all = array();
+      foreach ($form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default']['#options'] + $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['admin']['#options'] as $op => $value) {
+        if (is_array($value)) {
+          $all += $value;
+        }
+        else {
+          $all[$op] = $value;
+        }
+      }
+      $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default']['#options'] = $all;
+      unset($form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['admin']);
+    }
+    $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default']['#title'] = t('Parents');
+    $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default']['#description'] = t('Inherit membership from the selected parents.');
+    $type = $form['#node']->type;
+    $admin_access = user_access('create ' . $type . ' content') || user_access('administer group');
+    if (empty($form['#node']->nid)) {
+      $gid = oa_core_get_space_context();
+      // If they are being granted create permission based on group permission
+      // restrict the parent field to current group so don't have to deal with
+      // changing values in form based on changed parent field.
+      if (!$admin_access) {
+        if (!$gid || !in_array($gid, $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default'])) {
+          drupal_access_denied();
+          die();
+        }
+        else {
+          $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default']['#default_value'] = array($gid => $gid);
+          $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default']['#access'] = FALSE;
+          drupal_set_title(t('Create @type in @title', array('@type' => node_type_get_name($type), '@title' => $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default']['#options'][$gid])));
+        }
+      }
+    }
+    // When on edit form, restrict parent and space type field on edit
+    // to avoid any access issues between space type and parent.
+    elseif (!$admin_access && !empty($form['field_oa_space_type'])) {
+      $form['field_oa_space_type']['#access'] = FALSE;
+      $form[OA_PARENT_SPACE]['#access'] = FALSE;
+    }
+
+    // remove any children of this space from the selection list
+    if (!empty($node->nid)) {
+      $children = array();
+      _oa_subspaces_get_children_groups('node', $node->nid, $children);
+      foreach ($form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default']['#options'] as $key => $option) {
+        if (($key == $node->nid) || (in_array($key, $children))) {
+          unset($form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default']['#options'][$key]);
+        }
+      }
+    }
+    if (isset($form[OG_USER_INHERITANCE_FIELD][LANGUAGE_NONE]) && isset($form[OG_USER_INHERITANCE_PERMISSION_FIELD][LANGUAGE_NONE])) {
+      $form[OG_USER_INHERITANCE_PERMISSION_FIELD][LANGUAGE_NONE]['#states'] = array(
+        'visible' => array(
+          ':input[name="og_user_inheritance[und]"]' => array(array('value' => 1)),
+        ),
+      );
+      // This field acts odd when required but user doesn't have access, throws
+      // a required warning when 0 is valid and works fine otherwise
+      $form[OG_USER_INHERITANCE_PERMISSION_FIELD][LANGUAGE_NONE]['#required'] = FALSE;
+    }
+  }
+}
+
+/**
+ * Validation function for node edit form
+ */
+function oa_subspaces_form_node_form_validate($form, &$form_state) {
+  $node = $form['#node'];
+  if (!empty($node->nid) && !empty($form_state['values'][OA_PARENT_SPACE][LANGUAGE_NONE])) {
+    foreach ($form_state['values'][OA_PARENT_SPACE][LANGUAGE_NONE] as $oa_parent) {
+      if (!empty($oa_parent['target_id']) && ($oa_parent['target_id'] == $node->nid)) {
+        form_set_error(OA_PARENT_SPACE, t('You cannot set the Parent Space to itself.'));
+        return;
+      }
+    }
+  }
+}
+
+/**
+ * Return possible children of a space, regardless of the Inheritence field
+ * we don't want to load all the nodes and for preventing recursive parents
+ * we really don't care if the inheritence field is enabled or not
+ *
+ * @param $group_type
+ *   The group (entity) type.
+ * @param $group_id
+ *   The group (entity) ID.
+ * @param $children_groups
+ *   An array of children groups.
+ *
+ * @see: _og_subgroup_get_user_inherited_groups().
+ */
+function oa_subspaces_get_children_groups($group_type, $group_id) {
+  $children_groups = drupal_static(__FUNCTION__, array());
+  if (!isset($children_groups[$group_type . '_' . $group_id])) {
+    $children_groups[$group_type . '_' . $group_id] = array();
+    _oa_subspaces_get_children_groups($group_type, $group_id, $children_groups[$group_type . '_' . $group_id]);
+  }
+  return $children_groups[$group_type . '_' . $group_id];
+}
+
+/**
+ * Helper function for oa_subspaces_get_children_groups().
+ *
+ * @see oa_subspaces_get_children_groups()
+ */
+function _oa_subspaces_get_children_groups($group_type, $group_id, &$children_groups) {
+  $children = og_subgroups_get_associated_entities($group_type, $group_id);
+  foreach ($children as $children_type => $children_ids) {
+    foreach ($children_ids as $child_id) {
+      if (!in_array($child_id, $children_groups)) { // prevent recursion
+        $children_groups[] = $child_id;
+        _oa_subspaces_get_children_groups($children_type, $child_id, $children_groups);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function oa_subspaces_form_views_exposed_form_alter(&$form, $form_state, $form_id) {
+  if (!empty($form['og_group_ref_target_id']['#options'])) {
+    _oa_subspaces_rearrange_options($form['og_group_ref_target_id']['#options']);
+    $settings = _oa_subspaces_find_view_settings($form_state['view'], $form_state);
+    if ($settings['og_group_ref_target_id'] && is_numeric($settings['og_group_ref_target_id']) && oa_subspaces_get_children_groups('node', $settings['og_group_ref_target_id'])) {
+      _oa_subspaces_add_element($form, $settings['og_subspaces_view_all']);
+    }
+  }
+}
+
+function _oa_subspaces_rearrange_options(&$options) {
+  $parent_and_children = array();
+  // Reorganize options for better usability.
+  $nid_options = array_keys($options);
+  foreach ($options as $nid => $title) {
+    if (!in_array($nid, $parent_and_children) && ($children = oa_subspaces_get_children_groups('node', $nid)) && array_intersect($children, $nid_options)) {
+      $parent_and_children[$nid] = $title;
+      foreach ($children as $child_nid) {
+        if (!empty($options[$child_nid])) {
+          $parent_and_children[$child_nid] = '-- ' . $options[$child_nid];
+        }
+      }
+    }
+  }
+  $options = array_diff_key($options, $parent_and_children) + $parent_and_children;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function oa_subspaces_form_views_content_views_panes_content_type_edit_form_alter(&$form, &$form_state, $form_id) {
+  // Doing it to the exposed form alone doesn't work :(.
+  if (!empty($form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id'])) {
+    $settings = _oa_subspaces_find_view_settings($form_state['view'], $form_state);
+    _oa_subspaces_rearrange_options($form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id']['#options']);
+    _oa_subspaces_add_element($form['exposed']['filter-og_group_ref_target_id'], $settings['og_subspaces_view_all'], array('exposed', 'og_subspaces_view_all'));
+  }
+}
+
+/**
+ * Helper to add i the checkbox at same place as group ref.
+ */
+function _oa_subspaces_add_element(&$element, $value, $parents = array('og_subspaces_view_all')) {
+  $element['og_subspaces_view_all'] = array(
+    '#title' => t('Show subspace content'),
+    '#type' => 'checkbox',
+    '#default_value' => $value,
+    '#value' => $value, // @todo what is setting this incorrectly?
+    '#parents' => $parents,
+  );
+}
+
+/**
+ * Finding the active current configuration for each is a pane in the ***.
+ */
+function _oa_subspaces_find_view_settings($view = NULL, $form_state = NULL) {
+  $find = array('og_subspaces_view_all', 'oa_section_ref_target_id', 'og_group_ref_target_id', 'og_group_ref_target_id_mine');
+  $return = array();
+  foreach ($find as $key) {
+    if (isset($_GET[$key])) {
+      $return[$key] = $_GET[$key];
+    }
+    elseif (isset($_POST['exposed'][$key])) {
+      $return[$key] = $_POST['exposed'][$key];
+    }
+    elseif ($form_state && isset($form_state['values']['exposed'][$key])) {
+      $return[$key] = $form_state['values'][$key];
+    }
+    elseif ($form_state && isset($form_state['conf']['exposed'][$key])) {
+      $return[$key] = $form_state['conf']['exposed'][$key];
+    }
+    elseif ($view && isset($view->exposed_input[$key])) {
+      $return[$key] = $view->exposed_input[$key];
+    }
+    elseif ($view && isset($view->display_handler->options['pane_conf'][$key])) {
+      $return[$key] = $view->display_handler->options['pane_conf'][$key];
+    }
+    else {
+      $return[$key] = FALSE;
+    }
+    if ($return[$key] === 'All'  || !is_numeric($return[$key])) {
+      $return[$key] = FALSE;
+    }
+  }
+  if (!empty($return['og_group_ref_target_id_mine'])) {
+    $return['og_group_ref_target_id'] = FALSE;
+    $return['og_subspaces_view_all'] = FALSE;
+  }
+  if ($return['oa_section_ref_target_id']) {
+    $return['og_subspaces_view_all'] = FALSE;
+  }
+
+  return $return;
+}
+
+/**
+ * Implements hook_views_pre_view().
+ */
+function oa_subspaces_views_pre_view(&$view) {
+  if (!empty($view->display_handler->default_display->options['filters']['og_group_ref_target_id']['exposed'])) {
+    $settings = _oa_subspaces_find_view_settings($view);
+    // Add the extra column is group selected but no section.
+    if ($settings['og_subspaces_view_all'] && oa_subspaces_get_children_groups('node', $settings['og_group_ref_target_id'])) {
+       // Adding this field so can see what group the content from other selected groups is from.
+      $view->display_handler->default_display->options['fields'] = array(
+        'og_group_ref' => array(
+          'id'=> 'og_group_ref',
+          'table'=> 'og_membership',
+          'field'=> 'og_group_ref',
+          'label'=> 'Space',
+          'settings'=> array(
+            'link' => 1,
+          ),
+        ),
+      ) + $view->display_handler->default_display->options['fields'];
+    }
+  }
+}
+
+/**
+ * Implements hook_views_query_alter().
+ */
+function oa_subspaces_views_query_alter(&$view, &$query) {
+  // If selected, add all the children groups content to the space.
+  if (!empty($view->exposed_input['og_group_ref_target_id']) && is_numeric($view->exposed_input['og_group_ref_target_id']) && !empty($view->filter['og_group_ref_target_id']->options['exposed'])) {
+    $settings = _oa_subspaces_find_view_settings($view);
+    if ($settings['og_subspaces_view_all'] && ($children = oa_subspaces_get_children_groups('node', $view->exposed_input['og_group_ref_target_id']))) {
+      foreach ($query->where[1]['conditions'] as $key => $condition) {
+        // @todo - can we calculate this?
+        if ($condition['field'] == 'og_membership.gid' || $condition['field'] == 'node_field_data_field_oa_node_ref__og_membership.gid') {
+          $query->where[1]['conditions'][$key]['value'] = array_merge($query->where[1]['conditions'][$key]['value'], $children);
+          break;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_field_access().
+ */
+function oa_subspaces_field_access($op, $field, $entity_type, $entity, $account) {
+  if ($field['field_name'] == OG_USER_INHERITANCE_PERMISSION_FIELD && $op == 'edit') {
+    return user_access('administer group', $account);
+  }
+}
+
+/**
+ * Implements hook_og_permission_alter().
+ *
+ * Changes group create permissions to restricted.
+ */
+function oa_subspaces_og_permission_alter(&$permissions) {
+  foreach (node_permissions_get_configured_types() as $type) {
+    if (og_is_group_type('node', $type) && ($perms = og_list_permissions($type))) {
+      foreach (array_keys($perms) as $perm_name) {
+        // Group permission should onyl use the global field.
+        if ($type == 'oa_group') {
+          unset($permissions[$perm_name]);
+        }
+        elseif (!empty($permissions[$perm_name])) {
+          $permissions[$perm_name]['restrict access'] = TRUE;
+          $permissions[$perm_name]['default role'] = array(OG_ADMINISTRATOR_ROLE);
+          $permissions[$perm_name]['roles'] = array(OG_AUTHENTICATED_ROLE);
+        }
+      }
+    }
+  }
+}

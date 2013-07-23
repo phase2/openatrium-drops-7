@@ -5,3 +5,10 @@ dependencies[] = panels
 configure = admin/structure/panels
 core = 7.x
 files[] = panels_node.module
+
+
+; Information added by drush on 2013-07-20
+version = ""
+project = "panels"
+datestamp = "1374352315"
+

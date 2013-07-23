@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the OA variables feature.
+ */
+
+include_once 'oa_variables.features.inc';

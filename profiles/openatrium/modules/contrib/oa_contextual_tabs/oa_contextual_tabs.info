@@ -1,0 +1,22 @@
+name = Open Atrium Contextual Tabs
+core = 7.x
+package = Open Atrium
+version = 7.x-2.0
+project = oa_contextual_tabs
+dependencies[] = contextual_tabs
+dependencies[] = ctools
+dependencies[] = strongarm
+features[ctools][] = strongarm:strongarm:1
+features[features_api][] = api:2
+features[variable][] = contextual_tabs_extract
+features[variable][] = contextual_tabs_pages
+features[variable][] = contextual_tabs_visilibity
+project path = sites/all/modules/contrib/oa_core/modules
+
+
+; Information added by drush on 2013-07-20
+version = "7.x-2.0-beta1+0-dev"
+core = "7.x"
+project = "oa_contextual_tabs"
+datestamp = "1374352294"
+

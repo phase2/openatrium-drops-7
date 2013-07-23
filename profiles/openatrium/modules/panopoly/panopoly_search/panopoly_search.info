@@ -53,3 +53,11 @@ features[variable][] = search_active_modules
 features[variable][] = search_api_facets_search_ids
 features[views_view][] = panopoly_database_search
 features[views_view][] = panopoly_search
+
+
+; Information added by drush on 2013-07-20
+version = "7.x-1.0-rc4+0-dev"
+core = "7.x"
+project = "panopoly_search"
+datestamp = "1374352276"
+

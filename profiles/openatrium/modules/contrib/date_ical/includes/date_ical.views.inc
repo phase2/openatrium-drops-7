@@ -10,9 +10,10 @@
  */
 function date_ical_views_plugins() {
   $includes_path = drupal_get_path('module', 'date_ical') . '/includes';
-  
+
   $data = array(
-    'module' => 'date_ical', // This just tells our themes are elsewhere.
+    // This just tells our themes are elsewhere.
+    'module' => 'date_ical',
     'style' => array(
       'date_ical' => array(
         'title' => t('iCal Feed'),
@@ -37,8 +38,17 @@ function date_ical_views_plugins() {
         'uses fields' => FALSE,
         'type' => 'feed',
       ),
+      'date_ical_fields' => array(
+        'title' => t('iCal Fields'),
+        'help' => t('Display fields for an iCal VEVENT item.'),
+        'handler' => 'date_ical_plugin_row_ical_fields',
+        'path' => $includes_path,
+        'uses options' => TRUE,
+        'uses fields' => TRUE,
+        'type' => 'feed',
+      ),
     ),
   );
-  
+
   return $data;
 }

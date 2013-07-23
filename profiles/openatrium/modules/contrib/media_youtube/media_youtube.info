@@ -7,3 +7,11 @@ files[] = includes/MediaYouTubeStreamWrapper.inc
 files[] = includes/MediaYouTubeBrowser.inc
 dependencies[] = media
 dependencies[] = media_internet
+
+
+; Information added by drush on 2013-07-20
+version = "7.x-2.0-rc3+0-dev"
+core = "7.x"
+project = "media_youtube"
+datestamp = "1374352308"
+

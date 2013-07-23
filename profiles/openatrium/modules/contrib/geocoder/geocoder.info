@@ -3,3 +3,11 @@ description = An API and widget to geocode various known data into other GIS dat
 core = 7.x
 dependencies[] = geophp
 dependencies[] = ctools
+
+
+; Information added by drush on 2013-07-20
+version = "7.x-1.2+6-dev"
+core = "7.x"
+project = "geocoder"
+datestamp = "1374352301"
+

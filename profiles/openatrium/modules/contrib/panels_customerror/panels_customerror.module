@@ -1,0 +1,40 @@
+<?php
+/**
+ * @file
+ * Code for the Panels Customerror feature.
+ */
+
+include_once 'panels_customerror.features.inc';
+
+/**
+ * Implements hook_block_info().
+ */
+function panels_customerror_block_info() {
+  $blocks['403'] = array(
+    'info' => t('Access Denied Message'),
+    'cache' => DRUPAL_CACHE_PER_PAGE,
+  );
+  $blocks['404'] = array(
+    'info' => t('Page not found Message'),
+    'cache' => DRUPAL_CACHE_PER_PAGE,
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function panels_customerror_block_view($delta = '') {
+  $block = array();
+  if ($delta == '403') {
+    return array(
+      'content' => t('You are not authorized to access this page.'),
+    );
+  }
+  elseif ($delta == '404') {
+    return array(
+      'content' => t('The requested page "@path" could not be found.', array('@path' => request_uri())),
+    );
+  }
+  return $block;
+}

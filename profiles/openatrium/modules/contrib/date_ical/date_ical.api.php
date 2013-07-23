@@ -2,7 +2,8 @@
 
 /**
  * Alter the HTML of an event's Summary and Description, before it gets converted
- * to plaintext for output in an iCal feed.
+ * to plaintext for output in an iCal feed. This hook is only used by the
+ * iCal Entity views row plugin.
  *
  * @param $data
  *   A reference to an associative array with the following keys and values:
@@ -17,7 +18,30 @@
  *   - 'language': The language code that indicates which translation of field
  *     data should be used.
  */
-function hook_date_ical_html_alter(&$data, $view, &$context) {
+function hook_date_ical_html_alter(&$data, $view, $context) {
+
+}
+
+/**
+ * Alter the HTML of an event's text fields, before it gets converted
+ * to plaintext for output in an iCal feed. This hook is only used by the
+ * iCal Fields views row plugin.
+ *
+ * @param $text_fields
+ *   A reference to an associative array with the following keys and values:
+ *   - 'description': The description field string.
+ *   - 'summary': The title field string
+ *   - 'location': The location field string.
+ * @param $view
+ *  The view object that is being executed to render the iCal feed.
+ * @param $context
+ *   An associative array of context, with the following keys and values:
+ *   - 'row': The single query result row that is being converted into an iCal VEVENT.
+ *   - 'row_index': The index into the full query results for this row.
+ *   - 'language': The language code that indicates which translation of field
+ *     data should be used.
+ */
+function hook_date_ical_fields_html_alter(&$text_fields, $view, $context) {
 
 }
 
@@ -41,7 +65,7 @@ function hook_date_ical_html_alter(&$data, $view, &$context) {
  *   - 'language': The language code that indicates which translation of field
  *     data should be used.
  */
-function hook_date_ical_feed_event_render_alter(&$event, $view, &$context) {
+function hook_date_ical_feed_event_render_alter(&$event, $view, $context) {
   // Simple example adding the location to a rendered event from a simple
   // textfield called 'field_location'.
   $entity_type = $context['entity_type'];
@@ -124,7 +148,7 @@ function hook_date_ical_icalcreator_calendar_alter(&$calendar, &$context) {
  *   - 'source': FeedsSource object associated with this Feed.
  *   - 'fetcher_result': The FeedsFetcherResult object associated with this Feed.
  */
-function hook_date_ical_icalcreator_component_alter(&$component, &$context) {
+function hook_date_ical_icalcreator_component_alter(&$component, $context) {
   // Example of what might be done with this alter hook
   if ($component->getComponentType() == 'vevent') {
     // Do something for vevents ...
@@ -147,10 +171,35 @@ function hook_date_ical_icalcreator_component_alter(&$component, &$context) {
  *   - 'parser_result': The parsed result of the whole Calendar.
  *   - 'feeds_source': Contains all the metadata about the configuration of this Feed.
  */
-function hook_date_ical_feeds_object_alter(&$value, &$context) {
+function hook_date_ical_feeds_object_alter(&$value, $context) {
   // Example of what might be done with this alter hook
   if ($context['property_key'] == 'dtstart') {
     // Tweak the parsed FeedsDateTime object created from the start time.
     // ...
+  }
+}
+
+/**
+ * Alter the timezone string before it gets converted into a DateTimeZone object.
+ * This is useful for when an iCal feed you're trying to import uses deprecated
+ * timezone names, like "Eastern Standard Time", rather than "America/New_York".
+ *
+ * @param $tz_string
+ *   The timezone sting to be altered (e.g. "America/Los_Angeles").
+ * @param $context
+ *   An associative array of context, with the following keys and values:
+ *   - 'property_key': Inernal, parser-specific identifier for this property.
+ *   - 'property': "RAW" value of this property.
+ *   - 'item': The DateIcalComponentInterface object that holds the unparsed component.
+ *   - 'parser_result': The parsed result of the whole Calendar.
+ *   - 'feeds_source': Contains all the metadata about the configuration of this Feed.
+ */
+function hook_date_ical_timezone_alter(&$tz_string, $context) {
+  // Example of what might be done with this alter hook:
+  if ($tz_string == 'Eastern Standard Time') {
+    // "Eastern Standard Time" is a deprecated timezone string, which PHP doesn't
+    // recognize. It's (essentially) equivalent to "America/New_York", though,
+    // which PHP is fine with.
+    $tz_string = 'America/New_York';
   }
 }

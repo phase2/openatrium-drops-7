@@ -151,7 +151,7 @@ function features_override_module_component_overrides($module, $component, $rese
     $export = features_invoke($component, 'features_export_render', $module, array_keys($default), NULL);
     $code = array_pop($export);
     if (!$code) {
-      return FALSE;
+      return array();
     }
     else {
       $normal = eval($code);

@@ -1,0 +1,20 @@
+<?php
+/**
+ * @file
+ * Provides install hooks for oa_admin
+ */
+
+/**
+ * Disable default Content view
+ */
+function oa_admin_install() {
+  // grab list of views that are already disabled
+  $views_status = variable_get('views_defaults', array());
+  $views_status['admin_views_node'] = TRUE;
+  variable_set('views_defaults', $views_status);
+
+  // empty cache now
+  if (function_exists('views_invalidate_cache')) {
+    views_invalidate_cache();
+  }
+}

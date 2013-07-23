@@ -34,7 +34,7 @@ class date_ical_plugin_style_ical_feed extends views_plugin_style {
     // Render the feed icon and header tag (except during a View Preview).
     if (empty($this->view->live_preview)) {
       $tooltip = t('Add to My Calendar');
-      $this->view->feed_icon .= theme('date_ical_icon', array('url' => check_url($url), 'tooltip' => $tooltip));
+      $this->view->feed_icon .= theme('date_ical_icon', array('url' => check_url($url), 'tooltip' => $tooltip, 'view' => $this->view));
       drupal_add_html_head_link(array(
         'rel' => 'alternate',
         'type' => 'text/calendar',
@@ -82,14 +82,27 @@ class date_ical_plugin_style_ical_feed extends views_plugin_style {
   }
   
   function render() {
-    if (empty($this->row_plugin) || $this->row_plugin->plugin_name != 'date_ical') {
-      debug('views_plugin_style_ical_feed: This style plugin supports only the iCal Entity row plugin.');
-      return t('To enable iCal output, this view\'s Format must be configured to Show: iCal Entity.');
+    if (empty($this->row_plugin) || !in_array($this->row_plugin->plugin_name, array('date_ical','date_ical_fields'))) {
+      debug('views_plugin_style_ical_feed: This style plugin supports only iCal Entity row and iCal Fields plugins.', NULL, TRUE);
+      return t('To enable iCal output, this view\'s Format must be configured to Show: iCal Entity or iCal Fields.');
     }
-    $rows = array();
+    if ($this->row_plugin->plugin_name == 'date_ical_fields' && (empty($this->row_plugin->options['date_field'])
+        || empty($this->row_plugin->options['title_field']) || empty($this->row_plugin->options['description_field']))) {
+      // Because these settings are marked as required in the form, this error state will rarely occur. But I ran across it during
+      // testing, and the error that resulted was totally non-sensical, so I'm adding this in case it does ever happen.
+      return t("When using the iCal Fields row plugin, the Date, Title, and Description fields are all required.
+        Please set them up using the Settings link under 'Format -> Show: iCal Fields'.");
+    }
+    $events = array();
     foreach ($this->view->result as $row_index => $row) {
       $this->view->row_index = $row_index;
-      $rows[] = $this->row_plugin->render($row);
+      try {
+        $events[] = $this->row_plugin->render($row, $row_index);
+      }
+      catch (Exception $e) {
+        debug($e->getMessage(), NULL, TRUE);
+        return $e->getMessage();
+      }
     }
     unset($this->view->row_index);
     
@@ -121,8 +134,8 @@ class date_ical_plugin_style_ical_feed extends views_plugin_style {
       
       // Now add the VEVENTs.
       $timezones = array();
-      foreach ($rows as $row) {
-        if (empty($row)) {
+      foreach ($events as $event) {
+        if (empty($event)) {
           // The row plugin returned NULL for this row, which can happen due to
           // various error conditions. The only thing we can do is skip it.
           continue;
@@ -130,11 +143,11 @@ class date_ical_plugin_style_ical_feed extends views_plugin_style {
         
         $vevent = $vcalendar->newComponent('vevent');
         // Get the start date as an array.
-        $start = $row['start']->toArray();
-        $timezone = $row['start']->getTimezone()->getName();
+        $start = $event['start']->toArray();
+        $timezone = $event['start']->getTimezone()->getName();
         $timezones[$timezone] = $timezone;
         
-        if ($row['all_day']) {
+        if ($event['all_day']) {
           // All day events need to be specified as DATE, rather than DATE-TIME, or they get interpretted wrong.
           $vevent->setDtstart($start['year'], $start['month'], $start['day'],
             FALSE, FALSE, FALSE, FALSE, array('VALUE' => 'DATE'));
@@ -151,15 +164,15 @@ class date_ical_plugin_style_ical_feed extends views_plugin_style {
         }
         
         // Add the Timezone info to the start date, for use later.
-        $start['tz'] = $row['start']->getTimezone();
+        $start['tz'] = $event['start']->getTimezone();
         
         // Only add the end date if there is one.
-        if (!empty($row['end'])) {
-          $end = $row['end']->toArray();
-          $timezone = $row['start']->getTimezone()->getName();
+        if (!empty($event['end'])) {
+          $end = $event['end']->toArray();
+          $timezone = $event['start']->getTimezone()->getName();
           $timezones[$timezone] = $timezone;
           
-          if ($row['all_day']) {
+          if ($event['all_day']) {
             $vevent->setDtend($end['year'], $end['month'], $end['day'],
               FALSE, FALSE, FALSE, FALSE, array('VALUE' => 'DATE'));
           }
@@ -174,15 +187,15 @@ class date_ical_plugin_style_ical_feed extends views_plugin_style {
               $timezone);
           }
           // Keep a copy of the end date, as it's useful later.
-          $end['tz'] = $row['end']->getTimezone();
+          $end['tz'] = $event['end']->getTimezone();
         }
-        $vevent->setProperty('uid', $row['uid']);
-        $vevent->setProperty('summary', $row['summary']);
+        $vevent->setProperty('uid', $event['uid']);
+        $vevent->setProperty('summary', $event['summary']);
         
         // Handle repeating dates from the date_repeat module.
-        if (!empty($row['rrule']) && module_exists('date_repeat')) {
+        if (!empty($event['rrule']) && module_exists('date_repeat')) {
           // Split the rrule into the actual rule, exceptions and additions.
-          list($rrule, $exceptions, $additions) = date_repeat_split_rrule($row['rrule']);
+          list($rrule, $exceptions, $additions) = date_repeat_split_rrule($event['rrule']);
           // Add the rrule itself. We need to massage the data a bit, since iCalcreator expects RRULEs to be
           // in a different format than the Date API gives them to us.
           $rrule = self::convert_rrule_for_icalcreator($rrule);
@@ -227,7 +240,7 @@ class date_ical_plugin_style_ical_feed extends views_plugin_style {
                 'tz' =>     $start['tz']->getName(),
               );
               // If there was an end date specified, use that too.
-              if (!empty($row['end'])) {
+              if (!empty($event['end'])) {
                 $add_date = array($add_date);
                 $add_date[] = array(
                   'year' =>  $addition_array['year'],
@@ -247,17 +260,17 @@ class date_ical_plugin_style_ical_feed extends views_plugin_style {
             $vevent->setRdate($add_dates);
           }
         }
-        if (!empty($row['url'])) {
-          $vevent->setUrl($row['url'], array('type' => 'URI'));
+        if (!empty($event['url'])) {
+          $vevent->setUrl($event['url'], array('type' => 'URI'));
         }
-        if (!empty($row['location'])) {
-          $vevent->setProperty('location', $row['location']);
+        if (!empty($event['location'])) {
+          $vevent->setProperty('location', $event['location']);
         }
-        if (!empty($row['description'])) {
-          $vevent->setProperty('description', $row['description']);
+        if (!empty($event['description'])) {
+          $vevent->setProperty('description', $event['description']);
         }
-        if (!empty($row['last-modified'])) {
-          $lm = $row['last-modified']->toArray();
+        if (!empty($event['last-modified'])) {
+          $lm = $event['last-modified']->toArray();
           $vevent->setLastModified(
             $lm['year'],
             $lm['month'],
@@ -270,7 +283,7 @@ class date_ical_plugin_style_ical_feed extends views_plugin_style {
         }
         
         // Allow other modules to alter the VEVENT object.
-        drupal_alter('date_ical_feed_ical_vevent_render', $vevent, $this->view, $row);
+        drupal_alter('date_ical_feed_ical_vevent_render', $vevent, $this->view, $event);
       }
       
       // Now add all the timezones we just used to the calendar.

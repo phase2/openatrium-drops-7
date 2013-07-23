@@ -5,9 +5,10 @@ dependencies[] = ctools
 dependencies[] = features
 package = "Features"
 
-; Information added by drupal.org packaging script on 2013-02-08
-version = "7.x-2.0-beta2"
+
+; Information added by drush on 2013-07-20
+version = "7.x-2.0-beta2+1-dev"
 core = "7.x"
 project = "features_override"
-datestamp = "1360352872"
+datestamp = "1374352307"
 

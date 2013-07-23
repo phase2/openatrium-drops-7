@@ -50,7 +50,7 @@ projects[views_bulk_operations][subdir] = contrib
 
 projects[pathauto][version] = 1.2
 projects[pathauto][subdir] = contrib
-projects[pathauto][patch][936222] = http://drupal.org/files/936222-pathauto-persist.patch
+projects[pathauto][patch][936222] = http://drupal.org/files/pathauto-persist-936222-130-pathauto-state.patch
 
 projects[token][version] = 1.5
 projects[token][subdir] = contrib

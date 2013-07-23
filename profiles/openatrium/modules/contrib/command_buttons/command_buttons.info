@@ -1,0 +1,57 @@
+name = Command Buttons
+description = Provide command button entities and fieldable panels panes integration.
+core = 7.x
+package = Panels
+php = 5.2.4
+dependencies[] = conditional_fields
+dependencies[] = ctools
+dependencies[] = entity
+dependencies[] = entityreference
+dependencies[] = features
+dependencies[] = field_group
+dependencies[] = fieldable_panels_panes
+dependencies[] = link
+dependencies[] = list
+dependencies[] = options
+dependencies[] = text
+dependencies[] = views
+features[conditional_fields][] = fieldable_panels_pane:command_buttons
+features[ctools][] = field_group:field_group:1
+features[features_api][] = api:2
+features[field_base][] = field_block_buttons
+features[field_base][] = field_button_size
+features[field_base][] = field_button_style
+features[field_base][] = field_command_link
+features[field_base][] = field_commands
+features[field_base][] = field_css_class
+features[field_base][] = field_dropdown_label
+features[field_base][] = field_link_icon
+features[field_base][] = field_use_dropdowns
+features[field_group][] = group_icons|command_button|button|form
+features[field_instance][] = command_button-button-field_command_link
+features[field_instance][] = command_button-button-field_link_icon
+features[field_instance][] = command_button-node_add-field_command_link
+features[field_instance][] = fieldable_panels_pane-command_buttons-field_block_buttons
+features[field_instance][] = fieldable_panels_pane-command_buttons-field_button_size
+features[field_instance][] = fieldable_panels_pane-command_buttons-field_button_style
+features[field_instance][] = fieldable_panels_pane-command_buttons-field_commands
+features[field_instance][] = fieldable_panels_pane-command_buttons-field_css_class
+features[field_instance][] = fieldable_panels_pane-command_buttons-field_dropdown_label
+features[field_instance][] = fieldable_panels_pane-command_buttons-field_use_dropdowns
+files[] = command_buttons.module
+files[] = includes/ButtonController.class.php
+files[] = plugins/views/command_buttons.views.inc
+files[] = plugins/views/command_buttons.views_default.inc
+files[] = plugins/views/command_buttons_handler_argument_bundle.inc
+files[] = plugins/views/command_buttons_handler_field_bundle.inc
+files[] = plugins/views/command_buttons_handler_field_delete_entity.inc
+files[] = plugins/views/command_buttons_handler_field_edit_entity.inc
+files[] = plugins/views/command_buttons_handler_field_view_entity.inc
+files[] = plugins/views/command_buttons_handler_filter_bundle.inc
+
+
+; Information added by drush on 2013-07-20
+version = ""
+project = "command_buttons"
+datestamp = "1374352306"
+

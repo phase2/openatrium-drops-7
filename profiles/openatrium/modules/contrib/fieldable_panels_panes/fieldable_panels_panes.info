@@ -20,3 +20,11 @@ files[] = plugins/views/fieldable_panels_panes_handler_field_view_revision.inc
 
 files[] = plugins/views/fieldable_panels_panes_handler_field_is_current.inc
 files[] = plugins/views/fieldable_panels_panes_handler_field_make_current.inc
+
+
+; Information added by drush on 2013-07-20
+version = "7.x-1.4+5-dev"
+core = "7.x"
+project = "fieldable_panels_panes"
+datestamp = "1374352310"
+

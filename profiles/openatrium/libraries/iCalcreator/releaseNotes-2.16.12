@@ -1,0 +1,15 @@
+2.16.7 ######################
+NEW: URL (URI) validation using PHP filter
+
+2.16.9 ######################
+NEW: fcns _sortRdate1, _sortRdate2, sort Rdates in ascending order (fcn createRdate)
+
+2.16.10 ######################
+BUG: createRdate
+
+2.16.11 ######################
+BUG: fcns _sortExdate1, _sortExdate2
+
+2.16.12 ###################### // thanks, hatto
+BUG: fcn selectComponents, RECURRENCE-ID may exist without SEQUENCE (i.e. SEQUENCE=0)
+

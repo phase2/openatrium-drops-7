@@ -9,3 +9,10 @@ files[] = includes/common.inc
 files[] = includes/legacy.inc
 files[] = includes/plugins.inc
 files[] = plugins/views/panels_views_plugin_row_fields.inc
+
+
+; Information added by drush on 2013-07-20
+version = ""
+project = "panels"
+datestamp = "1374352315"
+

@@ -5,3 +5,11 @@ core = 7.x
 tags[] = developer
 configure = admin/config/development/generate
 files[] = devel_generate.test
+
+
+; Information added by drush on 2013-07-20
+version = "7.x-1.3+52-dev"
+core = "7.x"
+project = "devel"
+datestamp = "1374352320"
+

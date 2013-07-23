@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the oa Config feature.
+ */
+
+include_once 'oa_config.features.inc';

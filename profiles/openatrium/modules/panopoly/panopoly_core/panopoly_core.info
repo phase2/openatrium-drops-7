@@ -4,14 +4,12 @@ core = 7.x
 package = Panopoly
 php = 5.2.4
 project = panopoly_core
-dependencies[] = apps
 dependencies[] = ctools
 dependencies[] = date
 dependencies[] = date_api
 dependencies[] = date_popup
 dependencies[] = date_views
 dependencies[] = defaultconfig
-dependencies[] = defaultcontent
 dependencies[] = entity
 dependencies[] = entityreference
 dependencies[] = features
@@ -73,3 +71,11 @@ features[variable][] = page_manager_term_view_disabled
 features[variable][] = panelizer_taxonomy_term:panopoly_categories_allowed_layouts_default
 features[variable][] = panelizer_taxonomy_term:panopoly_categories_allowed_types_default
 features[views_view][] = panopoly_taxonomy
+
+
+; Information added by drush on 2013-07-20
+version = "7.x-1.0-rc4+1-dev"
+core = "7.x"
+project = "panopoly_core"
+datestamp = "1374352303"
+

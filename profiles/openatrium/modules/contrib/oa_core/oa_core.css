@@ -1,0 +1,32 @@
+.pane-oa-core-members-widget .tab-content {
+  overflow: visible;
+}
+
+.oa_pending_count {
+  display: inline-block;
+  background-color: green;
+  color: white;
+  padding: 0 5px;
+  -webkit-border-radius: 10px;
+     -moz-border-radius: 10px;
+          border-radius: 10px;
+}
+
+.chzn-container,
+.chzn-container input[type="text"] {
+  min-width: 120px;
+}
+
+.field-widget-og-complex .chzn-container {
+  min-width: 100%;
+}
+
+.ctools-modal-content form > div > .form-item {
+  border-bottom: 1px solid #DDD;
+  padding-left: 10px;
+  padding-bottom: 6px;
+}
+
+.ctools-modal-content form > div > .form-item > label {
+  font-weight: bold;
+}

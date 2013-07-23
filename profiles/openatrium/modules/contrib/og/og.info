@@ -55,9 +55,10 @@ files[] = includes/migrate/7200/og_user_roles.migrate.inc
 
 
 
-; Information added by drupal.org packaging script on 2013-04-22
-version = "7.x-2.2"
+
+; Information added by drush on 2013-07-20
+version = "7.x-2.2+29-dev"
 core = "7.x"
 project = "og"
-datestamp = "1366630883"
+datestamp = "1374352310"
 

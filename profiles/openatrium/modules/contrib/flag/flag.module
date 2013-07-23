@@ -1770,32 +1770,37 @@ function flag_get_default_flags($include_disabled = FALSE) {
   $default_flags = array();
   $flag_status = variable_get('flag_default_flag_status', array());
 
+  $default_flags_info = array();
   foreach (module_implements('flag_default_flags') as $module) {
     $function = $module . '_flag_default_flags';
     foreach ($function() as $flag_name => $flag_info) {
       // Backward compatibility: old exported default flags have their names
       // in $flag_info instead, so we use the += operator to not overwrite it.
-      $flag_info += array(
+      $default_flags_info[$flag_name] = $flag_info += array(
         'name' => $flag_name,
         'module' => $module,
       );
-      $flag = flag_flag::factory_by_array($flag_info);
+    }
+  }
+  drupal_alter('flag_default_flags', $default_flags_info);
 
-      // Disable flags that are not at the current API version.
-      if (!$flag->is_compatible()) {
-        $flag->status = FALSE;
-      }
+  foreach ($default_flags_info as $flag_info) {
+    $flag = flag_flag::factory_by_array($flag_info);
 
-      // Add flags that have been enabled.
-      if ((!isset($flag_status[$flag->name]) && (!isset($flag->status) || $flag->status)) || !empty($flag_status[$flag->name])) {
-        $flag->status = TRUE;
-        $default_flags[$flag->name] = $flag;
-      }
-      // Add flags that have been disabled.
-      elseif ($include_disabled) {
-        $flag->status = FALSE;
-        $default_flags[$flag->name] = $flag;
-      }
+    // Disable flags that are not at the current API version.
+    if (!$flag->is_compatible()) {
+      $flag->status = FALSE;
+    }
+
+    // Add flags that have been enabled.
+    if ((!isset($flag_status[$flag->name]) && (!isset($flag->status) || $flag->status)) || !empty($flag_status[$flag->name])) {
+      $flag->status = TRUE;
+      $default_flags[$flag->name] = $flag;
+    }
+    // Add flags that have been disabled.
+    elseif ($include_disabled) {
+      $flag->status = FALSE;
+      $default_flags[$flag->name] = $flag;
     }
   }
 

@@ -26,3 +26,11 @@ core = "7.x"
 project = "features"
 datestamp = "1364589018"
 
+
+
+; Information added by drush on 2013-07-20
+version = "7.x-2.0-rc1+6-dev"
+core = "7.x"
+project = "features"
+datestamp = "1374352307"
+

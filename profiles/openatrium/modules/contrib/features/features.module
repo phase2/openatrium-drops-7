@@ -7,7 +7,7 @@
  * entities which taken together satisfy a certain use-case.
  */
 
-define('FEATURES_API', '1');
+define('FEATURES_API', '2');
 
 define('FEATURES_MODULE_ENABLED', 1);
 define('FEATURES_MODULE_DISABLED', 0);
@@ -104,6 +104,18 @@ function features_menu() {
     'file' => "features.admin.inc",
     'weight' => 10,
   );
+  $items['admin/structure/features/settings'] = array(
+    'title' => 'Settings',
+    'description' => 'Adjust settings for using features module.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('features_settings_form'),
+    'access callback' => 'user_access',
+    'access arguments' => array('administer features'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => "features.admin.inc",
+    'weight' => 11,
+  );
+
 
   $items['admin/structure/features/%feature'] = array(
     'title callback' => 'features_get_feature_title',
@@ -236,10 +248,12 @@ function features_theme() {
  * Implements hook_flush_caches().
  */
 function features_flush_caches() {
-  features_rebuild();
-  // Don't flush the modules cache during installation, for performance reasons.
-  if (variable_get('install_task') == 'done') {
-    features_get_modules(NULL, TRUE);
+  if (variable_get('features_rebuild_on_flush', TRUE)) {
+    features_rebuild();
+    // Don't flush the modules cache during installation, for performance reasons.
+    if (variable_get('install_task') == 'done') {
+      features_get_modules(NULL, TRUE);
+    }
   }
   return array();
 }
@@ -249,13 +263,6 @@ function features_flush_caches() {
  */
 function features_form($node, $form_state) {
   return node_content_form($node, $form_state);
-}
-
-/**
- * Implemenation of hook_node_access()
- */
-function features_node_access($node, $op, $account) {
-  return node_node_access($node, $op, $account);
 }
 
 /**

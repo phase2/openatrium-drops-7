@@ -1,0 +1,65 @@
+<?php
+
+/**
+ * @file
+ * Provides install and update hooks for oa_search.
+ */
+
+
+/**
+ * Implements hook_install().
+ */
+function oa_search_install() {
+  oa_search_enable_pages();
+}
+
+/**
+ * Enable search layout pages, disable panopoly search pages.
+ */
+function oa_search_update_7001() {
+  oa_search_enable_pages();
+}
+
+/**
+ * @see oa_search_update_7001().
+ */
+function oa_search_enable_pages() {
+  // Add pages
+  $pages = array(
+    'search-node' => FALSE,
+    'page-panopoly_search' => TRUE,
+  );
+  ctools_export_load_object_reset('page_manager_pages');
+  foreach ($pages as $page_name => $disable) {
+    $page = page_manager_cache_load($page_name);
+    if ($function = ctools_plugin_get_function($page->subtask, 'enable callback')) {
+      $function($page, $disable);
+    }
+  }
+  menu_rebuild();
+}
+
+
+/**
+ * Re-build the panopoly search index.
+ */
+function oa_search_update_7002() {
+  $server_row = db_select('search_api_server', 'sas')
+    ->fields('sas')
+    ->condition('machine_name', 'database_server')
+    ->execute()
+    ->fetch();
+  $server = entity_load('search_api_server', array($server_row->id));
+
+  $index_row = db_select('search_api_index', 'sai')
+    ->fields('sai')
+    ->condition('machine_name', 'database_node_index')
+    ->execute()
+    ->fetch();
+  $index = entity_load('search_api_index', array($index_row->id));
+  if ($index && $server) {
+    $server = array_shift($server);
+    $index = array_shift($index);
+    $server->addIndex($index);
+  }
+}

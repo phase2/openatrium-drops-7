@@ -1,0 +1,22 @@
+name = Trash Flag
+description = Provides a trashbin functionality using the flag module
+core = 7.x
+package = Flags
+php = 5.2.4
+dependencies[] = flag
+dependencies[] = og_context
+dependencies[] = views
+features[ctools][] = views:views_default:3.0
+features[features_api][] = api:1
+features[flag][] = trash
+features[views_view][] = trash_flag_bin
+features_exclude[dependencies][ctools] = ctools
+files[] = trash_flag.test
+project path = sites/all/modules
+
+
+; Information added by drush on 2013-07-20
+version = ""
+project = "trash_flag"
+datestamp = "1374352304"
+

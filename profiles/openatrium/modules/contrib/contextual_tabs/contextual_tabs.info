@@ -1,0 +1,13 @@
+name = Tabs No More
+description = Converts tabs to contextual links
+package = Administration
+core = 7.x
+
+stylesheets[all][] = contextual_tabs.css
+
+
+; Information added by drush on 2013-07-20
+version = ""
+project = "contextual_tabs"
+datestamp = "1374352306"
+

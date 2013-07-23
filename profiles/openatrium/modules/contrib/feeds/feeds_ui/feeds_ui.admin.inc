@@ -1148,9 +1148,17 @@ function feeds_ui_importer_import_validate($form, &$form_state) {
       '%api_version' => feeds_api_version())));
   }
 
-  $existing = feeds_importer($feeds_importer->id);
-  if ($existing && !$form_state['values']['id_override'] && $existing->export_type != EXPORT_IN_CODE) {
-    return form_error($form['id'], t('Feeds importer already exists with that id.'));
+  // Change to user-supplied id.
+  if ($form_state['values']['id']) {
+    $feeds_importer->id = $form_state['values']['id'];
+  }
+
+  $exists = feeds_ui_importer_machine_name_exists($feeds_importer->id);
+
+  if ($exists && !$form_state['values']['id_override']) {
+    if (feeds_importer($feeds_importer->id)->export_type != EXPORT_IN_CODE) {
+      return form_error($form['id'], t('Feeds importer already exists with that id.'));
+    }
   }
 
   if (!$form_state['values']['bypass_validation']) {
@@ -1172,12 +1180,14 @@ function feeds_ui_importer_import_validate($form, &$form_state) {
  */
 function feeds_ui_importer_import_submit($form, &$form_state) {
   $importer = $form_state['importer'];
-  $importer = feeds_importer($importer->id);
-  $importer->setConfig($importer->config);
+
+  // Create a copy of the importer to preserve config.
+  $save = feeds_importer($importer->id);
+  $save->setConfig($importer->config);
   foreach (array('fetcher', 'parser', 'processor') as $type) {
-    $importer->$type->setConfig($importer->config[$type]['config']);
+    $save->$type->setConfig($importer->config[$type]['config']);
   }
-  $importer->save();
+  $save->save();
 
   drupal_set_message(t('Successfully imported the %id feeds importer.', array('%id' => $importer->id)));
   $form_state['redirect'] = 'admin/structure/feeds';

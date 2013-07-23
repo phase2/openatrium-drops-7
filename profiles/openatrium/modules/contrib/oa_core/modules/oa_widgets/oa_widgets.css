@@ -1,0 +1,48 @@
+#oa_visibility_toolbar {
+  margin: 0;
+  margin-top: 10px;
+}
+#contextual-tabs #oa_visibility_toolbar {
+  margin-top: 0px;
+}
+.pull-right #oa_visibility_toolbar {
+  margin-right: 5px;
+}
+.pull-left #oa_visibility_toolbar {
+  margin-left: 5px;
+}
+#oa_visibility_toolbar a.dropdown-toggle {
+  font-size: 16px;
+}
+.oa-visibility-private {
+  min-width: 150px;
+  font-size: 16px;
+  text-align: center;
+  color: white;
+  background-color: #CF696B;
+  border: 2px solid #b85652;
+  padding: 5px;
+}
+.oa-visibility-private i {
+  font-size: 24px;
+  padding-right: 10px;
+  line-height: 5px;
+  color: #B33D3E;
+}
+.oa-visibility-public {
+  min-width: 150px;
+  font-size: 16px;
+  text-align: center;
+  color: #1D3800;
+  background-color: #EEFFE5;
+  border: 1px solid #BDFF99;
+  padding: 5px;
+}
+.oa-visibility-header {
+  background-color: #F2F2F2;
+  margin: 15px 0 5px 0;
+  padding: 3px 10px;
+}
+.oa-visibility-list {
+  padding: 0 10px;
+}

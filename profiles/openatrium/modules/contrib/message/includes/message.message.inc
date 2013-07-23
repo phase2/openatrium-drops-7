@@ -194,6 +194,16 @@ class Message extends Entity {
       // Message isn't explicetly denying token replace, so process the text.
       $context = array('message' => $this);
 
+      // Check for our hardcode syntax.
+      // Replace any un-expanded hardcoded tokens with live tokens
+      $matches = array();
+      preg_match_all('/[@|%|\!]\{([a-z0-9:_\-]+?)\}/i', $output, $matches);
+      if ($matches) {
+        foreach ($matches[1] as $delta => $token) {
+          $output = str_replace($matches[0][$delta], '[' . $token . ']', $output);
+        }
+      }
+
       $token_options = message_get_property_values($this, 'data', 'token options');
       $output = token_replace($output, $context, $token_options);
     }

@@ -1,0 +1,31 @@
+<?php
+/**
+ * @file
+ * Code for the OpenAtrium Wiki feature.
+ */
+
+include_once 'oa_wiki.features.inc';
+
+/**
+ * Implements hook_pre_features_rebuild().
+ *
+ * @see http://drupal.org/node/1549608
+ */
+function oa_wiki_pre_features_rebuild($component) {
+  if ($component == 'user_permission') {
+    drupal_static_reset('panelizer_entity_plugin_get_handler');
+  }
+}
+
+
+/**
+ * Implements hook_node_prepare().
+ */
+function oa_wiki_node_prepare($node) {
+  if (empty($node->nid) && $node->type == 'oa_wiki_page' && module_exists('og_menu_single') && (function_exists('oa_core_get_section_context') && ($section = oa_core_get_section_context())) && ($plid = og_menu_single_get_link_mlid('node', $section))) {
+    global $conf;
+    // No good way to set default for parent.
+    // @see menu_form_node_form_alter().
+    $conf['menu_parent_oa_wiki_page'] = OG_MENU_SINGLE_MENU_NAME . ':' . $plid;
+  }
+}

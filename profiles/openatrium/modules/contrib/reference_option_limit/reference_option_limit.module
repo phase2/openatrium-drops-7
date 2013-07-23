@@ -319,6 +319,7 @@ function reference_option_limit_form_alter(&$form, &$form_state, $form_id) {
         // Build an array of field values to match on. This is keyed first by
         // field name, and then by delta (or with default values, whatever).
         // First time around these are in default values; in ajax calls these are in $form_state.
+        $match_values[$field_name_matching] = array();
         if (isset($form_state['values'])) {
           // @todo: Figure out what on earth should happen when we have more than one column!
           $column = $match_columns[$field_name_matching][0];
@@ -326,7 +327,7 @@ function reference_option_limit_form_alter(&$form, &$form_state, $form_id) {
             $match_values[$field_name_matching][$delta] = $item[$column];
           }
         }
-        else {
+        elseif (isset($element['#default_value'])) {
           // Urgh, for taxonomy term reference fields the default value is an
           // array!
           // @todo: other field types probably have other quirks :(

@@ -1,0 +1,160 @@
+<?php
+
+/**
+ * @file
+ * Moves the drupal primary tabs into a contextual popup menu
+ * Inspired from sandbox https://drupal.org/sandbox/onkeltem/1730244
+ */
+
+/**
+ * Implementations hook_menu().
+ */
+function contextual_tabs_menu() {
+  $items['admin/config/user-interface/contextual-tabs'] = array(
+    'title' => 'Contextual Tabs',
+    'description' => 'Configuration for Contextual Tabs',
+    'weight' => 0,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('contextual_tabs_config_form'),
+    'access arguments' => array('administer site configuration'),
+  );
+  return $items;
+}
+
+/**
+ * Configuration Form for Open Atrium
+ */
+function contextual_tabs_config_form($form, &$form_state) {
+  $form = array();
+
+  $form['contextual_tabs']['contextual_tabs_pages'] = array(
+    '#title' => t('URLs to ignore'),
+    '#type' => 'textarea',
+    '#default_value' => variable_get('contextual_tabs_pages', ''),
+    '#description' => t('List of URL patterns to be ignored.  One per line.'),
+  );
+
+  $form['contextual_tabs']['contextual_tabs_extract'] = array(
+    '#title' => t('Tabs to extract'),
+    '#type' => 'textarea',
+    '#default_value' => variable_get('contextual_tabs_extract', ''),
+    '#description' => t('List of tab captions to extract as buttons, one per line.  Case in-sensitive.<br>Can begin with an optional URL path filter followed by a colon.  Example:  "user:Shortcuts" would only extract the "Shortcuts" tab from the /user page.<br>To rename a tab, place the new caption after the normal caption separated by | character.  For example: View|Cancel would change the View tab to a Cancel button.<br>To add an icon, separate the icon name from the caption with a comma.  For example: Edit,icon_pencil'),
+  );
+
+  $form['contextual_tabs']['contextual_tabs_visilibity'] = array(
+    '#title' => t('Visibility widget'),
+    '#type' => 'checkbox',
+    '#default_value' => variable_get('contextual_tabs_visilibity', TRUE),
+    '#description' => t('Show the Content Visibility widget as a button.'),
+  );
+
+  return system_settings_form($form);
+}
+
+/**
+ * Implements hook_theme()
+ */
+function contextual_tabs_theme() {
+  return array(
+    'contextual_tabs' => array(
+      'template'  => 'contextual-tabs',
+      'arguments' => array(
+        'public' => NULL,
+        'links'  => array(),
+      ),
+      'path' => drupal_get_path('module', 'contextual_tabs'),
+    ),
+  );
+}
+
+function _contextual_tabs_links($new_tabs_links = array()) {
+  static $tabs_links = NULL;
+  if (!isset($tabs_links)) {
+    $local_tasks = menu_local_tasks();
+    $tabs_links = array();
+    foreach($local_tasks['tabs']['output'] as $link) {
+      $tabs_links[] = $link['#link'];
+    }
+  }
+  if (count($new_tabs_links)) {
+    $tabs_links = $new_tabs_links;
+  }
+  return $tabs_links;
+}
+
+function contextual_tabs_preprocess_page(&$variables) {
+  $pages = variable_get('contextual_tabs_pages', '');
+  $current = current_path();
+  if (!drupal_match_path($current, $pages)) {
+    $tabs_links = _contextual_tabs_links();
+    $current_link = NULL;
+    $links = array();
+    $link_by_name = array();
+    $extract = explode("\n", variable_get('contextual_tabs_extract', ''));
+
+    foreach ($tabs_links as $id => $link) {
+      if ($link['href'] != $current) {
+        $key = 'link-' . $id;
+        $links[$key] = l($link['title'], $link['href']);
+        $link_by_name[strtolower($link['title'])] = $id;
+      }
+    }
+
+    $buttons = array();
+    $processed = array();
+    foreach ($extract as $item) {
+      $caption = $item;
+      $icon = '';
+      $url = '';
+      $new_name = '';
+      if (strpos($caption, ':')) {
+        list($url, $caption) = explode(':', $caption);
+      }
+      if (strpos($caption, ',')) {
+        list($caption, $icon) = explode(',', $caption);
+      }
+      if (strpos($caption, '|')) {
+        list($caption, $new_name) = explode('|', check_plain($caption));
+      }
+      if (empty($new_name)) {
+        $new_name = trim($caption);
+      }
+      $caption = strtolower(trim($caption));
+      $url = trim($url);
+      if (!in_array($caption, $processed) && isset($link_by_name[$caption]) &&
+        (empty($url) || drupal_match_path($current, $url))) {
+        $id = $link_by_name[$caption];
+        $key = 'link-' . $id;
+        $buttons[] = array(
+          'title' => $new_name,
+          'link' => url($tabs_links[$id]['href']),
+          'icon' => isset($icon) ? $icon : '',
+        );
+        unset($links[$key]);
+        $processed[] = $caption;  // first match wins
+      }
+    }
+
+    // allow other modules to modify the buttons and/or links
+    $data = array(
+      'buttons' => $buttons,
+      'links' => $links,
+      );
+    drupal_alter('contextual_tabs', $data);
+
+    $build = array(
+      'title' => t('Configure'),
+      'buttons' => $data['buttons'],
+    );
+
+    if (!empty($data['links'])) {
+      $build['links'] = theme('item_list', array(
+        'items' => $data['links'],
+        'type' => 'ul',
+      ));
+    }
+    unset($variables['tabs']['#primary']);
+    $variables['primarytabs'] = theme('contextual_tabs', $build);
+  }
+}
+

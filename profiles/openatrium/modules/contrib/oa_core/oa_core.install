@@ -1,0 +1,28 @@
+<?php
+
+/**
+ * @file
+ * Provides update and install hooks to oa_core.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function oa_core_install() {
+  // prevent notice after install to rebuild permissions
+  node_access_rebuild();
+}
+
+/**
+ * Enable oa_search.
+ */
+function oa_core_update_7001() {
+  module_enable(array('oa_search'));
+}
+
+/**
+ * Ensure entity_token is enabled for oa_river.
+ */
+function oa_core_update_7002() {
+  module_enable(array('entity_token'));
+}

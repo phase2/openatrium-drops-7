@@ -1,0 +1,32 @@
+<?php
+
+/**
+ * @file
+ * Provides functions that run on (un)install and update for oa_devel.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function oa_devel_install() {
+  variable_set('token_report_empty_test_tokens', FALSE);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function oa_devel_uninstall() {
+  variable_del('token_report_empty_test_tokens');
+
+  $modules = array(
+    'devel',
+    'coder',
+    'coder_review',
+    'field_ui',
+    'views_ui',
+  );
+
+  module_disable($modules);
+
+  drupal_set_message(t('The following modules have been uninstalled: %modules', array('%modules' => implode(', ', $modules))));
+}

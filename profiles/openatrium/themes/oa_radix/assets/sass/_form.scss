@@ -12,7 +12,20 @@
   margin-top: 0.5em;
   margin-bottom: 0.5em;
 }
-
+form .btn {
+  width: auto;
+  height: inherit;
+}
+form .button.fake-ok,
+form .button.fake-cancel {
+  @extend .btn;
+  display: inline-block;
+  max-width: 60px;
+  margin-right: 5px;
+}
+form .button.fake-ok {
+  @extend .btn-primary;
+}
 #media-browser-tabset a.button,
 #media-browser-tabset input.form-submit {
   @extend .btn;
@@ -20,9 +33,8 @@
 #media-browser-tabset input.form-submit {
   @extend .btn-primary;
 }
-form .btn {
-  width: auto;
-  height: inherit;
+#media-browser-tabset h1 {
+  font-size: 16px;
 }
 
 // undo media browser button styles from panopoly admin

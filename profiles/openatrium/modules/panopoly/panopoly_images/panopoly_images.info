@@ -44,3 +44,11 @@ features[image][] = panopoly_image_spotlight
 features[image][] = panopoly_image_square
 features[image][] = panopoly_image_thumbnail
 features[image][] = panopoly_image_video
+
+
+; Information added by drush on 2013-07-20
+version = "7.x-1.0-rc4+0-dev"
+core = "7.x"
+project = "panopoly_images"
+datestamp = "1374352288"
+

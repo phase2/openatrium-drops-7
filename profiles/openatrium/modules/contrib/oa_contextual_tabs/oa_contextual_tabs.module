@@ -1,0 +1,63 @@
+<?php
+/**
+ * @file
+ * Code for the Open Atrium contextual tabs module.
+ */
+
+include_once 'oa_contextual_tabs.features.inc';
+
+/**
+ * Impliments hook_menu().
+ */
+function oa_contextual_tabs_menu() {
+  $items['node/%node/archive-content'] = array(
+    'type' => MENU_LOCAL_TASK,
+    'title' => 'Archive This Content',
+    'page callback' => 'oa_contextual_tabs_confirmation',
+    'page arguments' => array(1),
+    'access callback' => 'oa_contextual_tabs_access',
+    'access arguments' => array(1),
+    'weight' => 99,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_contextual_tabs_alter
+ * Add the visibility widget button
+ */
+function oa_contextual_tabs_contextual_tabs_alter(&$data) {
+  if (module_exists('oa_widgets')) {
+    $node = menu_get_object();
+    if (isset($node->type)) {
+      $vars = oa_core_visibility_data($node);
+      $vars['oa_toolbar_btn_class'] = 'btn-small';
+      $data['buttons'][] = array(
+        'render' => theme('oa_widgets_visibility_toolbar', $vars),
+      );
+    }
+  }
+}
+
+/**
+ * Redirect the user to the confirmation page.
+ */
+function oa_contextual_tabs_confirmation($node) {
+  $flag = flag_load('trash');
+  $op = $flag->is_flagged($content_id) ? 'unflag' : 'flag';
+  $link = flag_flag_link($flag, $op, $node->nid);
+  drupal_goto($link['href'], array('query' => array('defination' => 'node/' . $node->nid)));
+}
+
+/**
+ * Perform access control on the flag. Just piggyback off what
+ * trash_flag_flag_access already does.
+ */
+function oa_contextual_tabs_access($node) {
+  global $user;
+  $account = $user;
+  $flag = flag_load('trash');
+  $op = $flag->is_flagged($node->nid) ? 'unflag' : 'flag';
+  return trash_flag_flag_access($flag, $node->nid, $op, $account);
+}

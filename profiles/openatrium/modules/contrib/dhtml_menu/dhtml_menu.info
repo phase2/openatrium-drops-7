@@ -1,0 +1,17 @@
+name = DHTML Menu
+description = Opens menus dynamically to reduce page reloads.
+core = 7.x
+
+files[] = dhtml_menu.module
+files[] = dhtml_menu.install
+files[] = dhtml_menu.admin.inc
+files[] = dhtml_menu.theme.inc
+
+configure = admin/config/user-interface/dhtml_menu
+
+
+; Information added by drush on 2013-07-20
+version = "master-dev"
+project = "dhtml_menu"
+datestamp = "1374352300"
+

@@ -15,8 +15,9 @@ dependencies[] = date_api
 
 ; Includes
 files[] = includes/date_ical_plugin_row_ical_entity.inc
+files[] = includes/date_ical_plugin_row_ical_fields.inc
 files[] = includes/date_ical_plugin_style_ical_feed.inc
-files[] = includes/DateIcalFeedParser.inc
+files[] = includes/DateIcalFeedsParser.inc
 files[] = includes/DateIcalIcalcreatorParser.inc
 files[] = includes/DateIcalDateModuleParser.inc
 
@@ -27,3 +28,11 @@ files[] = tests/date_ical_parser_link.test
 files[] = tests/date_ical_parser_date.test
 files[] = tests/date_ical_parser_location.test
 files[] = tests/date_ical_parser_categories.test
+
+
+; Information added by drush on 2013-07-20
+version = "7.x-2.8+5-dev"
+core = "7.x"
+project = "date_ical"
+datestamp = "1374352304"
+

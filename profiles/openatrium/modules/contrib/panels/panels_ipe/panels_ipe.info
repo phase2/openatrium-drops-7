@@ -5,3 +5,17 @@ dependencies[] = panels
 core = 7.x
 configure = admin/structure/panels
 files[] = panels_ipe.module
+
+
+; Information added by drush on 2013-07-20
+version = ""
+project = "panels"
+datestamp = "1374352315"
+
+
+
+; Information added by drush on 2013-07-20
+version = ""
+project = "panels"
+datestamp = "1374352315"
+

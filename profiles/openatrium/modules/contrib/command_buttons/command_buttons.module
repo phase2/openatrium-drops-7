@@ -1,0 +1,824 @@
+<?php
+/**
+ * @file
+ * Code for the Open Atrium Command Buttons feature.
+ */
+
+include_once 'command_buttons.features.inc';
+
+/**
+ * Implements hook_menu().
+ */
+function command_buttons_menu() {
+  $base = array(
+    'access arguments' => array('administer command buttons'),
+    'file' => 'command_buttons.admin.inc',
+  );
+
+  $items['admin/structure/command-buttons'] = array(
+    'title' => 'Command Buttons',
+    'description' => 'Manage command button types.',
+    'page callback' => 'command_buttons_entities_page',
+  ) + $base;
+
+  $items['admin/structure/command-buttons/list'] = array(
+    'title' => 'List',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  ) + $base;
+
+  $items['admin/structure/command-buttons/manage/%command_buttons_type'] = array(
+    'title callback' => 'command_buttons_entities_title',
+    'title arguments' => array(4),
+    'page callback' => 'command_buttons_entities_list_page',
+    'page arguments' => array(4),
+  ) + $base;
+
+  $items['admin/structure/command-buttons/manage/%command_buttons_type/add'] = array(
+    'title' => 'Add a command button',
+    'page callback' => 'command_buttons_entities_add_page',
+    'page arguments' => array(4),
+    'type' => MENU_NORMAL_ITEM,
+  ) + $base;
+
+  $items['admin/structure/command-buttons/view/%command_buttons'] = array(
+    'title callback' => 'command_buttons_entity_title',
+    'title arguments' => array(4),
+    'page callback' => 'command_buttons_view',
+    'page arguments' => array(4),
+    'access callback' => 'command_buttons_access',
+    'access arguments' => array('view', 4),
+  ) + $base;
+
+  $items['admin/structure/command-buttons/view/%command_buttons/view'] = array(
+    'title' => 'View',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'page callback' => 'command_buttons_view',
+    'page arguments' => array(4),
+    'access callback' => 'command_buttons_access',
+    'access arguments' => array('view', 4),
+    'weight' => -10,
+  ) + $base;
+
+  $items['admin/structure/command-buttons/view/%command_buttons/edit'] = array(
+    'title' => 'Edit',
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    'page callback' => 'command_buttons_entity_edit_page',
+    'page arguments' => array(4),
+    'access callback' => 'command_buttons_access',
+    'access arguments' => array('update', 4),
+    'weight' => -9,
+  ) + $base;
+
+  $items['admin/structure/command-buttons/view/%command_buttons/delete'] = array(
+    'title' => 'Delete',
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('command_buttons_entity_delete_form', 4),
+    'access callback' => 'command_buttons_access',
+    'access arguments' => array('delete', 4),
+    'weight' => -8,
+  ) + $base;
+
+  if (module_exists('devel')) {
+    $items['admin/structure/command-buttons/view/%command_buttons/devel'] = array(
+      'title' => 'Devel',
+      'page callback' => 'devel_load_object',
+      'page arguments' => array('command_button', 4),
+      'access arguments' => array('access devel information'),
+      'type' => MENU_LOCAL_TASK,
+      'weight' => 100,
+      'file' => 'devel.pages.inc',
+      'file path' => drupal_get_path('module', 'devel'),
+    );
+
+    $items['admin/structure/command-buttons/view/%command_buttons/devel/load'] = array(
+      'title' => 'Load',
+      'type' => MENU_DEFAULT_LOCAL_TASK,
+    );
+
+    $items['admin/structure/command-buttons/view/%command_buttons/devel/render'] = array(
+      'title' => 'Render',
+      'page callback' => 'devel_render_object',
+      // Normally this would be the name of the entity type, but slightly
+      // modified in order to call the right function.
+      'page arguments' => array('command_buttons', 4),
+      'access arguments' => array('access devel information'),
+      'file' => 'devel.pages.inc',
+      'file path' => drupal_get_path('module', 'devel'),
+      'type' => MENU_LOCAL_TASK,
+      'weight' => 100,
+    );
+  }
+
+  return $items;
+}
+
+/**
+ * Implementation of hook_entity_info_alter()
+ */
+function command_buttons_entity_info_alter(&$entity_info) {
+  // Command List
+  $entity_info['fieldable_panels_pane']['bundles']['command_buttons'] = array(
+    'label' => t('Add Command List'),
+    'pane category' => t('Custom'),
+    'pane top level' => TRUE,
+    'pane icon' => drupal_get_path('module', 'panopoly_widgets') . '/images/icon_link.png',
+    'admin' => array(
+      'path' => 'admin/structure/fieldable-panels-panes/manage/%fieldable_panels_panes_type',
+      'bundle argument' => 4,
+      'real path' => 'admin/structure/fieldable-panels-panes/manage/command-buttons',
+      'access arguments' => array('administer fieldable panels panes'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_modules_enabled().
+ *
+ * It's kind of strange that we initially add node command buttons here,
+ * but we needed to wait for features to add the correct fields to our bundle
+ * and hook_modules_enabled happens late enough that we can safely save our
+ * entities.
+ */
+function command_buttons_modules_enabled($modules) {
+  features_revert(array('command_buttons' => array('field_instance', 'field_base')));
+
+  if (in_array('command_buttons', $modules)) {
+    $node_type = entity_get_info('node');
+    foreach ($node_type['bundles'] as $bundle => $definition) {
+      command_buttons_create_node_button($bundle, $definition['label']);
+    }
+  }
+}
+
+/**
+ * Implements hook_node_type_insert().
+ */
+function command_buttons_node_type_insert($info) {
+  command_buttons_create_node_button($info->type, $info->name);
+}
+
+/**
+ * Create a node add button based on the node type and label.
+ *
+ * @param  $type
+ *  The machine name of the content type you are creating a button for.
+ * @param  $label
+ *  The label of the content type you are creating a button for.
+ */
+function command_buttons_create_node_button($type, $label) {
+  $new_buttons = array();
+  // Create node/add buttons for the new node type.
+  if (!command_buttons_machine_name_exists($type)) {
+
+    $type_url_str = str_replace('_', '-', $type);
+    $values = array(
+      'bundle' => 'node_add',
+      'name' => $type,
+      'title' => t('Create !title', array('!title' => $label)),
+      'language' => LANGUAGE_NONE,
+      'field_command_link' => array(
+        LANGUAGE_NONE => array(
+          array(
+            'url' => 'node/add/' . $type_url_str,
+            'title' => 'Create ' . $label,
+          )
+        ),
+      )
+    );
+
+    $new_buttons[$type] = command_buttons_create($values);
+  }
+
+
+  if (count($new_buttons)) {
+    drupal_alter('command_buttons_node_buttons', $new_buttons);
+    // All buttons may have been removed, so check once again.
+    if (count($new_buttons)) {
+      foreach ($new_buttons as $new_button) {
+        command_buttons_save($new_button);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_node_type_delete().
+ */
+function command_buttons_node_type_delete($info) {
+  if (command_buttons_machine_name_exists($info->name)) {
+    $bid = db_select('command_buttons', 'b')
+            ->fields('b', array('bid'))
+            ->condition('name', $info->name)
+            ->execute()
+            ->fetchField();
+
+    command_buttons_delete($bid);
+  }
+}
+
+/**
+ * Properly format the type from the URL version to the internal version.
+ */
+function command_buttons_type_load($type) {
+  $type = str_replace('-', '_', $type);
+  $entity_info = entity_get_info('command_button');
+
+  if (isset($entity_info['bundles'][$type])) {
+    return $type;
+  }
+}
+
+/**
+ * Button entity loader.
+ *
+ * @see entity_load().
+ */
+function command_buttons_load($bid) {
+  if (!is_numeric($bid)) {
+    return FALSE;
+  }
+  $conditions = array();
+
+  $entities = command_buttons_load_multiple(array($bid), $conditions);
+  if ($entities) {
+    return reset($entities);
+  }
+}
+
+/**
+ * Load multiple OA buttons.
+ *
+ * @see entity_load_multiple().
+ */
+function command_buttons_load_multiple($ids, $conditions = array(), $reset = FALSE) {
+  return entity_load('command_button', $ids, $conditions, $reset);
+}
+
+/**
+ * Implements hook_permission()
+ */
+function command_buttons_permission() {
+  $perms = array(
+    'administer command buttons' => array(
+      'title' => t('Administer command buttons'),
+      'description' => t('Allows users to add and manage command buttons.'),
+    ),
+  );
+
+  $entity_info = entity_get_info('command_button');
+  foreach ($entity_info['bundles'] as $bundle => $info) {
+    $perms["create button $bundle"] = array(
+      'title' => t('Create new %type', array('%type' => $info['label'])),
+      'description' => t('Allows users to create new command buttons of bundle %type.', array('%type' => $info['label'])),
+    );
+    $perms["edit button $bundle"] = array(
+      'title' => t('Edit %type', array('%type' => $info['label'])),
+      'description' => t('Allows users to edit command buttons of bundle %type. This is a minimum permission; it is required to be able to edit a command button at all, but higher access requirements on an individual button can override it.', array('%type' => $info['label'])),
+    );
+    $perms["delete button $bundle"] = array(
+      'title' => t('Delete %type', array('%type' => $info['label'])),
+      'description' => t('Allows users to delete command buttons of bundle %type.', array('%type' => $info['label'])),
+    );
+  }
+
+
+  return $perms;
+}
+
+/**
+ * Impliments hook_crud_hook_entity_info().
+ */
+function command_buttons_entity_info() {
+  $return = array(
+    'command_button' => array(
+      'label' => t('Command Button'),
+      'entity class' => 'Entity',
+      'controller class' => 'ButtonController',
+      'module' => 'command_buttons',
+      'base table' => 'command_buttons',
+      'fieldable' => TRUE,
+      'exportable' => TRUE,
+      'entity keys' => array(
+        'id' => 'bid',
+        'name' => 'name',
+        'bundle' => 'bundle',
+        'label' => 'title',
+      ),
+      'view callback' => 'entity_metadata_view_single',
+      'creation callback' => 'command_buttons_create',
+      'access callback' => 'command_buttons_access',
+      'save callback' => 'command_buttons_save',
+      'bundles' => array(
+        'button' => array(
+          'label' => t('Command Button'),
+          'admin' => array(
+            'path' => 'admin/structure/command-buttons/manage/%command_buttons_type',
+            'bundle argument' => 4,
+            'real path' => 'admin/structure/command-buttons/manage/button',
+            'access arguments' => array('administer command buttons'),
+          ),
+        ),
+        'node_add' => array(
+          'label' => t('Node Creation Button'),
+          'admin' => array(
+            'path' => 'admin/structure/command-buttons/manage/%command_buttons_type',
+            'bundle argument' => 4,
+            'real path' => 'admin/structure/command-buttons/manage/node-add',
+            'access arguments' => array('administer command buttons'),
+          ),
+        ),
+      ),
+      'view modes' => array(
+        'full' => array(
+          'label'  => t('Full'),
+          'custom settings' => FALSE,
+        ),
+      ),
+    ),
+  );
+
+  return $return;
+}
+/**
+ * Implements hook_fied_extra_fields().
+ */
+function command_buttons_field_extra_fields() {
+  $extra = array();
+
+  $entity_info = entity_get_info('command_button');
+  foreach ($entity_info['bundles'] as $bundle => $info) {
+    $extra['command_button'][$bundle] = array(
+      'form' => array(
+        'title' => array(
+          'label' => t('Title'),
+          'description' => t('The displayed title of the entity.'),
+          'weight' => -5,
+        ),
+      ),
+      'display' => array(
+        'title' => array(
+          'label' => t('Title'),
+          'description' => t('The displayed title of the entity.'),
+          'weight' => -5,
+        ),
+      ),
+    );
+  }
+
+  return $extra;
+}
+
+/**
+ * Implements hook_views_api
+ */
+function command_buttons_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'command_buttons') . '/plugins/views',
+  );
+}
+
+/**
+ * List all entities for the given type.
+ */
+function command_buttons_entities_list_page($type) {
+  return views_embed_view('command_buttons_entities', 'default', $type);
+}
+
+/**
+ * Entity API callback to view a command button.
+ *
+ * @see entity_view()
+ */
+function command_buttons_view($entity, $view_mode = 'full', $langcode = LANGUAGE_NONE) {
+  return entity_get_controller('command_button')->view($entity, $view_mode, $langcode);
+}
+
+/**
+ * This is just a passthrough for entityname_view().
+ */
+function command_button_view($entity, $view_mode = 'full', $langcode) {
+  return command_buttons_view($entity, $view_mode, $langcode);
+}
+
+/**
+ * Save a button.
+ *
+ * @see node_save()
+ */
+function command_buttons_save($entity) {
+  return entity_get_controller('command_button')->save($entity);
+}
+
+/**
+ * Delete a button.
+ *
+ * @param $bid
+ *   A command button ID.
+ */
+function command_buttons_delete($bid) {
+  command_buttons_delete_multiple(array($bid));
+}
+/**
+ * Delete multiple buttons.
+ *
+ * @param $bids
+ *   An array of button IDs.
+ */
+function command_buttons_delete_multiple($bids) {
+  return entity_get_controller('command_button')->delete($bids);
+}
+
+/**
+ * Callback to create a new entity.
+ */
+function command_buttons_create($values = array()) {
+  return entity_get_controller('command_button')->create($values);
+}
+
+/**
+ * Determine if a user has access to a button.
+ */
+function command_buttons_access($op, $entity = NULL, $account = NULL) {
+  return entity_get_controller('command_button')->access($op, $entity, $account);
+}
+
+/**
+ * Provide a safe title for an entity button type based upon the URL.
+ */
+function command_buttons_entities_title($type) {
+  $type = str_replace('-', '_', $type);
+  $entity_info = entity_get_info('command_buttons');
+
+  if (isset($entity_info['bundles'][$type])) {
+    return $entity_info['bundles'][$type]['label'];
+  }
+}
+
+/**
+ * Get the safe human readable name of an entity bundle.
+ */
+function command_buttons_get_bundle_label($bundle) {
+  $entity_info = entity_get_info('command_buttons');
+  if (empty($entity_info['bundles'][$bundle]['label'])) {
+    $output = t('Unknown bundle type');
+  }
+
+  return $entity_info['bundles'][$bundle]['label'];
+}
+
+/**
+ * Get an array of entity bundle names, suitable for an options form.
+ */
+function command_buttons_get_bundle_labels() {
+  $bundles = array();
+  $entity_info = entity_get_info('command_button');
+
+  foreach ($entity_info['bundles'] as $bundle => $info) {
+    $bundles[$bundle] = $info['label'];
+  }
+
+  asort($bundles);
+  return $bundles;
+}
+
+/**
+ * Provide a safe title for an entity from the entity.
+ */
+function command_buttons_entity_title($entity) {
+  if (!empty($entity->title)) {
+    return $entity->title;
+  }
+
+  return t('No title');
+}
+
+/**
+ * Basic edit form for the button entity.
+ *
+ * The entity being edited should be stored in $form_state['entity']
+ * when this form is built.
+ */
+function command_buttons_entity_edit_form($form, &$form_state) {
+  $entity = $form_state['entity'];
+
+  // Map these properties for entity translations.
+  $form['#entity_type'] = array(
+    '#type' => 'value',
+    '#value' => $entity->bundle,
+  );
+
+  $form_state['command_button'] = $form_state['entity'];
+
+  $form['title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Title'),
+    '#default_value' => $entity->title,
+    '#weight' => -10,
+  );
+  $form['name'] = array(
+    '#type' => 'machine_name',
+    '#default_value' => $entity->name,
+    '#maxlength' => 21,
+    '#machine_name' => array(
+      'source' => array('title'),
+      'exists' => 'command_buttons_machine_name_exists',
+    ),
+  );
+
+  $form['language'] = array(
+    '#type' => 'value',
+    '#value' => $entity->language,
+  );
+
+  $language = NULL;
+  if (function_exists('entity_language')) {
+    // entity_language() was added in Drupal 7.15.
+    $language = entity_language('command_button', $entity);
+  }
+
+  field_attach_form('command_button', $entity, $form, $form_state, $language);
+
+  if (!empty($form_state['add submit'])) {
+    $form['actions'] = array(
+      '#type' => 'actions',
+    );
+
+    $form['actions']['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Save'),
+    );
+  }
+
+  return $form;
+}
+
+/**
+ * Submit callback for the button entity.
+ */
+function command_buttons_entity_edit_form_submit($form, &$form_state) {
+  $entity = $form_state['entity'];
+
+  // Copy hardcoded fields.
+  $entity->title = $form_state['values']['title'];
+  $entity->name = $form_state['values']['name'];
+
+
+  field_attach_submit('command_button', $entity, $form, $form_state);
+
+  command_buttons_save($entity);
+
+  $form_state['redirect'] = 'admin/structure/command-buttons/view/' . $entity->bid;
+  if (!empty($form_state['add submit'])) {
+    drupal_set_message(t('The entity has been saved.'));
+  }
+}
+
+/**
+ * Implements hook_entity_view().
+ */
+function command_buttons_entity_view($entity, $type, $view_mode, $langcode) {
+  if ($type == 'fieldable_panels_pane' && $entity->bundle == 'command_buttons') {
+    $classes = command_buttons_get_button_class($entity, $type, $view_mode, $langcode);
+    $items = array();
+
+    $use_dropdowns = field_get_items($type, $entity, 'field_use_dropdowns', $langcode);
+    $dropdown_label = field_get_items($type, $entity, 'field_dropdown_label', $langcode);
+
+    $commands = array();
+    // Get all command_button entity references attached to this pane.
+    $values = field_get_items($type, $entity, 'field_commands', $langcode);
+
+    if (count($values)) {
+      foreach ($values as $value) {
+        $commands[] = $value['entity'];
+      }
+    }
+
+    if (!empty($use_dropdowns[0]['value']) && !empty($dropdown_label[0]['value'])) {
+      $classes['use_dropdowns'] = TRUE;
+      $classes['dropdown_label'] = $dropdown_label[0]['value'];
+    }
+
+    $output = command_buttons_render_buttons($commands, $classes);
+
+    if (!empty($output)) {
+      $entity->content['field_commands'] = array(
+        '#markup' => $output,
+      );
+    }
+    else {
+      // If no items were present, they either don't exist or the use doesn't have
+      // access to them. Just unset the field.
+      unset($entity->content['field_commands']);
+    }
+  }
+}
+
+/**
+ * Render a list of command buttons into an item list.
+ *
+ * @todo: this really should be a theme function and / or display formatter.
+ *  bootstrap is very particular about allowed markup, but being able to
+ *  override it is still nice.
+ */
+function command_buttons_render_buttons($commands, $classes, $source = array()) {
+  foreach ($commands as $command) {
+
+    // Get the individual commands attached to the button entity.
+    $links = field_get_items('command_button', $command, 'field_command_link');
+
+
+    // Add the correct css class to each link, do token replacement, and render the link.
+    foreach ($links as $link) {
+      $path = filter_xss(token_replace($link['url']));
+      if (!url_is_external($path)) {
+        $item = menu_get_item($path);
+        if (!$item || empty($item['access'])) {
+          continue;
+        }
+      }
+      $link['attributes']['class'] = !empty($classes['item_class']) ? $classes['item_class'] : array();
+      $link['attributes']['class'] += array(' oa-' . str_replace('-', '_', $command->name));
+
+
+      $options = array('attributes' => $link['attributes']);
+
+      if (!empty($source[$command->name])){
+        if ($source[$command->name]['provider_type'] == 'oa_section') {
+          $options['query'] = array('oa_section_ref' => $source[$command->name]['id']);
+        }
+        else if ($source[$command->name]['provider_type'] == 'oa_space') {
+          $options['query'] = array('og_group_ref' => $source[$command->name]['id']);
+        }
+      }
+      if (drupal_valid_path($path)) {
+        $title = token_replace($link['title']);
+        $icon = field_get_items('command_button', $command, 'field_link_icon');
+
+        if (!empty($icon[0]['value'])) {
+          $title = '<i class="' . $icon[0]['value'] . '"></i> ' . $title;
+          $options['html'] = TRUE;
+        }
+
+        $items[] = '<li>' . l($title, $path, $options) .'</li>';
+      }
+    }
+  }
+
+  // Override default field_commands handling with our new item list.
+  if (!empty($items)) {
+    // Unfortunate we can't use theme_item_list here because it adds a wrapper div, which causes
+    // issues with bootstrap.
+    $output = implode('', $items);
+    $ul_class = 'oa-command-buttons';
+    if (!empty($classes['use_dropdowns'])) {
+      $ul_class .= ' dropdown-menu';
+      // @todo: this stuff should all be refactored to use drupal_attributes().
+      $output = '<div class="btn-group">
+        <a class="dropdown-toggle '. implode(' ', $classes['wrapper_class']) . '" data-toggle="dropdown" title="' . check_plain($classes['dropdown_label']) .'" href="#">' . check_plain($classes['dropdown_label']) . ' <span class="caret"></span></a>
+        <ul class="' . $ul_class .'">' . $output . '<ul></div>';
+    }
+    else {
+      $output = '<ul class="' . $ul_class .'">' . $output . '<ul>';
+    }
+
+    return $output;
+  }
+
+  return '';
+}
+
+
+/**
+ * Parse the class list out the field settings on a fieldable panels pane.
+ *
+ * @return array
+ *  an array of classes, keyed for both items and wrappers.
+ */
+function command_buttons_get_button_class($entity, $type, $view_mode, $langcode) {
+  $return_classes = array(
+    'item_class' => array('oa-button'),
+    'wrapper_class' => array('oa-buttons'),
+  );
+
+  $style = field_get_items($type, $entity, 'field_button_style', $langcode);
+
+  if (!empty($style[0]['value']) && $style[0]['value'] != 'other') {
+    $classes[] = $style[0]['value'];
+  }
+  else {
+    // Grab a class if it's been set on the fieldable panels pane.
+    $class = field_get_items($type, $entity, 'field_css_class', $langcode);
+    if (!empty($class[0]['safe_value'])) {
+      $classes[] = $class[0]['safe_value'];
+    }
+  }
+
+  $size = field_get_items($type, $entity, 'field_button_size', $langcode);
+
+  if (!empty($size[0]['value']) && $style[0]['value'] != 'default') {
+    $classes[] = $size[0]['value'];
+  }
+
+  $block = field_get_items($type, $entity, 'field_block_buttons', $langcode);
+
+  if (!empty($block[0]['value'])) {
+    $classes[] = 'btn-block';
+  }
+
+  $use_dropdowns = field_get_items($type, $entity, 'field_use_dropdowns', $langcode);
+  if (!empty($use_dropdowns[0]['value'])) {
+    $return_classes['wrapper_class'] = array_merge($classes, $return_classes['wrapper_class']);
+  }
+  else {
+    $return_classes['item_class'] = array_merge($classes, $return_classes['item_class']);
+  }
+
+  return $return_classes;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function command_buttons_form_command_buttons_entity_edit_form_alter(&$form, &$form_state, $form_id) {
+  if (!empty($form['field_command_link'])) {
+    $entity_info = entity_get_info('command_button');
+
+     // Add token module replacements fields.
+    $form['tokens'] = array(
+      '#type' => 'fieldset',
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#weight' => 20,
+      '#title' => t('Placeholder tokens'),
+      '#description' => t("The following placeholder tokens can be used in both paths and titles. When used in a path or title, they will be replaced with the appropriate values."),
+    );
+
+    $form['tokens']['help'] = array(
+      '#theme' => 'token_tree',
+      '#token_types' => array($entity_info['token type']),
+      '#global_types' => TRUE,
+      '#click_insert' => TRUE,
+    );
+
+    if (isset($form['field_link_icon'])) {
+      foreach ($form['field_link_icon'][LANGUAGE_NONE]['#options'] as $key => $option) {
+        if ($key != '_none') {
+          $form['field_link_icon'][LANGUAGE_NONE]['#options'][$key] = "<i class='" . $option . "'></i> " . $option;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Callback to determine if an entities machine name already exists.
+ */
+function command_buttons_machine_name_exists($value) {
+  $name_exists = db_select('command_buttons', 'b')
+                ->fields('b', array('name'))
+                ->condition('b.name', $value)
+                ->execute()
+                ->fetchField();
+
+  return !empty($name_exists);
+}
+
+/**
+ * Load a collection of button entities based on their machine name.
+ *
+ * @param $buttons
+ *   An array of button machine names.
+ */
+function command_buttons_machine_name_load($buttons) {
+  $entities = array();
+  $bids = array();
+  if (!is_array($buttons)) {
+    $buttons = array($buttons);
+  }
+
+  if (empty($buttons)) {
+    return $entities;
+  }
+
+  $results = db_select('command_buttons', 'b')
+    ->fields('b', array('bid'))
+    ->condition('bundle', 'node_add')
+    ->condition('name', $buttons, 'IN')
+    ->execute();
+
+  while ($result = $results->fetchObject()) {
+    $bids[] = $result->bid;
+  }
+
+  if (count($bids)) {
+    $entities = command_buttons_load_multiple($bids);
+  }
+
+  return $entities;
+}

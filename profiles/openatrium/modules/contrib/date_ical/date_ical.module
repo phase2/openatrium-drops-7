@@ -8,6 +8,11 @@
  */
 
 /**
+ * Exception for when the date field for a row in the ical_fields row plugin is blank.
+ */
+class BlankDateFieldException extends Exception { }
+
+/**
  * Implements hook_views_api().
  */
 function date_ical_views_api() {
@@ -30,8 +35,16 @@ function date_ical_theme($existing, $type, $theme, $path) {
 
 /**
  * The theme for the ical icon.
+ * Available variables are:
+ * $variables['tooltip'] - The tooltip to be used for the ican feed icon.
+ * $variables['url'] - The url to the actual iCal feed.
+ * $variables['view'] - The view object from which the iCal feed is being
+ *   built (useful for contextual information).
  */
 function theme_date_ical_icon($variables) {
+  if (empty($variables['tooltip'])) {
+    $variables['tooltip'] = t('Add this event to my calendar');
+  }
   $variables['path'] = drupal_get_path('module', 'date_ical') . '/images/ical-feed-icon-34x14.png';
   $variables['alt'] = $variables['title'] = $variables['tooltip'];
   if ($image = theme('image', $variables)) {
@@ -53,7 +66,8 @@ function date_ical_preprocess_node(&$variables) {
     // The display of the body and other fields will be controlled
     // by the Manage Display settings for the iCal view mode.
     
-    // Trick the default node template into not displaying the page title by telling it this is page.
+    // Trick the default node template into not displaying the page title by
+    // telling it this is a page.
     $variables['page'] = TRUE;
     $variables['title_prefix'] = '';
     $variables['title_suffix'] = '';
@@ -84,6 +98,8 @@ function date_ical_entity_info_alter(&$entity_info) {
     $entity_info[$entity_type]['view modes'] += array(
       'ical' => array(
         'label' => t('iCal'),
+        // Set the iCal view mode to default to same settings as the "default"
+        // view mode, so it won't pollute Features.
         'custom settings' => FALSE,
       ),
     );
@@ -173,29 +189,26 @@ function date_ical_feeds_processor_targets_alter(&$targets, $entity_type, $bundl
 
 /**
  * Reformats the provided text to be compliant with the iCal spec.
- * If the text contains HTML tags, those tags will be stripped
- * (with <p> tags converted to \n\n), and uneeded whitespace
- * will be cleaned up.
+ * If the text contains HTML tags, those tags will be stripped (with <p> tags
+ * converted to "\n\n" and link tags converted to footnotes), and uneeded
+ * whitespace will be cleaned up.
  *
  * @param $text
- *   The text to be reformatted.
+ *   The text to be sanitized.
  */
-function date_ical_format_text($text = '') {
-  # NOTE TO DEVS:
-  # This doesn't quite go all the way toward true iCal compliance. 
-  # Getting that right is *hard* (see issues #61830, #84740), so
-  # I'm going to just half-ass it for now.
+function date_ical_sanitize_text($text = '') {
+  // Use Drupal's built-in HTML to Text converter, which does a mostly adequate
+  // job of making the text iCal-compliant.
   $text = trim(drupal_html_to_text($text));
-  $text = str_replace('"', '\"', $text);
-  $text = str_replace(",", "\,", $text);
-  $text = str_replace(";", "\;", $text);
-  $text = str_replace(":", "\:", $text);
+  // Replace instances of more than one space with exactly one space. This
+  // cleans up the whitespace mess that gets left behind by drupal_html_to_text().
   $text = preg_replace("/  +/", " ", $text);
-  # I'm pretty sure we need to do these for full compliance, but they're pretty screwy.
-  # This is also related to the whole 75-char per line and /r/n linebreak issue.
-  #$text = preg_replace("/\\/", "\\\\", $text);
-  #$text = preg_replace("/\n\n+/", "\\n\\n", $text);
-  $text = str_replace("\n", " \r\n ", $text);
+  // The call to drupal_html_to_text() above converted <p> to /n/n, and also
+  // shoved a \n into the string every 80 characters. We don't want those
+  // single \n's lying around, because iCalcreator will properly "fold" long
+  // text fields for us. So, we need to remove all instances of \n which
+  // are neither immediately preceeded, nor followed, by another \n.
+  $text = preg_replace("/(?<!\n)\n(?!\n)/", " ", $text);
   return $text;
 }
 

@@ -1039,7 +1039,9 @@ function feeds_library_exists($file, $library) {
  * Checks whether simplepie exists.
  */
 function feeds_simplepie_exists() {
-  return (feeds_library_exists('simplepie.compiled.php', 'simplepie') ||
+  return (
+    feeds_library_exists('autoloader.php', 'simplepie') ||
+    feeds_library_exists('simplepie.compiled.php', 'simplepie') ||
     feeds_library_exists('simplepie.mini.php', 'simplepie') ||
     feeds_library_exists('simplepie.inc', 'simplepie')
   );
@@ -1049,13 +1051,19 @@ function feeds_simplepie_exists() {
  * Includes the simplepie library.
  */
 function feeds_include_simplepie() {
-  $files = array('simplepie.mini.php', 'simplepie.compiled.php', 'simplepie.inc');
+  $files = array(
+    'autoloader.php',
+    'simplepie.mini.php',
+    'simplepie.compiled.php',
+    'simplepie.inc',
+  );
 
   foreach ($files as $file) {
     if (feeds_include_library($file, 'simplepie')) {
       return TRUE;
     }
   }
+
   return FALSE;
 }
 

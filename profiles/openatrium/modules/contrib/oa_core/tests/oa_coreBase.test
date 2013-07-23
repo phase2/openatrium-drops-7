@@ -1,0 +1,95 @@
+<?php
+
+/**
+ * @file
+ * Provides a base unit test class.
+ */
+
+/**
+ * Base class for testing openatrium web interaction.
+ *
+ * It will try installing openatrium. For a quicker test, replace
+ * SimpleTestCloneTestCase with SimpleTestCloneTestCase from the simpletest_clone
+ * module.
+ *
+ * See http://drupal.org/project/installprofiletest for patches need to have
+ * a successful run w/o simpletest clone.
+ */
+abstract class oa_coreBaseWebTest extends SimpleTestCloneTestCase {
+  protected $profile = 'openatrium';
+
+  /**
+   * oa_radix adds a span tag to every link so assertLink fails.
+   */
+  protected function assertLink($label, $index = 0, $message = '', $group = 'Other') {
+    $links = $this->xpath('//a/span[normalize-space(text())=:label]', array(':label' => $label));
+    $message = ($message ?  $message : t('Link with label %label found.', array('%label' => $label)));
+    return $this->assert(isset($links[$index]), $message, $group);
+  }
+
+  protected function createOaSpace($node_info = array()) {
+    $node_info += array('type' => 'oa_space');
+    return $this->drupalCreateNode($node_info);
+  }
+
+  protected function createNodeInOaSpace($space, $node_info) {
+    $node_info['og_group_ref'][LANGUAGE_NONE][0]['target_id'] = $space->nid;
+    return $this->drupalCreateNode($node_info);
+  }
+
+  protected function createOaSpaceAndUsers($space_info = array()) {
+    $admin = $this->drupalCreateUser(array('create oa_space content', 'create oa_section content', 'edit any oa_section content'));
+    $space = $this->createOaSpace($space_info);
+    return array(
+      'space' => $space,
+      'space_member' => $this->createUserInOaSpace($space),
+      'space_admin' => $admin,
+    );
+  }
+
+  protected function createUserInOaSpace($space, $permissions = array()) {
+    $member = $this->drupalCreateUser();
+    og_group('node', $space, array('entity' => $member));
+    return $member;
+  }
+
+  protected function oaSpaceIsPublic($space) {
+    return empty($space->group_access[LANGUAGE_NONE][0]['value']);
+  }
+
+  protected function assertOptionExists($id, $option, $message = '') {
+    $elements = $this->xpath('//select[@id=:id]//option[@value=:option]', array(':id' => $id, ':option' => $option));
+    return $this->assertTrue(!empty($elements[0]), $message ? $message : t('Option @option for field @id is selected.', array('@option' => $option, '@id' => $id)), t('Browser'));
+  }
+  protected function assertOptionNoExists($id, $option, $message = '') {
+    $elements = $this->xpath('//select[@id=:id]//option[@value=:option]', array(':id' => $id, ':option' => $option));
+    return $this->assertTrue(empty($elements[0]), $message ? $message : t('Option @option for field @id is selected.', array('@option' => $option, '@id' => $id)), t('Browser'));
+  }
+}
+
+abstract class oa_coreBaseUnitTest extends DrupalUnitTestCase {
+  /**
+   * One using of this function is to enable the module used for testing, any dependencies
+   * or anything else that might be universal for all tests
+   */
+  public function setUp() {
+    parent::setUp();
+    //enable module
+    $this->enableModule('oa_core');
+
+    // enable dep and other thing for all tests
+  }
+
+  /**
+   * Fake enables a module for the purpose of a unit test
+   *
+   * @param $name
+   *  The module's machine name (i.e. ctools not Chaos Tools)
+   */
+  protected function enableModule($name) {
+    $modules = module_list();
+    $modules[$name] = $name;
+    module_list(TRUE, FALSE, FALSE, $modules);
+  }
+
+}

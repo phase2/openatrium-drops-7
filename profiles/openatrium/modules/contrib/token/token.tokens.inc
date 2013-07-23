@@ -905,7 +905,7 @@ function token_tokens($type, $tokens, array $data = array(), array $options = ar
 
   // If the token type specifics a 'needs-data' value, and the value is not
   // present in $data, then throw an error.
-  if (!empty($GLOBALS['drupal_test_info']['test_run_id'])) {
+  if (!empty($GLOBALS['drupal_test_info']['test_run_id']) && variable_get('token_report_empty_test_tokens', TRUE)) {
     // Only check when tests are running.
     $type_info = token_get_info($type);
     if (!empty($type_info['needs-data']) && !isset($data[$type_info['needs-data']])) {

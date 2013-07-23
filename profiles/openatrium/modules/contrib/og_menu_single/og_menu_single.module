@@ -23,12 +23,12 @@ function og_menu_single_form_node_type_form_alter(&$form, $form_state) {
   $form['menu']['og_menu_single']['og_menu_single_group_content__node__' . $type] = array(
     '#type' => 'checkbox',
     '#title' => t('Content of this type may be placed in a group menu. Must also be a group content type'),
-    '#default_value' => og_menu_single_is_enabled_group_content($type),
+    '#default_value' => og_menu_single_is_enabled_group_content('node', $type),
   );
-  $form['menu']['og_menu_single']['og_menu_single_group_content__node__' . $type] = array(
+  $form['menu']['og_menu_single']['og_menu_single_group__node__' . $type] = array(
     '#type' => 'checkbox',
     '#title' => t('Groups of this type may have a group menu. Must also be a group type'),
-    '#default_value' => og_menu_single_is_enabled_group_content($type),
+    '#default_value' => og_menu_single_is_enabled_group('node', $type),
   );
 }
 
@@ -46,6 +46,55 @@ function og_menu_single_node_prepare($node) {
       }
     }
   }
+}
+
+/**
+ * Implements hook_form_FORMID_alter().
+ */
+function og_menu_single_form_menu_edit_item_alter(&$form, $form_state) {
+  $item = menu_get_item();
+  // @TODO
+  // Don't want to define new form for menu edit so any contrib editing main one
+  // edits this also, but no way other than using 'menu_override_parent_selector
+  // but there's no way to know where else outside of core menu_parent_options
+  // has been used. Bah!!
+  if ($item['path'] == 'group/%/%/admin/menu/item/%/edit' || $item['path'] == 'group/%/%/admin/menu/add') {
+    $plid = og_menu_single_get_link_mlid_or_create($item['map'][1], $item['map'][2]);
+    $link = $form['original_item']['#value'];
+    $options[OG_MENU_SINGLE_MENU_NAME . ':' . $plid] = '<' . t('None') . '>';
+    if ($plid && $tree = og_menu_single_children_items($plid)) {
+       _menu_parents_recurse($tree, OG_MENU_SINGLE_MENU_NAME, '--', $options, $link['mlid'] ? $link['mlid'] : 0, 8);
+    }
+    $form['parent']['#options'] = $options;
+    $form['enabled']['#access'] = FALSE;
+    $form['expanded']['#access'] = FALSE;
+    $menu_path = 'group/' . $item['map'][1] . '/' . $item['map'][2] . '/admin/menu';
+    if ($link['mlid']) {
+      $breadcrumb = drupal_get_breadcrumb();
+      array_pop($breadcrumb);
+      $breadcrumb[] = l(('Group Menu'), 'group/' . $item['map'][1] . '/' . $item['map'][2] . '/admin/menu');
+      drupal_set_breadcrumb($breadcrumb);
+    }
+    $form['#submit'][] = 'og_menu_single_menu_form_new_redirect';
+    $form['#og_menu_redirect'] = $menu_path;
+  }
+}
+
+/**
+ * Implements hook_form_FORMID_alter().
+ */
+function og_menu_single_form_menu_item_delete_form_alter(&$form, $form_state) {
+  $item = menu_get_item();
+  if ($item['path'] == 'group/%/%/admin/menu/item/%/delete') {
+    $menu_path = 'group/' . $item['map'][1] . '/' . $item['map'][2] . '/admin/menu';
+    $form['#submit'][] = 'og_menu_single_menu_form_new_redirect';
+    $form['#og_menu_redirect'] = $menu_path;
+    $form['actions']['cancel']['#href'] = str_replace('admin/structure/menu/manage/' . OG_MENU_SINGLE_MENU_NAME, $menu_path, $form['actions']['cancel']['#href']);
+  }
+}
+
+function og_menu_single_menu_form_new_redirect($form, &$form_state) {
+  $form_state['redirect'] = $form['#og_menu_redirect'];
 }
 
 /**
@@ -191,6 +240,100 @@ function og_menu_single_block_info() {
 
   return $blocks;
 }
+
+
+/**
+ * Implements hook_menu().
+ */
+function og_menu_single_menu() {
+  $items = array();
+
+  $items['group/%/%/admin/menu'] = array(
+    'title callback' => 'og_ui_menu_title_callback',
+    'title arguments' => array('Menu for group @group', 1, 2),
+    'description' => 'Manage group menu for a group.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('og_menu_single_menu_edit_form', 1, 2),
+    'access callback' => 'og_ui_user_access_group',
+    'access arguments' => array('manage menu', 1, 2),
+    'weight' => -8,
+    'file' => 'og_menu_single.admin.inc',
+  );
+
+  $items['group/%/%/admin/menu/list'] = array(
+    'title' => 'List links',
+    'weight' => -10,
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+  );
+  $items['group/%/%/admin/menu/add'] = array(
+    'title' => 'Add link',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('menu_edit_item', 'add', NULL, menu_load(OG_MENU_SINGLE_MENU_NAME)),
+    'access callback' => 'og_ui_user_access_group',
+    'access arguments' => array('manage menu', 1, 2),
+    'type' => MENU_LOCAL_ACTION,
+    'file' => 'menu.admin.inc',
+    'file path' => drupal_get_path('module', 'menu'),
+  );
+  $items['group/%/%/admin/menu/item/%menu_link/edit'] = array(
+    'title' => 'Edit menu link',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('menu_edit_item', 'edit', 6, NULL),
+    'access callback' => 'og_ui_user_access_group',
+    'access arguments' => array('manage menu', 1, 2),
+    'file' => 'menu.admin.inc',
+    'file path' => drupal_get_path('module', 'menu'),
+  );
+
+  $items['group/%/%/admin/menu/item/%menu_link/delete'] = array(
+    'title' => 'Delete menu link',
+    'page callback' => 'menu_item_delete_page',
+    'page arguments' => array(6),
+    'access callback' => 'og_ui_user_access_group',
+    'access arguments' => array('manage menu', 1, 2),
+    'file' => 'menu.admin.inc',
+    'file path' => drupal_get_path('module', 'menu'),
+  );
+
+  return $items;
+}
+
+/**
+ * Implement hook_og_permission().
+ */
+function og_menu_single_og_permission() {
+  $items = array();
+
+  $items['manage menu'] = array(
+    'title' => t('Manage menu'),
+    'description' => t('Manage group menu for this group.'),
+    'default role' => array(OG_ADMINISTRATOR_ROLE),
+    'restrict access' => TRUE,
+  );
+
+  return $items;
+}
+
+
+/**
+ * Implements hook_og_ui_get_group_admin()
+ */
+function og_menu_single_og_ui_get_group_admin($group_type, $gid) {
+  $items = array();
+
+  if (og_user_access($group_type, $gid, 'manage menu')) {
+    $items['manage_menu'] = array(
+      'title' => t('Menu'),
+      'description' => t('Manage group menu'),
+      'href' => 'admin/menu',
+    );
+  }
+
+  return $items;
+}
+
+
 /**
  * Implements hook_block_configure().
  */
@@ -282,16 +425,22 @@ function og_menu_single_get_active_plid() {
   if (!$context || $context['group_type'] != 'node' || !$context['gid']) {
     return NULL;
   }
-  // If group does not have a menu entry, retroactivially create.
-  $mlid = og_menu_single_get_link_mlid('node', $context['gid']);
-  if (!$mlid) {
-    _og_menu_single_save_group_link(node_load($context['gid']));
-    $mlid = og_menu_single_get_link_mlid('node', $context['gid'], TRUE);
-    if (!$mlid) {
-      return NULL;
-    }
-  }
   // Set PLID for form use later.
+  return og_menu_single_get_link_mlid_or_create($context['group_type'], $context['gid']);
+}
+
+/**
+ * Fetched or crate space mlid of an entity.
+ *
+ * @return
+ *   The active menu link ID for current group.
+ */
+function og_menu_single_get_link_mlid_or_create($entity_type, $entity_id) {
+  $mlid = og_menu_single_get_link_mlid($entity_type, $entity_id);
+  if (!$mlid && ($entities = entity_load($entity_type, array($entity_id)))) {
+    _og_menu_single_save_group_link(reset($entities));
+    $mlid = og_menu_single_get_link_mlid($entity_type, $entity_id, TRUE);
+  }
   return $mlid;
 }
 
@@ -354,18 +503,20 @@ function og_menu_single_menu_link_load($mlid) {
  *   Current link ID if exists for that group.
  */
 function _og_menu_single_save_group_link($node, $mlid = null) {
-  $link = array(
-    'mlid' => $mlid,
-    'link_title' => $node->title . "'s Menu",
-    'link_path' => 'node/' . $node->nid,
-    'menu_name' => OG_MENU_SINGLE_MENU_NAME,
-    'options' => array(
-      'attributes' => array(
-        'title' => t('Menu for group') . ' ' . $node->title,
+  if (og_menu_single_is_enabled_group('node', $node->type)) {
+    $link = array(
+      'mlid' => $mlid,
+      'link_title' => $node->title,
+      'link_path' => 'node/' . $node->nid,
+      'menu_name' => OG_MENU_SINGLE_MENU_NAME,
+      'options' => array(
+        'attributes' => array(
+          'title' => t('Menu for group') . ' ' . $node->title,
+        ),
       ),
-    ),
-  );
-  menu_link_save($link);
+    );
+    menu_link_save($link);
+  }
 }
 
 /*

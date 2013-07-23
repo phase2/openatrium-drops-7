@@ -9,3 +9,10 @@ files[] = og_subgroups.module
 
 ; Test files.
 files[] = og_subgroups.test
+
+
+; Information added by drush on 2013-07-20
+version = ""
+project = "og_subgroups"
+datestamp = "1374352293"
+

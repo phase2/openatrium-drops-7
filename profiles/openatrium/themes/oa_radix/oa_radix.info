@@ -12,6 +12,7 @@ regions[navigation]   = Navigation
 regions[menu]         = Menu
 regions[content]      = Content
 regions[footer]       = Footer
+regions[primarytabs]  = Primary tabs
 
 ; CSS - General
 stylesheets[all][]     = assets/stylesheets/screen.css
@@ -29,4 +30,12 @@ version = "7.x-2.0-alpha3"
 core = "7.x"
 project = "radix"
 datestamp = "1359826703"
+
+
+
+; Information added by drush on 2013-07-20
+version = "7.x-2.0-beta1+0-dev"
+core = "7.x"
+project = "oa_radix"
+datestamp = "1374352291"
 

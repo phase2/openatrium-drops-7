@@ -1,0 +1,101 @@
+<?php
+
+/**
+ * @file
+ * Install and update functionality..
+ */
+function oa_buttons_schema() {
+  $schema['cache_oa_section_buttons'] = drupal_get_schema_unprocessed('system', 'cache');
+  return $schema;
+}
+
+/**
+ * Create space and section default terms.
+ */
+function oa_buttons_update_7005() {
+  oa_buttons_create_default_terms();
+}
+
+/**
+ * Update existing nodes to the new section and space taxonomies.
+ */
+function oa_buttons_update_7006(&$sandbox) {
+  $terms = oa_buttons_get_default_terms();
+
+  // If this is the first pass through this update function then set some variables.
+  if (!isset($sandbox['total'])) {
+    $result = db_query('SELECT nid FROM {node} WHERE type IN (:types)', array(':types' => array('oa_space', 'oa_section')));
+    $sandbox['total'] = $result->rowCount();
+    $sandbox['current'] = 0;
+  }
+
+  $nodes_per_pass = 10;
+  // Get the nodes to process during this pass.
+  $result = db_query_range('SELECT nid FROM {node} WHERE type IN (:types)', $sandbox['current'], $nodes_per_pass, array(':types' => array('oa_space', 'oa_section')));
+  while ($row = $result->fetchAssoc()) {
+
+    // Load the node, edit its title, and save the node.
+    $node = node_load($row['nid']);
+
+    if ($node && !empty($node->panelizer['page_manager']->name)) {
+      $layout = $node->panelizer['page_manager']->name;
+
+      foreach ($terms as $name => $term) {
+
+        if ($term['layout'] == $layout) {
+          if ($t = taxonomy_get_term_by_name($term['name'], $term['taxonomy'])) {
+            if ($node->type == 'oa_section') {
+              $node->field_oa_section[$node->language][0]['tid'] = $t->tid;
+            }
+            elseif ($node->type == 'oa_space') {
+              $node->field_oa_space_type[$node->language][0]['tid'] = $t->tid;
+            }
+          }
+        }
+      }
+    }
+    // Increment "current" by 1.
+    $sandbox['current']++;
+  }
+
+  // Set the value for finished. If current == total then finished will be 1, signifying we are done.
+  $sandbox['finished'] = ($sandbox['current'] / $sandbox['total']);
+}
+
+/**
+ * Install custom cache tables.
+ */
+function oa_buttons_update_7007() {
+  drupal_install_schema('oa_buttons');
+}
+
+/**
+ * Update default section buttons to fix bug with initial creation.
+ */
+function oa_buttons_update_7008() {
+  $terms = oa_buttons_get_default_terms();
+  foreach ($terms as $machine_name => $t) {
+    $vocab = taxonomy_vocabulary_machine_name_load($taxonomy);
+    if ($term = taxonomy_get_term_by_name($t['name'], $t['taxonomy'])) {
+      $term = reset($term);
+      $term->name = $t['name'];
+      $term->field_oa_section_layout = array(
+        LANGUAGE_NONE => array(
+          array('value' => $t['layout']),
+        ),
+      );
+
+      $term->field_oa_node_types = array(
+        LANGUAGE_NONE => array(
+        ),
+      );
+
+      if (!empty($t['node_options'])) {
+        foreach ($t['node_options'] as $type) {
+          $term->field_oa_node_types[LANGUAGE_NONE][] = array('value' => $type);
+        }
+      }
+      taxonomy_term_save($term);
+    }
+  }
+}

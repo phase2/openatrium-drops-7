@@ -1,0 +1,19 @@
+name = OG Variables
+description = Allows for per group variables
+package = Organic Groups
+core = 7.x
+php = 5.1
+
+dependencies[] = variable_store (7.x-2.x)
+dependencies[] = variable_realm (7.x-2.x)
+dependencies[] = og_ui
+dependencies[] = entity
+
+files[] = og_variables.class.inc
+
+
+; Information added by drush on 2013-07-20
+version = ""
+project = "og_variables"
+datestamp = "1374352304"
+

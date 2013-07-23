@@ -168,6 +168,7 @@ function panopoly_pages_modules_enabled($modules) {
 
     // Define some permissions for the editor role.
     $editor = user_role_load_by_name('editor');
+    drupal_static_reset('panelizer_entity_plugin_get_handler');
     user_role_grant_permissions($editor->rid, array('administer panelizer node panopoly_page breadcrumbs'));
     user_role_grant_permissions($editor->rid, array('administer panelizer node panopoly_page content'));
     user_role_grant_permissions($editor->rid, array('administer panelizer node panopoly_page context'));

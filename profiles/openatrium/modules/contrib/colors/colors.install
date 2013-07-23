@@ -1,0 +1,64 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the colors module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function colors_install() {
+  $color_options = array(
+    'background' => '#3366cc',
+    'border' => '#3366cc',
+    'text' => '#ffffff',
+  );
+  colors_set_colors('colors_default', $color_options);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function colors_uninstall() {
+  db_delete('variable')
+    ->condition('name', db_like('colors_') . '%', 'LIKE')
+    ->execute();
+  cache_clear_all('variables', 'cache_bootstrap');
+}
+
+/**
+ * Implements hook_schema().
+ */
+function colors_schema() {
+  $schema['colors'] = array(
+    'description' => 'Stores selectors and their matching colors.',
+    'fields' => array(
+      'selector' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'Unique selector name.',
+        'translatable' => TRUE,
+      ),
+      'color' => array(
+        'type' => 'blob',
+        'not null' => TRUE,
+        'description' => 'Color configuration array.',
+        'size' => 'big',
+        'serialize' => TRUE
+      ),
+      'module' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => 'colors',
+        'description' => 'Module that created the color configuration.',
+        'translatable' => TRUE,
+      ),
+    ),
+    'primary key' => array('selector'),
+  );
+  return $schema;
+}

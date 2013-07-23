@@ -1257,32 +1257,29 @@ function panelizer_panelizer_default_types_alter(&$bundles, $entity_type) {
 }
 
 /**
- * Implements hook_features_export_alter().
+ * Implements hook_features_pipe_panelizer_defaults_alter().
  */
-function panelizer_features_export_alter(&$export, $module_name) {
-  if (!empty($export['features']['panelizer_defaults'])) {
-    foreach ($export['features']['panelizer_defaults'] as $machine_name) {
-      list ($entity_type, $bundle) = explode(':', $machine_name);
+function panelizer_features_pipe_panelizer_defaults_alter(&$more, $data, $export) {
+  foreach ($data as $machine_name) {
+    list ($entity_type, $bundle) = explode(':', $machine_name);
 
-      $variables = array(
-        'panelizer_defaults_' . $entity_type . '_' . $bundle,
-        'panelizer_' . $entity_type . ':' . $bundle . '_allowed_layouts',
-        'panelizer_' . $entity_type . ':' . $bundle . '_allowed_types',
-        'panelizer_' . $entity_type . ':' . $bundle . '_default'
-      );
+    $variables = array(
+      'panelizer_defaults_' . $entity_type . '_' . $bundle,
+      'panelizer_' . $entity_type . ':' . $bundle . '_allowed_layouts',
+      'panelizer_' . $entity_type . ':' . $bundle . '_allowed_types',
+      'panelizer_' . $entity_type . ':' . $bundle . '_default'
+    );
 
-      if (module_exists('strongarm')) {
-        foreach ($variables as $key => $variable) {
-          if (variable_get($variable) === NULL) {
-            unset($variables[$key]);
-          }
+    if (module_exists('strongarm')) {
+      foreach ($variables as $key => $variable) {
+        if (variable_get($variable) === NULL) {
+          unset($variables[$key]);
         }
-        $variables = array_diff($variables, array_keys(strongarm_vars_load()));
       }
+    }
 
-      foreach ($variables as $variable) {
-        $export['features']['variable'][$variable] = $variable;
-      }
+    foreach ($variables as $variable) {
+      $more['variable'][$variable] = $variable;
     }
   }
 

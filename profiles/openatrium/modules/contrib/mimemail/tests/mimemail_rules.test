@@ -1,0 +1,59 @@
+<?php
+
+/**
+ * @file
+ * Functionality tests for the Rules integration in the Mime Mail module.
+ *
+ * @ingroup mimemail
+ */
+
+/**
+ * Tests the Rules integration.
+ */
+class MimeMailRulesTestCase extends DrupalWebTestCase {
+  /**
+   * The user with administration permissions.
+   * @var object
+   */
+  protected $adminUser;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Rules integration',
+      'description' => 'Test the Rules integration.',
+      'group' => 'Mime Mail',
+    );
+  }
+
+  public function setUp(array $modules = array()) {
+    $modules[] = 'mailsystem';
+    $modules[] = 'mimemail';
+    $modules[] = 'locale';
+    $modules[] = 'rules';
+    parent::setUp($modules);
+
+    // Create and login user.
+    $this->adminUser = $this->drupalCreateUser(array(
+      'access administration pages',
+      'edit mimemail user settings',
+      'administer languages',
+      'administer rules',
+      'bypass rules access',
+      'access rules debug',
+    ));
+    $this->drupalLogin($this->adminUser);
+
+    // Enable another language too.
+    foreach (array('de', 'it') as $langcode) {
+      $edit = array();
+      $edit['langcode'] = $langcode;
+      $this->drupalPost('admin/config/regional/language/add', $edit, t('Add language'));
+    }
+
+    // Make sure we are not using a stale list.
+    drupal_static_reset('language_list');
+  }
+
+
+
+}

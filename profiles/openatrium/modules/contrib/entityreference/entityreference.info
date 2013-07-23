@@ -22,3 +22,11 @@ files[] = tests/entityreference.handlers.test
 files[] = tests/entityreference.taxonomy.test
 files[] = tests/entityreference.admin.test
 files[] = tests/entityreference.feeds.test
+
+
+; Information added by drush on 2013-07-20
+version = "7.x-1.0+5-dev"
+core = "7.x"
+project = "entityreference"
+datestamp = "1374352311"
+

@@ -310,3 +310,12 @@ $fluidGridGutterWidth1200:     percentage($gridGutterWidth1200/$gridRowWidth1200
 // 768px-979px
 $fluidGridColumnWidth768:      percentage($gridColumnWidth768/$gridRowWidth768) !default;
 $fluidGridGutterWidth768:      percentage($gridGutterWidth768/$gridRowWidth768) !default;
+
+// HEADER REGION
+// -------------------------
+$toolbar-link-color: #fefefe;
+$toolbar-link-active: #fefefe;
+
+$btn-group-border-color: #333;
+$btn-group-bg-color: #333;
+

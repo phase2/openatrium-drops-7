@@ -27,6 +27,7 @@ class date_ical_plugin_row_ical_entity extends views_plugin_row {
   function option_definition() {
     $options = parent::option_definition();
     $options['date_field'] = array('default' => array());
+    $options['summary_field'] = array('default' => array());
     $options['location_field'] = array('default' => array());
     return $options;
   }
@@ -222,8 +223,6 @@ class date_ical_plugin_row_ical_entity extends views_plugin_row {
       $end->modify("+1 day");
     }
     
-    module_load_include('inc', 'date_api', 'date_api_ical');
-    
     // If the user specified a LOCATION field, pull that data from the entity.
     $location = '';
     if (!empty($this->options['location_field']) && $this->options['location_field'] != 'none') {
@@ -306,8 +305,8 @@ class date_ical_plugin_row_ical_entity extends views_plugin_row {
     drupal_alter('date_ical_html', $data, $this->view, $context);
     
     $event = array();
-    $event['summary'] = date_ical_format_text($data['summary']);
-    $event['description'] = date_ical_format_text($data['description']);
+    $event['summary'] = date_ical_sanitize_text($data['summary']);
+    $event['description'] = date_ical_sanitize_text($data['description']);
     $event['all_day'] = $all_day;
     $event['start'] = $start;
     $event['end'] = $end;
@@ -332,7 +331,8 @@ class date_ical_plugin_row_ical_entity extends views_plugin_row {
       $event['last-modified'] = new DateObject($entity->changed, new DateTimeZone('UTC'));
     }
     
-    // Allow other modules to alter the structured event object, before it gets converted to an iCal VEVENT.
+    // Allow other modules to alter the structured event object, before it gets
+    // passed to the style plugin to be converted into an iCal VEVENT.
     drupal_alter('date_ical_feed_event_render', $event, $this->view, $context);
     
     return $event;

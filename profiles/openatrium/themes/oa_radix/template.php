@@ -5,6 +5,28 @@
  * Theme functions
  */
 
+/**
+ * Implements hook_css_alter().
+ * Changes the jQuery UI theme to a Bootstrap-like theme
+ * from http://addyosmani.github.io/jquery-ui-bootstrap/
+ */
+function oa_radix_css_alter(&$css) {
+  if (isset($css['misc/ui/jquery.ui.theme.css'])) {
+    $css['misc/ui/jquery.ui.theme.css']['data'] =
+      drupal_get_path('theme', 'oa_radix') . '/jquery-ui-1.10.0.custom.css';
+  }
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ * Remove panopoly_core which uses this alter to set it's own jquery_ui theme
+ * Should be done in a theme layer, not in panopoly_core
+ */
+function oa_radix_module_implements_alter(&$implementations, $hook) {
+  if ($hook == 'element_info_alter') {
+    unset($implementations['panopoly_core']);
+  }
+}
 
 /**
  * Implements template_preprocess_page().

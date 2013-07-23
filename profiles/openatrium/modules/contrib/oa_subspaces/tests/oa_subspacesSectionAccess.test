@@ -1,0 +1,70 @@
+<?php
+
+/**
+ * @file
+ * Tests permission inheritence for oa_subspaces
+ */
+
+class oa_subspacesSectionAccess extends oa_sectionsAccessBase {
+  static function getInfo() {
+    return array(
+      'name' => 'OA Subspace Section Permission test',
+      'description' => 'Test that can access sections correctly',
+      'group' => 'OA - Subspaces',
+    );
+  }
+
+  function test_oa_subspacesSectionAccess() {
+    extract($this->createOaSpaceAndUsers(array('og_user_inheritance' => array(LANGUAGE_NONE => array(0 => array('value' => 1))))));
+    $non_member = $this->drupalCreateUser();
+    $space_member_2 = $this->createUserInOaSpace($space);
+    $group_member_only = $this->drupalCreateNode(array('type' => 'oa_group'));
+    og_group('node', $group_member_only, array('entity' => $space_member));
+
+
+    $child = $this->createOaSpace(array('oa_parent_space' => array(LANGUAGE_NONE => array(0 => array('target_id' => $space->nid)))));
+
+    $this->oaTestOaSectionAccess('parent space', $space, $space_admin, $space_member, $space_member_2, $non_member, $group_member_only);
+    $this->oaTestOaSectionAccess('child space', $child, $space_admin, $space_member, $space_member_2, $non_member, $group_member_only);
+  }
+
+  function test_oa_subspacesSectionAccessGroup() {
+    extract($this->createOaSpaceAndUsers(array('og_user_inheritance' => array(LANGUAGE_NONE => array(0 => array('value' => 1))))));
+    $non_member = $this->drupalCreateUser();
+    $space_member_2 = $this->createUserInOaSpace($space);
+    $group_member_only = $this->drupalCreateNode(array('type' => 'oa_group'));
+    og_group('node', $group_member_only, array('entity' => $space_member));
+
+    // Set up group
+    $group = $this->drupalCreateNode(array('uid' => $space_admin->uid, 'type' => 'oa_group'));
+    og_group('node', $group, array('entity' => $space_member));
+    og_group('node', $group, array('entity' => $space_member_2));
+
+    // Set of group and two level deep group hierarchy.
+    $space_child_of_group = $this->createOaSpace(array('uid' => $space_admin->uid, 'oa_parent_space' => array(LANGUAGE_NONE => array(0 => array('target_id' => $group->nid)))));
+    $space_child_of_space_of_group = $this->createOaSpace(array('uid' => $space_admin->uid, 'oa_parent_space' => array(LANGUAGE_NONE => array(0 => array('target_id' => $space_child_of_group->nid)))));
+
+
+    $this->oaTestOaSectionAccess('child space of group', $space_child_of_group, $space_admin, $space_member, $space_member_2, $non_member,  $group_member_only);
+    $this->oaTestOaSectionAccess('child space of space of group', $space_child_of_space_of_group, $space_admin, $space_member, $space_member_2, $non_member,  $group_member_only);
+  }
+
+  function test_oa_subspacesSectionAccessGroupPrivate() {
+    extract($this->createOaSpaceAndUsers(array('og_user_inheritance' => array(LANGUAGE_NONE => array(0 => array('value' => 1))))));
+    $non_member = $this->drupalCreateUser();
+    $space_member_2 = $this->createUserInOaSpace($space);
+    $group_member_only = $this->drupalCreateNode(array('type' => 'oa_group'));
+    og_group('node', $group_member_only, array('entity' => $space_member));
+
+    // Set of private group and two level deep group hierarchy.
+    $group_private = $this->drupalCreateNode(array('uid' => $space_admin->uid, 'type' => 'oa_group', 'group_access' => array(LANGUAGE_NONE => array(array('value' => 1)))));
+    og_group('node', $group_private, array('entity' => $space_member));
+    og_group('node', $group_private, array('entity' => $space_member_2));
+    $space_child_of_group_private = $this->createOaSpace(array('uid' => $space_admin->uid, 'oa_parent_space' => array(LANGUAGE_NONE => array(0 => array('target_id' => $group_private->nid))), 'group_access' => array(LANGUAGE_NONE => array(array('value' => 1)))));
+    $space_child_of_space_of_group_private = $this->createOaSpace(array('uid' => $space_admin->uid, 'oa_parent_space' => array(LANGUAGE_NONE => array(0 => array('target_id' => $space_child_of_group_private->nid))), 'group_access' => array(LANGUAGE_NONE => array(array('value' => 1)))));
+
+    $this->oaTestOaSectionAccess('child space of private group', $space_child_of_group_private, $space_admin, $space_member, $space_member_2, $non_member,  $group_member_only);
+    $this->oaTestOaSectionAccess('child space of space of private group', $space_child_of_space_of_group_private, $space_admin, $space_member, $space_member_2, $non_member,  $group_member_only);
+  }
+
+}

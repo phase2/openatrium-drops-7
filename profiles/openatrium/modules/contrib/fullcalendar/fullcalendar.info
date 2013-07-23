@@ -1,0 +1,19 @@
+name = FullCalendar
+description = Provides a views style plugin for FullCalendar
+core = 7.x
+package = FullCalendar
+configure = admin/config/user-interface/fullcalendar
+dependencies[] = views
+dependencies[] = date
+dependencies[] = date_views
+
+files[] = includes/views/handlers/fullcalendar_handler_field_gcal.inc
+files[] = includes/views/plugins/fullcalendar_plugin_style_fullcalendar.inc
+
+
+; Information added by drush on 2013-07-20
+version = "7.x-2.0+0-dev"
+core = "7.x"
+project = "fullcalendar"
+datestamp = "1374352303"
+

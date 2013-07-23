@@ -11,18 +11,18 @@
  * Implements hook_schema().
  */
 function pathauto_schema() {
-  $schema['pathauto'] = array(
-    'description' => 'Holds the state of Pathauto\'s setting on any individual entity.',
+  $schema['pathauto_state'] = array(
+    'description' => 'The status of each entity alias (whether it was automatically generated or not).',
     'fields' => array(
       'entity_type' => array(
         'type' => 'varchar',
-        'length' => 128,
+        'length' => 32,
         'not null' => TRUE,
         'description' => 'An entity type.',
       ),
       'entity_id' => array(
-        'type' => 'int',
-        'unsigned' => TRUE,
+        'type' => 'varchar',
+        'length' => 255,
         'not null' => TRUE,
         'description' => 'An entity ID.',
       ),
@@ -39,6 +39,7 @@ function pathauto_schema() {
 
   return $schema;
 }
+
 
 /**
  * Implements hook_install().
@@ -69,6 +70,23 @@ function pathauto_uninstall() {
   // Delete all the pathauto variables and then clear the variable cache.
   db_query("DELETE FROM {variable} WHERE name LIKE 'pathauto_%'");
   cache_clear_all('variables', 'cache');
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function pathauto_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+  if ($phase == 'runtime' && module_exists('pathauto_persist')) {
+    $requirements['pathauto'] = array(
+      'title' => $t('Pathauto Persist'),
+      'value' => $t('Enabled'),
+      'description' => $t('Pathauto Persist is installed and enabled. As Pathauto Persist has been merged into Pathauto, the Pathauto Persist module can be safely disabled and removed. All Pathauto Persist settings have been migrated to the Pathauto implementation.'),
+      'severity' => REQUIREMENT_INFO,
+    );
+  }
+  return $requirements;
 }
 
 /**
@@ -202,87 +220,57 @@ function pathauto_update_7005() {
 }
 
 /**
- * Create the pathauto table for storing path alias status.
+ * Create pathauto table, copying data from pathauto_persist if it exists
  */
-function pathauto_update_7006(&$sandbox) {
-  // Do not recreate if already existing from a D6 site.
-  if (db_table_exists('pathauto')) {
-    return;
-  }
+function pathauto_update_7006() {
+  if (!db_table_exists('pathauto_state')) {
 
-  drupal_load('module', 'pathauto');
-  module_load_include('inc', 'pathauto');
-
-  if (!isset($sandbox['progress'])) {
-    // Initialize the defaults for populating the table with Batch API.
-    $sandbox['progress'] = 0;
-    $sandbox['last_nid_processed'] = 0;
-    $sandbox['max'] = db_query("SELECT COUNT(*) FROM {node}")->fetchField();
-    $sandbox['pathauto_persist'] = FALSE;
-
-    // If the user used Pathauto persist, utilize the existing table.
-    if (db_table_exists('pathauto_persist')) {
-      db_rename_table('pathauto_persist', 'pathauto');
-      module_disable(array('pathauto_persist'));
-      drupal_set_message(t('Pathauto persist has been disabled. This release of Pathauto includes its functionality and the old module may be removed.'));
-      $sandbox['pathauto_persist'] = TRUE;
-    }
-    // Create the new table.
-    else {
-      $table = array(
-        'description' => 'Holds the state of Pathauto\'s setting on any individual entity.',
-        'fields' => array(
-          'entity_type' => array(
-            'type' => 'varchar',
-            'length' => 128,
-            'not null' => TRUE,
-            'description' => 'An entity type.',
-          ),
-          'entity_id' => array(
-            'type' => 'int',
-            'unsigned' => TRUE,
-            'not null' => TRUE,
-            'description' => 'An entity ID.',
-          ),
-          'pathauto' => array(
-            'type' => 'int',
-            'size' => 'tiny',
-            'not null' => TRUE,
-            'default' => 0,
-            'description' => 'The automatic alias status of the entity.',
-          ),
+    $schema['pathauto_state'] = array(
+      'description' => 'The status of each entity alias (whether it was automatically generated or not).',
+      'fields' => array(
+        'entity_type' => array(
+          'type' => 'varchar',
+          'length' => 32,
+          'not null' => TRUE,
+          'description' => 'An entity type.',
         ),
-        'primary key' => array('entity_type', 'entity_id'),
-      );
-      db_create_table('pathauto', $table);
-    }
-  }
+        'entity_id' => array(
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => TRUE,
+          'description' => 'An entity ID.',
+        ),
+        'pathauto' => array(
+          'type' => 'int',
+          'size' => 'tiny',
+          'not null' => TRUE,
+          'default' => 0,
+          'description' => 'The automatic alias status of the entity.',
+        ),
+      ),
+      'primary key' => array('entity_type', 'entity_id'),
+    );
 
-  // Populate the pathauto table 100 nodes at a time.
-  $result = db_query("SELECT nid, type, language FROM {node} WHERE nid > :nid LIMIT 100", array(':nid' => $sandbox['last_nid_processed']))->fetchAllAssoc('nid');
-  foreach ($result as $row) {
-    // Check if this node already has an alias from Pathauto persist.
-    $existing_state = FALSE;
-    if ($sandbox['pathauto_persist']) {
-      $existing_state = db_query('SELECT entity_id FROM {pathauto} WHERE entity_id = :nid', array(':nid' => $row->nid))->fetchField();
+    if (db_table_exists('pathauto_persist')) {
+      // Rename pathauto_persist's table, then create a new empty one just so
+      // that we can cleanly disable that module.
+      db_rename_table('pathauto_persist', 'pathauto_state');
+      db_create_table('pathauto_persist', $schema['pathauto_state']);
+      // Change the entity_id column to varchar because the entity system does
+      // not assume serial or integer IDs (see [#1823494]).
+      db_drop_primary_key('pathauto_state');
+      db_change_field('pathauto_state', 'entity_id', 'entity_id',
+            array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'description' => 'An entity ID.'));
+      db_add_primary_key('pathauto_state', array('entity_type', 'entity_id'));
+      // Disable the module and inform the user.
+      if (module_exists('pathauto_persist')) {
+        module_disable(array('pathauto_persist'));
+      }
+      return t('This version of Pathauto includes the functionality of Pathauto Persist, which has been disabled and can be safely removed. All settings have been copied.');
     }
-    // And check if this node even would have an alias at all.
-    $pattern = pathauto_pattern_load_by_entity('node', $row->type, $row->language);
-    if ($pattern && !$existing_state) {
-      $node = node_load($row->nid);
-      $uri = entity_uri('node', $node);
-      $path = drupal_get_path_alias($uri['path'], $language);
-      $pathauto_alias = pathauto_create_alias('node', 'return', $uri['path'], array('node' => $node), $node->type, $node->language);
-      $node->path['pathauto'] = $path != $uri['path'] && $path == $pathauto_alias;
-      db_query("INSERT INTO {pathauto} (entity_type, entity_id, pathauto) VALUES (:entity_type, :entity_id, :pathauto)", array(':entity_type' => 'node', ':entity_id' => $node->nid, ':pathauto' => $node->path['pathauto']));
+    else {
+      db_create_table('pathauto_state', $schema['pathauto_state']);
     }
-
-    $sandbox['progress']++;
-    $sandbox['last_nid_processed'] = $node->nid;
-  }
-
-  if ($sandbox['max']) {
-    $sandbox['#finished'] = $sandbox['progress'] / $sandbox['max'];
   }
 }
 

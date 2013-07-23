@@ -20,3 +20,11 @@ files[] = tests/media.entity.test
 files[] = tests/media.file.usage.test
 
 configure = admin/config/media/browser
+
+
+; Information added by drush on 2013-07-20
+version = "7.x-2.0-unstable7+38-dev"
+core = "7.x"
+project = "media"
+datestamp = "1374352287"
+

@@ -178,6 +178,20 @@ class PanelizerEntityNode extends PanelizerEntityDefault {
     }
   }
 
+  function render_entity($entity, $view_mode, $langcode = NULL, $args = array(), $address = NULL) {
+    $info = parent::render_entity($entity, $view_mode, $langcode, $args, $address);
+    if (!empty($entity->promote)) {
+      $info['classes_array'][] = 'node-promoted';
+    }
+    if (!empty($entity->sticky)) {
+      $info['classes_array'][] = 'node-sticky';
+    }
+    if (empty($entity->status)) {
+      $info['classes_array'][] = 'node-unpublished';
+    }
+    return $info;
+  }
+
   /**
    * Implements hook_views_plugins_alter().
    */

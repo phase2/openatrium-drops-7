@@ -81,3 +81,15 @@ function panopoly_core_uninstall() {
 function panopoly_core_update_7001(&$sandbox) {
   variable_set('install_task', 'done');
 }
+
+/**
+ * Ensure latest pathauto_update_7006() has run.
+ */
+function panopoly_core_update_7002() {
+  if (function_exists('pathauto_update_7006')) {
+    if (db_table_exists('pathauto')) {
+      db_drop_table('pathauto');
+    }
+    return pathauto_update_7006();
+  }
+}

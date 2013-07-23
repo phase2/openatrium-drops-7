@@ -1,0 +1,138 @@
+<?php
+/**
+ * @file
+ * Code for the Open Atrium Teams feature.
+ */
+
+include_once 'oa_teams.features.inc';
+
+/**
+ * Name of default OpenAtrium Section field (for Organic Groups Fields UI).
+ */
+define('OA_TEAM_USERS_FIELD', 'field_oa_team_users');
+
+/**
+ * Implements hook_ctools_plugin_directory
+ */
+function oa_teams_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'ctools' && $plugin_type == 'content_types') {
+    return 'plugins/content_types';
+  }
+}
+
+/**
+ * Implementation of hook_menu
+ */
+function oa_teams_menu() {
+  $items['group/%/%/remove-team/%/%'] = array(
+    'title' => 'Remove member',
+    'type' => MENU_CALLBACK,
+    'page callback' => 'oa_teams_remove_member_menu',
+    'page arguments' => array(4, 5),
+    'access callback' => 'og_ui_user_access_group',
+    'access arguments' => array('manage members', 1, 2),
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_theme()
+ */
+function oa_teams_theme() {
+  $path = drupal_get_path('module', 'oa_teams') . '/templates';
+  return array(
+    'oa_teams_members' => array(
+      'template'  => 'oa-teams-members',
+      'path' => $path,
+    ),
+  );
+}
+
+/**
+ * Get the listing of teams that are in the specified space, or the current
+ * space is no space is specified.
+ *
+ * @param int $gid
+ *    The space ID
+ */
+function oa_teams_get_teams_for_space($gid = NULL) {
+  if (!isset($gid)) {
+    $gid = oa_core_get_space_context();
+  }
+  $query = db_select('node', 'n');
+  $query->rightJoin('og_membership', 'og', 'n.nid = og.etid');
+  $query->fields('n', array('nid', 'title'))
+      ->condition('n.type', OA_TEAM_TYPE)
+      ->condition('og.entity_type', 'node')
+      ->condition('og.field_name', OA_SPACE_FIELD)
+      ->condition('og.gid', $gid)
+      ->addTag('node_access');
+  return $query->execute()->fetchAllAssoc('nid');
+}
+
+/**
+ * @param $team_id
+ * @return mixed
+ */
+function oa_teams_get_team_members($team_id) {
+  $query = db_select('field_data_' . OA_TEAM_USERS_FIELD, 'f')
+      ->fields('f', array(OA_TEAM_USERS_FIELD . '_target_id'))
+      ->condition('entity_type', 'node')
+      ->condition('entity_id', $team_id)
+      ->condition('deleted', 0);
+  return $query->execute()->fetchAllAssoc(OA_TEAM_USERS_FIELD . '_target_id');
+}
+
+/**
+ * Implements hook_form_alter
+ */
+function oa_teams_form_node_form_alter(&$form, &$form_state, $form_id) {
+  global $user;
+  // we are in an edit form
+  // Add the owner of the team to the user list when first created
+  if (isset($form[OA_TEAM_USERS_FIELD]) &&
+    empty($form[OA_TEAM_USERS_FIELD][LANGUAGE_NONE]['#default_value'])) {
+    $form[OA_TEAM_USERS_FIELD][LANGUAGE_NONE]['#default_value'] = $user->uid;
+  }
+}
+
+/**
+ * Adds a user to a team
+ */
+function oa_teams_add_member($team, $uid) {
+  $account = user_load($uid);
+  $wrapper = entity_metadata_wrapper('node', $team);
+  $users = $wrapper->{OA_TEAM_USERS_FIELD}->value();
+  $users[] = $account;
+  $wrapper->{OA_TEAM_USERS_FIELD}->set($users);
+  $wrapper->save();
+}
+
+/**
+ * Removes a user from a team
+ */
+function oa_teams_remove_member($team, $uid) {
+  $wrapper = entity_metadata_wrapper('node', $team);
+  $users = $wrapper->{OA_TEAM_USERS_FIELD}->value();
+  foreach ($users as $key => $user) {
+    if ($user->uid == $uid) {
+      unset($users[$key]);
+    }
+  }
+  $wrapper->{OA_TEAM_USERS_FIELD}->set($users);
+  $wrapper->save();
+}
+
+/**
+ * Menu callback to remove user from team
+ */
+function oa_teams_remove_member_menu($tid, $uid) {
+  $account = user_load($uid);
+  $team = current(entity_load('node', array($tid)));
+  oa_teams_remove_member($team, $uid);
+  drupal_set_message(t('%user has been removed from the team %title.', array('%user' => format_username($account), '%title' => $team->title)));
+  drupal_goto('node/' . $team->nid);
+  return;
+}
+
+

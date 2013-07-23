@@ -1,0 +1,89 @@
+<?php
+/**
+ * @file
+ * Code for the Open Atrium Event Imports feature.
+ */
+
+include_once 'oa_events_import.features.inc';
+
+
+/**
+ * Implements hook_og_ui_get_group_admin()
+ */
+function oa_events_og_ui_get_group_admin($group_type, $gid) {
+  $items = array();
+  if (og_user_access($group_type, $gid, 'update any oa_ical_importer content')) {
+    $items['ical_feeds'] = array(
+      'title' => t('iCal Imports'),
+      'description' => t('Show iCal feeds being used by this group.'),
+      'href' => 'admin/ical',
+    );
+  }
+
+  return $items;
+}
+
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function oa_events_import_form_oa_ical_importer_node_form_alter(&$form, &$form_state, $form_id) {
+  $form['feeds']['field_basic_file_file'] = $form['field_basic_file_file'];
+  unset($form['field_basic_file_file']);
+  $form['feeds']['FeedsHTTPFetcher']['source']['#required'] = FALSE;
+  $form['#validate'] = array_merge(array('oa_events_import_form_oa_ical_importer_node_form_validate'), $form['#validate']);;
+}
+
+/**
+ * Provides validation for the ical importer node form.
+ */
+function oa_events_import_form_oa_ical_importer_node_form_validate($form, &$form_state) {
+  $fid = empty($form_state['values']['feeds']['field_basic_file_file'][LANGUAGE_NONE][0]['fid']) ? NULL : $form_state['values']['feeds']['field_basic_file_file'][LANGUAGE_NONE][0]['fid'];
+  $url = empty($form_state['values']['feeds']['FeedsHTTPFetcher']['source']) ? NULL : $form_state['values']['feeds']['FeedsHTTPFetcher']['source'];
+
+  if ($fid && $url) {
+    form_set_error('feeds', t('You cannot use both an uploaded file and a feed URL at the same time.'));
+  }
+
+  if (!$fid && !$url) {
+    form_set_error('feeds', t('You must provide and uploaded file or URL.'));
+  }
+
+  if ($fid && !$url) {
+    $file = file_load($fid);
+    $form_state['values']['feeds']['FeedsHTTPFetcher']['source'] = file_create_url($file->uri);
+  }
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function oa_events_import_node_presave($node) {
+  if ($node->type == 'oa_event') {
+    // If the feeds node was just saved Group and Space references won't
+    // properly load without resetting the static cache. So we'll keep our own.
+    $parents = &drupal_static(__FUNCTION__, array());
+
+    if (!empty($node->feeds_item) && isset($node->feeds_item->feed_nid)) {
+
+      $parent_nid = $node->feeds_item->feed_nid;
+      if (!isset($parents[$parent_nid])) {
+        $parent = node_load($node->feeds_item->feed_nid, NULL, TRUE);
+        $parents[$parent_nid] = $parent;
+      }
+      else {
+        $parent = $parents[$parent_nid];
+      }
+
+      drupal_alter('oa_event_create', $node, $parent);
+    }
+  }
+}
+
+/**
+ * Implements hook_oa_event_create().
+ */
+function oa_events_import_oa_event_create_alter($node, $parent) {
+  $node->oa_section_ref = $parent->oa_section_ref;
+  $node->og_group_ref = $parent->og_group_ref;
+}

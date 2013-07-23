@@ -1,0 +1,88 @@
+.oa-event-date-wrapper {
+  height: 70px;
+  width: 70px;
+  margin: 5px;
+  border: 1px solid #AAA;
+  background: #F6F7FC;
+  float: left;
+}
+
+.oa-event-date-month-wrapper {
+  height: 25%;
+  background: #4791FF;
+  margin: 2px;
+}
+
+.oa-event-date-month {
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+  display: block;
+  text-align: center;
+  font-size: 1em;
+  font-weight: bold;
+  color: #FFFFFF;
+}
+
+
+.oa-event-date-day-wrapper {
+  height: 80%;
+}
+
+.oa-event-label {
+  font-weight: bold;
+}
+
+.oa-event-date-day {
+  display: block;
+  padding-top: 20%;
+  font-size: 2.5em;
+  text-align: center;
+}
+
+.oa-event-description .addthisevent-drop {
+  margin: 10px;
+  float: right;
+  position: absolute;
+  right: 0px;
+  top: 0px;
+}
+
+.oa-event-description .flag-subscribe-section-content {
+  display: none;
+}
+
+.oa-event-header .oa-event-icon {
+  float: left;
+  padding-right: 10px;
+}
+
+.oa-event-header .location {
+  padding-top: 20px;
+}
+
+.oa-event-details {
+  overflow: hidden;
+}
+
+.oa-event-description ul,
+.oa-event-list li {
+  list-style: none;
+}
+.view-oa-event-list li {
+  overflow: hidden;
+  clear: both;
+}
+
+.view .date-nav-wrapper .date-prev,
+.view .date-nav-wrapper .date-next {
+  background: #FFFFFF;
+}
+.view .date-nav-wrapper .date-prev {
+  right: 80px;
+}
+
+.fc td.fc-other-month {
+  background: #F7F7F7;
+}
+

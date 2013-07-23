@@ -252,6 +252,12 @@
      -moz-box-shadow: $shadow;
           box-shadow: $shadow;
 }
+@mixin clear-shadow() {
+  -webkit-box-shadow: none;
+     -moz-box-shadow: none;
+         text-shadow: none;
+          box-shadow: none;
+}
 
 // Transitions
 @mixin transition($transition...) {

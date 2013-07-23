@@ -34,12 +34,28 @@
 
 Drupal.behaviors.CToolsAutoSubmit = {
   attach: function(context) {
-    // 'this' references the form element
-    function triggerSubmit (e) {
+    var last_keystroke_time = new Date().getTime();;
+    /**
+     * This submits the form if within the last second it has remained the same.
+     * If it has changed, it sets it to check again within the next second.
+     */
+    function triggerSubmitIfUnchanged (serialized_form, current_keystroke_time) {
+      // 'this' references the form element for both functions.
       var $this = $(this);
-      if (!$this.hasClass('ctools-ajaxing')) {
+      if ($this.hasClass('ctools-ajaxing')) {
+        return;
+      }
+      var new_serialization_form = $this.serialize();
+      if (new_serialization_form == serialized_form && last_keystroke_time == current_keystroke_time) {
         $this.find('.ctools-auto-submit-click').click();
       }
+      else {
+        // Increase timeout as the user is active in the form.
+        setTimeout($.proxy(triggerSubmitIfUnchanged, this, new_serialization_form, last_keystroke_time), 1000);
+      }
+    }
+    function triggerSubmit () {
+      setTimeout($.proxy(triggerSubmitIfUnchanged, this, $(this).serialize(), last_keystroke_time), 1000);
     }
 
     // the change event bubbles so we only need to bind it to the outer form
@@ -50,6 +66,7 @@ Drupal.behaviors.CToolsAutoSubmit = {
       .change(function (e) {
         // don't trigger on text change for full-form
         if ($(e.target).is(':not(:text, :submit, .ctools-auto-submit-exclude)')) {
+          last_keystroke_time = new Date().getTime();;
           triggerSubmit.call(e.target.form);
         }
       });
@@ -80,16 +97,19 @@ Drupal.behaviors.CToolsAutoSubmit = {
         var timeoutID = 0;
         $(this)
           .bind('keydown keyup', function (e) {
+            last_keystroke_time = new Date().getTime();;
             if ($.inArray(e.keyCode, discardKeyCode) === -1) {
               timeoutID && clearTimeout(timeoutID);
             }
           })
           .keyup(function(e) {
+            last_keystroke_time = new Date().getTime();;
             if ($.inArray(e.keyCode, discardKeyCode) === -1) {
               timeoutID = setTimeout($.proxy(triggerSubmit, this.form), 500);
             }
           })
           .bind('change', function (e) {
+            last_keystroke_time = new Date().getTime();;
             if ($.inArray(e.keyCode, discardKeyCode) === -1) {
               timeoutID = setTimeout($.proxy(triggerSubmit, this.form), 500);
             }

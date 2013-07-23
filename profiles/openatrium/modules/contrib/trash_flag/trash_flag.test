@@ -1,0 +1,67 @@
+<?php
+
+/**
+ * @file
+ * Provides a base unit test class.
+ */
+
+abstract class trash_flag_trashytests_base extends DrupalWebTestCase {
+  /**
+   * One using of this function is to enable the module used for testing, any dependencies
+   * or anything else that might be universal for all tests
+   */
+  public function setUp() {
+    parent::setUp(array('node', 'flag', 'trash_flag'));
+    $types = node_type_get_names();
+    if (empty($types['article'])) {
+      $this->drupalCreateContentType(array('type' => 'article', 'name' => 'Article'));
+    }
+  }
+}
+
+class trash_flag_trashytests_simple_test extends trash_flag_trashytests_base {
+  static function getInfo() {
+    return array(
+      'name' => 'Trash Flag Permission Test',
+      'description' => 'Tests that permissions work',
+      'group' => 'Trash test',
+    );
+  }
+
+  /**
+   * Test skipping OgBehaviorHandler.
+   */
+  function testFlagTrashAccess() {
+    $account_no_permission = $this->drupalCreateUser(array());
+    $account_trash_own = $this->drupalCreateUser(array('trash own article content'));
+    $account_trash_any = $this->drupalCreateUser(array('trash any article content'));
+    $account_view_trash = $this->drupalCreateUser(array("view trash content"));
+    $account_untrash = $this->drupalCreateUser(array("view trash content", "untrash any content"));
+
+    $node_normal = $this->drupalCreateNode(array('type' => 'article'));
+    $node_account_trash_own = $this->drupalCreateNode(array('type' => 'article', 'uid' => $account_trash_own->uid));
+    $flag = flag_load('trash');
+    $this->assertFalse($flag->is_flagged($node_normal->nid), t('Node is not trashed'));
+    $this->assertFalse($flag->is_flagged($node_account_trash_own->nid), t('Node own is not trashed'));
+    flag('flag', 'trash', $node_normal->nid, $account_trash_own);
+    flag('flag', 'trash', $node_normal->nid, $account_no_permission);
+    $this->assertFalse($flag->is_flagged($node_normal->nid), t('Node is still not trashed after user without permission tries trashing it'));
+    flag('flag', 'trash', $node_normal->nid, $account_trash_any);
+    $this->assertTrue($flag->is_flagged($node_normal->nid), t('Node is finally trashed after user with permission trashes it'));
+    flag('flag', 'trash', $node_account_trash_own->nid, $account_trash_own);
+    $this->assertTrue($flag->is_flagged($node_account_trash_own->nid), t('Node is trashed after user with own permission trashes own node'));
+    $this->assertFalse(node_access('view', $node_normal, $account_no_permission), t('User without permission cannot view trashed node.'));
+    $this->assertFalse(node_access('view', $node_normal, $account_trash_own), t('User without permission cannot view trashed node.'));
+    $this->assertFalse(node_access('view', $node_normal, $account_trash_any), t('User without permission cannot view trashed node.'));
+    $this->assertTrue(node_access('view', $node_normal, $account_view_trash), t('User with permission can view trashed node.'));
+    $this->assertTrue(node_access('view', $node_normal, $account_untrash), t('User with permission can view trashed node.'));
+    flag('unflag', 'trash', $node_normal->nid, $account_trash_any);
+    $this->assertTrue($flag->is_flagged($node_normal->nid), t('Node is still trashed after user with/o permission removes it from trash.'));
+    flag('unflag', 'trash', $node_account_trash_own->nid, $account_trash_own);
+    $this->assertTrue($flag->is_flagged($node_account_trash_own->nid), t('Node is still trashed after user with/o permission removes it from trash.'));
+    flag('unflag', 'trash', $node_normal->nid, $account_view_trash);
+    $this->assertTrue($flag->is_flagged($node_normal->nid), t('Node is still trashed after user with/o permission removes it from trash.'));
+    flag('unflag', 'trash', $node_normal->nid, $account_untrash);
+    $this->assertFalse($flag->is_flagged($node_normal->nid), t('Node is still untrashed after user with permission removes it from trash.'));
+  }
+}

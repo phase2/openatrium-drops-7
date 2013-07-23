@@ -1,0 +1,465 @@
+<?php
+
+/**
+ * @file
+ * Provides an API to match selectors with a color configuration.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function colors_menu() {
+  $items = array();
+
+  $base = array(
+    'file' => 'colors.admin.inc',
+    'file path' => drupal_get_path('module', 'colors') . '/includes',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('colors_admin_settings'),
+    'access arguments' => array('administer site configuration'),
+  );
+
+  $items['admin/config/user-interface/colors'] = array(
+    'title' => 'Colors',
+    'description' => 'Adjust Colors settings.',
+    'type' => MENU_NORMAL_ITEM,
+  ) + $base;
+
+  $items['admin/config/user-interface/colors/settings'] = array(
+    'title' => 'Settings',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  ) + $base;
+
+  // Create a local task for each plugin.
+  colors_include_api();
+  foreach (module_implements('colors_info') as $module) {
+    // Because a module can provide more than one color type, the first becomes
+    // the default, and the rest are secondary tabs.
+    $first = TRUE;
+    foreach (module_invoke($module, 'colors_info') as $type => $info) {
+      if ($first) {
+        $items["admin/config/user-interface/colors/$module"] = array(
+          'title' => drupal_ucfirst($module),
+          'page arguments' => array('colors_generate_settings_form', $type),
+          'type' => MENU_LOCAL_TASK,
+        ) + $base;
+      }
+
+      $items["admin/config/user-interface/colors/$module/$type"] = array(
+        'title' => $info['title'],
+        'page arguments' => array('colors_generate_settings_form', $type),
+        'type' => $first ? MENU_DEFAULT_LOCAL_TASK : MENU_LOCAL_TASK,
+      ) + $base;
+
+      $first = FALSE;
+    }
+  }
+
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function colors_theme() {
+  return array(
+    'colors_admin_settings' => array(
+      'render element' => 'form',
+      'file' => 'includes/colors.admin.inc',
+    ),
+  );
+}
+
+/**
+ * Implements hook_help().
+ */
+function colors_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#colors':
+      return '<p>' . t('You can configure colors for your events based on taxonomy terms, node types, etc. on the <a href="@link">Colors administration page</a>.', array('@link' => '/admin/config/user-interface/colors')) . '</p>';
+      break;
+  }
+}
+
+/**
+ * Includes all Colors API plugins.
+ */
+function colors_include_api() {
+  ctools_include('plugins');
+  return ctools_plugin_api_include('colors', 'colors', colors_api_version(), colors_api_minimum_version());
+}
+
+/**
+ * Implements hook_ctools_plugin_api_hook_name().
+ */
+function colors_ctools_plugin_api_hook_name() {
+  return 'colors_api';
+}
+
+/**
+ * Implements hook_colors_api().
+ */
+function colors_colors_api() {
+  return array(
+    'api' => colors_api_version(),
+    'path' => drupal_get_path('module', 'colors') . '/includes',
+  );
+}
+
+/**
+ * Declares the current Colors API version.
+ */
+function colors_api_version() {
+  return '1';
+}
+
+/**
+ * Declares the minimum Colors API version.
+ */
+function colors_api_minimum_version() {
+  return '1';
+}
+
+/**
+ * Gets an array of all the selectors.
+ *
+ * @return
+ *   Array containing all the selectors.
+ */
+function colors_get_selectors() {
+  return db_select('colors', 'c')
+    ->fields('c', array('selector'))
+    ->execute()
+    ->fetchAllAssoc('selector', PDO::FETCH_ASSOC);
+}
+
+/**
+ * Gets the color of a given selector.
+ *
+ * @param $selector
+ *   The name of the selector.
+ * @param $module
+ *   The name of the module.
+ * @param $default
+ *   If this function is being called for the default selector.
+ *
+ * @return
+ *   Color configuration for the giving selector, or the default.
+ */
+function colors_get_colors($selector, $module = 'colors', $default = FALSE) {
+  $result = db_select('colors', 'c')
+    ->fields('c', array('color'))
+    ->condition('selector', $selector)
+    ->execute()
+    ->fetchField();
+
+  if (!empty($result)) {
+    return unserialize($result);
+  }
+
+  if (!$default) {
+    return colors_get_colors($module . '_default', $module, TRUE);
+  }
+}
+
+/**
+ * Checks if there is a color configuration for this selector.
+ *
+ * @param $selector
+ *   The name of the selector.
+ *
+ * @return
+ *   TRUE if the selector has a color configuration
+ *   FALSE if the selector doesn't have a color configuration
+ */
+function colors_colors_exist($selector) {
+  $result = db_select('colors', 'c')
+    ->fields('c', array('color'))
+    ->condition('selector', $selector)
+    ->execute()
+    ->fetchField();
+
+  return (!empty($result));
+}
+
+/**
+ * Gets all the color configurations of a given module.
+ *
+ * @param $module
+ *   The name of the given module.
+ *
+ * @return
+ *   Color configuration for the selectors created by the given module.
+ */
+function colors_get_module_colors($module) {
+  return array_map('unserialize',
+    db_select('colors', 'c')
+      ->fields('c', array('selector', 'color'))
+      ->condition('module', $module)
+      ->execute()
+      ->fetchAllKeyed()
+  );
+}
+
+/**
+ * Sets the color configuration for a given selector.
+ *
+ * @param $selector
+ *   The name of the selector.
+ * @param $color
+ *   The updated color configuration.
+ */
+function colors_set_colors($selector, $color, $module = 'colors') {
+  db_merge('colors')
+    ->key(array('selector' => $selector))
+    ->fields(array(
+      'color' => serialize($color),
+      'module' => $module,
+    ))
+    ->execute();
+}
+
+/**
+ * Deletes a selector.
+ *
+ * @param $selector
+ *   The selector to remove.
+ */
+function colors_delete_selector($selector) {
+  db_delete('colors')
+    ->condition('selector', $selector)
+    ->execute();
+}
+
+/**
+ * Deletes all the selectors from a specfic module.
+ *
+ * @param $module
+ *   The module the selectors should be removed from.
+ */
+function colors_delete_selectors($module) {
+  db_delete('colors')
+    ->condition('module', $module)
+    ->execute();
+}
+
+/**
+ * Renames a given selector.
+ *
+ * @param $oldselector
+ *   The name of the given selector.
+ * @param $newselector
+ *   The new name for the selector.
+ */
+function colors_rename_selector($old_selector, $new_selector) {
+  db_update('colors')
+    ->fields(array(
+      'selector' => $new_selector,
+    ))
+    ->condition('selector', $old_selector)
+    ->execute();
+}
+
+/**
+ * Gets all the color options.
+ *
+ * @return
+ *   Array containing all the possible colorable features.
+ */
+function colors_get_color_options($module = 'colors') {
+  return array_keys(colors_invoke($module, 'colors_get_color_mapping'));
+}
+
+/**
+ * Implements hook_colors_get_color_mapping().
+ *
+ * Gets the color configuration mapping.
+ *
+ * @return
+ *   Mapping between the colorable features and the CSS input.
+ */
+function colors_colors_get_color_mapping() {
+  return array(
+    'background' => 'background-color',
+    'text' =>  'color',
+    'border' => 'border-color',
+  );
+}
+
+/**
+ * Retrieves or generates a CSS file with a given module's selector.
+ *
+ * @param string $caller
+ *   A module that implements hook_colors_build_selector().
+ *
+ * @return string
+ *   The filename of the generated CSS.
+ */
+function colors_create_css($caller) {
+  ctools_include('css');
+  $filename = ctools_css_retrieve($caller . ':colors');
+  if (!$filename) {
+    colors_include_api();
+    $css = array();
+    $delta = 0;
+    foreach (module_invoke_all('colors_info') as $module => $info) {
+      if (!variable_get('colors_' . $module . '_enabled', FALSE)) {
+        continue;
+      }
+      $weight = variable_get('colors_weight_' . $module, $delta - 100);
+      if (!isset($css[$weight])) {
+        $css[$weight] = '';
+      }
+      foreach (colors_get_module_colors($module) as $selector => $colors) {
+        $css[$weight] .= colors_build_css($selector, $colors, $caller);
+      }
+      $delta++;
+    }
+    ksort($css);
+    $filename = ctools_css_store($caller . ':colors', implode("\n", $css));
+  }
+  return $filename;
+}
+
+/**
+ * Builds a CSS string based on a selector and a color configuration.
+ *
+ * @param $selector
+ *   The selector used to build the CSS string.
+ * @param $colors
+ *   The color configuration used to build the CSS string.
+ *
+ * @return
+ *   The constructed CSS string.
+ */
+function colors_build_css($selector, $colors, $module = 'colors', $default_colors = array()) {
+  // Fetch color mapping.
+  $color_mapping = colors_invoke($module, 'colors_get_color_mapping');
+
+  if (empty($colors)) {
+    if (empty($default_colors)) {
+      return;
+    }
+    $colors = $default_colors;
+  }
+
+  // Rewrite the selector if needed
+  $css = colors_invoke($module, 'colors_build_selector', drupal_html_class($selector));
+  $css .= ' {';
+  foreach ($colors as $option => $color) {
+    $css .= $color_mapping[$option] . ': ' . $color . ';';
+  }
+  $css .= ' } ';
+
+  return $css;
+}
+
+/**
+ * Implements hook_colors_build_selector().
+ *
+ * Builds a selector string.
+ *
+ * @param $class
+ *   Class name used for the new selector string.
+ *
+ * @return
+ *   The built selector.
+ */
+function colors_colors_build_selector($class) {
+  return $class;
+}
+
+/**
+ * Loads a farbtastic colorpicker.
+ */
+function colors_load_colorpicker() {
+  // JS for our Farbtastic integration.
+  ctools_add_js('colors.admin', 'colors');
+  // CSS and JS for Farbtastic color picker.
+  drupal_add_library('system', 'farbtastic');
+
+  return array(
+    'color_picker' => array(
+      '#prefix' => '<div id="colors-colorpicker">',
+      '#suffix' => '</div>',
+    ),
+  );
+}
+
+/**
+ * Wrapper function for module_invoke() providing a fallback.
+ *
+ * @param $module
+ *   The name of the module.
+ * @param $hook
+ *   The name of the hook to invoke.
+ *
+ * @return
+ *   The return value of the hook implementation.
+ */
+function colors_invoke($module, $hook) {
+  $args = func_get_args();
+  if ($module != 'colors' && !module_hook($module, $hook)) {
+    $args[0] = 'colors';
+  }
+  return call_user_func_array('module_invoke', $args);
+}
+
+/**
+ * Removes the generated CSS file, optionally recreating it.
+ */
+function colors_css_clear() {
+  ctools_include('css');
+  foreach (module_implements('colors_rebuild') as $module) {
+    ctools_css_clear($module . ':colors');
+    if (module_invoke($module, 'colors_rebuild')) {
+      colors_create_css($module);
+    }
+  }
+}
+
+/**
+ * Wrapper function for colors_set_colors()
+ *
+ * @todo Remove when border and color are exposed.
+ */
+function _colors_set_colors($classes, $module = 'colors', $background = '#000000', $border = '#000000', $text = '#ffffff') {
+  $border = $background;
+  $colors = array(
+    'background' => $background,
+    'border' => $border,
+    'text' => $text,
+  );
+  colors_set_colors($classes, $colors, $module);
+}
+
+if (module_exists('node') && !function_exists('node_colors_api')) {
+  function node_colors_api() {
+    return colors_colors_api();
+  }
+}
+
+if (module_exists('user') && !function_exists('user_colors_api')) {
+  function user_colors_api() {
+    return colors_colors_api();
+  }
+}
+
+if (module_exists('taxonomy') && !function_exists('taxonomy_colors_api')) {
+  function taxonomy_colors_api() {
+    return colors_colors_api();
+  }
+}
+
+if (module_exists('og') && !function_exists('og_colors_api')) {
+  function og_colors_api() {
+    return colors_colors_api();
+  }
+}
+
+if (module_exists('field_collection') && !function_exists('field_collection_colors_api')) {
+  function field_collection_colors_api() {
+    return colors_colors_api();
+  }
+}

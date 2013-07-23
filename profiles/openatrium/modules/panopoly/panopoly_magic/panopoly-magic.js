@@ -27,6 +27,14 @@
    */
   Drupal.behaviors.panopolyMagicAutosubmit = {
     attach: function (context, settings) {
+      // Replaces click with mousedown for submit so both normal and ajax work.
+      $('.ctools-auto-submit-click', context).click(function(event) {
+        if ($(this).hasClass('ajax-processed')) {
+          event.stopImmediatePropagation();
+          $(this).trigger('mousedown');
+          return false;
+        }
+      });
       // 'this' references the form element
       function triggerSubmit (e) {
         var $this = $(this);

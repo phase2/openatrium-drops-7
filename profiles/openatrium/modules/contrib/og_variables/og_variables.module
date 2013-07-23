@@ -1,0 +1,106 @@
+<?php
+
+/**
+ * @file
+ * Per space management of variables.
+ */
+
+/**
+ * Implement hook_init().
+ */
+function og_variables_init() {
+  if (og_context()) {
+    variable_realm_initialize('og');
+  }
+}
+
+/**
+ * Implements hook_variable_realm_info().
+ */
+function og_variables_variable_realm_info() {
+  $realm['og'] = array(
+    'title' => t('Organic Group'),
+    'weight' => 200,
+    'controller class' => 'OgVariableRealm',
+    'store class' => 'VariableStoreRealmStoreDefaultGlobal',
+    // Name for variables that belong to this realm: 'multilingual' variable/s
+    'variable name' => t('group'),
+    'variable class' => 'og-variable',
+    // Automatically handle these variables in system settings forms.
+    'select' => TRUE,
+  );
+  return $realm;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function og_variables_menu() {
+  $items = array();
+
+  $items['admin/config/group/variable'] = array(
+    'title' => 'OG Variables',
+    'description' => 'Configure variables for use within organic groups.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('variable_realm_select_variables_form', 'og'),
+    'access arguments' => array('administer group'),
+    'file' => 'variable_realm.form.inc',
+    'file path' => drupal_get_path('module', 'variable_realm'),
+  );
+
+  $items['group/%/%/admin/variables'] = array(
+    'title callback' => 'og_ui_menu_title_callback',
+    'title arguments' => array('Variables for group @group', 1, 2),
+    'description' => 'Override variables for a space.',
+    'page callback' => 'og_variables_variable_edit_form',
+    'page arguments' => array(1, 2),
+    'access callback' => 'og_ui_user_access_group',
+    'access arguments' => array('manage variables', 1, 2),
+    'weight' => -8,
+    'file' => 'variable_realm.form.inc',
+    'file path' => drupal_get_path('module', 'variable_realm'),
+  );
+
+  return $items;
+}
+
+/**
+ * OG variables edit variable form.
+ */
+function og_variables_variable_edit_form($entity_type, $entity_id) {
+  return drupal_get_form('variable_realm_edit_variables_form', 'og', $entity_type . '_' . $entity_id);
+}
+
+/**
+ * Implement hook_og_permission().
+ */
+function og_variables_og_permission() {
+  $items = array();
+
+  $items['manage variables'] = array(
+    'title' => t('Manage variables'),
+    'description' => t('Manage variable overrides for this group.'),
+    'default role' => array(OG_ADMINISTRATOR_ROLE),
+    'restrict access' => TRUE,
+  );
+
+  return $items;
+}
+
+
+/**
+ * Implements hook_og_ui_get_group_admin()
+ */
+function og_variables_og_ui_get_group_admin($group_type, $gid) {
+  $items = array();
+
+  if (og_user_access($group_type, $gid, 'manage variables')) {
+    $items['manage_variables'] = array(
+      'title' => t('Variables'),
+      'description' => t('Manage variable overrides'),
+      'href' => 'admin/variables',
+    );
+  }
+
+  return $items;
+}

@@ -1,0 +1,44 @@
+name = Open Atrium Buttons
+description = Provide command button customizations for Open Atrium
+core = 7.x
+package = Open Atrium
+php = 5.2.4
+version = 7.x-2.0
+project = oa_buttons
+dependencies[] = command_buttons
+dependencies[] = conditional_fields
+dependencies[] = ctools
+dependencies[] = features
+dependencies[] = list
+dependencies[] = oa_section_context
+dependencies[] = options
+dependencies[] = taxonomy
+features[conditional_fields][] = node:oa_section
+features[conditional_fields][] = node:oa_space
+features[ctools][] = field_group:field_group:1
+features[features_api][] = api:2
+features[field_base][] = field_oa_node_types
+features[field_base][] = field_oa_section
+features[field_base][] = field_oa_section_layout
+features[field_base][] = field_oa_section_override
+features[field_base][] = field_oa_space_type
+features[field_instance][] = node-oa_section-field_oa_node_types
+features[field_instance][] = node-oa_section-field_oa_section
+features[field_instance][] = node-oa_section-field_oa_section_override
+features[field_instance][] = node-oa_space-field_oa_node_types
+features[field_instance][] = node-oa_space-field_oa_section_override
+features[field_instance][] = node-oa_space-field_oa_space_type
+features[field_instance][] = taxonomy_term-section_type-field_oa_node_types
+features[field_instance][] = taxonomy_term-section_type-field_oa_section_layout
+features[field_instance][] = taxonomy_term-space_type-field_oa_node_types
+features[field_instance][] = taxonomy_term-space_type-field_oa_section_layout
+features[taxonomy][] = section_type
+features[taxonomy][] = space_type
+
+
+; Information added by drush on 2013-07-20
+version = "7.x-2.0-beta1+0-dev"
+core = "7.x"
+project = "oa_core"
+datestamp = "1374352301"
+

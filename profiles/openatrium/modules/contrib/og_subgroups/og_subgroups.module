@@ -12,6 +12,10 @@ require drupal_get_path('module', 'og_subgroups') . '/og_subgroups.common.inc';
  * Group default roles and permissions field.
  */
 define('OG_USER_INHERITANCE_FIELD', 'og_user_inheritance');
+define('OG_USER_INHERITANCE_PERMISSION_FIELD', 'og_user_permission_inheritance');
+define('OG_USER_INHERITANCE_PERMISSION_INHERIT', 0);
+define('OG_USER_INHERITANCE_PERMISSION_CHILD', 1);
+
 
 /**
  * Implements hook_og_fields_info().
@@ -49,7 +53,45 @@ function og_subgroups_og_fields_info() {
       ),
     ),
   );
+  $items[OG_USER_INHERITANCE_PERMISSION_FIELD] = array(
+    'type' => array('group'),
+    'description' => t('Determines how permissions are given for inherited for inherited users.'),
+    'entity' => array('node'),
+    'field' => array(
+      'field_name' => OG_USER_INHERITANCE_PERMISSION_CHILD,
+      'no_ui' => TRUE,
+      'type' => 'list_boolean',
+      'cardinality' => 1,
+      'settings' => array(
+        'allowed_values' => array(),
+        'allowed_values_function' => 'og_subgroups_og_user_inhertiance_permission_allowed_values',
+      ),
+    ),
+    'instance' => array(
+      'label' => t('Group user permission inheritance'),
+      'required' => TRUE,
+      'default_value' => array(0 => array('value' => OG_USER_INHERITANCE_PERMISSION_INHERIT)),
+      'widget_type' => 'options_select',
+      'view modes' => array(
+        'full' => array(
+          'label' => 'above',
+          'type' => 'options_onoff',
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'type' => 'options_onoff',
+        ),
+      ),
+    ),
+  );
   return $items;
+}
+
+function og_subgroups_og_user_inhertiance_permission_allowed_values() {
+  return array(
+    OG_USER_INHERITANCE_PERMISSION_INHERIT => t('Inherit Permissions - inherited users will also same permissions as this group'),
+    OG_USER_INHERITANCE_PERMISSION_CHILD => t("Child's permissions - inherited users will have child group's default member permission."),
+  );
 }
 
 /**
@@ -62,22 +104,27 @@ function og_subgroups_views_api() {
 }
 
 /**
+ * Implements hook_og_user_access_alter().
+ */
+function og_subgroups_og_get_groups_by_user_alter(&$og_memberships, $account) {
+  $og_memberships = og_subgroups_children_load_multiple($og_memberships);
+}
+
+/**
  * Implements hook_node_grants().
  */
 function og_subgroups_node_grants($account, $op) {
   if ($op != 'view') {
     return;
   }
-  $groups = _og_subgroup_get_user_inherited_groups($account);
+  $grants = array();
+  $groups = og_subgroup_user_groups_load($account);
   if (!empty($groups)) {
     foreach ($groups as $group_type => $gids) {
-      foreach (array_keys($gids) as $gid) {
-        $realm = OG_ACCESS_REALM . ':' . $group_type;
-        $grants[$realm][] = $gid;
-      }
+      $grants[OG_ACCESS_REALM . ':' . $group_type] = $gids;
     }
   }
-  return !empty($grants) ? $grants : array();
+  return $grants;
 }
 
 /**
@@ -94,25 +141,161 @@ function og_subgroups_og_user_access_alter(&$perms, $context) {
   $group_type = $context['group_type'];
   $group = $context['group'];
   list($id) = entity_extract_ids($group_type, $group);
-  $parent_groups = _og_subgroups_get_unique_parents($group_type, $id);
-  if (!empty($parent_groups)) {
-    foreach ($parent_groups as $parent_group) {
-      // Recursion is prevented by $skip_alter = TRUE.
-      if (og_user_access($parent_group['type'], $parent_group['id'], $context['string'], $context['account'], TRUE)) {
-        $perms[$context['string']] = TRUE;
-        break;
+
+  // Find the parents the current user is part of
+  _og_subgroups_check_access($perms, $context, $group_type, $id, og_subgroup_user_groups_load($context['account'], FALSE), TRUE);
+}
+
+/**
+ * Check access for this group's parents.
+ */
+function _og_subgroups_check_access(&$perms, $context, $group_type, $id, $user_groups, $check_member_access = FALSE) {
+  // Check only one level at a time due to permission inheritance field.
+  if ($parent_groups = og_subgroups_intersect_groups(og_subgroups_parents_load($group_type, $id, TRUE, FALSE), $user_groups)) {
+    foreach ($parent_groups as $parent_group_type => $ids) {
+      foreach ($ids as $parent_group_id) {
+        // Since og_user_access is usually going to do a entity_load_single
+        // it will have minimal impact to do it here.
+        $wrapper = entity_metadata_wrapper($parent_group_type, $parent_group_id);
+        $perm_inhertance_setting = empty($wrapper->{OG_USER_INHERITANCE_PERMISSION_FIELD}) ? 0 : $wrapper->{OG_USER_INHERITANCE_PERMISSION_FIELD}->value();
+        if ($perm_inhertance_setting == OG_USER_INHERITANCE_PERMISSION_INHERIT) {
+          if (og_user_access($parent_group_type, $parent_group_id, $context['string'], $context['account'], TRUE)) {
+            $perms[$context['string']] = TRUE;
+            return;
+          }
+          // Check inherited access for the parents.
+          _og_subgroups_check_access($perms, $context, $parent_group_type, $parent_group_id, $user_groups);
+          // Skip out if permission has been set.
+          if (!empty($perms[$context['string']])) {
+            return;
+          }
+        }
+        elseif ($check_member_access && $perm_inhertance_setting == OG_USER_INHERITANCE_PERMISSION_CHILD) {
+          // Checks that user has member access to the currentgroup.
+          if (og_subgroups_check_member_user_access($group_type, $id, $context['string'])) {
+            $perms[$context['string']] = TRUE;
+            return;
+          }
+          $check_member_access = FALSE;
+        }
       }
     }
   }
 }
 
 /**
- * Implements hook_og_user_access_alter().
+ * Checks what access a 'member' of a given group has.
  */
-function og_subgroups_og_get_groups_by_user_alter(&$og_memberships, $account) {
-  foreach (_og_subgroup_get_user_inherited_groups($account) as $group_type => $nids) {
-    foreach (array_keys($nids) as $nid) {
-      $og_memberships[$group_type][$nid] = $nid;
+function og_subgroups_check_member_user_access($group_type, $gid, $string) {
+  global $user;
+  $perm = &drupal_static(__FUNCTION__, array());
+
+  $identifier = $group_type . ':' . $gid;
+  if (!isset($perm[$identifier])) {
+    $group = entity_load_single($group_type, $gid);
+    $query_gid = og_is_group_default_access($group_type, $gid) ? 0 : $gid;
+    // Get the bundle of the group.
+    list($id, $vid, $bundle) = entity_extract_ids($group_type, $group);
+    // Grab the default rid for authenticate role for this group.
+    $rids = db_select('og_role', 'ogr')
+      ->fields('ogr', array('rid', 'name'))
+      ->condition('group_type', $group_type, '=')
+      ->condition('group_bundle', $bundle, '=')
+      ->condition('gid', $query_gid, '=')
+      ->condition('name', OG_AUTHENTICATED_ROLE, '=')
+      ->execute()
+      ->fetchAllkeyed();
+    $perm[$identifier] = current(og_role_permissions($rids));
+  }
+
+  return !empty($perm[$identifier][$string]) || !empty($perm[$identifier]['administer group']);
+}
+
+
+/**
+ * Implements hook_og_membership_insert().
+ */
+function og_subgroups_og_membership_insert(OgMembership $og_membership) {
+  $fields = variable_get('og_subgroups_default_fields_' . $og_membership->entity_type, array());
+  if (in_array($og_membership->field_name, $fields)) {
+    og_subgroups_clear_caches_for_group($og_membership->entity_type, $og_membership->etid);
+    og_subgroups_clear_caches_for_group($og_membership->group_type, $og_membership->gid);
+  }
+}
+/**
+ * Implements hook_og_membership_update().
+ */
+function og_subgroups_og_membership_update(OgMembership $og_membership) {
+  og_subgroups_og_membership_insert($og_membership);
+}
+
+/**
+ * Implements hook_og_membership_delete().
+ */
+function og_subgroups_og_membership_delete(OgMembership $og_membership) {
+  og_subgroups_og_membership_insert($og_membership);
+}
+
+/**
+ * Clears out the caches for a given group.
+ */
+function og_subgroups_clear_caches_for_group($group_type, $group_id) {
+  _og_subgroups_clear_caches_for_group($group_type, $group_id);
+  // Get only the immediate parents, who's child caches will contain this node.
+  foreach (og_subgroups_parents_load($group_type, $group_id, FALSE, TRUE) as $group_type => $group_ids) {
+    foreach ($group_ids as $group_id) {
+      _og_subgroups_clear_caches_for_group($group_type, $group_id);
     }
   }
+}
+
+/**
+ * Helper function.
+ *
+ * @see og_subgroups_clear_caches_for_group().
+ */
+function _og_subgroups_clear_caches_for_group($group_type, $group_id) {
+  // Don't bother clearing for user, not currently working for og subgroups.
+  if ($group_type == 'user') {
+    return;
+  }
+  $group_cache = &drupal_static(__FUNCTION__, array());
+  $clear = array(
+    'og_subgroups_parents_load' => array(
+      $group_type . '__' . $group_id . '__1__1__1',
+      $group_type . '__' . $group_id . '__1__0__1',
+      $group_type . '__' . $group_id . '__1__1__0',
+      $group_type . '__' . $group_id . '__1__0__0',
+      $group_type . '__' . $group_id . '__0__1__1',
+      $group_type . '__' . $group_id . '__0__0__1',
+      $group_type . '__' . $group_id . '__0__1__0',
+      $group_type . '__' . $group_id . '__0__0__0',
+    ),
+    'og_subgroups_children_load' => array(
+      $group_type . '__' . $group_id . '__1__1__1',
+      $group_type . '__' . $group_id . '__1__0__1',
+      $group_type . '__' . $group_id . '__1__1__0',
+      $group_type . '__' . $group_id . '__1__0__0',
+      $group_type . '__' . $group_id . '__0__1__1',
+      $group_type . '__' . $group_id . '__0__0__1',
+      $group_type . '__' . $group_id . '__0__1__0',
+      $group_type . '__' . $group_id . '__0__0__0',
+    ),
+    'og_subgroups_parents_load_multiple' => array(
+      'og_subgroups_parents_load_multiple__' . $group_type . '__' . $group_id . '__all',
+      'og_subgroups_parents_load_multiple__' . $group_type . '__' . $group_id . '__filtered',
+    ),
+    'og_subgroups_children_load_multiple' => array(
+      'og_subgroups_children_load_multiple__' . $group_type . '__' . $group_id . '__all',
+      'og_subgroups_children_load_multiple__' . $group_type . '__' . $group_id . '__filtered',
+    ),
+  );
+  foreach ($clear as $function_name => $cids) {
+    $cache = &drupal_static($function_name, array());
+    foreach ($cids as $cid) {
+      unset($cache[$cid]);
+      cache_clear_all($cid, 'cache');
+    }
+  }
+  drupal_static_reset('og_subgroups_get_associated_entities');
 }

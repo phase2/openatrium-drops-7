@@ -1,0 +1,46 @@
+<?php
+
+/**
+ * @file
+ * Provides functions that run on (un)install and update for oa_permissions.
+ */
+
+/**
+ * Implements hook_install().
+ * Grant Panelizer roles that cannot be featurized
+ */
+function oa_permissions_install() {
+
+  $roles = array('administrator' => 0, 'editor' => 0);
+  // determine role id numbers
+  $user_roles = user_roles();
+  $rids = array();
+  foreach ($user_roles as $rid => $role) {
+    if (isset($roles[$role])) {
+      $roles[$role] = $rid;
+    }
+  }
+
+  $permissions = array(
+    'administer panelizer node oa_section content',
+    'administer panelizer node oa_section layout',
+    'administer panelizer node oa_space content',
+    'administer panelizer node oa_space layout',
+  );
+
+  foreach ($permissions as $name) {
+    foreach ($roles as $role_name => $rid) {
+      if ($rid > 0) {
+        user_role_change_permissions($rid, array($name => TRUE));
+      }
+    }
+  }
+}
+
+/**
+ * Grant Admin/Editor Panelizer permissions
+ */
+function oa_permissions_update_7001() {
+  oa_permissions_install();
+}
+

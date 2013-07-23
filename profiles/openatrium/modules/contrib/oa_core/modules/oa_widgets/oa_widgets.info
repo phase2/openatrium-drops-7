@@ -1,0 +1,15 @@
+name = Open Atrium Widgets
+description = A collection of widgets for Open Atrium
+core = 7.x
+stylesheets[all][] = oa_widgets.css
+dependencies[] = ctools
+dependencies[] = oa_core
+dependencies[] = oa_sections
+
+
+; Information added by drush on 2013-07-20
+version = "7.x-2.0-beta1+0-dev"
+core = "7.x"
+project = "oa_core"
+datestamp = "1374352301"
+

@@ -3,3 +3,11 @@ description = Provides some example code for implementing Entity Reference behav
 core = 7.x
 package = Fields
 dependencies[] = entityreference
+
+
+; Information added by drush on 2013-07-20
+version = "7.x-1.0+5-dev"
+core = "7.x"
+project = "entityreference"
+datestamp = "1374352311"
+

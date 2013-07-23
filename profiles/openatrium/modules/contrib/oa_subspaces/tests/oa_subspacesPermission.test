@@ -1,0 +1,39 @@
+<?php
+
+/**
+ * @file
+ * Tests permission inheritence for oa_subspaces
+ */
+
+class oa_subspacesPermission extends oa_coreBaseWebTest {
+  static function getInfo() {
+    return array(
+      'name' => 'OA Subspace Permission test',
+      'description' => 'Test that can permissions are correct',
+      'group' => 'OA - Subspaces',
+    );
+  }
+
+  function test_oa_subspacesPermission() {
+    extract($this->createOaSpaceAndUsers(array('og_user_inheritance' => array(LANGUAGE_NONE => array(0 => array('value' => 1))))));
+    // Create another space that is a child of this one.
+    $child = $this->createOaSpace(array('oa_parent_space' => array(LANGUAGE_NONE => array(0 => array('target_id' => $space->nid)))));
+    $not_child = $this->createOaSpace();
+    $roles = array_flip(og_roles('node', 'oa_space'));
+    // Add create permission.
+    $permissions = array(
+      'create oa_discussion_post content' => 1,
+    );
+    og_role_change_permissions($roles[OG_AUTHENTICATED_ROLE], $permissions);
+    $this->assertTrue(og_user_access('node', $space->nid, 'create oa_discussion_post content', $space_member), t('Member has access to do permissions in main space.'));
+    $this->assertTrue(og_user_access('node', $child->nid, 'create oa_discussion_post content', $space_member), t('Member has access to do permissions in child space.'));
+    $this->assertFalse(og_user_access('node', $not_child->nid, 'create oa_discussion_post content', $space_member), t('Member does not have access to do permissions in not-child space.'));
+
+    $this->drupalLogin($space_member);
+    $this->drupalGet('node/add/oa-discussion-post');
+    $this->assertOptionExists('edit-og-group-ref-und-0-default', $space->nid, t('Parent appears in entityreference options'));
+    $this->assertOptionExists('edit-og-group-ref-und-0-default', $child->nid, t('Child appears in entityreference options'));
+    $this->assertOptionNoExists('edit-og-group-ref-und-0-default', $not_child->nid, t('Not Child does not appear in entityreference options'));
+    
+  }
+}

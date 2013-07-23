@@ -1438,8 +1438,7 @@ function og_vocab_entity_delete($entity, $entity_type) {
  *   Array keyed with the group type and group ID, if context found.
  */
 function og_vocab_is_group_admin_context() {
-  $item = menu_get_item();
-  if (strpos($item['path'], 'group/') === 0 && !empty($item['map'][2])) {
+  if (strpos($_GET['q'], 'group/') === 0 && ($item = menu_get_item()) && !empty($item['map'][2])) {
     return array('group_type' => $item['map'][1], 'gid' => $item['map'][2]);
   }
 

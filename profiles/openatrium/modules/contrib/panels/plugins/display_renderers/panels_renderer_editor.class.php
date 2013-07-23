@@ -1510,6 +1510,8 @@ function panels_ajax_edit_pane_cancel(&$form_state) {
  * Choose cache method form
  */
 function panels_edit_cache_method_form($form, &$form_state) {
+  ctools_form_include($form_state, 'plugins', 'panels');
+  form_load_include($form_state, 'php', 'panels', '/plugins/display_renderers/panels_renderer_editor.class');
   $display = &$form_state['display'];
   $conf = &$form_state['conf'];
 
@@ -1558,6 +1560,8 @@ function panels_edit_cache_method_form_submit($form, &$form_state) {
  * Cache settings form
  */
 function panels_edit_cache_settings_form($form, &$form_state) {
+  ctools_form_include($form_state, 'plugins', 'panels');
+  form_load_include($form_state, 'php', 'panels', '/plugins/display_renderers/panels_renderer_editor.class');
   $display = &$form_state['display'];
   $conf = &$form_state['conf'];
   $pid = $form_state['pid'];
@@ -1618,6 +1622,8 @@ function panels_edit_cache_settings_form_submit($form, &$form_state) {
  * Choose style form
  */
 function panels_edit_style_type_form($form, &$form_state) {
+  ctools_form_include($form_state, 'plugins', 'panels');
+  form_load_include($form_state, 'php', 'panels', '/plugins/display_renderers/panels_renderer_editor.class');
   $display = &$form_state['display'];
   $style = $form_state['style'];
   $type = $form_state['type'];
@@ -1668,6 +1674,8 @@ function panels_edit_style_type_form_submit($form, &$form_state) {
  * Style settings form
  */
 function panels_edit_style_settings_form($form, &$form_state) {
+  ctools_form_include($form_state, 'plugins', 'panels');
+  form_load_include($form_state, 'php', 'panels', '/plugins/display_renderers/panels_renderer_editor.class');
   $display = &$form_state['display'];
   $conf = &$form_state['conf'];
   $pid = $form_state['pid'];
@@ -1722,6 +1730,8 @@ function panels_edit_style_settings_form_submit($form, &$form_state) {
  * Configure CSS on a pane form.
  */
 function panels_edit_configure_pane_css_form($form, &$form_state) {
+  ctools_form_include($form_state, 'plugins', 'panels');
+  form_load_include($form_state, 'php', 'panels', '/plugins/display_renderers/panels_renderer_editor.class');
   $display = &$form_state['display'];
   $pane = &$form_state['pane'];
 
@@ -1764,6 +1774,8 @@ function panels_edit_configure_pane_css_form_submit($form, &$form_state) {
  * Configure lock on a pane form.
  */
 function panels_edit_configure_pane_lock_form($form, &$form_state) {
+  ctools_form_include($form_state, 'plugins', 'panels');
+  form_load_include($form_state, 'php', 'panels', '/plugins/display_renderers/panels_renderer_editor.class');
   $display = &$form_state['display'];
   $pane = &$form_state['pane'];
 
@@ -1839,6 +1851,8 @@ function panels_edit_configure_pane_lock_form_submit($form, &$form_state) {
  * Form to control basic visibility settings.
  */
 function panels_edit_configure_access_settings_form($form, &$form_state) {
+  ctools_form_include($form_state, 'plugins', 'panels');
+  form_load_include($form_state, 'php', 'panels', '/plugins/display_renderers/panels_renderer_editor.class');
   $display = &$form_state['display'];
   $pane = &$form_state['pane'];
 
@@ -1876,6 +1890,8 @@ function panels_edit_configure_access_settings_form_submit($form, &$form_state) 
  * Form to add a visibility rule.
  */
 function panels_edit_add_access_test_form($form, &$form_state) {
+  ctools_form_include($form_state, 'plugins', 'panels');
+  form_load_include($form_state, 'php', 'panels', '/plugins/display_renderers/panels_renderer_editor.class');
   $display = &$form_state['display'];
   $pane = &$form_state['pane'];
 
@@ -1905,6 +1921,8 @@ function panels_edit_add_access_test_form($form, &$form_state) {
  * Form to configure a visibility rule.
  */
 function panels_edit_configure_access_test_form($form, &$form_state) {
+  ctools_form_include($form_state, 'plugins', 'panels');
+  form_load_include($form_state, 'php', 'panels', '/plugins/display_renderers/panels_renderer_editor.class');
   $display = &$form_state['display'];
   $test = &$form_state['test'];
   $plugin = &$form_state['plugin'];

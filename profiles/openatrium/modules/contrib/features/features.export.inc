@@ -190,7 +190,7 @@ function features_export_prepare($export, $module_name, $reset = FALSE, $add_dep
   }
 
   // Prepare info string -- if module exists, merge into its existing info file
-  $defaults = $existing ? $existing->info : array('core' => '7.x', 'package' => 'Features');
+  $defaults = !empty($existing->info) ? $existing->info : array('core' => '7.x', 'package' => 'Features');
   $export = array_merge($defaults, $export);
 
   $deprecated = features_get_deprecated();

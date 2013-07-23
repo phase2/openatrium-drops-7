@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * @file
+ * Install and update functionality..
+ */
+
+/**
+ * Enable reference_option_limit.
+ */
+function oa_sections_update_7001() {
+  module_enable(array('reference_option_limit'));
+}

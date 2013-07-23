@@ -236,25 +236,6 @@ function panopoly_magic_form_alter(&$form, &$form_state, $form_id) {
       }
     }
 
-    // Make some adjustments based on the way the data is being expected
-    // TODO - this should not be necessary, so find out why!
-    if (!empty($form_state['input']['sort_by'])) {
-      $form_state['input']['exposed']['sort_by'] = $form_state['input']['sort_by'];
-      $form_state['input']['exposed']['sort_order'] = $form_state['input']['sort_order'];
-    }
-    if (!empty($form_state['input']['exposed']['more_link'])) {
-      $form_state['input']['more_link'] = $form_state['input']['exposed']['more_link'];
-      $form_state['input']['path'] = $form_state['input']['exposed']['path'];
-    }
-    if (!empty($form_state['input']['exposed']['link_to_view'])) {
-      $form_state['input']['link_to_view'] = $form_state['input']['exposed']['link_to_view'];
-      $form_state['input']['path'] = $form_state['input']['exposed']['path'];
-    }
-    if (!empty($form_state['input']['exposed']['use_pager'])) {
-      $form_state['input']['use_pager'] = $form_state['input']['exposed']['use_pager'];
-      $form_state['input']['offset'] = $form_state['input']['exposed']['offset'];
-    }
-
     // Set the configuration and determine the content for the pane
     $configuration_ids = array(
       'ctools_entity_field_content_type_formatter_options',
@@ -292,53 +273,62 @@ function panopoly_magic_form_alter(&$form, &$form_state, $form_id) {
         unset($configuration['image_link']);
       }
     }
-    $content = (empty($preview_subtype)) ? ctools_content_render($pane->type, $pane->subtype, $configuration, $keywords, $args, $context) : ctools_content_render($pane->type, $preview_subtype, $configuration, $keywords, $args, $context);
 
-    // Create the preview fieldset
-    if ($form_id == 'fieldable_panels_panes_fieldable_panels_pane_content_type_edit_form' || is_object($content)) {
+    // Creates preview outside of form itself to fix various bugs, like form
+    // inside form and double rendering.
+    $form['#post_render'][] = 'panopoly_magic_form_post_render_preview';
+    $form['#panopoly_magic_preview_info'] = array(
+      'preview_subtype' => $preview_subtype,
+      'pane' => $pane,
+      'configuration' =>  $configuration,
+      'keywords' => $keywords,
+      'args' => $args,
+      'context' => $context,
+      'style' => $style,
+      'display' => $display,
+    );
 
-      // Create the fieldset with appropriate content
-      $form['widget_preview'] = array(
-        '#type' => 'fieldset',
-        '#title' => 'Preview',
-        '#attributes' => array('class' => array('widget-preview', 'widget-preview-single')),
-        '#collapsible' => FALSE,
-        '#weight' => -100,
-      );
-      $form['widget_preview']['preview'] = array(
-        '#markup' => (!empty($style['render pane'])) ? theme($style['render pane'], array('content' => $content, 'pane' => $pane, 'display' => $display, 'style' => $style, 'settings' => $pane->style['settings'])) : theme('panels_pane', array('content' => $content, 'pane' => $pane, 'display' => $display)),
-      );
-
-      // Remove the clearfix for preview floating
-      if (isset($form['aligner_start'])) {
-        $form['aligner_start']['#markup'] = str_replace('clearfix', '', $form['aligner_start']['#markup']);
-      }
-
-      $preview_attributes = array(
-        'class' => array(
-          'widget-preview-button',
-          'ctools-use-ajax',
-        ),
-      );
-
-      // If live previewing, don't show button, and autoupdate.
-      if (variable_get('panopoly_magic_live_preview', 1) == 1) {
-        $preview_attributes['style'] = 'display: none';
-        $preview_attributes['class'][] = 'ctools-auto-submit-click';
-      }
-
-      // Create the preview refresh button
-      $form['buttons']['preview'] = array(
-        '#type' => 'button',
-        '#value' => t('Update Preview'),
-        '#wizard type' => 'next',
-        '#attributes' => $preview_attributes,
-      );
-
-      // Autosubmit the form
-      ctools_add_js('auto-submit');
-      $form['#attributes']['class'][] = 'ctools-auto-submit-full-form';
+    // Remove the clearfix for preview floating
+    if (isset($form['aligner_start'])) {
+      $form['aligner_start']['#markup'] = str_replace('clearfix', '', $form['aligner_start']['#markup']);
     }
+
+    $preview_attributes = array(
+      'class' => array(
+        'widget-preview-button',
+      ),
+    );
+
+    // If live previewing, don't show button, and autoupdate.
+    if (variable_get('panopoly_magic_live_preview', 1) == 1) {
+      $preview_attributes['style'] = 'display: none';
+      $preview_attributes['class'][] = 'ctools-auto-submit-click';
+    }
+
+    // Create the preview refresh button
+    $form['buttons']['preview'] = array(
+      '#type' => 'button',
+      '#value' => t('Update Preview'),
+      '#attributes' => $preview_attributes,
+      '#ajax' => array(
+        'callback' => 'panopoly_magic_ajax_update_preview',
+        'wrapper' => 'panopoly-form-widget-preview',
+       ),
+    );
+
+    // The cache that is set during preview is messed up.
+    // Likely due to ctools being confused by ajax that is not it's own.
+    if ($form_state['values']['op'] == t('Update Preview')) {
+      $form_state['no_cache'] = TRUE;
+    }
+    else {
+      unset($form_state['no_cache']);
+    }
+
+
+    // Autosubmit the form
+    ctools_add_js('auto-submit');
+    $form['#attributes']['class'][] = 'ctools-auto-submit-full-form';
   }
   
    /**
@@ -349,7 +339,7 @@ function panopoly_magic_form_alter(&$form, &$form_state, $form_id) {
     if (!empty($form['buttons']['return'])) {
       $form['buttons']['return']['#value'] = t('Save');
     }
-    $form['buttons']['#weight'] = (!empty($form['widget_preview']['#weight'])) ? ($form['widget_preview']['#weight'] +1 ): -99;
+    $form['buttons']['#weight'] = -99;
   }
 
   /**
@@ -402,6 +392,46 @@ function panopoly_magic_form_alter(&$form, &$form_state, $form_id) {
       }
     }
   }
+}
+
+
+/**
+ * Ajax callback that just returns the rendered preview.
+ */
+function panopoly_magic_ajax_update_preview($form, $form_state) {
+  if (isset($form_state['values']) && isset($form['#panopoly_magic_preview_info']['configuration'])) {
+    $form['#panopoly_magic_preview_info']['configuration'] = $form_state['values'] + $form['#panopoly_magic_preview_info']['configuration'];
+  }
+  return panopoly_magic_form_post_render_preview('', $form);
+}
+
+/**
+ * Add the preview to the form output.
+ *
+ * It is done here so the form is fully processed.
+ */
+function panopoly_magic_form_post_render_preview($output, $form) {
+  extract($form['#panopoly_magic_preview_info']);
+  $content = (empty($preview_subtype)) ? ctools_content_render($pane->type, $pane->subtype, $configuration, $keywords, $args, $context) : ctools_content_render($pane->type, $preview_subtype, $configuration, $keywords, $args, $context);
+
+  // Create the fieldset with appropriate content
+  $preview = array(
+    '#type' => 'fieldset',
+    '#title' => 'Preview',
+    '#attributes' => array(
+      'id' => 'panopoly-form-widget-preview',
+      'class' => array('widget-preview', 'widget-preview-single'),
+    ),
+    '#collapsible' => FALSE,
+    '#weight' => -100,
+  );
+  if (!empty($content)) {
+    $preview['preview']['#markup'] = (!empty($style['render pane'])) ? theme($style['render pane'], array('content' => $content, 'pane' => $pane, 'display' => $display, 'style' => $style, 'settings' => $pane->style['settings'])) : theme('panels_pane', array('content' => $content, 'pane' => $pane, 'display' => $display));
+  }
+  else {
+    $preview['preview']['#markup'] = t('[no preview]');
+  }
+  return drupal_render($preview) . $output;
 }
 
 /**
@@ -522,6 +552,7 @@ function panopoly_magic_form_views_content_views_panes_content_type_edit_form_al
         ),
       ),
       '#default_value' => (isset($conf['widget_title'])) ? $conf['widget_title'] : $form_state['view']->display_handler->options['title'],
+      '#parents' => array('widget_title'),
     );
   }
 
@@ -531,6 +562,7 @@ function panopoly_magic_form_views_content_views_panes_content_type_edit_form_al
     $form['link_to_view']['#description'] =  '';
     $form['link_to_view']['#id'] = 'edit-link';
     $form['exposed']['link_to_view'] = $form['link_to_view'];
+    $form['exposed']['link_to_view']['#parents'] = array('link_to_view');
     unset($form['link_to_view']);
   } 
   
@@ -539,6 +571,7 @@ function panopoly_magic_form_views_content_views_panes_content_type_edit_form_al
     $form['more_link']['#id'] = 'more-link';
     $form['more_link']['#description'] = '';
     $form['exposed']['more_link'] = $form['more_link'];
+    $form['exposed']['more_link']['#parents'] = array('more_link');
     unset($form['more_link']);
   }
   
@@ -547,7 +580,9 @@ function panopoly_magic_form_views_content_views_panes_content_type_edit_form_al
   if (!empty($form['use_pager']) && !empty($form['pager_id'])) {
     $form['use_pager']['#prefix'] = '<div class="form-item container-inline">';
     $form['exposed']['use_pager'] = $form['use_pager'];
+    $form['exposed']['use_pager']['#parents'] = array('use_pager');
     $form['exposed']['pager_id'] = $form['pager_id'];
+    $form['exposed']['pager_id']['#parents'] = array('pager_id');
     unset($form['use_pager']);
     unset($form['pager_id']);
   }
@@ -558,6 +593,7 @@ function panopoly_magic_form_views_content_views_panes_content_type_edit_form_al
     $form['path']['#title'] = '';
     $form['path']['#dependency'] = array('edit-link' => array(1), 'more-link' => array(1), 'use-pager-checkbox' => array(1));
     $form['exposed']['path'] = $form['path'];
+    $form['exposed']['path']['#parents'] = array('path');
     unset($form['path']);
   }
   
@@ -596,20 +632,24 @@ function panopoly_magic_form_views_content_views_panes_content_type_edit_form_al
   if (!empty($form['exposed']['sort_order']) && !empty($form['exposed']['sort_by'])) {
     $form['exposed']['sort_order']['#title'] = t('Sort order');
     $form['display_settings']['sort_order'] = $form['exposed']['sort_order'];
+    $form['display_settings']['sort_order']['#parents'] = array('exposed', 'sort_order');
     unset($form['exposed']['sort_order']);
     $form['exposed']['sort_by']['#suffix'] = '<div class="clearfix"></div>';
     $form['display_settings']['sort_by'] = $form['exposed']['sort_by'];
+    $form['display_settings']['sort_by']['#parents'] = array('exposed', 'sort_by');
     unset($form['exposed']['sort_by']);
   }
   elseif (!empty($form['exposed']['sort_order']) && empty($form['exposed']['sort_by'])) {
     $form['exposed']['sort_order']['#title'] = t('Sort order');
     $form['exposed']['']['#suffix'] = '<div class="clearfix"></div>';
     $form['display_settings']['sort_order'] = $form['exposed']['sort_order'];
+    $form['display_settings']['sort_order']['#parents'] = array('exposed', 'sort_order');
     unset($form['exposed']['sort_order']);
   }
   elseif (empty($form['exposed']['sort_order']) && !empty($form['exposed']['sort_by'])) {
     $form['exposed']['sort_by']['#suffix'] = '<div class="clearfix"></div>';
     $form['display_settings']['sort_by'] = $form['exposed']['sort_by'];
+    $form['display_settings']['sort_by']['#parents'] = array('exposed', 'sort_by');
     unset($form['exposed']['sort_by']);
   }
 
@@ -624,9 +664,9 @@ function panopoly_magic_form_views_content_views_panes_content_type_edit_form_al
     }
   }
 
-  // Determine if this is a node view. If so, add magic display type changer
+  // Determine if this is a fielded view. If so, add magic display type changer
   $view_handler = $form_state['view']->display_handler;
-  if (!($view_handler->options['row_plugin'] == 'node' && in_array($view_handler->options['style_plugin'], array('default')))) {
+  if ($view_handler->options['row_plugin'] == 'fields') {
 
     // Default to a field view
     if (empty($conf['view_settings'])) {
@@ -722,7 +762,6 @@ function panopoly_magic_form_views_content_views_panes_content_type_edit_form_al
 
   // Add a custom submit handler to our preview and submit option
   $form['#submit'][] = 'panopoly_magic_views_content_type_modal_submit';
-  $form['buttons']['preview']['#submit'][] = 'panopoly_magic_views_content_type_modal_submit';
 }
 
 /**
@@ -1010,209 +1049,73 @@ function panopoly_magic_reusable_entity_validate($element, &$form_state, $form) 
  * Custom submit handler to save panels pane configuration for styling
  */
 function panopoly_magic_views_content_type_modal_submit(&$form, &$form_state) {
-  $form_state['conf']['view_mode'] = (isset($form_state['values']['view_mode'])) ? $form_state['values']['view_mode'] : NULL;
-
-  // Set the $conf['widget_title'] value. We need to do this a
-  // little funky since sometimes it comes inside of $form_state['values']
-  // and sometimes it doesn't.
-  if (isset($form_state['values']['exposed']['widget_title'])) {
-    $form_state['conf']['widget_title'] = $form_state['values']['exposed']['widget_title'];
-  }
-  elseif (isset($form_state['values']['widget_title'])) {
-    $form_state['conf']['widget_title'] = $form_state['values']['widget_title'];
-  }
-  else {
-    $form_state['conf']['widget_title'] = NULL;
-  }
-
-  // Set the $conf['items_per_page'] value. We need to do this a
-  // little funky since sometimes it comes inside of $form_state['values']
-  // and sometimes it doesn't.
-  if (isset($form_state['values']['exposed']['items_per_page'])) {
-    $form_state['conf']['items_per_page'] = $form_state['values']['exposed']['items_per_page'];
-  }
-  elseif (isset($form_state['values']['items_per_page'])) {
-    $form_state['conf']['items_per_page'] = $form_state['values']['items_per_page'];
-  }
-  else {
-    $form_state['conf']['items_per_page'] = NULL;
-  }
-
-  // Set the $conf['sort_by'] value. We need to do this a
-  // little funky since sometimes it comes inside of $form_state['values']
-  // and sometimes it doesn't.
-  if (isset($form_state['values']['display_settings']['sort_by'])) {
-    $form_state['conf']['exposed']['sort_by'] = $form_state['values']['display_settings']['sort_by'];
-  } 
-  elseif (isset($form_state['values']['sort_by'])) {
-    $form_state['conf']['exposed']['sort_by'] = $form_state['values']['sort_by'];
-  }   
-  else {
-    $form_state['conf']['exposed']['sort_by'] = NULL;
-  } 
-
-  // Set the $conf['sort_order'] value. We need to do this a
-  // little funky since sometimes it comes inside of $form_state['values']
-  // and sometimes it doesn't.
-  if (isset($form_state['values']['display_settings']['sort_order'])) {
-    $form_state['conf']['exposed']['sort_order'] = $form_state['values']['display_settings']['sort_order'];
-  } 
-  elseif (isset($form_state['values']['sort_order'])) {
-    $form_state['conf']['exposed']['sort_order'] = $form_state['values']['sort_order'];
-  }   
-  else {
-    $form_state['conf']['exposed']['sort_order'] = NULL;
-  } 
-
-  // Set the $conf['use_pager'] value. We need to do this a
-  // little funky since sometimes it comes inside of $form_state['values']
-  // and sometimes it doesn't.
-  if (isset($form_state['values']['display_settings']['use_pager'])) {
-    $form_state['conf']['use_pager'] = $form_state['values']['display_settings']['use_pager'];
-  } 
-  elseif (isset($form_state['values']['use_pager'])) {
-    $form_state['conf']['use_pager'] = $form_state['values']['use_pager'];
-  }   
-  else {
-    $form_state['conf']['use_pager'] = NULL;
-  } 
-  
-  // Set the $conf['pager_id'] value. We need to do this a
-  // little funky since sometimes it comes inside of $form_state['values']
-  // and sometimes it doesn't.
-  if (isset($form_state['values']['display_settings']['pager_id'])) {
-    $form_state['conf']['pager_id'] = $form_state['values']['display_settings']['pager_id'];
-  } 
-  elseif (isset($form_state['values']['pager_id'])) {
-    $form_state['conf']['pager_id'] = $form_state['values']['pager_id'];
-  }   
-  else {
-    $form_state['conf']['pager_id'] = NULL;
-  } 
-
-  // Set the $conf['offset'] value. We need to do this a
-  // little funky since sometimes it comes inside of $form_state['values']
-  // and sometimes it doesn't.
-  if (isset($form_state['values']['display_settings']['offset'])) {
-    $form_state['conf']['offset'] = $form_state['values']['display_settings']['offset'];
-  } 
-  elseif (isset($form_state['values']['offset'])) {
-    $form_state['conf']['offset'] = $form_state['values']['offset'];
-  }   
-  else {
-    $form_state['conf']['offset'] = NULL;
-  } 
-
-  // Set the $conf['link_to_view'] value. We need to do this a
-  // little funky since sometimes it comes inside of $form_state['values']
-  // and sometimes it doesn't.
-  if (isset($form_state['values']['exposed']['link_to_view'])) {
-    $form_state['conf']['link_to_view'] = $form_state['values']['exposed']['link_to_view'];
-  } 
-  elseif (isset($form_state['values']['link_to_view'])) {
-    $form_state['conf']['link_to_view'] = $form_state['values']['link_to_view'];
-  }   
-  else {
-    $form_state['conf']['link_to_view'] = NULL;
-  } 
-  
-  // Set the $conf['more_link'] value. We need to do this a
-  // little funky since sometimes it comes inside of $form_state['values']
-  // and sometimes it doesn't.
-  if (isset($form_state['values']['exposed']['more_link'])) {
-    $form_state['conf']['more_link'] = $form_state['values']['exposed']['more_link'];
-  } 
-  elseif (isset($form_state['values']['more_link'])) {
-    $form_state['conf']['more_link'] = $form_state['values']['more_link'];
-  }   
-  else {
-    $form_state['conf']['more_link'] = NULL;
-  } 
-
-  // Set the $conf['path'] value. We need to do this a
-  // little funky since sometimes it comes inside of $form_state['values']
-  // and sometimes it doesn't.
-  if (isset($form_state['values']['exposed']['path'])) {
-    $form_state['conf']['path'] = $form_state['values']['exposed']['path'];
-  } 
-  elseif (isset($form_state['values']['link_to_view'])) {
-    $form_state['conf']['path'] = $form_state['values']['path'];
-  }   
-  else {
-    $form_state['conf']['path'] = NULL;
-  } 
-  
-  // Save the view settings field is present in the data.
-  if (isset($form_state['values']['view_settings'])) {
-    $form_state['conf']['view_settings'] = $form_state['values']['view_settings'];
-  }
-  if (!empty($form_state['values']['header_type'])) {
-    $form_state['conf']['header_type'] = $form_state['values']['header_type'];
+  $move = array('view_settings', 'header_type', 'view_mode', 'widget_title');
+  foreach ($move as $key) {
+    if (isset($form_state['values'][$key])) {
+      $form_state['conf'][$key] = $form_state['values'][$key];
+    }
   }
 }
 
+
 /**
- * Implements hook_views_pre_render()
+ * Implements hook_views_pre_view()
  */
-function panopoly_magic_views_pre_render(&$view) {
+function panopoly_magic_views_pre_view(&$view) {
   if (isset($view->display_handler->options['pane_conf'])) {
     $conf = $view->display_handler->options['pane_conf'];
   
-    // Set the view title depending on where it comes. We do this a little
-    // funky since sometimes it comes inside of $form_state['values'] and 
-    // sometimes it doesn't.
-    if (isset($conf['widget_title']) || isset($conf['exposed']['widget_title'])) {
-      $view->display_handler->options['title'] = (isset($conf['exposed']['widget_title'])) ? $conf['exposed']['widget_title'] : $conf['widget_title']; 
-      $view->build_info['title'] = (isset($conf['exposed']['widget_title'])) ? $conf['exposed']['widget_title'] : $conf['widget_title']; 
+    if (isset($conf['widget_title'])) {
+      $view->display_handler->options['defaults']['title'] = FALSE;
+      $view->display_handler->options['title'] = $conf['widget_title']; 
+      $view->build_info['title'] = $conf['widget_title']; 
     }
 
-    // Determine that this was previously a field view, which has been overridden to a node view in the pane config.
-    if (!empty($conf['view_settings']) && $conf['view_settings'] == 'nodes' && empty($view->style_plugin->row_plugin->nodes)) {
-
-      // Reconstruct the nodes array which a node row style expects.
-      if (!empty($view->result)) {
-        $nids = array();
-        foreach ($view->result as $result) {
-          if (!empty($result->nid)) {
-            $nids[] = $result->nid;
-          }
-        }
-        $nodes = node_load_multiple($nids);
-      }
-
-      // Change the row plugin.
-      if (!empty($nodes)) {
-        $view->style_plugin->row_plugin = views_get_plugin('row', 'node');
-        $view->style_plugin->row_plugin->view =& $view;
-        $view->style_plugin->row_plugin->display =& $view->display_handler->display;
-        $view->style_plugin->row_plugin->field_alias = 'nid';
-        $view->style_plugin->row_plugin->nodes = $nodes;
-      }
-    }
     // Set the style plugin to a table style.
+    // Determine that this was previously a field view, which has been overridden to a node view in the pane config.
+    if (!empty($conf['view_settings']) && $conf['view_settings'] == 'nodes' ) {
+      $view->display_handler->options['defaults']['row_plugin'] = FALSE;
+      $view->display_handler->options['row_plugin'] = 'node';
+    }
     elseif (!empty($conf['view_settings']) && $conf['view_settings'] == 'table') {
-      $row_plugin = $view->style_plugin->row_plugin;
-      $view->style_plugin = views_get_plugin('style', 'table');
-      $view->style_plugin->row_plugin = $row_plugin;
-      $view->style_plugin->view =& $view;
-      $view->style_plugin->display =& $view->display_handler->display;
-      
-      // Set or remove header labels depending on user selection.
-      if (!empty($conf['header_type']) && $conf['header_type'] == 'titles') {
-        foreach ($view->field as &$field) {
-          $field->options['label'] = $field->options['ui_name'];
-        }
+      // Find the currently active field defination, else break out as table
+      // needs fields.
+      if (empty($view->display_handler->options['defaults']['fields']) && isset($view->display_handler->options['fields'])) {
+        $fields = &$view->display_handler->options['fields'];
+      }
+      elseif (!empty($view->display_handler->default_display->options['fields'])) {
+        $fields = &$view->display_handler->default_display->options['fields'];
       }
       else {
-        foreach ($view->field as &$field) {
-          $field->options['label'] = NULL;
+        // If no fields, don't try to display as table.
+        return;
+      }
+
+      $view->display_handler->options['defaults']['style_plugin'] = FALSE;
+      $view->display_handler->options['style_plugin'] = 'table';
+
+      // Set or remove header labels depending on user selection.
+      $use_header_titles = !empty($conf['header_type']) && $conf['header_type'] == 'titles';
+      foreach ($fields as $field_key => &$field) {
+        if ($use_header_titles && !empty($field['ui_name']) && empty($field['label'])) {
+          $field['label'] = $field['ui_name'];
+        }
+        elseif (!$use_header_titles) {
+          $field['label'] = '';
+        }
+        // Hide empty columns.
+        if (!empty($view->display_handler->options['row_plugin']['hide_empty'])) {
+          $view->display_handler->options['style_options'][$field_key]['empty_column'] = TRUE;
         }
       }
-  }
-
-    // Set the view mode
-    if (isset($conf['view_mode'])) {
-      $view->style_plugin->row_plugin->options['view_mode'] = $conf['view_mode'];
+    }
+    if ((empty($conf['view_settings']) || $conf['view_settings'] == 'nodes') && !empty($conf['view_mode'])) {
+      // Transfer over the row options from default if set to use.
+      if (!empty($view->display_handler->options['defaults']['row_options'])) {
+        $view->display_handler->options['defaults']['row_options'] = FALSE;
+        $view->display_handler->options['row_options'] = $view->display_handler->default_display->options['row_options'];
+      }
+      $view->display_handler->options['row_options']['view_mode'] = $conf['view_mode'];
     }
   }
 }
@@ -1257,6 +1160,9 @@ function panopoly_magic_preprocess_panels_add_content_modal(&$vars) {
         $keywords = (!empty($vars['renderer']->display->keywords)) ? $vars['renderer']->display->keywords : array();
         if ($content = ctools_content_render($pane->type, $pane->subtype, $pane->configuration, $keywords, $args, $context, $incoming_content)) {
           $plugin['preview'] = theme('panels_pane', array('content' => $content, 'pane' => $pane, 'display' => $display));
+          if (!empty($strip_js) && !empty($plugin['preview'])) {
+            $plugin['preview'] = preg_replace('#<script(.*?)>(.*?)</script>#is', '', $plugin['preview']);
+          }
         }
       }
       else {
@@ -1268,9 +1174,6 @@ function panopoly_magic_preprocess_panels_add_content_modal(&$vars) {
           'attributes' => array('class' => array('use-ajax button'))
         );
         $plugin['preview'] = '<div class="modal-content-preview-button">' . l(t('Preview'), current_path(), $options) . '</div>';
-      }
-      if (!empty($strip_js) && !empty($plugin['preview'])) {
-        $plugin['preview'] = preg_replace('#<script(.*?)>(.*?)</script>#is', '', $plugin['preview']);
       }
     }
   }

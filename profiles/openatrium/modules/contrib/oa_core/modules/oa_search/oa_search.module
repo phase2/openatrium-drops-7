@@ -1,0 +1,86 @@
+<?php
+/**
+ * @file
+ * Code for the Open Atrium Search feature.
+ */
+
+include_once 'oa_search.features.inc';
+
+
+/**
+ * Implements hook_ctools_plugin_directory
+ */
+function oa_search_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'ctools' && $plugin_type == 'content_types') {
+    return 'plugins/content_types';
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function oa_search_theme() {
+  $path = drupal_get_path('module', 'oa_search') . '/templates';
+  return array(
+    'oa_toolbar_search' => array(
+      'template' => 'oa-toolbar-search',
+      'variables' => array(
+        'options' => array(),
+      ),
+      'path' => drupal_get_path('module', 'oa_search') . '/templates',
+    ),
+    'oa_sidebar_search' => array(
+      'template' => 'oa-sidebar-search',
+      'variables' => array(
+        'options' => array(),
+      ),
+      'path' => drupal_get_path('module', 'oa_search') . '/templates',
+    ),
+    'views_view_fields__search_database_results' => array(
+      'template'  => 'views-view-fields--search-database-results',
+      'base hook' => 'views_view_fields',
+      'preprocess functions' => array(
+        'template_preprocess',
+        'template_preprocess_views_view_fields',
+      ),
+      'arguments' => array('view' => NULL, 'options' => NULL, 'row' => NULL),
+      'path' => $path,
+    ),
+  );
+}
+
+/**
+ * Implements hook_preprocess_oa_toolbar_search().
+ */
+function oa_search_preprocess_oa_toolbar_search(&$vars) {
+  $vars['oa_toolbar_btn_class'] = variable_get('oa_toolbar_style', 0) ? '' : 'btn-inverse';
+  oa_search_add_js();
+}
+
+/**
+ * Implements hook_preprocess_oa_sidebar_search().
+ */
+function oa_search_preprocess_oa_sidebar_search(&$vars) {
+  oa_search_add_js();
+}
+
+/**
+ * Adds variables and js to search panes.
+ */
+function oa_search_add_js() {
+  $space_title = '';
+  $space_id = oa_core_get_space_context();
+  if ($space_id) {
+    $space = node_load($space_id);
+    if (!empty($space->title)) {
+      $space_title = $space->title;
+    }
+  }
+
+  drupal_add_js(array(
+    'oa_search' => array(
+      'space' => $space_title,
+    ),
+  ), 'setting');
+  drupal_add_js(drupal_get_path('module', 'oa_search') . '/js/oa_search.js');
+}

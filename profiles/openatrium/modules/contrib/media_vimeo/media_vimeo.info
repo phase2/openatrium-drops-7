@@ -10,3 +10,10 @@ files[] = includes/media_vimeo.formatters.inc
 files[] = includes/media_vimeo.variables.inc
 dependencies[] = media
 dependencies[] = media_internet
+
+
+; Information added by drush on 2013-07-20
+version = ""
+project = "media_vimeo"
+datestamp = "1374352284"
+

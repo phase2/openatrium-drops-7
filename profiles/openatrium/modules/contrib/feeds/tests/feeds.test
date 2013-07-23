@@ -18,11 +18,11 @@ class FeedsWebTestCase extends DrupalWebTestCase {
     // array of module names to setUp().
     if (isset($args[0])) {
       if (is_array($args[0])) {
-      $modules = $args[0];
-    }
+        $modules = $args[0];
+      }
       else {
-      $modules = $args;
-    }
+        $modules = $args;
+      }
     }
     else {
       $modules = array();

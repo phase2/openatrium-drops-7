@@ -1,0 +1,12 @@
+.media-item .label-wrapper {
+  text-align: center;
+  position: static;
+  bottom: auto;
+  margin-left: auto;
+  margin-right: auto;
+  width: 90%;
+}
+
+.media-item .label-wrapper label {
+  font-size: 12px;
+}

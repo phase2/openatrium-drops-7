@@ -1,9 +1,79 @@
 //
 // Styles for navbar
 // --------------------------------------------------
+
+#mini-panel-oa_toolbar_panel {
+  padding: 0 10px;
+}
+
+// Toolbar Buttons
+.pane-oa-widgets-visibility-toolbar #oa_visibility_toolbar,
+#oa_favorites,
+.pane-add-space-content {
+  @include navbarVerticalAlign(35px);
+}
+.pane-add-space-content,
+.pane-oa-favorites-favorites-button,
+.pane-oa-widgets-visibility-toolbar {
+  .dropdown-menu {
+    left: auto;
+    right: -15px;
+  }
+  a.dropdown-toggle.btn {
+    @include clear-shadow;
+    background: $btn-group-bg-color !important;
+    border: none;
+    padding: 5px;
+    height: 29px;
+    margin-top: 3px;
+    > .caret,
+    > .icon-star,
+    > .icon-lock,
+    > .icon-unlock  {
+      border: none;
+      width: 18px;
+      height: 18px;
+      margin-top: 8px;
+      display: block;
+    }
+    &:hover {
+      background: $black !important;
+    }
+  }
+}
+// Create Spaces Button
+.pane-add-space-content {
+  margin-right: 5px;
+  a.dropdown-toggle.btn {
+    position: relative;
+    text-indent: -9999em;
+    > .caret {
+      margin-top: 8px;
+      text-indent: 0;
+      display: block;
+      position: relative;
+      top: -23px;
+      left: 2px;
+      background: transparent url(../images/navbar-icons.png) no-repeat top left;
+    }
+  }
+}
+// Visibility Button
+#oa_visibility_toolbar {
+  em {
+    padding: 5px 10px;
+  }
+  .oa-visibility-list {
+    padding: 0 10px;
+    a {
+      padding: 0 0;
+    }
+  }
+}
+// General navbar
 .navbar {
   .navbar-inner {
-    padding: 5px 10px;
+    padding: 0;
     @include border-radius(0);
   }
   // Brand: website or project name
@@ -47,6 +117,25 @@
       }
     }
   }
+  .pane-page-site-name {
+    margin-top: 12px;
+    margin-left: 10px;
+    font-size: 18px;
+    color: #333;
+  }
+}
+
+.navbar.navbar-inverse .pane-page-site-name {
+  color: #EEE;
+}
+
+#navbar .navbar-tray .navbar-shortcuts {
+  display: block;
+}
+
+#navbar .navbar-shortcuts .menu a {
+  background-color: black;
+  color: white;
 }
 
 #navbar div.devel-querylog div.cell-5 {
@@ -113,5 +202,70 @@ div.tabs {
   float: left;
   a {
     color: $grayDark;
+  }
+}
+
+#oa-navbar #oa-user-badge,
+#oa-navbar #toolbar-menu-button {
+  padding-top: 8px;
+}
+
+ul.oa_toolbar {
+  padding-top: 8px;
+}
+
+// Breadcrumb toolbar
+ul#oa_breadcrumb .btn-inverse {
+  background: transparent;
+  border: none;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.navbar-inverse ul#oa_breadcrumb .btn.btn-inverse {
+  color: #fff;
+  border: none;
+  box-shadow: none;
+}
+ul#oa_breadcrumb {
+  padding: 0;
+  margin: 0;
+  > .icon-home {
+    line-height: 5px;
+  }
+  > .btn-group:after {
+    content: url(../images/menu-divider.png);
+  }
+  > .btn-group {
+    height: 50px;
+    > a {
+      position: relative;
+      top: -20px;
+      font-size: 17px;
+    }
+  }
+  li:first-child a {
+    padding-right: 10px;
+  }
+  a.btn.btn-inverse {
+    margin-bottom: 3px;
+  }
+  a.dropdown-toggle.btn.btn-inverse {
+    background: $btn-group-bg-color !important;
+    border: none;
+    @include border-radius(6px);
+    padding: 8px 6px 2px;
+    margin-right: 15px;
+    margin-top: 0;
+    height: 29px;
+    .caret {
+      border-top: 6px solid #fff;
+      border-right: 6px solid transparent;
+      border-left: 6px solid transparent;
+      margin-top: 10px;
+    }
+  }
+  a.btn.btn-inverse:hover {
+    color: darken(#fefefe, 15%);
   }
 }
