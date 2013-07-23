@@ -1,6 +1,0 @@
-name = Open Atrium Styles
-description = Various styles for Open Atrium's Panel/Bootstrap theme
-package = Open Atrium
-core = 7.x
-
-dependencies[] = ctools

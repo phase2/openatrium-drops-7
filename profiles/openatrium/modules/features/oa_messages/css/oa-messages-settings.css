@@ -1,9 +1,0 @@
-.check-buttons {
-  float: right;
-}
-  .check-buttons .btn.check-all {
-    padding: 2px 5px;
-  }
-  .check-buttons .btn.uncheck-all {
-    padding: 2px 7px;
-  }
