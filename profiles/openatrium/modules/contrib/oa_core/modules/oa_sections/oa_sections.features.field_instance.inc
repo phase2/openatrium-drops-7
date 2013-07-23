@@ -280,56 +280,6 @@ function oa_sections_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-oa_section-field_weight'
-  $field_instances['node-oa_section-field_weight'] = array(
-    'bundle' => 'oa_section',
-    'default_value' => array(
-      0 => array(
-        'value' => 0,
-      ),
-    ),
-    'deleted' => 0,
-    'description' => 'Determines order of Section in lists.  Higher value moves the section later in the list.  Lower value moves section earlier in the list.',
-    'display' => array(
-      'default' => array(
-        'label' => 'hidden',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 5,
-      ),
-      'featured' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_weight',
-    'label' => 'Weight',
-    'required' => 0,
-    'settings' => array(
-      'max' => '',
-      'min' => '',
-      'prefix' => '',
-      'suffix' => '',
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 0,
-      'module' => 'number',
-      'settings' => array(),
-      'type' => 'number',
-      'weight' => 4,
-    ),
-  );
-
   // Exported field_instance: 'node-oa_section-og_group_ref'
   $field_instances['node-oa_section-og_group_ref'] = array(
     'bundle' => 'oa_section',

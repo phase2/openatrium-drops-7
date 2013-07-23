@@ -8,8 +8,8 @@ dependencies[] = og
 dependencies[] = og_context
 
 
-; Information added by drush on 2013-07-20
+; Information added by drush on 2013-07-23
 version = ""
 project = "og_session_context"
-datestamp = "1374352304"
+datestamp = "1374603380"
 

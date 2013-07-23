@@ -11,8 +11,8 @@ files[] = og_subgroups.module
 files[] = og_subgroups.test
 
 
-; Information added by drush on 2013-07-20
+; Information added by drush on 2013-07-23
 version = ""
 project = "og_subgroups"
-datestamp = "1374352293"
+datestamp = "1374603375"
 

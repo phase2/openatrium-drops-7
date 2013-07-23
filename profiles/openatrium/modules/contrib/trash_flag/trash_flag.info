@@ -15,8 +15,8 @@ files[] = trash_flag.test
 project path = sites/all/modules
 
 
-; Information added by drush on 2013-07-20
+; Information added by drush on 2013-07-23
 version = ""
 project = "trash_flag"
-datestamp = "1374352304"
+datestamp = "1374603380"
 

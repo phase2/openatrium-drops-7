@@ -30,3 +30,7 @@
 .ctools-modal-content form > div > .form-item > label {
   font-weight: bold;
 }
+
+#modal-content .general-settings-fieldset label.option {
+  float: none;
+}

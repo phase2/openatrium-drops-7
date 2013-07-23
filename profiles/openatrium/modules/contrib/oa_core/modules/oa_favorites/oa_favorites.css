@@ -39,3 +39,6 @@
 #oa_favorites .flag-throbber {
   display: none;
 }
+#oa_favorites .flag-wrapper {
+  padding: 0 5px;
+}

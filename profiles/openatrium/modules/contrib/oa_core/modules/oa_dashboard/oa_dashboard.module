@@ -162,6 +162,7 @@ function oa_dashboard_preprocess_oa_toolbar(&$vars) {
   $vars['home_url'] = url('<front>', array('absolute' => TRUE));
 
   // Spaces
+  $space = NULL;
   $space_id = oa_core_get_space_context();
   $vars['spaces_label'] = '';
   $vars['spaces_recent'] = '';
@@ -214,13 +215,11 @@ function oa_dashboard_preprocess_oa_toolbar(&$vars) {
   $menu_title = '';
   $spaces = NULL;
   // get names of spaces
-  if (isset($vars['show_parents'])) {
-    if (isset($space_id)) {
-      $spaces = oa_get_groups_by_parent($space_id, $space_type);
-      $show_all = FALSE;
-    }
+  if (isset($vars['show_parents']) && !empty($space)) {
+    $spaces = oa_get_groups_by_parent($space_id, $space_type);
+    $show_all = FALSE;
   }
-  elseif ($user->uid == 0) {
+  elseif (($user->uid == 0) || empty($space)) {
     // og_get_entity_groups doesn't return anything for anonymous users
     // so return list of all public spaces
     $spaces = oa_core_get_public_spaces();
@@ -239,6 +238,10 @@ function oa_dashboard_preprocess_oa_toolbar(&$vars) {
       l(t('All spaces...'), 'spaces',
         array('attributes' => array('class' => array('more-link')))),
       $show_all);
+  }
+  if (user_access('create ' . OA_SPACE_TYPE . ' content', $user)) {
+    $list[] = l(t('Create new space'), 'node/add/' . OA_SPACE_TYPE,
+      array('attributes' => array('class' => array('more-link'))));
   }
   if (!empty($list)) {
     $vars['spaces_recent'] = theme('item_list', array(

@@ -17,8 +17,8 @@ features[variable][] = site_404
 project path = sites/all/modules/
 
 
-; Information added by drush on 2013-07-20
+; Information added by drush on 2013-07-23
 version = ""
 project = "panels_customerror"
-datestamp = "1374352306"
+datestamp = "1374603381"
 

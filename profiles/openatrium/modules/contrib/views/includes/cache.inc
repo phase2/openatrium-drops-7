@@ -71,8 +71,10 @@ function _views_fetch_data($table = NULL, $move = TRUE, $reset = FALSE) {
 /**
  * Build and set the views data cache if empty.
  */
-function _views_fetch_data_build() {
-  views_include_handlers();
+function _views_fetch_data_build($reset = FALSE) {
+  static $called = FALSE;
+  views_include_handlers($called);
+  $called = TRUE;
   $cache = module_invoke_all('views_data');
   foreach (module_implements('views_data_alter') as $module) {
     $function = $module . '_views_data_alter';

@@ -6,9 +6,9 @@ dependencies[] = colors
 dependencies[] = fullcalendar
 
 
-; Information added by drush on 2013-07-20
+; Information added by drush on 2013-07-23
 version = "7.x-2.0+0-dev"
 core = "7.x"
 project = "fullcalendar"
-datestamp = "1374352303"
+datestamp = "1374603378"
 

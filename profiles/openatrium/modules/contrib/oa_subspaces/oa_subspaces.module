@@ -195,7 +195,6 @@ function _oa_subspaces_add_element(&$element, $value, $parents = array('og_subsp
     '#title' => t('Show subspace content'),
     '#type' => 'checkbox',
     '#default_value' => $value,
-    '#value' => $value, // @todo what is setting this incorrectly?
     '#parents' => $parents,
   );
 }

@@ -123,10 +123,9 @@ files[] = views/views_handler_field_oa_new_post.inc
 files[] = views/views_handler_field_oa_updated_post.inc
 project path = sites/all/modules/contrib
 
-
-; Information added by drush on 2013-07-20
-version = "7.x-2.0-beta1+0-dev"
+; Information added by drupal.org packaging script on 2013-07-20
+version = "7.x-2.0-beta1"
 core = "7.x"
 project = "oa_discussion"
-datestamp = "1374352301"
+datestamp = "1374351373"
 

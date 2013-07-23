@@ -6,8 +6,8 @@ core = 7.x
 stylesheets[all][] = contextual_tabs.css
 
 
-; Information added by drush on 2013-07-20
+; Information added by drush on 2013-07-23
 version = ""
 project = "contextual_tabs"
-datestamp = "1374352306"
+datestamp = "1374603381"
 

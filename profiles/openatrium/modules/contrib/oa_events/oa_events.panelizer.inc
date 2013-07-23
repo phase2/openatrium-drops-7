@@ -233,7 +233,7 @@ function oa_events_panelizer_defaults() {
       'exposed' => array(
         'og_group_ref_target_id' => '',
         'og_group_ref_target_id_mine' => 0,
-        'og_subspaces_view_all' => FALSE,
+        'og_subspaces_view_all' => '1',
         'oa_section_ref_target_id' => '',
       ),
       'view_settings' => 'fields',

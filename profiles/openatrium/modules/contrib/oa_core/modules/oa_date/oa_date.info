@@ -8,10 +8,9 @@ dependencies[] = views
 
 files[] = views/oa_date_handler_field_date.inc
 
-
-; Information added by drush on 2013-07-20
-version = "7.x-2.0-beta1+0-dev"
+; Information added by drupal.org packaging script on 2013-07-23
+version = "7.x-2.0-beta2"
 core = "7.x"
 project = "oa_core"
-datestamp = "1374352301"
+datestamp = "1374591069"
 

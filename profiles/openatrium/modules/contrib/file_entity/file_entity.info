@@ -24,9 +24,9 @@ configure = admin/structure/file-types
 version = 7.x-2.x-dev
 
 
-; Information added by drush on 2013-07-20
+; Information added by drush on 2013-07-23
 version = "7.x-2.0-unstable7+61-dev"
 core = "7.x"
 project = "file_entity"
-datestamp = "1374352285"
+datestamp = "1374603371"
 

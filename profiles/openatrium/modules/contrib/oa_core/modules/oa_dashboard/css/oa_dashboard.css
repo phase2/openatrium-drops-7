@@ -42,6 +42,13 @@ ul.oa_toolbar {
 	margin: 0.5em;
 	padding: 0;
 }
+
+#oa-navbar .dropdown .dropdown-menu li {
+padding: 0 0;
+margin: 0;
+width: 100%;
+}
+
 #oa-navbar ul.dropdown-menu h3 {
 	color: white;
 	font-size: 14px;
@@ -72,7 +79,7 @@ ul.oa_toolbar {
 }
 
 #oa-navbar .more-link {
-	font-size: 14px;
+	font-size: 12px;
 }
 
 /**************/

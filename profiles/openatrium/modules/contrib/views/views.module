@@ -1952,7 +1952,7 @@ function views_exposed_form($form, &$form_state) {
   // Let form plugins know this is for exposed widgets.
   $form_state['exposed'] = TRUE;
   // Check if the form was already created
-  if ($cache = views_exposed_form_cache($view->name, $view->current_display)) {
+  if ($cache = views_exposed_form_cache($view->name, $view->current_display . '-' . $view->dom_id)) {
     return $cache;
   }
 
@@ -1997,7 +1997,7 @@ function views_exposed_form($form, &$form_state) {
 
   $form['#action'] = url($view->display_handler->get_url());
   $form['#theme'] = views_theme_functions('views_exposed_form', $view, $display);
-  $form['#id'] = drupal_clean_css_identifier('views_exposed_form-' . check_plain($view->name) . '-' . check_plain($display->id));
+  $form['#id'] = drupal_clean_css_identifier('views_exposed_form-' . check_plain($view->name) . '-' . check_plain($display->id) . '-' . check_plain($view->dom_id));
 //  $form['#attributes']['class'] = array('views-exposed-form');
 
   // If using AJAX, we need the form plugin.
@@ -2010,7 +2010,7 @@ function views_exposed_form($form, &$form_state) {
   $exposed_form_plugin->exposed_form_alter($form, $form_state);
 
   // Save the form
-  views_exposed_form_cache($view->name, $view->current_display, $form);
+  views_exposed_form_cache($view->name, $view->current_display . '-' . $view->dom_id, $form);
 
   return $form;
 }
