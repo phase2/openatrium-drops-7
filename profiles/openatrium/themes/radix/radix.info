@@ -29,3 +29,11 @@ features[] = secondary_menu
 
 ; Plugins
 ;plugins[panels][layouts] = layouts
+
+
+; Information added by drush on 2013-07-23
+version = "7.x-2.0-alpha3+8-dev"
+core = "7.x"
+project = "radix"
+datestamp = "1374603375"
+

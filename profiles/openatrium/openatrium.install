@@ -5,3 +5,81 @@
  * Perform actions to set up the site for this profile.
  */
 
+/**
+ * Enable oa_variables module.
+ */
+function openatrium_update_7002() {
+  if (!module_exists('oa_variables') && !module_enable(array('oa_variables'))) {
+    trigger_error('Unable to enable oa_variables module. Please check for any missing dependencies.');
+  }
+  // This may be missing from older installs.
+  $missing = array(
+    'backports',
+    'date_popup_authored',
+    'simplified_menu_admin',
+  );
+  module_enable($missing);
+  // Ensure the install profile is enabled.
+  module_enable(array('openatrium'));
+}
+
+/**
+ * Enable oa_buttons.
+ */
+function openatrium_update_7003() {
+  $enable = array(
+    'oa_buttons',
+  );
+  module_enable($enable);
+}
+
+/**
+ * Enable trash_flag.
+ */
+function openatrium_update_7004() {
+  $enable = array(
+    'trash_flag',
+  );
+  module_enable($enable);
+}
+
+
+/**
+ * Enable command_buttons.
+ */
+function openatrium_update_7005() {
+  $enable = array(
+    'command_buttons',
+  );
+  module_enable($enable);
+}
+
+/**
+ * Enable date_all_day.
+ */
+function openatrium_update_7006() {
+  $enable = array(
+    'date_all_day',
+  );
+  module_enable($enable);
+}
+
+/**
+ * Enable panels_customerror.
+ */
+function openatrium_update_7007() {
+  $enable = array(
+    'panels_customerror',
+  );
+  module_enable($enable);
+}
+
+/**
+ * Enable oa_contextual_tabs.
+ */
+function openatrium_update_7008() {
+  $enable = array(
+    'oa_contextual_tabs',
+  );
+  module_enable($enable);
+}

@@ -16,9 +16,9 @@ stylesheets[all][] = css/panopoly-modal.css
 features[features_api][] = api:1
 
 
-; Information added by drush on 2013-07-20
+; Information added by drush on 2013-07-23
 version = "7.x-1.0-rc4+6-dev"
 core = "7.x"
 project = "panopoly_magic"
-datestamp = "1374352286"
+datestamp = "1374603372"
 

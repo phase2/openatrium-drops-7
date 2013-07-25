@@ -21,6 +21,7 @@ dependencies[] = shortcut
 dependencies[] = field
 dependencies[] = field_ui
 dependencies[] = file
+dependencies[] = update
 
 ;
 ; Panopoly Modules
@@ -54,8 +55,6 @@ dependencies[] = date_popup_authored
 dependencies[] = entity
 dependencies[] = panelizer
 dependencies[] = libraries
-dependencies[] = rules
-dependencies[] = rules_admin
 dependencies[] = message
 dependencies[] = message_notify
 dependencies[] = navbar
@@ -112,6 +111,10 @@ dependencies[] = oa_media
 dependencies[] = oa_permissions
 dependencies[] = oa_admin
 dependencies[] = oa_search
+dependencies[] = oa_variables
+dependencies[] = oa_buttons
+dependencies[] = contextual_tabs
+dependencies[] = oa_contextual_tabs
 
 ; Open Atrium 2.0 Plugins
 dependencies[] = oa_discussion
@@ -122,6 +125,17 @@ dependencies[] = oa_events_import
 ; Open Atrium 2.0 Optional
 dependencies[] = oa_home
 
+; Contrib Optional
+dependencies[] = panels_customerror
+dependencies[] = apps
+
 ; Development Modules - Temporary
 dependencies[] = devel
 dependencies[] = diff
+
+; Information added by drupal.org packaging script on 2013-07-23
+version = "7.x-2.0-beta3"
+core = "7.x"
+project = "openatrium"
+datestamp = "1374603367"
+

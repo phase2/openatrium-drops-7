@@ -28,12 +28,16 @@ echo '================'
 # Temp move settings
 echo 'Backing up settings.php...'
 mv "$TARGET/sites/default/settings.php" settings.php
+set -e
+echo 'Verifying make...'
+drush verify-makefile
 # Remove current drupal dir
 echo 'Wiping Drupal directory...'
 rm -rf "$TARGET"
 # Do the build
 echo 'Running drush make...'
 drush make $DRUSH_OPTS "$ABS_CALLPATH/$MAKEFILE" "$TARGET"
+set +e
 # Build Symlinks
 echo 'Setting up symlinks...'
 DRUPAL=`cd "$TARGET"; pwd -P`
@@ -58,4 +62,9 @@ echo 'Clearing caches...'
 drush cc all; drush cc all;
 echo 'Running updates...'
 drush updb -y;
+# @TODO Figure out why this cc all is needed
+drush cc drush;
+echo 'Reverting all features...'
+drush fra -y;
+drush cc all;
 echo 'Build complete.'

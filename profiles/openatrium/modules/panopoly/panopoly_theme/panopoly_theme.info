@@ -11,9 +11,9 @@ stylesheets[all][] = css/panopoly-accordian.css
 features[features_api][] = api:1
 
 
-; Information added by drush on 2013-07-20
+; Information added by drush on 2013-07-23
 version = "7.x-1.0-rc4+0-dev"
 core = "7.x"
 project = "panopoly_theme"
-datestamp = "1374352288"
+datestamp = "1374603372"
 

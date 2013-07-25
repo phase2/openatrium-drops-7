@@ -79,9 +79,9 @@ features[file_display][] = video__link__file_field_file_default
 features[views_view][] = panopoly_widgets_general_content
 
 
-; Information added by drush on 2013-07-20
+; Information added by drush on 2013-07-23
 version = "7.x-1.0-rc4+0-dev"
 core = "7.x"
 project = "panopoly_widgets"
-datestamp = "1374352282"
+datestamp = "1374603370"
 
