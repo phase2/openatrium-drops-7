@@ -56,7 +56,6 @@ function oa_events_views_default_views() {
     'multiple_to' => '',
     'show_repeat_rule' => 'show',
   );
-  $handler->display->display_options['fields']['field_oa_date_1']['delta_limit'] = '1';
   $handler->display->display_options['fields']['field_oa_date_1']['delta_offset'] = '0';
   /* Field: Content: Event Date */
   $handler->display->display_options['fields']['field_oa_date']['id'] = 'field_oa_date';

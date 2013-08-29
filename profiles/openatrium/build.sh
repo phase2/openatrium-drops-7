@@ -5,7 +5,7 @@ if [ $# -eq 0 ]; then
   echo "Usage $0 target_build_dir"
   exit 1
 fi
-DRUSH_OPTS='--working-copy --no-gitinfofile'
+DRUSH_OPTS='--working-copy --no-gitinfofile --no-cache'
 MAKEFILE='build-openatrium.make'
 TARGET=$1
 # Make sure we have a target directory
@@ -41,20 +41,17 @@ set +e
 # Build Symlinks
 echo 'Setting up symlinks...'
 DRUPAL=`cd "$TARGET"; pwd -P`
-ln -s "$ABS_CALLPATH" "$DRUPAL/profiles/openatrium"
+# openatrium profile now fully included in distro, so no link is needed
+# ln -s "$ABS_CALLPATH" "$DRUPAL/profiles/openatrium"
 ln -s /opt/files/openatrium "$DRUPAL/sites/default/files"
 # Restore settings
 echo 'Restoring settings...'
 ln -s "$BASE_PATH/settings.php" "$DRUPAL/sites/default/settings.php"
 
-# Move libraries from inherited profiles into site libraries
-#   These instructions should be incorporated into the make file in the future
-#   No longer need to do this until drupal.org supports inherited profiles
-#mkdir $DRUPAL/sites/all/libraries
-#mv -v $DRUPAL/profiles/panopoly/libraries/tinymce $DRUPAL/sites/all/libraries/tinymce
-#mv -v $DRUPAL/profiles/panopoly/libraries/markitup $DRUPAL/sites/all/libraries/markitup
-#mv -v $DRUPAL/profiles/panopoly/libraries/respondjs $DRUPAL/sites/all/libraries/respondjs
-#mv -v $DRUPAL/profiles/panopoly/libraries/SolrPhpClient $DRUPAL/sites/all/libraries/SolrPhpClient
+# Move libraries from profile into site libraries
+# Modules properly using Library API don't need this, but many modules
+# don't support libraries in the profile (like WYSIWYG)
+mv $DRUPAL/profiles/openatrium/libraries $DRUPAL/sites/all/libraries
 
 # Clear caches and Run updates
 cd "$DRUPAL"

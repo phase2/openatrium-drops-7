@@ -15,7 +15,7 @@ function oa_events_field_default_field_instances() {
     'bundle' => 'oa_event',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => '',
+    'description' => 'Describe the Event',
     'display' => array(
       'default' => array(
         'label' => 'hidden',
@@ -557,6 +557,7 @@ http://www.whitehouse.gov/',
   // Translatables
   // Included for use with string extractors like potx.
   t('Attachments');
+  t('Describe the Event');
   t('Description');
   t('Event Date');
   t('Geocoded Location');

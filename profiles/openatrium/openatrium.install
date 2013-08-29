@@ -6,6 +6,13 @@
  */
 
 /**
+ * Implements hook_install().
+ */
+function openatrium_install() {
+  node_access_rebuild();
+}
+
+/**
  * Enable oa_variables module.
  */
 function openatrium_update_7002() {

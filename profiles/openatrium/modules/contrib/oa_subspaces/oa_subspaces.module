@@ -37,7 +37,9 @@ function oa_subspaces_form_node_form_alter(&$form, $form_state, $form_id) {
         }
       }
       $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default']['#options'] = $all;
-      unset($form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['admin']);
+//    don't unset the 'admin' field, just hide it for simplicity.
+//    need value to persist in form
+      $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['admin']['#access'] = FALSE;
     }
     $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default']['#title'] = t('Parents');
     $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default']['#description'] = t('Inherit membership from the selected parents.');

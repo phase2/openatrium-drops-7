@@ -38,6 +38,11 @@ function file_entity_token_info() {
     'description' => t('The file type of the file.'),
     'type' => 'file-type',
   );
+  $info['tokens']['file']['download-url'] = array(
+    'name' => t('Download URL'),
+    'description' => t('The URL to download the file directly.'),
+    'type' => 'url',
+  );
 
   return $info;
 }
@@ -77,12 +82,20 @@ function file_entity_tokens($type, $tokens, array $data = array(), array $option
             $replacements[$original] = $sanitize ? check_plain($file_type->label) : $file_type->label;
           }
           break;
+
+        case 'download-url':
+          $uri = file_entity_download_uri($file);
+          $replacements[$original] = url($uri['path'], $uri['options'] + $url_options);
+          break;
       }
     }
 
     // Chained token relationships.
     if (($file_type_tokens = token_find_with_prefix($tokens, 'type')) && $file_type = file_type_load($file->type)) {
       $replacements += token_generate('file-type', $file_type_tokens, array('file_type' => $file_type), $options);
+    }
+    if ($download_url_tokens = token_find_with_prefix($tokens, 'download-url')) {
+      $replacements += token_generate('url', $download_url_tokens, file_entity_download_uri($file), $options);
     }
   }
 

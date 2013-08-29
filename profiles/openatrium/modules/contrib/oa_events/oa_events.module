@@ -174,38 +174,38 @@ function oa_events_find_next_event($items) {
  * Implements hook_field_formatter_view().
  */
 function oa_events_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
-
   $element = array();
   if ($display['type'] == 'oa_events_addthis') {
     $element[0]['#markup'] = oa_events_field_add_to_calendar_markup($entity->nid, $items);
   }
   else if ($display['type'] == 'oa_events_date_formatter') {
-    foreach ($items as $delta => $item) {
-      // Create Date objects from item values.
-      $start_date = new DateObject($item['value'], $item['timezone'], DATE_FORMAT_UNIX);
-      $end_date = new DateObject($item['value2'], $item['timezone'], DATE_FORMAT_UNIX);
 
-      // Create an array of month / day information for ease of use.
-      $dates = array(
-        'start' => array(
-          'day' => date_format_date($start_date, 'custom', 'd'),
-          'month' => date_format_date($start_date, 'custom', 'M'),
-        ),
-        'end' => array(
-          'day' => date_format_date($end_date, 'custom', 'd'),
-          'month' => date_format_date($end_date, 'custom', 'M'),
-        ),
+    $event_info = oa_events_find_next_event($items);
+    $item = $event_info['event'];
+    // Create Date objects from item values.
+    $start_date = new DateObject($item['value'], $item['timezone'], DATE_FORMAT_UNIX);
+    $end_date = new DateObject($item['value2'], $item['timezone'], DATE_FORMAT_UNIX);
+
+    // Create an array of month / day information for ease of use.
+    $dates = array(
+      'start' => array(
+        'day' => date_format_date($start_date, 'custom', 'd'),
+        'month' => date_format_date($start_date, 'custom', 'M'),
+      ),
+      'end' => array(
+        'day' => date_format_date($end_date, 'custom', 'd'),
+        'month' => date_format_date($end_date, 'custom', 'M'),
+      ),
+    );
+
+    if ($dates['start']['month'] == $dates['end']['month']) {
+      // For now always use the start date. We may add multi-day event to the
+      // widget at some point in the future.
+      $day = $dates['start']['day'];
+
+      $element[0] = array(
+        '#markup' => theme('oa_event_date', array('month' => $dates['start']['month'], 'day' => $day)),
       );
-
-      if ($dates['start']['month'] == $dates['end']['month']) {
-        // For now always use the start date. We may add multi-day event to the
-        // widget at some point in the future.
-        $day = $dates['start']['day'];
-
-        $element[$delta] = array(
-          '#markup' => theme('oa_event_date', array('month' => $dates['start']['month'], 'day' => $day)),
-        );
-      }
     }
   }
   elseif ($display['type'] == 'oa_events_upcoming_date') {

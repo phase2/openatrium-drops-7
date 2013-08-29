@@ -120,7 +120,16 @@ Drupal.wysiwyg.plugins.media = {
     // Media requests a WYSIWYG place holder rendering of the file by passing
     // the wysiwyg => 1 flag in the settings array when calling
     // media_get_file_without_label().
-    var matches = content.match(/<img[^>]+class=[\'"]([^"']+ )?media-element[^>]*>/gi);
+    //
+    // Finds the media-element class.
+    var classRegex = 'class=[\'"][^\'"]*?media-element';
+    // Image tag with the media-element class.
+    var regex = '<img[^>]+' + classRegex + '[^>]*?>';
+    // Or a span with the media-element class (used for documents).
+    // \S\s catches any character, including a linebreak; JavaScript does not
+    // have a dotall flag.
+    regex += '|<span[^>]+' + classRegex + '[^>]*?>[\\S\\s]+?</span>';
+    var matches = content.match(RegExp(regex, 'gi'));
     if (matches) {
       for (i = 0; i < matches.length; i++) {
         markup = matches[i];
@@ -172,7 +181,8 @@ InsertMedia.prototype = {
     var element = create_element(formatted_media.html, {
           fid: this.mediaFile.fid,
           view_mode: formatted_media.type,
-          attributes: formatted_media.options
+          attributes: formatted_media.options,
+          fields: formatted_media.options
         });
 
     var markup = outerHTML(element),
@@ -280,6 +290,14 @@ function extract_file_info (element) {
       }
     });
     delete(file_info.attributes['data-file_info']);
+
+    // Extract the link text, if there is any.
+    if (link_text = element.find('a').html()) {
+      file_info.link_text = link_text;
+    }
+    else {
+      file_info.link_text = null;
+    }
   }
 
   return file_info;

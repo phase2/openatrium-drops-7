@@ -41,7 +41,7 @@ features[facetapi][] = search_api@node_index:block:status
 features[facetapi][] = search_api@node_index:block:title
 features[facetapi][] = search_api@node_index:block:type
 features[facetapi][] = search_api@node_index:block:url
-features[features_api][] = api:1
+features[features_api][] = api:2
 features[page_manager_pages][] = panopoly_search
 features[search_api_index][] = database_node_index
 features[search_api_index][] = node_index
@@ -54,10 +54,9 @@ features[variable][] = search_api_facets_search_ids
 features[views_view][] = panopoly_database_search
 features[views_view][] = panopoly_search
 
-
-; Information added by drush on 2013-07-23
-version = "7.x-1.0-rc4+0-dev"
+; Information added by drupal.org packaging script on 2013-07-31
+version = "7.x-1.0-rc5"
 core = "7.x"
 project = "panopoly_search"
-datestamp = "1374603370"
+datestamp = "1375305393"
 

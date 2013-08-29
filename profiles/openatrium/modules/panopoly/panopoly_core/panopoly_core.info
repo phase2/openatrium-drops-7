@@ -33,7 +33,6 @@ dependencies[] = token
 dependencies[] = views
 dependencies[] = views_autocomplete_filters
 dependencies[] = views_content
-dependencies[] = views_ui
 stylesheets[all][] = css/panopoly-fonts.css
 stylesheets[all][] = css/panopoly-dropbutton.css
 features[ctools][] = panelizer:panelizer:1
@@ -73,9 +72,9 @@ features[variable][] = panelizer_taxonomy_term:panopoly_categories_allowed_types
 features[views_view][] = panopoly_taxonomy
 
 
-; Information added by drush on 2013-07-23
-version = "7.x-1.0-rc4+1-dev"
+; Information added by drush on 2013-08-29
+version = "7.x-1.0-rc5+0-dev"
 core = "7.x"
 project = "panopoly_core"
-datestamp = "1374603373"
+datestamp = "1377804113"
 

@@ -25,6 +25,13 @@ class oa_core_og_group_ref_views_handler_filter_in_operator extends views_handle
     if (!empty($_GET[$id . '_mine'])) {
       $exposed[$id . '_mine'] = 1;
     }
+
+    // Form API considers a Value of 0 to be CHECKED!!!!!
+    // So if the value is zero, we set it to FALSE so it is properly UnChecked.
+    if (isset($exposed[$id . '_mine']) && empty($exposed[$id . '_mine'])) {
+      $exposed[$id . '_mine'] = FALSE;
+    }
+
     global $user;
     if (!empty($exposed[$id . '_mine'])) {
       $groups = og_get_groups_by_user($user, 'node');
@@ -33,6 +40,7 @@ class oa_core_og_group_ref_views_handler_filter_in_operator extends views_handle
         $this->options['expose']['multiple'] = TRUE;
       }
       else {
+        // If restricting to My Spaces but the user has no spaces, fail the build
         $this->fail_build = TRUE;
       }
     }

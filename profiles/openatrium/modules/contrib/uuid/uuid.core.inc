@@ -42,8 +42,6 @@ function book_uuid_entities_features_export_entity_alter(&$entity, $entity_type)
   if ($entity_type == 'node') {
     if (!empty($entity->book)) {
       $entity->book['bid'] = current(entity_get_uuid_by_id($entity_type, array($entity->book['bid'])));
-      module_load_include('inc', 'uuid', 'uuid.features.menu');
-      uuid_menu_link_make_universal($entity->book, TRUE);
     }
   }
 }
@@ -58,7 +56,6 @@ function book_entity_uuid_presave(&$entity, $entity_type) {
       if (!$entity->book['bid']) {
         $entity->book['bid'] = 'new';
       }
-      uuid_menu_link_make_local($entity->book);
     }
   }
 }

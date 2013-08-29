@@ -1,10 +1,14 @@
+/**
+ * @file
+ * JS for Radix.
+ */
 (function ($) {
   $(document).ready(function() {
     // menu dropdown
-    $('ul.menu li.expanded').mouseenter(function() {
+    $('.navbar ul.nav li.dropdown').mouseenter(function() {
       $(this).addClass('open');
     });
-    $('ul.menu li.expanded').mouseleave(function() {
+    $('.navbar ul.nav li.dropdown').mouseleave(function() {
       $(this).removeClass('open');
     });
 
@@ -25,5 +29,8 @@
         });
       }
     });
+
+    // Tooltip.
+    $('[data-toggle="tooltip"]').tooltip();
   });
 })(jQuery);

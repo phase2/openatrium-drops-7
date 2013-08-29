@@ -4,7 +4,6 @@ api = 2
 core = 7.x
 
 ; iCalCreator library
-libraries[icalcreator][download][type] = file
-libraries[icalcreator][download][url] = http://kigkonsult.se/downloads/dl.php?f=iCalcreator-2.16.12
-libraries[icalcreator][directory_name] = iCalcreator
+libraries[iCalcreator][download][type] = get
+libraries[iCalcreator][download][url] = http://sourceforge.net/projects/icalcreator/files/icalcreator/2.18/iCalcreator-2.18.zip/download
 

@@ -158,13 +158,15 @@ function oa_messages_determine_user_notifiers($user, $entity, $message, $notifie
 
     // If no settings have been saved, assume all.
     if (empty($settings)) {
-      $allowed_notifiers = $notifiers;
+      foreach ($notifiers as $notifier) {
+        $allowed_notifiers[] = $notifier['id'];
+      }
     }
     else {
       foreach ($notifiers as $notifier) {
         // If unset, assume it should send.
-        if (!isset($settings[$space_id][$message->type][$notifier]) || $settings[$space_id][$message->type][$notifier]) {
-          $allowed_notifiers[] = $notifier;
+        if (!isset($settings[$space_id][$message->type][$notifier['id']]) || $settings[$space_id][$message->type][$notifier['id']]) {
+          $allowed_notifiers[] = $notifier['id'];
         }
       }
     }
@@ -178,7 +180,10 @@ function oa_messages_determine_user_notifiers($user, $entity, $message, $notifie
  * add notifiers by invoking hook_oa_message_notifiers_alter().
  */
 function oa_message_notifiers() {
-  $notifiers = array('oa_email');
+  $notifiers = array(
+    array(
+    'title' => 'Email',
+    'id'    => 'oa_email'));
   drupal_alter('oa_message_notifiers', $notifiers);
   return $notifiers;
 }

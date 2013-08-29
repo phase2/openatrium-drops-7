@@ -52,10 +52,34 @@ function oa_core_ctools_plugin_directory($owner, $plugin_type) {
  * Implementations hook_menu().
  */
 function oa_core_menu() {
- // Add an administration section for Open Atrium settings
-  $items['admin/openatrium/settings'] = array(
-    'title' => 'Open Atrium Settings',
-    'description' => 'Configuration related to Open Atrium',
+  // Add an administration page for Open Atrium
+  $items['admin/openatrium'] = array(
+    'title' => 'Open Atrium',
+    'description' => 'Administer Open Atrium.',
+    'weight' => 0,
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('administer site configuration'),
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+  );
+  $items['admin/openatrium/section-templates'] = array(
+    'title' => 'Section Templates',
+    'description' => 'Configure panelizer section templates',
+    'weight' => 0,
+    'access arguments' => array('administer site configuration'),
+    'page callback' => 'oa_core_section_template',
+  );
+  $items['admin/openatrium/space-templates'] = array(
+    'title' => 'Space Templates',
+    'description' => 'Configure panelizer space templates',
+    'weight' => 0,
+    'access arguments' => array('administer site configuration'),
+    'page callback' => 'oa_core_space_template',
+  );
+  $items['admin/openatrium/setting'] = array(
+    //changing from /settings since Drupal not refreshing parent of existing items
+    'title' => 'Plugin Settings',
+    'description' => 'Configuration related to Open Atrium plugins',
     'weight' => 0,
     'page callback' => 'drupal_get_form',
     'page arguments' => array('oa_core_configure_form'),
@@ -273,6 +297,24 @@ function oa_core_field_attach_view_alter(&$output, $context) {
       oa_core_replace_group($output['group_group'][0]['#markup'], $context);
     }
   }
+}
+
+/**
+ * Menu callback for Section Templates
+ */
+function oa_core_section_template() {
+  ctools_include('export-ui');
+  $handler = panelizer_entity_plugin_get_handler('node');
+  return panelizer_export_ui_switcher_page($handler, OA_SECTION_TYPE . '.page_manager', 'panelizer_defaults', 'list');
+}
+
+/**
+ * Menu callback for Section Templates
+ */
+function oa_core_space_template() {
+  ctools_include('export-ui');
+  $handler = panelizer_entity_plugin_get_handler('node');
+  return panelizer_export_ui_switcher_page($handler, OA_SPACE_TYPE . '.page_manager', 'panelizer_defaults', 'list');
 }
 
 /**
@@ -544,19 +586,17 @@ function oa_core_form_views_content_views_panes_content_type_edit_form_alter(&$f
   // Add in te Active options
   // @todo be a bit smarter on this, check type of field.
   $group = oa_core_get_space_context();
-  $has_active_space = ($group_node = node_load($group)) && $group_node->type == 'oa_space';
-  if (isset($form['exposed']['filter-oa_parent_space_target_id']['oa_parent_space_target_id']) && in_array($group_node, array('oa_space', 'oa_group'))) {
+  $has_active_space = ($group_node = node_load($group)) && ($group_node->type == OA_SPACE_TYPE);
+  if (isset($form['exposed']['filter-oa_parent_space_target_id']['oa_parent_space_target_id'])) {
     $form['exposed']['filter-oa_parent_space_target_id']['oa_parent_space_target_id']['#options'] = array('' => t('- Active Group -')) + $form['exposed']['filter-oa_parent_space_target_id']['oa_parent_space_target_id']['#options'];
     if (!isset($pane->configuration['exposed']['oa_parent_space_target_id'])) {
       $pane->configuration['exposed']['oa_parent_space_target_id'] = '';
     }
   }
   if (isset($form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id'])) {
-    if ($has_active_space) {
-      $form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id']['#options'] = array('' => t('- Active Space -')) + $form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id']['#options'];
-      if (!isset($pane->configuration['exposed']['og_group_ref_target_id'])) {
-        $pane->configuration['exposed']['og_group_ref_target_id'] = '';
-      }
+    $form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id']['#options'] = array('' => t('- Active Space -')) + $form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id']['#options'];
+    if (!isset($pane->configuration['exposed']['og_group_ref_target_id'])) {
+      $pane->configuration['exposed']['og_group_ref_target_id'] = '';
     }
     $form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id_mine'] = array(
       '#title' => t('Limit to groups of current user'),
@@ -582,11 +622,9 @@ function oa_core_form_views_content_views_panes_content_type_edit_form_alter(&$f
     }
     $form['exposed']['filter-oa_section_ref_target_id']['oa_section_ref_target_id']['#after_build'][] = 'oa_core_refresh_section_values';
 
-    if ($has_active_space && oa_core_get_section_context()) {
-      $form['exposed']['filter-oa_section_ref_target_id']['oa_section_ref_target_id']['#options'] = array('' => t('- Active Section -')) + $form['exposed']['filter-oa_section_ref_target_id']['oa_section_ref_target_id']['#options'];
-      if (!isset($pane->configuration['exposed']['oa_section_ref_target_id'])) {
-        $pane->configuration['exposed']['oa_section_ref_target_id'] = '';
-      }
+    $form['exposed']['filter-oa_section_ref_target_id']['oa_section_ref_target_id']['#options'] = array('' => t('- Active Section -')) + $form['exposed']['filter-oa_section_ref_target_id']['oa_section_ref_target_id']['#options'];
+    if (!isset($pane->configuration['exposed']['oa_section_ref_target_id'])) {
+      $pane->configuration['exposed']['oa_section_ref_target_id'] = '';
     }
   }
   if (!empty($form['exposed']['filter-uid'])) {

@@ -33,10 +33,9 @@ regions[footer] = Footer
 
 settings[shortcut_module_link] = 0
 
-
-; Information added by drush on 2013-07-23
-version = "7.x-1.0-beta1+3-dev"
+; Information added by drupal.org packaging script on 2013-06-12
+version = "7.x-1.0-beta2"
 core = "7.x"
 project = "responsive_bartik"
-datestamp = "1374603373"
+datestamp = "1371066051"
 

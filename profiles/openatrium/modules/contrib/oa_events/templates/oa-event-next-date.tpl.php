@@ -10,7 +10,7 @@
       <span class='oa-event-label'>
         <?php print t('Date'); ?>:
       </span>
-      <?=$variables['date']?>
+      <?php print $variables['date']?>
     </p>
   </div>
   <div class='oa-event-date-day-wrapper'>
@@ -18,7 +18,7 @@
       <?php print t('Time'); ?>:
     </span>
     <span class='oa-event-time'>
-      <?=$variables['time']?>
+      <?php print $variables['time']?>
     </span>
   </div>
   <?php if (!empty($rrule)) : ?>

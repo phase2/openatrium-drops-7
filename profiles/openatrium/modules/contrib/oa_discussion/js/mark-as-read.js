@@ -72,7 +72,7 @@
       // AJAX request to mark comments as read in the database.
       function commitAsRead() {
         if (read.length > 0) {
-          $.ajax('/oa_discussion/ajax/mark-read/' + read.join(','));
+          $.ajax(Drupal.settings.basePath + 'oa_discussion/ajax/mark-read/' + read.join(','));
           read = Array();
         }
       }

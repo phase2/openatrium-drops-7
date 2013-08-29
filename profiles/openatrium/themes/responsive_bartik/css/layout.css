@@ -1,5 +1,5 @@
 
-/* ---------- Basic Layout Styles ----------- */
+/* ------------------- Basic Layout Styles ---------------- */
 
 html,
 body,
@@ -7,7 +7,7 @@ body,
   height: 100%;
 }
 #page-wrapper {
-  min-height: 100%;  
+  min-height: 100%;
 }
 #header div.section,
 #featured div.section,
@@ -30,7 +30,7 @@ body,
   border: 1px solid #ccc;
 }
 #secondary-menu {
-  margin-bottom: 5px;
+  margin: 0 auto;
   overflow: hidden;
   width: 100%;
 }
@@ -49,7 +49,6 @@ body,
 }
 #footer-wrapper .section {
   -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
   box-sizing: border-box;
   padding: 0 15px;
 }
@@ -57,7 +56,6 @@ body,
 .region-triptych-middle,
 .region-triptych-last {
   -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
   box-sizing: border-box;
   padding: 0 20px 0;
 }
@@ -66,7 +64,6 @@ body,
 .region-footer-thirdcolumn,
 .region-footer-fourthcolumn {
   -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
   box-sizing: border-box;
   padding: 0 10px;
 }
@@ -84,33 +81,32 @@ body,
     display: inline;
     float: left; /* LTR */
     position: relative;
-  } 
-  .one-sidebar #sidebar {
-    width: 100%;
   }
   #sidebar-first,
   #sidebar-second {
     width: 50%;
-  } 
+  }
   #sidebar-second {
-    margin-left: 50%;
+    margin-left: 50%; /* LTR */
+  }
+  .one-sidebar #sidebar-first,
+  .one-sidebar #sidebar-second {
+    width: 100%;
+  }
+  .one-sidebar #sidebar-second {
+    margin-left: 0; /* LTR */
   }
   .region-triptych-first,
   .region-triptych-middle,
   .region-triptych-last {
     -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
     box-sizing: border-box;
-    padding: 20px 15px 30px;
+    padding: 0 10px 0;
     width: 33%;
-  }
-  .region-triptych-middle {
-    padding: 20px 5px 30px;
   }
   .region-footer-firstcolumn,
   .region-footer-secondcolumn {
     -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
     box-sizing: border-box;
     padding: 0 10px;
     width: 50%;
@@ -118,7 +114,6 @@ body,
   .region-footer-thirdcolumn,
   .region-footer-fourthcolumn {
     -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
     box-sizing: border-box;
     padding: 0 10px;
     width: 50%;
@@ -153,9 +148,6 @@ body,
     float: left; /* LTR */
     position: relative;
   }
-  .no-sidebars #content {
-    width: 100%;
-  }  
   .two-sidebars #content {
     margin-left: 25%;
     margin-right: 25%;
@@ -164,26 +156,31 @@ body,
   .one-sidebar #content {
     width: 75%;
   }
+  .no-sidebars #content {
+    width: 100%;
+  }
   .sidebar-first #content {
-    margin-left: 25%;
-    margin-right: 0;
+    margin-left: 25%; /* LTR */
+    margin-right: 0; /* LTR */
   }
   .sidebar-second #content {
-    margin-right: 25%;
-    margin-left: 0;
+    margin-right: 25%; /* LTR */
+    margin-left: 0; /* LTR */
   }
   #sidebar-first {
     width: 25%;
-    margin-left: -100%;
+    margin-left: -100%; /* LTR */
   }
   #sidebar-second {
     width: 25%;
-    margin-left: -25%;
+    margin-left: -25%; /* LTR */
     clear: none;
   }
   .region-triptych-first,
   .region-triptych-middle,
-  .region-triptych-last { 
+  .region-triptych-last {
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
     width: 33%;
   }
   .region-footer-firstcolumn,
@@ -191,7 +188,6 @@ body,
   .region-footer-thirdcolumn,
   .region-footer-fourthcolumn {
     -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
     box-sizing: border-box;
     padding: 0 10px;
     width: 25%;

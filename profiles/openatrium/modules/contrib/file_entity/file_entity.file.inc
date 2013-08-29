@@ -31,6 +31,9 @@ function file_entity_file_presave($file) {
   }
 
   field_attach_presave('file', $file);
+
+  // Fetch image dimensions.
+  file_entity_metadata_fetch_image_dimensions($file);
 }
 
 /**
@@ -54,13 +57,23 @@ function file_entity_file_insert($file) {
   // Ensure field data is saved since file_save() does not in Drupal 7.
   field_attach_insert('file', $file);
 
+  // Save file metadata.
+  if (!empty($file->metadata)) {
+    foreach ($file->metadata as $name => $value) {
+      db_merge('file_metadata')
+        ->fields(array(
+          'value' => serialize($value),
+        ))
+        ->key(array(
+          'fid' => $file->fid,
+          'name' => $name,
+        ))
+        ->execute();
+    }
+  }
+
   // Clear any related field caches.
   file_entity_invalidate_field_caches($file);
-
-  // Get and store image dimensions.
-  // @todo We should fetch image dimensions in file_entity_file_presave and
-  // then save them in this hook.
-  file_entity_image_dimensions($file, TRUE);
 }
 
 /**
@@ -70,23 +83,49 @@ function file_entity_file_update($file) {
   // Ensure field data is saved since file_save() does not in Drupal 7.
   field_attach_update('file', $file);
 
-  // Clear any related field caches.
-  file_entity_invalidate_field_caches($file);
+  // Save file metadata.
+  if (!empty($file->metadata)) {
+    foreach ($file->metadata as $name => $value) {
+      db_merge('file_metadata')
+        ->fields(array(
+          'value' => serialize($value),
+        ))
+        ->key(array(
+          'fid' => $file->fid,
+          'name' => $name,
+        ))
+        ->execute();
+    }
+  }
 
-  // Reset the image dimensions for a file.
-  // @todo We should fetch image dimensions in file_entity_file_presave and
-  // then save them in this hook.
-  file_entity_image_dimensions($file, TRUE);
+  // Save file metadata.
+  db_delete('file_metadata')->condition('fid', $file->fid);
+  if (!empty($file->metadata)) {
+    foreach ($file->metadata as $name => $value) {
+      db_merge('file_metadata')
+        ->fields(array(
+          'value' => serialize($value),
+        ))
+        ->key(array(
+          'fid' => $file->fid,
+          'name' => $name,
+        ))
+        ->execute();
+    }
+  }
 
-  if ($file->type == 'image' && module_exists('image')) {
+  if (file_entity_file_get_mimetype_type($file) == 'image' && module_exists('image')) {
     // If the image dimensions have changed, update any image field references
     // to this file and flush image style derivatives.
-    if ($file->image_dimensions != $file->original->image_dimensions) {
+    if ($file->metadata['width'] != $file->metadata['width'] || $file->metadata['height'] != $file->metadata['height']) {
       _file_entity_update_image_field_dimensions($file);
     }
 
     // Flush image style derivatives whenever an image is updated.
     image_path_flush($file->uri);
+
+  // Clear any related field caches.
+  file_entity_invalidate_field_caches($file);
   }
 }
 
@@ -100,8 +139,8 @@ function file_entity_file_delete($file) {
   // not yet been deleted.
   file_entity_invalidate_field_caches($file);
 
-  // Delete image dimensions from the {image_dimensions} table
-  db_query('DELETE FROM {image_dimensions} WHERE fid = :fid', array(':fid' => $file->fid));
+  // Remove file metadata.
+  db_delete('file_metadata')->condition('fid', $file->fid)->execute();
 
   // Remove this file from the search index if needed.
   // This code is implemented in file entity module rather than in search module,
@@ -151,38 +190,21 @@ function file_entity_file_mimetype_mapping_alter(&$mapping) {
  * Implements hook_file_load().
  */
 function file_entity_file_load($files) {
-  // Load images dimensions already in the {image_dimensions} table.
-  $result = db_query('SELECT * FROM {image_dimensions} id WHERE id.fid IN (:fids)', array(':fids' => array_keys($files)));
-  foreach ($result as $record) {
-    $files[$record->fid]->image_dimensions = array(
-      'width' => $record->width,
-      'height' => $record->height,
-    );
-  }
-  // Retrieve any missing images dimensions.
   foreach ($files as $file) {
-    file_entity_image_dimensions($file, FALSE);
+    $file->metadata = array();
+  }
+
+  // Load and unserialize metadata.
+  $results = db_query("SELECT * FROM {file_metadata} WHERE fid IN (:fids)", array(':fids' => array_keys($files)));
+  foreach ($results as $result) {
+    $files[$result->fid]->metadata[$result->name] = unserialize($result->value);
   }
 }
 
 /**
- * Retrieve the dimensions of an image file and store them in the
- * {image dimensions} table.
- *
- * @param $file
- *   A file object.
- *
- * @param $force
- *   TRUE if the image dimensions should always be loaded from the actual file
- *   even if $file->image_dimensions is already set.
- *
- * @return
- *   The image dimensions as an array with the 'width' and 'height' properties.
- *   The array is also added to $file as its image_dimensions property. If the
- *   image dimensions cannot be read, the 'width' and 'height' properties will
- *   be NULL. If $file is either empty or not an image file, FALSE is returned.
+ * Fetch the dimensions of an image and store them in the file metadata array.
  */
-function file_entity_image_dimensions($file, $force = FALSE) {
+function file_entity_metadata_fetch_image_dimensions($file) {
   // Prevent PHP notices when trying to read empty files.
   // @see http://drupal.org/node/681042
   if (!$file->filesize) {
@@ -190,36 +212,20 @@ function file_entity_image_dimensions($file, $force = FALSE) {
   }
 
   // Do not bother proceeding if this file does not have an image mime type.
-  if (strpos($file->filemime, 'image/') !== 0) {
+  if (file_entity_file_get_mimetype_type($file) != 'image') {
     return;
-  }
-
-  // Return the existing $file->image_dimensions unless a reload is forced.
-  if (!$force && isset($file->image_dimensions)) {
-    return $file->image_dimensions;
   }
 
   // We have a non-empty image file.
   $image_info = image_get_info($file->uri);
   if ($image_info) {
-    $file->image_dimensions = array(
-      'width' => $image_info['width'],
-      'height' => $image_info['height'],
-    );
-    db_merge('image_dimensions')
-      ->key(array('fid' => $file->fid))
-      ->fields(array(
-        'width' => $file->image_dimensions['width'],
-        'height' => $file->image_dimensions['height'],
-      ))
-      ->execute();
+    $file->metadata['width'] = $image_info['width'];
+    $file->metadata['height'] = $image_info['height'];
   }
   else {
     // Fallback to NULL values.
-    $file->image_dimensions = array(
-      'width' => NULL,
-      'height' => NULL,
-    );
+    $file->metadata['width'] = NULL;
+    $file->metadata['height'] = NULL;
   }
 }
 
@@ -232,6 +238,11 @@ function file_entity_image_dimensions($file, $force = FALSE) {
  * @see http://drupal.org/node/1448124
  */
 function _file_entity_update_image_field_dimensions($file) {
+  // Do not bother proceeding if this file does not have an image mime type.
+  if (file_entity_file_get_mimetype_type($file) != 'image') {
+    return;
+  }
+
   // Find all image field enabled on the site.
   $image_fields = array();
   foreach (field_info_fields() as $field) {
@@ -251,16 +262,49 @@ function _file_entity_update_image_field_dimensions($file) {
         foreach ($entity->{$image_field} as $langcode => $items) {
           foreach ($items as $delta => $item) {
             if ($item['fid'] == $file->fid) {
-              $entity->{$image_field}[$langcode][$delta]['width'] = $file->image_dimensions['width'];
-              $entity->{$image_field}[$langcode][$delta]['height'] = $file->image_dimensions['height'];
+              $entity->{$image_field}[$langcode][$delta]['width'] = $file->metadata['width'];
+              $entity->{$image_field}[$langcode][$delta]['height'] = $file->metadata['height'];
             }
           }
         }
 
-        // Ensure that file_field_update() will not trigger additional usage.
-        unset($entity->revision);
-        field_attach_update($entity_type, $entity);
+        // Save the updated field column values.
+        _file_entity_entity_fields_update($entity_type, $entity);
       }
     }
   }
+}
+
+/**
+ * Update an entity's field values without changing anything on the entity.
+ */
+function _file_entity_entity_fields_update($entity_type, $entity) {
+  list($id) = entity_extract_ids($entity_type, $entity);
+  if (empty($id)) {
+    throw new Exception(t('Cannot call _file_entity_update_entity_fields() on a new entity.'));
+  }
+
+  // Some modules use the original property.
+  if (!isset($entity->original)) {
+    $entity->original = $entity;
+  }
+
+  // Ensure that file_field_update() will not trigger additional usage.
+  unset($entity->revision);
+
+  // Invoke the field presave and update hooks.
+  field_attach_presave($entity_type, $entity);
+  field_attach_update($entity_type, $entity);
+
+  // Clear the cache for this entity now.
+  entity_get_controller($entity_type)->resetCache(array($id));
+}
+
+/**
+ * Implements hook_file_metadata_info().
+ */
+function file_entity_file_metadata_info() {
+  $info['width'] = array('label' => t('Width'), 'type' => 'integer');
+  $info['height'] = array('label' => t('Height'), 'type' => 'integer');
+  return $info;
 }

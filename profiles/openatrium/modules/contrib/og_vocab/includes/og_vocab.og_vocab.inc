@@ -51,6 +51,10 @@ class OgVocab extends Entity {
     $rebuild_keys = FALSE;
     if ($field['cardinality'] != 1) {
       foreach ($wrapper->{$field_name}->value() as $delta => $term) {
+        if (empty($term)) {
+          // The term has deleted, but the reference still remains in the field.
+          continue;
+        }
         if ($term->vid != $this->vid) {
           $wrapper->{$field_name}->offsetUnset($delta);
           $rebuild_keys = TRUE;
@@ -85,9 +89,11 @@ class OgVocab extends Entity {
     if ($this->settings['widget_type'] ==  'entityreference_autocomplete') {
       $element['#vid'] = $vid;
 
-      // Change the "Add more" button name so it adds only the needed
-      // element.
-      $element['add_more']['#name'] .= '__' . $vid;
+      if (!empty($element['add_more'])) {
+        // Change the "Add more" button name so it adds only the needed
+        // element.
+        $element['add_more']['#name'] .= '__' . $vid;
+      }
 
       foreach (array_keys($element) as $delta) {
         if (!is_numeric($delta)) {

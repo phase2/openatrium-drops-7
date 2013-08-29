@@ -16,7 +16,7 @@ function oa_messages_oa_user_settings_form_alter(&$form, $form_state, $user) {
     '#collapsed' => FALSE,
     '#tree' => TRUE,
   );
-  $defaults = $user->data['oa_messages'];
+  $defaults = isset($user->data['oa_messages']) ? $user->data['oa_messages'] : array();
 
   $form['oa_messages']['message_notifications'] = oa_messages_build_message_notifications_table($user, $defaults);
 
@@ -109,14 +109,14 @@ function oa_messages_build_message_notifications_table($user, $defaults = array(
           '#suffix' => '</td>',
         );
         foreach ($notifiers as $notifier) {
-          $value = isset($defaults['message_notifications'][$space->nid][$message_type->name][$notifier]) ?
-            $defaults['message_notifications'][$space->nid][$message_type->name][$notifier] :
+          $value = isset($defaults['message_notifications'][$space->nid][$message_type->name][$notifier['id']]) ?
+            $defaults['message_notifications'][$space->nid][$message_type->name][$notifier['id']] :
             TRUE;
 
-          $table[$space->nid][$message_type->name][$notifier] = array(
+          $table[$space->nid][$message_type->name][$notifier['id']] = array(
             '#type' => 'checkbox',
             '#default_value' => $value,
-            '#field_prefix' => '<span class="label">' . $notifier . '</span>',
+            '#field_prefix' => '<span class="label">' . $notifier['title'] . '</span>',
           );
         }
       }

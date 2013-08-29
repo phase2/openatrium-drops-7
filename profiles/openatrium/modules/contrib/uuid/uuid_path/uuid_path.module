@@ -10,7 +10,6 @@
  */
 function uuid_path_entity_uuid_load(&$entities, $entity_type) {
   _uuid_path_load_url_aliases($entities, $entity_type);
-  _uuid_path_load_menu_links($entities, $entity_type);
 }
 
 /**
@@ -18,7 +17,6 @@ function uuid_path_entity_uuid_load(&$entities, $entity_type) {
  */
 function uuid_path_entity_uuid_save(&$entity, $entity_type) {
   _uuid_path_save_url_aliases($entity, $entity_type);
-  _uuid_path_save_menu_links($entity, $entity_type);
 }
 
 /**
@@ -43,28 +41,6 @@ function _uuid_path_load_url_aliases(&$entities, $entity_type) {
     }
 
     $entities[$id]->url_alias = $aliases;
-  }
-}
-
-/**
- * Loads the menu links in the corresponding entity.
- */
-function _uuid_path_load_menu_links(&$entities, $entity_type) {
-  $info = entity_get_info($entity_type);
-  // we only care about entities with URLs.
-  if (!isset($info['uri callback'])) {
-    return;
-  }
-
-  module_load_include('inc', 'uuid', 'uuid.features.menu');
-
-  foreach ($entities as $id => $entity) {
-    $mlids = _uuid_path_mlids_load($entity, $entity_type);
-    foreach ($mlids as $mlid) {
-      $link = menu_link_load($mlid);
-      uuid_menu_link_make_universal($link, TRUE);
-      $entities[$id]->menu_links[] = $link;
-    }
   }
 }
 
@@ -99,31 +75,6 @@ function _uuid_path_save_url_aliases(&$entity, $entity_type) {
 }
 
 /**
- * Saves the received menu links.
- */
-function _uuid_path_save_menu_links(&$entity, $entity_type) {
-  $info = entity_get_info($entity_type);
-  // we only care about entities with URLs.
-  if (!isset($info['uri callback'])) {
-    return;
-  }
-
-  module_load_include('inc', 'uuid', 'uuid.features.menu');
-
-  $mlids = _uuid_path_mlids_load($entity, $entity_type);
-  foreach ($mlids as $mlid) {
-    menu_link_delete($mlid);
-  }
-
-  if (isset($entity->menu_links) && is_array($entity->menu_links)) {
-    foreach ($entity->menu_links as $link) {
-      uuid_menu_link_make_local($link);
-      menu_link_save($link);
-    }
-  }
-}
-
-/**
  * Loads all aliases associated with a path.
  *
  * @param $path
@@ -140,20 +91,3 @@ function _uuid_path_url_alias_load($path) {
     ->fetchAll(PDO::FETCH_OBJ);
 }
 
-/**
- * Loads menu link IDs associated with an entity.
- *
- * @param $entity
- *   The entity used to get the menu link ID.
- *
- * @return array
- *   The menu link IDs
- */
-function _uuid_path_mlids_load($entity, $entity_type) {
-  $uri = entity_uri($entity_type, $entity);
-  $mlids = db_query("SELECT mlid FROM {menu_links} WHERE link_path = :path AND module = 'menu' ORDER BY mlid ASC", array(
-    ':path' => $uri['path'],
-  ))->fetchCol();
-
-  return $mlids;
-}

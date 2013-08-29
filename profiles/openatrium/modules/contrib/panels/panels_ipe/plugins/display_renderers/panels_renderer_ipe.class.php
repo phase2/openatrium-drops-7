@@ -153,7 +153,7 @@ class panels_renderer_ipe extends panels_renderer_editor {
 
       // Get the administrative title.
       $content_type = ctools_get_content_type($pane->type);
-      $title = ctools_content_admin_title($content_type, $pane->subtype, $pane->configuration, $this->display->context);
+      $title = ctools_content_get_subtype($content_type, $pane->subtype) ? ctools_content_admin_title($content_type, $pane->subtype, $pane->configuration, $this->display->context) : t('Unknown');
 
       $content->content = t('Placeholder for empty or inaccessible "@title"', array('@title' => html_entity_decode($title, ENT_QUOTES)));
       // Add these to prevent notices.
@@ -176,7 +176,7 @@ class panels_renderer_ipe extends panels_renderer_editor {
     $empty_ph = theme('panels_ipe_placeholder_pane', array('region_id' => $region_id, 'region_title' => $this->plugins['layout']['regions'][$region_id]));
 
     // Wrap the placeholder in some guaranteed markup.
-    $control = '<div class="panels-ipe-placeholder panels-ipe-on panels-ipe-portlet-static">' . $empty_ph . theme('panels_ipe_add_pane_button', array('region_id' => $region_id, 'display' => $this->display, 'renderer' => $this)) . "</div>";
+    $control = '<div class="panels-ipe-placeholder panels-ipe-on panels-ipe-portlet-marker panels-ipe-portlet-static">' . $empty_ph . theme('panels_ipe_add_pane_button', array('region_id' => $region_id, 'display' => $this->display, 'renderer' => $this)) . "</div>";
 
     $output = parent::render_region($region_id, $panes);
     $output = theme('panels_ipe_region_wrapper', array('output' => $output, 'region_id' => $region_id, 'display' => $this->display, 'controls' => $control, 'renderer' => $this));
@@ -358,7 +358,7 @@ class panels_renderer_ipe extends panels_renderer_editor {
       if (!empty($form_state['clicked_button']['#save-display'])) {
         // Saved. Save the cache.
         panels_edit_cache_save($this->cache);
-        $this->display->skip_cache;
+        $this->display->skip_cache = TRUE;
 
         // Since the layout changed, we have to update these things in the
         // renderer in order to get the right settings.
@@ -405,7 +405,11 @@ class panels_renderer_ipe extends panels_renderer_editor {
       $pane = $this->display->content[$pid];
     }
 
-    $this->commands[] = ajax_command_prepend("#panels-ipe-regionid-{$pane->panel} div.panels-ipe-sort-container", $this->render_pane($pane));
+    $this->commands[] = array(
+      'command' => 'insertNewPane',
+      'regionId' => $pane->panel,
+      'renderedPane' => $this->render_pane($pane),
+    );
     $this->commands[] = ajax_command_changed("#panels-ipe-display-{$this->clean_key}");
     $this->commands[] = array(
       'command' => 'addNewPane',

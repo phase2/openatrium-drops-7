@@ -226,6 +226,7 @@ function _fieldable_panels_panes_default_content_type() {
       'description' => t('Create a new custom entity.'),
       'all contexts' => TRUE,
       'bundle' => $bundle,
+      'create content access' => 'fieldable_panels_panes_content_type_create_access',
     );
   }
 
@@ -299,4 +300,11 @@ function _fieldable_panels_panes_load_entity($subtype_name) {
   }
 
   return $content;
+}
+
+/**
+ * Access callback for creating a new content type.
+ */
+function fieldable_panels_panes_content_type_create_access($type, $subtype) {
+  return fieldable_panels_panes_access('create', $subtype['name']);
 }

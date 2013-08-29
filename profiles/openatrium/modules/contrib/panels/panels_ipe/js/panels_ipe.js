@@ -322,7 +322,7 @@ function DrupalPanelsIPE(cache_key, cfg) {
 
   this.createSortContainers = function() {
     $('div.panels-ipe-region', this.topParent).each(function() {
-      $('div.panels-ipe-portlet-marker', this).parent()
+      $(this).children('div.panels-ipe-portlet-marker').parent()
         .wrapInner('<div class="panels-ipe-sort-container" />');
 
       // Move our gadgets outside of the sort container so that sortables
@@ -383,6 +383,34 @@ $(function() {
   Drupal.ajax.prototype.commands.endIPE = function(ajax, data, status) {
     if (Drupal.PanelsIPE.editors[data.key]) {
       Drupal.PanelsIPE.editors[data.key].endEditing();
+    }
+  };
+
+  Drupal.ajax.prototype.commands.insertNewPane = function(ajax, data, status) {
+    IPEContainerSelector = '#panels-ipe-regionid-' + data.regionId + ' div.panels-ipe-sort-container';
+    firstPaneSelector = IPEContainerSelector + ' div.panels-ipe-portlet-wrapper:first';
+    // Insert the new pane before the first existing pane in the region, if
+    // any.
+    if ($(firstPaneSelector).length) {
+      insertData = {
+        'method': 'before',
+        'selector': firstPaneSelector,
+        'data': data.renderedPane,
+        'settings': null
+      }
+      Drupal.ajax.prototype.commands.insert(ajax, insertData, status);
+    }
+    // Else, insert it as a first child of the container. Doing so might fall
+    // outside of the wrapping markup for the style, but it's the best we can
+    // do.
+    else {
+      insertData = {
+        'method': 'prepend',
+        'selector': IPEContainerSelector,
+        'data': data.renderedPane,
+        'settings': null
+      }
+      Drupal.ajax.prototype.commands.insert(ajax, insertData, status);
     }
   };
 

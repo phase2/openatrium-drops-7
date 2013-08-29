@@ -45,6 +45,109 @@ function uuid_sync_all() {
 }
 
 /**
+ * Generates a UUID URI for an entity.
+ *
+ * @param object $entity
+ *   The entity to use for generating the UUID URI.
+ * @param string $entity_type
+ *   The type of entity being used.
+ *
+ * @return string
+ *  The generated UUID URI or normal URI if entity doesn't support UUIDs.
+ */
+function uuid_entity_uuid_uri($entity, $entity_type) {
+  $entity_info = entity_get_info($entity_type);
+
+  if (empty($entity_info['uuid'])) {
+    $uri = $entity_info['uri callback']($entity);
+    return $uri['path'];
+  }
+
+  if (isset($entity_info['uuid uri callback'])) {
+    return $entity_info['uuid uri callback']($entity);
+  }
+
+  return "uuid/{$entity_type}/" . $entity->{$entity_info['entity keys']['uuid']};
+}
+
+/**
+ * Converts an ID URI string to an entity data array.
+ *
+ * @see uuid_id_uri_array_to_data()
+ *
+ * @param string $uri
+ *  The URI to convert.
+ *
+ * @return array
+ *  The entity data.
+ */
+function uuid_id_uri_to_data($uri) {
+  $parts = explode('/', $uri);
+  return uuid_id_uri_array_to_data($parts);
+}
+
+/**
+ * Converts a URI array to entity data array.
+ *
+ * @param array $uri
+ *  The URI parts, often taken from arg().
+ *
+ * @return array
+ *  The entity data.
+ */
+function uuid_id_uri_array_to_data($uri) {
+  $data = array(
+    'request' => $uri,
+    'entity_type' => $uri[0],
+    'id' => $uri[1],
+  );
+
+  drupal_alter('uuid_id_uri_data', $data);
+
+  return $data;
+}
+
+/**
+ * Converts a UUID URI string to an entity data array.
+ *
+ * @see uuid_uri_array_to_data()
+ *
+ * @param string $uri
+ *  The URI to convert.
+ *
+ * @return array
+ *  The entity data.
+ */
+function uuid_uri_to_data($uri, $strip_uuid = TRUE) {
+  return uuid_uri_array_to_data(explode('/', $uri));
+}
+
+/**
+ * Converts a URI array to entity data array.
+ *
+ * @param array $uri
+ *  The URI parts, often taken from arg().
+ *
+ * @return array
+ *  The entity data.
+ */
+function uuid_uri_array_to_data($uri, $strip_uuid = TRUE) {
+  if ($strip_uuid) {
+    array_shift($uri);
+  }
+
+  $data = array(
+    'request' => $uri,
+    'entity_type' => $uri[0],
+    'uuid' => $uri[1],
+  );
+
+  drupal_alter('uuid_uri_data', $data);
+
+  return $data;
+}
+
+/**
  * Generates a UUID using the Windows internal GUID generator.
  *
  * @see http://php.net/com_create_guid

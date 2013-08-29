@@ -22,3 +22,10 @@ function panopoly_admin_install() {
 function panopoly_admin_uninstall() {
 
 }
+
+/**
+ * Panopoly RC 5 Update: Enabling Breakpoints Module
+ */
+function panopoly_admin_update_7001(&$sandbox) {
+  module_enable(array('breakpoints'));
+}

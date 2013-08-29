@@ -82,7 +82,7 @@ function oa_buttons_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'field_oa_section',
-    'label' => 'Section',
+    'label' => 'Section Type',
     'options_limit' => FALSE,
     'options_limit_empty_behaviour' => 0,
     'options_limit_fields' => array(),

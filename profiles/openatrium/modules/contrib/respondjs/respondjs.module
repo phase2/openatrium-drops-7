@@ -20,11 +20,22 @@ function respondjs_menu() {
     'description' => 'Configure respond.js settings',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('respondjs_admin'),
-    'access arguments' => array('access administration pages'),
+    'access arguments' => array('administer respondjs'),
     'file' => 'respondjs.admin.inc',
     'type' => MENU_NORMAL_ITEM,
   );
   return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function respondjs_permission() {
+  return array(
+    'administer respondjs' => array(
+      'title' => t('Administer respond.js'),
+    ),
+  );
 }
 
 /**
@@ -62,49 +73,6 @@ function respondjs_library() {
     ),
   );
   return $libraries;
-}
-
-/**
- * Implements hook_requirements().
- */
-function respondjs_requirements($phase) {
-  $requirements = array();
-  if ($phase == "runtime") {
-    $library_path = respondjs_get_library_file();
-    $requirements['respondjs'] = array(
-      'title' => t('Respond.js script'),
-      'value' => t('Enabled'),
-    );
-    // If CSS aggregated is not enabled, inform users it will not work.
-    if (variable_get('preprocess_css') != 1) {
-      $requirements['respondjs']['value'] = t('Respond.js will not work with CSS aggregation disabled.');
-      if (variable_get('respondjs_quiet', RESPONDJS_QUIET_DEFAULT) == 1) {
-        // If the user disabled the warning, reduce the severity of this requirement.
-        $requirements['respondjs']['severity'] = REQUIREMENT_WARNING;
-        $requirements['respondjs']['description'] = t('The Respond.js module is enabled, but CSS aggregation is disabled. The script cannot function until <a href="@url">CSS agregation is enabled</a>.', array('@url' => url('admin/config/development/performance')));
-      }
-      else {
-        // By default, failure to meet this requirement will result in an admin warning.
-        $requirements['respondjs']['severity'] = REQUIREMENT_ERROR;
-        $requirements['respondjs']['description'] = t('The Respond.js module is enabled, but CSS aggregation is disabled. The script cannot function until <a href="@url1">CSS agregation is enabled</a>. You can <a href="@url2">disable this warning</a>.', array('@url1' => url('admin/config/development/performance'), '@url2' => url('admin/config/media/respondjs')));
-      }
-    }
-    // If Libraries API is enabled but respond.js is not found within the sites/all/libraries folder
-    // report a warning. The module will fall back to its included copy so this isn't a showstopper.
-    if (function_exists('libraries_get_path') && strpos($library_path,'libraries/respondjs') === FALSE) {
-      $requirements['respondjs']['value'] = t('Respond.js is not correctly using Libraries API');
-      $requirements['respondjs']['severity'] = REQUIREMENT_WARNING;
-      $requirements['respondjs']['description'] = t('Please install <a href="https://raw.github.com/scottjehl/Respond/master/respond.min.js">Respond.js</a> in <b>'. libraries_get_path('respondjs') .'</b>. The module is using its included copy at <b>'.drupal_get_path('module','respondjs') .'/lib</b>');
-    }
-    // If the included copy of respond.js has been removed or renamed report an error.
-    // At this point the module cannot function properly.
-    if (!file_exists($library_path)) {
-      $requirements['respondjs']['value'] = t('Respond.js is not correctly installed');
-      $requirements['respondjs']['severity'] = REQUIREMENT_ERROR;
-      $requirements['respondjs']['description'] = t('Please install <a href="https://raw.github.com/scottjehl/Respond/master/respond.min.js">Respond.js</a> in the repsondjs folder under /lib');
-    }
-  }
-  return $requirements;
 }
 
 /**

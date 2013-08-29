@@ -87,9 +87,12 @@ function panopoly_core_update_7001(&$sandbox) {
  */
 function panopoly_core_update_7002() {
   if (function_exists('pathauto_update_7006')) {
+    $res = pathauto_update_7006();
     if (db_table_exists('pathauto')) {
+      db_query("INSERT INTO {pathauto_state} (entity_type, entity_id, pathauto) SELECT entity_type, entity_id, pathauto FROM {pathauto}");
       db_drop_table('pathauto');
     }
-    return pathauto_update_7006();
+    return $res;
   }
 }
+

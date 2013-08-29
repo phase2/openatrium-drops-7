@@ -14,9 +14,9 @@ features_exclude[dependencies][ctools] = ctools
 files[] = trash_flag.test
 project path = sites/all/modules
 
-
-; Information added by drush on 2013-07-23
-version = ""
+; Information added by drupal.org packaging script on 2013-08-29
+version = "7.x-1.0-beta1"
+core = "7.x"
 project = "trash_flag"
-datestamp = "1374603380"
+datestamp = "1377799919"
 

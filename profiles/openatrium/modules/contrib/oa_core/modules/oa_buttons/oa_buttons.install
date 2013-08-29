@@ -99,3 +99,16 @@ function oa_buttons_update_7008() {
     }
   }
 }
+
+/**
+ * Remove Add Section and Add Team from default space types
+ */
+function oa_buttons_update_7009() {
+  $terms = oa_buttons_get_default_terms();
+  foreach ($terms as $term) {
+    // force default terms to be recreated
+    oa_buttons_create_term($term['taxonomy'], $term['name'], $term['node_options'], $term['layout'], TRUE);
+  }
+}
+
+

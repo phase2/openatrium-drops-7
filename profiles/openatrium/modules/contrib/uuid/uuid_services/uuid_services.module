@@ -15,7 +15,7 @@
 function uuid_services_services_resources_alter(&$resources, &$endpoint) {
   foreach (entity_get_info() as $entity_type => $entity_info) {
     if (isset($entity_info['uuid']) && $entity_info['uuid'] == TRUE && isset($resources[$entity_type])) {
-      unset($resources[$entity_type]['create']);
+      unset($resources[$entity_type]['operations']['create']);
 
       // Alter 'retrieve' method to use UUID enabled functions and arguments.
       $resources[$entity_type]['operations']['retrieve']['help'] = t('Retrieve %label entities based on UUID.', array('%label' => $entity_info['label']));
@@ -182,7 +182,7 @@ function _uuid_services_entity_access($op, $args) {
       entity_make_entity_local($entity_type, $entity);
     }
     // Fetch the local entity if we've got an id.
-    elseif (!empty($entity_id)) {
+    elseif (!empty($entity_ids)) {
       $entities = entity_load($entity_type, $entity_ids);
       $entity = reset($entities);
     }

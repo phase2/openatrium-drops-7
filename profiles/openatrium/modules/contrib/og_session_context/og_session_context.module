@@ -29,15 +29,47 @@ function og_session_context_og_context_negotiation_info() {
 }
 
 /**
+ * return the current group context
+ */
+function og_session_context_get_context() {
+  $menu = menu_get_object();
+  if (!isset($menu->nid)) {
+    return 0;
+  }
+
+  $nid = $menu->nid;
+  $node = node_load($nid);
+  if (empty($node)) {
+    return 0;
+  }
+
+  if (og_is_group('node', $node)) {
+    // get space id directly from space nodes
+    return $nid;
+  }
+  elseif (!empty($node->{OG_AUDIENCE_FIELD}[LANGUAGE_NONE][0]['target_id'])) {
+    // otherwise get space id from space field reference
+    return $node->{OG_AUDIENCE_FIELD}[LANGUAGE_NONE][0]['target_id'];
+  }
+
+  return 0;
+}
+
+/**
  * Callback to pass the og context value based on the last space or space
  *   content page visited.
  */
 function og_session_context_og_context_handler_sessions() {
-  _og_session_context_set_context();  // update the session variable
+  $group = og_session_context_get_context();
+  // if we can't get the group from the node, look in session variable
+  if (!$group && !empty($_SESSION[OG_SESSION_CONTEXT_ID])) {
+    $group = $_SESSION[OG_SESSION_CONTEXT_ID];
+  }
+  _og_session_context_set_context($group);  // update the session variable
 
   $gids = FALSE;
-  if (!empty($_SESSION[OG_SESSION_CONTEXT_ID]) && ($node = node_load($_SESSION[OG_SESSION_CONTEXT_ID])) && node_access('view', $node)) {
-    $gids['node'][0] = $_SESSION[OG_SESSION_CONTEXT_ID];
+  if ($group && ($node = node_load($group)) && node_access('view', $node)) {
+    $gids['node'][0] = $group;
   }
 
   return $gids;
@@ -48,7 +80,7 @@ function og_session_context_og_context_handler_sessions() {
  *   by looking the entity's node value or the og_group_ref field value on
  *   space and space content page.
  */
-function _og_session_context_set_context() {
+function _og_session_context_set_context($group) {
   global $user;
 
   // don't create a session for anonymous users unless session already started
@@ -57,23 +89,7 @@ function _og_session_context_set_context() {
     return;
   }
 
-  $menu = menu_get_object();
-  if (!isset($menu->nid)) {
-    return;
-  }
-
-  $nid = $menu->nid;
-  $node = node_load($nid);
-  if (empty($node)) {
-    return;
-  }
-
-  if (og_is_group('node', $node)) {
-    // get space id directly from space nodes
-    $_SESSION[OG_SESSION_CONTEXT_ID] = $nid;
-  }
-  elseif (!empty($node->{OG_AUDIENCE_FIELD}[LANGUAGE_NONE][0]['target_id'])) {
-    // otherwise get space id from space field reference
-    $_SESSION[OG_SESSION_CONTEXT_ID] = $node->{OG_AUDIENCE_FIELD}[LANGUAGE_NONE][0]['target_id'];
+  if ($group) {
+    $_SESSION[OG_SESSION_CONTEXT_ID] = $group;
   }
 }

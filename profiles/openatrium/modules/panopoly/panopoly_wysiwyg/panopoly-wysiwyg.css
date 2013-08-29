@@ -2,6 +2,16 @@
  * TinyMCE WYSIWYG styling
  */
 
+body.mceContentBody {
+  height: auto !important;
+  background: none #FFF;
+}
+
+body.mceContentBody ol li,
+body.mceContentBody ul li {
+  list-style-position: inside;
+}
+
 table.mceToolbar td {
    display: inline-block;
 }

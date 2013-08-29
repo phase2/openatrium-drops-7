@@ -87,7 +87,7 @@ function oa_subspaces_field_default_field_instances() {
       ),
     ),
     'deleted' => 0,
-    'description' => '',
+    'description' => 'Set whether or not the subgroups of this group inherit this group\'s users.',
     'display' => array(
       'default' => array(
         'label' => 'above',
@@ -112,7 +112,7 @@ function oa_subspaces_field_default_field_instances() {
     'entity_type' => 'node',
     'field_name' => 'og_user_inheritance',
     'label' => 'Group user inheritance',
-    'required' => TRUE,
+    'required' => 1,
     'settings' => array(
       'user_register_form' => FALSE,
     ),
@@ -127,6 +127,7 @@ function oa_subspaces_field_default_field_instances() {
       ),
     ),
     'widget' => array(
+      'active' => 1,
       'module' => 'options',
       'settings' => array(),
       'type' => 'options_buttons',
@@ -382,6 +383,7 @@ function oa_subspaces_field_default_field_instances() {
   t('Group user inheritance');
   t('Group user permission inheritance');
   t('Parents');
+  t('Set whether or not the subgroups of this group inherit this group\'s users.');
   t('The parent space to optionally inherit members from.');
 
   return $field_instances;

@@ -21,10 +21,9 @@ features[user_permission][] = create features_test content
 features[views_view][] = features_test
 hidden = 1
 
-
-; Information added by drush on 2013-07-23
-version = "7.x-2.0-rc1+6-dev"
+; Information added by drupal.org packaging script on 2013-08-26
+version = "7.x-2.0-rc3"
 core = "7.x"
 project = "features"
-datestamp = "1374603381"
+datestamp = "1377548845"
 

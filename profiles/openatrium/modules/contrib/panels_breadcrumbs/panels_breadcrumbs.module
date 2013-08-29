@@ -186,9 +186,14 @@ function panels_breadcrumbs_build_breadcrumb($conf, $contexts, $override = FALSE
 
   // Iterate through all crumbs and add them to the breadcrumb
   foreach ($titles as $key => $title) {
+
     // Translate the title and convert existing placeholder tokens afterwards.
     $translated_title = t($title);
     $translated_title = ctools_context_keyword_substitute($translated_title, array(), $contexts);
+
+    if (empty($translated_title)) {
+      continue;
+    }
 
     $translated_title = html_entity_decode(trim($translated_title), ENT_QUOTES);
     $path = empty($paths[$key]) ? '<none>' : trim($paths[$key]);
@@ -261,7 +266,7 @@ function panels_breadcrumbs_page_breadcrumb_content_type_render($subtype, $conf,
   }
 
   // If no breadcrumb configuration was found, fallback to Drupal's default.
-  if (isset($correct_conf)) {
+  if (isset($correct_conf) && $correct_conf['panels_breadcrumbs_state']) {
     $breadcrumb = panels_breadcrumbs_build_breadcrumb($correct_conf, $contexts);
   }
   else {

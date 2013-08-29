@@ -13,6 +13,35 @@ define('OA_SESSION_SECTION', 'oa_section_id');
 /**
  * Determines the current section id value
  */
+function oa_section_get_section_context() {
+  $menu = menu_get_object();
+  if (!isset($menu->nid) || !session_id()) {
+    return 0;
+  }
+
+  $nid = $menu->nid;
+  $node = node_load($nid);
+  if (empty($node)) {
+    return 0;
+  }
+
+  $set_session = 0;
+  if ($node->type == 'oa_section') {
+    // get section id directly from section nodes
+    $set_session = $node->nid;
+  }
+  elseif (isset($node->{OA_SECTION_FIELD}[LANGUAGE_NONE][0]['target_id'])) {
+    // otherwise get section id from any section field reference
+    $set_session = $node->{OA_SECTION_FIELD}[LANGUAGE_NONE][0]['target_id'];
+  }
+
+  return $set_session;
+}
+
+/**
+ * Implements hook_init
+ * Put the section context into session variable
+ */
 function oa_section_context_init() {
   global $user;
 
@@ -22,26 +51,7 @@ function oa_section_context_init() {
     return;
   }
 
-  $menu = menu_get_object();
-  if (!isset($menu->nid) || !session_id()) {
-    return;
-  }
-
-  $nid = $menu->nid;
-  $node = node_load($nid);
-  if (empty($node)) {
-    return;
-  }
-
-  $set_session = FALSE;
-  if ($node->type == 'oa_section') {
-    // get section id directly from section nodes
-    $set_session = $node->nid;
-  }
-  elseif (isset($node->{OA_SECTION_FIELD}[LANGUAGE_NONE][0]['target_id'])) {
-    // otherwise get section id from any section field reference
-    $set_session = $node->{OA_SECTION_FIELD}[LANGUAGE_NONE][0]['target_id'];
-  }
+  $set_session = oa_section_get_section_context();
 
   if ($set_session && ($node = node_load($set_session)) && node_access('view', $node)) {
     $_SESSION[OA_SESSION_SECTION] = $set_session;

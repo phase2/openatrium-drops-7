@@ -580,7 +580,7 @@ class OgVocabUnbindFromContentType extends DrupalWebTestCase {
     // Execute manually the queue worker.
     $queue = DrupalQueue::get('og_vocab');
     $item = $queue->claimItem();
-    og_vocab_advancedqueue_worker($item);
+    og_vocab_remove_referenced_items_queue_worker($item->data);
 
     // Verify the terms are attached to the nodes.
     $node = node_load($this->first_group_content->nid);

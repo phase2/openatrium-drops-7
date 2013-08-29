@@ -201,3 +201,10 @@ div.ctools-modal-content #ctools_stylizer_color_scheme_form .form-item label {
   margin-right: 10px;
   margin-top: .25em;
 }
+
+/**
+ * Remove the Save as Default Option
+ */
+#panels-ipe-edit-control-form #panelizer-save-default {
+  display: none;
+}

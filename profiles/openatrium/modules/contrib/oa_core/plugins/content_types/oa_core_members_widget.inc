@@ -70,6 +70,8 @@ function oa_core_members_widget_render($subtype, $conf, $args, $context = NULL) 
   }
 
   $parents = array();
+  $parent_spaces = array();
+  $parent_groups = array();
   if (empty($conf['hide_inherited']) && $is_admin && ($parent_field = field_get_items('node', $space, 'oa_parent_space'))) {
     foreach ($parent_field as $parent) {
       if (!empty($parent['target_id'])) {
@@ -77,6 +79,14 @@ function oa_core_members_widget_render($subtype, $conf, $args, $context = NULL) 
       }
     }
     $parents = node_load_multiple(array_keys($parents));
+    foreach ($parents as $node) {
+      if ($node->type == OA_SPACE_TYPE) {
+        $parent_spaces[] = $node;
+      }
+      else {
+        $parent_groups[] = $node;
+      }
+    }
   }
 
   $vars = array();
@@ -93,72 +103,87 @@ function oa_core_members_widget_render($subtype, $conf, $args, $context = NULL) 
   // set the order the tabs/categories show on page
   $vars['categories'] = $vars['show_as_tabs']
     ? array('members', 'pending', 'blocked', 'owners', 'parents', 'teams')
-    : array('owners', 'parents', 'teams', 'pending', 'members', 'blocked');
+    : array('owners', 'teams', 'pending', 'members', 'blocked', 'parents');
 
   $space_type = node_type_get_name($space->type);
 
   $tabs = array();
-  if (count($members) > 0) {
+  if (!empty($members)) {
     $tabs['members'] = array(
       'caption' => t('Members'),
       'title' => '',
-      'items' => $members,
+      'items' => array($members),
       'links' => array('dashboard', 'remove', 'remove-child', 'add-admin', 'block'),
     );
   }
-  if (count($pending) > 0) {
+  if (!empty($pending)) {
     $tabs['pending'] = array(
       'caption' => t('Pending') . ' <span class="oa_pending_count">' . count($pending) . '</span>',
       'title' => t('Pending members'),
-      'items' => $pending,
+      'items' => array($pending),
       'links' => array('dashboard', 'add', 'remove'),
     );
   }
-  if (count($blocked) > 0) {
+  if (!empty($blocked)) {
     $tabs['blocked'] = array(
       'caption' => t('Blocked'),
       'title' => t('Blocked users'),
-      'items' => $blocked,
+      'items' => array($blocked),
       'links' => array('dashboard', 'add', 'remove'),
     );
   }
-  if (count($owners) > 0) {
+  if (!empty($owners)) {
     $tabs['owners'] = array(
       'caption' => t('Administrators'),
       'title' => t('@type administrators', array('@type' => $space_type)),
-      'items' => $owners,
+      'items' => array($owners),
       'links' => array('dashboard', 'remove-admin'),
     );
   }
-  if (count($parents) > 0) {
-    $tabs['parents'] = array(
-      'caption' => t('Inherited'),
-      'title' => t('Inheriting members from'),
-      'items' => $parents,
-      'links' => array(),
-    );
-  }
-  if (count($teams) > 0) {
-    $tabs['teams'] = array(
-      'caption' => t('Teams'),
-      'title' => t('Teams'),
-      'items' => $teams,
-      'links' => array(),
+  $tabs['parents'] = array(
+    'caption' => t('Inherited'),
+    'title' => t('Inheriting members from:'),
+    'items' => array(
+      t('Spaces') => $parent_spaces,
+      t('Groups') => $parent_groups,
+    ),
+    'links' => array(),
+  );
+  if (user_access('create ' . OA_GROUP_TYPE . ' content', $user)) {
+    $tabs['parents']['global_links'][] = array(
+      'title' => t('Add Group'),
+      'url'   => url('node/add/' . str_replace('_', '-', OA_GROUP_TYPE)),
     );
   }
 
+  if ($space_type == OA_SPACE_TYPE) {
+    $tabs['teams'] = array(
+      'caption' => t('Teams'),
+      'title' => t('Teams'),
+      'items' => array($teams),
+      'links' => array(),
+    );
+    if (user_access('create ' . OA_TEAM_TYPE . ' content', $user)) {
+      $tabs['teams']['global_links'][] = array(
+        'title' => t('Add Team'),
+        'url'   => url('node/add/' . str_replace('_', '-', OA_TEAM_TYPE)),
+      );
+    }
+  }
   foreach ($tabs as $category => $tab) {
     $tabs[$category]['items'] = array();
-    if ($tab['items']) {
-      foreach ($tab['items'] as $id => $entity) {
-        $tabs[$category]['items'][$id] = oa_core_entity_build_display($entity, $id, $space);
-        if ($entity->uid == $space->uid) {
-          // don't show links for main space owner
-          $tabs[$category]['items'][$id]['uid'] = 0;
+    if (!empty($tab['items'])) {
+      foreach ($tab['items'] as $key => $items) {
+        foreach ($items as $id => $entity) {
+          $tabs[$category]['items'][$key][$id] = oa_core_entity_build_display($entity, $id, $space);
+          if ($entity->uid == $space->uid) {
+            // don't show links for main space owner
+            $tabs[$category]['items'][$key][$id]['uid'] = 0;
+          }
         }
       }
     }
-    else {
+    elseif (empty($tab['global_links'])) {
       unset($tabs[$category]);
     }
   }
@@ -166,12 +191,12 @@ function oa_core_members_widget_render($subtype, $conf, $args, $context = NULL) 
   if (count($tabs) == 1) {
     unset($tabs[key($tabs)]['title']);
   }
-
   $ajax = (variable_get('oa_use_ajax', FALSE)) ? '/nojs' : '';
   $links = array(
     'dashboard' => array(
       'title' => t('Dashboard'),
       'url' => 'user/%uid',
+      'noajax' => TRUE,
     ),
     'remove' => array(
       'title' => t('Remove from @label', array('@label' => $space_type)),

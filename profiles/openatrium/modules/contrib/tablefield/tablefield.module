@@ -22,7 +22,45 @@ function tablefield_menu() {
       'title' => 'Export Table Data',
       'access arguments' => array('export tablefield'),
     ),
+    'admin/config/content/tablefield' => array(
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('tablefield_admin_settings_form'),
+      'title' => 'tablefield',
+      'description' => 'Global configuration for the tablefield module',
+      'access arguments' => array('configure tablefield'),
+    ),
   );
+}
+
+/**
+ * Menu callback to prepare administration configuration form.
+ */
+function tablefield_admin_settings_form() {
+  $form = array();
+
+  $form['tablefield_csv_separator'] = array(
+    '#type' => 'textfield',
+    '#title' => t('CSV separator'),
+    '#size' => 1,
+    '#maxlength' => 1,
+    '#default_value' => variable_get('tablefield_csv_separator', ','),
+    '#description' => t('Select the separator for the CSV import/export.'),
+  );
+
+  return system_settings_form($form);
+}
+
+/**
+ * Validation hook for tablefield_admin_settings_form form.
+ *
+ * @param array $form
+ * @param array $form_state
+ */
+function tablefield_admin_settings_form_validate($form, &$form_state) {
+  if (drupal_strlen($form_state['values']['tablefield_csv_separator']) !== 1) {
+    $message = t('Separator must be one character only!');
+    form_set_error('tablefield_csv_separator', $message);
+  }
 }
 
 /**
@@ -32,6 +70,12 @@ function tablefield_permission() {
   return array(
     'export tablefield' => array(
       'title' => t('Export Tablefield Data as CSV'),
+    ),
+    'rebuild tablefield' => array(
+      'title' => t('Rebuild any tablefield'),
+    ),
+    'configure tablefield' => array(
+      'title' => t('Allow changes in the global tablefield module configuration'),
     ),
   );
 }
@@ -66,7 +110,7 @@ function tablefield_export_csv($entity_type, $entity_id, $field_name, $langcode,
 
     // Save the data as a CSV file.
     foreach ($table as $row) {
-      fputcsv($fp, $row);
+      fputcsv($fp, $row, variable_get('tablefield_csv_separator', ','));
     }
 
     fclose($fp);
@@ -120,6 +164,11 @@ function tablefield_field_settings_form($field, $instance, $has_data) {
     '#type' => 'checkbox',
     '#title' => 'Allow users to export table data as CSV',
     '#default_value' => isset($field['settings']['export']) ? $field['settings']['export'] : FALSE,
+  );
+  $form['restrict_rebuild'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Restrict rebuilding to users with the permission "rebuild tablefield"',
+    '#default_value' => isset($field['settings']['restrict_rebuild']) ? $field['settings']['restrict_rebuild'] : FALSE,
   );
   $form['lock_values'] = array(
     '#type' => 'checkbox',
@@ -484,48 +533,68 @@ function tablefield_field_widget_form(&$form, &$form_state, $field, $instance, $
     '#markup' => '</table>',
   );
 
-  // Allow the user to add more rows/columns
-  $element['tablefield']['rebuild'] = array(
-    '#type' => 'fieldset',
-    '#tree' => TRUE,
-    '#title' => t('Change number of rows/columns.'),
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
-  );
-  $element['tablefield']['rebuild']['count_cols'] = array(
-    '#title' => t('How many Columns'),
-    '#type' => 'textfield',
-    '#size' => 5,
-    '#prefix' => '<div class="clearfix">',
-    '#suffix' => '</div>',
-    '#value' => $count_cols,
-  );
-  $element['tablefield']['rebuild']['count_rows'] = array(
-    '#title' => t('How many Rows'),
-    '#type' => 'textfield',
-    '#size' => 5,
-    '#prefix' => '<div class="clearfix">',
-    '#suffix' => '</div>',
-    '#value' => $count_rows,
-  );
-  $element['tablefield']['rebuild']['rebuild'] = array(
-    '#type' => 'button',
-    '#validate' => array(),
-    '#limit_validation_errors' => array(),
-    '#executes_submit_callback' => TRUE,
-    '#submit' => array('tablefield_rebuild_form'),
-    '#value' => t('Rebuild Table'),
-    '#name' => 'tablefield_rebuild_' . $field['field_name'] . '_' . $delta,
-    '#attributes' => array(
-      'class' => array('tablefield-rebuild'),
-    ),
-    '#ajax' => array(
-      'callback' => 'tablefield_rebuild_form_ajax',
-      'wrapper' => 'tablefield-' . $field['field_name'] . '-' . $delta . '-wrapper',
-      'effect' => 'fade',
-      'event' => 'click'
-    ),
-  );
+  // If the user doesn't have rebuild perms, we pass along the data as a value.
+  // Otherwise, we will provide form elements to specify the size and ajax rebuild.
+  if (isset($field['settings']['restrict_rebuild']) && $field['settings']['restrict_rebuild'] && !user_access('rebuild tablefield')) {
+    $element['tablefield']['rebuild'] = array (
+      '#type' => 'value',
+      '#tree' => TRUE,
+      'count_cols' => array(
+        '#type' => 'value',
+        '#value' => $count_cols,
+      ),
+      'count_rows' => array(
+        '#type' => 'value',
+        '#value' => $count_rows,
+      ),
+      'rebuild' => array(
+        '#type' => 'value',
+        '#value' => t('Rebuild Table'),
+      ),
+    );
+  }
+  else {
+    $element['tablefield']['rebuild'] = array(
+      '#type' => 'fieldset',
+      '#tree' => TRUE,
+      '#title' => t('Change number of rows/columns.'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+    );
+    $element['tablefield']['rebuild']['count_cols'] = array(
+      '#title' => t('How many Columns'),
+      '#type' => 'textfield',
+      '#size' => 5,
+      '#prefix' => '<div class="clearfix">',
+      '#suffix' => '</div>',
+      '#value' => $count_cols,
+    );
+    $element['tablefield']['rebuild']['count_rows'] = array(
+      '#title' => t('How many Rows'),
+      '#type' => 'textfield',
+      '#size' => 5,
+      '#prefix' => '<div class="clearfix">',
+      '#suffix' => '</div>',
+      '#value' => $count_rows,
+    );
+    $element['tablefield']['rebuild']['rebuild'] = array(
+      '#type' => 'button',
+      '#validate' => array(),
+      '#limit_validation_errors' => array(),
+      '#executes_submit_callback' => TRUE,
+      '#submit' => array('tablefield_rebuild_form'),
+      '#value' => t('Rebuild Table'),
+      '#name' => 'tablefield_rebuild_' . $field['field_name'] . '_' . $delta,
+      '#attributes' => array(
+        'class' => array('tablefield-rebuild'),
+      ),
+      '#ajax' => array(
+        'callback' => 'tablefield_rebuild_form_ajax',
+        'wrapper' => 'tablefield-' . $field['field_name'] . '-' . $delta . '-wrapper',
+        'effect' => 'fade',
+      ),
+    );
+  }
 
   // Allow the user to import a csv file
   $element['tablefield']['import'] = array(
@@ -536,6 +605,7 @@ function tablefield_field_widget_form(&$form, &$form_state, $field, $instance, $
     '#collapsed' => TRUE,
   );
   $element['tablefield']['import']['tablefield_csv_' . $field['field_name'] . '_' . $delta] = array(
+    '#name' => 'files[' . $field['field_name'] . '_' . $delta . ']',
     '#title' => 'File upload',
     '#type' => 'file',
   );
@@ -586,16 +656,17 @@ function tablefield_import_csv($form, &$form_state) {
     $delta = $field_delta[1];
     $field_name = preg_replace('/' . $field_delta[0] . '/', '', $file_name);
     $language = isset($form[$field_name]['#language']) ? $form[$field_name]['#language'] : 'und';
-    $file = file_save_upload($field_name, array('file_validate_extensions' => array('csv')));
+    $file = file_save_upload($file_name, array('file_validate_extensions' => array('csv')));
 
     if (is_object($file)) {
       if (($handle = fopen($file->uri, "r")) !== FALSE) {
         tablefield_delete_table_values($form_state['values'][$field_name][$language][$delta]['tablefield']);
+        tablefield_delete_table_values($form_state['input'][$field_name][$language][$delta]['tablefield']);
 
         // Populate CSV values
         $max_col_count = 0;
         $row_count = 0;
-        while (($csv = fgetcsv($handle, 0, ",")) !== FALSE) {
+        while (($csv = fgetcsv($handle, 0, variable_get('tablefield_csv_separator', ','))) !== FALSE) {
           $col_count = count($csv);
           foreach ($csv as $col_id => $col) {
             $form_state['input'][$field_name][$language][$delta]['tablefield']['cell_' . $row_count . '_' . $col_id] =
@@ -604,7 +675,6 @@ function tablefield_import_csv($form, &$form_state) {
           $max_col_count = $col_count > $max_col_count ? $col_count : $max_col_count;
           $row_count++;
         }
-
         fclose($handle);
 
         $form_state['input'][$field_name][$language][$delta]['tablefield']['rebuild']['count_cols'] =
@@ -705,17 +775,19 @@ function tablefield_rebuild_form($form, &$form_state) {
  */
 function tablefield_rationalize_table($tablefield) {
   $tabledata = array();
-  // Remove exterraneous form data
-  $count_cols = $tablefield['rebuild']['count_cols'];
-  $count_rows = $tablefield['rebuild']['count_rows'];
-  unset($tablefield['rebuild']);
-  unset($tablefield['import']);
+
   // Rationalize the table data
   if (!empty($tablefield)) {
+    // Remove exterraneous form data
+    $count_cols = $tablefield['rebuild']['count_cols'];
+    $count_rows = $tablefield['rebuild']['count_rows'];
+    unset($tablefield['rebuild']);
+    unset($tablefield['import']);
+
     foreach ($tablefield as $key => $value) {
       preg_match('/cell_(.*)_(.*)/', $key, $cell);
       // $cell[1] is row count $cell[2] is col count
-      if ((int) $cell[1] < $count_rows && $cell['2'] < $count_cols) {
+      if ((int) $cell[1] < $count_rows && (int) $cell['2'] < $count_cols) {
         $tabledata[$cell[1]][$cell[2]] = $value;
       }
     }

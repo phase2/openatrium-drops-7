@@ -68,6 +68,7 @@ function defaultconfig_component_rebuild_permissions($info, $default_permissions
     node_types_rebuild();
     if (!empty($module)) {
       module_load_include('inc', 'features', 'features.export');
+      module_load_include('inc', $module, "$module.features.filter");
       filter_features_rebuild($module);
     }
     $roles = _user_features_get_roles();

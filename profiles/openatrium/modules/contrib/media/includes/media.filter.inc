@@ -94,8 +94,9 @@ function _media_filter_add_file_usage_from_fields($entity_type, $entity) {
   // the file_usage table will have no entries for this because of the delete
   // query above.
   foreach ($entity_files as $fid => $entity_count) {
-    $file = file_load($fid);
-    file_usage_add($file, 'media', $entity_type, $entity_id, $entity_count);
+    if ($file = file_load($fid)) {
+      file_usage_add($file, 'media', $entity_type, $entity_id, $entity_count);
+    }
   }
 
 }
@@ -265,6 +266,11 @@ function media_token_to_markup($match, $wysiwyg = FALSE) {
       throw new Exception('No file Id');
     }
 
+    // Ensure the 'link_text' key is always defined.
+    if (!isset($tag_info['link_text'])) {
+      $tag_info['link_text'] = NULL;
+    }
+
     // Ensure a valid view mode is being requested.
     if (!isset($tag_info['view_mode'])) {
       $tag_info['view_mode'] = media_variable_get('wysiwyg_default_view_mode');
@@ -306,13 +312,18 @@ function media_token_to_markup($match, $wysiwyg = FALSE) {
     // Track the fid of this file in the {media_filter_usage} table.
     media_filter_track_usage($file->fid);
 
+    // Grab the potentially overrided fields from the file.
+    $fields = media_filter_field_parser($tag_info);
+
     $attributes = is_array($tag_info['attributes']) ? $tag_info['attributes'] : array();
     $attribute_whitelist = media_variable_get('wysiwyg_allowed_attributes');
     $settings['attributes'] = array_intersect_key($attributes, array_flip($attribute_whitelist));
+    $settings['fields'] = $fields;
 
     if (!empty($tag_info['attributes']) && is_array($tag_info['attributes'])) {
       $attribute_whitelist = media_variable_get('wysiwyg_allowed_attributes');
       $settings['attributes'] = array_intersect_key($tag_info['attributes'], array_flip($attribute_whitelist));
+      $settings['fields'] = $fields;
 
       // Many media formatters will want to apply width and height independently
       // of the style attribute or the corresponding HTML attributes, so pull
@@ -339,6 +350,17 @@ function media_token_to_markup($match, $wysiwyg = FALSE) {
     return '';
   }
 
+  // If the tag has link text stored with it, override the filename with it for
+  // the rest of this function, so that if the file is themed as a link, the
+  // desired text will be used (see, for example, theme_file_link()).
+  // @todo: Try to find a less hacky way to do this.
+  if (isset($tag_info['link_text'])) {
+    // The link text will have characters such as "&" encoded for HTML, but the
+    // filename itself needs the raw value when it is used to build the link,
+    // in order to avoid double encoding.
+    $file->filename = htmlspecialchars_decode($tag_info['link_text'], ENT_NOQUOTES);
+  }
+
   if ($wysiwyg) {
     $settings['wysiwyg'] = $wysiwyg;
     // If sending markup to a WYSIWYG, we need to pass the file infomation so
@@ -351,6 +373,7 @@ function media_token_to_markup($match, $wysiwyg = FALSE) {
       'type' => 'media',
       'fid' => $file->fid,
       'view_mode' => $tag_info['view_mode'],
+      'link_text' => $tag_info['link_text'],
     ));
     $element['#attributes']['data-file_info'] = urlencode($data);
     $element['#attributes']['class'][] = 'media-element';
@@ -388,6 +411,29 @@ function media_token_to_markup($match, $wysiwyg = FALSE) {
   return drupal_render($element);
 }
 
+/**
+ * Parse the field array from the collapsed AJAX string.
+ */
+function media_filter_field_parser($tag_info) {
+  $fields = array();
+  if (isset($tag_info['fields'])) {
+    foreach($tag_info['fields'] as $field_name => $field_value) {
+      if (strpos($field_name, 'field_') === 0) {
+        $parsed_field = explode('[', str_replace(']', '', $field_name));
+        if(isset($parsed_field[2])) {
+          if(isset($parsed_field[3])) {
+            $fields[$parsed_field[0]][$parsed_field[1]][$parsed_field[2]][$parsed_field[3]] = $field_value;
+          } else {
+            $fields[$parsed_field[0]][$parsed_field[1]][$parsed_field[2]] = $field_value;
+          }
+        } else {
+          $fields[$parsed_field[0]][$parsed_field[1]] = $field_value;
+        }
+      }
+    }
+  }
+  return $fields;
+}
 /**
  * Builds a map of media tags in the element.
  *
@@ -515,6 +561,10 @@ function media_format_form($form, $form_state, $file) {
   $form = array();
   $form['#media'] = $file;
 
+  // Allow for overrides to the fields.
+  $query_fields = isset($_GET['fields']) ? drupal_json_decode($_GET['fields']) : array();
+  $fields = media_filter_field_parser(array('fields' => $query_fields), $file);
+
   $view_modes = media_get_wysiwyg_allowed_view_modes($file);
   $formats = $options = array();
   foreach ($view_modes as $view_mode => $view_mode_info) {
@@ -535,7 +585,8 @@ function media_format_form($form, $form_state, $file) {
     return;
   }
 
-  $default_view_mode = media_variable_get('wysiwyg_default_view_mode');
+  // Allow for overrides to the display format.
+  $default_view_mode = is_array($query_fields) && isset($query_fields['format']) ? $query_fields['format'] : media_variable_get('wysiwyg_default_view_mode');
   if (!isset($formats[$default_view_mode])) {
     $default_view_mode = key($formats);
   }
@@ -578,23 +629,17 @@ function media_format_form($form, $form_state, $file) {
       they are insterted into an editor.')
   );
 
-  if ($file->type === 'image') {
-    $form['options']['alt'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Alternate text'),
-      '#description' => t('Alternative text is used by screen readers, search
-        engines, and when the image cannot be loaded. By adding alt text you
-        improve accesibility and search engine optimization.'),
-      '#default_value' => isset($file->field_file_image_alt_text['und'][0]['safe_value']) ? $file->field_file_image_alt_text['und'][0]['safe_value'] : '',
-    );
-    $form['options']['title'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Title text'),
-      '#description' => t('Title text is used in the tool tip when a user hovers
-        their mouse over the image. Adding title text makes it easier to
-        understand the context of an image and improves usability.'),
-      '#default_value' => isset($file->field_file_image_title_text['und'][0]['safe_value']) ? $file->field_file_image_title_text['und'][0]['safe_value'] : '',
-    );
+  // Add fields from the file, so that we can override them if neccesary.
+  $form['options']['fields'] = array();
+  foreach ($fields as $field_name => $field_value) {
+    $file->{$field_name} = $field_value;
+  }
+  field_attach_form('file', $file, $form['options']['fields'], $form_state);
+  $instance = field_info_instances('file', $file->type);
+  foreach ($instance as $field_name => $field_value) {
+    if (isset($instance[$field_name]['settings']) && isset($instance[$field_name]['settings']['wysiwyg_override']) && !$instance[$field_name]['settings']['wysiwyg_override']) {
+      unset($form['options']['fields'][$field_name]);
+    }
   }
 
   // Similar to a form_alter, but we want this to run first so that

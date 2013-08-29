@@ -16,8 +16,8 @@ class views_handler_field_file_link_usage extends views_handler_field_file_link 
    * Renders the link.
    */
   function render_link($file, $values) {
-    // Ensure user has access to view this file.
-    if (!file_entity_access('view', $file)) {
+    // Ensure user has access to update this file.
+    if (!file_entity_access('update', $file)) {
       return;
     }
 

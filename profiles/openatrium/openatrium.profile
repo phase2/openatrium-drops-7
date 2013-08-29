@@ -10,8 +10,10 @@ function openatrium_install_tasks(&$install_state) {
   drupal_add_css(drupal_get_path('profile', 'openatrium') . '/openatrium.css');
 
   // Add the Panopoly app selection to the installation process
-  require_once(drupal_get_path('module', 'apps') . '/apps.profile.inc');
-  $tasks = $tasks + apps_profile_install_tasks($install_state, array('machine name' => 'openatrium', 'default apps' => array()));
+
+// Don't install Apps at this time until we have Open Atrium apps
+//  require_once(drupal_get_path('module', 'apps') . '/apps.profile.inc');
+//  $tasks = $tasks + apps_profile_install_tasks($install_state, array('machine name' => 'openatrium', 'default apps' => array()));
 
   // Add the Panopoly theme selection to the installation process
   require_once(drupal_get_path('module', 'panopoly_theme') . '/panopoly_theme.profile.inc');

@@ -62,9 +62,9 @@ function oa_discussion_default_message_type() {
           "safe_value" : "@{message:user:name} replied to \\u003Ca href=\\u0022[message:field-oa-node-ref:oa-parent:url]\\u0022\\u003E[message:field-oa-node-ref:oa-parent:title]\\u003C\\/a\\u003E\\n[message:field-oa-message-text:value] [message:field-oa-node-ref:body]\\n\\u003Ca href=\\u0022[message:field-oa-node-ref:url]\\u0022\\u003EClick here\\u003C\\/a\\u003E to see the discussion."
         },
         {
-          "value" : "\\u003Ca href=\\u0022\\/user\\/@{message:user:uid}\\u0022 class=\\u0022oa-userlink\\u0022\\u003E@{message:user:name}\\u003C\\/a\\u003E replied to \\u003Ca href=\\u0022\\/node\\/[message:field-oa-node-ref:nid]\\u0022\\u003E\\u003Cstrong\\u003E[message:field-oa-node-ref:oa-parent:title]\\u003C\\/strong\\u003E\\u003C\\/a\\u003E",
-          "format" : "panopoly_html_text",
-          "safe_value" : "\\u003Cp\\u003E\\u003Ca href=\\u0022\\/user\\/@{message:user:uid}\\u0022\\u003E@{message:user:name}\\u003C\\/a\\u003E replied to \\u003Ca href=\\u0022\\/node\\/[message:field-oa-node-ref:nid]\\u0022\\u003E\\u003Cstrong\\u003E[message:field-oa-node-ref:oa-parent:title]\\u003C\\/strong\\u003E\\u003C\\/a\\u003E\\u003C\\/p\\u003E\\n"
+          "value" : "\\u003Ca href=\\u0022[site:url]user\\/@{message:user:uid}\\u0022 class=\\u0022oa-userlink\\u0022\\u003E@{message:user:name}\\u003C\\/a\\u003E replied to \\u003Ca href=\\u0022[message:field-oa-node-ref:url]\\u0022\\u003E\\u003Cstrong\\u003E[message:field-oa-node-ref:oa-parent:title]\\u003C\\/strong\\u003E\\u003C\\/a\\u003E",
+          "format" : "full_html",
+          "safe_value" : "\\u003Ca href=\\u0022[site:url]user\\/@{message:user:uid}\\u0022 class=\\u0022oa-userlink\\u0022\\u003E@{message:user:name}\\u003C\\/a\\u003E replied to \\u003Ca href=\\u0022[message:field-oa-node-ref:url]\\u0022\\u003E\\u003Cstrong\\u003E[message:field-oa-node-ref:oa-parent:title]\\u003C\\/strong\\u003E\\u003C\\/a\\u003E"
         },
         {
           "value" : "[message:field-oa-message-text:value] [message:field-oa-node-ref:title]",

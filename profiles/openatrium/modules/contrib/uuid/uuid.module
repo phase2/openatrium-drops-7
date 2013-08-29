@@ -29,6 +29,15 @@ module_load_include('inc', 'uuid', 'uuid.core');
  */
 function uuid_menu() {
   $items = array();
+
+  $items['uuid'] = array(
+    'title' => 'UUID redirector',
+    'description' => 'Redirects requests for UUID URIs to the referenced entity.',
+    'page callback' => 'uuid_redirector',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
   $items['admin/config/system/uuid'] = array(
     'title' => 'Universally unique identifiers',
     'description' => 'Configure universally unique identifiers.',
@@ -105,6 +114,10 @@ function uuid_hook_info() {
     'uuid_entities_post_revert',
     'uuid_entities_features_export_entity_alter',
     'uuid_entities_features_export_field_alter',
+    'uuid_uri_data',
+    'uuid_id_uri_data',
+    'uuid_uri_data',
+    'uuid_id_uri_data',
   );
 
   return array_fill_keys($hook_names, array('group' => 'uuid'));
@@ -191,12 +204,26 @@ function uuid_features_api() {
       'feature_source' => TRUE,
       'file' => drupal_get_path('module', 'uuid') .'/uuid.features.inc',
     ),
-    'uuid_menu_links' => array(
-      'name' => t('UUID Menu links'),
-      'default_hook' => 'uuid_menu_default_menu_links',
-      'feature_source' => TRUE,
-      'default_file' => FEATURES_DEFAULTS_INCLUDED,
-      'file' => drupal_get_path('module', 'uuid') .'/uuid.features.menu.inc',
-    )
   );
 }
+
+/**
+ * Redirects all UUID URI requests to the appropriate entity page.
+ */
+function uuid_redirector() {
+  $entity_data = uuid_uri_array_to_data(arg());
+  
+  $entity_info = entity_get_info($entity_data['entity_type']);
+  if (empty($entity_info['uuid'])) {
+    return drupal_not_found();
+  }
+
+  $entities = entity_uuid_load($entity_data['entity_type'], array($entity_data['uuid']));
+  if (!count($entities)) {
+    return drupal_not_found();
+  }
+
+  $uri = entity_uri($entity_data['entity_type'], current($entities));
+  drupal_goto($uri['path'], array(), 301);
+}
+

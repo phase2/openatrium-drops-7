@@ -23,6 +23,30 @@ function oa_users_menu() {
 }
 
 /**
+ * Implements hook_menu_alter().
+ */
+function oa_users_menu_alter(&$items) {
+  // @TODO change dashboard to use not-panelizer-of-user-view and switch
+  // switch activity to use user_view panel.
+  $items['user/%user/view'] = $items['user/%user'];
+  $items['user/%user/view']['access callback'] = 'oa_users_user_is_current_user';
+  $items['user/%user/view']['type'] = MENU_LOCAL_TASK;
+  $items['user/%user/view']['title'] = 'Dashboard';
+  $items['user/%user/view']['weight'] = $items['user/%pm_arg/activity']['weight'] - 1;
+  unset($items['user/%user/view']['title callback'], $items['user/%user/view']['title arguments']);
+
+  unset($items['user/$user']);
+  $items['user/%pm_arg'] = $items['user/%pm_arg/activity'];
+  $items['user/%pm_arg']['type'] = MENU_NORMAL_ITEM;
+  $items['user/%pm_arg/activity']['type'] = MENU_DEFAULT_LOCAL_TASK;
+}
+
+function oa_users_user_is_current_user($account) {
+  global $user;
+  return $account->uid == $user->uid;
+}
+
+/**
  * Page callback for user/%user/settings. Provide a settings form, and hooks
  * for modules to add their own settings.
  */
@@ -55,7 +79,7 @@ function oa_users_build_user_details($user, $image_style = 'oa_small_thumbnail')
   $details['name'] = $user->name;
   $details['picture'] = oa_users_picture($user, $image_style);
   //Build out links
-  $details['links']['dashboard'] = 'user';
+  $details['links']['dashboard'] = 'user/' . $user->uid . '/view';
   $details['links']['edit_profile'] = 'user/' . $user->uid . '/edit';
   $details['links']['logout'] = 'user/logout';
   return $details;

@@ -23,7 +23,7 @@ function oa_dashboard_form_oa_core_configure_form_alter(&$form, &$form_state, $f
   $form['oa_toolbar']['oa_toolbar_hometext'] = array(
     '#title' => t('Caption for space home page'),
     '#type' => 'textfield',
-    '#default_value' => variable_get('oa_toolbar_hometext', t("Space home")),
+    '#default_value' => variable_get('oa_toolbar_hometext', ''),
     '#description' => t('Caption shown in toolbar when on a space landing page.'),
   );
 
@@ -164,6 +164,9 @@ function oa_dashboard_preprocess_oa_toolbar(&$vars) {
   // Spaces
   $space = NULL;
   $space_id = oa_core_get_space_context();
+  if (drupal_is_front_page()) {
+    $space_id = 0;  // reset breadcrumbs on home page
+  }
   $vars['spaces_label'] = '';
   $vars['spaces_recent'] = '';
   $vars['spaces_favorite'] = '';
@@ -177,9 +180,11 @@ function oa_dashboard_preprocess_oa_toolbar(&$vars) {
   $vars['space_url'] = url('spaces');
   $parent_id = NULL;
   $space_type = OA_SPACE_TYPE;
+  $subspace_type_names = '';
   if (isset($space_id) && ($space = node_load($space_id))) {
     $title = $space->title;
     $space_type = $space->type;
+    $subspace_type_names = ($space_type == OA_SPACE_TYPE) ? t('Subspaces') : t('Subgroups');
     $vars['space_label'] = $title;
     $vars['space_url'] = url('node/' . $space_id);
     if (isset($vars['show_parents'])) {
@@ -195,6 +200,7 @@ function oa_dashboard_preprocess_oa_toolbar(&$vars) {
           $list = oa_core_truncate_list($items['links'], 15);
           $vars['parent_list'] = theme('item_list', array(
             'items' => $list,
+            'title' => t('Siblings'),
             'type' => 'ul',
           ));
         }
@@ -204,30 +210,28 @@ function oa_dashboard_preprocess_oa_toolbar(&$vars) {
           $list = oa_core_truncate_list($items['links'], 15);
           $vars['sibling_list'] = theme('item_list', array(
             'items' => $list,
+            'title' => $subspace_type_names,
             'type' => 'ul',
           ));
         }
       }
     }
   }
+  $space_type_name = ($space_type == OA_SPACE_TYPE) ? t('Space') : t('Group');
+  $space_type_names = ($space_type == OA_SPACE_TYPE) ? t('Spaces') : t('Groups');
+  $all_spaces = ($space_type == OA_SPACE_TYPE) ? 'spaces' : 'groups';
 
   $show_all = TRUE;
-  $menu_title = '';
   $spaces = NULL;
-  // get names of spaces
-  if (isset($vars['show_parents']) && !empty($space)) {
-    $spaces = oa_get_groups_by_parent($space_id, $space_type);
-    $show_all = FALSE;
+  if ($user->uid) {
+    $spaces = og_get_groups_by_user($user, 'node');
+    $menu_title = ($space_type == OA_SPACE_TYPE) ? t('Subscribed Spaces') : t('Groups');
   }
-  elseif (($user->uid == 0) || empty($space)) {
+  if (empty($spaces)) {
     // og_get_entity_groups doesn't return anything for anonymous users
     // so return list of all public spaces
     $spaces = oa_core_get_public_spaces();
     $menu_title = t('Public Spaces');
-  }
-  else {
-    $spaces = og_get_groups_by_user($user, 'node');
-    $menu_title = t('Subscribed Spaces');
   }
   if (empty($spaces)) {
     $list = array();
@@ -235,20 +239,32 @@ function oa_dashboard_preprocess_oa_toolbar(&$vars) {
   else {
     $items = oa_core_get_titles($spaces, $space_type);
     $list = oa_core_truncate_list($items['links'], 25,
-      l(t('All spaces...'), 'spaces',
+      l(t('All ' . $space_type_names . '...'), $all_spaces,
         array('attributes' => array('class' => array('more-link')))),
       $show_all);
   }
-  if (user_access('create ' . OA_SPACE_TYPE . ' content', $user)) {
-    $list[] = l(t('Create new space'), 'node/add/' . OA_SPACE_TYPE,
+  if (user_access('create ' . $space_type . ' content', $user)) {
+    $list[] = l(t('Create new ' . $space_type_name), 'node/add/' . str_replace('_', '-', $space_type),
       array('attributes' => array('class' => array('more-link'))));
   }
   if (!empty($list)) {
-    $vars['spaces_recent'] = theme('item_list', array(
+    $vars['home_spaces'] = theme('item_list', array(
       'items' => $list,
       'title' => $menu_title,
       'type' => 'ul',
     ));
+  }
+
+  if (!empty($space)) {
+    $subspaces = oa_get_groups_by_parent($space_id, $space_type);
+    if (!empty($subspaces)) {
+      $items = oa_core_get_titles($subspaces, $space_type);
+      $vars['subspaces'] = theme('item_list', array(
+        'items' => $items['links'],
+        'title' => $subspace_type_names,
+        'type' => 'ul',
+      ));
+    }
   }
 
   if (module_exists('oa_favorites')) {
@@ -263,61 +279,68 @@ function oa_dashboard_preprocess_oa_toolbar(&$vars) {
     }
   }
 
-  $current_section = oa_core_get_section_context();
-
-  $home_name = variable_get('oa_toolbar_hometext', t("Space home"));
-  $section_name = '';
-  $section_url = '';
-  if ($space_id) {
-    $space_link = l($home_name, 'node/' . $space_id);
-    $section_name = $home_name;
-    $section_url = url('node/' . $space_id);
-    $items = array();
-    // grab the titles of the sections for the current space
-    $sections = oa_core_space_sections($space_id);
-    if (!empty($sections)) {
-      // check for match with current section id
-      foreach ($sections as $sid => $title) {
-        $items[] = l($title, 'node/' . $sid);
-        if ($sid == $current_section) {
-          $section_name = $title;
-          $section_url = url('node/' . $sid);
+  if (!empty($space) && ($space->type == OA_SPACE_TYPE)) {
+    $current_section = oa_core_get_section_context();
+    $home_name = variable_get('oa_toolbar_hometext', '');
+    $section_name = '';
+    $section_url = '';
+    if ($space_id) {
+      $add_section = l('Add Section', 'node/add/oa-section');
+      $section_name = $home_name;
+      $section_url = url('node/' . $space_id);
+      $items = array();
+      // grab the titles of the sections for the current space
+      $sections = oa_core_space_sections($space_id);
+      if (!empty($sections)) {
+        // check for match with current section id
+        foreach ($sections as $sid => $title) {
+          $items[] = l($title, 'node/' . $sid);
+          if ($sid == $current_section) {
+            $section_name = $title;
+            $section_url = url('node/' . $sid);
+          }
         }
+        // add the Space home page link and create the ul list
       }
-      // add the Space home page link and create the ul list
-      array_unshift($items, $space_link);
+      if (user_access('create ' . OA_SECTION_TYPE . ' content', $user)) {
+        $items[] = l(t('Create new section'), 'node/add/' . str_replace('_', '-', OA_SECTION_TYPE),
+          array('attributes' => array('class' => array('more-link'))));
+      }
+      if (!empty($items)) {
+        $vars['sections_list'] = theme('item_list', array(
+          'items' => $items,
+          'title' => t('Sections'),
+          'type' => 'ul',
+        ));
+      }
     }
-    else {
-      $items[] = $space_link;
+    // Current Section Name from current page name
+    $node = menu_get_object();
+    if (isset($node->type)) {
+      switch ($node->type) {
+        case OA_SECTION_TYPE:
+          $section_name = $node->title;
+          $section_url = url('node/' . $node->nid);
+          break;
+        case OA_SPACE_TYPE:
+          $section_name = $home_name;
+          $section_url = url('node/' . $node->nid);
+          break;
+        case OA_GROUP_TYPE:
+          $section_name = $home_name;
+          $section_url = url('node/' . $node->nid);
+          break;
+      }
     }
-    if (!empty($items)) {
-      $vars['sections_list'] = theme('item_list', array(
-        'items' => $items,
-        'type' => 'ul',
-      ));
-    }
-  }
-  // Current Section Name from current page name
-  $node = menu_get_object();
-  if (isset($node->type)) {
-    switch ($node->type) {
-      case OA_SECTION_TYPE:
-        $section_name = $node->title;
-        $section_url = url('node/' . $node->nid);
-        break;
-      case OA_SPACE_TYPE:
-        $section_name = $home_name;
-        $section_url = url('node/' . $node->nid);
-        break;
-      case OA_GROUP_TYPE:
-        $section_name = $home_name;
-        $section_url = url('node/' . $node->nid);
-        break;
-    }
+    $vars['section_label'] = $section_name;
+    $vars['section_url'] = $section_url;
   }
 
-  $vars['section_label'] = $section_name;
-  $vars['section_url'] = $section_url;
+  if (drupal_is_front_page()) {
+    $vars['subspaces'] = $vars['home_spaces'];
+    unset($vars['home_spaces']);
+  }
+
   $vars['oa_toolbar_btn_class'] = variable_get('oa_toolbar_style', 0) ? '' : 'btn-inverse';
 }
 

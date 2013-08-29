@@ -248,10 +248,10 @@ function media_vimeo_file_default_displays() {
   // is used whenever possible.
   $default_image_styles = array(
     'default' => 'large',
-    'preview' => 'square_thumbnail',
+    'preview' => 'media_thumbnail',
     'teaser' => 'large',
     // Legacy view modes, see note above.
-    'media_preview' => 'square_thumbnail',
+    'media_preview' => 'media_thumbnail',
     'media_large' => 'large',
     'media_original' => '',
   );

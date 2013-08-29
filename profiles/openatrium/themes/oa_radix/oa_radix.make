@@ -7,7 +7,7 @@ core = 7.x
 projects[radix][download][type] = git
 projects[radix][download][url] = http://git.drupal.org/project/radix.git
 projects[radix][download][branch] = 7.x-2.x
-projects[radix][download][revision] = d92c98b
+projects[radix][download][revision] = 1bc1024
 
 ; Parent Theme
 ; can't use the latest version yet because of Panopoly Navbar issues

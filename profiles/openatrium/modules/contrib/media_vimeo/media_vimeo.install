@@ -25,14 +25,8 @@ function media_vimeo_uninstall() {
 }
 
 /**
-* Update Media Vimeo files to the new video file_entity type.
-*/
+ * Empty update function.
+ */
 function media_vimeo_update_7200() {
-  $video_type = file_type_load('video');
-  $video_type->mimetypes[] = 'video/vimeo';
-  // maybe also add stream if is not there already?
-  file_type_save($video_type);
-
-  // Update existing files.
-  db_query("UPDATE {file_managed} SET type = 'video' WHERE type = 'undefined' AND filemime = 'video/vimeo'");
+  // Code removed in response to http://drupal.org/node/1911970.
 }

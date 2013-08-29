@@ -1,323 +1,519 @@
 /**
- * @file navbar.js
- *
+ * @file
  * Defines the behavior of the Drupal administration navbar.
  */
-(function ($, undefined) {
+
+(function ($, Backbone, Drupal) {
 
 "use strict";
 
 /**
- * Attach toggling behavior and notify the overlay of the navbar.
+ * Registers tabs with the navbar.
+ *
+ * The Drupal navbar allows modules to register top-level tabs. These may point
+ * directly to a resource or toggle the visibility of a tray.
+ *
+ * Modules register tabs with hook_navbar().
  */
 Drupal.behaviors.navbar = {
-  attach: function(context, settings) {
-    var $navbar = $(context).find('#navbar').once('navbar');
-    if ($navbar.length) {
-      var $bar = $navbar.find('.navbar-bar');
-      var $tray = $navbar.find('.navbar-tray');
-      var $trigger = $navbar.find('.toggle-tray');
-      // Instanstiate the bar.
-      if ($bar.length) {
-        Navbar.bar = new Navbar($bar);
-      }
-      // Instantiate the tray.
-      if ($tray.length && $trigger.length) {
-        Navbar.tray = new TraySlider($tray, $trigger);
-      }
-    }
-  }
-};
-/**
- * Store references to the Navbar and TraySlider objects in the Navbar object.
- *
- * These references will be available in Drupal.Navbar.bar and
- * Drupal.Navbar.tray.
- */
-$.extend(Navbar, {
-  bar: null,
-  tray: null
-});
-/**
- * A navbar is an administration action button container.
- */
-function Navbar ($navbar) {
-  this.$navbar = $navbar;
-  // Recalculate the offset top on screen resize.
-  var setHeight = $.proxy(this, 'setHeight');
-  // Use debounce if it exists.
-  setHeight = ('debounce' in Drupal) ? Drupal.debounce(setHeight, 250) : setHeight;
-  $(window)
-    .on({
-      'resize.navbar': setHeight
-    });
-  // Navbar event handlers.
-  this.$navbar
-    .on({
-      'setup.navbar': setHeight
-    })
-    .trigger('setup');
-};
-
-/**
- * Extend the prototype of the TraySlider class.
- */
-$.extend(Navbar.prototype, {
-  /**
-   * The height of the navbar offsets the top of the page content.
-   *
-   * Page components can register with the offsettopchange event to know when
-   * the height of the navbar changes.
-   */
-  setHeight: function() {
-    this.height = this.$navbar.outerHeight();
-    this.$navbar.attr('data-offset-top', this.height);
-    // Alter the padding on the top of the body element.
-    // @todo, this should be moved to drupal.js and register for
-    // the offsettopchange event.
-    $('body').css('paddingTop', this.height);
-    $(document).trigger('offsettopchange');
-  }
-});
-/**
- *
- */
-function TraySlider ($tray, $trigger) {
-  this.$tray = $tray;
-  this.$trigger = $trigger;
-  // Initiate the object.
-  this.state = 'closed';
-  this.ui = {
-    'activeClass': 'active',
-    'trayOpenBodyClass': 'menu-tray-open'
-  };
-  // Add a click handler to the toggle.
-  this.$trigger
-    .on({
-      'setup.navbar': $.proxy(this, 'toggleTrigger'),
-      'click.navbar': $.proxy(this, 'handleTriggerClick'),
-      'toggled.navbar': $.proxy(this, 'toggleTrigger')
-    })
-    .trigger('setup', this.state);
-  // The tray has a couple setup methods to run.
-  var setup = $.Callbacks();
-  setup.add($.proxy(this, 'renderAccordion'));
-  setup.add($.proxy(this, 'displace'));
-  this.$tray
-    // Register event handlers.
-    .on({
-      'setup.navbar': setup.fire,
-      'toggled.navbar': $.proxy(this, 'toggleTray')
-    })
-    // The tray will be positioned at the edge of the window.
-    .addClass('positioned')
-    // Triger setup.
-    .trigger('setup', this.state);
-  // Register for offsettopchange events.
-  $(document)
-    .on({
-      // Offset value vas changed by a third party script.
-      'offsettopchange.navbar': $.proxy(this, 'displace')
-    });
-};
-/**
- * Extend the prototype of the TraySlider class.
- */
-$.extend(TraySlider.prototype, {
-  /**
-   *
-   */
-  handleTriggerClick: function (event) {
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    this.state = (this.state === 'closed') ? 'open' : 'closed';
-    this.$tray.trigger('toggled', this.state);
-    this.$trigger.trigger('toggled', this.state);
-  },
-  /**
-   *
-   */
-   toggleTrigger: function (event, state) {
-    this.$trigger[((state === 'open') ? 'add' : 'remove') + 'Class'](this.ui.activeClass);
-  },
-  /**
-   *
-   */
-  toggleTray: function (event, state) {
-    this.$tray[((state === 'open') ? 'add' : 'remove') + 'Class'](this.ui.activeClass);
-    // Add a class to the body so it can be styled to react to the tray.
-    $('body')[((state === 'open') ? 'add' : 'remove') + 'Class'](this.ui.trayOpenBodyClass);
-  },
-  /**
-   *
-   */
-  displace: function (event) {
-    this.$tray.css({
-      'top': this.computeOffsetTop() + 'px'
-    });
-  },
-  /**
-   * Sum all [data-offset-top] values and cache it.
-   * @todo move this out of tableheader.js into a move generic place like drupal.js.
-   */
-  computeOffsetTop: function () {
-    var $offsets = $('[data-offset-top]');
-    var value, sum = 0;
-    for (var i = 0, il = $offsets.length; i < il; i++) {
-      value = parseInt($offsets[i].getAttribute('data-offset-top'), 10);
-      sum += !isNaN(value) ? value : 0;
-    }
-    this.offsetTop = sum;
-    return sum;
-  },
-  /**
-   * Accordion behavior.
-   */
-  renderAccordion: function (event) {
-    event.stopPropagation();
-    var context = this;
-    this.$tray.find('.navbar-menu > .menu').each(function (index, element) {
-      var $root = $(this).addClass('root');
-        // Wrap the list in a div to provide a positioning context.
-      var $wrapper = $root.wrap($('<div>')
-        .css({
-            height: '100%',
-            position: 'relative'
-          })
-          .addClass('fleximenu')
-        )
-        .parent()
-        // Bind event handlers.
-        .on({
-          'setup.navbar': context.accordionSetup
-        });
-      // Create a set of list-manipulation callbacks.
-      // Called when items are added or removed.
-      var listUpdate = $.Callbacks();
-      // Set visibility
-      listUpdate.add(context.initItems);
-      listUpdate.add($.proxy(context, 'markListLevels', $root));
-      listUpdate.add($.proxy(context, 'setLevelVisibility', $root, 1));
-      $wrapper
-        .on('listChange.navbar', listUpdate.fire)
-        .on('clean.navbar.accordionMode', 'li', context.cleanItem)
-        .on('activate.navbar.accordionMode', 'li', context.activateItem)
-        .on('click.navbar.accordionMode', '.handle', context.accordionToggle)
-        .trigger('setup');
-    });
-  },
-  accordionSetup: function (event) {
-    event.stopPropagation();
-    // Mark up the lists and items.
-    $(this)
-    .trigger('listChange');
-
-  },
-  cleanItem: function (event) {},
-  activateItem: function (event) {},
-  accordionToggle: function (event) {
-    // The toggle.
-    var $toggle = $(this);
-    var $item = $toggle.closest('li');
-    var $list = $item.children('ul');
-    var isHidden = $list.hasClass('dormant');
-    // Toggle the item open state.
-    $item
-      [((isHidden) ? 'add' : 'remove') + 'Class']('open');
-    // Toggle the item list visibility.
-    $list
-      ['slide' + ((isHidden) ? 'Down' : 'Up')]()
-      [((isHidden) ? 'remove' : 'add') + 'Class']('dormant');
-    // Twist the toggle.
-    $toggle
-      [((isHidden) ? 'add' : 'remove') + 'Class']('open');
-
-  },
-  initItems: function (event) {
-    // The accordion wrapper.
-    var $wrapper = $(this);
-    var rootClass = 'root';
-    var boxClass = 'box';
-    var handleClass = 'handle';
-    // Get lists and items.
-    var $root = $wrapper.children('.' + rootClass);
-    var $ul = $wrapper.find('ul').once('fleximenu');
-    var $li = $wrapper.find('li').once('fleximenu');
-    // Basic setup
-    $ul
-      .each(function (index, element) {
-        $(this).data('navbar', {
-          processed: false,
-          type: 'list',
-          level: NaN
-        });
+  attach: function (context) {
+    var defaults = this.defaults;
+    $(context).find('#navbar-administration').once('navbar', function () {
+      // Create a reference to the defaults in this function scope.
+      var options = $.extend(defaults, Drupal.settings.navbar);
+      // Set up switching between the vertical and horizontal presentation
+      // of the navbar trays based on a breakpoint.
+      var mql = window.matchMedia(options.breakpoints['wide']);
+      var model = new Drupal.navbar.Model({
+        locked: JSON.parse(localStorage.getItem('Drupal.navbar.trayVerticalLocked')) || false,
+        activeTab: document.getElementById(JSON.parse(localStorage.getItem('Drupal.navbar.activeTabID'))),
+        mqMatches: mql.matches
       });
-    // Initialize items and their links.
-    $li
-      .each(function (index, element) {
-        $(this).data('navbar', {
-          processed: false,
-          type: 'item'
+
+      // Update the model when matchMedia fires.
+      mql.addListener(function (mql) {
+        model.set('mqMatches', mql.matches);
+      });
+
+      // Respond to viewport offset dimension changes.
+      $(document)
+        .bind('drupalViewportOffsetChange.navbar', function (event, offsets) {
+          model.set('offsets', {
+            top: offsets.top,
+            right: offsets.right,
+            bottom: offsets.bottom,
+            left: offsets.left
+          });
+          // Alter the padding on the top of the body element.
+          $('body').css('padding-top', offsets.top);
         });
-      })
-      // Add a class to item links.
-      .children('a')
-      .wrap(
-        $('<div>', {
-          'class': boxClass
+
+      // Respond to navbar events.
+      $(document)
+        .bind('drupalNavbarOrientationChange.navbar', Drupal.navbar.orientationChangeHandler)
+        .bind('drupalNavbarTrayChange.navbar', Drupal.navbar.trayChangeHandler);
+
+      // Broadcast model changes to other modules.
+      model
+        .bind('change:orientation', function (model, orientation) {
+          $(document).trigger('drupalNavbarOrientationChange', orientation);
         })
-      )
-      .end()
-      // Add a handle to each list item if it has a menu.
-      .each(function (index, element) {
-        var $item = $(this);
-        if ($item.children('ul').length > 0) {
-          $item
-            .children('.' + boxClass)
-            .prepend(
-              $('<span>', {
-                'class': handleClass,
-                text: ''
-              })
-            );
-        }
+        .bind('change:activeTab', function (model, tab) {
+          $(document).trigger('drupalNavbarTabChange', tab);
+        })
+        .bind('change:activeTray', function (model, tray) {
+          $(document).trigger('drupalNavbarTrayChange', tray);
+        });
+
+      // Build the navbar view and assign it to the closure variable reference.
+      var view = new Drupal.navbar.View({
+        el: this,
+        model: model,
+        strings: options.strings
       });
-  },
-  /**
-   * Adds a level class to each list based on its depth in the menu.
-   */
-  markListLevels: function ($lists, level, event) {
-    level = (typeof level === 'object') ? 1 : level;
-    $lists
-    .addClass('level-' + level)
-    .each(function (index, element) {
-      $(this).data().navbar.level = level;
+
+      // Render collapsible menus.
+      var menuModel = new Drupal.navbar.MenuModel();
+      var menuView = new Drupal.navbar.MenuView({
+        el: $(this).find('.navbar-menu-administration').get(0),
+        model: menuModel
+      });
+      // Handle the resolution of Drupal.navbar.setSubtrees().
+      // This is handled with a deferred so that the function may be invoked
+      // asynchronously.
+      Drupal.navbar.setSubtrees.done(function (subtrees) {
+        menuModel.set('subtrees', subtrees);
+      });
+      // Call displace to get the initial placement of offset elements.
+      Drupal.displace();
     });
-    $lists = $lists.children('li').children('ul');
-    if ($lists.length > 0) {
-      this.markListLevels($lists, (level + 1));
-    }
   },
-  setLevelVisibility: function ($lists, visibleAfter) {
-    var level;
-    $lists
-    .each(function (index, element) {
-      var $this = $(this);
-      level = $(this).data().navbar.level;
-      if (level > visibleAfter) {
-        $this.addClass('dormant');
+  // Default options.
+  defaults: {
+    breakpoints: {
+      'wide': ''
+    },
+    strings: {
+      opened: Drupal.t('opened'),
+      horizontal: Drupal.t('Horizontal orientation'),
+      vertical: Drupal.t('Vertical orientation')
+    }
+  }
+};
+
+/**
+ * Navbar methods of Backbone objects.
+ */
+Drupal.navbar = Drupal.navbar || {
+  /**
+   * Accepts a list of subtree menu elements.
+   *
+   * A deferred object that is resolved by an inlined JavaScript callback.
+   *
+   * JSONP callback.
+   * @see navbar_subtrees_jsonp().
+   *
+   * Let's build our own $.Deferred()!
+   */
+  setSubtrees: (function () {
+    return {
+      resolve: function (subtrees) {
+        this.callback.call(null, subtrees);
+      },
+      done: function (callback) {
+        this.callback = callback;
+      }
+    };
+  }()),
+
+  /**
+   * Responds to drupalNavbarOrientationChange.
+   *
+   * Applies classes to the body element that reflect the current orientation
+   * of the active navbar.
+   *
+   * @param jQuery.Event event
+   * @param String orientation
+   *   The value can be either 'horizontal' or 'vertical'.
+   */
+  orientationChangeHandler: function (event, orientation) {
+    $('body')
+      .toggleClass('navbar-vertical', orientation === 'vertical')
+      .toggleClass('navbar-horizontal', orientation === 'horizontal');
+  },
+
+  /**
+   * Responds to drupalNavbarTrayChange.
+   *
+   * Toggles the navbar-tray-open class on the body elment. The class is applied
+   * when a navbar tray is active.
+   *
+   * @param jQuery.Event event
+   * @param DOM tray
+   *   The currently active tray DOM element.
+   */
+  trayChangeHandler: function (event, tray) {
+    $('body')
+      .toggleClass('navbar-tray-open', !!tray);
+  },
+
+  /**
+   * Backbone model for the navbar.
+   */
+  Model: Backbone.Model.extend({
+    defaults: {
+      // The active navbar item. All other items should be inactive under
+      // normal circumstances. It will remain active across page loads. The active
+      // item is stored as a DOM element, not a jQuery set.
+      activeTab: null,
+      // Represents whether a tray is open or not. Stored as a DOM element, not a
+      // jQuery set.
+      activeTray: null,
+      // The orientation of the active tray.
+      orientation: 'horizontal',
+      // A tray is locked if a user toggled it to vertical. Otherwise a tray
+      // will switch between vertical and horizontal orientation based on the
+      // configured breakpoints. The locked state will be maintained across page
+      // loads.
+      locked: false,
+      // Indicates whether the media query matches or not.
+      mqMatches: null,
+      // The height of the navbar.
+      height: null,
+      // The current viewport offsets determined by Drupal.displace(). The offsets
+      // suggest how a module might position is components relative to the
+      // viewport.
+      offsets: {
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0
+      }
+    }
+  }),
+
+  /**
+   * Backbone view for the navbar element.
+   */
+  View: Backbone.View.extend({
+    events: {
+      'click .navbar-bar .navbar-tab': 'onTabClick',
+      'click .navbar-toggle-orientation button': 'onOrientationToggleClick'
+    },
+
+    /**
+     * Implements Backbone.View.prototype.initialize().
+     */
+    initialize: function (options) {
+      this.strings = options.strings;
+
+      this.model.bind('change:activeTab', this.render, this);
+      this.model.bind('change:orientation', this.render, this);
+      this.model.bind('change:mqMatches', this.onMediaQueryChange, this);
+      this.model.bind('change:offsets', this.adjustPlacement, this);
+
+      // Add the tray orientation toggles.
+      this.$el.find('.navbar-tray')
+        .find('.navbar-lining')
+        .append(Drupal.theme('navbarOrientationToggle'));
+
+      // Trigger an activeTab change so that listening scripts can respond on
+      // page load. This will call render.
+      this.model.trigger('change:activeTab');
+
+      // Update the tray orientation.
+      var orientation = this._checkOrientationLock(this._getTrayOrientation(this.model.get('mqMatches')));
+      this.model.set('orientation', orientation);
+
+      // Invoke Drupal.displace() to get the current viewport offset values.
+      Drupal.displace();
+    },
+
+    /**
+     * Implements Backbone.View.prototype.render().
+     *
+     * @return Backbone.View
+     */
+    render: function () {
+      // Update the display of the tabs.
+      this.refreshTabs();
+      // Adjust the orientation of the active tray.
+      this.setOrientation();
+      // Adjust the height of the navbar.
+      this.model.set('dimensionsAreValid', false);
+
+      return this;
+    },
+
+    /**
+     * Responds to a navbar tab click.
+     *
+     * @param jQuery.Event event
+     */
+    onTabClick: function (event) {
+      // The polyfilled on and off events on the jQuery fn obect are not working
+      // perfectly with Backbone views. All click events within the view's el
+      // are being delegated, so we need to check here that we have the right
+      // element before acting with it.
+      if ($(event.target).is('.navbar-tab')) {
+        var tab = this.model.get('activeTab');
+
+        // Set the event target as the active item if it is not already.
+        this.model.set('activeTab', (!tab || event.target !== tab) ? event.target : null);
+
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    },
+
+    /**
+     * Toggles the orientation of a navbar tray.
+     *
+     * @param jQuery.Event event
+     */
+    onOrientationToggleClick: function (event) {
+      // The polyfilled on and off events on the jQuery fn obect are not working
+      // perfectly with Backbone views. All click events within the view's el
+      // are being delegated, so we need to check here that we have the right
+      // element before acting with it.
+      if ($(event.target).is('.navbar-toggle-orientation button')) {
+        var orientation = this.model.get('orientation');
+        // Determine the toggle-to orientation.
+        var antiOrientation = (orientation === 'vertical') ? 'horizontal' : 'vertical';
+        var locked = (antiOrientation === 'vertical') ? true : false;
+        // Remember the locked state.
+        if (locked) {
+          localStorage.setItem('Drupal.navbar.trayVerticalLocked', 'true');
+        }
+        else {
+          localStorage.removeItem('Drupal.navbar.trayVerticalLocked');
+        }
+        // Update the model.
+        this.model.set({
+          locked: locked,
+          orientation: antiOrientation
+        });
+
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    },
+
+    /**
+     * Responds to change:orientation event when window.matchMedia fires.
+     *
+     * @param Backbone.Model model
+     * @param Boolean mqMatches
+     *   The matches property of a MediaQueryList object.
+     */
+    onMediaQueryChange: function (model, mqMatches) {
+      this.model.set('orientation', this._checkOrientationLock(this._getTrayOrientation(mqMatches)));
+    },
+
+    /**
+     * Gets the tray orientation depending on whether the media query matches.
+     *
+     * @param Boolean mqMatches
+     *   The matches property of a MediaQueryList object.
+     * @return String
+     *   The orientation, either 'horizontal' or 'vertical'.
+     */
+    _getTrayOrientation: function (mqMatches) {
+      return mqMatches ? 'horizontal' : 'vertical';
+    },
+
+    /**
+     * Toggles a navbar tab and the associated tray.
+     *
+     * @param jQuery.Event event
+     */
+    refreshTabs: function (event) {
+      var $tab = $(this.model.get('activeTab'));
+      var $tray = $();
+      // Activate the selected tab.
+      if ($tab.length > 0) {
+        $tab.addClass('active');
+        var name = $tab.attr('data-navbar-tray');
+        // Mark the tab as pressed.
+        $tab.attr('aria-pressed', 'true');
+        // Store the active tab name or remove the setting.
+        var id = $tab.get(0).id;
+        if (id) {
+          localStorage.setItem('Drupal.navbar.activeTabID', JSON.stringify(id));
+        }
+        // Activate the associated tray.
+        $tray = this.$el.find('[data-navbar-tray="' + name + '"].navbar-tray');
+        if ($tray.length) {
+          $tray.addClass('active');
+          this.model.set('activeTray', $tray.get(0));
+          // Announce that a tray has been opened.
+          // @todo implement the D8 Drupal.announce method in D7.
+          // Drupal.announce(Drupal.t('@tray tray @state', {
+          //   '@tray': name,
+          //   '@state': this.strings.opened
+          // }));
+        }
+        else {
+          // There is no active tray.
+          this.model.set('activeTray', null);
+        }
       }
       else {
-        $this.addClass('visible');
+        // There is no active tray.
+        this.model.set('activeTray', null);
+        localStorage.removeItem('Drupal.navbar.activeTabID');
       }
-    });
-    $lists = $lists.children('li').children('ul');
-    if ($lists.length > 0) {
-      this.setLevelVisibility($lists, visibleAfter);
-    }
-  }
-});
+      // Disable non-selected tabs.
+      this.$el.find('.navbar-bar .navbar-tab')
+        .not($tab)
+        .removeClass('active')
+        .attr('aria-pressed', 'false');
+      // Disable non-selected trays.
+      this.$el.find('.navbar-tray')
+        .not($tray)
+        .removeClass('active');
+    },
 
-// Assign the Navbar obect to the Drupal namespace.
-Drupal.Navbar = Navbar;
-}(jQuery));
+    /**
+     * Change the orientation of the tray between vertical and horizontal.
+     */
+    setOrientation: function () {
+      var orientation = this._checkOrientationLock(this.model.get('orientation'));
+      // The antiOrientation is used to render the view of action buttons like
+      // the tray orientation toggle.
+      var antiOrientation = (orientation === 'vertical') ? 'horizontal' : 'vertical';
+      // Update the orientation of the trays.
+      var $trays = this.$el.find('.navbar-tray')
+        .removeClass('navbar-tray-horizontal navbar-tray-vertical')
+        .addClass('navbar-tray-' + orientation);
+
+      // Update the tray orientation toggle button.
+      var iconClass = 'navbar-icon-toggle-' + orientation;
+      var iconAntiClass = 'navbar-icon-toggle-' + antiOrientation;
+      this.$el.find('.navbar-toggle-orientation button')
+        .val(antiOrientation)
+        .text(this.strings[antiOrientation])
+        .removeClass(iconClass)
+        .addClass(iconAntiClass);
+
+      var dir = document.documentElement.dir;
+      var edge = (dir === 'rtl') ? 'right' : 'left';
+      // Remove data-offset attributes from the trays so they can be refreshed.
+      $trays.removeAttr('data-offset-left').removeAttr('data-offset-right').removeAttr('data-offset-top');
+      // If an active vertical tray exists, mark it as an offset element.
+      $trays.filter('.navbar-tray-vertical.active').attr('data-offset-' + edge, '');
+      // If an active horizontal tray exists, mark it as an offset element.
+      $trays.filter('.navbar-tray-horizontal.active').attr('data-offset-top', '');
+      // Trigger a recalculation of viewport displacing elements.
+      Drupal.displace();
+
+      // Append a message that the tray orientation has been changed.
+      // @todo implement the D8 Drupal.announce method in D7.
+      // Drupal.announce(Drupal.t('Tray orientation changed to @orientation.', {
+      //   '@orientation': orientation
+      // }));
+    },
+
+    /**
+     * Returns an orientation based on the orientation lock.
+     *
+     * Orientation is locked to the vertical position when a user changes a
+     * horizontal tray to a vertical try using the tray orientation toggle button.
+     *
+     * @param String orientation
+     *   The value can be either 'horizontal' or 'vertical'.
+     * @return String
+     *   The orientation, either 'horizontal' or 'vertical'.
+     */
+    _checkOrientationLock: function (orientation) {
+      var locked = this.model.get('locked');
+      // Set the orientation of the tray.
+      // If the tray is locked to vertical in localStorage, persist the vertical
+      // presentation. If the tray is not locked to vertical, let the media
+      // query application decide the orientation.
+      return (locked) ? 'vertical' : orientation;
+    },
+
+    /**
+     * Sets the tops of the trays so that they align with the bottom of the bar.
+     */
+    adjustPlacement: function () {
+      // Set the top of the all the trays to the height of the bar.
+      var barHeight = this.$el.find('.navbar-bar').outerHeight();
+      var height = barHeight;
+      var bhpx =  barHeight + 'px';
+      var $trays = this.$el.find('.navbar-tray');
+      var tray;
+      for (var i = 0, il = $trays.length; i < il; i++) {
+        tray = $trays[i];
+        if (!tray.style.top.length || (tray.style.top !== bhpx)) {
+          tray.style.top = bhpx;
+        }
+      }
+    }
+  }),
+
+  /**
+   * Backbone Model for collapsible menus.
+   */
+  MenuModel: Backbone.Model.extend({
+    defaults: {
+      subtrees: {}
+    }
+  }),
+
+  /**
+   * Backbone View for collapsible menus.
+   */
+  MenuView: Backbone.View.extend({
+
+    /**
+     * Implements Backbone.View.prototype.initialize().
+     */
+    initialize: function () {
+      // @todo, when subtree optimization is put in to place, render when the
+      // subtrees are delivered. Until then, just render right away.
+      // this.model.bind('change:subtrees', this.render, this);
+      this.render();
+    },
+
+    /**
+     * Implements Backbone.View.prototype.render().
+     */
+    render: function () {
+      var subtrees = this.model.get('subtrees');
+      // Add subtrees.
+      // @todo Optimize this to delay adding each subtree to the DOM until it is
+      //   needed; however, take into account screen readers for determining
+      //   when the DOM elements are needed.
+      for (var id in subtrees) {
+        if (subtrees.hasOwnProperty(id)) {
+          this.$el
+            .find('#navbar-link-' + id)
+            .once('navbar-subtrees')
+            .after(subtrees[id]);
+        }
+      }
+      // Render the main menu as a nested, collapsible accordion.
+      if ('drupalNavbarMenu' in $.fn) {
+        this.$el
+          .find('> .menu')
+          .drupalNavbarMenu();
+      }
+    }
+  })
+};
+
+/**
+ * Theme function for the navbar orientation toggle.
+ *
+ * @return
+ *   The corresponding HTML.
+ */
+Drupal.theme.navbarOrientationToggle = function () {
+  return '<div class="navbar-toggle-orientation"><div class="navbar-lining">' +
+    '<button class="navbar-icon" type="button"></button>' +
+    '</div></div>';
+};
+
+}(jQuery, Backbone, Drupal));

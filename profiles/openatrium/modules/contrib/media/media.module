@@ -38,6 +38,7 @@ function media_hook_info() {
     'media_wysiwyg_allowed_view_modes_alter',
     'media_format_form_prepare_alter',
     'media_token_to_markup_alter',
+    'media_file_displays_alter',
     'query_media_browser_alter',
   );
 
@@ -201,6 +202,24 @@ function media_menu() {
     'type' => MENU_CALLBACK,
   );
 
+  // Upgrade interface for old file types.
+  $items['admin/structure/file-types/upgrade'] = array(
+    'title' => 'Upgrade types',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('media_upgrade_file_types'),
+    'access arguments' => array('administer file types'),
+    'file' => 'includes/media.pages.inc',
+    'type' => MENU_CALLBACK,
+  );
+  $items['admin/structure/file-types/upgrade/confirm'] = array(
+    'title' => 'Upgrade types',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('media_upgrade_file_types_confirm'),
+    'access arguments' => array('administer file types'),
+    'file' => 'includes/media.pages.inc',
+    'type' => MENU_CALLBACK,
+  );
+
   return $items;
 }
 
@@ -356,6 +375,15 @@ function media_page_alter(&$page) {
       }
     }
   }
+
+  // Check if there are file types that need migration and display a message
+  // to user if so.
+  $menu = menu_get_item();
+  if (media_variable_get('display_types_migration_mess') && $menu['path'] == 'admin/structure/file-types') {
+    if ($migratable_types = _media_get_migratable_file_types()) {
+      drupal_set_message(t('There are disabled/deleted file types that can be migrated to their new alternatives. Visit <a href="!url">migration page</a> to get more information.', array('!url' => url('admin/structure/file-types/upgrade'))));
+    }
+  }
 }
 
 /**
@@ -366,9 +394,9 @@ function media_element_info_alter(&$types) {
 }
 
 /**
- * Implements hook_file_operations_info().
+ * Implements hook_file_operations().
  */
-function media_file_operations_info() {
+function media_file_operations() {
   $operations = array();
 
   // If the multiform module is not installed, do not show this option.
@@ -476,6 +504,14 @@ function media_form_field_ui_field_edit_form_alter(&$form, &$form_state) {
     $form['instance']['settings']['file_extensions']['#title'] = t('Allowed file extensions for uploaded files');
     // Do not increase maxlength of file extensions for image fields, since
     // presumably they will not need a long list of extensions.
+  }
+  if ($form['#instance']['entity_type'] == 'file') {
+    $form['instance']['settings']['wysiwyg_override'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Override in WYSIWYG'),
+      '#description' => t('If checked, then this field may be overridden in the WYSIWYG editor.'),
+      '#default_value' => isset($form['#instance']['settings']['wysiwyg_override']) ? $form['#instance']['settings']['wysiwyg_override'] : TRUE,
+    );
   }
 }
 
@@ -880,11 +916,13 @@ function media_element_process(&$element, &$form_state, $form) {
   $element['title'] = array(
     '#type' => 'item',
     '#title' => $element['#title'],
-    '#markup' => '',
     '#description' => $element['#description'],
     '#required' => $element['#required'],
     '#weight' => -100,
   );
+  if (isset($element['#title_display'])) {
+    $element['title']['#title_display'] = $element['#title_display'];
+  }
 
   // @todo This should load from the JS in case of a failed form submission.
   $element['preview'] = array(
@@ -1072,6 +1110,15 @@ function media_file_displays_alter(&$displays, $file, $view_mode) {
       'settings' => NULL,
     );
   }
+
+  // Override the fields of the file when requested by the WYSIWYG.
+  if (isset($file->override) && isset($file->override['fields'])) {
+    $instance = field_info_instances('file', $file->type);
+    foreach ($file->override['fields'] as $field_name => $value) {
+      if (!isset($instance[$field_name]['settings']) || !isset($instance[$field_name]['settings']['wysiwyg_override']) || $instance[$field_name]['settings']['wysiwyg_override']) {
+        $file->{$field_name} = $value;}
+    }
+  }
 }
 
 /**
@@ -1099,16 +1146,6 @@ function media_ctools_plugin_api($module, $api) {
       'version' => 1,
     );
   }
-}
-
-/**
- * Helper function to get a list of hidden stream wrappers.
- *
- * This is used in several places to filter queries for media so that files in
- * temporary:// don't show up.
- */
-function media_get_hidden_stream_wrappers() {
-  return array_diff_key(file_get_stream_wrappers(STREAM_WRAPPERS_ALL), file_get_stream_wrappers(STREAM_WRAPPERS_VISIBLE));
 }
 
 /**
@@ -1257,4 +1294,25 @@ function media_get_remote_stream_wrappers() {
   $wrappers = array_diff_key($wrappers, file_get_stream_wrappers(STREAM_WRAPPERS_LOCAL_NORMAL));
   $wrappers = array_diff_key($wrappers, file_get_stream_wrappers(STREAM_WRAPPERS_LOCAL_HIDDEN));
   return $wrappers;
+}
+
+
+/**
+ * Checks if there are any files that belong to disabled or deleted file
+ * types.
+ *
+ * @return Array of file types (machine names) that are candidates for
+ *   migration.
+ */
+function _media_get_migratable_file_types() {
+  $query = db_select('file_managed', 'f')
+    ->fields('f', array('type'))
+    ->distinct();
+  $types = $query->execute()->fetchCol();
+  $enabled_types = array();
+  foreach (file_type_get_enabled_types() as $type) {
+    $enabled_types[] = $type->type;
+  }
+
+  return array_diff($types, $enabled_types);
 }

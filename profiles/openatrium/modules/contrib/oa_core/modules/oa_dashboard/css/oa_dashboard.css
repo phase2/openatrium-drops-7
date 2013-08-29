@@ -11,6 +11,20 @@ ul.oa_toolbar {
   padding-top: 5px;
 }
 
+/* Hide Navbar module's navbar */
+#navbar-bar {
+  display: none;
+}
+.drupal-navbar .navbar-tray-vertical .navbar-toggle-orientation,
+.drupal-navbar .navbar-icon-toggle-horizontal,
+.drupal-navbar .navbar-icon-toggle-vertical {
+  display: none;
+}
+
+#oa-navbar {
+  margin-bottom: 0;
+}
+
 #oa-navbar .btn-toolbar {
   float: left;
   margin: 3px 0 0 10px;
@@ -23,6 +37,10 @@ ul.oa_toolbar {
 .navbar-inverse #oa-navbar .caret {
   border-top-color: #BBB;
   border-bottom-color: #BBB;
+}
+
+#oa_toolbar .icon-home {
+  color: #333;
 }
 
 .navbar-inverse #oa-navbar .icon-home {
@@ -80,6 +98,15 @@ width: 100%;
 
 #oa-navbar .more-link {
 	font-size: 12px;
+}
+
+ul#oa_breadcrumb > .btn-group {
+  margin-right: 10px;
+}
+
+ul#oa_breadcrumb > .btn-group > a {
+  margin-left: 0;
+  padding-left: 0;
 }
 
 /**************/

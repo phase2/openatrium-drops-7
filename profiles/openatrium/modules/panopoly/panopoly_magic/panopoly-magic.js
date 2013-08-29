@@ -137,6 +137,9 @@
         }
       });
 
+      // Prevent ctools auto-submit from firing when changing text formats.
+      $(':input.filter-list').addClass('ctools-auto-submit-exclude');
+
     }
   }
 })(jQuery);

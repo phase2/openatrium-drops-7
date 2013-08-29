@@ -118,9 +118,8 @@ function _oa_sections_get_current_selected_space($entity, $set_value = NULL) {
       $value = $process[LANGUAGE_NONE][0]['default'];
     }
   }
-  // fallback to context.
-  elseif (defined('OG_SESSION_CONTEXT_ID') && !empty($_SESSION[OG_SESSION_CONTEXT_ID])) {
-    $value = $_SESSION[OG_SESSION_CONTEXT_ID];
+  else {
+    $value = oa_core_get_space_context();
   }
   $found_value = $value;
   // Make sure the current user has access.

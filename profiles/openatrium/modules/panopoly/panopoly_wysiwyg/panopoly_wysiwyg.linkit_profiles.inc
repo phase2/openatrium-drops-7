@@ -72,7 +72,7 @@ function panopoly_wysiwyg_default_linkit_profiles() {
       ),
       'class' => array(
         'weight' => '0',
-        'enabled' => 0,
+        'enabled' => 1,
       ),
       'accesskey' => array(
         'weight' => '0',
@@ -89,6 +89,7 @@ function panopoly_wysiwyg_default_linkit_profiles() {
     ),
   );
   $linkit_profile->role_rids = array(
+    2 => 1,
     3 => 1,
     4 => 1,
   );

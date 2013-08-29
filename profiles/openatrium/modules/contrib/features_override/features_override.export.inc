@@ -367,9 +367,7 @@ function features_override_export_keys($keys) {
  */
 function features_override_remove_recursion(&$item) {
   _features_override_remove_recursion($item);
-  _features_override_remove_recursion_markers($item);
 }
-
 
 /**
  * Helper to removes recursion from an object/array.
@@ -377,53 +375,26 @@ function features_override_remove_recursion(&$item) {
  * @param $item
  *   An object or array passed by reference.
  */
-function _features_override_remove_recursion(&$item) {
-  $is_object = is_object($item);
-  if ($is_object) {
-    $item->{FEATURES_OVERRIDE_RECURSION_MARKER} = 1;
-  }
-  else {
-    $item[FEATURES_OVERRIDE_RECURSION_MARKER] = 1;
-  }
-  foreach ($item as $key => $value) {
-    if (is_array($value) || is_object($value)) {
-      $remove = is_array($value) ? !empty($value[FEATURES_OVERRIDE_RECURSION_MARKER]) : !empty($value->{FEATURES_OVERRIDE_RECURSION_MARKER});
-      if ($remove) {
-        if ($is_object) {
-          unset($item->$key);
+function _features_override_remove_recursion(&$object, &$stack = array()) {
+  if ((is_object($object) || is_array($object)) && $object) {
+    if (!in_array($object, $stack, true)) {
+      $stack[] = $object;
+      foreach ($object as $key => &$subobject) {
+        if (_features_override_remove_recursion($subobject, $stack)) {
+          if (is_object($object)) {
+            unset($object->$key);
         }
         else {
-          unset($item[$key]);
-        }
-      }
-      else {
-        features_override_remove_recursion($value);
-      }
+            unset($object[$key]);
     }
   }
 }
-
-/**
- * Helper to removes recursion from an object/array.
- *
- * @param $item
- *   An object or array passed by reference.
- */
-function _features_override_remove_recursion_markers(&$item) {
-  $is_object = is_object($item);
-  foreach ($item as $key => $value) {
-    if ($key === FEATURES_OVERRIDE_RECURSION_MARKER) {
-      if ($is_object) {
-        unset($item->$key);
       }
       else {
-        unset($item[$key]);
-      }
-    }
-    elseif (is_array($value) || is_object($value)) {
-      _features_override_remove_recursion_markers($value);
+      return TRUE;
     }
   }
+  return FALSE;
 }
 
 /**

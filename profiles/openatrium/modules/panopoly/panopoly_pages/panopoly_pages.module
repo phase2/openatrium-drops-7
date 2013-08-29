@@ -159,16 +159,16 @@ function panopoly_pages_module_implements_alter(&$implementations, $hook) {
  * @see http://drupal.org/node/1837312
  */
 function panopoly_pages_modules_enabled($modules) {
-  // Only run this logic if we are executing as part of an install profile.
-  if (variable_get('install_task', 'done') != 'done') {
+  // Only run this logic if we are executing as part of an install profile
+  // And only for this particular module.
+  if (drupal_installation_attempted() && in_array('panopoly_pages', $modules)) {
 
     // Rebuild some caches so this all works right.
-    features_flush_caches();
-    drupal_static_reset();
+    features_revert_module('panopoly_pages');
+    drupal_static_reset('panelizer_entity_plugin_get_handler');
 
     // Define some permissions for the editor role.
     $editor = user_role_load_by_name('editor');
-    drupal_static_reset('panelizer_entity_plugin_get_handler');
     user_role_grant_permissions($editor->rid, array('administer panelizer node panopoly_page breadcrumbs'));
     user_role_grant_permissions($editor->rid, array('administer panelizer node panopoly_page content'));
     user_role_grant_permissions($editor->rid, array('administer panelizer node panopoly_page context'));

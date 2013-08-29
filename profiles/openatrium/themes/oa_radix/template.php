@@ -63,4 +63,18 @@ function oa_radix_preprocess_page(&$vars) {
   $vars['oa_footer_panel'] = isset($footer) ? $footer['content'] : '';
 }
 
+/**
+ * Implements theme_menu_tree().
+ */
+function oa_radix_menu_tree(&$variables) {
+  // override Radix menu.inc with default Drupal behavior
+  return theme_menu_tree($variables);
+}
 
+/**
+ * Implements theme_menu_link().
+ */
+function oa_radix_menu_link(&$variables) {
+  // override Radix menu.inc with default Drupal behavior
+  return theme_menu_link($variables);
+}

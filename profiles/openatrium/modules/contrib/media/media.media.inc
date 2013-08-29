@@ -130,7 +130,7 @@ function media_query_media_browser_alter($query) {
   // @todo This is possibly redundant since it's already filtered in the view.
   $query->condition($alias . '.status', FILE_STATUS_PERMANENT);
 
-  foreach (array_keys(media_get_hidden_stream_wrappers()) as $name) {
+  foreach (array_keys(file_entity_get_hidden_stream_wrappers()) as $name) {
     $query->condition($alias . '.uri', db_like($name . '://') . '%', 'NOT LIKE');
   }
 }

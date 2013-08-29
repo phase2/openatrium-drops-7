@@ -20,13 +20,16 @@ function media_import($form, &$form_state) {
     $form['directory'] = array(
       '#type' => 'textfield',
       '#title' => t('Directory'),
+      '#description' => t('Enter the absolute directory on the web server to look for files. Subdirectories inside this directory will not be scanned.'),
       '#required' => TRUE,
     );
 
     $form['pattern'] = array(
-      '#type' => 'textfield',
+      '#type' => 'textarea',
       '#title' => t('Pattern'),
-      '#description' => 'Only files matching this pattern will be imported. For example, to import all jpg and gif files, the pattern would be <em>*.jpg|*.gif</em>.',
+      '#description' => t("Only files matching these patterns will be imported. Enter one pattern per line. The '*' character is a wildcard. Example patterns are %png_example to import all PNG files.", array('%png_example' => '*.png')),
+      '#default_value' => '*',
+      '#required' => TRUE,
     );
 
     $form['actions'] = array('#type' => 'actions');
@@ -61,10 +64,21 @@ function media_import_validate($form, &$form_state) {
     if (!is_dir($directory)) {
       form_set_error('directory', t('The provided directory does not exist.'));
     }
-    $pattern = !empty($pattern) ? $pattern : '*';
-    $files = glob("$directory/$pattern");
+    if (!is_readable($directory)) {
+      form_set_error('directory', t('The provided directory is not readable.'));
+    }
+
+    $pattern_quoted = preg_quote($pattern, '/');
+    $pattern_quoted = preg_replace('/(\r\n?|\n)/', '|', $pattern_quoted);
+    $pattern_quoted = strtr($pattern_quoted, array(
+      '\\|' => '|',
+      '\\*' => '.*',
+      '\\?' => '.?',
+    ));
+    $files = file_scan_directory($directory, '/^(' . $pattern_quoted . ')$/', array('recurse' => FALSE));
+    $files = array_keys($files);
     if (empty($files)) {
-      form_set_error('pattern', t('No files were found in %directory matching %pattern', array('%directory' => $directory, '%pattern' => $pattern)));
+      form_set_error('pattern', t('No files were found in %directory matching the regular expression %pattern', array('%directory' => $directory, '%pattern' => $pattern_quoted)));
     }
     $form_state['storage']['files'] = $files;
   }

@@ -9,7 +9,6 @@ div.caption-inner {
   background: #F3F3F3;
   font-size: 0.857em; /* assuming you have a base font size of 14px, this is 12px */
   text-align: center;
-  max-width: 100%;
 }
 
 div.caption p {

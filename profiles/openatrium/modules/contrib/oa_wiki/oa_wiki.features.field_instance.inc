@@ -15,7 +15,7 @@ function oa_wiki_field_default_field_instances() {
     'bundle' => 'oa_wiki_page',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => '',
+    'description' => 'Enter the content of the document or wiki here.',
     'display' => array(
       'default' => array(
         'label' => 'hidden',
@@ -43,13 +43,14 @@ function oa_wiki_field_default_field_instances() {
     'entity_type' => 'node',
     'field_name' => 'body',
     'label' => 'Body',
-    'required' => FALSE,
+    'required' => 0,
     'settings' => array(
-      'display_summary' => TRUE,
+      'display_summary' => 1,
       'text_processing' => 1,
       'user_register_form' => FALSE,
     ),
     'widget' => array(
+      'active' => 1,
       'module' => 'text',
       'settings' => array(
         'rows' => 20,
@@ -297,6 +298,7 @@ function oa_wiki_field_default_field_instances() {
   // Included for use with string extractors like potx.
   t('Attachments');
   t('Body');
+  t('Enter the content of the document or wiki here.');
   t('Groups audience');
   t('OG vocabulary');
   t('OpenAtrium Section');

@@ -15,7 +15,7 @@ function oa_core_field_default_field_instances() {
     'bundle' => 'oa_group',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => '',
+    'description' => 'Provide a description of this group',
     'display' => array(
       'default' => array(
         'label' => 'hidden',
@@ -65,7 +65,7 @@ function oa_core_field_default_field_instances() {
   $field_instances['node-oa_group-field_featured_image'] = array(
     'bundle' => 'oa_group',
     'deleted' => 0,
-    'description' => '',
+    'description' => 'Attach an Image that corresponds / identifies this group. ',
     'display' => array(
       'default' => array(
         'label' => 'above',
@@ -126,7 +126,7 @@ function oa_core_field_default_field_instances() {
       ),
     ),
     'deleted' => 0,
-    'description' => '',
+    'description' => 'Select to set the visibility of this group to the entire HITRC space.',
     'display' => array(
       'default' => array(
         'label' => 'above',
@@ -151,7 +151,7 @@ function oa_core_field_default_field_instances() {
     'entity_type' => 'node',
     'field_name' => 'group_access',
     'label' => 'Group visibility',
-    'required' => TRUE,
+    'required' => 1,
     'settings' => array(
       'user_register_form' => FALSE,
     ),
@@ -166,6 +166,7 @@ function oa_core_field_default_field_instances() {
       ),
     ),
     'widget' => array(
+      'active' => 1,
       'module' => 'options',
       'settings' => array(),
       'type' => 'options_buttons',
@@ -303,7 +304,7 @@ function oa_core_field_default_field_instances() {
     'bundle' => 'oa_space',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => '',
+    'description' => 'This description of the Space will appear on the Space Page. ',
     'display' => array(
       'default' => array(
         'label' => 'hidden',
@@ -353,7 +354,7 @@ function oa_core_field_default_field_instances() {
   $field_instances['node-oa_space-field_featured_image'] = array(
     'bundle' => 'oa_space',
     'deleted' => 0,
-    'description' => '',
+    'description' => 'The Image associated with the Space',
     'display' => array(
       'default' => array(
         'label' => 'above',
@@ -589,12 +590,17 @@ function oa_core_field_default_field_instances() {
 
   // Translatables
   // Included for use with string extractors like potx.
+  t('Attach an Image that corresponds / identifies this group. ');
   t('Description');
   t('Determine if this is an OG group.');
   t('Group');
   t('Group roles and permissions');
   t('Group visibility');
   t('Primary Image');
+  t('Provide a description of this group');
+  t('Select to set the visibility of this group to the entire HITRC space.');
+  t('The Image associated with the Space');
+  t('This description of the Space will appear on the Space Page. ');
 
   return $field_instances;
 }

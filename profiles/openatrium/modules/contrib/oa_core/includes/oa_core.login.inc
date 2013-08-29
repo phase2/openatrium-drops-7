@@ -126,7 +126,7 @@ function oa_core_drupal_goto_alter(&$path, &$options, &$http_response_code) {
  */
 function oa_core_login_prepare_goto($destination) {
   // Check if $_GET['destination'] should overwrite us
-  if (!isset($_GET['destination']) || !variable_get('login_destination_preserve_destination', FALSE)) {
+  if (!isset($_GET['destination']) || !variable_get('login_destination_preserve_destination', TRUE)) {
     $GLOBALS['destination'] = $destination;
   }
 }
@@ -160,7 +160,7 @@ function oa_core_login_get_destination($trigger = '', $current = NULL) {
     if (count($spaces) <= 0) {
       return 'home';
     }
-    return 'user';
+    return 'user/' . $user->uid . '/view';
   }
   elseif ($trigger == 'logout') {
     return 'home';

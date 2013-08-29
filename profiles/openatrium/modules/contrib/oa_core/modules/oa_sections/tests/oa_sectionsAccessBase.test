@@ -87,32 +87,12 @@ abstract class oa_sectionsAccessBase extends oa_coreBaseWebTest {
    *   Whether $account should have access to this space.
    */
   protected function oaTestOaSectionAccessToSection($space_text, $member_text, $section_text, $space, $section, $account, $has_access) {
-    if ($account->uid) {
-      $this->drupalLogin($account);
-    }
-    else {
-      $this->drupalLogout();
-    }
 
-    // Test node_access directly and viewing section page.
-    $this->drupalGet('node/' . $section->nid);
     if ($has_access) {
       $this->assertTrue(node_access('view', $section, $account), t('@member has view access to @section section for @space', array('@space' => $space_text, '@member' => $member_text, '@section' => $section_text)));
-      $this->assertResponse(200, t('@member can view @section section for @space', array('@space' => $space_text, '@member' => $member_text, '@section' => $section_text)));
-
     }
     else {
       $this->assertFalse(node_access('view', $section, $account), t('@member does not have view access to @section section for @space', array('@space' => $space_text, '@member' => $member_text, '@section' => $section_text)));
-      $this->assertResponse(403, t('@member cannot view @section section for @space', array('@space' => $space_text, '@member' => $member_text, '@section' => $section_text)));
-    }
-
-    // Test listing of sections (by viewing space homepage)
-    $this->drupalGet('node/' . $space->nid);
-    if ($has_access) {
-      $this->assertText($section->title,  t('@member can view @section section on @space homepage', array('@space' => $space_text, '@member' => $member_text, '@section' => $section_text)));
-    }
-    else {
-      $this->assertNoText($section->title,  t('@member cannot view @section section on @space homepage', array('@space' => $space_text, '@member' => $member_text, '@section' => $section_text)));
     }
   }
 

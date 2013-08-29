@@ -35,19 +35,13 @@ function panopoly_search_all_form_submit($form, &$form_state) {
 function panopoly_search_modules_enabled($modules) {
 
   // If we are running on Pantheon enable Solr support
-  // TODO - enable this again when Pantheon has RC3+ support for Search API
-  // See http://helpdesk.getpantheon.com/customer/portal/articles/361249-enabling-solr-search- for details
-  if (FALSE && in_array('panopoly_search', $modules) && variable_get('pantheon_tier') && module_enable(array('pantheon_apachesolr'))) {
+  if (in_array('panopoly_search', $modules) && variable_get('pantheon_tier') && module_enable(array('pantheon_apachesolr'))) {
 
     // Supress the message from enabling Panopoly Apachesolr since we are configuring it automatically
     drupal_get_messages('status');
 
-    // Load the Solr PHP Client Library
-    _search_api_solr_autoload('Apache_Solr_Service');
-    _search_api_solr_autoload('Apache_Solr_HttpTransport_Abstract');
-
     // Push Pantheon's Search API Schema
-    $schema_uri = drupal_get_path('module', 'search_api_solr') . '/schema.xml';
+    $schema_uri = drupal_get_path('module', 'search_api_solr') . '/solr-conf/3.x/schema.xml';
     pantheon_apachesolr_update_schema($schema_uri);
 
     // Enable Panopoly's Solr Server and Solr Index

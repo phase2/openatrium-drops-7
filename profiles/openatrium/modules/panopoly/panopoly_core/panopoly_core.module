@@ -32,6 +32,19 @@ function panopoly_core_apps_app_info() {
 }
 
 /**
+ * Implemenets hook_page_build().
+ */
+function panopoly_core_page_build(&$page) {
+  // This fixes a bug that causes @font-face declarations to break in IE6-8.
+  // @see http://www.smashingmagazine.com/2012/07/11/avoiding-faux-weights-styles-...
+  $path = drupal_get_path('module', 'panopoly_core');
+  drupal_add_css($path . '/css/panopoly-fonts-ie-open-sans.css', array('group' => CSS_THEME, 'every_page' => TRUE, 'browsers' => array('IE' => 'lte IE 8', '!IE' => FALSE), 'preprocess' => FALSE));
+  drupal_add_css($path . '/css/panopoly-fonts-ie-open-sans-bold.css', array('group' => CSS_THEME, 'every_page' => TRUE, 'browsers' => array('IE' => 'lte IE 8', '!IE' => FALSE), 'preprocess' => FALSE));
+  drupal_add_css($path . '/css/panopoly-fonts-ie-open-sans-italic.css', array('group' => CSS_THEME, 'every_page' => TRUE, 'browsers' => array('IE' => 'lte IE 8', '!IE' => FALSE), 'preprocess' => FALSE));
+  drupal_add_css($path . '/css/panopoly-fonts-ie-open-sans-bold-italic.css', array('group' => CSS_THEME, 'every_page' => TRUE, 'browsers' => array('IE' => 'lte IE 8', '!IE' => FALSE), 'preprocess' => FALSE));
+}
+
+/**
  * Configuration Form for Panopoly Core
  */
 function panopoly_core_configure_form($form, &$form_state) {
@@ -111,11 +124,12 @@ function panopoly_core_element_info_alter(&$type) {
 function panopoly_core_modules_enabled($modules) {
 
   // Only run this logic if we are executing as part of an install profile
-  if (variable_get('install_task', 'done') != 'done') {
+  // and only for this particular module.
+  if (drupal_installation_attempted() && in_array('panopoly_core', $modules)) {
 
     // Rebuild some caches so this all works right
-    features_flush_caches();
-    drupal_static_reset();
+    taxonomy_features_rebuild('panopoly_core');
+    drupal_static_reset('panelizer_entity_plugin_get_handler');
 
     // Define some permissions for the editor role
     if ($editor = user_role_load_by_name('editor')) {

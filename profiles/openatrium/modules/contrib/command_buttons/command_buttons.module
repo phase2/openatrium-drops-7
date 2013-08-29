@@ -144,7 +144,11 @@ function command_buttons_entity_info_alter(&$entity_info) {
  * entities.
  */
 function command_buttons_modules_enabled($modules) {
-  features_revert(array('command_buttons' => array('field_instance', 'field_base')));
+  // check if fields exists, and if not, create them via features_revert
+  $instance = field_info_instance('command_button', 'field_command_link', 'button');
+  if (empty($instance)) {
+    features_revert(array('command_buttons' => array('field_instance', 'field_base')));
+  }
 
   if (in_array('command_buttons', $modules)) {
     $node_type = entity_get_info('node');

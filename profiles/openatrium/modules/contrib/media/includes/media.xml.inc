@@ -32,33 +32,48 @@ function _media_retrieve_xml($url, $display_errors = FALSE, $refresh = FALSE) {
     return $xmls[$url];
   }
 
-  // Enable user error handling.
-  libxml_use_internal_errors(TRUE);
-
-  // Load the document.
+  // Retrieve the document.
   $result = drupal_http_request($url);
-  $xml = simplexml_load_string($result->data);
 
-  if (!$xml) {
-    foreach (libxml_get_errors() as $error) {
-      $params = array('%url' => $url, '%error' => $error->message);
-      // Handle errors here.
-      if ($display_errors) {
-        drupal_set_message(t('Error retrieving XML from %url: %error', $params), 'error');
-      }
-      watchdog('media', 'Error retrieving XML from %url: %error', $params, WATCHDOG_WARNING);
+  // Log an error if the document could not be retrieved.
+  if (isset($result->error) || empty($result)) {
+    $params = array('%url' => $url, '%error' => $result->error);
+    if ($display_errors) {
+      drupal_set_message(t('Error retrieving XML from %url: %error', $params), 'error');
     }
-
-    // Clear our error cache.
-    libxml_clear_errors();
+    watchdog('media', 'Error retrieving XML from %url: %error', $params, WATCHDOG_WARNING);
 
     // Set the static cache, but not Drupal's cache, so we can attempt to
     // retrieve the file another time if possible.
     $xmls[$url] = FALSE;
   }
   else {
-    $xmls[$url] = _media_unserialize_xml($xml);
-    cache_set('media:xml:' . $url, $xmls[$url], 'cache_media_xml', media_variable_get('xml_cache_expire', 3600));
+    // Enable user error handling.
+    libxml_use_internal_errors(TRUE);
+
+    // Load the document.
+    $xml = simplexml_load_string($result->data);
+
+    if (!$xml) {
+      foreach (libxml_get_errors() as $error) {
+        $params = array('%url' => $url, '%error' => $error->message);
+        if ($display_errors) {
+          drupal_set_message(t('Error loading XML from %url: %error', $params), 'error');
+        }
+        watchdog('media', 'Error loading XML from %url: %error', $params, WATCHDOG_WARNING);
+      }
+
+      // Clear our error cache.
+      libxml_clear_errors();
+
+      // Set the static cache, but not Drupal's cache, so we can attempt to
+      // retrieve the file another time if possible.
+      $xmls[$url] = FALSE;
+    }
+    else {
+      $xmls[$url] = _media_unserialize_xml($xml);
+      cache_set('media:xml:' . $url, $xmls[$url], 'cache_media_xml', media_variable_get('xml_cache_expire', 3600));
+    }
   }
 
   return $xmls[$url];

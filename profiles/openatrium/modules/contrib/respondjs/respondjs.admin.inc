@@ -17,7 +17,10 @@ function respondjs_admin() {
     '#type'           => 'select',
     '#title'          => t('Where should respond.js be included?'),
     '#description'    => t('A script with a significant visual impact like respond.js belongs in the &lt;head&gt; of a document.<br> However, in some cases it causes problems and you can move it to the footer using this configuration option.'),
-    '#options'        => drupal_map_assoc(array(t('header'), t('footer'))),
+    '#options'        => array(
+      'header' => t('header'),
+      'footer' => t('footer'),
+    ),
     '#default_value'  => variable_get('respondjs_scope', RESPONDJS_SCOPE_DEFAULT),
   );
 

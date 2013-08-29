@@ -10,7 +10,7 @@
 function oa_permissions_user_default_permissions() {
   $permissions = array();
 
-  // Exported permission: add media from remote sources.
+  // Exported permission: 'add media from remote sources'.
   $permissions['add media from remote sources'] = array(
     'name' => 'add media from remote sources',
     'roles' => array(
@@ -20,7 +20,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'media_internet',
   );
 
-  // Exported permission: administer panelizer node oa_group breadcrumbs.
+  // Exported permission: 'administer panelizer node oa_group breadcrumbs'.
   $permissions['administer panelizer node oa_group breadcrumbs'] = array(
     'name' => 'administer panelizer node oa_group breadcrumbs',
     'roles' => array(
@@ -29,7 +29,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node oa_group content.
+  // Exported permission: 'administer panelizer node oa_group content'.
   $permissions['administer panelizer node oa_group content'] = array(
     'name' => 'administer panelizer node oa_group content',
     'roles' => array(
@@ -40,7 +40,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node oa_group context.
+  // Exported permission: 'administer panelizer node oa_group context'.
   $permissions['administer panelizer node oa_group context'] = array(
     'name' => 'administer panelizer node oa_group context',
     'roles' => array(
@@ -49,7 +49,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node oa_group defaults.
+  // Exported permission: 'administer panelizer node oa_group defaults'.
   $permissions['administer panelizer node oa_group defaults'] = array(
     'name' => 'administer panelizer node oa_group defaults',
     'roles' => array(
@@ -58,7 +58,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node oa_group layout.
+  // Exported permission: 'administer panelizer node oa_group layout'.
   $permissions['administer panelizer node oa_group layout'] = array(
     'name' => 'administer panelizer node oa_group layout',
     'roles' => array(
@@ -69,7 +69,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node oa_group overview.
+  // Exported permission: 'administer panelizer node oa_group overview'.
   $permissions['administer panelizer node oa_group overview'] = array(
     'name' => 'administer panelizer node oa_group overview',
     'roles' => array(
@@ -78,7 +78,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node oa_group settings.
+  // Exported permission: 'administer panelizer node oa_group settings'.
   $permissions['administer panelizer node oa_group settings'] = array(
     'name' => 'administer panelizer node oa_group settings',
     'roles' => array(
@@ -87,7 +87,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node oa_section breadcrumbs.
+  // Exported permission: 'administer panelizer node oa_section breadcrumbs'.
   $permissions['administer panelizer node oa_section breadcrumbs'] = array(
     'name' => 'administer panelizer node oa_section breadcrumbs',
     'roles' => array(
@@ -96,7 +96,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node oa_section content.
+  // Exported permission: 'administer panelizer node oa_section content'.
   $permissions['administer panelizer node oa_section content'] = array(
     'name' => 'administer panelizer node oa_section content',
     'roles' => array(
@@ -107,7 +107,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node oa_section context.
+  // Exported permission: 'administer panelizer node oa_section context'.
   $permissions['administer panelizer node oa_section context'] = array(
     'name' => 'administer panelizer node oa_section context',
     'roles' => array(
@@ -116,7 +116,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node oa_section defaults.
+  // Exported permission: 'administer panelizer node oa_section defaults'.
   $permissions['administer panelizer node oa_section defaults'] = array(
     'name' => 'administer panelizer node oa_section defaults',
     'roles' => array(
@@ -125,7 +125,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node oa_section layout.
+  // Exported permission: 'administer panelizer node oa_section layout'.
   $permissions['administer panelizer node oa_section layout'] = array(
     'name' => 'administer panelizer node oa_section layout',
     'roles' => array(
@@ -136,7 +136,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node oa_section overview.
+  // Exported permission: 'administer panelizer node oa_section overview'.
   $permissions['administer panelizer node oa_section overview'] = array(
     'name' => 'administer panelizer node oa_section overview',
     'roles' => array(
@@ -145,7 +145,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node oa_section settings.
+  // Exported permission: 'administer panelizer node oa_section settings'.
   $permissions['administer panelizer node oa_section settings'] = array(
     'name' => 'administer panelizer node oa_section settings',
     'roles' => array(
@@ -154,7 +154,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node oa_space breadcrumbs.
+  // Exported permission: 'administer panelizer node oa_space breadcrumbs'.
   $permissions['administer panelizer node oa_space breadcrumbs'] = array(
     'name' => 'administer panelizer node oa_space breadcrumbs',
     'roles' => array(
@@ -163,7 +163,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node oa_space content.
+  // Exported permission: 'administer panelizer node oa_space content'.
   $permissions['administer panelizer node oa_space content'] = array(
     'name' => 'administer panelizer node oa_space content',
     'roles' => array(
@@ -174,7 +174,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node oa_space context.
+  // Exported permission: 'administer panelizer node oa_space context'.
   $permissions['administer panelizer node oa_space context'] = array(
     'name' => 'administer panelizer node oa_space context',
     'roles' => array(
@@ -183,7 +183,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node oa_space defaults.
+  // Exported permission: 'administer panelizer node oa_space defaults'.
   $permissions['administer panelizer node oa_space defaults'] = array(
     'name' => 'administer panelizer node oa_space defaults',
     'roles' => array(
@@ -192,7 +192,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node oa_space layout.
+  // Exported permission: 'administer panelizer node oa_space layout'.
   $permissions['administer panelizer node oa_space layout'] = array(
     'name' => 'administer panelizer node oa_space layout',
     'roles' => array(
@@ -203,7 +203,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node oa_space overview.
+  // Exported permission: 'administer panelizer node oa_space overview'.
   $permissions['administer panelizer node oa_space overview'] = array(
     'name' => 'administer panelizer node oa_space overview',
     'roles' => array(
@@ -212,7 +212,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node oa_space settings.
+  // Exported permission: 'administer panelizer node oa_space settings'.
   $permissions['administer panelizer node oa_space settings'] = array(
     'name' => 'administer panelizer node oa_space settings',
     'roles' => array(
@@ -221,7 +221,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node oa_team breadcrumbs.
+  // Exported permission: 'administer panelizer node oa_team breadcrumbs'.
   $permissions['administer panelizer node oa_team breadcrumbs'] = array(
     'name' => 'administer panelizer node oa_team breadcrumbs',
     'roles' => array(
@@ -230,7 +230,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node oa_team content.
+  // Exported permission: 'administer panelizer node oa_team content'.
   $permissions['administer panelizer node oa_team content'] = array(
     'name' => 'administer panelizer node oa_team content',
     'roles' => array(
@@ -239,7 +239,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node oa_team context.
+  // Exported permission: 'administer panelizer node oa_team context'.
   $permissions['administer panelizer node oa_team context'] = array(
     'name' => 'administer panelizer node oa_team context',
     'roles' => array(
@@ -248,7 +248,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node oa_team defaults.
+  // Exported permission: 'administer panelizer node oa_team defaults'.
   $permissions['administer panelizer node oa_team defaults'] = array(
     'name' => 'administer panelizer node oa_team defaults',
     'roles' => array(
@@ -257,7 +257,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node oa_team layout.
+  // Exported permission: 'administer panelizer node oa_team layout'.
   $permissions['administer panelizer node oa_team layout'] = array(
     'name' => 'administer panelizer node oa_team layout',
     'roles' => array(
@@ -266,7 +266,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node oa_team overview.
+  // Exported permission: 'administer panelizer node oa_team overview'.
   $permissions['administer panelizer node oa_team overview'] = array(
     'name' => 'administer panelizer node oa_team overview',
     'roles' => array(
@@ -275,7 +275,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node oa_team settings.
+  // Exported permission: 'administer panelizer node oa_team settings'.
   $permissions['administer panelizer node oa_team settings'] = array(
     'name' => 'administer panelizer node oa_team settings',
     'roles' => array(
@@ -284,7 +284,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node panopoly_page breadcrumbs.
+  // Exported permission: 'administer panelizer node panopoly_page breadcrumbs'.
   $permissions['administer panelizer node panopoly_page breadcrumbs'] = array(
     'name' => 'administer panelizer node panopoly_page breadcrumbs',
     'roles' => array(
@@ -294,7 +294,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node panopoly_page content.
+  // Exported permission: 'administer panelizer node panopoly_page content'.
   $permissions['administer panelizer node panopoly_page content'] = array(
     'name' => 'administer panelizer node panopoly_page content',
     'roles' => array(
@@ -304,7 +304,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node panopoly_page context.
+  // Exported permission: 'administer panelizer node panopoly_page context'.
   $permissions['administer panelizer node panopoly_page context'] = array(
     'name' => 'administer panelizer node panopoly_page context',
     'roles' => array(
@@ -314,7 +314,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node panopoly_page defaults.
+  // Exported permission: 'administer panelizer node panopoly_page defaults'.
   $permissions['administer panelizer node panopoly_page defaults'] = array(
     'name' => 'administer panelizer node panopoly_page defaults',
     'roles' => array(
@@ -324,7 +324,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node panopoly_page layout.
+  // Exported permission: 'administer panelizer node panopoly_page layout'.
   $permissions['administer panelizer node panopoly_page layout'] = array(
     'name' => 'administer panelizer node panopoly_page layout',
     'roles' => array(
@@ -334,7 +334,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node panopoly_page overview.
+  // Exported permission: 'administer panelizer node panopoly_page overview'.
   $permissions['administer panelizer node panopoly_page overview'] = array(
     'name' => 'administer panelizer node panopoly_page overview',
     'roles' => array(
@@ -344,7 +344,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer node panopoly_page settings.
+  // Exported permission: 'administer panelizer node panopoly_page settings'.
   $permissions['administer panelizer node panopoly_page settings'] = array(
     'name' => 'administer panelizer node panopoly_page settings',
     'roles' => array(
@@ -354,7 +354,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer user user breadcrumbs.
+  // Exported permission: 'administer panelizer user user breadcrumbs'.
   $permissions['administer panelizer user user breadcrumbs'] = array(
     'name' => 'administer panelizer user user breadcrumbs',
     'roles' => array(
@@ -363,7 +363,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer user user content.
+  // Exported permission: 'administer panelizer user user content'.
   $permissions['administer panelizer user user content'] = array(
     'name' => 'administer panelizer user user content',
     'roles' => array(
@@ -374,7 +374,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer user user context.
+  // Exported permission: 'administer panelizer user user context'.
   $permissions['administer panelizer user user context'] = array(
     'name' => 'administer panelizer user user context',
     'roles' => array(
@@ -383,7 +383,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer user user defaults.
+  // Exported permission: 'administer panelizer user user defaults'.
   $permissions['administer panelizer user user defaults'] = array(
     'name' => 'administer panelizer user user defaults',
     'roles' => array(
@@ -392,7 +392,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer user user layout.
+  // Exported permission: 'administer panelizer user user layout'.
   $permissions['administer panelizer user user layout'] = array(
     'name' => 'administer panelizer user user layout',
     'roles' => array(
@@ -403,7 +403,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer user user overview.
+  // Exported permission: 'administer panelizer user user overview'.
   $permissions['administer panelizer user user overview'] = array(
     'name' => 'administer panelizer user user overview',
     'roles' => array(
@@ -412,7 +412,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panelizer user user settings.
+  // Exported permission: 'administer panelizer user user settings'.
   $permissions['administer panelizer user user settings'] = array(
     'name' => 'administer panelizer user user settings',
     'roles' => array(
@@ -421,7 +421,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: administer panels styles.
+  // Exported permission: 'administer panels styles'.
   $permissions['administer panels styles'] = array(
     'name' => 'administer panels styles',
     'roles' => array(
@@ -431,7 +431,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panels',
   );
 
-  // Exported permission: change layouts in place editing.
+  // Exported permission: 'change layouts in place editing'.
   $permissions['change layouts in place editing'] = array(
     'name' => 'change layouts in place editing',
     'roles' => array(
@@ -442,7 +442,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panels',
   );
 
-  // Exported permission: create fieldable basic_file.
+  // Exported permission: 'create fieldable basic_file'.
   $permissions['create fieldable basic_file'] = array(
     'name' => 'create fieldable basic_file',
     'roles' => array(
@@ -452,7 +452,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'fieldable_panels_panes',
   );
 
-  // Exported permission: create fieldable image.
+  // Exported permission: 'create fieldable image'.
   $permissions['create fieldable image'] = array(
     'name' => 'create fieldable image',
     'roles' => array(
@@ -462,7 +462,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'fieldable_panels_panes',
   );
 
-  // Exported permission: create fieldable map.
+  // Exported permission: 'create fieldable map'.
   $permissions['create fieldable map'] = array(
     'name' => 'create fieldable map',
     'roles' => array(
@@ -472,7 +472,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'fieldable_panels_panes',
   );
 
-  // Exported permission: create fieldable quick_links.
+  // Exported permission: 'create fieldable quick_links'.
   $permissions['create fieldable quick_links'] = array(
     'name' => 'create fieldable quick_links',
     'roles' => array(
@@ -482,7 +482,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'fieldable_panels_panes',
   );
 
-  // Exported permission: create fieldable spotlight.
+  // Exported permission: 'create fieldable spotlight'.
   $permissions['create fieldable spotlight'] = array(
     'name' => 'create fieldable spotlight',
     'roles' => array(
@@ -492,7 +492,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'fieldable_panels_panes',
   );
 
-  // Exported permission: create fieldable table.
+  // Exported permission: 'create fieldable table'.
   $permissions['create fieldable table'] = array(
     'name' => 'create fieldable table',
     'roles' => array(
@@ -502,7 +502,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'fieldable_panels_panes',
   );
 
-  // Exported permission: create fieldable text.
+  // Exported permission: 'create fieldable text'.
   $permissions['create fieldable text'] = array(
     'name' => 'create fieldable text',
     'roles' => array(
@@ -512,7 +512,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'fieldable_panels_panes',
   );
 
-  // Exported permission: create fieldable video.
+  // Exported permission: 'create fieldable video'.
   $permissions['create fieldable video'] = array(
     'name' => 'create fieldable video',
     'roles' => array(
@@ -522,7 +522,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'fieldable_panels_panes',
   );
 
-  // Exported permission: create files.
+  // Exported permission: 'create files'.
   $permissions['create files'] = array(
     'name' => 'create files',
     'roles' => array(
@@ -533,9 +533,20 @@ function oa_permissions_user_default_permissions() {
     'module' => 'file_entity',
   );
 
-  // Exported permission: delete any files.
-  $permissions['delete any files'] = array(
-    'name' => 'delete any files',
+  // Exported permission: 'create messages'.
+  $permissions['create messages'] = array(
+    'name' => 'create messages',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'anonymous user' => 'anonymous user',
+      'authenticated user' => 'authenticated user',
+    ),
+    'module' => 'message',
+  );
+
+  // Exported permission: 'delete any document files'.
+  $permissions['delete any document files'] = array(
+    'name' => 'delete any document files',
     'roles' => array(
       'administrator' => 'administrator',
       'editor' => 'editor',
@@ -543,7 +554,27 @@ function oa_permissions_user_default_permissions() {
     'module' => 'file_entity',
   );
 
-  // Exported permission: delete fieldable basic_file.
+  // Exported permission: 'delete any image files'.
+  $permissions['delete any image files'] = array(
+    'name' => 'delete any image files',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'editor' => 'editor',
+    ),
+    'module' => 'file_entity',
+  );
+
+  // Exported permission: 'delete any video files'.
+  $permissions['delete any video files'] = array(
+    'name' => 'delete any video files',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'editor' => 'editor',
+    ),
+    'module' => 'file_entity',
+  );
+
+  // Exported permission: 'delete fieldable basic_file'.
   $permissions['delete fieldable basic_file'] = array(
     'name' => 'delete fieldable basic_file',
     'roles' => array(
@@ -553,7 +584,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'fieldable_panels_panes',
   );
 
-  // Exported permission: delete fieldable image.
+  // Exported permission: 'delete fieldable image'.
   $permissions['delete fieldable image'] = array(
     'name' => 'delete fieldable image',
     'roles' => array(
@@ -563,7 +594,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'fieldable_panels_panes',
   );
 
-  // Exported permission: delete fieldable map.
+  // Exported permission: 'delete fieldable map'.
   $permissions['delete fieldable map'] = array(
     'name' => 'delete fieldable map',
     'roles' => array(
@@ -573,7 +604,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'fieldable_panels_panes',
   );
 
-  // Exported permission: delete fieldable quick_links.
+  // Exported permission: 'delete fieldable quick_links'.
   $permissions['delete fieldable quick_links'] = array(
     'name' => 'delete fieldable quick_links',
     'roles' => array(
@@ -583,7 +614,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'fieldable_panels_panes',
   );
 
-  // Exported permission: delete fieldable spotlight.
+  // Exported permission: 'delete fieldable spotlight'.
   $permissions['delete fieldable spotlight'] = array(
     'name' => 'delete fieldable spotlight',
     'roles' => array(
@@ -593,7 +624,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'fieldable_panels_panes',
   );
 
-  // Exported permission: delete fieldable table.
+  // Exported permission: 'delete fieldable table'.
   $permissions['delete fieldable table'] = array(
     'name' => 'delete fieldable table',
     'roles' => array(
@@ -603,7 +634,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'fieldable_panels_panes',
   );
 
-  // Exported permission: delete fieldable text.
+  // Exported permission: 'delete fieldable text'.
   $permissions['delete fieldable text'] = array(
     'name' => 'delete fieldable text',
     'roles' => array(
@@ -613,7 +644,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'fieldable_panels_panes',
   );
 
-  // Exported permission: delete fieldable video.
+  // Exported permission: 'delete fieldable video'.
   $permissions['delete fieldable video'] = array(
     'name' => 'delete fieldable video',
     'roles' => array(
@@ -623,9 +654,9 @@ function oa_permissions_user_default_permissions() {
     'module' => 'fieldable_panels_panes',
   );
 
-  // Exported permission: delete own files.
-  $permissions['delete own files'] = array(
-    'name' => 'delete own files',
+  // Exported permission: 'delete own document files'.
+  $permissions['delete own document files'] = array(
+    'name' => 'delete own document files',
     'roles' => array(
       'administrator' => 'administrator',
       'editor' => 'editor',
@@ -633,28 +664,89 @@ function oa_permissions_user_default_permissions() {
     'module' => 'file_entity',
   );
 
-  // Exported permission: download any files.
-  $permissions['download any files'] = array(
-    'name' => 'download any files',
+  // Exported permission: 'delete own image files'.
+  $permissions['delete own image files'] = array(
+    'name' => 'delete own image files',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'editor' => 'editor',
+    ),
+    'module' => 'file_entity',
+  );
+
+  // Exported permission: 'delete own video files'.
+  $permissions['delete own video files'] = array(
+    'name' => 'delete own video files',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'editor' => 'editor',
+    ),
+    'module' => 'file_entity',
+  );
+
+  // Exported permission: 'download any document files'.
+  $permissions['download any document files'] = array(
+    'name' => 'download any document files',
     'roles' => array(
       'administrator' => 'administrator',
     ),
     'module' => 'file_entity',
   );
 
-  // Exported permission: download own files.
-  $permissions['download own files'] = array(
-    'name' => 'download own files',
+  // Exported permission: 'download any image files'.
+  $permissions['download any image files'] = array(
+    'name' => 'download any image files',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'file_entity',
+  );
+
+  // Exported permission: 'download any video files'.
+  $permissions['download any video files'] = array(
+    'name' => 'download any video files',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'file_entity',
+  );
+
+  // Exported permission: 'download own document files'.
+  $permissions['download own document files'] = array(
+    'name' => 'download own document files',
     'roles' => array(
       'administrator' => 'administrator',
       'authenticated user' => 'authenticated user',
+      'editor' => 'editor',
     ),
     'module' => 'file_entity',
   );
 
-  // Exported permission: edit any files.
-  $permissions['edit any files'] = array(
-    'name' => 'edit any files',
+  // Exported permission: 'download own image files'.
+  $permissions['download own image files'] = array(
+    'name' => 'download own image files',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'authenticated user' => 'authenticated user',
+      'editor' => 'editor',
+    ),
+    'module' => 'file_entity',
+  );
+
+  // Exported permission: 'download own video files'.
+  $permissions['download own video files'] = array(
+    'name' => 'download own video files',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'authenticated user' => 'authenticated user',
+      'editor' => 'editor',
+    ),
+    'module' => 'file_entity',
+  );
+
+  // Exported permission: 'edit any document files'.
+  $permissions['edit any document files'] = array(
+    'name' => 'edit any document files',
     'roles' => array(
       'administrator' => 'administrator',
       'editor' => 'editor',
@@ -662,7 +754,27 @@ function oa_permissions_user_default_permissions() {
     'module' => 'file_entity',
   );
 
-  // Exported permission: edit fieldable basic_file.
+  // Exported permission: 'edit any image files'.
+  $permissions['edit any image files'] = array(
+    'name' => 'edit any image files',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'editor' => 'editor',
+    ),
+    'module' => 'file_entity',
+  );
+
+  // Exported permission: 'edit any video files'.
+  $permissions['edit any video files'] = array(
+    'name' => 'edit any video files',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'editor' => 'editor',
+    ),
+    'module' => 'file_entity',
+  );
+
+  // Exported permission: 'edit fieldable basic_file'.
   $permissions['edit fieldable basic_file'] = array(
     'name' => 'edit fieldable basic_file',
     'roles' => array(
@@ -672,7 +784,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'fieldable_panels_panes',
   );
 
-  // Exported permission: edit fieldable image.
+  // Exported permission: 'edit fieldable image'.
   $permissions['edit fieldable image'] = array(
     'name' => 'edit fieldable image',
     'roles' => array(
@@ -682,7 +794,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'fieldable_panels_panes',
   );
 
-  // Exported permission: edit fieldable map.
+  // Exported permission: 'edit fieldable map'.
   $permissions['edit fieldable map'] = array(
     'name' => 'edit fieldable map',
     'roles' => array(
@@ -692,7 +804,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'fieldable_panels_panes',
   );
 
-  // Exported permission: edit fieldable quick_links.
+  // Exported permission: 'edit fieldable quick_links'.
   $permissions['edit fieldable quick_links'] = array(
     'name' => 'edit fieldable quick_links',
     'roles' => array(
@@ -702,7 +814,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'fieldable_panels_panes',
   );
 
-  // Exported permission: edit fieldable spotlight.
+  // Exported permission: 'edit fieldable spotlight'.
   $permissions['edit fieldable spotlight'] = array(
     'name' => 'edit fieldable spotlight',
     'roles' => array(
@@ -712,7 +824,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'fieldable_panels_panes',
   );
 
-  // Exported permission: edit fieldable table.
+  // Exported permission: 'edit fieldable table'.
   $permissions['edit fieldable table'] = array(
     'name' => 'edit fieldable table',
     'roles' => array(
@@ -722,7 +834,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'fieldable_panels_panes',
   );
 
-  // Exported permission: edit fieldable text.
+  // Exported permission: 'edit fieldable text'.
   $permissions['edit fieldable text'] = array(
     'name' => 'edit fieldable text',
     'roles' => array(
@@ -732,7 +844,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'fieldable_panels_panes',
   );
 
-  // Exported permission: edit fieldable video.
+  // Exported permission: 'edit fieldable video'.
   $permissions['edit fieldable video'] = array(
     'name' => 'edit fieldable video',
     'roles' => array(
@@ -742,9 +854,9 @@ function oa_permissions_user_default_permissions() {
     'module' => 'fieldable_panels_panes',
   );
 
-  // Exported permission: edit own files.
-  $permissions['edit own files'] = array(
-    'name' => 'edit own files',
+  // Exported permission: 'edit own document files'.
+  $permissions['edit own document files'] = array(
+    'name' => 'edit own document files',
     'roles' => array(
       'administrator' => 'administrator',
       'authenticated user' => 'authenticated user',
@@ -753,7 +865,29 @@ function oa_permissions_user_default_permissions() {
     'module' => 'file_entity',
   );
 
-  // Exported permission: save draft.
+  // Exported permission: 'edit own image files'.
+  $permissions['edit own image files'] = array(
+    'name' => 'edit own image files',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'authenticated user' => 'authenticated user',
+      'editor' => 'editor',
+    ),
+    'module' => 'file_entity',
+  );
+
+  // Exported permission: 'edit own video files'.
+  $permissions['edit own video files'] = array(
+    'name' => 'edit own video files',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'authenticated user' => 'authenticated user',
+      'editor' => 'editor',
+    ),
+    'module' => 'file_entity',
+  );
+
+  // Exported permission: 'save draft'.
   $permissions['save draft'] = array(
     'name' => 'save draft',
     'roles' => array(
@@ -763,7 +897,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'save_draft',
   );
 
-  // Exported permission: trash any content.
+  // Exported permission: 'trash any content'.
   $permissions['trash any content'] = array(
     'name' => 'trash any content',
     'roles' => array(
@@ -772,7 +906,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'trash_flag',
   );
 
-  // Exported permission: trash any panopoly_page content.
+  // Exported permission: 'trash any panopoly_page content'.
   $permissions['trash any panopoly_page content'] = array(
     'name' => 'trash any panopoly_page content',
     'roles' => array(
@@ -781,7 +915,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'trash_flag',
   );
 
-  // Exported permission: trash own panopoly_page content.
+  // Exported permission: 'trash own panopoly_page content'.
   $permissions['trash own panopoly_page content'] = array(
     'name' => 'trash own panopoly_page content',
     'roles' => array(
@@ -790,7 +924,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'trash_flag',
   );
 
-  // Exported permission: untrash any content.
+  // Exported permission: 'untrash any content'.
   $permissions['untrash any content'] = array(
     'name' => 'untrash any content',
     'roles' => array(
@@ -799,7 +933,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'trash_flag',
   );
 
-  // Exported permission: untrash any panopoly_page content.
+  // Exported permission: 'untrash any panopoly_page content'.
   $permissions['untrash any panopoly_page content'] = array(
     'name' => 'untrash any panopoly_page content',
     'roles' => array(
@@ -808,7 +942,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'trash_flag',
   );
 
-  // Exported permission: untrash own panopoly_page content.
+  // Exported permission: 'untrash own panopoly_page content'.
   $permissions['untrash own panopoly_page content'] = array(
     'name' => 'untrash own panopoly_page content',
     'roles' => array(
@@ -817,7 +951,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'trash_flag',
   );
 
-  // Exported permission: use panels in place editing.
+  // Exported permission: 'use panels in place editing'.
   $permissions['use panels in place editing'] = array(
     'name' => 'use panels in place editing',
     'roles' => array(
@@ -828,7 +962,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panels',
   );
 
-  // Exported permission: use text format panopoly_html_text.
+  // Exported permission: 'use text format panopoly_html_text'.
   $permissions['use text format panopoly_html_text'] = array(
     'name' => 'use text format panopoly_html_text',
     'roles' => array(
@@ -838,7 +972,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'filter',
   );
 
-  // Exported permission: use text format panopoly_wysiwyg_text.
+  // Exported permission: 'use text format panopoly_wysiwyg_text'.
   $permissions['use text format panopoly_wysiwyg_text'] = array(
     'name' => 'use text format panopoly_wysiwyg_text',
     'roles' => array(
@@ -849,7 +983,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'filter',
   );
 
-  // Exported permission: view files.
+  // Exported permission: 'view files'.
   $permissions['view files'] = array(
     'name' => 'view files',
     'roles' => array(
@@ -860,7 +994,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'file_entity',
   );
 
-  // Exported permission: view own files.
+  // Exported permission: 'view own files'.
   $permissions['view own files'] = array(
     'name' => 'view own files',
     'roles' => array(
@@ -871,7 +1005,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'file_entity',
   );
 
-  // Exported permission: view own private files.
+  // Exported permission: 'view own private files'.
   $permissions['view own private files'] = array(
     'name' => 'view own private files',
     'roles' => array(
@@ -882,7 +1016,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'file_entity',
   );
 
-  // Exported permission: view own unpublished content.
+  // Exported permission: 'view own unpublished content'.
   $permissions['view own unpublished content'] = array(
     'name' => 'view own unpublished content',
     'roles' => array(
@@ -892,7 +1026,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'node',
   );
 
-  // Exported permission: view private files.
+  // Exported permission: 'view private files'.
   $permissions['view private files'] = array(
     'name' => 'view private files',
     'roles' => array(
@@ -903,7 +1037,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'file_entity',
   );
 
-  // Exported permission: view trash bin.
+  // Exported permission: 'view trash bin'.
   $permissions['view trash bin'] = array(
     'name' => 'view trash bin',
     'roles' => array(
@@ -912,7 +1046,7 @@ function oa_permissions_user_default_permissions() {
     'module' => 'trash_flag',
   );
 
-  // Exported permission: view trash content.
+  // Exported permission: 'view trash content'.
   $permissions['view trash content'] = array(
     'name' => 'view trash content',
     'roles' => array(

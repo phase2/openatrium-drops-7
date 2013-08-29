@@ -14,7 +14,12 @@ function oa_core_get_space_context($from_session = FALSE) {
     return $_SESSION[OG_SESSION_CONTEXT_ID];
   }
   $context = og_context('node');
-  return isset($context['gid']) ? $context['gid'] : 0;
+  if (!empty($context['gid'])) {
+    return $context['gid'];
+  }
+  else {
+    return og_session_context_get_context();
+  }
 }
 
 /**
@@ -22,9 +27,12 @@ function oa_core_get_space_context($from_session = FALSE) {
  * @return int Section ID
  */
 function oa_core_get_section_context() {
-  return defined('OA_SESSION_SECTION') && isset($_SESSION[OA_SESSION_SECTION])
-    ? $_SESSION[OA_SESSION_SECTION]
-    : 0;
+  if (defined('OA_SESSION_SECTION') && isset($_SESSION[OA_SESSION_SECTION])) {
+    return $_SESSION[OA_SESSION_SECTION];
+  }
+  else {
+    return oa_section_get_section_context();
+  }
 }
 
 /**

@@ -72,9 +72,9 @@ function panopoly_widgets_ctools_content_subtype_alter(&$subtype, &$plugin) {
 
   // Modify the menu block plugin to better fit into our UI
   if ($plugin['module'] == 'menu_block' && $subtype['menu_title'] == 'Main menu') {
-    $subtype['category'][0] = 'Custom';
+    $subtype['category'][0] = t('Custom');
     $subtype['top level'] = TRUE;
-    $subtype['title'] = 'Add submenu';
+    $subtype['title'] = t('Add submenu');
     $subtype['icon'] = drupal_get_path('module', 'panopoly_widgets') . '/images/icon_submenu.png';
     $subtype['admin css'] = array(drupal_get_path('module', 'menu_block') . '/menu-block-admin.css');
     $subtype['admin js'] = array(drupal_get_path('module', 'menu_block') . '/menu-block.js');
@@ -82,17 +82,17 @@ function panopoly_widgets_ctools_content_subtype_alter(&$subtype, &$plugin) {
 
   // Modify the general content item to appear in the generic content sidebar area
   if ($plugin['module'] == 'views_content' && $subtype['title'] == 'Piece of Content') {
-    $subtype['category'][0] = 'Custom';
+    $subtype['category'][0] = t('Custom');
     $subtype['top level'] = TRUE;
-    $subtype['title'] = 'Add content item';
+    $subtype['title'] = t('Add content item');
     $subtype['icon'] = drupal_get_path('module', 'panopoly_widgets') . '/images/icon_content_item.png';
   }
 
   // Modify the general content listing to appear in the generic content sidebar area
   if ($plugin['module'] == 'views_content' && $subtype['title'] == 'List of Content') {
-    $subtype['category'][0] = 'Custom';
+    $subtype['category'][0] = t('Custom');
     $subtype['top level'] = TRUE;
-    $subtype['title'] = 'Add content list';
+    $subtype['title'] = t('Add content list');
     $subtype['icon'] = drupal_get_path('module', 'panopoly_widgets') . '/images/icon_content_list.png';
   }
 
@@ -164,7 +164,7 @@ function panopoly_widgets_form_alter(&$form, &$form_state, $form_id) {
     $form['reusable']['#type'] = 'fieldset';
     $form['reusable']['#process'] = array('ctools_dependent_process');
     $form['reusable']['#id'] = 'reusable-settings';
-    $form['reusable']['category']['#value'] = 'Reusable Content';
+    $form['reusable']['category']['#value'] = t('Reusable Content');
     $form['reusable']['category']['#type'] = 'value';
     $form['reusable']['admin_description']['#access'] = FALSE;
 

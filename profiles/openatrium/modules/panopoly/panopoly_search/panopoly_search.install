@@ -74,3 +74,26 @@ function panopoly_search_update_7003(&$sandbox) {
   $database_server->fieldsUpdated($database_index);
   return t('Panopoly\'s Search DB Search API index has been updated');
 }
+
+/**
+ * Panopoly RC4 Update: Disabling the Search API Solr System
+ */
+function panopoly_search_update_7004(&$sandbox) {
+
+  // If we are running on Pantheon...
+  if (variable_get('pantheon_tier')) {
+
+    // Load the Solr PHP Client Library
+    _search_api_solr_autoload('Apache_Solr_Service');
+    _search_api_solr_autoload('Apache_Solr_HttpTransport_Abstract');
+
+    // Disable Panopoly's Solr Server and Solr Index
+    require_once(drupal_get_path('module', 'search_api') . '/search_api.admin.inc');
+    $solr_server = search_api_server_load('solr_server');
+    $solr_server->update(array('enabled' => 0));
+    $solr_index = search_api_index_load('node_index');
+    $solr_index->update(array('enabled' => 0));
+
+    return t('Panopoly\'s Search API Solr index has been temporarily disabled. Search API DB will now be used for faceted search results.');
+  }
+}

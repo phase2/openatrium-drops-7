@@ -7,14 +7,15 @@ core = 7.x
 
 projects[ctools][version] = 1.3
 projects[ctools][subdir] = contrib
+projects[ctools][patch][1925018] = http://drupal.org/files/ctools-1925018-61.patch
 
 projects[panels][version] = 3.x-dev
 projects[panels][subdir] = contrib
 projects[panels][download][type] = git
-projects[panels][download][revision] = a915408
+projects[panels][download][revision] = 2bb470e
 projects[panels][download][branch] = 7.x-3.x
 
-projects[panels_breadcrumbs][version] = 2.0
+projects[panels_breadcrumbs][version] = 2.1
 projects[panels_breadcrumbs][subdir] = contrib
 
 projects[panelizer][version] = 3.1
@@ -23,7 +24,7 @@ projects[panelizer][subdir] = contrib
 projects[fieldable_panels_panes][version] = 1.x-dev
 projects[fieldable_panels_panes][subdir] = contrib
 projects[fieldable_panels_panes][download][type] = git
-projects[fieldable_panels_panes][download][revision] = 1bda8c9
+projects[fieldable_panels_panes][download][revision] = 3b9c8b6
 projects[fieldable_panels_panes][download][branch] = 7.x-1.x
 
 projects[pm_existing_pages][version] = 1.4
@@ -40,7 +41,7 @@ projects[fape][download][branch] = 7.x-1.x
 projects[views][version] = 3.7
 projects[views][subdir] = contrib
 
-projects[views_autocomplete_filters][version] = 1.0-beta2
+projects[views_autocomplete_filters][version] = 1.0
 projects[views_autocomplete_filters][subdir] = contrib
 
 projects[views_bulk_operations][version] = 3.1
@@ -55,9 +56,8 @@ projects[pathauto][patch][936222] = http://drupal.org/files/pathauto-persist-936
 projects[token][version] = 1.5
 projects[token][subdir] = contrib
 
-projects[entity][version] = 1.0
+projects[entity][version] = 1.1
 projects[entity][subdir] = contrib
-projects[entity][patch][1831578] = http://drupal.org/files/entity-file_entity_access-1831578-9.patch
 
 projects[libraries][version] = 2.1
 projects[libraries][subdir] = contrib
@@ -82,7 +82,7 @@ projects[apps][version] = 1.0-beta7
 projects[apps][subdir] = contrib
 projects[apps][patch][1790902] = http://drupal.org/files/1790902-check-last-modified-existing.patch
 
-projects[features][version] = 2.0-beta2
+projects[features][version] = 2.0-rc1
 projects[features][subdir] = contrib
 
 projects[strongarm][version] = 2.0
@@ -100,9 +100,5 @@ projects[defaultcontent][patch][1757782] = http://drupal.org/files/1757782-canno
 projects[devel][version] = 1.3
 projects[devel][subdir] = contrib
 
-projects[uuid][version] = 1.x-dev
+projects[uuid][version] = 1.0-alpha5
 projects[uuid][subdir] = contrib
-projects[uuid][download][type] = git
-projects[uuid][download][revision] = 4730c67
-projects[uuid][download][branch] = 7.x-1.x
-projects[uuid][patch][1605284] = http://drupal.org/files/1605284-define-types-for-tokens-6.patch

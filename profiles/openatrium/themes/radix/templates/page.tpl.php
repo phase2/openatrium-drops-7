@@ -53,12 +53,12 @@
           </div>
 
       </div>
-    </div> <!-- /#navigation -->
-  </div>
+    </div> 
+  </div> <!-- /#navigation -->
 </header>
 
 <div id="main-wrapper">
-  <div id="main" class="main <?php if (!$is_panel) { print 'container'; } ?>">
+  <div id="main" class="main <?php print (!$is_panel) ? 'container' : ''; ?>">
     <?php if ($breadcrumb): ?>
       <div id="breadcrumb" class="visible-desktop">
         <div class="container">
@@ -88,7 +88,7 @@
               </div>
             <?php endif; ?>
             <?php if ($action_links): ?>
-              <ul class="action-links">
+              <ul class="nav nav-pills action-links">
                 <?php print render($action_links); ?>
               </ul>
             <?php endif; ?>
@@ -97,18 +97,13 @@
       <?php print render($page['content']); ?>
     </div>
   </div>
-</div>
+</div> <!-- /#main-wrapper -->
 
 <footer id="footer" class="footer" role="footer">
   <div class="container">
-    <div class="row">
-      <div class="span12">
-        <?php if ($footer_menu): ?>
-          <nav id="footer-menu" class="footer-menu">
-            <?php print render($footer_menu); ?>
-          </nav> <!-- /#footer-menu -->
-        <?php endif; ?>
-      </div>
-    </div>
+    <?php if ($copyright): ?>
+      <small class="copyright pull-left"><?php print $copyright; ?></small>
+    <?php endif; ?>
+    <small class="pull-right"><a href="#"><?php print t('Back to Top'); ?></a></small>
   </div>
 </footer>

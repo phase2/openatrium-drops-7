@@ -8,7 +8,7 @@
 class oa_sectionsAccess extends oa_sectionsAccessBase {
   static function getInfo() {
     return array(
-      'name' => 'OA Section Permission test',
+      'name' => 'OA Section Permission test (fast)',
       'description' => 'Test that can access sections correctly',
       'group' => 'OA - Sections',
     );
@@ -31,7 +31,7 @@ class oa_sectionsAccess extends oa_sectionsAccessBase {
     og_group('node', $space_private, array('entity' => $space_member));
     og_group('node', $space_private, array('entity' => $space_member_2));
     $this->oaTestOaSectionAccess('a private space', $space_private, $space_admin, $space_member, $space_member_2, $non_member, $group);
-    
+
   }
 
 }

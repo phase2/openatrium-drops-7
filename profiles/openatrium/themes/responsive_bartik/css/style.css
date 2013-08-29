@@ -1,5 +1,5 @@
 
-/* ---------- Overall Specifications ---------- */
+/* ------------------- Overall Specifications ------------- */
 
 body {
   line-height: 1.5;
@@ -19,9 +19,6 @@ a:active,
 a:focus {
   text-decoration: underline;
 }
-
-
-
 h1,
 h2,
 h3,
@@ -94,7 +91,6 @@ kbd {
   color: #666;
   display: inline-block;
   padding: 0 6px;
-  -moz-border-radius: 5px;
   border-radius: 5px;
 }
 pre {
@@ -107,7 +103,7 @@ pre {
 }
 
 
-/* ------------------ Fonts ------------------ */
+/* ------------------- Fonts ------------------------------ */
 
 body,
 #site-slogan,
@@ -137,7 +133,7 @@ a.button {
   font-family: "Lucida Grande", "Lucida Sans Unicode", Verdana, sans-serif;
 }
 
-/* ------------------ Reset Styles ------------------ */
+/* ------------------- Reset Styles ----------------------- */
 
 caption {
   text-align: left; /* LTR */
@@ -178,7 +174,7 @@ img {
   border: 0;
 }
 
-/* ------------------ Table Styles ------------------ */
+/* ------------------- Table Styles ----------------------- */
 
 table {
   border: 0;
@@ -236,7 +232,7 @@ table ul.links li {
   padding: 0 1em 0 0;
 }
 
-/* ------------------ List Styles ------------------ */
+/* ------------------- List Styles ------------------------ */
 
 .block ol,
 .block ul {
@@ -291,7 +287,7 @@ ul.tips {
   padding: 0 0 0 1.25em; /* LTR */
 }
 
-/* ------------------ Header ------------------ */
+/* ------------------- Header ----------------------------- */
 #skip-link {
   left: 50%;
   margin-left: -5.25em;
@@ -311,7 +307,6 @@ ul.tips {
   line-height: 1.7;
   padding: 1px 10px 2px 10px;
   text-decoration: none;
-  -moz-border-radius: 0 0 10px 10px;
   border-radius: 0 0 10px 10px;
 }
 #skip-link a:hover,
@@ -482,7 +477,7 @@ h1#site-name {
   padding: 0 0.5em;
 }
 
-/* --------------- Main Menu ------------ */
+/* ------------------- Main Menu -------------------------- */
 #main-menu {
   clear: both;
 }
@@ -490,7 +485,7 @@ h1#site-name {
   font-size: 0.929em;
   margin: 0 5px;
   padding: 0;
-  text-align: left;
+  text-align: left; /* LTR */
 }
 #main-menu-links li {
   float: none;
@@ -507,7 +502,6 @@ h1#site-name {
   display: block;
   text-decoration: none;
   text-shadow: 0 1px #eee;
-  -moz-border-radius: 8px;
   border-radius: 8px;
   margin-bottom: 4px;
   padding: 0.9em 0 0.9em 10px;
@@ -525,7 +519,7 @@ h1#site-name {
   border-bottom: none;
 }
 
-/* --------------- Secondary Menu ------------ */
+/* ------------------- Secondary Menu --------------------- */
 
 #secondary-menu-links {
   float: right; /* LTR */
@@ -545,14 +539,14 @@ h1#site-name {
   text-decoration: underline;
 }
 
-/* ------------------- Main ------------------- */
+/* ------------------- Main ------------------------------- */
 
 #main {
   margin-top: 20px;
   margin-bottom: 40px;
 }
 
-/* ----------------- Featured ----------------- */
+/* ------------------- Featured --------------------------- */
 
 #featured {
   text-align: center;
@@ -575,14 +569,14 @@ h1#site-name {
   padding: 0;
 }
 
-/* --------------- Highlighted ---------------- */
+/* ------------------- Highlighted ------------------------ */
 
 #highlighted {
   border-bottom: 1px solid #d3d7d9;
   font-size: 120%;
 }
 
-/* ------------------- Help ------------------- */
+/* ------------------- Help ------------------------------- */
 
 .region-help {
   border: 1px solid #d3d7d9;
@@ -590,7 +584,7 @@ h1#site-name {
   margin-bottom: 30px;
 }
 
-/* ----------------- Content ------------------ */
+/* ------------------- Content ---------------------------- */
 
 .content {
   margin-top: 10px;
@@ -604,55 +598,58 @@ h1#page-title {
   font-size: 1.429em;
   line-height: 1.4;
 }
-
 #content h2 a:link {
   padding-top: 18px;
 
 }
-
 .node .content {
   font-size: 1.071em;
 }
-.view-mode-teaser .content {
+.node-teaser .content {
   font-size: 1em;
 }
-.view-mode-teaser h2 {
+.node-teaser h2 {
   margin-top: 0;
   padding-top: 0.5em;
 }
-.view-mode-teaser h2 a {
+.node-teaser h2 a {
   color: #181818;
 }
-.view-mode-teaser {
+.node-teaser {
   border-bottom: 1px solid #d3d7d9;
   margin-bottom: 30px;
   padding-bottom: 15px;
 }
-.view-mode-teaser.sticky {
+.node-sticky {
   background: #f9f9f9;
   background: rgba(0, 0, 0, 0.024);
   border: 1px solid #d3d7d9;
   padding: 0 15px 15px;
 }
-.view-mode-teaser .content {
+.node-full {
+  background: none;
+  border: none;
+  padding: 0;
+}
+.node-teaser .content {
   clear: none;
   line-height: 1.6;
 }
+
 .meta {
   font-size: 0.857em;
   color: #68696b;
   margin-bottom: 0;
 }
-
 .submitted a {
   padding: 10px 0 15px;
 }
-
 .submitted .user-picture img {
   float: left; /* LTR */
   height: 20px;
   margin: 1px 5px 0 0; /* LTR */
 }
+
 .field-type-taxonomy-term-reference {
   margin: 0 0 1.2em;
 }
@@ -679,11 +676,9 @@ h1#page-title {
   padding: 0 1em 0 0; /* LTR */
   white-space: nowrap;
 }
-
 .field-type-taxonomy-term-reference ul.links li a {
   padding: 5px 0 20px;
 }
-
 .link-wrapper {
   text-align: right;
 }
@@ -691,11 +686,11 @@ h1#page-title {
 .user-picture img {
   margin: 0 0 1em;
 }
+
 ul.links {
   color: #68696b;
   font-size: 0.821em;
 }
-
 ul.links.inline li a {
   display: inline;
   padding: 18px 0 5px;
@@ -710,7 +705,7 @@ ul.links.inline li a {
   border-right: 1px solid #fff4f4;
 }
 
-/* ----------------- Comments ----------------- */
+/* ------------------- Comments --------------------------- */
 
 .comment h2.title {
   margin-bottom: 1em;
@@ -749,11 +744,9 @@ ul.links.inline li a {
   font-size: 0.786em;
   text-transform: lowercase;
 }
-
 .comment .submitted .comment-permalink a {
   padding: 8px 0 18px;
 }
-
 .comment .content {
   font-size: 0.929em;
   line-height: 1.6;
@@ -776,11 +769,9 @@ ul.links.inline li a {
   position: relative;
   width: 100%;
 }
-
 .comment .comment-text h3  a{
   padding-top: 22px;
 }
-
 .comment .indented {
   margin-left: 40px; /* LTR */
 }
@@ -799,7 +790,7 @@ ul.links.inline li a {
   border-right: 1px solid #fff4f4;
 }
 
-/* ------------------ Sidebar ----------------- */
+/* ------------------- Sidebar ---------------------------- */
 .sidebar .section {
   padding-top: 10px;
 }
@@ -829,7 +820,7 @@ ul.links.inline li a {
   border-bottom: 1px solid #d6d6d6;
 }
 
-/* ----------------- Triptych ----------------- */
+/* ------------------- Triptych --------------------------- */
 
 #triptych-wrapper {
   background-color: #f0f0f0;
@@ -885,7 +876,7 @@ ul.links.inline li a {
   text-align: right;
 }
 
-/* ------------------ Footer ------------------ */
+/* ------------------- Footer ----------------------------- */
 
 #footer-wrapper {
   color: #c0c0c0;
@@ -1002,7 +993,7 @@ ul.links.inline li a {
   background-color: rgba(0, 0, 0, 0.15);
 }
 
-/* --------------- System Tabs  --------------- */
+/* ------------------- System Tabs ------------------------ */
 
 .tabs {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -1035,9 +1026,7 @@ ul.links.inline li a {
   padding: 0 10px 3px;
   margin: 0;
   text-shadow: 0 1px 0 #fff;
-  -moz-border-radius-topleft: 6px;
   border-top-left-radius: 6px;
-  -moz-border-radius-topright: 6px;
   border-top-right-radius: 6px;
 }
 .tabs ul.primary li.active a {
@@ -1063,7 +1052,6 @@ ul.links.inline li a {
 .tabs ul.secondary li a.active {
   background: #f2f2f2;
   border-bottom: none;
-  -moz-border-radius: 5px;
   border-radius: 5px;
 }
 ul.action-links {
@@ -1081,7 +1069,7 @@ ul.action-links li a {
   margin: 0 10px 0 0;
 }
 
-/* ---------------- Messages  ----------------- */
+/* ------------------- Messages --------------------------- */
 
 #messages {
   padding: 20px 0 5px;
@@ -1095,7 +1083,7 @@ div.messages {
   margin: 8px 15px;
 }
 
-/* -------------- Breadcrumbs   -------------- */
+/* ------------------- Breadcrumbs ------------------------ */
 
 .breadcrumb {
   font-size: 0.929em;
@@ -1104,16 +1092,15 @@ div.messages {
 
 .breadcrumb a {
   padding: 12px 0;
-
 }
 
-/* -------------- User Profile   -------------- */
+/* ------------------- User Profile ----------------------- */
 
 .profile .user-picture {
   float: none;
 }
 
-/* -------------- Password Meter  ------------- */
+/* ------------------- Password Meter --------------------- */
 
 .confirm-parent,
 .password-parent {
@@ -1136,7 +1123,7 @@ div.password-confirm {
   width: 20.73em;
 }
 
-/* ---------------- Buttons    ---------------- */
+/* ------------------- Buttons ---------------------------- */
 
 input.form-submit,
 a.button {
@@ -1153,7 +1140,6 @@ a.button {
   margin-bottom: 1em;
   margin-right: 0.6em; /* LTR */
   padding: 4px 17px;
-  -moz-border-radius: 20px;
   border-radius: 15px;
 }
 a.button:link,
@@ -1165,7 +1151,7 @@ a.button:active {
   color: #5a5a5a;
 }
 
-/* -------------- Form Elements   ------------- */
+/* ------------------- Form Elements ---------------------- */
 
 fieldset {
   background: #ffffff;
@@ -1175,7 +1161,6 @@ fieldset {
   padding: 0 0 10px;
   position: relative;
   top: 12px; /* Offsets the negative margin of legends */
-  -moz-border-radius: 4px;
   border-radius: 4px;
 }
 .fieldset-wrapper {
@@ -1187,8 +1172,6 @@ fieldset {
 .filter-wrapper {
   top: 0;
   padding: 1em 0 0.2em;
-  -moz-border-radius-topright: 0;
-  -moz-border-radius-topleft: 0;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
@@ -1207,7 +1190,6 @@ fieldset {
 }
 fieldset.collapsed {
   background: transparent;
-  -moz-border-radius: 0;
   border-radius: 0;
 }
 fieldset legend {
@@ -1226,13 +1208,10 @@ fieldset legend {
   text-shadow: 0 1px 0 #fff;
   top: -12px;
   width: 100%;
-  -moz-border-radius-topleft: 4px;
   border-top-left-radius: 4px;
-  -moz-border-radius-topright: 4px;
   border-top-right-radius: 4px;
 }
 fieldset.collapsed legend {
-  -moz-border-radius: 4px;
   border-radius: 4px;
 }
 fieldset legend a {
@@ -1307,28 +1286,23 @@ input.form-submit:focus {
 /* Contact Form */
 .contact-form #edit-name {
   width: 75%;
-  -moz-border-radius: 4px;
   border-radius: 4px;
 }
 .contact-form #edit-mail {
   width: 75%;
-  -moz-border-radius: 4px;
   border-radius: 4px;
 }
 .contact-form #edit-subject {
   width: 75%;
-  -moz-border-radius: 4px;
   border-radius: 4px;
 }
 .contact-form #edit-message {
   width: 76.3%;
-  -moz-border-radius-topleft: 4px;
-  -moz-border-radius-topright: 4px;
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
 }
 
-/* Disabled form elements */
+/* ------------------- Disabled Form Elements ------------- */
 input.form-button-disabled,
 input.form-button-disabled:hover,
 input.form-button-disabled:focus,
@@ -1344,7 +1318,7 @@ input.form-button-disabled:active,
   color: #717171;
 }
 
-/* Animated throbber */
+/* ------------------- Animated Throbber ------------------ */
 .js input.form-autocomplete {
   background-position: 100% 4px; /* LTR */
 }
@@ -1352,7 +1326,7 @@ input.form-button-disabled:active,
   background-position: 100% -16px; /* LTR */
 }
 
-/* Comment form */
+/* ------------------- Comment Form ----------------------- */
 .comment-form label {
   float: left; /* LTR */
   font-size: 0.929em;
@@ -1361,7 +1335,6 @@ input.form-button-disabled:active,
 .comment-form input,
 .comment-form .form-select {
   margin: 0;
-  -moz-border-radius: 4px;
   border-radius: 4px;
 }
 .comment-form .form-type-textarea label {
@@ -1404,8 +1377,6 @@ input.form-button-disabled:active,
   margin-bottom: 0.5em;
 }
 .comment-form .form-textarea {
-  -moz-border-radius-topleft: 4px;
-  -moz-border-radius-topright: 4px;
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
 }
@@ -1431,7 +1402,7 @@ input.form-button-disabled:active,
   margin-right: 0.6em; /* LTR */
 }
 
-/* -------------- Other Overrides ------------- */
+/* ------------------- Other Overrides -------------------- */
 
 div.password-suggestions {
   border: 0;
@@ -1450,7 +1421,7 @@ div.vertical-tabs .vertical-tabs-panes fieldset.vertical-tabs-pane {
   font-size: 1em;
 }
 
-/* --------------- Search Form ---------------- */
+/* ------------------- Search Form ------------------------ */
 
 #block-search-form {
   padding-bottom: 7px;
@@ -1498,7 +1469,7 @@ div.vertical-tabs .vertical-tabs-panes fieldset.vertical-tabs-pane {
   display: block;
 }
 
-/* --------------- Search Results ---------------- */
+/* ------------------- Search Results --------------------- */
 ol.search-results {
   padding-left: 0;
 }
@@ -1516,7 +1487,7 @@ ol.search-results {
   padding-left: 0;
 }
 
-/* -------------- Shortcut Links -------------- */
+/* ------------------- Shortcut Links --------------------- */
 
 .shortcut-wrapper {
   margin: 2.2em 0 1.1em 0; /* Same as usual h1#page-title margin. */
@@ -1532,7 +1503,7 @@ div.add-or-remove-shortcuts {
   padding-top: 0.8em;
 }
 
-/* ---------- Admin-specific Theming ---------- */
+/* ------------------- Admin-specific Theming ------------- */
 
 .page-admin #content img {
   margin-right: 15px; /* LTR */
@@ -1592,7 +1563,7 @@ div.admin-panel .description {
   margin: 0 0 14px 7px;
 }
 
-/* ---------- Overlay layout styles ----------- */
+/* ------------------- Overlay Layout Styles -------------- */
 
 .overlay #main,
 .overlay #content {
@@ -1619,7 +1590,7 @@ div.admin-panel .description {
   width: auto;
 }
 
-/* ---------- Poll ----------- */
+/* ------------------- Poll ------------------------------- */
 
 .node .poll {
   margin: 2em 0;
@@ -1667,7 +1638,7 @@ div.admin-panel .description {
   background-color: #ddd;
 }
 
-/* ---------- book ----------- */
+/* ------------------- Book ------------------------------- */
 .book-navigation .menu {
   border-top: 1px solid #d6d6d6;
 }
@@ -1677,7 +1648,7 @@ div.admin-panel .description {
   margin: 0;
 }
 
-/* ---------- Menu toggle link ----------- */
+/* ------------------- Menu Toggle Link ------------------- */
 a#menu-toggle {
   display:none;
   background: none repeat scroll 0 0 rgba(255, 255, 255, 0.7);
@@ -1697,10 +1668,10 @@ a#menu-toggle:after {
   right: 10px;
 }
 
-/* ----------- media queries ------------------------------- */
+/* ------------------- Media Queries ---------------------- */
 
 @media all and (max-width: 460px) {
-  /* ------------ Menu on small resolutions ---------------- */
+  /* ----------------- Menu on Small Resolutions ---------- */
   a#menu-toggle {
     display:block;
   }
@@ -1712,8 +1683,8 @@ a#menu-toggle:after {
 }
 
 @media all and (min-width: 461px) and (max-width: 900px) {
- /* ------------ Header and Menus -------------------------- */
- 
+ /* ------------------ Header and Menus ------------------- */
+
  .region-header {
     margin: .5em 5px .75em;
   }
@@ -1736,15 +1707,24 @@ a#menu-toggle:after {
     width: 32.75%;
   }
   #main-menu-links li:nth-child(3n) {
-    margin-right: -5px;
+    margin-right: -5px; /* LTR */
   }
   #main-menu-links a {
     float: none;
     display: block;
-    -moz-border-radius: 8px;
     border-radius: 8px;
     margin-bottom: 5px;
     padding: 0.9em 5px;
+  }
+  #featured {
+    font-size: 1.43em;
+  }
+  #featured h2 {
+    font-size: 1.174em;
+  }
+  #triptych h2 {
+    font-size: 1.243em;
+    margin-bottom: 0.9em;
   }
 }
 
@@ -1779,35 +1759,29 @@ a#menu-toggle:after {
     float: left; /* LTR */
     padding: 0.7em 0.8em;
     margin-bottom: 0;
-    -moz-border-radius-bottomleft: 0;
-    -moz-border-radius-bottomright: 0;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
   }
-  .featured #main-menu-links li a:active,
-  .featured #main-menu-links li a.active {
-  background: #f0f0f0;
-  background: rgba(240, 240, 240, 1.0);
-  }
-}
-
-@media all and (min-width: 520px) {
-
-  /* ----------------- Featured ----------------- */
   #featured {
     font-size: 1.643em;
+    line-height: 1.4;
+
   }
   #featured h2 {
     font-size: 1.174em;
+    line-height: 1;
   }
+  .featured #main-menu-links li a:active,
+  .featured #main-menu-links li a.active {
+    background: #f0f0f0;
+    background: rgba(240, 240, 240, 1.0);
+  }
+}
 
-  /* ------------------ Triptych ----------------- */
-  #triptych h2 {
-    font-size: 1.714em;
-    margin-bottom: 0.9em;
-  }
-  #triptych .block {
-    margin-bottom: 2em;
-    padding-bottom: 2em;
-  }
+
+/* ------------------- Misc Fixes ------------------------- */
+.element-invisible {
+  position: absolute !important;
+  clip: rect(1px, 1px, 1px, 1px);
+  left: 0;
 }

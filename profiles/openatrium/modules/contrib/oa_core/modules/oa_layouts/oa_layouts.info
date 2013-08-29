@@ -34,9 +34,9 @@ features[variable][] = panelizer_defaults_node_oa_section
 features[variable][] = panelizer_defaults_node_oa_space
 project path = profiles/openatrium/modules/contrib/oa_core/modules
 
-; Information added by drupal.org packaging script on 2013-07-23
-version = "7.x-2.0-beta2"
+; Information added by drupal.org packaging script on 2013-08-29
+version = "7.x-2.0-beta3"
 core = "7.x"
 project = "oa_core"
-datestamp = "1374591069"
+datestamp = "1377800190"
 

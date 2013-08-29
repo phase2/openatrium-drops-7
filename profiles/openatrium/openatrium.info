@@ -48,6 +48,7 @@ dependencies[] = simplified_menu_admin
 dependencies[] = save_draft
 dependencies[] = module_filter
 dependencies[] = date_popup_authored
+dependencies[] = views_ui
 
 ;
 ; Open Atrium required modules
@@ -69,6 +70,7 @@ dependencies[] = features_override
 dependencies[] = panels_mini
 dependencies[] = job_scheduler
 dependencies[] = feeds
+dependencies[] = trash_flag
 
 ; Organic Groups
 dependencies[] = og
@@ -113,7 +115,6 @@ dependencies[] = oa_admin
 dependencies[] = oa_search
 dependencies[] = oa_variables
 dependencies[] = oa_buttons
-dependencies[] = contextual_tabs
 dependencies[] = oa_contextual_tabs
 
 ; Open Atrium 2.0 Plugins
@@ -129,13 +130,9 @@ dependencies[] = oa_home
 dependencies[] = panels_customerror
 dependencies[] = apps
 
-; Development Modules - Temporary
-dependencies[] = devel
-dependencies[] = diff
-
-; Information added by drupal.org packaging script on 2013-07-23
-version = "7.x-2.0-beta3"
+; Information added by drupal.org packaging script on 2013-08-29
+version = "7.x-2.0-beta4"
 core = "7.x"
 project = "openatrium"
-datestamp = "1374603367"
+datestamp = "1377804093"
 

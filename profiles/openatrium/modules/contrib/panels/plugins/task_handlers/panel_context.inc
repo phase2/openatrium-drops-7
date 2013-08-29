@@ -900,12 +900,25 @@ function panels_panel_context_get_addressable($task, $subtask_name, $handler, $a
   $display->cache_key = panels_panel_context_cache_key($task->name, $handler->name, $arguments);
 
   $renderer = panels_get_renderer($handler->conf['pipeline'], $display);
-  if ($type == 'content') {
-    $renderer->prepare();
+  $renderer->prepare();
 
+  if ($address) {
     $pid = array_shift($address);
     if (!empty($renderer->prepared['panes'][$pid])) {
-      return $renderer->render_pane($renderer->prepared['panes'][$pid]);
+      if ($type == 'content') {
+        return $renderer->render_pane($renderer->prepared['panes'][$pid]);
+      }
+      elseif ($type == 'pane') {
+        return $renderer->prepared['panes'][$pid];
+      }
+    }
+  }
+  else {
+    if ($type == 'content') {
+      return $renderer->render();
+    }
+    elseif ($type == 'renderer') {
+      return $renderer;
     }
   }
 }

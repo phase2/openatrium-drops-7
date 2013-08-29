@@ -27,7 +27,7 @@ function media_vimeo_media_internet_providers() {
   $path = drupal_get_path('module', 'media_vimeo');
   return array(
     'MediaInternetVimeoHandler' => array(
-      'title' => 'vimeo',
+      'title' => t('Vimeo'),
       'image' => $path . '/images/stream-vimeo.png'
     ),
   );
@@ -89,16 +89,6 @@ function media_vimeo_media_format_form_prepare_alter(&$form, &$form_state, $medi
 function media_vimeo_file_mimetype_mapping_alter(&$mapping) {
   $mapping['mimetypes'][] = 'video/vimeo';
 }
-
-/*
- * Implements hook_file_default_types_alter().
- *
- * Adds the video/vimeo fake mimetype to video files.
- */
-function media_vimeo_file_default_types_alter(&$types) {
-  $types['video']->mimetypes[] = 'video/vimeo';
-}
-
 
 /**
  * Implements hook_ctools_plugin_api().

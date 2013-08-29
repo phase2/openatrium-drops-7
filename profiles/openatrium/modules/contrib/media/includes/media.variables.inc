@@ -125,9 +125,9 @@ function media_variable_default($name = NULL) {
       // Directory to store media uploaded via WYSIWYG.
       'wysiwyg_upload_directory' => '',
       // Types which can be selected when embedding media vs wysiwyg.
-      'wysiwyg_allowed_types' => array('audio', 'image', 'video'),
+      'wysiwyg_allowed_types' => array('audio', 'image', 'video', 'document'),
       // Attributes which can be modified via the wysiwyg and persist.
-      'wysiwyg_allowed_attributes' => array('height', 'width', 'hspace', 'vspace', 'border', 'align', 'style', 'alt', 'title', 'class', 'id', 'usemap'),
+      'wysiwyg_allowed_attributes' => array('height', 'width', 'hspace', 'vspace', 'border', 'align', 'style', 'class', 'id', 'usemap', 'data-picture-group', 'data-picture-align'),
       // WYSIWYG browser plugins in WYSIWYG config page.
       'wysiwyg_browser_plugins' => array(),
 
@@ -160,6 +160,7 @@ function media_variable_default($name = NULL) {
       'browser_library_empty_message' => NULL,
       'browser_pager_limit' => NULL,
       'browser_viewtype_default' => NULL,
+      'display_types_migration_mess' => TRUE,
     );
   }
 

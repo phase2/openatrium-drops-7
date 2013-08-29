@@ -22,8 +22,9 @@ class views_handler_field_file_link_download extends views_handler_field_file_li
     }
 
     $this->options['alter']['make_link'] = TRUE;
-    $this->options['alter']['path'] = "file/$file->fid/download";
-    $this->options['alter']['query'] = drupal_get_destination();
+    $uri = file_entity_download_uri($file);
+    $this->options['alter']['path'] = $uri['path'];
+    $this->options['alter'] += $uri['options'];
 
     $text = !empty($this->options['text']) ? $this->options['text'] : t('Download');
     return $text;

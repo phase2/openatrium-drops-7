@@ -60,17 +60,22 @@ function media_install() {
   if (variable_get('media__show_deprecated_view_modes')) {
     $default_image_styles['media_original'] = '';
   }
+
   foreach ($default_image_styles as $view_mode => $image_style) {
-    $display_name = 'image__' . $view_mode . '__file_image';
-    $display = array(
-      'api_version' => 1,
-      'name' => $display_name,
-      'status' => 1,
-      'weight' => 5,
-      'settings' => array('image_style' => $image_style),
-      'export_type' => NULL,
-    );
-    file_display_save((object) $display);
+    $existing_display = file_displays_load('image', $view_mode);
+
+    if (empty($existing_display)) {
+      $display_name = 'image__' . $view_mode . '__file_image';
+      $display = array(
+        'api_version' => 1,
+        'name' => $display_name,
+        'status' => 1,
+        'weight' => 5,
+        'settings' => array('image_style' => $image_style),
+        'export_type' => NULL,
+      );
+      file_display_save((object) $display);
+    }
   }
 }
 
@@ -88,6 +93,12 @@ function media_uninstall() {
  * Implements hook_update_dependencies().
  */
 function media_update_dependencies() {
+  // media_update_7200() needs to convert old 'media' permissions to new 'file'
+  // permissions, so it must run before file_entity_7208 which updates existing
+  // 'file' permissions to be split per file type.
+  $dependencies['file_entity'][7208] = array(
+    'media' => 7200,
+  );
   // This update function requires field_update_7002() to run before it since
   // the field_bundle_settings variable has been split into separate variables
   // per entity type and bundle.
@@ -908,53 +919,12 @@ function media_update_7208() {
 }
 
 /**
- * Update {file_managed}.type with the new file types provided by file_entity.
+ * DEPRECATED: Update {file_managed}.type with the new file types provided by
+ * file_entity. (Types migration has been moved to admin/structure/file-types/upgrade',
+ * where can be executed manually.)
  */
 function media_update_7209() {
-  // Reset static cache to ensure our new file types are recognized
-  drupal_static_reset('ctools_export_load_object_table_exists');
 
-  // Go through file_managed table and update files with the new type names.
-  $enabled_types = file_type_get_enabled_types();
-
-  $query = db_select('file_managed', 'f')
-    ->fields('f', array('fid', 'type', 'filemime', 'uri'));
-  $files = $query->execute()->fetchAllAssoc('fid');
-  $failed = array();
-  foreach ($files as $fid => $file) {
-    if (empty($file->filemime)) {
-      $file->filemime = file_get_mimetype($file->uri);
-    }
-
-    $valid = FALSE;
-    foreach ($enabled_types as $type) {
-      if (in_array($file->filemime, $type->mimetypes)) {
-        $file->newtype = $type->type;
-        $valid = TRUE;
-        continue;
-      }
-    }
-
-    if (!$valid) {
-      $failed[] = $file->uri;
-      // Mark this file with FILE_TYPE_NONE so it is easier to be tracked and
-      // updated later, instead of scanning the whole table again.
-      $file->newtype = FILE_TYPE_NONE;
-    }
-
-    if ($file->newtype != $file->type) {
-      db_update('file_managed')
-        ->fields(array('type' => $file->newtype))
-        ->condition('fid', $file->fid)
-        ->execute();
-    }
-  }
-
-  if (!empty($failed)) {
-    return t('The following file(s) have a mimetype that does not belong to any file entity type. Please update manually.') . PHP_EOL . implode(PHP_EOL, $failed);
-  }
-
-  return t('All files types converted succesfully.');
 }
 
 /**
@@ -968,11 +938,12 @@ function media_update_7210() {
  * Flush old version of the image style to make the thumbnails appear correctly.
  */
 function media_update_7211() {
-  image_style_flush('square_thumbnail');
-  db_update('image_styles')
-    ->fields(array('name' => 'media_thumbnail'))
-    ->condition('name', 'square_thumbnail')
-    ->execute();
+  $style = image_style_load('square_thumbnail');
+
+  if ($style) {
+    $style['name'] = 'media_thumbnail';
+    image_style_save($style);
+  }
 
   // Replace any instances in display settings
   module_load_include('inc', 'file_entity', 'file_entity.file_api');
@@ -1014,4 +985,27 @@ function _media_update_7204_update_views_display_options(&$display_options, $vie
     $updated = TRUE;
   }
   return $updated;
+}
+
+/**
+ * Re-create application file type for legacy reasons.
+ */
+function media_update_7212() {
+  module_load_include('inc', 'file_entity', 'file_entity.file_api');
+  if (!file_type_load('application')) {
+    $application = (object) array(
+      'api_version' => 1,
+      'type' => 'application',
+      'label' => t('Application'),
+      'description' => t('Multipurpose type - kept to support older sites.'),
+      'mimetypes' => array(),
+      'streams' => array(
+        'public',
+      ),
+    );
+
+    file_type_save($application);
+    $application = file_type_load('application');
+    file_type_disable($application);
+  }
 }

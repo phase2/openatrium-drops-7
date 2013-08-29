@@ -37,6 +37,16 @@ function og_vocab_menu() {
     'type' => MENU_CALLBACK,
   );
 
+
+  $items['admin/config/group/og-vocab'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('og_vocab_admin_settings'),
+    'title' => 'OG vocabulary settings',
+    'access arguments' => array('administer group'),
+    'description' => 'OG vocabulary module settings.',
+    'file' => 'includes/og_vocab.admin.inc',
+  );
+
   return $items;
 }
 
@@ -101,6 +111,37 @@ function og_vocab_menu_alter(&$callbacks) {
 
   // Change the access callback for taxonomy/term/%taxonomy_term/edit
   $callbacks['taxonomy/term/%taxonomy_term/edit']['access callback'] = 'og_vocab_taxonomy_term_edit_access';
+
+  if (variable_get('og_vocab_term_page_access', FALSE)) {
+    $callbacks['taxonomy/term/%taxonomy_term']['access callback'] = 'og_vocab_term_page_access';
+    $callbacks['taxonomy/term/%taxonomy_term']['access arguments'] = array(2);
+
+    $callbacks['taxonomy/term/%taxonomy_term/feed']['access callback'] = 'og_vocab_term_page_access';
+    $callbacks['taxonomy/term/%taxonomy_term/feed']['access arguments'] = array(2);
+  }
+}
+
+/**
+ * Determince access to term page if term belongs to a vocabulary owned by
+ * OG-vocab.
+ *
+ * @param $term
+ *   The taxonomy term object.
+ */
+function og_vocab_term_page_access($term) {
+  if (!user_access('access content')) {
+    return;
+  }
+
+
+  if (!$relation = og_vocab_relation_get($term->vid)) {
+    // Term doesn't belong to OG-vocab
+    return TRUE;
+  }
+
+  // Check if user has access to the group.
+  $group = entity_load_single($relation->group_type, $relation->gid);
+  return entity_access('view', $relation->group_type, $group);
 }
 
 
@@ -523,13 +564,12 @@ function og_vocab_autocomplete_callback($type, OgVocab $og_vocab, $entity_id = '
   $mocked_field = $og_vocab->getMockedField();
   $instance = $mocked_field['instance'];
   $field = $mocked_field['field'];
-
+  $entity_type = $og_vocab->entity_type;
 
   if (!$field || !$instance || $field['type'] != 'entityreference' || !field_access('edit', $field, $entity_type)) {
     return MENU_ACCESS_DENIED;
   }
 
-  $entity_type = $og_vocab->entity_type;
   return entityreference_autocomplete_callback_get_matches($type, $field, $instance, $entity_type, $entity_id, $string);
 }
 
@@ -736,27 +776,30 @@ function og_vocab_relation_get_by_group($group_type, $gid) {
  *
  */
 function og_vocab_realtion_delete($entity_type, $entity_id) {
+  $vids = array();
   if ($entity_type == 'taxonomy_vocabulary') {
     if (!$relation = og_vocab_relation_get($entity_id)) {
       return;
     }
-    $vid = $entity_id;
+    $vids[] = $entity_id;
   }
   else {
     // Get the vocabylary ID from the group.
-    if (!$relation = og_vocab_relation_get_by_group($entity_type, $entity_id)) {
+    if (!$relations = og_vocab_relation_get_by_group($entity_type, $entity_id)) {
       return;
     }
-    $vid = $relation->vid;
+    foreach ($relations as $relation) {
+      $vids[] = $relation->vid;
+    }
   }
   db_delete('og_vocab_relation')
-    ->condition('vid', $vid)
+    ->condition('vid', $vids, 'IN')
     ->execute();
 
   // Get all OG vocabs related to the entity_type, and delete them.
   $query = new EntityFieldQuery();
   $result = $query->entityCondition('entity_type', 'og_vocab')
-    ->propertyCondition('vid', $vid)
+    ->propertyCondition('vid', $vids, 'IN')
     ->execute();
 
   if (empty($result['og_vocab'])) {
@@ -1474,18 +1517,6 @@ function og_vocab_modules_enabled($modules) {
 }
 
 /**
- * Implements hook_advanced_queue_info().
- */
-function og_vocab_advanced_queue_info() {
-  $items['og_vocab'] = array(
-    'worker callback' => 'og_vocab_advancedqueue_worker',
-    // Message-subscribe will deal itself with deleting claimed items.
-    'delete when completed' => FALSE,
-  );
-  return $items;
-}
-
-/**
  * Implements hook_cron_queue_info().
  */
 function og_vocab_cron_queue_info() {
@@ -1497,9 +1528,8 @@ function og_vocab_cron_queue_info() {
   return $items;
 }
 
-
 /**
- * Advanced queue worker; Process a queue item.
+ * Queue worker; Process a queue item.
  *
  * When a OG vocabulary is being deleted we need to remove the reference between
  * the nodes to the terms.

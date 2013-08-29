@@ -8,8 +8,7 @@ base theme  = radix
 hidden = true
 
 ; Regions
-regions[content]      = Content
-regions[footer]       = Footer
+regions[content] = Content
 
 ; CSS - General
 stylesheets[all][]     = assets/stylesheets/screen.css
@@ -22,9 +21,10 @@ stylesheets-conditional[IE 8][all][] = assets/stylesheets/ie8.css
 ; Javascript
 scripts[] = assets/javascripts/script.js
 
-; Information added by drush on 2013-07-23
-version = "7.x-2.0-alpha3+8-dev"
+
+; Information added by drush on 2013-08-29
+version = "7.x-2.0-beta1+37-dev"
 core = "7.x"
 project = "radix"
-datestamp = "1374603375"
+datestamp = "1377804125"
 
