@@ -1,0 +1,9 @@
+/**
+ * @font-face definitions
+ */
+@font-face {
+ font-family: 'Open Sans';
+ font-style: italic;
+ font-weight: 400;
+ src: local('Open Sans Italic'), local('OpenSans-Italic'), url(../fonts/open_sans_400_italic.woff) format('woff');
+}

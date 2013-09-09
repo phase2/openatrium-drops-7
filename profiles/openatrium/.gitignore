@@ -1,6 +1,2 @@
-modules/contrib/
-modules/panopoly/
-themes/radix/
-themes/responsive_bartik/
 .sass-cache
 settings.php
