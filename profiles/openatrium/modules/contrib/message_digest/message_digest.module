@@ -1,0 +1,70 @@
+<?php
+
+/**
+ * Implements hook_cron().
+ * Aggregate, format and send Digest emails.
+ */
+function message_digest_cron() {
+  foreach (message_notify_get_notifiers() as $plugin_name => $plugin) {
+    if (strpos($plugin_name, 'digest') === FALSE) {
+      // Only load the "Digest" notifiers and skip the rest.
+      continue;
+    }
+
+    $plugin = message_notify_get_notifier($plugin_name);
+    $class = ctools_plugin_load_class('message_notify', 'notifier', $plugin_name, 'class');
+    $notifier = new $class($plugin, new Message());
+    $interval = $notifier->getInterval();
+    $last_run = variable_get('message_digest_' . $interval . '_last_run', 0);
+
+    if ($last_run > strtotime("-" . $interval)) {
+      // Not time to run this again yet. Wait until the interval has elapsed.
+      continue;
+    }
+
+    // Gather up all the messages into neat little digests and send 'em out.
+    $digests = $notifier->aggregate();
+    foreach ($digests as $uid => $groups) {
+      foreach($groups as $gid => $messages) {
+        $formatted_messages = $notifier->format($messages);
+        $result = $notifier->deliverDigest($uid, $gid, $formatted_messages);
+      }
+      $notifier->markSent($uid, $plugin_name);
+    }
+    variable_set('message_digest_' . $interval . '_last_run', time());
+  }
+}
+
+/**
+ * Implements hook_mail()
+ */
+function message_digest_mail($key, &$message, $params) {
+  if ($key == 'digest') {
+    $title = variable_get('site_name', 'Open Atrium'); // @TODO: USE THE NAME OF THE GROUP/SPACE HERE IF IT EXISTS.
+    if (!empty($params['gid'])) {
+      $group = node_load($params['gid']);
+      $title = $group->title;
+    }
+    $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed';
+    $message['subject'] = $title . t(' Message Digest');
+    $message['body'][] = $params['body'];
+  }
+}
+
+/**
+ * Implements hook_ctools_plugin_api().
+ */
+function message_digest_ctools_plugin_api($module, $api) {
+  if ($module == 'message_notify' && $api == 'notifier') {
+    return array('version' => 1);
+  }
+}
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function message_digest_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'message_notify') {
+    return 'plugins/' . $plugin;
+  }
+}

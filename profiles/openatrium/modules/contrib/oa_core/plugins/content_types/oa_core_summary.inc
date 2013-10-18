@@ -26,7 +26,7 @@ $plugin = array(
  * Render callback for the content visibility panel.
  */
 function oa_core_summary_render($subtype, $conf, $args, $context = NULL) {
-  if (!isset($context->data->nid) || !($space = oa_core_get_group_from_node($context->data->nid, array('oa_space'))) || !node_access('view', $space)) {
+  if (!isset($context->data->nid) || !($space = node_load(oa_core_get_group_from_node($context->data->nid, array(OA_SPACE_TYPE)))) || !node_access('view', $space)) {
     return;
   }
 

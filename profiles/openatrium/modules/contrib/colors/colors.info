@@ -4,9 +4,9 @@ core = 7.x
 configure = admin/config/user-interface/colors
 
 
-; Information added by drush on 2013-08-29
+; Information added by drush on 2013-10-18
 version = "7.x-1.0-rc1+0-dev"
 core = "7.x"
 project = "colors"
-datestamp = "1377804123"
+datestamp = "1382107246"
 

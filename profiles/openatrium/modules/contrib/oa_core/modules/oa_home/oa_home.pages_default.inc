@@ -79,7 +79,7 @@ function oa_home_default_page_manager_pages() {
     ),
   );
   $display = new panels_display();
-  $display->layout = 'burr_flipped';
+  $display->layout = 'boxton';
   $display->layout_settings = array();
   $display->panel_settings = array(
     'style_settings' => array(
@@ -91,6 +91,9 @@ function oa_home_default_page_manager_pages() {
       'column3' => NULL,
       'secondarycolumn1' => NULL,
       'secondarycolumn2' => NULL,
+      'header' => NULL,
+      'secondarycolumn3' => NULL,
+      'footer' => NULL,
     ),
   );
   $display->cache = array();
@@ -100,12 +103,13 @@ function oa_home_default_page_manager_pages() {
     $pane = new stdClass();
     $pane->pid = 'new-1';
     $pane->panel = 'contentmain';
-    $pane->type = 'fieldable_panels_pane';
-    $pane->subtype = 'fpid:2';
+    $pane->type = 'oa_home_default';
+    $pane->subtype = 'oa_home_default';
     $pane->shown = TRUE;
     $pane->access = array();
     $pane->configuration = array(
-      'view_mode' => 'full',
+      'override_title' => 0,
+      'override_title_text' => '',
     );
     $pane->cache = array();
     $pane->style = array(
@@ -117,41 +121,8 @@ function oa_home_default_page_manager_pages() {
     $pane->locks = array();
     $display->content['new-1'] = $pane;
     $display->panels['contentmain'][0] = 'new-1';
-    $pane = new stdClass();
-    $pane->pid = 'new-3';
-    $pane->panel = 'sidebar';
-    $pane->type = 'oa_core_user_spaces';
-    $pane->subtype = 'oa_core_user_spaces';
-    $pane->shown = TRUE;
-    $pane->access = array();
-    $pane->configuration = array(
-      'tabs' => array(
-        'Favorite' => 'Favorite',
-        'Subscribed' => 'Subscribed',
-        'All' => 'All',
-      ),
-      'image_size' => 'none',
-      'show_description' => 0,
-      'show_sections' => 0,
-      'show_links' => 0,
-      'link_class' => 'btn',
-      'num_per_page' => '15',
-      'context' => 'context_user_1',
-      'override_title' => 0,
-      'override_title_text' => '',
-    );
-    $pane->cache = array();
-    $pane->style = array(
-      'settings' => NULL,
-    );
-    $pane->css = array();
-    $pane->extras = array();
-    $pane->position = 1;
-    $pane->locks = array();
-    $display->content['new-3'] = $pane;
-    $display->panels['sidebar'][1] = 'new-3';
   $display->hide_title = PANELS_TITLE_NONE;
-  $display->title_pane = 'new-1';
+  $display->title_pane = '0';
   $handler->conf['display'] = $display;
   $page->default_handlers[$handler->name] = $handler;
   $handler = new stdClass();
@@ -167,7 +138,7 @@ function oa_home_default_page_manager_pages() {
     'no_blocks' => 0,
     'pipeline' => 'ipe',
     'body_classes_to_remove' => '',
-    'body_classes_to_add' => 'oa-login',
+    'body_classes_to_add' => '',
     'css_id' => '',
     'css' => '',
     'contexts' => array(),
@@ -195,14 +166,15 @@ function oa_home_default_page_manager_pages() {
   $display->content = array();
   $display->panels = array();
     $pane = new stdClass();
-    $pane->pid = 'new-4';
+    $pane->pid = 'new-2';
     $pane->panel = 'contentmain';
-    $pane->type = 'fieldable_panels_pane';
-    $pane->subtype = 'fpid:22';
+    $pane->type = 'oa_home_default';
+    $pane->subtype = 'oa_home_default';
     $pane->shown = TRUE;
     $pane->access = array();
     $pane->configuration = array(
-      'view_mode' => 'full',
+      'override_title' => 0,
+      'override_title_text' => '',
     );
     $pane->cache = array();
     $pane->style = array(
@@ -212,30 +184,8 @@ function oa_home_default_page_manager_pages() {
     $pane->extras = array();
     $pane->position = 0;
     $pane->locks = array();
-    $display->content['new-4'] = $pane;
-    $display->panels['contentmain'][0] = 'new-4';
-    $pane = new stdClass();
-    $pane->pid = 'new-5';
-    $pane->panel = 'contentmain';
-    $pane->type = 'block';
-    $pane->subtype = 'user-login';
-    $pane->shown = TRUE;
-    $pane->access = array();
-    $pane->configuration = array(
-      'override_title' => 1,
-      'override_title_text' => 'Log In',
-    );
-    $pane->cache = array();
-    $pane->style = array(
-      'settings' => NULL,
-      'style' => 'oa_styles_oa_pane',
-    );
-    $pane->css = array();
-    $pane->extras = array();
-    $pane->position = 1;
-    $pane->locks = array();
-    $display->content['new-5'] = $pane;
-    $display->panels['contentmain'][1] = 'new-5';
+    $display->content['new-2'] = $pane;
+    $display->panels['contentmain'][0] = 'new-2';
   $display->hide_title = PANELS_TITLE_NONE;
   $display->title_pane = '0';
   $handler->conf['display'] = $display;

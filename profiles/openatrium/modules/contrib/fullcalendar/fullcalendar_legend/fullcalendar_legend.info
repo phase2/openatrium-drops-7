@@ -6,9 +6,9 @@ dependencies[] = fullcalendar
 dependencies[] = block
 
 
-; Information added by drush on 2013-08-29
+; Information added by drush on 2013-10-18
 version = "7.x-2.0+0-dev"
 core = "7.x"
 project = "fullcalendar"
-datestamp = "1377804138"
+datestamp = "1382107247"
 

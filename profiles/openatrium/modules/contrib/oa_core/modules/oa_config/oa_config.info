@@ -2,7 +2,6 @@ name = Open Atrium Config
 description = System configuration variables
 core = 7.x
 package = Open Atrium
-php = 5.2.4
 version = 7.x-2.0
 project = oa_config
 dependencies[] = chosen
@@ -13,13 +12,14 @@ features[features_api][] = api:2
 features[variable][] = chosen_jquery_selector
 features[variable][] = chosen_minimum
 features[variable][] = file_default_scheme
+features[variable][] = file_entity_file_upload_wizard_skip_scheme
 features[variable][] = og_context_negotiation_group_context
 features[variable][] = og_context_providers_weight_group_context
-project path = sites/all/modules/contrib/oa_core/modules
+project path = profiles/openatrium/modules/contrib/oa_core/modules
 
-; Information added by drupal.org packaging script on 2013-08-29
-version = "7.x-2.0-beta3"
+; Information added by drupal.org packaging script on 2013-10-18
+version = "7.x-2.0-rc1"
 core = "7.x"
 project = "oa_core"
-datestamp = "1377800190"
+datestamp = "1382101487"
 

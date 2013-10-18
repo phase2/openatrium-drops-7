@@ -1,0 +1,12 @@
+table.comment-alter-diff {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  font-size: 85%;
+  width: auto;
+}
+
+table.comment-alter-diff td {
+  border: none;
+  padding-left: .5em;
+  padding-right: .5em;
+}

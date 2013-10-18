@@ -2,7 +2,7 @@
 require "compass_twitter_bootstrap";
 require "compass_radix";
 
-environment = :production # :development
+environment = :development
 
 # Set this to the root of your project when deployed:
 http_path = "/"

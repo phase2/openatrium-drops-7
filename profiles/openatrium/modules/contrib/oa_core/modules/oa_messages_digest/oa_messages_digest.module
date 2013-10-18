@@ -1,0 +1,44 @@
+<?php
+
+/**
+ * @file
+ * Code for the Open Atrium Messages Digest functionality.
+ */
+
+/**
+ * Implementation of hook_oa_message_notifiers_alter().
+ * Add in the Daily and Weekly Digest notifier types.
+ */
+function oa_messages_digest_oa_message_notifiers_alter(&$notifiers) {
+  $notifiers[] = array(
+    'title' => 'Daily Digest Email',
+    'id'    => 'digest_day');
+  $notifiers[] = array(
+    'title' => 'Weekly Digest Email',
+    'id'    => 'digest_week');
+}
+
+/**
+ * Implementation of hook_form_alter().
+ */
+function oa_messages_digest_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'oa_users_settings_form') {
+    $form['oa_messages']['digest_grouping'] = array(
+      '#type' => 'radios',
+      '#title' => t('Digest Grouping'),
+      '#description' => 'For digest emails, would you like to receive one email per space or one combined email for all spaces?',
+      '#options' => array(
+        'group' => t('Send one digest email per group'),
+        'global' => t('Send one combined digest email for all groups'),
+      ),
+      '#default_value' => 'group',
+    );
+  }
+}
+
+/**
+ * Implementation of hook_oa_user_settings_form_submit().
+ */
+function oa_messages_digest_oa_user_settings_form_submit($form_state, $user) {
+  return array('digest_grouping' => $form_state['values']['oa_messages']['digest_grouping']);
+}

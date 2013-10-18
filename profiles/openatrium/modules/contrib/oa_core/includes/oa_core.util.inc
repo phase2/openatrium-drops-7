@@ -45,14 +45,15 @@ function oa_core_get_parents($nid, $bundle = OA_SPACE_TYPE) {
   $cache = &drupal_static(__FUNCTION__);
 
   if (!isset($cache[$nid][$bundle])) {
-    $query = db_select('og_membership', 'f');
-    $query->leftJoin('node', 'n', "n.nid = f.gid");
+    $query = db_select('node', 'n');
+    $query->leftJoin('og_membership', 'f', "n.nid = f.gid");
     $result = $query
       ->fields('n', array('nid'))
       ->condition('f.etid', $nid)
       ->condition('f.entity_type', 'node')
       ->condition('n.type', $bundle)
       ->orderBy('n.title')
+      ->addTag('node_access')
       ->execute()
       ->fetchCol(0);
     $cache[$nid][$bundle] = $result;
@@ -66,22 +67,40 @@ function oa_core_get_parents($nid, $bundle = OA_SPACE_TYPE) {
  * @param  string $bundle node type
  * @return array of children nids
  */
-function oa_get_groups_by_parent($nid, $bundle = OA_SPACE_TYPE) {
+function oa_core_get_groups_by_parent($nid, $bundle = OA_SPACE_TYPE) {
   $cache = &drupal_static(__FUNCTION__);
 
   if (!isset($cache[$nid][$bundle])) {
-    $query = db_select('og_membership', 'f');
-    $query->leftJoin('node', 'n', "n.nid = f.etid");
-    if (isset($bundle)) {
-      $query->condition('n.type', $bundle);
+
+    if ($nid == 0) {
+      $query = db_select('node', 'n');
+      $query->leftJoin('og_membership', 'f', "n.nid = f.etid");
+      if (isset($bundle)) {
+        $query->condition('n.type', $bundle);
+      }
+      $result = $query
+        ->fields('n', array('nid'))
+        ->isNull('f.gid')
+        ->orderBy('n.title')
+        ->addTag('node_access')
+        ->execute()
+        ->fetchCol(0);
     }
-    $result = $query
-      ->fields('n', array('nid'))
-      ->condition('f.gid', $nid)
-      ->condition('f.entity_type', 'node')
-      ->orderBy('n.title')
-      ->execute()
-      ->fetchCol(0);
+    else {
+      $query = db_select('node', 'n');
+      $query->leftJoin('og_membership', 'f', "n.nid = f.etid");
+      if (isset($bundle)) {
+        $query->condition('n.type', $bundle);
+      }
+      $result = $query
+        ->fields('n', array('nid'))
+        ->condition('f.gid', $nid)
+        ->condition('f.entity_type', 'node')
+        ->orderBy('n.title')
+        ->addTag('node_access')
+        ->execute()
+        ->fetchCol(0);
+      }
     $cache[$nid][$bundle] = $result;
   }
   return $cache[$nid][$bundle];
@@ -280,12 +299,12 @@ function oa_core_truncate_list($list, $count, $more_link = '', $always_link = FA
  * @return array
  * An array of public gids
  */
-function oa_core_get_public_spaces() {
+function oa_core_get_public_spaces($group_types = array(OA_SPACE_TYPE => OA_SPACE_TYPE)) {
   $public_spaces = &drupal_static(__FUNCTION__);
   if (!isset($public_spaces)) {
     $query = db_select('field_data_group_access', 'g')
       ->fields('g', array('entity_id'))
-      ->condition('bundle', OA_SPACE_TYPE)
+      ->condition('bundle', $group_types, 'IN')
       ->condition('entity_type', 'node')
       ->condition('group_access_value', 0);
     $public_spaces = $query->execute()->fetchCol(0);
@@ -376,20 +395,35 @@ function oa_core_get_user_spaces($uid) {
   return array();
 }
 
-function oa_core_get_group_from_node($nid, $allowed_types = array('oa_space', 'oa_group')) {
-  if ($node =  node_load($nid)) {
-    if (in_array($node->type, $allowed_types)) {
-      return $node;
-    }
-    elseif ($items = field_get_items('node', $node, OA_SPACE_FIELD)) {
-      foreach ($items as $item) {
-        if (!empty($item['target_id']) && ($space = oa_core_get_group_from_node($item['target_id']))) {
-          return $space;
-        }
-      }
-    }
+/**
+ * Helper function to return the id of the space/group that contains the nid node
+ * This function is called a lot, so it needs to be fast
+ * Do not use node_load here!
+ */
+function oa_core_get_group_from_node($nid, $allowed_types = array(OA_SPACE_TYPE, OA_GROUP_TYPE)) {
+  $cache = &drupal_static('oa_core_groups', array());
+  if (isset($cache[$nid])) {
+    return $cache[$nid];
   }
-  return FALSE;
+
+  $query = db_select('og_membership', 'f');
+  $query->leftJoin('node', 'n', "n.nid = f.gid");
+  $result = $query
+    ->fields('f', array('gid'))
+    ->condition('f.etid', $nid)
+    ->condition('f.group_type', 'node')
+    ->condition('f.field_name', OA_SPACE_FIELD)
+    ->condition('n.type', $allowed_types, 'IN')
+    ->execute()
+    ->fetchAssoc();
+
+  if (!empty($result)) {
+    $cache[$nid] = $result['gid'];
+  }
+  else {
+    $cache[$nid] = $nid;
+  }
+  return $cache[$nid];
 }
 
 /**

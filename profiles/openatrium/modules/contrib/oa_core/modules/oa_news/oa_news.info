@@ -21,9 +21,9 @@ features[views_view][] = open_atrium_news
 features_exclude[dependencies][oa_layouts] = oa_layouts
 project path = sites/all/modules/contrib/oa_core/modules
 
-; Information added by drupal.org packaging script on 2013-08-29
-version = "7.x-2.0-beta3"
+; Information added by drupal.org packaging script on 2013-10-18
+version = "7.x-2.0-rc1"
 core = "7.x"
 project = "oa_core"
-datestamp = "1377800190"
+datestamp = "1382101487"
 

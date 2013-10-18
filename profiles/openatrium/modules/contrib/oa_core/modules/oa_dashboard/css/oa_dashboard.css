@@ -20,7 +20,13 @@ ul.oa_toolbar {
 .drupal-navbar .navbar-icon-toggle-vertical {
   display: none;
 }
-
+.navbar .oa-navigation .nav {
+  display: inline-block;
+  float: none;
+}
+.oa-menu-banner {
+  display: inline-block;
+}
 #oa-navbar {
   margin-bottom: 0;
 }
@@ -48,7 +54,6 @@ ul.oa_toolbar {
 }
 
 .oa_toolbar .btn {
-	padding: 0.5em 1em;
 	margin: 0 0;
 }
 #oa-navbar .btn-group {
@@ -88,57 +93,25 @@ width: 100%;
 	font-style: italic;
 }
 
-#oa-navbar .icon-home {
-	font-size: 24px;
-	vertical-align: baseline;
-	padding: 0 0 0 0;
-	margin: 0;
-  line-height: 0px;
-}
-
 #oa-navbar .more-link {
 	font-size: 12px;
-}
-
-ul#oa_breadcrumb > .btn-group {
-  margin-right: 10px;
-}
-
-ul#oa_breadcrumb > .btn-group > a {
-  margin-left: 0;
-  padding-left: 0;
 }
 
 /**************/
 /* User badge */
 /**************/
-
 #oa-user-badge {
   position: relative;
-  padding: 0;
 }
-
-/* override the normal .user-badge styles to let toolbar set colors */
-#oa-user-badge .user-badge {
-  min-width: 110px;
-  padding: 3px;
-  margin: 0;
-  background-color: transparent;
-  border-color: transparent;
-}
-
 .navbar-inverse #oa-user-badge .user-badge {
-  color: #BBB;
+  color: #bbb;
 }
-
 #oa-user-badge .user-badge img {
   margin: 0;
 }
-
 #oa-user-badge .dropdown-menu {
-  float: left;
+  float: right;
   width: 100%;
-  min-width: 110px;
 }
 #oa-user-badge .dropdown-menu ul {
   margin: 0;
@@ -150,16 +123,11 @@ ul#oa_breadcrumb > .btn-group > a {
 /***************/
 /* Menu button */
 /***************/
-
 #toolbar-menu-button {
-  margin-top: 5px;
-  margin-right: 10px;
-  padding: 0.5em 1em;
   font-size: 12px;
   line-height: 22px;
   text-transform: uppercase;
 }
-
 .navbar-inverse #toolbar-menu-button {
   color: #999;
 }

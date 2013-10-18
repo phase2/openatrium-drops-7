@@ -5,9 +5,9 @@ dependencies[] = panels
 core = 7.x
 files[] = plugins/export_ui/panels_mini_ui.class.php
 
-; Information added by drush on 2013-08-29
+; Information added by drush on 2013-10-18
 version = "7.x-3.3+41-dev"
 core = "7.x"
 project = "panels"
-datestamp = "1377804173"
+datestamp = "1382107286"
 

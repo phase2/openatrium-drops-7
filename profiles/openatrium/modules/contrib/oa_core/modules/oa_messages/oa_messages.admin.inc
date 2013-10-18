@@ -111,7 +111,7 @@ function oa_messages_build_message_notifications_table($user, $defaults = array(
         foreach ($notifiers as $notifier) {
           $value = isset($defaults['message_notifications'][$space->nid][$message_type->name][$notifier['id']]) ?
             $defaults['message_notifications'][$space->nid][$message_type->name][$notifier['id']] :
-            TRUE;
+            $notifier['id'] == 'oa_email' ? TRUE : FALSE; // Only default to TRUE if it's the regular email type.
 
           $table[$space->nid][$message_type->name][$notifier['id']] = array(
             '#type' => 'checkbox',

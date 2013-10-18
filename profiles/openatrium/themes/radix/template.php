@@ -4,13 +4,12 @@
  * Theme hooks for Radix.
  */
 
-$theme_path = drupal_get_path('theme', 'radix');
-require_once $theme_path . '/includes/utilities.inc';
-require_once $theme_path . '/includes/theme.inc';
-require_once $theme_path . '/includes/structure.inc';
-require_once $theme_path . '/includes/form.inc';
-require_once $theme_path . '/includes/menu.inc';
-require_once $theme_path . '/includes/comment.inc';
+require_once dirname(__FILE__) . '/includes/utilities.inc';
+require_once dirname(__FILE__) . '/includes/theme.inc';
+require_once dirname(__FILE__) . '/includes/structure.inc';
+require_once dirname(__FILE__) . '/includes/form.inc';
+require_once dirname(__FILE__) . '/includes/menu.inc';
+require_once dirname(__FILE__) . '/includes/comment.inc';
 
 /**
  * Implementation of template_preprocess_html().
@@ -46,9 +45,14 @@ function radix_css_alter(&$css) {
  * Implements template_preprocess_page().
  */
 function radix_preprocess_page(&$variables) {
-
+  global $base_url;
+  
   // Add Bootstrap JS.
-  drupal_add_js('http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js', 'external');
+  $base = parse_url($base_url);
+  drupal_add_js($base['scheme'] . '://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js', 'external');
+
+  // Add CSS for Font Awesome
+  // drupal_add_css('//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css', 'external');
 
   // Determine if the page is rendered using panels.
   $variables['is_panel'] = FALSE;
@@ -81,4 +85,13 @@ function radix_preprocess_page(&$variables) {
 
   // Add a copyright message.
   $variables['copyright'] = t('Drupal is a registered trademark of Dries Buytaert.');
+
+  // Display a message if Sass has not been compiled.
+  $stylesheet_path = path_to_theme() . '/assets/stylesheets/screen.css';
+  if (!file_exists($stylesheet_path)) {
+    drupal_set_message(t('It looks like !path has not been created yet. Run !command in your theme directory to create it.', array(
+      '!path' => '<em>' . $stylesheet_path . '</em>',
+      '!command' => '<code>compass watch</code>',
+    )), 'error');
+  }
 }

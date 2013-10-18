@@ -1,0 +1,66 @@
+// Styles for Responsive Panels Regions
+// --------------------------------------------------
+@import "compass";
+
+// Variables.
+$reponsivePanelsRegionsNavbarHeight: 40px;
+$positions: (top, right, left, bottom);
+
+@each $position in $positions {
+  body.responsive-panels-region-#{$position}-on {
+    overflow: hidden;
+  }
+  .responsive-panels-region {
+    @media (max-width: 480px) {
+      &.responsive-panels-region-#{$position} {
+        background: rgba(white, 0.95);
+        width: 100%;
+        position: fixed;
+        #{$position} : -100%;
+        height: 100%;
+        @if $position == top or $position == bottom {
+          left: 0;
+          right: 0;
+        }
+        @else {
+          top: $reponsivePanelsRegionsNavbarHeight;
+          bottom: 0;
+        }
+        @include transition(500ms);
+        .responsive-panels-region-inner {
+          overflow: scroll;
+          height: 100%;
+          padding: 0 20px;
+        }
+        body.responsive-panels-region-#{$position}-on & {
+          $offset: 0;
+          @if $position == top {
+            $offset: $reponsivePanelsRegionsNavbarHeight;
+          }
+          #{$position}: $offset;
+          z-index: 500;
+        }
+      }
+    }
+  }
+}
+#oa-responsive-regions-navbar {
+  position: fixed;
+  top: 0;
+  margin: 0;
+  display: none;
+  visibility: hidden;
+  .navbar-inner {
+    border: 0;
+  }
+  .btn-navbar {
+    padding: 4px 10px;
+    &.btn-active {
+      @include transform(scaleX(-1));
+    }
+  }
+  @media (max-width: 480px) {
+    display: block;
+    visibility: visible;
+  }
+}

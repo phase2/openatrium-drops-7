@@ -25,9 +25,11 @@
  */
 ?>
 <div class='oa-list oa-news clearfix'>
+  <?php if (!empty($field_user_picture)): ?>
   <div class='pull-right'>
     <?php print $field_user_picture; ?>
   </div>
+  <?php endif; ?>
   <div class='oa-news-header'>
     <?php print $title; ?>
     <div class='oa-news-posted'>
@@ -44,9 +46,11 @@
         <?php print $field_featured_image; ?>
       </div>
     <?php endif; ?>
+    <?php if (!empty($body)): ?>
     <div class='oa-news-body'>
       <?php print $body; ?>
     </div>
+    <?php endif; ?>
     <?php if (!empty($term_node_tid)): ?>
       <div class='oa-news-tags'>
         <?php print t('Categories: ') . $term_node_tid; ?>

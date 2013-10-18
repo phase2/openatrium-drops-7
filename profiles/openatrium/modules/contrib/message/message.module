@@ -357,7 +357,7 @@ function message_entity_delete($entity, $entity_type) {
       }
       // Check if the field references specific bundles. If so, check if the
       // field references the deleted entity's bundle.
-      if ($field['settings']['handler_settings']['target_bundles'] && !in_array($bundle, $field['settings']['handler_settings']['target_bundles'])) {
+      if (!empty($field['settings']['handler_settings']['target_bundles']) && !in_array($bundle, $field['settings']['handler_settings']['target_bundles'])) {
         continue;
       }
       // The reference column;

@@ -153,17 +153,18 @@ function oa_core_login_perform_redirect($trigger = '', $current = NULL) {
 function oa_core_login_get_destination($trigger = '', $current = NULL) {
   global $user;
 
+  $homepage = variable_get('site_frontpage', 'home');
   // Get all the login destination rules from the database.
   if ($trigger == 'login') {
-    $spaces = og_get_entity_groups('user', $user);
+    $spaces = oa_core_get_user_spaces($user->uid);
     // if not a member of any spaces, go to default home
     if (count($spaces) <= 0) {
-      return 'home';
+      return $homepage;
     }
     return 'user/' . $user->uid . '/view';
   }
   elseif ($trigger == 'logout') {
-    return 'home';
+    return $homepage;
   }
 
   if ($current == NULL) {

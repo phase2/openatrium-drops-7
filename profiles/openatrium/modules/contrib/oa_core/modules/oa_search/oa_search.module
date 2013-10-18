@@ -50,6 +50,57 @@ function oa_search_theme() {
 }
 
 /**
+ * Implements hook_default_search_api_index_alter().
+ */
+function oa_search_default_search_api_index_alter(&$data) {
+  if (isset($data['database_node_index'])) {
+    $data['database_node_index']->options['fields']['created'] = array(
+      'type' => 'date',
+    ); /* WAS: '' */
+  }
+  if (isset($data['node_index'])) {
+    $data['node_index']->options['fields']['og_group_ref:title'] = array(
+      'type' => 'string',
+    ); /* WAS: '' */
+    $data['node_index']->options['fields']['oa_section_ref:title'] = array(
+      'type' => 'string',
+    ); /* WAS: '' */
+  }
+}
+
+/**
+ * Implements hook_default_search_api_server_alter().
+ */
+function oa_search_default_search_api_server_alter(&$data) {
+  if (isset($data['database_server'])) {
+    $data['database_server']->options['indexes']['database_node_index']['created']['type'] = 'date'; /* WAS: 'integer' */
+    $data['database_server']->options['indexes']['database_node_index']['oa_section_ref:title'] = array(
+      'table' => 'search_api_db_database_node_index_oa_section_ref_title',
+      'type' => 'string',
+      'boost' => 1,
+    ); /* WAS: '' */
+    $data['database_server']->options['indexes']['database_node_index']['og_group_ref:title'] = array(
+      'table' => 'search_api_db_database_node_index_og_group_ref_title',
+      'type' => 'string',
+      'boost' => 1,
+    ); /* WAS: '' */
+  }
+  if (isset($data['solr_server'])) {
+    $data['solr_server']->options['indexes']['node_index']['created']['type'] = 'date'; /* WAS: 'integer' */
+    $data['solr_server']->options['indexes']['node_index']['oa_section_ref:title'] = array(
+      'table' => 'search_api_db_node_index_oa_section_ref_title',
+      'type' => 'string',
+      'boost' => 1,
+    ); /* WAS: '' */
+    $data['solr_server']->options['indexes']['node_index']['og_group_ref:title'] = array(
+      'table' => 'search_api_db_node_index_og_group_ref_title',
+      'type' => 'string',
+      'boost' => 1,
+    ); /* WAS: '' */
+  }
+}
+
+/**
  * Implements hook_preprocess_oa_toolbar_search().
  */
 function oa_search_preprocess_oa_toolbar_search(&$vars) {

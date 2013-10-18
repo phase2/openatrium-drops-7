@@ -1,0 +1,142 @@
+body.responsive-panels-region-top-on {
+  overflow: hidden;
+}
+
+@media (max-width: 480px) {
+  .responsive-panels-region.responsive-panels-region-top {
+    background: rgba(255, 255, 255, 0.95);
+    width: 100%;
+    position: fixed;
+    top: -100%;
+    height: 100%;
+    left: 0;
+    right: 0;
+    -webkit-transition: 500ms;
+    -moz-transition: 500ms;
+    -o-transition: 500ms;
+    transition: 500ms;
+  }
+  .responsive-panels-region.responsive-panels-region-top .responsive-panels-region-inner {
+    overflow: scroll;
+    height: 100%;
+    padding: 0 20px;
+  }
+  body.responsive-panels-region-top-on .responsive-panels-region.responsive-panels-region-top {
+    top: 40px;
+    z-index: 500;
+  }
+}
+
+body.responsive-panels-region-right-on {
+  overflow: hidden;
+}
+
+@media (max-width: 480px) {
+  .responsive-panels-region.responsive-panels-region-right {
+    background: rgba(255, 255, 255, 0.95);
+    width: 100%;
+    position: fixed;
+    right: -100%;
+    height: 100%;
+    top: 40px;
+    bottom: 0;
+    -webkit-transition: 500ms;
+    -moz-transition: 500ms;
+    -o-transition: 500ms;
+    transition: 500ms;
+  }
+  .responsive-panels-region.responsive-panels-region-right .responsive-panels-region-inner {
+    overflow: scroll;
+    height: 100%;
+    padding: 0 20px;
+  }
+  body.responsive-panels-region-right-on .responsive-panels-region.responsive-panels-region-right {
+    right: 0;
+    z-index: 500;
+  }
+}
+
+body.responsive-panels-region-left-on {
+  overflow: hidden;
+}
+
+@media (max-width: 480px) {
+  .responsive-panels-region.responsive-panels-region-left {
+    background: rgba(255, 255, 255, 0.95);
+    width: 100%;
+    position: fixed;
+    left: -100%;
+    height: 100%;
+    top: 40px;
+    bottom: 0;
+    -webkit-transition: 500ms;
+    -moz-transition: 500ms;
+    -o-transition: 500ms;
+    transition: 500ms;
+  }
+  .responsive-panels-region.responsive-panels-region-left .responsive-panels-region-inner {
+    overflow: scroll;
+    height: 100%;
+    padding: 0 20px;
+  }
+  body.responsive-panels-region-left-on .responsive-panels-region.responsive-panels-region-left {
+    left: 0;
+    z-index: 500;
+  }
+}
+
+body.responsive-panels-region-bottom-on {
+  overflow: hidden;
+}
+
+@media (max-width: 480px) {
+  .responsive-panels-region.responsive-panels-region-bottom {
+    background: rgba(255, 255, 255, 0.95);
+    width: 100%;
+    position: fixed;
+    bottom: -100%;
+    height: 100%;
+    left: 0;
+    right: 0;
+    -webkit-transition: 500ms;
+    -moz-transition: 500ms;
+    -o-transition: 500ms;
+    transition: 500ms;
+  }
+  .responsive-panels-region.responsive-panels-region-bottom .responsive-panels-region-inner {
+    overflow: scroll;
+    height: 100%;
+    padding: 0 20px;
+  }
+  body.responsive-panels-region-bottom-on .responsive-panels-region.responsive-panels-region-bottom {
+    bottom: 0;
+    z-index: 500;
+  }
+}
+
+#oa-responsive-regions-navbar {
+  position: fixed;
+  top: 0;
+  margin: 0;
+  display: none;
+  visibility: hidden;
+}
+#oa-responsive-regions-navbar .navbar-inner {
+  border: 0;
+}
+#oa-responsive-regions-navbar .btn-navbar {
+  padding: 4px 10px;
+}
+#oa-responsive-regions-navbar .btn-navbar.btn-active {
+  -webkit-transform: scaleX(-1);
+  -moz-transform: scaleX(-1);
+  -ms-transform: scaleX(-1);
+  -o-transform: scaleX(-1);
+  transform: scaleX(-1);
+}
+@media (max-width: 480px) {
+  #oa-responsive-regions-navbar {
+    display: block;
+    visibility: visible;
+  }
+}

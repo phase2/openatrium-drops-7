@@ -234,9 +234,18 @@ function oa_buttons_get_section_layout_options($bundle) {
  * Determines which command buttons should be shown within the current context.
  */
 function oa_buttons_get_command_buttons($node) {
+  $node_types = node_type_get_names();
   $buttons = array();
   _oa_buttons_get_space_command_buttons($node, $buttons);
   _oa_buttons_get_parent_command_buttons($node, $buttons);
+  // look for node_add command buttons and check the 'create X content'
+  // node_access dynamically so we don't show command buttons the user
+  // cannot acccess
+  foreach ($buttons as $key => $button) {
+    if (in_array($key, $node_types) && !node_access('create', $key)) {
+      unset($buttons[$key]);
+    }
+  }
   drupal_alter('oa_buttons_add_content', $buttons, $node);
   return $buttons;
 }
@@ -533,6 +542,32 @@ function oa_buttons_node_update($node) {
   }
 }
 
+/**
+ * Implements hook_og_membership_insert().
+ */
+function oa_buttons_og_membership_insert($og_membership) {
+  if ($og_membership->entity_type == 'user') {
+    oa_buttons_clear_section_button_cache();
+  }
+}
+
+/**
+ * Implements hook_og_membership_update().
+ */
+function oa_buttons_og_membership_update($og_membership) {
+  if ($og_membership->entity_type == 'user') {
+    oa_buttons_clear_section_button_cache();
+  }
+}
+
+/**
+ * Implements hook_og_membership_delete().
+ */
+function oa_buttons_og_membership_delete($og_membership) {
+  if ($og_membership->entity_type == 'user') {
+    oa_buttons_clear_section_button_cache();
+  }
+}
 
 function oa_buttons_clear_section_button_cache($gid = NULL) {
   global $user;

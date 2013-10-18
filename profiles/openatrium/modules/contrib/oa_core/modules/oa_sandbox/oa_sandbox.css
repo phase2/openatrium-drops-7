@@ -1,0 +1,41 @@
+#oa-sandbox-indicator {
+  text-align: center;
+  color: white;
+  text-transform: uppercase;
+  z-index: 10;
+  width: 40px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: #555;
+  line-height: 1.2;
+}
+
+#oa-sandbox-indicator h3 {
+  white-space: nowrap;
+  -webkit-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
+  -o-transform: rotate(90deg);
+  font-size: 28px;
+  font-weight: normal;
+  margin-left: -2px;
+  margin-top: 400px;
+}
+#oa-sandbox-indicator h3 a {
+  color: white;
+}
+#oa-sandbox-indicator h3 a:hover {
+  color: #ccc;
+  text-decoration: none;
+}
+
+@media (max-width: 768px) {
+  #oa-sandbox-indicator {
+    width: 15px;
+  }
+  #oa-sandbox-indicator h3 {
+    font-size: 14px;
+    margin-left: -1px;
+  }
+}

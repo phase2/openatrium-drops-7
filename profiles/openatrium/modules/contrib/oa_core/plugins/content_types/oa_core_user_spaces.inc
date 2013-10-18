@@ -46,16 +46,19 @@ function oa_core_user_spaces_render($subtype, $conf, $args, $context = NULL) {
   else {
     $group_types = array(OA_SPACE_TYPE => OA_SPACE_TYPE);
   }
-  $spaces = node_load_multiple(oa_core_get_public_spaces());
-  $all_spaces = oa_core_build_space_display($spaces, $conf, $account, $group_types);
+  $all_spaces_ids = oa_core_get_public_spaces($group_types);
+  $active_spaces_ids = oa_core_get_user_spaces($account->uid);
+  $all_spaces_ids = array_merge($all_spaces_ids, $active_spaces_ids);
 
-  $spaces = oa_core_get_user_spaces($account->uid);
-  $spaces = node_load_multiple($spaces);
-  $active_spaces = oa_core_build_space_display($spaces, $conf, $account, $group_types);
+  $all_spaces_nodes = node_load_multiple($all_spaces_ids);
+  $all_spaces = oa_core_build_space_display($all_spaces_nodes, $conf, $account, $group_types);
+
+  $active_spaces_nodes = node_load_multiple($active_spaces_ids);
+  $active_spaces = oa_core_build_space_display($active_spaces_nodes, $conf, $account, $group_types);
 
   $spaces = oa_favorites_get_spaces($account);
-  $spaces = node_load_multiple($spaces['ids']);
-  $featured_spaces = oa_core_build_space_display($spaces, $conf, $account, $group_types);
+  $featured_spaces_nodes = node_load_multiple($spaces['ids']);
+  $featured_spaces = oa_core_build_space_display($featured_spaces_nodes, $conf, $account, $group_types);
 
   $page = 0;
   // set our maximum item per page
@@ -142,8 +145,8 @@ function oa_core_build_space_display($spaces, $conf, $account,
     }
 
     if ($conf['show_description']) {
-      $body = field_get_items('node', $space, 'body');
-      $vars[$space->nid]['body'] = drupal_render(field_view_field('node', $space, 'body', 'teaser'));
+      $body = field_view_field('node', $space, 'body', 'teaser');
+      $vars[$space->nid]['body'] = drupal_render($body);
     }
 
     $vars[$space->nid]['picture'] = '';

@@ -291,7 +291,7 @@ function oa_subspaces_views_query_alter(&$view, &$query) {
  * Implements hook_field_access().
  */
 function oa_subspaces_field_access($op, $field, $entity_type, $entity, $account) {
-  if ($field['field_name'] == OG_USER_INHERITANCE_PERMISSION_FIELD && $op == 'edit') {
+  if (!empty($field['field_name']) && $field['field_name'] == OG_USER_INHERITANCE_PERMISSION_FIELD && $op == 'edit') {
     return user_access('administer group', $account);
   }
 }

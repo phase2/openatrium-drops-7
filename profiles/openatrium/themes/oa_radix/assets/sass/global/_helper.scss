@@ -1,0 +1,13 @@
+//
+// Helper
+// CSS Helpers
+// --------------------------------------------------
+
+// Clear helpers
+// --------------------------------------------------
+$clears: (left, right, both);
+@each $clear in $clears {
+  .clear-#{$clear} {
+    clear: #{$clear};
+  }
+}

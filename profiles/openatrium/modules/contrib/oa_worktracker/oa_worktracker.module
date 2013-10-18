@@ -1,0 +1,318 @@
+<?php
+
+/**
+ * @file
+ * Code for the Open Atrium Work Tracker feature.
+ */
+
+include_once 'oa_worktracker.features.inc';
+include_once 'oa_worktracker.defaultconfig.user_permission.inc';
+
+/**
+ * Implements hook_apps_app_info().
+ */
+function oa_worktracker_apps_app_info() {
+  return array(
+    'configure form' => 'oa_worktracker_apps_configure_form',
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function oa_worktracker_menu() {
+  $items = array();
+  $items['admin/openatrium/worktracker'] = array(
+    'title' => 'Work Tracker settings',
+    'description' => 'Configure settings for the Open Atrium Work Tracker',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('oa_worktracker_apps_configure_form'),
+    'access arguments' => array('administer oa_worktracker'),
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function oa_worktracker_permission() {
+  return array(
+    'administer oa_worktracker' => array(
+      'title' => t('Administer Open Atrium Work Tracker'),
+      'description' => t('Configure settings for the Open Atrium Work Tracker'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_modules_enabled().
+ */
+function oa_worktracker_modules_enabled($modules) {
+  if (in_array('oa_worktracker', $modules)) {
+    // For some reason these don't revert the first time through
+    // @see https://drupal.org/node/2098475
+    // @todo This doesn't actually revert the 'og_features_permission' stuff!
+    _node_types_build();
+    drupal_static_reset();
+    features_revert(array('oa_worktracker' => array('message_type', 'field_base', 'variable', 'og_features_permission', 'user_permission')));
+  }
+}
+
+/**
+ * Implements hook_oa_messages_type_alter().
+ */
+function oa_worktracker_oa_messages_type_alter(&$message_type, $context) {
+  // TODO: replace the oa_create with something else too...
+  if ($message_type == 'oa_update' && $context['entity']->type == 'oa_worktracker_task') {
+    // tell OpenAtrium not to create a message for this! We'll handle it ourselves..
+    $message_type = NULL;
+  }
+}
+
+/**
+ * Implements hook_comment_insert().
+ */
+function oa_worktracker_comment_insert($comment) {
+  $message = oa_messages_create('oa_worktracker_task_update', $comment->nid, 'node', '', array('comment' => $comment));
+}
+
+/**
+ * Implements hook_oa_messages_create_alter().
+ */
+function oa_worktracker_oa_messages_create_alter(&$wrapper, $context) {
+  if ($context['message_type'] == 'oa_worktracker_task_update' && !empty($context['arguments']['comment'])) {
+    // set the comment reference when there is one!
+    $comment = $context['arguments']['comment'];
+    $wrapper->field_oa_worktracker_comment_ref = $comment->cid;
+  }
+}
+
+/**
+ * Modifies the options list to only include those sections which allow Tasks.
+ */
+function _oa_worktracker_check_section_options(&$options) {
+  if (module_exists('oa_buttons')) {
+    foreach (array_keys($options) as $nid) {
+      if ($nid === '_none') continue;
+
+      // Make sure this section can take Task nodes
+      // TODO: we need to cache this somehow for performance!
+      $buttons = array();
+      _oa_buttons_get_node_command_buttons(node_load($nid), $buttons);
+      if (!isset($buttons['oa_worktracker_task'])) {
+        unset($options[$nid]);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function oa_worktracker_form_oa_worktracker_task_node_form_alter(&$form, &$form_state, $form_id) {
+  $langcode = $form['language']['#value'];
+
+  // Remove sections that can't take Task nodes.
+  _oa_worktracker_check_section_options($form['oa_section_ref'][$form['language']['#value']]['#options']);
+
+  // Set the default values for 'Priority', 'Status' and 'Type'
+  foreach (array('priority', 'task_status', 'task_type') as $name) {
+    $field_name = 'field_oa_worktracker_' . $name;
+    $variable_name = 'oa_worktracker_allowed_values_' . $name;
+    $value = variable_get_value($variable_name);
+    $form[$field_name][$langcode]['#default_value'] = $value['default_value'];
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function oa_worktracker_form_comment_form_alter(&$form, &$form_state, $form_id) {
+  if ($form['#node']->type == 'oa_worktracker_task') {
+    // If the form is for an authenticated user (not anonymous) then hide the 
+    // superfluous 'Your name' field.
+    if (!$form['is_anonymous']['#value']) {
+      $form['author']['#access'] = FALSE;
+    }
+
+    // Rename the attachment field to 'Task attachments' so that users know they
+    // are for the task - not the comment.
+    $language_name = $form['#node']->language;
+    $form['comment_alter_field_oa_media'][$language_name]['#title'] = t('Task attachments');
+
+    // Remove sections that can't take Task nodes.
+    _oa_worktracker_check_section_options($form['comment_alter_oa_section_ref'][$form['language']['#value']]['#options']);
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function oa_worktracker_theme() {
+  return array(
+    'comment_wrapper__node_oa_worktracker_task' => array(
+      'template' => 'comment-wrapper--node-oa-worktracker-task',
+      'base hook' => 'comment_wrapper',
+      'render element' => 'content',
+      'path' => drupal_get_path('module', 'oa_worktracker') . '/templates',
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme_registry_alter().
+ */
+function oa_worktracker_theme_registry_alter(&$registry) {
+  // Replace the default 'comment_alter_diff' theme function with our custom version.
+  if (!empty($registry['comment_alter_diff']['function'])) {
+    $registry['comment_alter_diff']['function'] = 'oa_worktracker_theme_comment_alter_diff';
+  }
+}
+
+/**
+ * Implements hook_strongarm_alter().
+ */
+function oa_worktracker_strongarm_alter(&$data) {
+  if (isset($data['variable_realm_list_og'])) {
+    foreach (array('priority', 'task_status', 'task_type') as $name) {
+      $full_name = 'oa_worktracker_allowed_values_' . $name;
+      if (!in_array($full_name, $data['variable_realm_list_og']->value)) {
+        $data['variable_realm_list_og']->value[] = $full_name;
+      }
+    }
+  }
+}
+
+/**
+ * Form callback for the apps configuration form.
+ */
+function oa_worktracker_apps_configure_form($form, &$form_state) {
+  return variable_module_form($form, $form_state, 'oa_worktracker');
+}
+
+/**
+ * Allowed values callback for 'Priority', 'Status' and 'Type'.
+ */
+function oa_worktracker_allowed_values_callback($field, $instance, $entity_type, $entity, &$cachable) {
+  if (strpos($field['field_name'], 'field_oa_worktracker_') === 0) {
+    $field_name = substr($field['field_name'], 21); 
+    $allowed_values = variable_get_value("oa_worktracker_allowed_values_{$field_name}");
+    return $allowed_values['options'];
+  }
+  return array('_none' => t('- None -'));
+}
+
+/**
+ * Returns the difference between two arrays.
+ *
+ * Unlike PHP's array_diff(), equality is defined by $elem1 == $elem2,
+ * NOT (string)$elem1 === (string)$elem2.
+ *
+ * @param array $array1
+ *   The initial array.
+ * @param array $array2
+ *   The array to subtrack from $array1.
+ *
+ * @return array
+ *   The result of subtracting $array2 from $array1.
+ */
+function _oa_worktracker_array_diff($array1, $array2) {
+  $diff = array();
+  foreach ($array1 as $elem1) {
+    $contained = FALSE;
+    foreach ($array2 as $elem2) {
+      if ($elem1 == $elem2) {
+        $contained = TRUE; 
+        break;
+      }
+    }
+    if (!$contained) {
+      $diff[] = $elem1;
+    }
+  }
+  return $diff;
+}
+
+/**
+ * Renders a list of file removals or additions.
+ *
+ * @todo Should this be it's own theme function?
+ */
+function _oa_worktracker_file_changes($files, $type) {
+  $html = '';
+
+  foreach ($files as $file) {
+    $html .= '<div>';
+    if ($type == 'add') {
+      $html .= '<span class="oa-worktracker-diff-add">+</span> ';
+    }
+    else {
+      $html .= '<span class="oa-worktracker-diff-remove">-</span> ';
+    }
+    // This comes from 'file_entity' which we get via our 'oa_media' dependency
+    //$html .= theme('file_entity_download_link', array('file' => (object)$file, 'text' => '[file:name]'));
+    $html .= theme('file_link', array('file' => (object)$file));
+    $html .= '</div>';
+  }
+
+  return $html;
+}
+
+/**
+ * Returns HTML for changes made by comment_alter.
+ *
+ * This is different from the default theme function provided by
+ * comment_alter, in that it has special support for files. If this is 
+ * successful, maybe we can move it upstream later.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - changed_fields: an array of changed fields, with these indexes:
+ *     - name: field's name being changed.
+ *     - old: array of old field values.
+ *     - new: array of new field values.
+ *   - comment: Full comment object, for context.
+ *   - langcode: The language code used for rendering the fields, for context.
+ *
+ * @ingroup themeable
+ */
+function oa_worktracker_theme_comment_alter_diff(&$variables) {
+  $comment = $variables['comment'];
+  $langcode = $variables['langcode'];
+  $old_node = node_load($comment->nid, $comment->comment_alter['old_vid']);
+  $new_node = node_load($comment->nid, $comment->comment_alter['new_vid']);
+  $node_type = $new_node->type;
+
+  $rows = array();
+  foreach ($variables['changed_fields'] as $field_name => $field) {
+    $row = array();
+    $row[] = $field['name'] . ':';
+
+    $info = field_info_field($field_name);
+    if ($info['type'] == 'file') {
+      $old_items = field_get_items('node', $old_node, $field_name, $langcode);
+      $new_items = field_get_items('node', $new_node, $field_name, $langcode);
+
+      $removed = !empty($old_items) ? _oa_worktracker_array_diff($old_items, $new_items) : array();
+      $added = !empty($old_items) ? _oa_worktracker_array_diff($new_items, $old_items) : $new_items;
+
+      $row[] = _oa_worktracker_file_changes($removed, 'remove');
+      $row[] = '&raquo;';
+      $row[] = _oa_worktracker_file_changes($added, 'add');
+    }
+    else {
+      $row[] = implode(', ', $field['old']);
+      $row[] = '&raquo;';
+      $row[] = implode(', ', $field['new']);
+    }
+    $rows[] = $row;
+  }
+  drupal_add_css(drupal_get_path('module', 'comment_alter') . '/comment_alter.css');
+  return theme('table', array(
+    '#theme' => 'table__comment_alter__diff',
+    '#rows' => $rows,
+    '#attributes' => array('class' => array('comment-alter-diff')),
+    '#sticky' => FALSE,
+  ));
+}
+

@@ -30,7 +30,7 @@ $plugin = array(
 function oa_core_members_widget_render($subtype, $conf, $args, $context = NULL) {
   global $user;
 
-  if (!isset($context->data->nid) || !($space = oa_core_get_group_from_node($context->data->nid)) || !node_access('view', $space)) {
+  if (!isset($context->data->nid) || !($space = node_load(oa_core_get_group_from_node($context->data->nid))) || !node_access('view', $space)) {
     return;
   }
 
@@ -140,20 +140,22 @@ function oa_core_members_widget_render($subtype, $conf, $args, $context = NULL) 
       'links' => array('dashboard', 'remove-admin'),
     );
   }
-  $tabs['parents'] = array(
-    'caption' => t('Inherited'),
-    'title' => t('Inheriting members from:'),
-    'items' => array(
-      t('Spaces') => $parent_spaces,
-      t('Groups') => $parent_groups,
-    ),
-    'links' => array(),
-  );
-  if (user_access('create ' . OA_GROUP_TYPE . ' content', $user)) {
-    $tabs['parents']['global_links'][] = array(
-      'title' => t('Add Group'),
-      'url'   => url('node/add/' . str_replace('_', '-', OA_GROUP_TYPE)),
+  if (!isset($conf['hide_inherited']) || !$conf['hide_inherited']) {
+    $tabs['parents'] = array(
+      'caption' => t('Inherited'),
+      'title' => t('Inheriting members from:'),
+      'items' => array(
+        t('Spaces') => $parent_spaces,
+        t('Groups') => $parent_groups,
+      ),
+      'links' => array(),
     );
+    if (user_access('create ' . OA_GROUP_TYPE . ' content', $user)) {
+      $tabs['parents']['global_links'][] = array(
+        'title' => t('Add Group'),
+        'url'   => url('node/add/' . str_replace('_', '-', OA_GROUP_TYPE)),
+      );
+    }
   }
 
   if ($space_type == OA_SPACE_TYPE) {
@@ -170,6 +172,7 @@ function oa_core_members_widget_render($subtype, $conf, $args, $context = NULL) 
       );
     }
   }
+  $ajax = (variable_get('oa_use_ajax', FALSE)) ? '/nojs' : '';
   foreach ($tabs as $category => $tab) {
     $tabs[$category]['items'] = array();
     if (!empty($tab['items'])) {
@@ -179,6 +182,9 @@ function oa_core_members_widget_render($subtype, $conf, $args, $context = NULL) 
           if ($entity->uid == $space->uid) {
             // don't show links for main space owner
             $tabs[$category]['items'][$key][$id]['uid'] = 0;
+          }
+          if (!$ajax) {
+            unset($tabs[$category]['items'][$key][$id]['options']['attributes']);
           }
         }
       }
@@ -191,7 +197,6 @@ function oa_core_members_widget_render($subtype, $conf, $args, $context = NULL) 
   if (count($tabs) == 1) {
     unset($tabs[key($tabs)]['title']);
   }
-  $ajax = (variable_get('oa_use_ajax', FALSE)) ? '/nojs' : '';
   $links = array(
     'dashboard' => array(
       'title' => t('Dashboard'),

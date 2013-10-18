@@ -173,7 +173,7 @@ function oa_notifications_load_multiple($source_entity, $source_type = 'node', $
   $query = db_select('oa_notifications', 'n')
     ->fields('n')
     ->condition('n.source_id', $source_id)
-    ->condition('n.$source_type', $source_type);
+    ->condition('n.source_type', $source_type);
 
   if (isset($target_type)) {
     $query->condition('n.target_type', $target_type);

@@ -1,0 +1,63 @@
+<?php
+
+function bootstrap_tour_schema() {
+  $schema['bootstrap_tour'] = array(
+    'description' => t('Bootstrap tours courtesy of the Bootstrap Tours module'),
+    'export' => array(
+      'key' => 'name',
+      'key name' => 'Name',
+      'primary key' => 'btid',
+      'identifier' => 'bootstrap_tour',
+      'load callback' => 'bootstrap_tour_load',
+      'load all callback' => 'bootstrap_tour_load_all',
+      'save callback' => 'bootstrap_tour_save',
+      'bulk export' => TRUE,
+      'api' => array(
+        'owner' => 'bootstrap_tour',
+        'api' => 'bootstrap_tour',
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+    ),
+    'fields' => array(
+      'name' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Unique ID for tours used to identify them programmatically, generated from the name.',
+      ),
+      'title' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'Human readable name for the tour used for administrative purposes.',
+      ),
+      'btid' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Primary ID field for the table. Not used for anything except internal lookups.',
+        'no export' => TRUE,
+      ),
+      'autorun' => array(
+        'description' => 'Boolean indicating whether the tour should automatically start when the path of the first step is loaded.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'description' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'A description of the site tour, used for administrative purposes.',
+      ),
+      'steps' => array(
+        'type' => 'blob',
+        'description' => 'A serialized array of tour steps.',
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('btid'),
+    'unique keys' => array(
+      'name' => array('name'),
+    ),
+  );
+  return $schema;
+}

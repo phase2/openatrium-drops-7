@@ -1,0 +1,141 @@
+<?php
+/**
+ * @file
+ * Let's you define responsive panels regions.
+ */
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function oa_responsive_regions_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'panels') {
+    return "plugins/$plugin_type";
+  }
+}
+
+/**
+ * Implements hook_page_build().
+ */
+function oa_responsive_regions_page_build(&$page) {
+  if (module_exists('page_manager')) {
+    if ($current_page = page_manager_get_current_page()) {
+      // Add module js if we have responsive regions on current page.
+      if ($responsive_regions = _oa_responsive_regions_get_page_responsive_regions($current_page)) {
+        $path = drupal_get_path('module', 'oa_responsive_regions');
+        $page['page_bottom']['oa_responsive_regions'] = array(
+          '#attached' => array(),
+        );
+        $attached = &$page['page_bottom']['oa_responsive_regions']['#attached'];
+
+        $options = array();
+        $attached['js'][$path . '/assets/javascripts/oa_responsive_regions.js'] = $options;
+        $attached['css'][$path . '/assets/stylesheets/oa_responsive_regions.css'] = $options;
+
+        // Add the responsive regions navbar.
+        $page['page_bottom']['oa_responsive_regions']['navbar'] = array(
+          '#markup' => theme('oa_responsive_regions_navbar', array(
+            'regions' => $responsive_regions,
+          )),
+        );
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function oa_responsive_regions_theme() {
+  return array(
+    'oa_responsive_regions_navbar' => array(
+      'variables' => array('regions' => NULL),
+      'path' => drupal_get_path('module', 'oa_responsive_regions') . '/templates',
+      'template' => 'oa-responsive-regions-navbar',
+    ),
+  );
+}
+
+/**
+ * Implements template_preprocess_oa_responsive_regions_navbar().
+ */
+function template_preprocess_oa_responsive_regions_navbar(&$variables) {
+  $icon_classes = array(
+    'top' => 'down',
+    'bottom' => 'up',
+    'left' => 'right',
+    'right' => 'left',
+  );
+  foreach ($variables['regions'] as &$region) {
+    $position = $region['settings']['position'];
+    // Add an icon to the toggler.
+    if (!isset($region['icon'])) {
+      $region['icon'] = 'icon-chevron-' . $icon_classes[$position];
+    }
+  }
+}
+
+/**
+ * Helper function to get responsive region positions.
+ */
+function _oa_responsive_regions_get_positions() {
+  // Positions for responsive regions.
+  $positions = array(
+    'top' => t('Top'),
+    'bottom' => t('Bottom'),
+    'left' => t('Left'),
+    'right' => t('Right'),
+  );
+
+  // Allow other modules to alter the positions
+  drupal_alter('oa_responsive_regions_positions', $positions);
+
+  return $positions;
+}
+
+
+/**
+ * Helper function to get the responsive panels regions for a page.
+ */
+function _oa_responsive_regions_get_page_responsive_regions($page) {
+  $regions = array();
+  $handler = $page['handler'];
+
+  // Get the display.
+  if (isset($handler->conf['display'])) {
+    $display = $handler->conf['display'];
+  }
+  else {
+    // This is panelizer.
+    $context = $handler->conf['context'];
+    $display = $page['contexts'][$context]->data->panelizer['page_manager']->display;
+  }
+
+  // Check if we have responsive regions.
+  if ($display) {
+    foreach (array_keys($display->panels) as $region) {
+      if (!empty($display->panel_settings[$region]['style']) && $display->panel_settings[$region]['style'] == 'oa_responsive_region') {
+        // Let's add some info about the responsive region.
+        $settings = $display->panel_settings['style_settings'][$region];
+        $regions[$settings['position']] = array(
+          'region' => $region,
+          'settings' => $settings,
+        );
+      }
+    }
+  }
+
+  // Allow other modules to alter responsive regions.
+  drupal_alter('oa_responsive_regions', $regions);
+
+  return $regions;
+}
+
+/**
+ * Determine if current page has responsive regions.
+ *
+ * @return Boolean
+ *  TRUE if page has responsive regions.
+ */
+function _oa_responsive_regions_page_has_responsive_regions() {
+
+}

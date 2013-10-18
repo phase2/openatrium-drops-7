@@ -1,0 +1,257 @@
+body.front {
+  background: #003853;
+  font-family: 'Roboto', sans-serif;
+  padding: 0; margin: 0;
+}
+
+body.front #main-wrapper {
+  background-color: transparent;
+}
+
+body.front #main,
+body.front.panels-ipe #main  {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+body.front #main .span12 {
+  width: 100%;
+  margin: 0;
+}
+
+body.front #panels-ipe-control-container {
+  text-indent: -9000px;
+  width: 0;
+}
+
+body.front .row {
+  margin-left: 0;
+}
+
+body.front #footer {
+  margin-top: 0;
+}
+
+body.front .content .pane-oa-home-default {
+  padding: 0;
+}
+.pane-oa-home-default h2 {
+  font-weight: normal;
+  color: #442266;
+  font-size: 50px;
+  line-height: normal;
+}
+
+.pane-oa-home-default .big-wrapper {
+  background: url(images/bg-glow.png) no-repeat top center;
+  min-height: 500px;
+  border: 1px solid black;
+  border-bottom: 0;
+  border-right: 0;
+  border-left: 0;
+  }
+
+.pane-oa-home-default .hero,
+.pane-oa-home-default .modules {
+  width: 1055px;
+  margin: 0 auto;
+  position: relative;
+  }
+
+.pane-oa-home-default .user-login .content {
+  padding: 20px 30px;
+  color: #FFF;
+}
+
+.pane-oa-home-default .hero-right-graphic {
+   background: url(images/bg-hero-right.png) no-repeat;
+   width: 316px;
+   height: 210px;
+   position: absolute;
+   right: -80px;
+   top: 124px;
+}
+
+.pane-oa-home-default .hero-left-graphic {
+   background: url(images/bg-hero-left.png) no-repeat;
+   width: 264px;
+   height: 330px;
+   position: absolute;
+   left: -70px;
+   top: -4px;
+}
+
+.pane-oa-home-default .hero h1 {
+   color: #FFFFFF;
+    font-family: 'Roboto Slab',serif;
+    font-size: 100px;
+    font-weight: 100;
+    letter-spacing: -0.04em;
+    margin: 60px 0 0;
+    padding: 0;
+    text-align: center;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.22);
+  line-height: normal;
+}
+
+.pane-oa-home-default .hero h2 {
+  color: #56d1fc;
+  font-family: 'Roboto Condensed', sans-serif;
+  font-weight: 400;
+  padding: 0;
+  margin: 10px 0 10px 0;
+  font-size: 39px;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.44);
+  text-align: center;
+  line-height: normal;
+}
+
+.pane-oa-home-default .hero h2 span {
+  color: #fd4e88;
+}
+
+.pane-oa-home-default .hero h3 {
+  color: #fff;
+  text-align: center;
+  color: #fd4e88;
+   background: url(images/bg-hero-line.png) no-repeat center top;
+  font-family: 'Roboto Slab',serif;
+  font-weight: 100px;
+  padding: 30px 0 27px 0;
+  margin: 22px 0;
+  font-size: 22px;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.44);
+  letter-spacing: 0.03em;
+  line-height: normal;
+}
+
+.pane-oa-home-default .modules .entry,
+.pane-oa-home-default .modules .block {
+   background: url(images/bg-module.png);
+   width: 30%;
+   -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  float: left;
+  min-height: 370px;
+  margin-right: 2.5em;
+  }
+
+.pane-oa-home-default .modules .entry-last {
+  float: right;
+}
+
+.pane-oa-home-default .module-header,
+.pane-oa-home-default .modules .block h2 {
+  background: url(images/bg-module.png);
+  -webkit-border-top-left-radius: 5px;
+-webkit-border-top-right-radius: 5px;
+-moz-border-radius-topleft: 5px;
+-moz-border-radius-topright: 5px;
+border-top-left-radius: 5px;
+border-top-right-radius: 5px;
+text-align: center;
+}
+
+.pane-oa-home-default .module-header h4,
+.pane-oa-home-default .modules .block h2 {
+  color: #FFF;
+  font-family: 'Roboto Slab',serif;
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 20px 0;
+  font-size: 15px;
+  margin: 0;
+  letter-spacing: 0.1em;
+  line-height: normal;
+}
+
+.pane-oa-home-default .modules .entry a.icon {
+  width: 148px;
+  height: 148px;
+  margin-left: 4.25em;
+  display: block;
+  margin-top: 15px;
+}
+
+.pane-oa-home-default a.icon-got-issues {
+  background: url(images/icons-modules.png) no-repeat 0 0;
+  }
+
+.pane-oa-home-default a.icon-got-issues:hover {
+  background: url(images/icons-modules.png) no-repeat 0 -167px;
+  }
+
+.pane-oa-home-default a.icon-documentation{
+  background: url(images/icons-modules.png) no-repeat -198px 0;
+  }
+
+.pane-oa-home-default a.icon-documentation:hover {
+  background: url(images/icons-modules.png) no-repeat -198px -166px;
+  }
+
+.pane-oa-home-default a.icon-pros{
+  background: url(images/icons-modules.png) no-repeat -413px 0;
+  }
+
+.pane-oa-home-default a.icon-pros:hover {
+  background: url(images/icons-modules.png) no-repeat -413px -170px;
+  }
+
+.pane-oa-home-default .module-content {
+  padding: 20px 30px;
+  font-weight: 300;
+  color: #FFF;
+}
+
+.pane-oa-home-default .module-content p {
+  margin: 30px 0 0 0;
+  font-size: 16px;
+}
+
+.pane-oa-home-default .module-content p a {
+  font-weight: 700;
+  color: #FFF;
+  text-decoration: none;
+}
+
+.pane-oa-home-default .subfooter {
+  color: #FFF;
+  clear: both;
+  background: url(images/bg-subfooter.png) repeat-x bottom;
+}
+
+.pane-oa-home-default .form-actions {
+  background-color: transparent;
+}
+
+.pane-oa-home-default .subfooter-graphic {
+  background: url(images/bg-subfooter-graphic.png) no-repeat center bottom;
+  clear: both;
+  height: 446px;
+}
+
+@media only screen and (max-width: 980px) {
+    /* phones */
+  .hero,
+  .subfooter,
+  .entry {
+    display: none;
+  }
+  .pane-oa-home-default .modules {
+    width: 100%;
+  }
+  body.front #main-wrapper {
+   background: url(images/bg-hero-left.png) no-repeat left bottom;
+   min-height: 0;
+   height: 100%;
+   margin: 0;
+  }
+  .pane-oa-home-default .modules .block {
+    width: 30%;
+    min-width: 300px;
+    margin: 30px auto;
+    float: none;
+  }
+}

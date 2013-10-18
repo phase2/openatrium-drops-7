@@ -1,0 +1,27 @@
+<?php
+
+/**
+ * @file
+ * Code for the Open Atrium Bootstrap Tour customizations.
+ */
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function oa_tour_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'ctools' && $plugin_type == 'content_types') {
+    return 'plugins/' . $plugin_type;
+  }
+}
+
+/**
+ * Implements hook_theme()
+ */
+function oa_tour_theme() {
+  return array(
+    'oa_tour_dropdown' => array(
+      'template'  => 'oa-tour-dropdown',
+      'path' => drupal_get_path('module', 'oa_tour') . '/templates',
+    ),
+  );
+}

@@ -1,0 +1,64 @@
+
+/**
+ * Task display
+ */
+
+.group-oa-worktracker-task-info {
+  border: 1px solid #ccc;
+  padding: 0 1em;
+}
+
+.group-oa-worktracker-task-info-display {
+  float: right;
+  min-width: 300px;
+  padding: 1em;
+  margin: 0 0 1em 1em;
+}
+
+.group-oa-worktracker-task-info > legend {
+  position: relative;
+  margin-bottom: 2em;
+}
+
+.group-oa-worktracker-task-info > legend .fieldset-legend {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.group-oa-worktracker-task-info > .fieldset-wrapper > .form-wrapper {
+  float: left;
+  margin-right: 1em;
+  width: 30%;
+}
+
+/**
+ * Our customizations for file diff.
+ */
+.oa-worktracker-diff-add,
+.oa-worktracker-diff-remove {
+  font-weight: bold;
+}
+.oa-worktracker-diff-add {
+  color: green;
+}
+.oa-worktracker-diff-remove {
+  color: red;
+}
+
+/**
+ * Space out the items on the Task list filter better.
+ */
+.pane-oa-worktracker-task-list .views-exposed-form .views-exposed-widget {
+  width: 30%;
+}
+.pane-oa-worktracker-task-list .views-exposed-form .views-exposed-widget .form-text {
+  width: 95%;
+}
+.pane-oa-worktracker-task-list .views-exposed-form .views-exposed-widget.views-submit-button {
+  width: 100%;
+}
+.pane-oa-worktracker-task-list .views-exposed-form .views-exposed-widget .form-submit {
+  margin: 1em 0;
+}
+

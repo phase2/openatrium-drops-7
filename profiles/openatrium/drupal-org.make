@@ -5,12 +5,9 @@ core = 7.x
 ; ********** OPEN ATRIUM'S DEPENDENCIES **********
 
 ; Features Override
-projects[features_override][version] = 2.0-beta3
+projects[features_override][version] = 2.0-rc1
 projects[features_override][subdir] = contrib
 projects[features_override][type] = module
-projects[features_override][download][branch] = 7.x-2.x
-projects[features_override][download][type] = git
-projects[features_override][patch][2075183] = http://drupal.org/files/features_override-recursion-2075183-2.patch
 
 ; Diff
 projects[diff][subdir] = contrib
@@ -32,37 +29,40 @@ projects[htmlmail][version] = 2.65
 ; ************************************************
 
 ; ************************************************
-; ************* Open Atrium Plugins - ************
+; ************* Open Atrium Plugins RELEASE ******
 
 projects[oa_core][subdir] = contrib
-projects[oa_core][version] = 2.0-beta3
+projects[oa_core][version] = 2.0-rc1
 
 projects[oa_discussion][subdir] = contrib
-projects[oa_discussion][version] = 2.0-beta2
+projects[oa_discussion][version] = 2.0-beta3
 
 projects[oa_wiki][subdir] = contrib
-projects[oa_wiki][version] = 2.0-beta2
+projects[oa_wiki][version] = 2.0-beta3
 
 projects[oa_events][subdir] = contrib
-projects[oa_events][version] = 2.0-beta3
+projects[oa_events][version] = 2.0-beta4
 
 projects[oa_events_import][subdir] = contrib
 projects[oa_events_import][version] = 2.0-beta2
+
+projects[oa_worktracker][subdir] = contrib
+projects[oa_worktracker][version] = 1.0-beta1
 
 projects[oa_contextual_tabs][subdir] = contrib
 projects[oa_contextual_tabs][version] = 2.0-beta1
 
 projects[oa_notifications][subdir] = contrib
-projects[oa_notifications][version] = 2.0-beta1
+projects[oa_notifications][version] = 2.0-beta2
 
 projects[oa_media][subdir] = contrib
-projects[oa_media][version] = 2.0-beta1
+projects[oa_media][version] = 2.0-beta2
 
 projects[oa_subspaces][subdir] = contrib
-projects[oa_subspaces][version] = 2.0-beta3
+projects[oa_subspaces][version] = 2.0-beta4
 
 projects[oa_radix][type] = theme
-projects[oa_radix][version] = 2.0-beta2
+projects[oa_radix][version] = 2.0-rc1
 
 ; ********** End Open Atrium's Plugins ***********
 ; ************************************************
@@ -121,7 +121,7 @@ projects[panopoly_magic][subdir] = panopoly
 projects[panopoly_magic][download][branch] = 7.x-1.x
 projects[panopoly_magic][download][type] = git
 projects[panopoly_magic][patch][2016527] = http://drupal.org/files/2016643_panopoly_magic_screw_pre_render_with_2016527-5.patch
-projects[panopoly_magic][patch][2017159] = http://drupal.org/files/2017159_panopoly_magic_preview_post_render-16.patch
+projects[panopoly_magic][patch][2017159] = http://drupal.org/files/2017159_panopoly_magic_preview_post_render-22.patch
 
 projects[panopoly_widgets][version] = 1.0-rc5
 projects[panopoly_widgets][subdir] = panopoly

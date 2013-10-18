@@ -1,0 +1,26 @@
+<?php
+
+class MessageDigestBaseTestCase extends DrupalWebTestCase {
+
+  static public function getInfo() {
+    return array(
+      'name' => 'Message digest unit testing',
+      'description' => 'Unit tests for the Message Digest module',
+      'group' => 'Message digest',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp(array('message_notify'));
+  }
+
+  public function testDigestNotifierPluginsExist() {
+    $count = 0;
+    foreach (message_notify_get_notifiers() as $plugin_name => $plugin) {
+      if (strpos($plugin_name, 'digest') === FALSE) {
+        $count++;
+      }
+    }
+    $this->assertTrue($count >= 2, 'There are at least 2 digest notifiers.');
+  }
+}

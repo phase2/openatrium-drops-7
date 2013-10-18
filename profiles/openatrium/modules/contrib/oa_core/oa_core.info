@@ -170,9 +170,9 @@ files[] = plugins/views/oa_core_og_group_ref_views_handler_filter_in_operator.in
 files[] = plugins/views/oa_core_oa_section_ref_views_handler_filter_in_operator.inc
 project path = profiles/openatrium/modules/contrib
 
-; Information added by drupal.org packaging script on 2013-08-29
-version = "7.x-2.0-beta3"
+; Information added by drupal.org packaging script on 2013-10-18
+version = "7.x-2.0-rc1"
 core = "7.x"
 project = "oa_core"
-datestamp = "1377800190"
+datestamp = "1382101487"
 

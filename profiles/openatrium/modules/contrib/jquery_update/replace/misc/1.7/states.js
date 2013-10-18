@@ -410,10 +410,12 @@ states.Trigger.states = {
 states.State = function(state) {
   // We may need the original unresolved name later.
   this.pristine = this.name = state;
+  // We are counting on our name being a string
+  this.name = this.name.toString();
 
   // Normalize the state name.
   while (true) {
-    // Iteratively remove exclamation marks and invert the value.
+    // Iteratively remove exclamation marks and invert the value
     while (this.name.charAt(0) == '!') {
       this.name = this.name.substring(1);
       this.invert = !this.invert;

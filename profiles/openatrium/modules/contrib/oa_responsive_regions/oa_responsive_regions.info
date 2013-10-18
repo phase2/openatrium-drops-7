@@ -1,0 +1,12 @@
+name = OA Responsive Regions
+description = Let's you define responsive Panels regions.
+core = 7.x
+
+package = Open Atrium
+
+; Information added by drupal.org packaging script on 2013-10-16
+version = "7.x-1.0-alpha1"
+core = "7.x"
+project = "oa_responsive_regions"
+datestamp = "1381954602"
+

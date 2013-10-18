@@ -284,76 +284,6 @@ function oa_permissions_user_default_permissions() {
     'module' => 'panelizer',
   );
 
-  // Exported permission: 'administer panelizer node panopoly_page breadcrumbs'.
-  $permissions['administer panelizer node panopoly_page breadcrumbs'] = array(
-    'name' => 'administer panelizer node panopoly_page breadcrumbs',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'editor' => 'editor',
-    ),
-    'module' => 'panelizer',
-  );
-
-  // Exported permission: 'administer panelizer node panopoly_page content'.
-  $permissions['administer panelizer node panopoly_page content'] = array(
-    'name' => 'administer panelizer node panopoly_page content',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'editor' => 'editor',
-    ),
-    'module' => 'panelizer',
-  );
-
-  // Exported permission: 'administer panelizer node panopoly_page context'.
-  $permissions['administer panelizer node panopoly_page context'] = array(
-    'name' => 'administer panelizer node panopoly_page context',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'editor' => 'editor',
-    ),
-    'module' => 'panelizer',
-  );
-
-  // Exported permission: 'administer panelizer node panopoly_page defaults'.
-  $permissions['administer panelizer node panopoly_page defaults'] = array(
-    'name' => 'administer panelizer node panopoly_page defaults',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'editor' => 'editor',
-    ),
-    'module' => 'panelizer',
-  );
-
-  // Exported permission: 'administer panelizer node panopoly_page layout'.
-  $permissions['administer panelizer node panopoly_page layout'] = array(
-    'name' => 'administer panelizer node panopoly_page layout',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'editor' => 'editor',
-    ),
-    'module' => 'panelizer',
-  );
-
-  // Exported permission: 'administer panelizer node panopoly_page overview'.
-  $permissions['administer panelizer node panopoly_page overview'] = array(
-    'name' => 'administer panelizer node panopoly_page overview',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'editor' => 'editor',
-    ),
-    'module' => 'panelizer',
-  );
-
-  // Exported permission: 'administer panelizer node panopoly_page settings'.
-  $permissions['administer panelizer node panopoly_page settings'] = array(
-    'name' => 'administer panelizer node panopoly_page settings',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'editor' => 'editor',
-    ),
-    'module' => 'panelizer',
-  );
-
   // Exported permission: 'administer panelizer user user breadcrumbs'.
   $permissions['administer panelizer user user breadcrumbs'] = array(
     'name' => 'administer panelizer user user breadcrumbs',
@@ -906,45 +836,9 @@ function oa_permissions_user_default_permissions() {
     'module' => 'trash_flag',
   );
 
-  // Exported permission: 'trash any panopoly_page content'.
-  $permissions['trash any panopoly_page content'] = array(
-    'name' => 'trash any panopoly_page content',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'trash_flag',
-  );
-
-  // Exported permission: 'trash own panopoly_page content'.
-  $permissions['trash own panopoly_page content'] = array(
-    'name' => 'trash own panopoly_page content',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'trash_flag',
-  );
-
   // Exported permission: 'untrash any content'.
   $permissions['untrash any content'] = array(
     'name' => 'untrash any content',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'trash_flag',
-  );
-
-  // Exported permission: 'untrash any panopoly_page content'.
-  $permissions['untrash any panopoly_page content'] = array(
-    'name' => 'untrash any panopoly_page content',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'trash_flag',
-  );
-
-  // Exported permission: 'untrash own panopoly_page content'.
-  $permissions['untrash own panopoly_page content'] = array(
-    'name' => 'untrash own panopoly_page content',
     'roles' => array(
       'administrator' => 'administrator',
     ),

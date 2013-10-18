@@ -1,0 +1,50 @@
+
+
+/**
+ * Get the fieldset to look like a field label.
+ */
+.group-oa-worktracker-task-info .field-name-field-oa-worktracker-duedate fieldset legend {
+  margin: 0;
+  border: 0;
+  font-size: inherit;
+  line-height: inherit;
+
+  /**
+   * This is questionable in it's genericness - maybe this should be in the
+   * OA Radix theme?
+   */
+  padding-top: .5em;
+  margin-bottom: 5px;
+}
+
+/**
+ * Get the date and time fields to fit side by side.
+ */
+.group-oa-worktracker-task-info .field-name-field-oa-worktracker-duedate .container-inline-date .date-padding {
+  padding: 0;
+}
+.group-oa-worktracker-task-info .form-item-field-oa-worktracker-duedate-und-0-value-date,
+.group-oa-worktracker-task-info .form-item-comment-alter-field-oa-worktracker-duedate-und-0-value-date {
+  width: 60%;
+}
+.group-oa-worktracker-task-info .form-item-field-oa-worktracker-duedate-und-0-value-time,
+.group-oa-worktracker-task-info .form-item-comment-alter-field-oa-worktracker-duedate-und-0-value-time {
+  width: 40%;
+}
+.group-oa-worktracker-task-info .field-name-field-oa-worktracker-duedate .container-inline-date .form-item .form-item input {
+  width: 80%;
+}
+
+/**
+ * Hide the Date and Time labels from everything except for screen readers.
+ *
+ * Code stolen from .element-invisible.
+ */
+.group-oa-worktracker-task-info .field-name-field-oa-worktracker-duedate label {
+  position: absolute !important;
+  clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+  clip: rect(1px, 1px, 1px, 1px);
+  overflow: hidden;
+  height: 1px;
+}
+

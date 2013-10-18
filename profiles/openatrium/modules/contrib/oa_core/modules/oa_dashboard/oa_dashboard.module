@@ -6,6 +6,15 @@
  */
 
 /**
+ * Implements hook_ctools_plugin_directory().
+ */
+function oa_dashboard_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'ctools') {
+    return "plugins/$plugin_type";
+  }
+}
+
+/**
  * @param $form
  * @param $form_state
  * @param $form_id
@@ -34,28 +43,16 @@ function oa_dashboard_form_oa_core_configure_form_alter(&$form, &$form_state, $f
     '#description' => t('Caption shown in dropdown for Spaces menu.'),
   );
 
-  $form['oa_toolbar']['oa_toolbar_style'] = array(
-    '#title' => t('Toolbar Style'),
-    '#type' => 'select',
-    '#required' => TRUE,
-    '#options' => array(
-      '1' => 'Normal (light)',
-      '0' => 'Inverted (dark)',
-    ),
-    '#default_value' => variable_get('oa_toolbar_style', 0),
-    '#description' => t('Select the color/style of the site toolbar.'),
-  );
-
-  $form['oa_toolbar']['oa_toolbar_sticky'] = array(
-    '#title' => t('Toolbar Sticky'),
+  $form['oa_toolbar']['oa_toolbar_toplevel'] = array(
+    '#title' => t('Only show top-level spaces'),
     '#type' => 'select',
     '#required' => TRUE,
     '#options' => array(
       '1' => 'Yes',
       '0' => 'No',
     ),
-    '#default_value' => variable_get('oa_toolbar_sticky', 1),
-    '#description' => t('Select whether the toolbar sticks to the top of the page.'),
+    '#default_value' => variable_get('oa_toolbar_toplevel', 1),
+    '#description' => t('Select whether only top-level spaces are shown in list next to home button.'),
   );
 
 }
@@ -64,9 +61,9 @@ function oa_dashboard_form_oa_core_configure_form_alter(&$form, &$form_state, $f
  * Implements template_preprocess_page().
  */
 function oa_dashboard_preprocess_page(&$vars) {
-  $vars['oa_toolbar_class'] = variable_get('oa_toolbar_style', 0) ? '' : 'navbar-inverse';
+  $vars['oa_toolbar_class'] = 'navbar-inverse';
   $vars['oa_toolbar_btn_class'] = variable_get('oa_toolbar_style', 0) ? '' : 'btn-inverse';
-  $vars['oa_toolbar_sticky'] = variable_get('oa_toolbar_sticky', 1) ? 'navbar-fixed-top' : '';
+  $vars['oa_toolbar_sticky'] = 'navbar-fixed-top';
 }
 
 /**
@@ -143,7 +140,34 @@ function oa_dashboard_theme() {
     'oa_breadcrumb' => array(
       'template' => 'oa_breadcrumb',
     ),
+    'oa_navigation' => array(
+      'variables' => array('menu_name' => NULL),
+      'template' => 'oa-navigation',
+    ),
+    'oa_space_menu' => array(
+      'variables' => array('menu' => NULL),
+      'template' => 'oa-space-menu',
+    ),
   );
+}
+
+/**
+ * Preprocess the OA Navigation.
+ */
+function oa_dashboard_preprocess_oa_navigation(&$vars) {
+  if (variable_get('oa_mainmenu', TRUE)) {
+    $menu = menu_tree_output(menu_tree_all_data($vars['menu_name'], NULL, 2));
+
+    if (!empty($menu)) {
+      // Format and add menu to template.
+      $menu['#theme_wrappers'] = array('menu_tree__oa_navigation');
+      foreach (element_children($menu) as $mlid) {
+        // Render the links as Radix defaults.
+        $menu[$mlid]['#theme'] = 'menu_link__oa_navigation';
+      }
+    }
+    $vars['menu'] = $menu;
+  }
 }
 
 /**
@@ -152,9 +176,6 @@ function oa_dashboard_theme() {
 function oa_dashboard_preprocess_oa_toolbar(&$vars) {
   global $user;
 
-  drupal_add_js(array(
-    'oa_toolbar_sticky' => variable_get('oa_toolbar_sticky', 1),
-  ), array('type' => 'setting'));
   drupal_add_js(drupal_get_path('module', 'oa_dashboard') . '/js/oa-dashboard.js');
 
   // Separators
@@ -164,7 +185,10 @@ function oa_dashboard_preprocess_oa_toolbar(&$vars) {
   // Spaces
   $space = NULL;
   $space_id = oa_core_get_space_context();
-  if (drupal_is_front_page()) {
+  $node = menu_get_object();
+  $front_panel = drupal_is_front_page() && !(isset($node) && ($node->type == OA_SPACE_TYPE));
+
+  if ($front_panel) {
     $space_id = 0;  // reset breadcrumbs on home page
   }
   $vars['spaces_label'] = '';
@@ -204,7 +228,7 @@ function oa_dashboard_preprocess_oa_toolbar(&$vars) {
             'type' => 'ul',
           ));
         }
-        $siblings = oa_get_groups_by_parent($parent_id, $space_type);
+        $siblings = oa_core_get_groups_by_parent($parent_id, $space_type);
         if (count($siblings) > 1) {
           $items = oa_core_get_titles($siblings);
           $list = oa_core_truncate_list($items['links'], 15);
@@ -237,6 +261,25 @@ function oa_dashboard_preprocess_oa_toolbar(&$vars) {
     $list = array();
   }
   else {
+    if (isset($vars['show_parents']) && variable_get('oa_toolbar_toplevel', 1) == 1) {
+      // restrict spaces to just top-level (no parents)
+      $remove = array();
+      foreach ($spaces as $key => $value) {
+        // parents are cached, so this should be fast
+        $parents = oa_core_get_parents($value, $space_type);
+        foreach ($parents as $parent_id) {
+          if (isset($spaces[$parent_id])) {
+            // parent is also in spaces list, so remove child from list
+            $remove[] = $key;
+          }
+        }
+      }
+      foreach ($remove as $id) {
+        unset($spaces[$id]);
+      }
+//      $top_spaces = oa_core_get_groups_by_parent(0, $space_type);
+//      $spaces = array_intersect($spaces, $top_spaces);
+    }
     $items = oa_core_get_titles($spaces, $space_type);
     $list = oa_core_truncate_list($items['links'], 25,
       l(t('All ' . $space_type_names . '...'), $all_spaces,
@@ -256,7 +299,7 @@ function oa_dashboard_preprocess_oa_toolbar(&$vars) {
   }
 
   if (!empty($space)) {
-    $subspaces = oa_get_groups_by_parent($space_id, $space_type);
+    $subspaces = oa_core_get_groups_by_parent($space_id, $space_type);
     if (!empty($subspaces)) {
       $items = oa_core_get_titles($subspaces, $space_type);
       $vars['subspaces'] = theme('item_list', array(
@@ -302,7 +345,7 @@ function oa_dashboard_preprocess_oa_toolbar(&$vars) {
         }
         // add the Space home page link and create the ul list
       }
-      if (user_access('create ' . OA_SECTION_TYPE . ' content', $user)) {
+      if (og_user_access('node', $space_id, "create " . OA_SECTION_TYPE . " content", $user)) {
         $items[] = l(t('Create new section'), 'node/add/' . str_replace('_', '-', OA_SECTION_TYPE),
           array('attributes' => array('class' => array('more-link'))));
       }
@@ -315,7 +358,6 @@ function oa_dashboard_preprocess_oa_toolbar(&$vars) {
       }
     }
     // Current Section Name from current page name
-    $node = menu_get_object();
     if (isset($node->type)) {
       switch ($node->type) {
         case OA_SECTION_TYPE:
@@ -336,12 +378,15 @@ function oa_dashboard_preprocess_oa_toolbar(&$vars) {
     $vars['section_url'] = $section_url;
   }
 
-  if (drupal_is_front_page()) {
-    $vars['subspaces'] = $vars['home_spaces'];
+  if ($front_panel) {
+    $vars['subspaces'] = (!empty($vars['home_spaces'])) ? $vars['home_spaces'] : '';
     unset($vars['home_spaces']);
   }
 
   $vars['oa_toolbar_btn_class'] = variable_get('oa_toolbar_style', 0) ? '' : 'btn-inverse';
+  if (variable_get('oa_breadcrumb_menu', FALSE)) {
+    $vars['mainmenu'] = theme('oa_navigation', array('menu_name' => 'main-menu'));
+  }
 }
 
 /**
@@ -375,9 +420,53 @@ function oa_dashboard_preprocess_oa_user_badge(&$vars) {
  */
 function oa_dashboard_preprocess_oa_toolbar_menu_button(&$vars) {
   drupal_add_js(drupal_get_path('module', 'oa_dashboard') . '/js/toolbar-menu-toggle.js');
-  drupal_add_js(array(
-    'oa_toolbar_sticky' => variable_get('oa_toolbar_sticky', 1),
-  ), array('type' => 'setting'));
 
-  $vars['oa_toolbar_btn_class'] = variable_get('oa_toolbar_style', 0) ? '' : 'btn-inverse';
+  $vars['oa_toolbar_btn_class'] = 'btn-inverse';
+}
+
+/**
+ * Implements hook_form_alter
+ * Inject option into og_single_menu settings form
+ */
+function oa_dashboard_form_og_menu_single_menu_edit_form_alter(&$form, &$form_state, $form_id) {
+  $space_id = oa_core_get_space_context();
+
+  $form['oa_space_menu'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Show space menu',
+    '#default_value' => variable_get('oa_space_menu_' . $space_id, TRUE),
+  );
+  $form['#space'] = $space_id;
+  $form['#submit'][] = 'oa_dashboard_space_menu_submit';
+}
+
+/**
+ * Submit handler for oa_space_menu
+ */
+function oa_dashboard_space_menu_submit($form, &$form_state) {
+  $space_id = $form['#space'];
+  if ($space_id && isset($form_state['values']['oa_space_menu'])) {
+    variable_set('oa_space_menu_' . $space_id, $form_state['values']['oa_space_menu']);
+  }
+}
+
+/**
+ * Implements hook_oa_responsive_regions_positions_alter().
+ */
+function oa_dashboard_oa_responsive_regions_positions_alter(&$positions) {
+  // We will keep the top position for the oa navbar so we unset it here.
+  unset($positions['top']);
+}
+
+/**
+ * Implements hook_oa_responsive_regions_alter().
+ */
+function oa_dashboard_oa_responsive_regions_alter(&$regions) {
+  // Manually add our top region here.
+  $regions['top'] = array(
+    'settings' => array(
+      'position' => 'top',
+    ),
+    'icon' => 'icon-list',
+  );
 }

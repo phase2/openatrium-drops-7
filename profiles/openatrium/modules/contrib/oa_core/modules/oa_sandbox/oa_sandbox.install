@@ -1,0 +1,9 @@
+<?php
+
+/**
+ * Implementation of hook_uninstall.
+ */
+ function oa_sandbox_uninstall(){
+   variable_del('oa_sandbox_mode');
+   variable_del('oa_sandbox_revisions');
+ }

@@ -5,3 +5,23 @@
  */
 
 include_once 'oa_home.features.inc';
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function oa_home_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'ctools') {
+    return "plugins/$plugin_type";
+  }
+}
+
+/**
+ * Implements hook_theme()
+ */
+function oa_home_theme() {
+  return array(
+    'oa_home_default' => array(
+      'template' => 'oa-home-default',
+    ),
+  );
+}

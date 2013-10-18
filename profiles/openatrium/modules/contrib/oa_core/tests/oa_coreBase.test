@@ -9,23 +9,14 @@
  * Base class for testing openatrium web interaction.
  *
  * It will try installing openatrium. For a quicker test, replace
- * SimpleTestCloneTestCase with SimpleTestCloneTestCase from the simpletest_clone
+ * DrupalWebTestCase with SimpleTestCloneTestCase from the simpletest_clone
  * module.
  *
  * See http://drupal.org/project/installprofiletest for patches need to have
  * a successful run w/o simpletest clone.
  */
-abstract class oa_coreBaseWebTest extends SimpleTestCloneTestCase {
+abstract class oa_coreBaseWebTest extends DrupalWebTestCase {
   protected $profile = 'openatrium';
-
-  /**
-   * oa_radix adds a span tag to every link so assertLink fails.
-   */
-  protected function assertLink($label, $index = 0, $message = '', $group = 'Other') {
-    $links = $this->xpath('//a/span[normalize-space(text())=:label]', array(':label' => $label));
-    $message = ($message ?  $message : t('Link with label %label found.', array('%label' => $label)));
-    return $this->assert(isset($links[$index]), $message, $group);
-  }
 
   protected function createOaSpace($node_info = array()) {
     $node_info += array('type' => 'oa_space');

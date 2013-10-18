@@ -29,6 +29,7 @@ function oa_search_enable_pages() {
     'search-node' => FALSE,
     'page-panopoly_search' => TRUE,
   );
+  ctools_include('export');
   ctools_export_load_object_reset('page_manager_pages');
   foreach ($pages as $page_name => $disable) {
     $page = page_manager_cache_load($page_name);

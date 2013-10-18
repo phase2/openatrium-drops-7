@@ -85,6 +85,13 @@ function oa_core_menu() {
     'page arguments' => array('oa_core_configure_form'),
     'access arguments' => array('administer site configuration'),
   );
+  $items['admin/openatrium/groups'] = array(
+    'title' => 'Groups',
+    'description' => 'Configure Open Atrium Groups',
+    'weight' => 0,
+    'access arguments' => array('administer site configuration'),
+    'page callback' => 'oa_core_show_groups',
+  );
   $items['group/%/%/remove/%/%'] = array(
     'title' => 'Remove member',
     'type' => MENU_CALLBACK,
@@ -315,6 +322,13 @@ function oa_core_space_template() {
   ctools_include('export-ui');
   $handler = panelizer_entity_plugin_get_handler('node');
   return panelizer_export_ui_switcher_page($handler, OA_SPACE_TYPE . '.page_manager', 'panelizer_defaults', 'list');
+}
+
+/**
+ * Menu callback for Groups
+ */
+function oa_core_show_groups() {
+  drupal_goto('groups');
 }
 
 /**
@@ -759,20 +773,61 @@ function oa_core_token_info() {
 }
 
 /**
+ * Return what the defined alias will eventually be for $nid
+ */
+function oa_core_get_alias($nid) {
+  $cache = &drupal_static('oa_core_alias', array());
+
+  if (isset($cache[$nid])) {
+    return $cache[$nid];
+  }
+
+  $node = node_load($nid);
+  $uri = entity_uri('node', $node);
+  $path = drupal_get_path_alias($uri['path']);
+  if (!isset($node->path['pathauto'])) {
+    module_load_include('inc', 'pathauto');
+    // return what the proper alias for this node will eventually be
+    // don't use 'update' yet since the drupal_get_path_alias() will still be cached
+    $path = pathauto_create_alias('node', 'return', $uri['path'], array('node' => $node), $node->type, $langcode);
+  }
+  $cache[$nid] = $path;
+  return $path;
+}
+
+/**
  * Implements hook_tokens().
  */
 function oa_core_tokens($type, $tokens, array $data = array(), array $options = array()) {
- if ($type == 'node' && !empty($data['node']) && isset($tokens['group-or-section-alias'])) {
+  if ($type == 'node' && !empty($data['node']) && isset($tokens['group-or-section-alias'])) {
     $node = $data['node'];
     $replacements = array();
     $original = $tokens['group-or-section-alias'];
-    if (!empty($node->oa_section_ref[LANGUAGE_NONE][0]['target_id']) && ($path = drupal_get_path_alias('node/' . $node->oa_section_ref[LANGUAGE_NONE][0]['target_id']))) {
-      $replacements[$original] = $path;
+    $section = field_get_items('node', $node, OA_SECTION_FIELD);
+    $space = field_get_items('node', $node, OA_SPACE_FIELD);
+    $section_id = !empty($section[0]['target_id']) ? $section[0]['target_id'] : 0;
+    $space_id = !empty($space[0]['target_id']) ? $space[0]['target_id'] : 0;
+    if ($section_id > 0) {
+      $path = drupal_get_path_alias('node/' . $section_id);
+      if (module_exists('pathauto') && preg_match('#^node/(\d+)#', $path)) {
+        // section alias not defined yet, so define it
+        $path = oa_core_get_alias($section_id);
+      }
+      if (!empty($path)) {
+        $replacements[$original] = $path;
+      }
     }
-    elseif (!empty($node->og_group_ref[LANGUAGE_NONE][0]['target_id']) && ($path = drupal_get_path_alias('node/' . $node->og_group_ref[LANGUAGE_NONE][0]['target_id']))) {
-      $replacements[$original] = $path;
-      if ($node->type != 'oa_section') {
-        $replacements[$original] .= '/content';
+    elseif ($space_id > 0) {
+      $path = drupal_get_path_alias('node/' . $space_id);
+      if (module_exists('pathauto') && preg_match('#^node/(\d+)#', $path)) {
+        // space alias not defined yet, so define it
+        $path = oa_core_get_alias($space_id);
+      }
+      if (!empty($path)) {
+        $replacements[$original] = $path;
+        if ($node->type != OA_SECTION_TYPE) {
+          $replacements[$original] .= '/content';
+        }
       }
     }
     else {
@@ -781,7 +836,6 @@ function oa_core_tokens($type, $tokens, array $data = array(), array $options = 
     return $replacements;
   }
 }
-
 
 /**
  * Implements hook_preprocess_views_exposed_form().

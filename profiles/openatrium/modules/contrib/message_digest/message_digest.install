@@ -1,0 +1,62 @@
+<?php
+
+/**
+ * Implementation of hook_schema().
+ * Add the message_digest table.
+ */
+function message_digest_schema() {
+  $schema['message_digest'] = array(
+    'description' => 'Storage of all sent messages for use in message digests',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Numeric message notification ID.',
+      ),
+      'mid' => array(
+        'description' => 'The message ID of the originating message.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'unsigned' => TRUE,
+      ),
+      'gid' => array(
+        'description' => 'The group ID of the originating message.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'unsigned' => TRUE,
+      ),
+      'receiver' => array(
+        'description' => 'The user ID of the acting user.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'unsigned' => TRUE,
+      ),
+      'notifier' => array(
+        'description' => 'The notification method used to send the notification.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'sent' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+        'description' => 'Boolean for whether the message has already been sent in a digest or not.',
+      ),
+      'timestamp' => array(
+        'description' => 'When the message instance was recorded.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+  return $schema;
+}

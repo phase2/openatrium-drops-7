@@ -1,0 +1,391 @@
+<?php
+
+/**
+ * @file
+ * Functional tests for the Comment Alter module.
+ */
+
+/**
+ * Parent of all the test cases for Comment Alter.
+ *
+ * Provides reusable set and assert methods for the children class. Each child class is roughly
+ * for a different type of field.
+ */
+class CommentAlterBaseTestCase extends DrupalWebTestCase {
+  public function setUp($modules = array()) {
+    $modules = array_merge(array(
+      'comment_alter',
+    ), $modules);
+
+    parent::setUp($modules);
+
+    $this->content_type = drupal_strtolower($this->randomName()) . '_type_name';
+    $this->drupalCreateContentType(array('type' => $this->content_type, 'name' => $this->randomName()));
+
+    $this->privileged_user = $this->drupalCreateUser(array(
+      'access content',
+      'access administration pages',
+      'administer content types',
+      'create ' . $this->content_type . ' content',
+      'edit own ' . $this->content_type . ' content',
+      'delete own ' . $this->content_type . ' content',
+    ));
+    $this->drupalLogin($this->privileged_user);
+  }
+
+  /**
+   * Creates a field and field instance on the $this->content_type type.
+   *
+   * @param string $field_type
+   *   The field type name (ie. list_text).
+   * @parem string $widget_type
+   *   The widget name (ie. options_select).
+   * @param array $field_settings
+   *   An array that gets added to the array passed to field_create_field().
+   * @param array $instance_settings
+   *   An array that gets added to the array passed to field_create_instance().
+   *
+   * @return string
+   *   The name of the field that was created.
+   *
+   * @see field_create_field()
+   * @see field_create_instance()
+   */
+  protected function createField($field_type, $widget_type, $field_settings = array(), $instance_settings = array()) {
+    $field_name = drupal_strtolower($this->randomName() . '_field_name');
+    $field = field_create_field(array('field_name' => $field_name, 'type' => $field_type) + $field_settings);
+    $instance = field_create_instance(array(
+      'field_name' => $field_name,
+      'entity_type' => 'node',
+      'widget' => array('type' => $widget_type),
+      'bundle' => $this->content_type,
+      'settings' => $instance_settings,
+      'comment_alter' => TRUE,
+    ));
+    return $field_name;
+  }
+
+  /**
+   * Create a node programmatically and post a comment using the psuedo browser.
+   *
+   * @param array $original_properties
+   *   An array that gets added to the array passed to
+   *   $this->drupalCreateNode().
+   * @param array $comment_edit
+   *   An array that gets added to the $edit array passed to
+   *   $this->drupalPost().
+   *
+   * @see DrupalWebTestCase::drupalCreateNode()
+   * @see DrupalWebTestCase::drupalPost()
+   */
+  protected function createNodeThenPostComment($original_properties, $comment_edit) {
+    $node = $this->drupalCreateNode(array(
+      'type' => $this->content_type,
+    ) + $original_properties);
+    $this->drupalGet("node/{$node->nid}");
+    $edit = array();
+    $edit['comment_body[' . LANGUAGE_NONE . '][0][value]'] = $this->randomName();
+    $edit = array_merge($edit, $comment_edit);
+    $this->drupalPost(NULL, $edit, t('Save'));
+  }
+
+  /**
+   * Asserts that a Comment Alter diff table on the current page is as expected.
+   *
+   * @param array $values
+   *   An associative array with keys for the field name referring to arrays
+   *   with exactly two values: the original and new value as human readable
+   *   strings.
+   * @param (optional) int $ord
+   *   If there are multiple diff tables on the page, this specifies which one
+   *   in sequential order.
+   */
+  protected function assertCommentDiff($values, $ord = 0) {
+    // Extract the values from the '<table class="comment-alter-diff">...</table>'
+    $results = $this->xpath('//table[@class=:class]', array(':class' => 'comment-alter-diff'));
+    $result = $results[$ord];
+    $fields = array();
+    foreach ($result->tbody->tr as $tr) {
+      $fields[rtrim($tr->td[0], ':')] = array((string)$tr->td[1], (string)$tr->td[3]);
+    }
+
+    // Compare the values passed in against what's on the page
+    foreach ($values as $field_name => $value) {
+      $this->assertTrue(isset($fields[$field_name]), "No field called '$field_name' found in comment alter diff #$ord");
+      $this->assertEqual($fields[$field_name][0], $value[0], "Comment alter diff original for field '$field_name' doesn't match: {$fields[$field_name][0]} != {$value[0]}");
+      $this->assertEqual($fields[$field_name][1], $value[1], "Comment alter diff changed for field '$field_name' doesn't match: {$fields[$field_name][1]} != {$value[1]}");
+    }
+  }
+}
+
+/**
+ * Functional tests for Comment Alter and List (text) fields.
+ */
+class CommentAlterListTextTestCase extends CommentAlterBaseTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Comment Alter - List (text)',
+      'description' => 'Ensure that Comment Alter is working with "List (text)" fields',
+      'group' => 'Comment Alter',
+    );
+  }
+
+  public function setUp($modules = array()) {
+    parent::setUp(array(
+      'list',
+      'options',
+    ));
+  }
+
+  public function testOptionsSelectSingle() {
+    $field_name = $this->createField('list_text', 'options_select', array(
+      'settings' => array(
+        'allowed_values' => array(1 => 'One', 2 => 'Two', 3 => 'Three')
+      ),
+      'cardinality' => 1,
+    ));
+
+    $this->createNodeThenPostComment(
+      array($field_name => array('und' => array(0 => array('value' => 1)))),
+      array("comment_alter_{$field_name}[" . LANGUAGE_NONE . ']' => '2')
+    );
+
+    $this->assertCommentDiff(array(
+      $field_name => array('One', 'Two'),
+    ));
+  }
+
+  public function testOptionsSelectMultiple() {
+    $field_name = $this->createField('list_text', 'options_select', array(
+      'settings' => array(
+        'allowed_values' => array(1 => 'One', 2 => 'Two', 3 => 'Three')
+      ),
+      'cardinality' => -1,
+    ));
+
+    $this->createNodeThenPostComment(
+      array($field_name => array('und' => array(0 => array('value' => 1)))),
+      array("comment_alter_{$field_name}[" . LANGUAGE_NONE . '][]' => array('1', '2'))
+    );
+
+    $this->assertCommentDiff(array(
+      $field_name => array('One', 'One, Two'),
+    ));
+  }
+
+  public function testOptionsButtonsSingle() {
+    $field_name = $this->createField('list_text', 'options_buttons', array(
+      'settings' => array(
+        'allowed_values' => array(1 => 'One', 2 => 'Two', 3 => 'Three')
+      ),
+      'cardinality' => 1,
+    ));
+
+    $this->createNodeThenPostComment(
+      array($field_name => array('und' => array(0 => array('value' => 1)))),
+      array("comment_alter_{$field_name}[" . LANGUAGE_NONE . ']' => '2')
+    );
+
+    $this->assertCommentDiff(array(
+      $field_name => array('One', 'Two'),
+    ));
+  }
+
+  public function testOptionsButtonsMultiple() {
+    $field_name = $this->createField('list_text', 'options_buttons', array(
+      'settings' => array(
+        'allowed_values' => array(1 => 'One', 2 => 'Two', 3 => 'Three')
+      ),
+      'cardinality' => -1,
+    ));
+
+    $this->createNodeThenPostComment(
+      array($field_name => array('und' => array(0 => array('value' => 1)))),
+      array("comment_alter_{$field_name}[" . LANGUAGE_NONE . '][2]' => TRUE)
+    );
+
+    $this->assertCommentDiff(array(
+      $field_name => array('One', 'One, Two'),
+    ));
+  }
+}
+
+/**
+ * Functional tests for Comment Alter and Text fields.
+ */
+class CommentAlterTextTestCase extends CommentAlterBaseTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Comment Alter - Text',
+      'description' => 'Ensure that Comment Alter is working with "Text" fields',
+      'group' => 'Comment Alter',
+    );
+  }
+
+  public function setUp($modules = array()) {
+    parent::setUp(array(
+      'text',
+    ));
+  }
+
+  public function testTextFieldSingle() {
+    $field_name = $this->createField('text', 'text_textfield', array(
+      'cardinality' => 1,
+    ));
+
+    $old_value = $this->randomName();
+    $new_value = $this->randomName();
+    $this->assertNotEqual($old_value, $new_value);
+
+    $this->createNodeThenPostComment(
+      array($field_name => array('und' => array(0 => array('value' => $old_value)))),
+      array("comment_alter_{$field_name}[" . LANGUAGE_NONE . '][0][value]' => $new_value)
+    );
+
+    $this->assertCommentDiff(array(
+      $field_name => array($old_value, $new_value),
+    ));
+  }
+
+  public function testTextFieldMultiple() {
+    $field_name = $this->createField('text', 'text_textfield', array(
+      'cardinality' => -1,
+    ));
+
+    $old_value = $this->randomName();
+    $new_value = $this->randomName();
+    $this->assertNotEqual($old_value, $new_value);
+
+    $this->createNodeThenPostComment(
+      array($field_name => array('und' => array(0 => array('value' => $old_value)))),
+      array("comment_alter_{$field_name}[" . LANGUAGE_NONE . '][1][value]' => $new_value)
+    );
+
+    $this->assertCommentDiff(array(
+      $field_name => array($old_value, "$old_value, $new_value"),
+    ));
+  }
+}
+
+/**
+ * Functional tests for Comment Alter and File fields.
+ */
+class CommentAlterFileTestCase extends CommentAlterBaseTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Comment Alter - File',
+      'description' => 'Ensure that Comment Alter is working with "File" fields',
+      'group' => 'Comment Alter',
+    );
+  }
+
+  public function setUp($modules = array()) {
+    parent::setUp(array(
+      'file',
+    ));
+  }
+
+  protected function getTestFile($type_name, $which = 0) {
+    $files = $this->drupalGetTestFiles($type_name, NULL);
+    $file = $files[$which];
+    $file->filesize = filesize($file->uri);
+    return $file;
+  }
+
+  public function testFileFieldSingle() {
+    $field_name = $this->createField('file', 'file_generic', array(
+      'cardinality' => 1,
+    ));
+
+    $file = $this->getTestFile('text');
+
+    $this->createNodeThenPostComment(
+      array(),
+      array("files[comment_alter_{$field_name}_und_0]" => drupal_realpath($file->uri))
+    );
+
+    $this->assertCommentDiff(array(
+      $field_name => array('', 'File: ' . basename($file->uri)),
+    ));
+  }
+
+  public function testFileFieldMultiple() {
+    $field_name = $this->createField('file', 'file_generic', array(
+      'cardinality' => -1,
+    ));
+
+    $file1 = file_save_data($this->randomName(), 'public://' . $this->randomName() . '.txt', FILE_EXISTS_RENAME);
+    $file1->display = TRUE;
+    $file2 = $this->getTestFile('text');
+
+    $this->createNodeThenPostComment(
+      array($field_name => array('und' => array(0 => (array)$file1))),
+      array("files[comment_alter_{$field_name}_und_1]" => drupal_realpath($file2->uri))
+    );
+
+    $this->assertCommentDiff(array(
+      $field_name => array(
+        'File: ' . basename($file1->uri),
+        'File: ' . basename($file1->uri) . ', File: ' . basename($file2->uri)),
+    ));
+  }
+}
+
+/**
+ * Functional tests for using the same field on both the node and comment.
+ */
+class CommentAlterDoubleFieldTestCase extends CommentAlterBaseTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Comment Alter - Same field on node and comment',
+      'description' => 'Ensure that Comment Alter will work with the same field on both the node and comment.',
+      'group' => 'Comment Alter',
+    );
+  }
+
+  public function setUp($modules = array()) {
+    parent::setUp(array(
+      'text',
+    ));
+  }
+
+  public function testDoubleField() {
+    // Attach to the node with Comment Alter
+    $field_name = $this->createField('text', 'text_textfield', array(
+      'cardinality' => 1,
+    ));
+
+    // Now attach to the comment as well
+    field_create_instance(array(
+      'field_name' => $field_name,
+      'label' => "$field_name (comment)",
+      'entity_type' => 'comment',
+      'widget' => array('type' => 'text_textfield'),
+      'bundle' => 'comment_node_' . $this->content_type,
+      'settings' => array(),
+    ));
+
+    $old_value = $this->randomName();
+    $new_value = $this->randomName();
+    $this->assertNotEqual($old_value, $new_value);
+
+    $comment_value = $this->randomName();
+
+    $this->createNodeThenPostComment(
+      array($field_name => array('und' => array(0 => array('value' => $old_value)))),
+      array(
+        "comment_alter_{$field_name}[" . LANGUAGE_NONE . '][0][value]' => $new_value,
+        "{$field_name}[" . LANGUAGE_NONE . '][0][value]' => $comment_value,
+      )
+    );
+
+    $this->assertCommentDiff(array(
+      $field_name => array($old_value, $new_value),
+    ));
+
+    // Check that the comment value appeared and that the field label was different
+    $this->assertText("$field_name (comment)");
+    $this->assertText($comment_value);
+  }
+}
+

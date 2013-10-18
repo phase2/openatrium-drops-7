@@ -18,3 +18,45 @@ function oa_core_update_7001() {
 function oa_core_update_7002() {
   module_enable(array('entity_token'));
 }
+
+/**
+ * Enable colorizer.
+ */
+function oa_core_update_7003() {
+  module_enable(array('colorizer'));
+}
+
+/**
+ * Enable message_digest and bootstrap_tour.
+ */
+function oa_core_update_7203() {
+  module_enable(array('message_digest', 'bootstrap_tour'));
+}
+
+/**
+ * Enable OA Appearance
+ */
+function oa_core_update_7204() {
+  module_enable(array('oa_appearance'));
+}
+
+/**
+ * Enable oa_tour.
+ */
+function oa_core_update_7205() {
+  module_enable(array('oa_tour'));
+}
+
+/**
+ * Enable oa_messages_digest.
+ */
+function oa_core_update_7206() {
+  module_enable(array('oa_messages_digest'));
+}
+
+/**
+ * Enable oa_sandbox
+ */
+function oa_core_update_7207() {
+  module_enable(array('oa_sandbox'));
+}

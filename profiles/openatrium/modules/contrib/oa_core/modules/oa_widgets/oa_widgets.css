@@ -46,3 +46,13 @@
 .oa-visibility-list {
   padding: 0 10px;
 }
+.oa_powered_link {
+  display: inline-block;
+  background: url("openatrium-powered.png") no-repeat 70px 10px;
+  width: 231px;
+  height: 53px;
+  padding: 5px 10px;
+}
+.oa_powered_link:hover {
+  text-decoration: none;
+}

@@ -1,0 +1,92 @@
+// Page
+// Styles for individual pages
+// --------------------------------------------------
+
+// Login page
+// --------------------------------------------------
+body.oa-login div.region-content {
+  margin-top: 20px;
+  background-image: url('../images/bg-splash.png');
+  background-position: 0 90px;
+  background-repeat: no-repeat;
+  min-height: 376px;
+  .pane-bundle-text {
+    width: 75%;
+    h3 {
+      font-size: 60px;
+      font-weight: normal;
+      margin-bottom: 20px;
+    }
+    p {
+      font-size: 120%;
+      line-height: 125%;
+    }
+  }
+  .pane-bundle-text:first-child {
+    width: 40%;
+    max-width: 481px;
+    margin-top: 220px;
+    height: 250px;
+    text-align: center;
+  }
+}
+body.oa-login div.content {
+  margin-top: 20px;
+  background-image: url('../images/tree-right.png');
+  margin-right: 100px;
+  background-position: top right;
+  background-repeat: no-repeat;
+  min-height: 466px;
+  position: relative;
+  .oa-pane {
+    position: absolute;
+    left: 501px;
+    top: 173px;
+    width: 40%;
+    min-width: 300px;
+    .panel-pane {
+      background-color: white;
+      h3 {
+        text-transform: uppercase;
+        font-weight: normal;
+        font-size: 26px;
+      }
+      input.form-text {
+        width: 95%;
+      }
+      .form-type-password {
+        margin-bottom: 0;
+        input {
+          margin-bottom: 0;
+        }
+      }
+      .password-reset {
+        font-size: 90%;
+        color: #777;
+      }
+    }
+  }
+  @include breakpoint('tablet') {
+    .oa-pane {
+      left: 0;
+      top: 0;
+    }
+  }
+  @include breakpoint('mini-tablet') {
+    background-image: none;
+    .oa-pane {
+      left: 0;
+      top: 0;
+    }
+  }
+  @include breakpoint('phone') {
+    background-image: none;
+    .oa-pane {
+      left: 0;
+      top: 0;
+    }
+  }
+}
+body.oa-login #user-login-panel .oa-pane {
+  top: 115px;
+}

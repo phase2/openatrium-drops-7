@@ -5,15 +5,30 @@
  * Theme functions
  */
 
+require_once dirname(__FILE__) . '/includes/structure.inc';
+require_once dirname(__FILE__) . '/includes/form.inc';
+require_once dirname(__FILE__) . '/includes/menu.inc';
+require_once dirname(__FILE__) . '/includes/comment.inc';
+require_once dirname(__FILE__) . '/includes/node.inc';
+
 /**
  * Implements hook_css_alter().
  * Changes the jQuery UI theme to a Bootstrap-like theme
  * from http://addyosmani.github.io/jquery-ui-bootstrap/
  */
 function oa_radix_css_alter(&$css) {
+  $radix_path = drupal_get_path('theme', 'radix');
+
+  // Radix now includes compiled stylesheets for demo purposes.
+  // We remove these from our subtheme since they are already included
+  // in compass_radix.
+  unset($css[$radix_path . '/assets/stylesheets/radix-style.css']);
+  unset($css[$radix_path . '/assets/stylesheets/radix-print.css']);
+
+  // Add a custom jQuery UI theme.
   if (isset($css['misc/ui/jquery.ui.theme.css'])) {
     $css['misc/ui/jquery.ui.theme.css']['data'] =
-      drupal_get_path('theme', 'oa_radix') . '/jquery-ui-1.10.0.custom.css';
+      drupal_get_path('theme', 'oa_radix') . '/assets/vendor/jqueryui/jquery-ui-1.10.0.custom.css';
   }
 }
 
@@ -32,11 +47,6 @@ function oa_radix_module_implements_alter(&$implementations, $hook) {
  * Implements template_preprocess_page().
  */
 function oa_radix_preprocess_page(&$vars) {
-
-// grab the Bootstrap JS since we can't currently add Bootstrap to our
-// make file because Drupal is GPLv2 instead of GPLv3
-  drupal_add_js('http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js', 'external');
-
   // Rework search_form to our liking.
   $vars['search_form'] = '';
   if (module_exists('search') && user_access('search content')) {
@@ -61,20 +71,20 @@ function oa_radix_preprocess_page(&$vars) {
   $vars['oa_toolbar_panel'] = isset($toolbar) ? $toolbar['content'] : '';
   $footer = panels_mini_block_view('oa_footer_panel');
   $vars['oa_footer_panel'] = isset($footer) ? $footer['content'] : '';
+
+  $banner = ctools_content_render('oa_space_banner', '', array(
+    'banner_position' => 2
+  ));
+  if (!empty($banner->content)) {
+    $vars['oa_banner'] = $banner->content;
+  }
+  $vars['oa_space_menu'] = '';
+  $space_id = oa_core_get_space_context();
+  if (variable_get('oa_space_menu_' . $space_id, TRUE)) {
+    $space_menu = ctools_content_render('oa_space_menu', '', array(), array());
+    if (!empty($space_menu->content)) {
+      $vars['oa_space_menu'] = $space_menu->content;
+    }
+  }
 }
 
-/**
- * Implements theme_menu_tree().
- */
-function oa_radix_menu_tree(&$variables) {
-  // override Radix menu.inc with default Drupal behavior
-  return theme_menu_tree($variables);
-}
-
-/**
- * Implements theme_menu_link().
- */
-function oa_radix_menu_link(&$variables) {
-  // override Radix menu.inc with default Drupal behavior
-  return theme_menu_link($variables);
-}

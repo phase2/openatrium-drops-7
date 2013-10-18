@@ -88,7 +88,7 @@ function oa_users_build_user_details($user, $image_style = 'oa_small_thumbnail')
 /**
  * Return a user's profile image
  */
-function oa_users_picture($user = NULL, $image_style = 'oa_small_thumbnail') {
+function oa_users_picture($user = NULL, $image_style = 'oa_small_thumbnail', $url = FALSE) {
   if (isset($user) && !empty($user->field_user_picture)) {
     $picture = $user->field_user_picture[LANGUAGE_NONE][0];
     $image = array(
@@ -98,7 +98,12 @@ function oa_users_picture($user = NULL, $image_style = 'oa_small_thumbnail') {
       'height' => $picture['height'],
       'alt' => t('Your profile picture'),
     );
-    return theme('image_style', $image);
+    if ($url) {
+      return image_style_url($image_style, $picture['uri']);
+    }
+    else {
+      return theme('image_style', $image);
+    }
   }
   else {
     $image = array(
@@ -110,7 +115,12 @@ function oa_users_picture($user = NULL, $image_style = 'oa_small_thumbnail') {
     );
     // image styles only supported for images in /files dir
     // so for now, ignore the image style
-    return theme('image', $image);
+    if ($url) {
+      return drupal_get_path('module', 'oa_users') . '/oa-user.png';
+    }
+    else {
+      return theme('image', $image);
+    }
   }
 }
 

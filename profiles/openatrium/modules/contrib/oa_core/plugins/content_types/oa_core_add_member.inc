@@ -19,7 +19,7 @@ $plugin = array(
  * Render callback for the content visibility panel.
  */
 function oa_core_add_member_render($subtype, $conf, $args, $context = NULL) {
-  if (empty($context->data->nid) || !($group = oa_core_get_group_from_node($context->data->nid)) || !node_access('view', $group) || !og_user_access('node', $group->nid, 'add user')) {
+  if (empty($context->data->nid) || !($group = node_load(oa_core_get_group_from_node($context->data->nid))) || !node_access('view', $group) || !og_user_access('node', $group->nid, 'add user')) {
     return;
   }
 

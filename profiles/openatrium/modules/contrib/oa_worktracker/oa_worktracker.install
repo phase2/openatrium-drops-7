@@ -1,0 +1,56 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the Open Atrium Work Tracker module.
+ */
+
+/**
+ * Adds the 'Tasks Section' term to the 'section_type' vocabulary.
+ */
+function oa_worktracker_install_section_type() {
+  $vocabularies = taxonomy_vocabulary_get_names();
+  $term = (object)array(
+    'name' => 'Tasks Section',
+    'vid'  => $vocabularies['section_type']->vid,
+  );
+  $term->field_oa_section_layout[LANGUAGE_NONE][0]['value'] = 'node:oa_section:oa_section_worktracker';
+  $term->field_oa_node_types[LANGUAGE_NONE][1]['value'] = 'oa_worktracker_task';
+  taxonomy_term_save($term);
+}
+
+/**
+ * Implements hook_install().
+ */
+function oa_worktracker_install() {
+  oa_worktracker_install_section_type();
+}
+
+/**
+ * Add taxonomy term for 'Tasks Section' that is now required by Open Atrium 2.0-beta3.
+ */
+function oa_worktracker_update_7001() {
+  $vocabularies = taxonomy_vocabulary_get_names();
+  $term = (object)array(
+    'name' => 'Tasks Section',
+    'vid'  => $vocabularies['section_type']->vid,
+  );
+  $term->field_oa_section_layout[LANGUAGE_NONE][0]['value'] = 'node:oa_section:oa_section_worktracker';
+  $term->field_oa_node_types[LANGUAGE_NONE][1]['value'] = 'oa_worktracker_task';
+  taxonomy_term_save($term);
+}
+
+/**
+ * Revert all the components that have changed or failed to rebuild in 1.0-alpha2.
+ */
+function oa_worktracker_update_7002() {
+  features_revert(array('oa_worktracker' => array('og_features_permission', 'user_permission', 'page_manager_handlers', 'message_type', 'field_base', 'variable')));
+}
+
+/**
+ * Revert all the components that have changed between 1.0-alpha5 and 1.0-alpha6.
+ */
+function oa_worktracker_update_7003() {
+  features_revert(array('oa_worktracker' => array('dependencies', 'field_base', 'field_instance', 'user_permission', 'variable', 'views_view')));
+}
+

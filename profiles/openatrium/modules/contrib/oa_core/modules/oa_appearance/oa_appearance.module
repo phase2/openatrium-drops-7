@@ -1,0 +1,227 @@
+<?php
+/**
+ * @file
+ * Code for the Open Atrium Appearance feature.
+ */
+
+include_once 'oa_appearance.features.inc';
+
+/**
+ * @file
+ * Provides integration between Open Atrium and Colorizer module
+ */
+
+/**
+ * Implements hook_colorizer_instance_alter()
+ * Set the colorizer instance to a space-specific value
+ */
+function oa_appearance_colorizer_instance_alter(&$instance) {
+  $space_id = oa_core_get_space_context();
+  $instance = $instance . '_' . $space_id;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function oa_appearance_menu() {
+  $items = array();
+  $items['group/%/%/admin/appearance'] = array(
+    'title callback' => 'og_ui_menu_title_callback',
+    'title arguments' => array('Appearance of group @group', 1, 2),
+    'description' => 'Manage appearance of a group.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('oa_appearance_edit_form', 1, 2),
+    'access callback' => 'og_ui_user_access_group',
+    'access arguments' => array('manage appearance', 1, 2),
+  );
+
+  return $items;
+}
+
+/**
+ * Implement hook_og_permission().
+ */
+function oa_appearance_og_permission() {
+  $items = array();
+
+  $items['manage appearance'] = array(
+    'title' => t('Manage appearance'),
+    'description' => t('Manage the appearance for this group.'),
+    'default role' => array(OG_ADMINISTRATOR_ROLE),
+    'restrict access' => TRUE,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_theme()
+ */
+function oa_appearance_theme() {
+  return array(
+    'oa_space_banner' => array(
+      'template'  => 'oa-space-banner',
+      'arguments' => array(
+      ),
+      'path' => drupal_get_path('module', 'oa_appearance') . '/templates',
+    ),
+  );
+}
+
+/*
+ * Implements hook_ctools_plugin_directory
+ */
+function oa_appearance_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'ctools' && $plugin_type == 'content_types') {
+    return 'plugins/content_types';
+  }
+}
+
+/**
+ * Implements hook_og_ui_get_group_admin()
+ */
+function oa_appearance_og_ui_get_group_admin($group_type, $gid) {
+  $items = array();
+
+  if (og_user_access($group_type, $gid, 'manage appearance')) {
+    $items['manage_appearance'] = array(
+      'title' => t('Appearance'),
+      'description' => t('Manage appearance'),
+      'href' => 'admin/appearance',
+    );
+  }
+
+  return $items;
+}
+
+/**
+ * Add plugin-specific configuration to main Open Atrium settings form
+ * @param $form
+ * @param $form_state
+ * @param $form_id
+ */
+function oa_appearance_form_oa_core_configure_form_alter(&$form, &$form_state, $form_id) {
+  $form['oa_appearance_menu'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Menus'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  $form['oa_appearance_menu']['oa_mainmenu'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Show main menu (if it has items)',
+    '#default_value' => variable_get('oa_mainmenu', TRUE),
+  );
+  $form['oa_appearance_menu']['oa_menu_banner'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Show Site banner next to main menu',
+    '#default_value' => variable_get('oa_menu_banner', TRUE),
+  );
+
+  $form['oa_appearance_menu']['oa_breadcrumb_menu'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Replace Breadcrumb toolbar with main menu',
+    '#default_value' => variable_get('oa_breadcrumb_menu', FALSE),
+  );
+
+  $form['oa_appearance'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Banners'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  $form['oa_appearance']['oa_site_banner_file'] = array(
+    '#title' => t('Site banner image'),
+    '#type' => 'managed_file',
+    '#description' => t('The uploaded image will be displayed across the full width of the site.'),
+    '#default_value' => variable_get('oa_site_banner', ''),
+    '#upload_location' => 'public://',
+    '#element_validate' => array('oa_appearance_banner_validate'),
+  );
+  $form['oa_appearance']['oa_site_banner_position'] = array(
+    '#type' => 'select',
+    '#options' => array (
+      0 => 'Hidden',
+      1 => 'Above toolbar',
+      2 => 'Below toolbar',
+    ),
+    '#title' => 'Banner Position',
+    '#empty_option' => '--Banner Position--',
+    '#default_value' => variable_get('oa_site_banner_position', 0),
+  );
+  $form['oa_appearance']['oa_banner_stretch'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Stretch Banner',
+    '#default_value' => variable_get('oa_banner_stretch', FALSE),
+  );
+  $form['oa_appearance']['oa_banner_default'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Use Default Banner',
+    '#default_value' => variable_get('oa_banner_default', TRUE),
+  );
+  $form['oa_appearance']['oa_banner_sitename'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Show site name',
+    '#default_value' => variable_get('oa_banner_sitename', TRUE),
+  );
+  $form['oa_appearance']['oa_banner_siteslogan'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Show site slogan',
+    '#default_value' => variable_get('oa_banner_siteslogan', FALSE),
+  );
+}
+
+function oa_appearance_banner_validate($element, &$form_state, $form) {
+  $fid = $form_state['values']['oa_site_banner_file']['fid'];
+  if ($fid && ($file = file_load($fid))) {
+    if (!empty($form_state['values']['oa_site_banner_file_remove_button'])) {
+      file_usage_delete($file, 'oa_core', 'oa_banner', 1);
+      variable_set('oa_site_banner', '');
+    }
+    else {
+      // Change status to permanent.
+      $file->status = FILE_STATUS_PERMANENT;
+      // Save.
+      file_save($file);
+      // Record that the module (in this example, user module) is using the file.
+      file_usage_add($file, 'oa_core', 'oa_banner', 1);
+      variable_set('oa_site_banner', $fid);
+    }
+  }
+}
+
+/**
+ * Theme colors edit variable form.
+ */
+function oa_appearance_edit_form($form, &$form_state, $entity_type, $entity_id) {
+  module_load_include('admin.inc', 'colorizer');
+
+  $form = colorizer_admin_form(FALSE, FALSE);
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save configuration'),
+  );
+  $form['colorizer_clearcache'] = array(
+    '#type' => 'submit',
+    '#value' => t('Clear Colorizer Cache'),
+  );
+
+  return $form;
+}
+
+/**
+ * Form validation handler for oa_appearance_edit_form().
+ */
+function oa_appearance_edit_form_validate($form, &$form_state) {
+  module_load_include('admin.inc', 'colorizer');
+  colorizer_admin_form_validate($form, $form_state);
+}
+
+/**
+ * Form submission handler for oa_appearance_edit_form().
+ */
+function oa_appearance_edit_form_submit($form, &$form_state) {
+  module_load_include('admin.inc', 'colorizer');
+  colorizer_admin_form_submit($form, $form_state);
+}

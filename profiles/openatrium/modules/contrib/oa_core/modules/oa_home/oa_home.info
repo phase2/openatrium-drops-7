@@ -2,7 +2,6 @@ name = Open Atrium Home
 description = Default Home Page
 core = 7.x
 package = Open Atrium
-php = 5.2.4
 version = 7.x-2.0
 project = oa_home
 dependencies[] = ctools
@@ -12,12 +11,16 @@ features[ctools][] = page_manager:pages_default:1
 features[ctools][] = strongarm:strongarm:1
 features[features_api][] = api:2
 features[page_manager_pages][] = oa_homepage
+features[variable][] = colorizer_cssbase
+features[variable][] = colorizer_cssfile
+features[variable][] = colorizer_incfile
+features[variable][] = colorizer_previewfile
 features[variable][] = site_frontpage
-project path = sites/all/modules/contrib/oa_core/modules
+project path = tmp/oa_home
 
-; Information added by drupal.org packaging script on 2013-08-29
-version = "7.x-2.0-beta3"
+; Information added by drupal.org packaging script on 2013-10-18
+version = "7.x-2.0-rc1"
 core = "7.x"
 project = "oa_core"
-datestamp = "1377800190"
+datestamp = "1382101487"
 

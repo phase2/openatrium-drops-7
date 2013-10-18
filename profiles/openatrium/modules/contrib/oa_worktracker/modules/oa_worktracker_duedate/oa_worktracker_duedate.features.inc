@@ -1,0 +1,63 @@
+<?php
+/**
+ * @file
+ * oa_worktracker_duedate.features.inc
+ */
+
+/**
+ * Implements hook_field_group_info_alter().
+ */
+function oa_worktracker_duedate_field_group_info_alter(&$data) {
+  if (isset($data['group_oa_worktracker_task_info|comment|comment_node_oa_worktracker_task|form'])) {
+    $data['group_oa_worktracker_task_info|comment|comment_node_oa_worktracker_task|form']->data['children']['5'] = 'comment_alter_field_oa_worktracker_duedate'; /* WAS: '' */
+  }
+  if (isset($data['group_oa_worktracker_task_info|node|oa_worktracker_task|default'])) {
+    $data['group_oa_worktracker_task_info|node|oa_worktracker_task|default']->data['children']['5'] = 'field_oa_worktracker_duedate'; /* WAS: '' */
+  }
+}
+
+/**
+ * Implements hook_panelizer_defaults_override_alter().
+ */
+function oa_worktracker_duedate_panelizer_defaults_override_alter(&$data) {
+  if (isset($data['node:oa_section:oa_section_worktracker'])) {
+    $data['node:oa_section:oa_section_worktracker']->display->content['new-3']->configuration['fields_override']['field_oa_worktracker_duedate'] = 1; /* WAS: '' */
+  }
+}
+
+/**
+ * Implements hook_strongarm_alter().
+ */
+function oa_worktracker_duedate_strongarm_alter(&$data) {
+  if (isset($data['field_bundle_settings_comment__comment_node_oa_worktracker_task'])) {
+    $data['field_bundle_settings_comment__comment_node_oa_worktracker_task']->value['extra_fields']['form']['comment_alter_field_oa_worktracker_assigned_to']['weight'] = 6; /* WAS: 7 */
+    $data['field_bundle_settings_comment__comment_node_oa_worktracker_task']->value['extra_fields']['form']['comment_alter_field_oa_worktracker_duedate'] = array(
+      'weight' => 10,
+    ); /* WAS: '' */
+    $data['field_bundle_settings_comment__comment_node_oa_worktracker_task']->value['extra_fields']['form']['comment_alter_field_oa_worktracker_priority']['weight'] = 8; /* WAS: 9 */
+    $data['field_bundle_settings_comment__comment_node_oa_worktracker_task']->value['extra_fields']['form']['comment_alter_field_oa_worktracker_task_status']['weight'] = 7; /* WAS: 8 */
+    $data['field_bundle_settings_comment__comment_node_oa_worktracker_task']->value['extra_fields']['form']['comment_alter_field_oa_worktracker_task_type']['weight'] = 9; /* WAS: 10 */
+  }
+}
+
+/**
+ * Implements hook_views_default_views_alter().
+ */
+function oa_worktracker_duedate_views_default_views_alter(&$data) {
+  if (isset($data['oa_worktracker'])) {
+    $data['oa_worktracker']->display['task_list']->display_options['fields']['field_oa_worktracker_duedate'] = array(
+      'id' => 'field_oa_worktracker_duedate',
+      'table' => 'field_data_field_oa_worktracker_duedate',
+      'field' => 'field_oa_worktracker_duedate',
+      'settings' => array(
+        'format_type' => 'oa_date',
+        'fromto' => 'both',
+        'multiple_number' => '',
+        'multiple_from' => '',
+        'multiple_to' => '',
+        'show_repeat_rule' => 'show',
+      ),
+    ); /* WAS: '' */
+    $data['oa_worktracker']->display['task_list']->display_options['style_options']['columns']['field_oa_worktracker_duedate'] = 'field_oa_worktracker_duedate'; /* WAS: '' */
+  }
+}

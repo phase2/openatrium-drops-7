@@ -5,12 +5,9 @@ core = 7.x
 ; ********** OPEN ATRIUM'S DEPENDENCIES **********
 
 ; Features Override
-projects[features_override][version] = 2.0-beta3
+projects[features_override][version] = 2.0-rc1
 projects[features_override][subdir] = contrib
 projects[features_override][type] = module
-projects[features_override][download][branch] = 7.x-2.x
-projects[features_override][download][type] = git
-projects[features_override][patch][2075183] = http://drupal.org/files/features_override-recursion-2075183-2.patch
 
 ; Diff
 projects[diff][subdir] = contrib
@@ -58,6 +55,11 @@ projects[oa_events_import][download][type] = git
 projects[oa_events_import][subdir] = contrib
 projects[oa_events_import][download][url] = http://git.drupal.org/project/oa_events_import.git
 projects[oa_events_import][download][branch] = 7.x-2.x
+
+projects[oa_worktracker][download][type] = git
+projects[oa_worktracker][subdir] = contrib
+projects[oa_worktracker][download][url] = http://git.drupal.org/project/oa_worktracker.git
+projects[oa_worktracker][download][branch] = 7.x-1.x
 
 projects[oa_contextual_tabs][download][type] = git
 projects[oa_contextual_tabs][subdir] = contrib
@@ -156,7 +158,7 @@ projects[panopoly_magic][subdir] = panopoly
 projects[panopoly_magic][download][branch] = 7.x-1.x
 projects[panopoly_magic][download][type] = git
 projects[panopoly_magic][patch][2016527] = http://drupal.org/files/2016643_panopoly_magic_screw_pre_render_with_2016527-5.patch
-projects[panopoly_magic][patch][2017159] = http://drupal.org/files/2017159_panopoly_magic_preview_post_render-16.patch
+projects[panopoly_magic][patch][2017159] = http://drupal.org/files/2017159_panopoly_magic_preview_post_render-22.patch
 
 projects[panopoly_widgets][version] = 1.0-rc5
 projects[panopoly_widgets][subdir] = panopoly

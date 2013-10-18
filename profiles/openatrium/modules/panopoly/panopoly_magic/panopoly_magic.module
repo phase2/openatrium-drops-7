@@ -1,5 +1,4 @@
 <?php
-
 include_once('panopoly_magic.features.inc');
 
 /**
@@ -56,12 +55,22 @@ function panopoly_magic_menu() {
 function panopoly_magic_ajax_form_callback() {
   list($form, $form_state) = ajax_get_form();
   ctools_include('content');
+  ctools_include('modal');
 
-  // These ensure the class files/form definations are included.
-  $content_type = ctools_get_content_type($form_state['pane']->type);
-  $subtype = ctools_content_get_subtype($content_type, $form_state['subtype_name']);
+  if (isset($form_state['no_redirect']) && !isset($form_state['form_info'])) {
+    $form_state += array(
+      're_render' => FALSE,
+      'no_redirect' => !empty($form_state['ajax']),
+     );
+     $form= drupal_build_form($form_state['build_info']['form_id'], $form_state);
+  }
+  else {
+    // These ensure the class files/form definations are included.
+    $content_type = ctools_get_content_type($form_state['pane']->type);
+    $subtype = ctools_content_get_subtype($content_type, $form_state['subtype_name']);
 
-  $form  = ctools_content_form($form_state['op'], $form_state['form_info'], $form_state, $form_state['plugin'], $form_state['subtype_name'], $form_state['conf'], $form_state['step']);
+    $form  = ctools_content_form($form_state['op'], $form_state['form_info'], $form_state, $form_state['plugin'], $form_state['subtype_name'], $form_state['conf'], $form_state['step']);
+  }
 
   if (!empty($form_state['triggering_element'])) {
     $callback = $form_state['triggering_element']['#ajax']['callback'];
@@ -333,18 +342,20 @@ function panopoly_magic_form_alter(&$form, &$form_state, $form_id) {
       }
     }
 
-    // Creates preview outside of form itself to fix various bugs, like form
-    // inside form and double rendering.
-    $form['#post_render'][] = 'panopoly_magic_form_post_render_preview';
-    $form['#panopoly_magic_preview_info'] = array(
-      'preview_subtype' => isset($preview_subtype) ? $preview_subtype : NULL,
-      'pane' => $pane,
-      'configuration' =>  $configuration,
-      'keywords' => $keywords,
-      'args' => $args,
-      'context' => $context,
-      'style' => $style,
-      'display' => $display,
+    // only render preview for Panes and not Regions
+    if (isset($pane)) {
+      // Creates preview outside of form itself to fix various bugs, like form
+      // inside form and double rendering.
+      $form['#post_render'][] = 'panopoly_magic_form_post_render_preview';
+      $form['#panopoly_magic_preview_info'] = array(
+        'preview_subtype' => isset($preview_subtype) ? $preview_subtype : NULL,
+        'pane' => $pane,
+        'configuration' =>  $configuration,
+        'keywords' => $keywords,
+        'args' => $args,
+        'context' => $context,
+        'style' => $style,
+        'display' => $display,
       );
 
       // Remove the clearfix for preview floating
@@ -369,16 +380,17 @@ function panopoly_magic_form_alter(&$form, &$form_state, $form_id) {
         '#type' => 'button',
         '#value' => t('Update Preview'),
         '#attributes' => $preview_attributes,
-      '#ajax' => array(
-        'callback' => 'panopoly_magic_ajax_update_preview',
-        'wrapper' => 'panopoly-form-widget-preview',
-        'path' => 'system/panopoly-magic',
-       ),
+        '#ajax' => array(
+          'callback' => 'panopoly_magic_ajax_update_preview',
+          'wrapper' => 'panopoly-form-widget-preview',
+          'path' => 'system/panopoly-magic',
+        ),
       );
 
       // Autosubmit the form
       ctools_add_js('auto-submit');
       $form['#attributes']['class'][] = 'ctools-auto-submit-full-form';
+    }
     // Convert any other #ajax enabled buttons to use system/panopoly-magic.
     _panopoly_magic_add_path_to_ajax($form);
   }
@@ -462,6 +474,7 @@ function _panopoly_magic_add_path_to_ajax($element) {
  * Ajax callback that just returns the rendered preview.
  */
 function panopoly_magic_ajax_update_preview($form, $form_state) {
+  return;
   if (isset($form_state['values']) && isset($form['#panopoly_magic_preview_info']['configuration'])) {
     $form['#panopoly_magic_preview_info']['configuration'] = $form_state['values'] + $form['#panopoly_magic_preview_info']['configuration'];
   }

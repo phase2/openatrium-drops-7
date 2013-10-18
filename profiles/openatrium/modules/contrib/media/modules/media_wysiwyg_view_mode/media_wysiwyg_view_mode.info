@@ -9,9 +9,9 @@ dependencies[] = wysiwyg
 configure = admin/config/media/wysiwyg-view-mode
 
 
-; Information added by drush on 2013-08-29
+; Information added by drush on 2013-10-18
 version = "7.x-2.0-unstable7+62-dev"
 core = "7.x"
 project = "media"
-datestamp = "1377804103"
+datestamp = "1382107238"
 

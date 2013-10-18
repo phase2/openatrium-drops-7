@@ -43,10 +43,10 @@
       $well = (!empty($tab['title'])) ? ' well well-small' : '';
     ?>
     <div class='clearfix <?php print $well . ' ' . $cat;?>'>
-      <?php if (!empty($tab['title'])):?>
-        <h5><?php print $tab['title']?></h5>
-      <?php endif;?>
       <?php if (!empty($tab['items'])):?>
+        <?php if (!empty($tab['title'])):?>
+          <h5><?php print $tab['title']?></h5>
+        <?php endif;?>
         <?php foreach ($tab['items'] as $key => $items): ?>
           <?php if (!is_numeric($key)): ?>
             <h5 class='clear-both'>

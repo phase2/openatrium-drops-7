@@ -17,9 +17,9 @@ files[] = includes/migrate/7000/populate_field.inc
 files[] = includes/migrate/7000/set_roles.inc
 
 
-; Information added by drush on 2013-08-29
+; Information added by drush on 2013-10-18
 version = "7.x-2.2+29-dev"
 core = "7.x"
 project = "og"
-datestamp = "1377804150"
+datestamp = "1382107253"
 

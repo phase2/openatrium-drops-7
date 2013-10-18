@@ -30,7 +30,7 @@
           $tray.toggleClass('active');
 
           // When it's stickied, we need to push the tray down.
-          if (settings.oa_toolbar_sticky == 1 && $oa_navbar.css('position') !== 'static') {
+          if ($oa_navbar.css('position') !== 'static') {
             // Use attr for !important to override radix.
             $tray.attr('style', 'top: ' + $oa_navbar.height() + 'px !important');
           }
