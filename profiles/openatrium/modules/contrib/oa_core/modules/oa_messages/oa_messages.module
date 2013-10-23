@@ -123,11 +123,7 @@ function oa_messages_create($message_type, $entity = NULL, $entity_type = 'node'
  */
 function oa_messages_build_notify_options() {
   $options = array();
-  $from_mail = variable_get('mailbox_mail', '');
-  if (empty($from_mail)) {
-    $from_mail = variable_get('site_mail', '');
-  }
-  $options['oa_email']['from'] = $from_mail;
+  $options['oa_email']['from'] = variable_get('site_mail', ini_get('sendmail_from'));
   return $options;
 }
 
@@ -228,6 +224,19 @@ function oa_messages_node_delete($node) {
 }
 
 /**
+ * Implements hook_comment_insert().
+ */
+function oa_messages_comment_insert($comment) {
+  $types = oa_core_list_content_types(TRUE);
+  $node = node_load($comment->nid);
+  if (!array_key_exists($node->type, $types)) {
+    // only create messages for node types we care about
+    return;
+  }
+  $message = oa_messages_create('oa_comment', $comment->nid, 'node', '', $comment->cid);
+}
+
+/**
  * Helper function to handle OG Membership messages
  */
 function oa_messages_og_membership_prepare($og_membership, $action, $add_type = TRUE) {
@@ -312,6 +321,10 @@ function oa_messages_oa_messages_create_alter(&$wrapper, $context) {
           $wrapper->field_oa_message_text->set(array('value' => $output, 'format' => 'full_html'));
         }
       }
+      break;
+
+    case 'oa_comment':
+      $wrapper->field_oa_comment_ref = $context['arguments'];
       break;
 
     case 'oa_member':

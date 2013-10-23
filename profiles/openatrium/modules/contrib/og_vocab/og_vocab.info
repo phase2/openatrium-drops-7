@@ -16,9 +16,9 @@ files[] = includes/migrate/og_vocab.migrate.inc
 ; files[] = includes/migrate/delete_fields.inc
 
 
-; Information added by drush on 2013-10-18
+; Information added by drush on 2013-10-23
 version = "7.x-1.1+8-dev"
 core = "7.x"
 project = "og_vocab"
-datestamp = "1382107251"
+datestamp = "1382551846"
 

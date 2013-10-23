@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the oa_tour_defaults feature.
+ */
+
+include_once 'oa_tour_defaults.features.inc';

@@ -4,19 +4,12 @@ function bootstrap_tour_schema() {
   $schema['bootstrap_tour'] = array(
     'description' => t('Bootstrap tours courtesy of the Bootstrap Tours module'),
     'export' => array(
-      'key' => 'name',
-      'key name' => 'Name',
-      'primary key' => 'btid',
-      'identifier' => 'bootstrap_tour',
-      'load callback' => 'bootstrap_tour_load',
-      'load all callback' => 'bootstrap_tour_load_all',
-      'save callback' => 'bootstrap_tour_save',
-      'bulk export' => TRUE,
+      'primary_key' => 'name',
       'api' => array(
         'owner' => 'bootstrap_tour',
-        'api' => 'bootstrap_tour',
-        'minimum_version' => 1,
-        'current_version' => 1,
+        'api' => 'bootstrap_tour_tour',
+        'minimum_version' => '1',
+        'current_version' => '1',
       ),
     ),
     'fields' => array(
@@ -29,6 +22,11 @@ function bootstrap_tour_schema() {
         'type' => 'varchar',
         'length' => '255',
         'description' => 'Human readable name for the tour used for administrative purposes.',
+      ),
+      'roles' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'description' => 'A comma separated list of roles that can access this tour.',
       ),
       'btid' => array(
         'type' => 'serial',
@@ -60,4 +58,16 @@ function bootstrap_tour_schema() {
     ),
   );
   return $schema;
+}
+
+/**
+ * Add a "roles" column to the DB schema.
+ */
+function bootstrap_tour_update_7001(&$sandbox) {
+  $roles = array(
+    'type' => 'varchar',
+    'length' => '255',
+    'description' => 'A comma separated list of roles that can access this tour.',
+  );
+  db_add_field('bootstrap_tour', 'roles', $roles);
 }

@@ -90,16 +90,16 @@ function oa_worktracker_strongarm() {
           'weight' => '5',
         ),
         'comment_alter_field_oa_worktracker_assigned_to' => array(
-          'weight' => '7',
+          'weight' => '6',
         ),
         'comment_alter_field_oa_worktracker_priority' => array(
-          'weight' => '9',
-        ),
-        'comment_alter_field_oa_worktracker_task_status' => array(
           'weight' => '8',
         ),
+        'comment_alter_field_oa_worktracker_task_status' => array(
+          'weight' => '7',
+        ),
         'comment_alter_field_oa_worktracker_task_type' => array(
-          'weight' => '10',
+          'weight' => '9',
         ),
         'comment_alter_oa_section_ref' => array(
           'weight' => '5',
@@ -144,6 +144,9 @@ function oa_worktracker_strongarm() {
       'full' => array(
         'custom_settings' => FALSE,
       ),
+      'ical' => array(
+        'custom_settings' => FALSE,
+      ),
       'diff_standard' => array(
         'custom_settings' => FALSE,
       ),
@@ -160,12 +163,8 @@ function oa_worktracker_strongarm() {
             'visible' => TRUE,
           ),
           'message_notify_email_body' => array(
-            'weight' => '1',
+            'weight' => '2',
             'visible' => FALSE,
-          ),
-          'default' => array(
-            'weight' => '1',
-            'visible' => TRUE,
           ),
           'oa_river_header' => array(
             'weight' => '1',
@@ -178,45 +177,45 @@ function oa_worktracker_strongarm() {
           'oa_river_body' => array(
             'weight' => '1',
             'visible' => FALSE,
+          ),
+          'default' => array(
+            'weight' => '1',
+            'visible' => TRUE,
           ),
         ),
         'message__message_text__1' => array(
           'message_notify_email_subject' => array(
+            'weight' => '4',
+            'visible' => FALSE,
+          ),
+          'message_notify_email_body' => array(
+            'weight' => '0',
+            'visible' => TRUE,
+          ),
+          'oa_river_header' => array(
+            'weight' => '2',
+            'visible' => FALSE,
+          ),
+          'oa_river_accordian' => array(
+            'weight' => '2',
+            'visible' => FALSE,
+          ),
+          'oa_river_body' => array(
+            'weight' => '2',
+            'visible' => FALSE,
+          ),
+          'default' => array(
+            'weight' => '3',
+            'visible' => TRUE,
+          ),
+        ),
+        'message__message_text__2' => array(
+          'message_notify_email_subject' => array(
             'weight' => '1',
             'visible' => FALSE,
           ),
           'message_notify_email_body' => array(
-            'weight' => '0',
-            'visible' => TRUE,
-          ),
-          'default' => array(
-            'weight' => '2',
-            'visible' => TRUE,
-          ),
-          'oa_river_header' => array(
-            'weight' => '2',
-            'visible' => FALSE,
-          ),
-          'oa_river_accordian' => array(
-            'weight' => '2',
-            'visible' => FALSE,
-          ),
-          'oa_river_body' => array(
-            'weight' => '2',
-            'visible' => FALSE,
-          ),
-        ),
-        'message__message_text__2' => array(
-          'default' => array(
-            'weight' => '3',
-            'visible' => TRUE,
-          ),
-          'message_notify_email_subject' => array(
-            'weight' => '2',
-            'visible' => FALSE,
-          ),
-          'message_notify_email_body' => array(
-            'weight' => '2',
+            'weight' => '1',
             'visible' => FALSE,
           ),
           'oa_river_header' => array(
@@ -230,15 +229,15 @@ function oa_worktracker_strongarm() {
           'oa_river_body' => array(
             'weight' => '3',
             'visible' => FALSE,
+          ),
+          'default' => array(
+            'weight' => '5',
+            'visible' => TRUE,
           ),
         ),
         'message__message_text__3' => array(
-          'default' => array(
-            'weight' => '4',
-            'visible' => TRUE,
-          ),
           'message_notify_email_subject' => array(
-            'weight' => '3',
+            'weight' => '2',
             'visible' => FALSE,
           ),
           'message_notify_email_body' => array(
@@ -256,6 +255,36 @@ function oa_worktracker_strongarm() {
           'oa_river_body' => array(
             'weight' => '4',
             'visible' => FALSE,
+          ),
+          'default' => array(
+            'weight' => '8',
+            'visible' => TRUE,
+          ),
+        ),
+        'message__message_text__4' => array(
+          'message_notify_email_subject' => array(
+            'weight' => '3',
+            'visible' => FALSE,
+          ),
+          'message_notify_email_body' => array(
+            'weight' => '4',
+            'visible' => FALSE,
+          ),
+          'oa_river_header' => array(
+            'weight' => '4',
+            'visible' => FALSE,
+          ),
+          'oa_river_accordian' => array(
+            'weight' => '4',
+            'visible' => FALSE,
+          ),
+          'oa_river_body' => array(
+            'weight' => '0',
+            'visible' => TRUE,
+          ),
+          'default' => array(
+            'weight' => '9',
+            'visible' => TRUE,
           ),
         ),
       ),

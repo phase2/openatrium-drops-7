@@ -1,0 +1,32 @@
+name = oa_tour_defaults
+core = 7.x
+package = Features
+dependencies[] = bootstrap_tour
+dependencies[] = ctools
+features[bootstrap_tour][] = banners
+features[bootstrap_tour][] = colorizing_a_space
+features[bootstrap_tour][] = configuring_layout
+features[bootstrap_tour][] = content_visibility
+features[bootstrap_tour][] = groups
+features[bootstrap_tour][] = menus
+features[bootstrap_tour][] = notifications
+features[bootstrap_tour][] = sandbox_mode
+features[bootstrap_tour][] = section_visibility
+features[bootstrap_tour][] = sections_overview
+features[bootstrap_tour][] = setting_your_home
+features[bootstrap_tour][] = site_tours
+features[bootstrap_tour][] = spaces
+features[bootstrap_tour][] = subspaces
+features[bootstrap_tour][] = teams
+features[bootstrap_tour][] = toolbar
+features[bootstrap_tour][] = user_creation
+features[bootstrap_tour][] = welcome_to_oa2_
+features[ctools][] = bootstrap_tour:bootstrap_tour_tour:1
+features[features_api][] = api:2
+
+; Information added by drupal.org packaging script on 2013-10-23
+version = "7.x-2.0"
+core = "7.x"
+project = "oa_core"
+datestamp = "1382550931"
+

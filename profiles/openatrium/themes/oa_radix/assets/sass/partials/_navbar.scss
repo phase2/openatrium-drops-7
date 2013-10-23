@@ -1,6 +1,12 @@
 //
 // Styles for OA Navbar
 // --------------------------------------------------
+.navbar-fixed-top, .navbar-fixed-bottom {
+  z-index: 1000;  /* needs to be less than 1001 which is panelizer popup dialog */
+}
+.drupal-navbar .navbar-tray {
+z-index: 1000;
+}
 #oa-navbar {
   position: fixed;
   top: 0;

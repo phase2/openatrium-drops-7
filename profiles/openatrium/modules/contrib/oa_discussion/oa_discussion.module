@@ -346,30 +346,3 @@ function oa_discussion_notifications_users_alter(&$users, $node) {
   }
 }
 
-/**
- * Implements hook_token_info().
- */
-function oa_discussion_token_info() {
-  $node['oa-reply-token'] = array(
-    'name' => t("OA Reply Token"),
-    'description' => t("The security token for replying to a given node"),
-  );
-  return array(
-    'tokens' => array('node' => $node),
-  );
-}
-
-/**
- * Implements hook_tokens().
- */
-function oa_discussion_tokens($type, $tokens, array $data = array(), array $options = array()) {
-  if ($type == 'node' && !empty($data['node']) && isset($tokens['oa-reply-token'])) {
-    $node = $data['node'];
-    $replacements = array();
-    $original = $tokens['oa-reply-token'];
-    $token = '#' . $node->nid . '-' . substr(md5($node->nid . ':' . $node->created), 0, 6);
-    $replacements[$original] = $token;
-    return $replacements;
-  }
-}
-

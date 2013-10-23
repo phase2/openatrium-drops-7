@@ -158,7 +158,7 @@ function oa_core_members_widget_render($subtype, $conf, $args, $context = NULL) 
     }
   }
 
-  if ($space_type == OA_SPACE_TYPE) {
+  if ($space->type == OA_SPACE_TYPE) {
     $tabs['teams'] = array(
       'caption' => t('Teams'),
       'title' => t('Teams'),
@@ -172,6 +172,7 @@ function oa_core_members_widget_render($subtype, $conf, $args, $context = NULL) 
       );
     }
   }
+
   $ajax = (variable_get('oa_use_ajax', FALSE)) ? '/nojs' : '';
   foreach ($tabs as $category => $tab) {
     $tabs[$category]['items'] = array();

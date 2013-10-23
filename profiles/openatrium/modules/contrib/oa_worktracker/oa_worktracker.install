@@ -54,3 +54,33 @@ function oa_worktracker_update_7003() {
   features_revert(array('oa_worktracker' => array('dependencies', 'field_base', 'field_instance', 'user_permission', 'variable', 'views_view')));
 }
 
+/**
+ * Copy all the data from 'field_oa_worktracker_comment_ref' to 'field_oa_comment_ref'.
+ */
+function oa_worktracker_update_7004() {
+  // Make sure that 'field_oa_comment_ref' exists!
+  features_revert(array('oa_messages' => array('field_base', 'field_instance')));
+  features_revert(array('oa_worktracker' => array('field_instance')));
+  field_cache_clear();
+  $instance = field_info_instance('message', 'field_oa_comment_ref', 'oa_worktracker_task_update');
+  if (empty($instance)) {
+    throw new DrupalUpdateException(t("field_oa_comment_ref doesn't exist or isn't attached to oa_worktracker_task_update"));
+  }
+
+  // Copy the data and revision tables.
+  foreach (array('data', 'revision') as $table_type) {
+    db_query("INSERT INTO {field_{$table_type}_field_oa_comment_ref} (entity_type, bundle, deleted, entity_id, revision_id, language, delta, field_oa_comment_ref_target_id) SELECT entity_type, bundle, deleted, entity_id, revision_id, language, delta, field_oa_worktracker_comment_ref_target_id FROM {field_{$table_type}_field_oa_worktracker_comment_ref}");
+  }
+
+  // Remove 'field_oa_wortracker_comment_ref' field.
+  $old_instance = field_info_instance('message', 'field_oa_worktracker_comment_ref', 'oa_worktracker_task_update');
+  field_delete_instance($old_instance);
+}
+
+/**
+ * Revert all the components that have changed between 1.0-beta1 and 1.0-beta2.
+ */
+function oa_worktracker_update_7005() {
+  features_revert(array('oa_worktracker' => array('message_type', 'variable', 'panelizer_defaults', 'views_view')));
+}
+

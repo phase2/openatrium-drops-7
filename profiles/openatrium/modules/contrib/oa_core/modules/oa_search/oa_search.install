@@ -14,6 +14,13 @@ function oa_search_install() {
 }
 
 /**
+ * Implements hook_enable().
+ */
+function oa_search_enable() {
+  oa_search_rebuild_index();
+}
+
+/**
  * Enable search layout pages, disable panopoly search pages.
  */
 function oa_search_update_7001() {
@@ -44,7 +51,7 @@ function oa_search_enable_pages() {
 /**
  * Re-build the panopoly search index.
  */
-function oa_search_update_7002() {
+function oa_search_rebuild_index() {
   $server_row = db_select('search_api_server', 'sas')
     ->fields('sas')
     ->condition('machine_name', 'database_server')
@@ -63,4 +70,11 @@ function oa_search_update_7002() {
     $index = array_shift($index);
     $server->addIndex($index);
   }
+}
+
+/**
+ * Re-build the panopoly search index.
+ */
+function oa_search_update_7002() {
+  oa_search_rebuild_index();
 }

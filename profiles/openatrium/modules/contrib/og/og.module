@@ -529,7 +529,7 @@ function og_node_access($node, $op, $account) {
       // Set the "field mode" to default, before passing it to the
       // selection handler.
       $instance['field_mode'] = 'default';
-      if (entityreference_get_selection_handler($field, $instance)->getReferencableEntities(NULL, 'CONTAINS', 1)) {
+      if (entityreference_get_selection_handler($field, $instance)->countReferencableEntities()) {
         return NODE_ACCESS_ALLOW;
       }
 
@@ -845,10 +845,10 @@ function og_entity_update($entity, $entity_type) {
       }
     }
   }
-  $origianl_entity = $entity->original;
+  $original_entity = $entity->original;
   $property = OG_DEFAULT_ACCESS_FIELD;
 
-  if (!empty($entity->{$property}) && $entity->{$property} != $origianl_entity->{$property}) {
+  if (!empty($entity->{$property}) && $entity->{$property} != $original_entity->{$property}) {
     if (!og_is_group_default_access($entity_type, $entity)) {
       // Override default roles.
       og_roles_override($entity_type, $bundle, $id);
@@ -1192,7 +1192,6 @@ function og_membership_invalidate_cache() {
     'og_get_entity_groups',
     'og_get_membership',
     'og_get_field_og_membership_properties',
-    'og_get_groups_by_user',
   );
 
   foreach ($caches as $cache) {
@@ -1754,6 +1753,11 @@ function og_membership_access($op, $entity, $account = NULL, $entity_type = 'og_
  */
 function og_is_group($entity_type, $entity) {
   $wrapper = entity_metadata_wrapper($entity_type, $entity);
+  $bundle = $wrapper->getBundle();
+
+  if (!field_info_instance($entity_type, OG_GROUP_FIELD, $bundle)) {
+    return variable_get("og_is_group__{$entity_type}__{$bundle}", FALSE);
+  }
   return !empty($wrapper->{OG_GROUP_FIELD}) && $wrapper->{OG_GROUP_FIELD}->value();
 }
 
@@ -2288,11 +2292,15 @@ function og_is_group_audience_field($field_name) {
  *   The bundle name to be checked.
  * @param $group_type
  *   Filter list to only include fields referencing a specific group type.
+ * @param $group_bundle
+ *   Filter list to only include fields referencing a specific group bundle.
+ *   Fields that do not specify any bundle restrictions at all are also
+ *   included.
  *
  * @return
  *   Array keyed with the field name and the field label as the value.
  */
-function og_get_group_audience_fields($entity_type = 'user', $bundle_name = 'user', $group_type = NULL) {
+function og_get_group_audience_fields($entity_type = 'user', $bundle_name = 'user', $group_type = NULL, $group_bundle = NULL) {
   $return = &drupal_static(__FUNCTION__, array());
   $identifier = $entity_type . ':' . $bundle_name . ':' . $group_type;
   if (isset($return[$identifier])) {
@@ -2306,6 +2314,9 @@ function og_get_group_audience_fields($entity_type = 'user', $bundle_name = 'use
     }
     $field_info = field_info_field($instance['field_name']);
     if (isset($group_type) && $field_info['settings']['target_type'] != $group_type) {
+      continue;
+    }
+    if ($group_bundle && !empty($field_info['settings']['handler_settings']['target_bundles']) && !in_array($group_bundle, $field_info['settings']['handler_settings']['target_bundles'])) {
       continue;
     }
     $return[$identifier][$field_name] = $instance['label'];
@@ -2482,12 +2493,13 @@ function og_is_member($group_type, $gid, $entity_type = 'user', $entity = NULL, 
  *   TRUE if group should use default roles and permissions.
  */
 function og_is_group_default_access($group_type, $gid) {
-  if (!field_info_field(OG_DEFAULT_ACCESS_FIELD)) {
-    // Don't bother loading entity if field does not exist.
-    return TRUE;
+  $wrapper = entity_metadata_wrapper($group_type, $gid);
+  $bundle = $wrapper->getBundle();
+
+  if (!field_info_instance($group_type, OG_DEFAULT_ACCESS_FIELD, $bundle)) {
+    return variable_get("og_is_group_default_access__{$group_type}__{$bundle}", TRUE);
   }
 
-  $wrapper = entity_metadata_wrapper($group_type, $gid);
   if (empty($wrapper->{OG_DEFAULT_ACCESS_FIELD})) {
     return TRUE;
   }
@@ -2636,7 +2648,6 @@ function og_get_default_roles($include = TRUE) {
  *   logged in user will be used.
  * @param $include
  *   (optional) If TRUE also anonymous or authenticated role ID will be
- *   as well as administer member role for group owner.
  *   returned. Defaults to TRUE.
  *
  * @return
@@ -2679,21 +2690,14 @@ function og_get_user_roles($group_type, $gid, $uid = NULL, $include = TRUE) {
 
   if ($include) {
     $account = user_load($uid);
-    $role_names = array();
-    $role_names[] = og_is_member($group_type, $gid, 'user', $account) ? OG_AUTHENTICATED_ROLE : OG_ANONYMOUS_ROLE;
-    if ($uid && !in_array(OG_ADMINISTRATOR_ROLE, $rids) && variable_get('og_group_manager_admin_role', FALSE)) {
-      $group = entity_load_single($group_type, $gid);
-      if (!empty($group->uid) && $group->uid == $uid) {
-        $role_names[] = OG_ADMINISTRATOR_ROLE;
-      }
-    }
+    $role_name = og_is_member($group_type, $gid, 'user', $account) ? OG_AUTHENTICATED_ROLE : OG_ANONYMOUS_ROLE;
 
     $rids = db_select('og_role', 'ogr')
       ->fields('ogr', array('rid', 'name'))
       ->condition('group_type', $group_type, '=')
       ->condition('group_bundle', $bundle, '=')
       ->condition('gid', $query_gid, '=')
-      ->condition('name', $role_names, 'IN')
+      ->condition('name', $role_name, '=')
       ->execute()
       ->fetchAllkeyed() + $rids;
   }
@@ -2927,7 +2931,7 @@ function og_role_grant($group_type, $gid, $uid, $rid) {
     return;
   }
 
-  // Get the existiong user roles.
+  // Get the existing user roles.
   $user_roles = og_get_user_roles($group_type, $gid, $uid);
   if (empty($user_roles[$rid])) {
     $role = new stdClass();
@@ -2939,6 +2943,10 @@ function og_role_grant($group_type, $gid, $uid, $rid) {
     drupal_write_record('og_users_roles', $role);
     og_invalidate_cache();
     module_invoke_all('og_role_grant', $group_type, $gid, $uid, $rid);
+
+    if (module_exists('rules'))  {
+      rules_invoke_event('og_role_grant', og_get_membership($group_type, $gid, 'user', $uid), entity_metadata_wrapper('user', $uid), $rid);
+    }
   }
 }
 
@@ -2964,6 +2972,10 @@ function og_role_revoke($group_type, $gid, $uid, $rid) {
       ->condition('gid', $gid)
       ->execute();
     module_invoke_all('og_role_revoke', $group_type, $gid, $uid, $rid);
+
+    if (module_exists('rules'))  {
+      rules_invoke_event('og_role_revoke', og_get_membership($group_type, $gid, 'user', $uid), entity_metadata_wrapper('user', $uid), $rid);
+    }
   }
 }
 
@@ -3328,7 +3340,7 @@ function og_list_permissions($type) {
  * @param $destination
  *   (optional) The destiantion after a node is created. Defaults to the
  *   destination passed in the URL if exists, otherwise back to the current
- *   page.
+ *   page. FALSE to not append any destination to node create links.
  * @param $types
  *   (optional) An array of type names. Restrict the created links to the given
  *   types.
@@ -3367,7 +3379,7 @@ function og_node_create_links($group_type, $gid, $field_name, $destination = NUL
   if ($destination) {
     $options['query']['destination'] = $destination;
   }
-  else {
+  elseif ($destination !== FALSE) {
     $options['query'] += drupal_get_destination();
   }
 
@@ -3401,36 +3413,34 @@ function og_node_create_links($group_type, $gid, $field_name, $destination = NUL
  *   An array with the group IDs or an empty array.
  */
 function og_get_groups_by_user($account = NULL, $group_type = NULL) {
-  $account_to_groups = drupal_static(__FUNCTION__, array());
   if (empty($account)) {
     global $user;
     $account = $user;
   }
 
-  if (!isset($account_to_groups[$account->uid])) {
-    if (!og_get_group_audience_fields()) {
-      // User entity doesn't have group audience fields.
-      return;
-    }
-  
-    $gids = array();
-  
-    // Get all active OG membership that belong to the user.
-    $wrapper = entity_metadata_wrapper('user', $account->uid);
-    $og_memberships = $wrapper->{'og_membership__' . OG_STATE_ACTIVE}->value();
-  
-    foreach ($og_memberships as $og_membership) {
-      $gids[$og_membership->group_type][$og_membership->gid] = $og_membership->gid;
-    }
-    drupal_alter('og_get_groups_by_user', $gids, $account);
-    $account_to_groups[$account->uid] = $gids;
+  if (!og_get_group_audience_fields()) {
+    // User entity doesn't have group audience fields.
+    return;
+  }
+
+  $gids = array();
+
+  // Get all active OG membership that belong to the user.
+  $wrapper = entity_metadata_wrapper('user', $account->uid);
+  $og_memberships = $wrapper->{'og_membership__' . OG_STATE_ACTIVE}->value();
+  if (!$og_memberships) {
+    return;
+  }
+
+  foreach ($og_memberships as $og_membership) {
+    $gids[$og_membership->group_type][$og_membership->gid] = $og_membership->gid;
   }
 
   if (empty($group_type)) {
-    return $account_to_groups[$account->uid];
+    return $gids;
   }
-  elseif (!empty($account_to_groups[$account->uid][$group_type])) {
-    return $account_to_groups[$account->uid][$group_type];
+  elseif (!empty($gids[$group_type])) {
+    return $gids[$group_type];
   }
 }
 
@@ -3539,6 +3549,12 @@ function og_migrate_api() {
         'class_name' => 'OgMigrateGroup',
         'bundle' => $bundle,
       );
+    }
+
+    if (db_table_exists('d6_og_users_roles')) {
+      // OG user roles (OGUR) related migrations.
+      $migrations['OgMigrateOgurRoles'] = array('class_name' => 'OgMigrateOgurRoles');
+      $migrations['OgMigrateOgur'] = array('class_name' => 'OgMigrateOgur');
     }
   }
   elseif (db_field_exists('og_membership', 'group_type') && db_table_exists('og') && !db_table_exists('d6_og')) {

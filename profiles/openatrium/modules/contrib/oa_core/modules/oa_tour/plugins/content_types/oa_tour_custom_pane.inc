@@ -1,4 +1,7 @@
 <?php
+/**
+ * @file oa_tour_custom_pane.inc
+ */
 
 $plugin = array(
   'single' => TRUE,
@@ -21,6 +24,7 @@ function oa_tour_pane_edit_form($form, &$form_state) {
  * Renders the widget.
  */
 function oa_tour_pane_render($subtype, $conf, $args, $context = NULL) {
+  drupal_add_css(drupal_get_path('module', 'oa_tour') . '/oa_tour.css');
   $block = new stdClass();
   $block->title = '';
   $tours = bootstrap_tour_load_all();
@@ -29,10 +33,27 @@ function oa_tour_pane_render($subtype, $conf, $args, $context = NULL) {
     $vars['oa_toolbar_btn_class'] = variable_get('oa_toolbar_style', 0) ? '' : ' btn-inverse';
     $items = array();
     foreach ($tours as $tour) {
-      $tour->steps = unserialize($tour->steps);
+      if (!empty($tour->roles)) {
+        global $user;
+        $tour_roles = explode(',', $tour->roles);
+        $user_roles = array_keys($user->roles);
+        $compare = array_intersect($tour_roles, $user_roles);
+        if (empty($compare)) {
+          continue;
+        }
+      }
+      if (!empty($tour->steps) && !is_array($tour->steps)) {
+        $tour->steps = unserialize($tour->steps);
+      }
+      drupal_alter('bootstrap_tour', $tour);
       if (!empty($tour->steps[0]['path'])) {
         $first_path = $tour->steps[0]['path'];
-        $items[] = l($tour->title, $first_path, array('query' => array('tour' => $tour->name)));
+        if (empty($_GET['tour']) || $_GET['tour'] != $tour->name) {
+          $items[] = l($tour->title, $first_path, array('query' => array('tour' => $tour->name)));
+        }
+        else {
+          $items[] = l($tour->title, $first_path, array('query' => array('tour' => $tour->name), 'attributes' => array('class' => array('active-trail'))));
+        }
       }
     }
     $vars['tours'] = theme('item_list', array('items' => $items));

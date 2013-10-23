@@ -248,7 +248,7 @@ function oa_dashboard_preprocess_oa_toolbar(&$vars) {
   $show_all = TRUE;
   $spaces = NULL;
   if ($user->uid) {
-    $spaces = og_get_groups_by_user($user, 'node');
+    $spaces = oa_core_get_groups_by_user($user, 'node');
     $menu_title = ($space_type == OA_SPACE_TYPE) ? t('Subscribed Spaces') : t('Groups');
   }
   if (empty($spaces)) {

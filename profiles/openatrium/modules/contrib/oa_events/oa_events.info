@@ -119,9 +119,9 @@ features_exclude[field][node-oa_event-og_group_ref] = node-oa_event-og_group_ref
 features_exclude[field_instance][node-oa_event-field_oa_message_space] = node-oa_event-field_oa_message_space
 project path = sites/all/modules/contrib
 
-; Information added by drupal.org packaging script on 2013-10-16
-version = "7.x-2.0-beta4"
+; Information added by drupal.org packaging script on 2013-10-22
+version = "7.x-2.0"
 core = "7.x"
 project = "oa_events"
-datestamp = "1381955799"
+datestamp = "1382471609"
 

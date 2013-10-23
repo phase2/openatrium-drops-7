@@ -4,9 +4,9 @@ core = "7.x"
 project = "oa_sandbox"
 description = "Adds a Sandbox mode to Open Atrium which makes any content additions/edits to not be saved."
 
-; Information added by drupal.org packaging script on 2013-10-18
-version = "7.x-2.0-rc1"
+; Information added by drupal.org packaging script on 2013-10-23
+version = "7.x-2.0"
 core = "7.x"
 project = "oa_core"
-datestamp = "1382101487"
+datestamp = "1382550931"
 

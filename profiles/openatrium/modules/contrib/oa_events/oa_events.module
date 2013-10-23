@@ -6,6 +6,8 @@
 
 define('OA_EVENTS_SEND_REMINDERS', 1);
 define('OA_EVENTS_REMINDER_INTERVAL', 1800);
+define('OA_EVENTS_DATE_FORMAT', 'MM/DD/YYYY');
+
 include_once 'oa_events.features.inc';
 include_once 'oa_events.theme.inc';
 
@@ -81,6 +83,7 @@ function oa_events_field_add_to_calendar_markup($nid, $items, $title = 'Add to C
     '_summary' => check_plain($node->title),
     '_description' => $description,
     '_all_day_event' => 'false',
+    '_date_format' => variable_get('oa_events_date_format', OA_EVENTS_DATE_FORMAT),
   );
 
   foreach ($spans as $span_class => $span_value) {
@@ -396,6 +399,12 @@ function oa_events_form_oa_core_configure_form_alter(&$form, &$form_state, $form
       86400 => t('1 Day'),
       604800 => t('1 Week'),
     ),
+  );
+
+  $form['oa_events']['oa_events_date_format'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Date format for "Add to Calendar" ?'),
+    '#default_value' => variable_get('oa_events_date_format', OA_EVENTS_DATE_FORMAT),
   );
 
   return system_settings_form($form);

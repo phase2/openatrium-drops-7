@@ -34,8 +34,8 @@ class oa_core_og_group_ref_views_handler_filter_in_operator extends views_handle
 
     global $user;
     if (!empty($exposed[$id . '_mine'])) {
-      $groups = og_get_groups_by_user($user, 'node');
-      if ($groups && ($gids = array_intersect_key(og_get_groups_by_user($user, 'node'), $this->get_value_options()))) {
+      $groups = oa_core_get_groups_by_user($user, 'node');
+      if ($groups && ($gids = array_intersect_key($groups, $this->get_value_options()))) {
         $exposed[$id] = $gids;
         $this->options['expose']['multiple'] = TRUE;
       }
@@ -62,7 +62,7 @@ class oa_core_og_group_ref_views_handler_filter_in_operator extends views_handle
     parent::exposed_form($form, $form_state);
     global $user;
     $exposed = $this->view->get_exposed_input();
-    $groups = og_get_groups_by_user($user, 'node');
+    $groups = oa_core_get_groups_by_user($user, 'node');
     if (($id = $this->options['expose']['identifier']) && $groups && !empty($form[$id]['#options']) && array_intersect_key($groups, $form[$id]['#options'])) {
       $form[$id . '_mine'] = array(
         '#title' => t('My Spaces'),

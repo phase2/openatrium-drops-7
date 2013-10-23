@@ -10,8 +10,8 @@ files[] = dhtml_menu.theme.inc
 configure = admin/config/user-interface/dhtml_menu
 
 
-; Information added by drush on 2013-10-18
+; Information added by drush on 2013-10-23
 version = "master-dev"
 project = "dhtml_menu"
-datestamp = "1382107246"
+datestamp = "1382551841"
 

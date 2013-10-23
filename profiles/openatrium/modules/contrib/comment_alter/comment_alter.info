@@ -5,10 +5,9 @@ dependencies[] = comment
 dependencies[] = diff (3.x)
 files[] = comment_alter.test
 
-
-; Information added by drush on 2013-10-18
-version = "7.x-1.0-rc2+6-dev"
+; Information added by drupal.org packaging script on 2013-10-20
+version = "7.x-1.0-rc3"
 core = "7.x"
 project = "comment_alter"
-datestamp = "1382107244"
+datestamp = "1382283469"
 

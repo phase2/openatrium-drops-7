@@ -30,34 +30,9 @@ function oa_worktracker_duedate_panelizer_defaults_override_alter(&$data) {
  */
 function oa_worktracker_duedate_strongarm_alter(&$data) {
   if (isset($data['field_bundle_settings_comment__comment_node_oa_worktracker_task'])) {
-    $data['field_bundle_settings_comment__comment_node_oa_worktracker_task']->value['extra_fields']['form']['comment_alter_field_oa_worktracker_assigned_to']['weight'] = 6; /* WAS: 7 */
     $data['field_bundle_settings_comment__comment_node_oa_worktracker_task']->value['extra_fields']['form']['comment_alter_field_oa_worktracker_duedate'] = array(
       'weight' => 10,
     ); /* WAS: '' */
-    $data['field_bundle_settings_comment__comment_node_oa_worktracker_task']->value['extra_fields']['form']['comment_alter_field_oa_worktracker_priority']['weight'] = 8; /* WAS: 9 */
-    $data['field_bundle_settings_comment__comment_node_oa_worktracker_task']->value['extra_fields']['form']['comment_alter_field_oa_worktracker_task_status']['weight'] = 7; /* WAS: 8 */
-    $data['field_bundle_settings_comment__comment_node_oa_worktracker_task']->value['extra_fields']['form']['comment_alter_field_oa_worktracker_task_type']['weight'] = 9; /* WAS: 10 */
   }
 }
 
-/**
- * Implements hook_views_default_views_alter().
- */
-function oa_worktracker_duedate_views_default_views_alter(&$data) {
-  if (isset($data['oa_worktracker'])) {
-    $data['oa_worktracker']->display['task_list']->display_options['fields']['field_oa_worktracker_duedate'] = array(
-      'id' => 'field_oa_worktracker_duedate',
-      'table' => 'field_data_field_oa_worktracker_duedate',
-      'field' => 'field_oa_worktracker_duedate',
-      'settings' => array(
-        'format_type' => 'oa_date',
-        'fromto' => 'both',
-        'multiple_number' => '',
-        'multiple_from' => '',
-        'multiple_to' => '',
-        'show_repeat_rule' => 'show',
-      ),
-    ); /* WAS: '' */
-    $data['oa_worktracker']->display['task_list']->display_options['style_options']['columns']['field_oa_worktracker_duedate'] = 'field_oa_worktracker_duedate'; /* WAS: '' */
-  }
-}

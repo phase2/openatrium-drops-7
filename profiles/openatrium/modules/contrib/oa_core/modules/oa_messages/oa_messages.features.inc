@@ -7,8 +7,7 @@
 /**
  * Implements hook_ctools_plugin_api().
  */
-function oa_messages_ctools_plugin_api() {
-  list($module, $api) = func_get_args();
+function oa_messages_ctools_plugin_api($module = NULL, $api = NULL) {
   if ($module == "strongarm" && $api == "strongarm") {
     return array("version" => "1");
   }
@@ -19,6 +18,47 @@ function oa_messages_ctools_plugin_api() {
  */
 function oa_messages_default_message_type() {
   $items = array();
+  $items['oa_comment'] = entity_import('message_type', '{
+    "name" : "oa_comment",
+    "description" : "Comment",
+    "argument_keys" : [],
+    "argument" : [],
+    "category" : "message_type",
+    "data" : {
+      "token options" : { "clear" : 1 },
+      "purge" : { "override" : 0, "enabled" : 0, "quota" : "", "days" : "" }
+    },
+    "language" : "",
+    "arguments" : null,
+    "message_text" : { "und" : [
+        {
+          "value" : "[[message:field-oa-message-space]] @{message:user:name} replied to [message:field-oa-node-ref:title]",
+          "format" : "plain_text",
+          "safe_value" : "\\u003Cp\\u003E[[message:field-oa-message-space]] @{message:user:name} replied to [message:field-oa-node-ref:title]\\u003C\\/p\\u003E\\n"
+        },
+        {
+          "value" : "@{message:user:name} replied to \\u003Ca href=\\u0022\\/comment\\/[message:field-oa-comment-ref:cid]#comment-[message:field-oa-comment-ref:cid]\\u0022\\u003E[message:field-oa-node-ref:title]\\u003C\\/a\\u003E\\r\\n[message:field-oa-message-text:value] [message:field-oa-comment-ref:comment-body:value]\\r\\n\\u003Ca href=\\u0022[message:field-oa-node-ref:url]\\u0022\\u003EClick here\\u003C\\/a\\u003E to see the discussion.",
+          "format" : "full_html",
+          "safe_value" : "@{message:user:name} replied to \\u003Ca href=\\u0022\\/comment\\/[message:field-oa-comment-ref:cid]#comment-[message:field-oa-comment-ref:cid]\\u0022\\u003E[message:field-oa-node-ref:title]\\u003C\\/a\\u003E\\n[message:field-oa-message-text:value] [message:field-oa-comment-ref:comment-body:value]\\n\\u003Ca href=\\u0022[message:field-oa-node-ref:url]\\u0022\\u003EClick here\\u003C\\/a\\u003E to see the discussion."
+        },
+        {
+          "value" : "\\u003Ca href=\\u0022[site:url]user\\/@{message:user:uid}\\u0022 class=\\u0022oa-userlink\\u0022\\u003E@{message:user:name}\\u003C\\/a\\u003E replied to \\u003Ca href=\\u0022\\/comment\\/[message:field-oa-comment-ref:cid]#comment-[message:field-oa-comment-ref:cid]\\u0022\\u003E\\u003Cstrong\\u003E[message:field-oa-node-ref:title]\\u003C\\/strong\\u003E\\u003C\\/a\\u003E",
+          "format" : "full_html",
+          "safe_value" : "\\u003Ca href=\\u0022[site:url]user\\/@{message:user:uid}\\u0022 class=\\u0022oa-userlink\\u0022\\u003E@{message:user:name}\\u003C\\/a\\u003E replied to \\u003Ca href=\\u0022\\/comment\\/[message:field-oa-comment-ref:cid]#comment-[message:field-oa-comment-ref:cid]\\u0022\\u003E\\u003Cstrong\\u003E[message:field-oa-node-ref:title]\\u003C\\/strong\\u003E\\u003C\\/a\\u003E"
+        },
+        {
+          "value" : "[message:field-oa-message-text:value] [message:field-oa-node-ref:title]",
+          "format" : "panopoly_html_text",
+          "safe_value" : "\\u003Cp\\u003E[message:field-oa-message-text:value] [message:field-oa-node-ref:title]\\u003C\\/p\\u003E\\n"
+        },
+        {
+          "value" : "[message:field-oa-comment-ref:comment-body:value]",
+          "format" : "panopoly_html_text",
+          "safe_value" : "\\u003Cp\\u003E[message:field-oa-comment-ref:comment-body:value]\\u003C\\/p\\u003E\\n"
+        }
+      ]
+    }
+  }');
   $items['oa_create'] = entity_import('message_type', '{
     "name" : "oa_create",
     "description" : "Create Content",
@@ -33,9 +73,9 @@ function oa_messages_default_message_type() {
     "arguments" : null,
     "message_text" : { "und" : [
         {
-          "value" : "[[message:field-oa-message-space]] @{message:user:name} created [message:field-oa-node-ref:title] [#[message:field-oa-node-ref:nid]]",
+          "value" : "[[message:field-oa-message-space]] @{message:user:name} created [message:field-oa-node-ref:title]",
           "format" : "plain_text",
-          "safe_value" : "\\u003Cp\\u003E[[message:field-oa-message-space]] @{message:user:name} created [message:field-oa-node-ref:title] [#[message:field-oa-node-ref:nid]]\\u003C\\/p\\u003E\\n"
+          "safe_value" : "\\u003Cp\\u003E[[message:field-oa-message-space]] @{message:user:name} created [message:field-oa-node-ref:title]\\u003C\\/p\\u003E\\n"
         },
         {
           "value" : "\\u003Cp\\u003E[message:field-oa-message-text:value]\\u0026nbsp;[message:field-oa-node-ref:body]\\u003C\\/p\\u003E",

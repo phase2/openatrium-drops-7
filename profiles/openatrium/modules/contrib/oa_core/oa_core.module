@@ -46,6 +46,9 @@ function oa_core_ctools_plugin_directory($owner, $plugin_type) {
   if ($owner == 'ctools' && $plugin_type == 'content_types') {
     return 'plugins/content_types';
   }
+  elseif ($owner == 'entityreference') {
+    return "plugins/entityreference/$plugin_type";
+  }
 }
 
 /**

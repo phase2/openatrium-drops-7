@@ -71,7 +71,8 @@ function og_field_widget_form(&$form, &$form_state, $field, $instance, $langcode
   }
 
   $target_type = $field['settings']['target_type'];
-  $user_gids = og_get_groups_by_user(NULL, $target_type);
+  $user_gids = og_get_entity_groups();
+  $user_gids = !empty($user_gids[$target_type]) ? $user_gids[$target_type] : array();
 
   // Get the "Other group" group IDs.
   $other_groups_ids = array_diff($entity_gids, $user_gids);

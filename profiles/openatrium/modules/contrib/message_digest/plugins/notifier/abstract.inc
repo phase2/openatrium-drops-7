@@ -20,14 +20,20 @@ class MessageDigest extends MessageNotifierBase {
       'sent' => FALSE,
       'timestamp' => $message->timestamp,
     );
+    // This will only have a value if the message is not a message_subscribe message.
+    $mid = $message->mid;
 
     // Our $message is a cloned copy of the original $message with the mid field removed to
     // prevent overwriting (this happens in message_subscribe) so we need to fetch the mid manually.
-    $mid = db_select('message', 'm')
-      ->fields('m', array('mid'))
-      ->condition('timestamp', $message->timestamp)
-      ->execute()
-      ->fetchField();
+    if (empty($mid)) {
+      $mid = db_select('message', 'm')
+        ->fields('m', array('mid'))
+        ->condition('timestamp', $message->timestamp)
+        ->condition('type', $message->type)
+        ->execute()
+        ->fetchField();
+    }
+
     if (!empty($mid)) {
       $message_digest['mid'] = $mid;
     }
@@ -62,6 +68,9 @@ class MessageDigest extends MessageNotifierBase {
 
     foreach ($result as $row) {
       $gid = $row->gid;
+      if (empty($gid)) {
+        $gid = 0;
+      }
       $account = user_load($row->receiver);
       if (!empty($account->data['digest_grouping']) && $account->data['digest_grouping'] == 'global') {
         // Allow users to group all groups together in the same digest.

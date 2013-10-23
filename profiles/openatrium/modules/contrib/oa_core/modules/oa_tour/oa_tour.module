@@ -25,3 +25,71 @@ function oa_tour_theme() {
     ),
   );
 }
+
+/**
+ * Implements hook_bootstrap_tour_alter().
+ * Dig into steps with "firstnode/<nodetype>/<tourname>" paths and alter them so that they either point to the first
+ * node of a specific type if one exists, or the node add form of that type if not.
+ */
+function oa_tour_bootstrap_tour_alter(&$tour) {
+  if (empty($tour) || empty($tour->steps)) {
+    return;
+  }
+  foreach ($tour->steps as $key => $step) {
+    if (empty($step['path'])) {
+      continue;
+    }
+    $path_parts = explode('/', $step['path']);
+    if ($path_parts[0] == 'firstnode' && count($path_parts) > 1) {
+      $node_type = $path_parts[1];
+      $nid = db_select('node', 'n')
+        ->fields('n', array('nid'))
+        ->condition('type', $node_type)
+        ->orderBy('nid', 'DESC')
+        ->range(0,1)
+        ->execute()
+        ->fetchField();
+      if (empty($nid)) {
+        // No nodes exist yet so let's send them to the node add form.
+        $tour->steps[$key]['path'] = 'node/add/' . str_replace('_', '-', $node_type) . '?nexttour=' . $tour->name;
+        if (!empty($path_parts[2])) {
+          // If the URL has a 3rd part, that's the name of the tour to run on the node add form.
+          $tour->steps[$key]['path'] .= '&tour=' . $path_parts[2];
+        }
+      } else {
+        // A node does exist, so go ahead and make that the next step.
+        $tour->steps[$key]['path'] = drupal_get_path_alias('node/' . $nid);
+        if (!empty($_SESSION['nexttour']) && $_SESSION['nexttour'] == $tour->name) {
+          for ($i = 0; $i < $key; $i++) {
+            unset($tour->steps[$i]);
+          }
+          $tour->steps = array_values($tour->steps);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implementation of hook_form_FORM_BASE_ID_alter().
+ * Add the nexttour parameter as a hidden form field so that we can use it in the submit
+ * callback to resume the previous tour on the newly created node's page.
+ */
+function oa_tour_form_node_form_alter(&$form, &$form_state, $form_id) {
+  if (!empty($_GET['nexttour'])) {
+    $form['nexttour'] = array(
+      '#type' => 'hidden',
+      '#value' => $_GET['nexttour'],
+    );
+  }
+}
+
+/**
+ * Implementation of hook_node_insert().
+ * Fetch the next tour to run from the form fields and then run it.
+ */
+function oa_tour_node_insert($node) {
+  if (!empty($node->nexttour)) {
+    $_SESSION['nexttour'] = $node->nexttour;
+  }
+}

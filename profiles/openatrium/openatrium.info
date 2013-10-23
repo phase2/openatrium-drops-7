@@ -120,6 +120,7 @@ dependencies[] = oa_search
 dependencies[] = oa_variables
 dependencies[] = oa_buttons
 dependencies[] = oa_tour
+dependencies[] = oa_tour_defaults
 dependencies[] = oa_contextual_tabs
 dependencies[] = oa_responsive_regions
 
@@ -138,9 +139,9 @@ dependencies[] = oa_appearance
 dependencies[] = panels_customerror
 dependencies[] = apps
 
-; Information added by drupal.org packaging script on 2013-10-18
-version = "7.x-2.0-rc1"
+; Information added by drupal.org packaging script on 2013-10-23
+version = "7.x-2.0"
 core = "7.x"
 project = "openatrium"
-datestamp = "1382107234"
+datestamp = "1382551827"
 

@@ -122,7 +122,7 @@ projects[message_subscribe][patch][2094129] = http://drupal.org/files/message_su
 
 ; Message Digest
 projects[message_digest][subdir] = contrib
-projects[message_digest][version] = 1.0-alpha1
+projects[message_digest][version] = 1.0-beta1
 
 ; Flag
 projects[flag][subdir] = contrib
@@ -189,11 +189,11 @@ libraries[simplepie][directory_name] = simplepie
 
 ; Command buttons
 projects[command_buttons][subdir] = contrib
-projects[command_buttons][version] = 1.0-alpha1
+projects[command_buttons][version] = 1.0-beta1
 
 ; Contextual Tabs
 projects[contextual_tabs][subdir] = contrib
-projects[contextual_tabs][version] = 1.0-alpha1
+projects[contextual_tabs][version] = 1.0-beta1
 
 projects[panels_customerror][type] = module
 projects[panels_customerror][subdir] = contrib
@@ -239,11 +239,11 @@ projects[jquery_update][patch][1448490] = http://drupal.org/files/jquery_update-
 
 ; Colorizer
 projects[colorizer][subdir] = contrib
-projects[colorizer][version] = 1.0-alpha1
+projects[colorizer][version] = 1.0-beta1
 
 ; OA Responsive Regions
 projects[oa_responsive_regions][subdir] = contrib
-projects[oa_responsive_regions][version] = 1.0-alpha1
+projects[oa_responsive_regions][version] = 1.0-beta1
 
 
 ; ##### Organic Groups related #####
@@ -252,10 +252,7 @@ projects[og][download][type] = git
 projects[og][subdir] = contrib
 projects[og][download][url] = http://git.drupal.org/project/og.git
 projects[og][download][branch] = 7.x-2.x
-projects[og][download][revision] = 05ee95269e2c31492158dc6eabd2e386aec1c931
-projects[og][patch][1995012] = http://drupal.org/files/og_membership_alter.patch
-projects[og][patch][998094] = http://drupal.org/files/998094-og_membership_administer_member-16.patch
-projects[og][patch][2060655] = http://drupal.org/files/og-field-user-membership-2060655-1.patch
+projects[og][download][revision] = 6c0afff
 
 ; Organic Groups Vocabulary
 projects[og_vocab][subdir] = contrib
@@ -288,4 +285,4 @@ projects[og_variables][version] = 1.0-beta1
 ; Bootstrap Tour
 projects[bootstrap_tour][type] = module
 projects[bootstrap_tour][subdir] = contrib
-projects[bootstrap_tour][version] = 1.0-alpha1
+projects[bootstrap_tour][version] = 1.0-beta2

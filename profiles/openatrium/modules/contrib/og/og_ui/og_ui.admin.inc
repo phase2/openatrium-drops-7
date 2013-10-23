@@ -18,18 +18,6 @@ function og_ui_admin_settings($form_state) {
     '#default_value' => variable_get('og_group_manager_full_access', TRUE),
   );
 
-  $form['og_group_manager_admin_role'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Group manager administer role'),
-    '#description' => t('When enabled the group manager will have the administer member role in the group.'),
-    '#default_value' => variable_get('og_group_manager_admin_role', FALSE),
-    '#states' => array(
-      'visible' => array(
-        ':input[name=og_group_manager_full_access]' => array('checked' => FALSE),
-      ),
-    )
-  );
-
   $form['og_node_access_strict'] = array(
     '#type' => 'checkbox',
     '#title' => t('Strict node access permissions'),
@@ -174,7 +162,7 @@ function og_ui_add_users($form, &$form_state, $group_type, $gid) {
     );
   }
 
-  $field_names = og_get_group_audience_fields('user', 'user', $group_type);
+  $field_names = og_get_group_audience_fields('user', 'user', $group_type, $bundle);
   $field_name = !empty($form_state['values']['field_name']) ? $form_state['values']['field_name'] : key($field_names);
 
   if (count($field_names) > 1) {

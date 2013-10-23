@@ -43,8 +43,8 @@ function oa_worktracker_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'message-oa_worktracker_task_update-field_oa_message_section'
-  $field_instances['message-oa_worktracker_task_update-field_oa_message_section'] = array(
+  // Exported field_instance: 'message-oa_worktracker_task_update-field_oa_comment_ref'
+  $field_instances['message-oa_worktracker_task_update-field_oa_comment_ref'] = array(
     'bundle' => 'oa_worktracker_task_update',
     'default_value' => NULL,
     'deleted' => 0,
@@ -57,7 +57,7 @@ function oa_worktracker_field_default_field_instances() {
           'link' => FALSE,
         ),
         'type' => 'entityreference_label',
-        'weight' => 6,
+        'weight' => 7,
       ),
       'message_notify_email_body' => array(
         'label' => 'above',
@@ -88,6 +88,76 @@ function oa_worktracker_field_default_field_instances() {
         'settings' => array(),
         'type' => 'hidden',
         'weight' => 5,
+      ),
+    ),
+    'entity_type' => 'message',
+    'field_name' => 'field_oa_comment_ref',
+    'label' => 'Comment',
+    'options_limit' => FALSE,
+    'options_limit_empty_behaviour' => 0,
+    'options_limit_fields' => array(),
+    'required' => 0,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'entityreference',
+      'settings' => array(
+        'match_operator' => 'CONTAINS',
+        'path' => '',
+        'size' => 60,
+      ),
+      'type' => 'entityreference_autocomplete',
+      'weight' => 4,
+    ),
+  );
+
+  // Exported field_instance: 'message-oa_worktracker_task_update-field_oa_message_section'
+  $field_instances['message-oa_worktracker_task_update-field_oa_message_section'] = array(
+    'bundle' => 'oa_worktracker_task_update',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 2,
+      ),
+      'message_notify_email_body' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 7,
+      ),
+      'message_notify_email_subject' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 7,
+      ),
+      'oa_river_accordian' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 7,
+      ),
+      'oa_river_body' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 7,
+      ),
+      'oa_river_header' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 7,
       ),
     ),
     'entity_type' => 'message',
@@ -106,7 +176,7 @@ function oa_worktracker_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'entityreference_autocomplete',
-      'weight' => 3,
+      'weight' => 1,
     ),
   );
 
@@ -124,37 +194,37 @@ function oa_worktracker_field_default_field_instances() {
           'link' => FALSE,
         ),
         'type' => 'entityreference_label',
-        'weight' => 5,
+        'weight' => 0,
       ),
       'message_notify_email_body' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 6,
+        'weight' => 8,
       ),
       'message_notify_email_subject' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 6,
+        'weight' => 8,
       ),
       'oa_river_accordian' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 6,
+        'weight' => 8,
       ),
       'oa_river_body' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 6,
+        'weight' => 8,
       ),
       'oa_river_header' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 6,
+        'weight' => 8,
       ),
     ),
     'entity_type' => 'message',
@@ -173,7 +243,7 @@ function oa_worktracker_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'entityreference_autocomplete',
-      'weight' => 2,
+      'weight' => 0,
     ),
   );
 
@@ -189,43 +259,42 @@ function oa_worktracker_field_default_field_instances() {
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 7,
+        'weight' => 4,
       ),
       'message_notify_email_body' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 4,
+        'weight' => 6,
       ),
       'message_notify_email_subject' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 4,
+        'weight' => 6,
       ),
       'oa_river_accordian' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 4,
+        'weight' => 6,
       ),
       'oa_river_body' => array(
         'label' => 'hidden',
-        'module' => 'text',
         'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 0,
+        'type' => 'hidden',
+        'weight' => 6,
       ),
       'oa_river_header' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 4,
+        'weight' => 6,
       ),
     ),
     'entity_type' => 'message',
     'field_name' => 'field_oa_message_text',
-    'label' => 'Custom text',
+    'label' => 'Custom Text',
     'required' => 0,
     'settings' => array(
       'linkit' => array(
@@ -242,7 +311,7 @@ function oa_worktracker_field_default_field_instances() {
         'rows' => 5,
       ),
       'type' => 'text_textarea',
-      'weight' => 4,
+      'weight' => 2,
     ),
   );
 
@@ -260,37 +329,37 @@ function oa_worktracker_field_default_field_instances() {
           'link' => FALSE,
         ),
         'type' => 'entityreference_label',
-        'weight' => 0,
+        'weight' => 6,
       ),
       'message_notify_email_body' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 7,
+        'weight' => 9,
       ),
       'message_notify_email_subject' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 7,
+        'weight' => 9,
       ),
       'oa_river_accordian' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 7,
+        'weight' => 9,
       ),
       'oa_river_body' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 7,
+        'weight' => 9,
       ),
       'oa_river_header' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 7,
+        'weight' => 9,
       ),
     ),
     'entity_type' => 'message',
@@ -309,74 +378,7 @@ function oa_worktracker_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'entityreference_autocomplete',
-      'weight' => 0,
-    ),
-  );
-
-  // Exported field_instance: 'message-oa_worktracker_task_update-field_oa_worktracker_comment_ref'
-  $field_instances['message-oa_worktracker_task_update-field_oa_worktracker_comment_ref'] = array(
-    'bundle' => 'oa_worktracker_task_update',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'entityreference',
-        'settings' => array(
-          'link' => FALSE,
-        ),
-        'type' => 'entityreference_label',
-        'weight' => 8,
-      ),
-      'message_notify_email_body' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-      'message_notify_email_subject' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-      'oa_river_accordian' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-      'oa_river_body' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-      'oa_river_header' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'message',
-    'field_name' => 'field_oa_worktracker_comment_ref',
-    'label' => 'Comment',
-    'required' => 0,
-    'settings' => array(
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'entityreference',
-      'settings' => array(
-        'match_operator' => 'CONTAINS',
-        'path' => '',
-        'size' => 60,
-      ),
-      'type' => 'entityreference_autocomplete',
-      'weight' => 1,
+      'weight' => 3,
     ),
   );
 
@@ -441,9 +443,7 @@ function oa_worktracker_field_default_field_instances() {
       'default' => array(
         'label' => 'above',
         'module' => 'file',
-        'settings' => array(
-          'text' => '[file:name]',
-        ),
+        'settings' => array(),
         'type' => 'file_default',
         'weight' => 2,
       ),
@@ -516,7 +516,7 @@ function oa_worktracker_field_default_field_instances() {
           'link' => 1,
         ),
         'type' => 'entityreference_label',
-        'weight' => 10,
+        'weight' => 9,
       ),
       'featured' => array(
         'label' => 'above',
@@ -548,7 +548,7 @@ function oa_worktracker_field_default_field_instances() {
         'apply_chosen' => 0,
       ),
       'type' => 'options_select',
-      'weight' => 8,
+      'weight' => 7,
     ),
   );
 
@@ -569,7 +569,7 @@ function oa_worktracker_field_default_field_instances() {
         'module' => 'list',
         'settings' => array(),
         'type' => 'list_default',
-        'weight' => 12,
+        'weight' => 11,
       ),
       'featured' => array(
         'label' => 'above',
@@ -598,7 +598,7 @@ function oa_worktracker_field_default_field_instances() {
         'apply_chosen' => 0,
       ),
       'type' => 'options_select',
-      'weight' => 10,
+      'weight' => 9,
     ),
   );
 
@@ -619,7 +619,7 @@ function oa_worktracker_field_default_field_instances() {
         'module' => 'list',
         'settings' => array(),
         'type' => 'list_default',
-        'weight' => 11,
+        'weight' => 10,
       ),
       'featured' => array(
         'label' => 'above',
@@ -648,7 +648,7 @@ function oa_worktracker_field_default_field_instances() {
         'apply_chosen' => 0,
       ),
       'type' => 'options_select',
-      'weight' => 9,
+      'weight' => 8,
     ),
   );
 
@@ -669,7 +669,7 @@ function oa_worktracker_field_default_field_instances() {
         'module' => 'list',
         'settings' => array(),
         'type' => 'list_default',
-        'weight' => 13,
+        'weight' => 12,
       ),
       'featured' => array(
         'label' => 'above',
@@ -698,7 +698,7 @@ function oa_worktracker_field_default_field_instances() {
         'apply_chosen' => 0,
       ),
       'type' => 'options_select',
-      'weight' => 11,
+      'weight' => 10,
     ),
   );
 
@@ -833,7 +833,7 @@ function oa_worktracker_field_default_field_instances() {
   t('Assigned to');
   t('Attachments');
   t('Comment');
-  t('Custom text');
+  t('Custom Text');
   t('Description');
   t('Groups audience');
   t('Node');

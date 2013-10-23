@@ -78,9 +78,9 @@ features_exclude[field][node-oa_team-og_group_ref] = node-oa_team-og_group_ref
 features_exclude[field_base][body] = body
 project path = sites/all/modules/contrib/oa_core/modules
 
-; Information added by drupal.org packaging script on 2013-10-18
-version = "7.x-2.0-rc1"
+; Information added by drupal.org packaging script on 2013-10-23
+version = "7.x-2.0"
 core = "7.x"
 project = "oa_core"
-datestamp = "1382101487"
+datestamp = "1382550931"
 

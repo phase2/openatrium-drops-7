@@ -24,11 +24,11 @@ $plugin = array(
       'path' => drupal_get_path('module', 'ahrq_page_elements') . '/plugins/styles/menus',
     ),
     'bootstrap_pane_styles_btn_link' => array(
-      'render element' => 'element', 
+      'render element' => 'element',
       'path' => drupal_get_path('module', 'ahrq_page_elements') . '/plugins/styles/menus',
     ),
     'bootstrap_pane_styles_btn_link_dropdown' => array(
-      'render element' => 'element', 
+      'render element' => 'element',
       'path' => drupal_get_path('module', 'ahrq_page_elements') . '/plugins/styles/menus',
     ),
     'bootstrap_pane_styles_menu_dropdown' => array(
@@ -51,7 +51,7 @@ function theme_bootstrap_pane_styles_menu_tree($vars) {
  */
 function theme_bootstrap_pane_styles_btn_group($vars) {
   $vars['tree']['#attributes']['class'] .= ' btn-group';
-  $group = '<div ' .  drupal_attributes($vars['tree']['#attributes'])  . '>' . $vars['tree']['#children'] . '</div>';
+  $group = '<div ' . drupal_attributes($vars['tree']['#attributes']) . '>' . $vars['tree']['#children'] . '</div>';
   if (!empty($vars['tree']['#bootstrap_stacked'])) {
     $group = '<div>' . $group . '</div>';
   }

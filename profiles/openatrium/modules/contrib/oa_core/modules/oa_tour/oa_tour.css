@@ -1,0 +1,10 @@
+#oa-navbar .pane-oa-tour-custom-pane ul.dropdown-menu ul li a.active {
+  background: #FFF;
+  font-style: normal;
+  color: #333;
+}
+#oa-navbar .pane-oa-tour-custom-pane ul.dropdown-menu ul li a.active-trail,
+#oa-navbar .pane-oa-tour-custom-pane ul.dropdown-menu ul li a.active:hover {
+  background: #0081C2;
+  color: white;
+}

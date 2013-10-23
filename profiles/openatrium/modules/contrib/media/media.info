@@ -22,9 +22,9 @@ files[] = tests/media.file.usage.test
 configure = admin/config/media/browser
 
 
-; Information added by drush on 2013-10-18
+; Information added by drush on 2013-10-23
 version = "7.x-2.0-unstable7+62-dev"
 core = "7.x"
 project = "media"
-datestamp = "1382107238"
+datestamp = "1382551832"
 

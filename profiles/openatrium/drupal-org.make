@@ -32,37 +32,37 @@ projects[htmlmail][version] = 2.65
 ; ************* Open Atrium Plugins RELEASE ******
 
 projects[oa_core][subdir] = contrib
-projects[oa_core][version] = 2.0-rc1
+projects[oa_core][version] = 2.0
 
 projects[oa_discussion][subdir] = contrib
-projects[oa_discussion][version] = 2.0-beta3
+projects[oa_discussion][version] = 2.0
 
 projects[oa_wiki][subdir] = contrib
-projects[oa_wiki][version] = 2.0-beta3
+projects[oa_wiki][version] = 2.0
 
 projects[oa_events][subdir] = contrib
-projects[oa_events][version] = 2.0-beta4
+projects[oa_events][version] = 2.0
 
 projects[oa_events_import][subdir] = contrib
-projects[oa_events_import][version] = 2.0-beta2
+projects[oa_events_import][version] = 2.0
 
 projects[oa_worktracker][subdir] = contrib
-projects[oa_worktracker][version] = 1.0-beta1
+projects[oa_worktracker][version] = 2.0-beta2
 
 projects[oa_contextual_tabs][subdir] = contrib
-projects[oa_contextual_tabs][version] = 2.0-beta1
+projects[oa_contextual_tabs][version] = 2.0
 
 projects[oa_notifications][subdir] = contrib
-projects[oa_notifications][version] = 2.0-beta2
+projects[oa_notifications][version] = 2.0
 
 projects[oa_media][subdir] = contrib
-projects[oa_media][version] = 2.0-beta2
+projects[oa_media][version] = 2.0
 
 projects[oa_subspaces][subdir] = contrib
-projects[oa_subspaces][version] = 2.0-beta4
+projects[oa_subspaces][version] = 2.0
 
 projects[oa_radix][type] = theme
-projects[oa_radix][version] = 2.0-rc1
+projects[oa_radix][version] = 2.0
 
 ; ********** End Open Atrium's Plugins ***********
 ; ************************************************

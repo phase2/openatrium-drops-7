@@ -92,9 +92,9 @@ features_exclude[field_base][oa_section_ref] = oa_section_ref
 features_exclude[field_base][og_group_ref] = og_group_ref
 project path = sites/all/modules/contrib
 
-; Information added by drupal.org packaging script on 2013-08-29
-version = "7.x-2.0-beta2"
+; Information added by drupal.org packaging script on 2013-10-22
+version = "7.x-2.0"
 core = "7.x"
 project = "oa_events_import"
-datestamp = "1377798484"
+datestamp = "1382471611"
 

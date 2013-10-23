@@ -63,7 +63,7 @@ function oa_worktracker_modules_enabled($modules) {
  */
 function oa_worktracker_oa_messages_type_alter(&$message_type, $context) {
   // TODO: replace the oa_create with something else too...
-  if ($message_type == 'oa_update' && $context['entity']->type == 'oa_worktracker_task') {
+  if (in_array($message_type, array('oa_update', 'oa_comment')) && $context['entity']->type == 'oa_worktracker_task') {
     // tell OpenAtrium not to create a message for this! We'll handle it ourselves..
     $message_type = NULL;
   }
@@ -83,7 +83,7 @@ function oa_worktracker_oa_messages_create_alter(&$wrapper, $context) {
   if ($context['message_type'] == 'oa_worktracker_task_update' && !empty($context['arguments']['comment'])) {
     // set the comment reference when there is one!
     $comment = $context['arguments']['comment'];
-    $wrapper->field_oa_worktracker_comment_ref = $comment->cid;
+    $wrapper->field_oa_comment_ref = $comment->cid;
   }
 }
 

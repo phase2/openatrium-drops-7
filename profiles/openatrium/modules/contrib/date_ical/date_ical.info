@@ -30,9 +30,9 @@ files[] = tests/date_ical_parser_location.test
 files[] = tests/date_ical_parser_categories.test
 
 
-; Information added by drush on 2013-10-18
+; Information added by drush on 2013-10-23
 version = "7.x-2.8+5-dev"
 core = "7.x"
 project = "date_ical"
-datestamp = "1382107246"
+datestamp = "1382551842"
 

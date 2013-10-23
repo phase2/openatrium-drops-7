@@ -139,7 +139,7 @@ border-color: @sidebarborders;
 .oa-pane {
 border-color: @sidebarborders;
 }
-.pane-oa-navigation,
-.pane-oa-space-banner {
+#oa-navbar .panel-panel .pane-oa-navigation,
+#oa-navbar .panel-panel .pane-oa-space-banner {
 background-color: @headerbg;
 }

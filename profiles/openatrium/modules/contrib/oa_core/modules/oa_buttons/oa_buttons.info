@@ -35,9 +35,9 @@ features[field_instance][] = taxonomy_term-space_type-field_oa_section_layout
 features[taxonomy][] = section_type
 features[taxonomy][] = space_type
 
-; Information added by drupal.org packaging script on 2013-10-18
-version = "7.x-2.0-rc1"
+; Information added by drupal.org packaging script on 2013-10-23
+version = "7.x-2.0"
 core = "7.x"
 project = "oa_core"
-datestamp = "1382101487"
+datestamp = "1382550931"
 

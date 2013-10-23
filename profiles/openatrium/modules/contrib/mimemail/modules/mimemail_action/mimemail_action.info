@@ -7,9 +7,9 @@ core = 7.x
 
 
 
-; Information added by drush on 2013-10-18
+; Information added by drush on 2013-10-23
 version = "7.x-1.0-alpha2+25-dev"
 core = "7.x"
 project = "mimemail"
-datestamp = "1382107257"
+datestamp = "1382551851"
 
