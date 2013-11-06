@@ -10,6 +10,17 @@
  */
 function openatrium_install() {
   node_access_rebuild();
+  _openatrium_set_up_theme();
+}
+
+/**
+ * Set the default theme.
+ */
+function _openatrium_set_up_theme() {
+  $theme = 'oa_radix';
+  theme_enable(array($theme));
+  variable_set('theme_default', $theme);
+  theme_disable(array('responsive_bartik', 'bartik'));
 }
 
 /**

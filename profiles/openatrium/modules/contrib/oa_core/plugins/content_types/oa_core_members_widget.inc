@@ -72,7 +72,7 @@ function oa_core_members_widget_render($subtype, $conf, $args, $context = NULL) 
   $parents = array();
   $parent_spaces = array();
   $parent_groups = array();
-  if (empty($conf['hide_inherited']) && $is_admin && ($parent_field = field_get_items('node', $space, 'oa_parent_space'))) {
+  if (module_exists('oa_subspaces') && empty($conf['hide_inherited']) && $is_admin && ($parent_field = field_get_items('node', $space, OA_PARENT_SPACE))) {
     foreach ($parent_field as $parent) {
       if (!empty($parent['target_id'])) {
         $parents[$parent['target_id']] = $parent['target_id'];
@@ -140,7 +140,7 @@ function oa_core_members_widget_render($subtype, $conf, $args, $context = NULL) 
       'links' => array('dashboard', 'remove-admin'),
     );
   }
-  if (!isset($conf['hide_inherited']) || !$conf['hide_inherited']) {
+  if (module_exists('oa_subspaces') && (!isset($conf['hide_inherited']) || !$conf['hide_inherited'])) {
     $tabs['parents'] = array(
       'caption' => t('Inherited'),
       'title' => t('Inheriting members from:'),
@@ -152,13 +152,16 @@ function oa_core_members_widget_render($subtype, $conf, $args, $context = NULL) 
     );
     if (user_access('create ' . OA_GROUP_TYPE . ' content', $user)) {
       $tabs['parents']['global_links'][] = array(
-        'title' => t('Add Group'),
+        'title' => t('Create New Group'),
         'url'   => url('node/add/' . str_replace('_', '-', OA_GROUP_TYPE)),
       );
     }
+    if (og_user_access('node', $space->nid, 'administer group')) {
+      $tabs['parents']['form'] = drupal_get_form('oa_core_members_widget_add_group_form', $space);
+    }
   }
 
-  if ($space->type == OA_SPACE_TYPE) {
+  if (module_exists('oa_teams') && ($space->type == OA_SPACE_TYPE)) {
     $tabs['teams'] = array(
       'caption' => t('Teams'),
       'title' => t('Teams'),
@@ -167,7 +170,7 @@ function oa_core_members_widget_render($subtype, $conf, $args, $context = NULL) 
     );
     if (user_access('create ' . OA_TEAM_TYPE . ' content', $user)) {
       $tabs['teams']['global_links'][] = array(
-        'title' => t('Add Team'),
+        'title' => t('Create New Team'),
         'url'   => url('node/add/' . str_replace('_', '-', OA_TEAM_TYPE)),
       );
     }
@@ -234,11 +237,70 @@ function oa_core_members_widget_render($subtype, $conf, $args, $context = NULL) 
 
   $vars['tabs'] = $tabs;
   $vars['links'] = $links;
-  $vars['active'] = 'members';
+  $vars['active'] = isset($args[1]) ? $args[1] : 'members';
 
   $block->content = theme('oa_core_members_widget', $vars);
   return $block;
 }
+
+/**
+ * Render the form for Add Group
+ *
+ * @param $form
+ *    The FAPI array
+ * @param $form_state
+ *    The state of the form
+ * @param $space
+ *    The space the group is added to
+ * @return
+ *    The form
+ */
+function oa_core_members_widget_add_group_form($form, &$form_state, $space) {
+  $form['#space'] = $space;
+
+  $groups = oa_core_get_all_groups();
+  $options = array();
+  foreach ($groups as $group) {
+    $options[$group->nid] = $group->title;
+  }
+  $form['group_name'] = array(
+    '#type' => 'select',
+    '#title' => '',
+    '#options' => $options,
+    '#default_value' => '',
+    '#multiple' => TRUE,
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Add Group'),
+  );
+  $form['group_help'] = array(
+    '#markup' => '<p class="description">' . t('Edit space to remove inherited groups/spaces.') . '</p>',
+  );
+
+  return $form;
+}
+
+/**
+ * Submit handler for adding group
+ * @param  $form
+ * @param  $form_state
+ * @return mixed
+ */
+function oa_core_members_widget_add_group_form_submit($form, &$form_state) {
+  $space = $form['#space'];
+  $groups = $form_state['values']['group_name'];
+  foreach ($groups as $gid) {
+    $group = node_load($gid);
+    og_group('node', $gid, array(
+      'entity_type' => 'node',
+      'entity' => $space,
+      'field_name' => OA_PARENT_SPACE));
+    drupal_set_message(t('Group @group added to space.', array('@group' => $group->title)));
+  }
+  $form_state['redirect'] = 'node/'. $space->nid . '/members/parents';
+}
+
 
 /**
  * Edit form for the widget.

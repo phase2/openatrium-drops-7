@@ -5,9 +5,9 @@ core = 7.x
 dependencies[] = libraries (2.x)
 dependencies[] = jquery_update
 
-; Information added by drupal.org packaging script on 2013-10-23
-version = "7.x-1.0-beta2"
+; Information added by  packaging script on 2013-11-04
+version = "7.x-1.0-beta4"
 core = "7.x"
 project = "bootstrap_tour"
-datestamp = "1382505630"
+datestamp = "1383601773"
 

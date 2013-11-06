@@ -8,7 +8,14 @@
 <div class='navbar navbar-inverse oa-space-menu'>
   <div class='navbar-inner'>
     <nav class="oa-space-menu pull-left" role="navigation">
-      <?php print render($menu); ?>
+      <?php if (!empty($banner)): ?>
+      <div class='oa-menu-banner'>
+        <?php print $banner?>
+      </div>
+      <?php endif; ?>
+      <?php if (!empty($menu)): ?>
+        <?php print render($menu); ?>
+      <?php endif; ?>
     </nav>
   </div>
 </div>

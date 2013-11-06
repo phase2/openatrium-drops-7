@@ -14,7 +14,7 @@ $plugin = array(
 /**
  * Render callback.
  */
-function oa_dashboard_oa_navigation_content_type_render($subtype, $conf, $anel_args) {
+function oa_dashboard_oa_navigation_content_type_render($subtype, $conf, $panel_args) {
   global $base_url;
 
   $block = new stdClass();
@@ -23,7 +23,38 @@ function oa_dashboard_oa_navigation_content_type_render($subtype, $conf, $anel_a
   $vars = array();
   $vars['menu_name'] = $conf['menu_name'];
 
-  if (variable_get('oa_menu_banner', TRUE) && !variable_get('oa_banner_stretch', FALSE)) {
+  // first check for space banner next to main menu
+  $show_space = FALSE;
+  if (module_exists('oa_appearance')) {
+    drupal_add_js(drupal_get_path('module', 'oa_appearance') . '/oa_appearance.js');
+    $space_id = oa_core_get_space_context();
+    if (($space = node_load(oa_core_get_group_from_node($space_id))) && node_access('view', $space)) {
+      $field = field_get_items('node', $space, OA_SPACE_BANNER_POSITION);
+    }
+    $show_space = (!empty($field[0]['value']) && ($field[0]['value'] == OA_SPACE_BANNER_MAIN_MENU));
+    if ($show_space) {
+      $space_picture = field_get_items('node', $space, 'field_oa_banner');
+      if (!empty($space_picture)) {
+        $space_picture = array_shift($space_picture);
+        $vars['height'] = $space_picture['height'];
+        $vars['width'] = 0; // prevents stretching
+        $vars['banner'] = theme('image', array(
+          'path' => $space_picture['uri'],
+          'width' => $space_picture['width'],
+          'height' => $space_picture['height'],
+          'alt' => $space_picture['alt'],
+          'attributes' => array(
+            'class' => 'oa-banner-img'
+          ),
+        ));
+      }
+      else {
+        $show_space = FALSE;
+      }
+    }
+  }
+  // next check for site banner
+  if (!$show_space && variable_get('oa_menu_banner', TRUE) && !variable_get('oa_banner_stretch', FALSE)) {
     $fid = variable_get('oa_site_banner', '');
     if ($fid && ($site_file = file_load($fid))) {
       // banner found
@@ -51,7 +82,6 @@ function oa_dashboard_oa_navigation_content_type_render($subtype, $conf, $anel_a
       $vars['width'] = 0;
     }
   }
-
   $block->content = theme('oa_navigation', $vars);
 
   return $block;

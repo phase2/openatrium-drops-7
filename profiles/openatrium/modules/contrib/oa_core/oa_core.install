@@ -74,3 +74,10 @@ function oa_core_update_7208() {
 function oa_core_update_7209() {
   module_enable(array('oa_tour_defaults'));
 }
+
+/**
+ * Enable oa_update.
+ */
+function oa_core_update_7210() {
+  module_enable(array('oa_update'));
+}

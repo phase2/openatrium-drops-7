@@ -12,9 +12,9 @@ dependencies[] = installprofiletest
 dependencies[] = field_ui
 dependencies[] = views_ui
 
-; Information added by drupal.org packaging script on 2013-10-23
-version = "7.x-2.0"
+; Information added by  packaging script on 2013-11-06
+version = "7.x-2.03"
 core = "7.x"
 project = "openatrium"
-datestamp = "1382551827"
+datestamp = "1383756392"
 

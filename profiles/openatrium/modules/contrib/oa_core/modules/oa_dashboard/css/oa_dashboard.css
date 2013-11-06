@@ -131,3 +131,14 @@ width: 100%;
 .navbar-inverse #toolbar-menu-button {
   color: #999;
 }
+
+/* Space Menu */
+.oa-space-menu ul.nav {
+  display: inline-block;
+  float: none;
+}
+
+.oa-space-menu img {
+  max-height: 36px;
+  width: auto;
+}

@@ -12,6 +12,10 @@
   line-height: 1.2;
 }
 
+body.oa-sandbox #main-wrapper {
+  margin-left: 40px;
+}
+
 #oa-sandbox-indicator h3 {
   white-space: nowrap;
   -webkit-transform: rotate(90deg);
@@ -37,5 +41,8 @@
   #oa-sandbox-indicator h3 {
     font-size: 14px;
     margin-left: -1px;
+  }
+  body.oa-sandbox #main-wrapper {
+    margin-left: 15px;
   }
 }

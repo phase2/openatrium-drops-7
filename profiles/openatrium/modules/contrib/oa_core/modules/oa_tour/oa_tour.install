@@ -1,0 +1,21 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function oa_tour_install() {
+  oa_tour_update_7001();
+}
+
+/**
+ * Add the 'spaces' DB column to the bootstrap_tour table.
+ */
+function oa_tour_update_7001(&$sandbox) {
+  $spaces = array(
+    'type' => 'varchar',
+    'length' => '255',
+    'description' => 'A comma separated list of space IDs that can access this tour.',
+  );
+  db_add_field('bootstrap_tour', 'spaces', $spaces);
+  drupal_get_schema('bootstrap_tour', TRUE); // Rebuild the schema to make 100% sure that drupal_write_record() will work.
+}

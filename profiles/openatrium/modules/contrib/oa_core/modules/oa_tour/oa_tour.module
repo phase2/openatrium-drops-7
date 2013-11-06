@@ -27,6 +27,44 @@ function oa_tour_theme() {
 }
 
 /**
+ * Implements hook_form_FORM_ID_alter().
+ * Add the "spaces" form field.
+ */
+function oa_tour_form_bootstrap_tour_form_alter(&$form, &$form_state, $form_id) {
+  $spaces = node_load_multiple(array(), array('type' => 'oa_space', 'status' => 1));
+  $options = array();
+  foreach ($spaces as $space) {
+    $options[$space->nid] = $space->title;
+  }
+  asort($options); // Sort alphabetically for the heck of it.
+
+  $tour_name = arg(4);
+  if (!empty($tour_name)) {
+    $tour = bootstrap_tour_load($tour_name);
+  }
+
+  $form['spaces'] = array(
+    '#type' => 'select',
+    '#title' => t('Spaces'),
+    '#description' => t('Which spaces should this tour be active in? Leave empty for all.'),
+    '#multiple' => TRUE,
+    '#options' => $options,
+    '#default_value' => !empty($tour->spaces) ? explode(',', $tour->spaces) : '',
+    '#weight' => 1,
+  );
+}
+
+/**
+ * Implements hook_bootstrap_tour_presave_alter().
+ * Add the "spaces" field to it before saving.
+ */
+function oa_tour_bootstrap_tour_presave_alter(&$tour, &$vals) {
+  if (!empty($vals['spaces'])) {
+    $tour->spaces = implode(',', $vals['spaces']);
+  }
+}
+
+/**
  * Implements hook_bootstrap_tour_alter().
  * Dig into steps with "firstnode/<nodetype>/<tourname>" paths and alter them so that they either point to the first
  * node of a specific type if one exists, or the node add form of that type if not.

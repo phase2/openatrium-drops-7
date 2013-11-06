@@ -25,13 +25,13 @@ function oa_space_banner_render($subtype, $conf, $args, $context = NULL) {
   global $base_url;
 
   $space_id = oa_core_get_space_context();
-  $position = isset($conf['banner_position']) ? $conf['banner_position'] : 2;
+  $position = isset($conf['banner_position']) ? $conf['banner_position'] : OA_SPACE_BANNER_BELOW;
 
   $site_banner_position = variable_get('oa_site_banner_position', 0);
   $show_site = ($site_banner_position == $conf['banner_position']);
 
   if (($space = node_load(oa_core_get_group_from_node($space_id))) && node_access('view', $space)) {
-    $field = field_get_items('node', $space, 'field_oa_banner_position');
+    $field = field_get_items('node', $space, OA_SPACE_BANNER_POSITION);
   }
   $show_space = (!empty($field[0]['value']) && ($field[0]['value'] == $conf['banner_position']));
   if ($show_space) {

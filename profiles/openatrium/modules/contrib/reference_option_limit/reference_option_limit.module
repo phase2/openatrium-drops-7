@@ -258,179 +258,214 @@ function reference_option_limit_field_widget_form_alter(&$element, &$form_state,
  * @todo: figure out if there is a nicer way to do this.
  */
 function reference_option_limit_form_alter(&$form, &$form_state, $form_id) {
-  if (isset($form_state['reference_option_limit'])) {
-    //dsm($form, 'hfa form');
-    //dsm($form_state, 'hfa fs');
+  // Check that the form is one we need to act on.
+  if (!isset($form_state['reference_option_limit'])) {
+    return;
+  }
 
-    // For each field to work on.
-    foreach ($form_state['reference_option_limit'] as $settings) {
-      // Get the current field name, info, and instance.
-      $field_name_option_limited = $settings['field'];
-      $field_option_limited = field_info_field($field_name_option_limited);
-      $field_instance_option_limited = field_info_instance($settings['entity_type'], $field_name_option_limited, $settings['entity_bundle']);
+  // If we are on an AJAX call, check that it's one that concerns us.
+  if (!empty($form_state['triggering_element'])) {
+    if (empty($form_state['triggering_element']['#field_name'])) {
+      // The AJAX button has nothing to do with any field. Therefore it's of
+      // no concern to us: bail.
+      return;
+    }
 
-      // Add a wrapper div to the limited field for the ajax to work on.
-      $form[$field_name_option_limited]['#prefix'] = '<div id="' . $settings['ajax_wrapper'] . '">';
-      $form[$field_name_option_limited]['#suffix'] = '</div>';
-      //dsm($settings, 'settings');
-
-      $match_columns = array();
-      $match_values = array();
-      $matching_field_labels = array();
-      // Iterate over each matching field, ie, those we match values with.
-      foreach ($settings['fields_match'] as $field_name_matching) {
-        // Make each matchable field ajaxy so its changes cause the limited
-        // field to update itself
-        if (!empty($form[$field_name_matching][LANGUAGE_NONE][0]['default'])) {
-          $element = &$form[$field_name_matching][LANGUAGE_NONE][0]['default'];
-        }
-        else {
-          $element = &$form[$field_name_matching][LANGUAGE_NONE];
-        }
-        $element['#ajax'] = array(
-          'callback' => 'reference_option_limit_js',
-          'wrapper' => $settings['ajax_wrapper'],
-          'method' => 'replace',
-          'effect' => 'fade',
-          'event' => 'change',
-        );
-        // add a div to put any messages. 
-        $form[$field_name_matching]['messages'] = array(
-          '#tag' => 'div',
-          '#value' => '',
-          '#attributes' => array(
-            'id' => 'reference-option-limit-messages-' . str_replace('_', '-', $field_name_matching),
-          ),
-          '#type' => 'html_tag',
-          '#weight' => -100,
-        );
-
-        $field_info_matching = field_info_field($field_name_matching);
-        //dsm($field_info_matching, '$field_info_matching');
-        // We build up an array of the labels of all matching fields in case
-        // we need it further down for a UI message.
-        $field_instance_matching = field_info_instance($settings['entity_type'], $field_name_matching, $settings['entity_bundle']);
-        $matching_field_labels[] = $field_instance_matching['label'];
-
-        // Get the list of columns we should be extracting from the form and
-        // then matching on.
-        $match_columns[$field_name_matching] = reference_option_limit_get_match_columns($field_info_matching);
-
-        // Build an array of field values to match on. This is keyed first by
-        // field name, and then by delta (or with default values, whatever).
-        // First time around these are in default values; in ajax calls these are in $form_state.
-        $match_values[$field_name_matching] = array();
-        if (isset($form_state['values'])) {
-          // @todo: Figure out what on earth should happen when we have more than one column!
-          $column = $match_columns[$field_name_matching][0];
-          foreach ($form_state['values'][$field_name_matching][LANGUAGE_NONE] as $delta => $item) {
-            $match_values[$field_name_matching][$delta] = $item[$column];
-          }
-        }
-        elseif (isset($element['#default_value'])) {
-          // Urgh, for taxonomy term reference fields the default value is an
-          // array!
-          // @todo: other field types probably have other quirks :(
-          if (is_array($element['#default_value'])) {
-            $default_value_array = $element['#default_value'];
-            if (count($default_value_array)) {
-              $match_values[$field_name_matching][] = $default_value_array;
-            }
-            else {
-              $match_values[$field_name_matching] = array();
-            }
-          }
-          else {
-            $match_values[$field_name_matching][] = $element['#default_value'];
-          }
-        }
+    // Flag to keep track of whether we've matched something. If it remains
+    // FALSE after the foreach loop, we should not go further.
+    $match = FALSE;
+    // Check each limited field to see if the AJAX trigger is one of its
+    // matching fields.
+    foreach ($form_state['reference_option_limit'] as $field) {
+      // Try to find triggering element field name in the list of matching
+      // fields.
+      if (in_array(
+            $form_state['triggering_element']['#field_name'],
+            $field['fields_match']
+          )) {
+        $match = TRUE;
+        break;
       }
-      //dsm($match_values, 'mv');
-      // @todo: figure out if there is a way to distinguish between these cases:
-      //  1: there are no matching values at all for some reason
-      //  2: we are on a form for creating a new entity and no default is set for anything
-      //  and hence we should not limit at all.
+    }
+    if ($match == FALSE) {
+      // The triggering element has nothing to do with our fields: bail.
+      return;
+    }
+  }
+  //dsm($form, 'hfa form');
+  //dsm($form_state, 'hfa fs');
 
-      $referred_entity_type = reference_option_limit_get_referred_entity_type($field_option_limited);
-      $referred_bundles     = reference_option_limit_get_referred_entity_bundle($field_option_limited);
+  // For each field to work on.
+  foreach ($form_state['reference_option_limit'] as $settings) {
+    // Get the current field name, info, and instance.
+    $field_name_option_limited = $settings['field'];
+    $field_option_limited = field_info_field($field_name_option_limited);
+    $field_instance_option_limited = field_info_instance($settings['entity_type'], $field_name_option_limited, $settings['entity_bundle']);
 
-      // Get our entities to refer to.
-      $query = new EntityFieldQuery();
-      $query->entityCondition('entity_type', $referred_entity_type);
-      // Limit for all the referrable bundles.
-      foreach ($referred_bundles as $bundle_name) {
-        $query->entityCondition('bundle', $bundle_name);
-      }
-      // Limit for the matching field values.
-      foreach ($settings['fields_match'] as $field_name_matching) {
-        // @todo: handle more than one column to match on.
-        $column = $match_columns[$field_name_matching][0];
-        $values = $match_values[$field_name_matching];
-        // We currently treat multiple values on one field as an OR condition,
-        // i.e., we limit by any of the values but not all of them.
-        // @todo: Add a UI option to make this an AND condition.
-        if (empty($values) && ($settings['empty_behaviour'])) {
-          $values = array(0);
-        }
-        if (!empty($values)) {
-          $query->fieldCondition($field_name_matching, $column, $values, 'IN');
-        }
-      }
-      $query->addTag('reference_option_limit');
-      // @todo: add some sort of ordering?
-      // $query->fieldOrderBy('name', 'value', 'ASC') @todo! add some sort of ordering.
-      $result = $query->execute();
+    // Add a wrapper div to the limited field for the ajax to work on.
+    $form[$field_name_option_limited]['#prefix'] = '<div id="' . $settings['ajax_wrapper'] . '">';
+    $form[$field_name_option_limited]['#suffix'] = '</div>';
+    //dsm($settings, 'settings');
 
-      // Load the resulting entities.
-      if (!empty($result[$referred_entity_type])) {
-        $entities = entity_load($referred_entity_type, array_keys($result[$referred_entity_type]));
+    $match_columns = array();
+    $match_values = array();
+    $matching_field_labels = array();
+    // Iterate over each matching field, ie, those we match values with.
+    foreach ($settings['fields_match'] as $field_name_matching) {
+      // Make each matchable field ajaxy so its changes cause the limited
+      // field to update itself.
+      if (!empty($form[$field_name_matching][LANGUAGE_NONE][0]['default'])) {
+        // OG defines its own entityreference behavior class that puts the
+        // selection field into [0]['default']
+        $element = &$form[$field_name_matching][LANGUAGE_NONE][0]['default'];
       }
       else {
-        $entities = array();
+        $element = &$form[$field_name_matching][LANGUAGE_NONE];
       }
-      //dsm($entities);
+      $element['#ajax'] = array(
+        'callback' => 'reference_option_limit_js',
+        'wrapper' => $settings['ajax_wrapper'],
+        'method' => 'replace',
+        'effect' => 'fade',
+        'event' => 'change',
+      );
+      // Add a div for ajax to put any messages.
+      // html_tag defined in system_element_info() wraps theme_html_tag()
+      $form[$field_name_matching]['messages'] = array(
+        '#tag' => 'div',
+        '#value' => '',
+        '#attributes' => array(
+          'id' => 'reference-option-limit-messages-' . str_replace('_', '-', $field_name_matching),
+        ),
+        '#type' => 'html_tag',
+        '#weight' => -100,
+      );
 
-      // Build an array of options.
-      $options_limited = array();
-      foreach ($entities as $entity) {
-         list($id, $vid, $bundle) = entity_extract_ids($referred_entity_type, $entity);
-         $options_limited[$id] = entity_label($referred_entity_type, $entity);
+      $field_info_matching = field_info_field($field_name_matching);
+      //dsm($field_info_matching, '$field_info_matching');
+      // We build up an array of the labels of all matching fields in case
+      // we need it further down for a UI message.
+      $field_instance_matching = field_info_instance($settings['entity_type'], $field_name_matching, $settings['entity_bundle']);
+      $matching_field_labels[] = $field_instance_matching['label'];
+
+      // Get the list of columns we should be extracting from the form and
+      // then matching on.
+      $match_columns[$field_name_matching] = reference_option_limit_get_match_columns($field_info_matching);
+
+      // Build an array of field values to match on. This is keyed first by
+      // field name, and then by delta (or with default values, whatever).
+      // First time around these are in default values; in ajax calls these are in $form_state.
+      $match_values[$field_name_matching] = array();
+      if (isset($form_state['values'])) {
+        // @todo: Figure out what on earth should happen when we have more than one column!
+        $column = $match_columns[$field_name_matching][0];
+        foreach ($form_state['values'][$field_name_matching][LANGUAGE_NONE] as $delta => $item) {
+          $match_values[$field_name_matching][$delta] = $item[$column];
+        }
       }
-      $options_limited_empty = (count($options_limited) == 0);
-
-      // Do the same prep work as options_field_widget_form() on our instance
-      // to get a properties array to pass to _options_prepare_options().
-      $type = str_replace('options_', '', $field_instance_option_limited['widget']['type']);
-      $multiple = $field_option_limited['cardinality'] > 1 || $field_option_limited['cardinality'] == FIELD_CARDINALITY_UNLIMITED;
-      $required = $form[$field_name_option_limited][LANGUAGE_NONE]['#required'];
-      $has_value = TRUE; // isset($items[0][$value_key]); ?????
-      $properties = _options_properties($type, $multiple, $required, $has_value);
-
-      // Do the same work as _options_get_options(), since that invokes the field module hook.
-      // Sanitize the options.
-      _options_prepare_options($options_limited, $properties);
-
-      if (!$properties['optgroups']) {
-        $options_limited = options_array_flatten($options_limited);
+      elseif (isset($element['#default_value'])) {
+        // Urgh, for taxonomy term reference fields the default value is an
+        // array!
+        // @todo: other field types probably have other quirks :(
+        if (is_array($element['#default_value'])) {
+          $default_value_array = $element['#default_value'];
+          if (count($default_value_array)) {
+            $match_values[$field_name_matching][] = $default_value_array;
+          }
+          else {
+            $match_values[$field_name_matching] = array();
+          }
+        }
+        else {
+          $match_values[$field_name_matching][] = $element['#default_value'];
+        }
       }
+    }
+    //dsm($match_values, 'mv');
+    // @todo: figure out if there is a way to distinguish between these cases:
+    //  1: there are no matching values at all for some reason
+    //  2: we are on a form for creating a new entity and no default is set for anything
+    //  and hence we should not limit at all.
 
-      if ($properties['empty_option']) {
-        $label = theme('options_none', array('instance' => $field_instance_option_limited, 'option' => $properties['empty_option']));
-        $options_limited = array('_none' => $label) + $options_limited;
+    $referred_entity_type = reference_option_limit_get_referred_entity_type($field_option_limited);
+    $referred_bundles     = reference_option_limit_get_referred_entity_bundle($field_option_limited);
+
+    // Get our entities to refer to.
+    $query = new EntityFieldQuery();
+    $query->entityCondition('entity_type', $referred_entity_type);
+    // Limit for all the referrable bundles.
+    foreach ($referred_bundles as $bundle_name) {
+      $query->entityCondition('bundle', $bundle_name);
+    }
+    // Limit for the matching field values.
+    foreach ($settings['fields_match'] as $field_name_matching) {
+      // @todo: handle more than one column to match on.
+      $column = $match_columns[$field_name_matching][0];
+      $values = $match_values[$field_name_matching];
+      // We currently treat multiple values on one field as an OR condition,
+      // i.e., we limit by any of the values but not all of them.
+      // @todo: Add a UI option to make this an AND condition.
+      if (empty($values) && ($settings['empty_behaviour'])) {
+        $values = array(0);
       }
-      //dsm($options_limited, '$options_limited post stuff');
-
-      // Add an explanation if there are no options to select at all.
-      if ($options_limited_empty) {
-        $form[$field_name_option_limited][LANGUAGE_NONE]['#description'] .= ' ' . t('No options are available for the current form values. Try selecting different values for the following fields: @fields.', array(
-          '@fields' => implode(', ', $matching_field_labels),
-        ));
+      if (!empty($values)) {
+        $query->fieldCondition($field_name_matching, $column, $values, 'IN');
       }
+    }
+    $query->addTag('reference_option_limit');
+    // @todo: add some sort of ordering?
+    // $query->fieldOrderBy('name', 'value', 'ASC') @todo! add some sort of ordering.
+    $result = $query->execute();
 
-      // Set the new options into the form element.
-      $form[$field_name_option_limited][LANGUAGE_NONE]['#options'] = $options_limited;
-    } // foreach settings
-  }
+    // Load the resulting entities.
+    if (!empty($result[$referred_entity_type])) {
+      $entities = entity_load($referred_entity_type, array_keys($result[$referred_entity_type]));
+    }
+    else {
+      $entities = array();
+    }
+    //dsm($entities);
+
+    // Build an array of options.
+    $options_limited = array();
+    foreach ($entities as $entity) {
+       list($id, $vid, $bundle) = entity_extract_ids($referred_entity_type, $entity);
+       $options_limited[$id] = entity_label($referred_entity_type, $entity);
+    }
+    $options_limited_empty = (count($options_limited) == 0);
+
+    // Do the same prep work as options_field_widget_form() on our instance
+    // to get a properties array to pass to _options_prepare_options().
+    $type = str_replace('options_', '', $field_instance_option_limited['widget']['type']);
+    $multiple = $field_option_limited['cardinality'] > 1 || $field_option_limited['cardinality'] == FIELD_CARDINALITY_UNLIMITED;
+    $required = $form[$field_name_option_limited][LANGUAGE_NONE]['#required'];
+    $has_value = TRUE; // isset($items[0][$value_key]); ?????
+    $properties = _options_properties($type, $multiple, $required, $has_value);
+
+    // Do the same work as _options_get_options(), since that invokes the field module hook.
+    // Sanitize the options.
+    _options_prepare_options($options_limited, $properties);
+
+    if (!$properties['optgroups']) {
+      $options_limited = options_array_flatten($options_limited);
+    }
+
+    if ($properties['empty_option']) {
+      $label = theme('options_none', array('instance' => $field_instance_option_limited, 'option' => $properties['empty_option']));
+      $options_limited = array('_none' => $label) + $options_limited;
+    }
+    //dsm($options_limited, '$options_limited post stuff');
+
+    // Add an explanation if there are no options to select at all.
+    if ($options_limited_empty) {
+      $form[$field_name_option_limited][LANGUAGE_NONE]['#description'] .= ' ' . t('No options are available for the current form values. Try selecting different values for the following fields: @fields.', array(
+        '@fields' => implode(', ', $matching_field_labels),
+      ));
+    }
+
+    // Set the new options into the form element.
+    $form[$field_name_option_limited][LANGUAGE_NONE]['#options'] = $options_limited;
+  } // foreach settings
 }
 
 /**
@@ -471,12 +506,21 @@ function reference_option_limit_js($form, $form_state) {
     '#commands' => array(),
   );
 
+  // building ajax commands.
+  // see https://api.drupal.org/api/drupal/includes!ajax.inc/group/ajax_commands/7
+  //
+  // first add the messages to the triggering element
   if ($messages = theme('status_messages')) {
-    $return['#commands'][] = ajax_command_replace('#' . $form[$field_name_triggering]['messages']['#attributes']['id'], '<div class="views-messages">' . $messages . '</div>');
+    $selector = '#' . $form[$field_name_triggering]['messages']['#attributes']['id'];
+    $html = '<div class="views-messages">' . $messages . '</div>';
+    $return['#commands'][] = ajax_command_replace($selector, $html);
   }
+  // next add the rendered fields
   foreach ($form_state['reference_option_limit'] as $settings) {
     if (!empty($settings['fields_match'][$field_name_triggering])) {
-      $return['#commands'][] = ajax_command_replace('#' . $settings['ajax_wrapper'], render($form[$settings['field']]));
+      $selector = '#' . $settings['ajax_wrapper'];
+      $html = render($form[$settings['field']]);
+      $return['#commands'][] = ajax_command_replace($selector, $html);
     }
   }
   return $return;

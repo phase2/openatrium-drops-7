@@ -42,6 +42,13 @@ function oa_tour_pane_render($subtype, $conf, $args, $context = NULL) {
           continue;
         }
       }
+      if (!empty($tour->spaces)) {
+        $tour_spaces = explode(',', $tour->spaces);
+        $space_context = oa_core_get_space_context();
+        if (!in_array($space_context, $tour_spaces)) {
+          continue;
+        }
+      }
       if (!empty($tour->steps) && !is_array($tour->steps)) {
         $tour->steps = unserialize($tour->steps);
       }

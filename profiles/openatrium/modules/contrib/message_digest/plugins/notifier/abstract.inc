@@ -21,7 +21,7 @@ class MessageDigest extends MessageNotifierBase {
       'timestamp' => $message->timestamp,
     );
     // This will only have a value if the message is not a message_subscribe message.
-    $mid = $message->mid;
+    $mid = isset($message->mid) ? $message->mid : NULL;
 
     // Our $message is a cloned copy of the original $message with the mid field removed to
     // prevent overwriting (this happens in message_subscribe) so we need to fetch the mid manually.
@@ -87,15 +87,18 @@ class MessageDigest extends MessageNotifierBase {
    */
   public function format($digest) {
     $output_array = array();
+    // There should only be one view_mode for each message_digest plugin,
+    // but just in case, we grab just the first one.
+    $view_modes = $this->plugin['view_modes'];
+    reset($view_modes);
+    $view_mode = key($view_modes);
     foreach ($digest as $mid) {
       $message = message_load($mid);
-      $build = $message->view();
-      $build += array(
-        '#theme' => 'message',
-        '#entity' => $message,
-        '#view_mode' => 'message_notify_email_subject', // @TODO: Default to the "Email Subject" view mode but use the Message Digest view mode if it is customized.
-      );
-      $output_array[] = drupal_render($build);
+      if (empty($message) || !is_object($message)) {
+        continue;
+      }
+      $content = $message->buildContent($view_mode);
+      $output_array[] = render($content);
     }
     return implode('<hr />', $output_array); // @TODO: Use a theme function + template for this.
   }

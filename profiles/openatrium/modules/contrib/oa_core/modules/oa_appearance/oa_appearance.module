@@ -12,6 +12,15 @@ include_once 'oa_appearance.features.inc';
  */
 
 /**
+ * Name of default OpenAtrium Space type.
+ */
+define('OA_SPACE_BANNER_POSITION', 'field_oa_banner_position');
+define('OA_SPACE_BANNER_ABOVE', 1);
+define('OA_SPACE_BANNER_BELOW', 2);
+define('OA_SPACE_BANNER_MAIN_MENU', 3);
+define('OA_SPACE_BANNER_SPACE_MENU', 4);
+
+/**
  * Implements hook_colorizer_instance_alter()
  * Set the colorizer instance to a space-specific value
  */

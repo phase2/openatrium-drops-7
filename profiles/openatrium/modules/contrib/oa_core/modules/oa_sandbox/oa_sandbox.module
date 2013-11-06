@@ -192,6 +192,15 @@ function oa_sandbox_page_build(&$page) {
 }
 
 /**
+ * Implements hook_preprocess_html().
+ */
+function oa_sandbox_preprocess_html(&$vars) {
+  if (variable_get('oa_sandbox_mode', 0) && user_access('toggle sandbox mode')) {
+    $vars['classes_array'][] = 'oa-sandbox';
+  }
+}
+
+/**
  * Implementation of hook_theme().
  */
 function oa_sandbox_theme($existing, $type, $theme, $path) {

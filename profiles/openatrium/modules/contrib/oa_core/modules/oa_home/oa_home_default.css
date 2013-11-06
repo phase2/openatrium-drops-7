@@ -20,7 +20,7 @@ body.front #main .span12 {
   margin: 0;
 }
 
-body.front #panels-ipe-control-container {
+body.front #panels-ipe-control-container .panels-ipe-button-container {
   text-indent: -9000px;
   width: 0;
 }

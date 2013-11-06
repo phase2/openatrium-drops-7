@@ -15,9 +15,11 @@ function openatrium_install_tasks(&$install_state) {
 //  require_once(drupal_get_path('module', 'apps') . '/apps.profile.inc');
 //  $tasks = $tasks + apps_profile_install_tasks($install_state, array('machine name' => 'openatrium', 'default apps' => array()));
 
+// Default theme set in openatrium.install
+// Disable the theme selection screen
   // Add the Panopoly theme selection to the installation process
-  require_once(drupal_get_path('module', 'panopoly_theme') . '/panopoly_theme.profile.inc');
-  $tasks = $tasks + panopoly_theme_profile_theme_selection_install_task($install_state);
+  //require_once(drupal_get_path('module', 'panopoly_theme') . '/panopoly_theme.profile.inc');
+  //$tasks = $tasks + panopoly_theme_profile_theme_selection_install_task($install_state);
 
   $tasks['open_atrium_features_revert_all'] = array(
     'type' => 'normal',
@@ -32,7 +34,11 @@ function openatrium_install_tasks(&$install_state) {
 
 function open_atrium_features_revert_all() {
   drupal_set_time_limit(0);
-  features_revert(array('oa_core' => array('field_base'), 'oa_sections' => array('field_base', 'field_instance')));
+  features_revert(array(
+    'oa_core' => array('field_base'),
+    'oa_sections' => array('field_base', 'field_instance'),
+    'oa_users' => array('field_instance'),
+  ));
   features_revert();
 }
 

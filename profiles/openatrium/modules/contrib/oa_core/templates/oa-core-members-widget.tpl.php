@@ -43,7 +43,7 @@
       $well = (!empty($tab['title'])) ? ' well well-small' : '';
     ?>
     <div class='clearfix <?php print $well . ' ' . $cat;?>'>
-      <?php if (!empty($tab['items'])):?>
+      <?php if (!empty($tab['items']) || !empty($tab['global_links'])):?>
         <?php if (!empty($tab['title'])):?>
           <h5><?php print $tab['title']?></h5>
         <?php endif;?>
@@ -89,6 +89,12 @@
           <?php endforeach; ?>
         <?php endforeach; ?>
       <?php endif; ?>
+      <?php if (!empty($tab['form'])):?>
+        <div class='clear-both'>
+          <hr>
+          <?php print render($tab['form'])?>
+        </div>
+      <?php endif;?>
       <?php if (!empty($tab['global_links'])):?>
         <div class='clear-both oa-global-links'>
         <?php foreach ($tab['global_links'] as $link):?>

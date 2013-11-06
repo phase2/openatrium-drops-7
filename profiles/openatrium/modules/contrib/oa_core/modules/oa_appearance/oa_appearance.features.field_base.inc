@@ -58,8 +58,10 @@ function oa_appearance_field_default_field_bases() {
     'settings' => array(
       'allowed_values' => array(
         0 => 'Hidden',
-        1 => 'Above toolbar',
-        2 => 'Below toolbar',
+        1 => 'Above toolbar (stretched)',
+        2 => 'Below toolbar (stretched)',
+        3 => 'Next to Main menu',
+        4 => 'Next to Space menu',
       ),
       'allowed_values_function' => '',
     ),

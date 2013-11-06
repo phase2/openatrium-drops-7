@@ -45,9 +45,9 @@ features[variable][] = panelizer_node:panopoly_page_allowed_types_default
 features[variable][] = save_continue_panopoly_page
 
 
-; Information added by drush on 2013-10-23
+; Information added by drush on 2013-11-06
 version = "7.x-1.0-rc4+0-dev"
 core = "7.x"
 project = "panopoly_pages"
-datestamp = "1382551830"
+datestamp = "1383756394"
 

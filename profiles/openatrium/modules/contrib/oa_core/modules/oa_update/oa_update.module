@@ -1,0 +1,98 @@
+<?php
+/**
+ * @file
+ * Code for the oa_update module
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function oa_update_menu() {
+  $items = array();
+  $items['admin/reports/update_distro'] = array(
+    'title' => 'Distribution Update',
+    'description' => 'Get update information for your distribution.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('oa_update_admin_form'),
+    'access arguments' => array('administer site configuration'),
+    'weight' => -50,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_menu_alter
+ */
+function oa_update_menu_alter(&$items) {
+  // swap out normal update links with our own pages
+  if (!empty($items['admin/reports/updates'])) {
+    $items['admin/reports/oa_updates'] = $items['admin/reports/updates'];
+    $items['admin/reports/oa_updates']['type'] = MENU_CALLBACK;
+    $items['admin/reports/updates'] = $items['admin/reports/update_distro'];
+    //$items['admin/reports/updates']['type'] = MENU_CALLBACK;
+    //unset($items['admin/reports/updates']);
+  }
+  if (!empty($items['admin/reports/updates/check'])) {
+    $items['admin/reports/oa_updates/check'] = $items['admin/reports/updates/check'];
+    $items['admin/reports/oa_updates/check']['type'] = MENU_CALLBACK;
+    $items['admin/reports/updates/check'] = $items['admin/reports/update_distro'];
+    $items['admin/reports/updates/check']['type'] = MENU_CALLBACK;
+    //unset($items['admin/reports/updates/check']);
+  }
+  if (!empty($items['admin/reports/updates/update'])) {
+    $items['admin/reports/oa_updates/update'] = $items['admin/reports/updates/update'];
+    $items['admin/reports/oa_updates/update']['type'] = MENU_CALLBACK;
+    $items['admin/reports/updates/update'] = $items['admin/reports/update_distro'];
+    $items['admin/reports/updates/update']['type'] = MENU_CALLBACK;
+    //unset($items['admin/reports/updates/check']);
+  }
+  unset($items['admin/reports/update_distro']);
+}
+
+function oa_update_admin_form() {
+  $form = array();
+
+  $form['header'] = array(
+    '#theme' => 'html_tag',
+    '#tag' => 'h3',
+    '#value' => t('Do not manually update Distributions!'),
+  );
+
+  $form['help'] = array(
+    '#markup' => '<p>' .
+      t('Drupal Distributions contain a carefully selected set of module
+      versions along with specific patches.  You should never update individual modules
+      within a distribution unless you are an experience developer.')
+      . '</p><p>' .
+      t('When a new release of a Distribution is available, you can replace the files within
+      the profiles/openatrium directory with the new files.  Or, if you are familiar with drush
+      you can use the openatrium.make file to rebuild the latest version using "drush make".')
+      . '</p><p>' .
+      t('If you REALLY know what you are doing, you can find the links to the normal Drupal
+        update pages in the collapsed section below.')
+      . '</p>',
+  );
+  $form['update'] = array(
+    '#type' => 'fieldset',
+    '#title' => 'Update Links',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $links[] = array(
+    'title' => 'Available updates',
+    'href' => 'admin/reports/oa_updates',
+  );
+  $links[] = array(
+    'title' => 'Manual update check',
+    'href' => 'admin/reports/oa_updates/check',
+  );
+  $links[] = array(
+    'title' => 'Check for available updates',
+    'href' => 'admin/reports/oa_updates/update',
+  );
+  $form['update']['links'] = array(
+    '#theme' => 'links',
+    '#links' => $links,
+  );
+  return $form;
+}

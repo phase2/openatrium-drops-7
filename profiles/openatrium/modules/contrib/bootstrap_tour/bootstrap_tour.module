@@ -28,7 +28,9 @@ function bootstrap_tour_run_tour($name, $force = FALSE) {
   if ($first_path == current_path() || $first_path == request_path() || ($first_path == '<front>' && request_path() == '')) {
     if (empty($_GET['step']) || $_GET['step'] == 0) {
       // We're starting the tour over.
-      unset($_SESSION['nexttour']);
+      if (!empty($_SESSION['nexttour'])) {
+        unset($_SESSION['nexttour']);
+      }
     }
   }
   drupal_alter('bootstrap_tour', $tour);
@@ -42,6 +44,7 @@ function bootstrap_tour_run_tour($name, $force = FALSE) {
     $step['content'] = check_markup($step['content'], $step['format']);
   }
   $tour->force = $force;
+  $tour->cleanUrls = variable_get('clean_url', 0);
 
   drupal_add_js(array('bootstrapTour' => array('tour' => $tour)), 'setting');
 
@@ -83,19 +86,13 @@ function bootstrap_tour_page_build(&$page) {
   }
   foreach($tours as $tour) {
     // Otherwise, only run the tour if it's set to auto-run and we're on the path of one of the steps.
-    if (!empty($tour->steps) && !is_array($tour->steps)) {
-      $tour->steps = unserialize($tour->steps);
-    }
-    if (!empty($tour->steps)) {
-      foreach ($tour->steps as $key => $step) {
-        $path = $step['path'];
-        if ($path == current_path() || $path == request_path()) {
-          if ($key == 0 && !$tour->autorun) {
-            break;
-          }
-          bootstrap_tour_run_tour($tour->name);
-          break;
-        }
+    if (!empty($tour->steps) && $tour->autorun) {
+      if (!is_array($tour->steps)) {
+        $tour->steps = unserialize($tour->steps);
+      }
+      $path = $tour->steps[0]['path'];
+      if ($path == current_path() || $path == request_path()) {
+        bootstrap_tour_run_tour($tour->name);
       }
     }
   }
@@ -259,6 +256,7 @@ function bootstrap_tour_form($form, &$form_state, $tour = '') {
     '#title' => t('Automatically run'),
     '#description' => t('Should this tour start automatically the first time a user visits the path of the first step? If this is checked, the first step must have the "Path" field filled out.'),
     '#default_value' => !empty($tour->autorun) ? $tour->autorun : '',
+    '#weight' => 5,
   );
 
   $form['steps_fieldset'] = array(
@@ -266,6 +264,7 @@ function bootstrap_tour_form($form, &$form_state, $tour = '') {
     '#title' => t('Tour steps'),
     '#prefix' => '<div id="steps-fieldset-wrapper">',
     '#suffix' => '</div>',
+    '#weight' => 10,
   );
   if (empty($form_state['num_steps'])) {
     if (empty($tour->steps)) {
@@ -322,10 +321,12 @@ function bootstrap_tour_form($form, &$form_state, $tour = '') {
       'wrapper' => 'steps-fieldset-wrapper',
     ),
     '#suffix' => ' ',
+    '#weight' => 20,
   );
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Save')
+    '#value' => t('Save'),
+    '#weight' => 20,
   );
   return $form;
 }
@@ -369,6 +370,9 @@ function bootstrap_tour_form_submit($form, &$form_state) {
     );
     $i++;
   }
+
+  drupal_alter('bootstrap_tour_presave', $tour, $vals);
+
   if ($tour->is_new) {
     drupal_write_record('bootstrap_tour', $tour);
   } else {

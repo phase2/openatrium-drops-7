@@ -5,8 +5,6 @@
 
 (function ($) {
 
-  var $total_height;
-
   Drupal.behaviors.oaAppearance = {
     attach: function(context, settings) {
       var $oa_navbar = $('#oa-navbar', context);
@@ -14,23 +12,25 @@
       if ($oa_navbar.length && $banner.length) {
         var $height = $oa_navbar.height();
         var $width = $oa_navbar.width();
-        $total_height = $height;
+        $delta_height = 0;
         $banner.each( function(index) {
           if (!$(this).hasClass('oa-banner-appeared') &&
               !$(this).hasClass('oa-banner-hidden')) {
             // set the image sizes before image gets loaded
-            var $img_width = $(this).attr('data-width');
-            var $img_height = $(this).attr('data-height');
+            var $img_width = parseInt($(this).attr('data-width'));
+            var $img_height = parseInt($(this).attr('data-height'));
             if ($img_width > 0) {
               // stretched banner image
+              var $max_height = document.documentElement.clientHeight / 3;
               var $new_width = $new_height * $img_width / $img_height;
-              var $new_height = $img_height * $width / $img_width;
+              var $new_height = Math.min( $img_height * $width / $img_width, $max_height);
               if ($(this).parents('#oa-navbar').length) {
                 // this image is within the navbar
-                $total_height -= $(this).height();
-                $total_height += $new_height;
+                $delta_height -= $(this).height();
+                $delta_height += $new_height;
               }
-              $(this).css('height', $new_height);
+              $(this).css('height', $new_height + 'px');
+              $(this).css('max-height', $max_height + 'px');
               $(this).addClass('oa-banner-hidden');
               var $image = $('.oa-banner-overlay-img', this);
               if ($image.length) {
@@ -43,9 +43,10 @@
             }
           }
         });
-        if ($total_height > 0) {
+        if ($delta_height > 0) {
+          var $total_height = $height + $delta_height;
           $oa_navbar.height($total_height);
-          $('body').css('padding-top', $total_height);
+          $('body').css('padding-top', $total_height + 'px');
         }
         if (typeof(Drupal.displace) != "undefined") {
           Drupal.displace();  // recalculate offsets

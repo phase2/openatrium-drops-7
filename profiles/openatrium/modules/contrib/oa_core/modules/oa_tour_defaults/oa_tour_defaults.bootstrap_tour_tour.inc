@@ -91,7 +91,7 @@ function oa_tour_defaults_default_bootstrap_tour() {
   $bootstrap_tour->api_version = 1;
   $bootstrap_tour->name = 'colorizing_a_space';
   $bootstrap_tour->title = 'Colorizing a Space';
-  $bootstrap_tour->roles = '';
+  $bootstrap_tour->roles = 2;
   $bootstrap_tour->autorun = 0;
   $bootstrap_tour->description = 'How to change theme colors';
   $bootstrap_tour->steps = array(
@@ -895,7 +895,7 @@ function oa_tour_defaults_default_bootstrap_tour() {
   $bootstrap_tour->api_version = 1;
   $bootstrap_tour->name = 'teams';
   $bootstrap_tour->title = 'Teams';
-  $bootstrap_tour->roles = '';
+  $bootstrap_tour->roles = 2;
   $bootstrap_tour->autorun = 0;
   $bootstrap_tour->description = 'This walks the user through the basics of creating a team.';
   $bootstrap_tour->steps = array(

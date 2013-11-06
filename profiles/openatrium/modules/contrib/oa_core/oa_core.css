@@ -2,6 +2,11 @@
   overflow: visible;
 }
 
+.pane-oa-core-members-widget .form-item-group-name {
+  float: left;
+  margin: 0 10px 0 0;
+}
+
 .oa_pending_count {
   display: inline-block;
   background-color: green;
@@ -33,4 +38,12 @@
 
 #modal-content .general-settings-fieldset label.option {
   float: none;
+}
+
+#modal-content .panels-section-column {
+  overflow: hidden;
+}
+
+#modal-content .panels-section-column fieldset legend {
+  max-width: 100%;
 }

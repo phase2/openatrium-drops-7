@@ -27,6 +27,7 @@
 }
 .oa-banner {
   position: relative;
+  overflow: hidden;
 }
 .oa-banner {
   opacity: 0;
