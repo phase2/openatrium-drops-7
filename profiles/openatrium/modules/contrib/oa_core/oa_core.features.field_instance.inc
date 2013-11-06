@@ -126,7 +126,7 @@ function oa_core_field_default_field_instances() {
       ),
     ),
     'deleted' => 0,
-    'description' => 'Select to set the visibility of this group to the entire HITRC space.',
+    'description' => 'Select to set the visibility of this group to the entire site.',
     'display' => array(
       'default' => array(
         'label' => 'above',

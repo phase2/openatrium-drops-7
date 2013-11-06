@@ -53,6 +53,21 @@ function oa_core_get_space_context($from_session = FALSE) {
 }
 
 /**
+ * Returns the current space id context
+ * Returns zero if on the site home page
+ * @param  boolean $from_session only use the context stored in $SESSION
+ * @return int Space ID
+ */
+function oa_core_get_space_home_context() {
+  $space_id = oa_core_get_space_context();
+  $node = menu_get_object();
+  if (drupal_is_front_page() && !(isset($node) && ($node->type == OA_SPACE_TYPE))) {
+    return 0;  // front page, not a space page
+  }
+  return $space_id;
+}
+
+/**
  * Returns the current section id context
  * @return int Section ID
  */

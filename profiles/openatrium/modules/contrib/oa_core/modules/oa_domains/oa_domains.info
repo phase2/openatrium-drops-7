@@ -10,10 +10,3 @@ features[features_api][] = api:2
 features[field_base][] = field_oa_space_domain
 features[field_instance][] = node-oa_space-field_oa_space_domain
 project path = profiles/openatrium/modules
-
-; Information added by  packaging script on 2013-11-05
-version = "7.x-2.02"
-core = "7.x"
-project = "oa_core"
-datestamp = "1383687070"
-

@@ -173,10 +173,3 @@ features[user_permission][] = view trash bin
 features[user_permission][] = view trash content
 features[variable][] = og_group_manager_admin_role
 features[variable][] = og_group_manager_full_access
-
-; Information added by  packaging script on 2013-11-05
-version = "7.x-2.02"
-core = "7.x"
-project = "oa_core"
-datestamp = "1383687070"
-

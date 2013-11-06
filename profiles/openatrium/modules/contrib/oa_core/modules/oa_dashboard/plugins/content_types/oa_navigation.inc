@@ -27,7 +27,7 @@ function oa_dashboard_oa_navigation_content_type_render($subtype, $conf, $panel_
   $show_space = FALSE;
   if (module_exists('oa_appearance')) {
     drupal_add_js(drupal_get_path('module', 'oa_appearance') . '/oa_appearance.js');
-    $space_id = oa_core_get_space_context();
+    $space_id = oa_core_get_space_home_context();
     if (($space = node_load(oa_core_get_group_from_node($space_id))) && node_access('view', $space)) {
       $field = field_get_items('node', $space, OA_SPACE_BANNER_POSITION);
     }

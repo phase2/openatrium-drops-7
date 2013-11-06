@@ -24,7 +24,7 @@ $plugin = array(
 function oa_space_banner_render($subtype, $conf, $args, $context = NULL) {
   global $base_url;
 
-  $space_id = oa_core_get_space_context();
+  $space_id = oa_core_get_space_home_context();
   $position = isset($conf['banner_position']) ? $conf['banner_position'] : OA_SPACE_BANNER_BELOW;
 
   $site_banner_position = variable_get('oa_site_banner_position', 0);

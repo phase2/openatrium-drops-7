@@ -10,7 +10,7 @@
 function oa_update_menu() {
   $items = array();
   $items['admin/reports/update_distro'] = array(
-    'title' => 'Distribution Update',
+    'title' => 'Available updates',
     'description' => 'Get update information for your distribution.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('oa_update_admin_form'),
@@ -29,22 +29,12 @@ function oa_update_menu_alter(&$items) {
     $items['admin/reports/oa_updates'] = $items['admin/reports/updates'];
     $items['admin/reports/oa_updates']['type'] = MENU_CALLBACK;
     $items['admin/reports/updates'] = $items['admin/reports/update_distro'];
-    //$items['admin/reports/updates']['type'] = MENU_CALLBACK;
-    //unset($items['admin/reports/updates']);
-  }
-  if (!empty($items['admin/reports/updates/check'])) {
-    $items['admin/reports/oa_updates/check'] = $items['admin/reports/updates/check'];
-    $items['admin/reports/oa_updates/check']['type'] = MENU_CALLBACK;
-    $items['admin/reports/updates/check'] = $items['admin/reports/update_distro'];
-    $items['admin/reports/updates/check']['type'] = MENU_CALLBACK;
-    //unset($items['admin/reports/updates/check']);
   }
   if (!empty($items['admin/reports/updates/update'])) {
     $items['admin/reports/oa_updates/update'] = $items['admin/reports/updates/update'];
     $items['admin/reports/oa_updates/update']['type'] = MENU_CALLBACK;
     $items['admin/reports/updates/update'] = $items['admin/reports/update_distro'];
     $items['admin/reports/updates/update']['type'] = MENU_CALLBACK;
-    //unset($items['admin/reports/updates/check']);
   }
   unset($items['admin/reports/update_distro']);
 }
@@ -55,7 +45,7 @@ function oa_update_admin_form() {
   $form['header'] = array(
     '#theme' => 'html_tag',
     '#tag' => 'h3',
-    '#value' => t('Do not manually update Distributions!'),
+    '#value' => t('Do not manually update modules within distributions!'),
   );
 
   $form['help'] = array(
@@ -64,35 +54,120 @@ function oa_update_admin_form() {
       versions along with specific patches.  You should never update individual modules
       within a distribution unless you are an experience developer.')
       . '</p><p>' .
-      t('When a new release of a Distribution is available, you can replace the files within
-      the profiles/openatrium directory with the new files.  Or, if you are familiar with drush
-      you can use the openatrium.make file to rebuild the latest version using "drush make".')
-      . '</p><p>' .
       t('If you REALLY know what you are doing, you can find the links to the normal Drupal
         update pages in the collapsed section below.')
       . '</p>',
   );
+
+  // display the update status for just our profile
+  $profile_name = drupal_get_profile();
+  if (!empty($profile_name) && ($available = update_get_available(TRUE)) &&
+      !empty($available[$profile_name])) {
+    module_load_include('inc', 'update', 'update.compare');
+    module_load_include('inc', 'update', 'update.report');
+    $data = update_calculate_project_data($available);
+    $profile[$profile_name] = $data[$profile_name];
+    $markup = theme('update_report', array('data' => $profile));
+    $markup = str_replace(
+      '<h3>' . t('Modules') . '</h3>',
+      '<h3>' . t('Distribution') . '</h3>', $markup);
+    $form['profile'] = array(
+      '#markup' => $markup,
+    );
+  }
+
   $form['update'] = array(
     '#type' => 'fieldset',
     '#title' => 'Update Links',
     '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
+    '#collapsed' => !variable_get('oa_update_enable', FALSE),
   );
-  $links[] = array(
-    'title' => 'Available updates',
-    'href' => 'admin/reports/oa_updates',
+  $form['update']['oa_update_enable'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Enable module update status',
+    '#description' => t('Enable this option (and Save) to access the normal update links'),
+    '#default_value' => variable_get('oa_update_enable', FALSE),
   );
-  $links[] = array(
-    'title' => 'Manual update check',
-    'href' => 'admin/reports/oa_updates/check',
-  );
-  $links[] = array(
-    'title' => 'Check for available updates',
-    'href' => 'admin/reports/oa_updates/update',
-  );
-  $form['update']['links'] = array(
-    '#theme' => 'links',
-    '#links' => $links,
-  );
-  return $form;
+
+  if (variable_get('oa_update_enable', FALSE)) {
+    $links[] = array(
+      'title' => 'Available updates',
+      'href' => 'admin/reports/oa_updates',
+    );
+    $links[] = array(
+      'title' => 'Check for available updates',
+      'href' => 'admin/reports/oa_updates/update',
+    );
+    $form['update']['links'] = array(
+      '#theme' => 'links',
+      '#links' => $links,
+    );
+  }
+  $form['#submit'][] = 'oa_update_admin_form_submit';
+  return system_settings_form($form);
+}
+
+/**
+ * Submit handler for oa_update_admin_form
+ */
+function oa_update_admin_form_submit($form, &$form_state) {
+  if ($form_state['values']['oa_update_enable'] !== $form_state['input']['oa_update_enable']) {
+    variable_set('oa_update_enable', $form_state['values']['oa_update_enable']);
+    module_load_install('update');
+    $status = update_requirements('runtime');
+  }
+}
+
+/**
+ * Implements hook_update_projects_alter().
+ */
+function oa_update_update_projects_alter(&$projects) {
+  $profile_name = drupal_get_profile();
+  if (!empty($profile_name)) {
+    // add the profile back into the module list to fetch update status for
+    module_load_include('inc', 'update', 'update.compare');
+    $module_data = system_rebuild_module_data();
+    $module[$profile_name] = $module_data[$profile_name];
+    $module[$profile_name]->info['hidden'] = FALSE;
+    $module[$profile_name]->info['project'] = $profile_name;
+    $profile = array();
+    _update_process_info_list($profile, $module, 'module', TRUE);
+    // drupal.org packager doesn't add the profile version to the info file
+    // can add a [version] manually to your profile.info
+    // for openatrium, use the version of oa_core as the version of the profile
+    if (empty($profile[$profile_name]['info']['version']) && ($profile_name == 'openatrium')) {
+      $profile[$profile_name]['info']['version'] = $projects['oa_core']['info']['version'];
+    }
+    $projects[$profile_name] = $profile[$profile_name];
+    foreach ($projects as $key => $project) {
+      // remove any local OA submodules
+      if ($project['info']['package'] == 'Open Atrium') {
+        unset($projects[$key]);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_update_status_alter().
+ */
+function oa_update_update_status_alter(&$projects) {
+  $profile_name = drupal_get_profile();
+  foreach ($projects as $key => $project) {
+    // -dev versions with patches are marked as NOT_SUPPORTED
+    // but for a Distribution, these modules are Current
+    if ($project['status'] == UPDATE_NOT_SUPPORTED) {
+      $projects[$key]['status'] = UPDATE_CURRENT;
+    }
+  }
+  if (!variable_get('oa_update_enable', FALSE)) {
+    // we want to supress the update messages for non-security updates
+    foreach ($projects as $key => $project) {
+      // mark anything that isn't a security update as ok
+      // don't change status of distribution version
+      if (($key != $profile_name) && ($project['status'] !== UPDATE_NOT_SECURE)) {
+        $projects[$key]['status'] = UPDATE_CURRENT;
+      }
+    }
+  }
 }
