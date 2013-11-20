@@ -3,6 +3,7 @@ distribution_name = Open Atrium 2
 description = A team collaboration platform
 core = 7.x
 exclusive = TRUE
+version = "7.x-2.04"
 
 base[] = panopoly
 
@@ -63,8 +64,6 @@ dependencies[] = module_filter
 dependencies[] = chosen
 dependencies[] = message_subscribe
 dependencies[] = message_digest
-dependencies[] = message_subscribe_email
-dependencies[] = message_subscribe_ui
 dependencies[] = flag
 dependencies[] = realname
 dependencies[] = features_override
@@ -135,14 +134,15 @@ dependencies[] = oa_worktracker
 ; Open Atrium 2.0 Optional
 dependencies[] = oa_home
 dependencies[] = oa_appearance
+dependencies[] = oa_htmlmail
 
 ; Contrib Optional
 dependencies[] = panels_customerror
 dependencies[] = apps
 
-; Information added by  packaging script on 2013-11-06
-version = "7.x-2.03"
+; Information added by  packaging script on 2013-11-20
+version = "7.x-2.09"
 core = "7.x"
 project = "openatrium"
-datestamp = "1383756392"
+datestamp = "1384919086"
 

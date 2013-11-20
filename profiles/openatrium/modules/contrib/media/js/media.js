@@ -72,13 +72,20 @@ Drupal.behaviors.mediaElement = {
         }
         else {
           if (editButton.length) {
-            editButton.attr('href', editButton.attr('href').replace(/media\/\d+\/edit/, 'media/' + fidField.val() + '/edit'));
-            // Re-process the edit link through CTools modal behaviors.
-            editButton.unbind('click');
-            editButton.removeClass('ctools-use-modal-processed');
-            // @todo Maybe add support for Drupal.detachBehaviors in Drupal.behaviors.ZZCToolsModal?
-            Drupal.attachBehaviors(editButton.parent(), Drupal.settings);
-            editButton.show();
+            var url = Drupal.settings.basePath + 'file/' + fidField.val() + '/edit';
+            $.ajax({
+              url: location.protocol + '//' + location.host + url,
+              type: 'HEAD',
+              success: function(data) {
+                editButton.attr('href', editButton.attr('href').replace(/media\/\d+\/edit/, 'media/' + fidField.val() + '/edit'));
+                // Re-process the edit link through CTools modal behaviors.
+                editButton.unbind('click');
+                editButton.removeClass('ctools-use-modal-processed');
+                // @todo Maybe add support for Drupal.detachBehaviors in Drupal.behaviors.ZZCToolsModal?
+                Drupal.attachBehaviors(editButton.parent(), Drupal.settings);
+                editButton.show();
+              }
+            });
           }
           removeButton.show();
         }

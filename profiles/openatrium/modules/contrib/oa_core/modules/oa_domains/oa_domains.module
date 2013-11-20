@@ -29,12 +29,21 @@ function oa_domains_form_oa_core_configure_form_alter(&$form, &$form_state, $for
 
 define('OA_DOMAINS_BASE', '<base_domain>');
 
+function oa_domains_get_space_base($space_id = NULL) {
+  global $base_url;
+  $space_id = (isset($space_id)) ? $space_id : oa_core_get_space_context();
+  if ($space_path = oa_domains_get_space_path($space_id)) {
+    $base = parse_url($base_url);
+    return $base['scheme'] . '://' . $space_path;
+  }
+  return $base_url;
+}
+
 /**
  * Implements hook_url_outbound_alter().
  */
 function oa_domains_url_outbound_alter(&$path, &$options, $original_path) {
   static $prevent_loop = FALSE;
-
   if ($prevent_loop) {
     // anything that calls menu_get_item (like og_session_context_get_context)
     // will end up calling this again
@@ -52,11 +61,7 @@ function oa_domains_url_outbound_alter(&$path, &$options, $original_path) {
   $cache = &drupal_static('oa_domains', array());
   if (empty($cache[OA_DOMAINS_BASE])) {
     // first time through, figure out base_url of current space
-    $space_id = oa_core_get_space_context();
-    if ($space_path = oa_domains_get_space_path($space_id)) {
-      $base = parse_url($base_url);
-      $base_url = $base['scheme'] . '://' . $space_path;
-    }
+    $base_url = oa_domains_get_space_base();
     $cache[OA_DOMAINS_BASE] = $base_url;
   }
   else {

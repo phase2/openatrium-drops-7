@@ -7,9 +7,9 @@ dependencies[] = markdown
 features[features_api][] = api:2
 features[filter][] = markdown
 
-; Information added by  packaging script on 2013-11-06
-version = "7.x-2.03"
+; Information added by  packaging script on 2013-11-20
+version = "7.x-2.09"
 core = "7.x"
 project = "openatrium"
-datestamp = "1383756392"
+datestamp = "1384919086"
 

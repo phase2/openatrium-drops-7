@@ -9,13 +9,13 @@
  * Base class for testing openatrium web interaction.
  *
  * It will try installing openatrium. For a quicker test, replace
- * DrupalWebTestCase with SimpleTestCloneTestCase from the simpletest_clone
+ * SimpleTestCloneTestCase with SimpleTestCloneTestCase from the simpletest_clone
  * module.
  *
  * See http://drupal.org/project/installprofiletest for patches need to have
  * a successful run w/o simpletest clone.
  */
-abstract class oa_coreBaseWebTest extends DrupalWebTestCase {
+abstract class oa_coreBaseWebTest extends SimpleTestCloneTestCase {
   protected $profile = 'openatrium';
 
   protected function createOaSpace($node_info = array()) {
@@ -30,7 +30,7 @@ abstract class oa_coreBaseWebTest extends DrupalWebTestCase {
 
   protected function createOaSpaceAndUsers($space_info = array()) {
     $admin = $this->drupalCreateUser(array('create oa_space content', 'create oa_section content', 'edit any oa_section content'));
-    $space = $this->createOaSpace($space_info);
+    $space = $this->createOaSpace($space_info + array('uid' => $admin->uid));
     return array(
       'space' => $space,
       'space_member' => $this->createUserInOaSpace($space),

@@ -8,7 +8,7 @@ The goal of this script is to provide a fast and lightweight (3kb minified / 1kb
 
 If you're unfamiliar with the concepts surrounding Responsive Web Design, you can read up [here](http://www.alistapart.com/articles/responsive-web-design/) and also [here](http://filamentgroup.com/examples/responsive-images/)
 
-[Demo page](http://scottjehl.github.com/Respond/test/test.html) (the colors change to show media queries working)
+[Demo page](https://rawgithub.com/scottjehl/Respond/master/test/test.html) (the colors change to show media queries working)
 
 
 Usage Instructions
@@ -66,7 +66,7 @@ Some notes to keep in mind:
 
 - As you might guess, this implementation is quite dumb in regards to CSS parsing rules. This is a good thing, because that allows it to run really fast, but it's looseness may also cause unexpected behavior. For example: if you enclose a whole media query in a comment intending to disable its rules, you'll probably find that those rules will end up enabled in non-media-query-supporting browsers.
 
-- Respond.js doesn't parse CSS refrenced via @import, nor does it work with media queries within style elements, as those styles can't be re-requested for parsing.
+- Respond.js doesn't parse CSS referenced via @import, nor does it work with media queries within style elements, as those styles can't be re-requested for parsing.
 
 - Due to security restrictions, some browsers may not allow this script to work on file:// urls (because it uses xmlHttpRequest). Run it on a web server.
 
@@ -75,6 +75,8 @@ Some notes to keep in mind:
 - Reportedly, if CSS files are encoded in UTF-8 with Byte-Order-Mark (BOM), they will not work with Respond.js in IE7 or IE8. Noted in issue #97
 
 - WARNING: Including @font-face rules inside a media query will cause IE7 and IE8 to hang during load. To work around this, place @font-face rules in the wide open, as a sibling to other media queries. 
+
+- If you have more than 32 stylesheets referenced, IE will throw an error, `Invalid procedure call or argument`. Concatenate your CSS and the issue should go away.
 
 
 How's it work?

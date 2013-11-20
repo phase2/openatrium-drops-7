@@ -17,3 +17,10 @@ features[variable][] = colorizer_incfile
 features[variable][] = colorizer_previewfile
 features[variable][] = site_frontpage
 project path = tmp/oa_home
+
+; Information added by  packaging script on 2013-11-18
+version = "7.x-2.08"
+core = "7.x"
+project = "oa_core"
+datestamp = "1384810705"
+

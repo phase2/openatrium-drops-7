@@ -58,18 +58,12 @@ function media_field_formatter_view($entity_type, $entity, $field, $instance, $l
   $element = array();
 
   if ($display['type'] == 'media_large_icon') {
-    // Add height/width variable according to media_thumbnail image style
-    // so that the output in media browser is consistent.
-    // @todo is this the correct place to put this?
-    $style = image_style_load('media_thumbnail');
+    // Use the media_thumbnail image style so that the output in media browser
+    // is consistent.
     foreach ($items as $delta => $item) {
       $element[$delta] = array(
         '#theme' => 'media_formatter_large_icon',
         '#file' => (object) $item,
-        '#attributes' => array(
-          'width' => $style['effects'][0]['data']['width'],
-          'height' => $style['effects'][0]['data']['height'],
-        ),
       );
     }
   }
@@ -162,7 +156,7 @@ function media_field_widget_form(&$form, &$form_state, $field, $instance, $langc
         'enabledPlugins' => array_filter($instance['widget']['settings']['browser_plugins']),
         'schemes' => $widget_settings['allowed_schemes'],
         'file_directory' => isset($field_settings['file_directory']) ? $field_settings['file_directory'] : '',
-        'file_extensions' => isset($field_settings['file_extensions']) ? $field_settings['file_extensions'] : media_variable_get('file_extensions'),
+        'file_extensions' => isset($field_settings['file_extensions']) ? $field_settings['file_extensions'] : variable_get('file_entity_default_allowed_extensions', 'jpg jpeg gif png txt doc docx xls xlsx pdf ppt pptx pps ppsx odt ods odp mp3 mov mp4 m4a m4v mpeg avi ogg oga ogv weba webp webm'),
         'max_filesize' => isset($field_settings['max_filesize']) ? $field_settings['max_filesize'] : 0,
         'uri_scheme' => !empty($field['settings']['uri_scheme']) ? $field['settings']['uri_scheme'] : file_default_scheme(),
       ),

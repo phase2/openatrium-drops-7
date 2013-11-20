@@ -64,6 +64,12 @@ projects[fape][patch][1846156] = http://drupal.org/files/fape-1846156-5.patch
 projects[media_youtube][subdir] = contrib
 projects[media_youtube][version] = 2.0-rc3
 
+; Override panopoly_widgets.make: 2319170
+projects[media][subdir] = contrib
+projects[media][download][type] = git
+projects[media][download][revision] = 4a88319
+projects[media][download][branch] = 7.x-2.x
+
 ; Override panopoly_core.make: 72f3d17
 ; Update token to allow disabling of empty token errors during test runs
 projects[token][type] = module
@@ -71,14 +77,14 @@ projects[token][subdir] = contrib
 projects[token][download][type] = git
 projects[token][download][url] = http://git.drupal.org/project/token.git
 projects[token][download][branch] = 7.x-1.x
-projects[token][version] = 1.5
+projects[token][download][revision] = 72f3d17
 projects[token][patch][1999298] = http://drupal.org/files/1999298-disable-test-warnings.patch
 
 ; Fix undefined did bug and installation issues.
 projects[defaultconfig][subdir] = contrib
-projects[defaultconfig][version] = 1.0-alpha9
 projects[defaultconfig][download][type] = git
 projects[defaultconfig][download][branch] = 7.x-1.x
+projects[defaultconfig][download][revision] = 0e837db
 projects[defaultconfig][patch][2042799] = http://drupal.org/files/default_config_delete_only_if_overriden.patch
 projects[defaultconfig][patch][2043307] = http://drupal.org/files/defaultconfig_include_features_file.patch
 projects[defaultconfig][patch][2008178] = http://drupal.org/files/defaultconfig-rebuild-filters-2008178-4_0.patch
@@ -96,6 +102,7 @@ projects[views][version] = 3.7
 projects[views][subdir] = contrib
 projects[views][download][type] = git
 projects[views][download][branch] = 7.x-3.x
+projects[views][download][revision] = 80d968
 projects[views][patch][1979926] = http://drupal.org/files/1979926-views-reset_fetch_data-2.patch
 projects[views][patch][1735096] = http://drupal.org/files/1735096-views-mltiple-instance-exposed-form-8.patch
 
@@ -104,10 +111,10 @@ projects[views][patch][1735096] = http://drupal.org/files/1735096-views-mltiple-
 
 ; Message
 projects[message][subdir] = contrib
-projects[message][version] = 1.8
 projects[message][download][type] = git
 projects[message][download][url] = http://git.drupal.org/project/message.git
 projects[message][download][branch] = 7.x-1.x
+projects[message][download][revision] = 27d43e2b
 projects[message][patch][2046591] = http://drupal.org/files/message-token_replace-2046591-1.patch
 projects[message][patch][2040735] = http://drupal.org/files/message.target_bundles.2040735-3.patch
 
@@ -122,7 +129,7 @@ projects[message_subscribe][patch][2094129] = http://drupal.org/files/message_su
 
 ; Message Digest
 projects[message_digest][subdir] = contrib
-projects[message_digest][version] = 1.0-beta2
+projects[message_digest][version] = 1.0-beta4
 
 ; Flag
 projects[flag][subdir] = contrib
@@ -232,14 +239,14 @@ projects[trash_flag][version] = 1.0-beta1
 
 ; Jquery Update
 projects[jquery_update][subdir] = contrib
-projects[jquery_update][version] = 2.3
 projects[jquery_update][download][type] = git
 projects[jquery_update][download][branch] = 7.x-2.x
+projects[jquery_update][download][revision] = 65eecb0
 projects[jquery_update][patch][1448490] = http://drupal.org/files/jquery_update-fixes-states-js-1448490.patch
 
 ; Colorizer
 projects[colorizer][subdir] = contrib
-projects[colorizer][version] = 1.0-beta1
+projects[colorizer][version] = 1.0-beta2
 
 ; OA Responsive Regions
 projects[oa_responsive_regions][subdir] = contrib
@@ -256,11 +263,7 @@ projects[og][download][revision] = 6c0afff
 
 ; Organic Groups Vocabulary
 projects[og_vocab][subdir] = contrib
-projects[og_vocab][version] = 1.1
-projects[og_vocab][download][type] = git
-projects[og_vocab][download][branch] = 7.x-1.x
-projects[og_vocab][download][revision] = bd5b341
-projects[og_vocab][patch][1985316] = http://drupal.org/files/1985316-og_vocab-menu_get_item-1.patch
+projects[og_vocab][version] = 1.2
 
 ; OG Session Context
 projects[og_session_context][type] = module
@@ -285,4 +288,4 @@ projects[og_variables][version] = 1.0-beta1
 ; Bootstrap Tour
 projects[bootstrap_tour][type] = module
 projects[bootstrap_tour][subdir] = contrib
-projects[bootstrap_tour][version] = 1.0-beta4
+projects[bootstrap_tour][version] = 1.0-beta5

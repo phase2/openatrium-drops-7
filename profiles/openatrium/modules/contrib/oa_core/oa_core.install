@@ -81,3 +81,10 @@ function oa_core_update_7209() {
 function oa_core_update_7210() {
   module_enable(array('oa_update'));
 }
+
+/**
+ * Enable oa_htmlmail.
+ */
+function oa_core_update_7211() {
+  module_enable(array('htmlmail', 'oa_htmlmail'));
+}

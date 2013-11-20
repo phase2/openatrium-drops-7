@@ -4,13 +4,17 @@
  * Implements hook_install().
  */
 function oa_tour_install() {
-  oa_tour_update_7001();
+  oa_tour_add_spaces_column();
 }
 
 /**
  * Add the 'spaces' DB column to the bootstrap_tour table.
  */
 function oa_tour_update_7001(&$sandbox) {
+  oa_tour_add_spaces_column();
+}
+
+function oa_tour_add_spaces_column() {
   $spaces = array(
     'type' => 'varchar',
     'length' => '255',

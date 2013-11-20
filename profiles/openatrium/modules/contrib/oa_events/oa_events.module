@@ -58,7 +58,8 @@ function oa_events_geocoder_geocode_values_alter(&$items, &$field_info, &$handle
 function oa_events_field_add_to_calendar_markup($nid, $items, $title = 'Add to Calendar') {
   static $date_field_info = FALSE;
   static $date_field_instance = FALSE;
-  drupal_add_js('http://js.addthisevent.com/atemay.js', 'external');
+  drupal_add_css(drupal_get_path('module', 'oa_events') . '/css/addthisevent.css');
+  drupal_add_js(drupal_get_path('module', 'oa_events') . '/js/atemay.js');
 
   $node = node_load($nid);
   if (false === $date_field_info) {

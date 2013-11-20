@@ -125,24 +125,31 @@ function oa_update_update_projects_alter(&$projects) {
   $profile_name = drupal_get_profile();
   if (!empty($profile_name)) {
     // add the profile back into the module list to fetch update status for
-    module_load_include('inc', 'update', 'update.compare');
-    $module_data = system_rebuild_module_data();
-    $module[$profile_name] = $module_data[$profile_name];
-    $module[$profile_name]->info['hidden'] = FALSE;
-    $module[$profile_name]->info['project'] = $profile_name;
-    $profile = array();
-    _update_process_info_list($profile, $module, 'module', TRUE);
-    // drupal.org packager doesn't add the profile version to the info file
-    // can add a [version] manually to your profile.info
-    // for openatrium, use the version of oa_core as the version of the profile
-    if (empty($profile[$profile_name]['info']['version']) && ($profile_name == 'openatrium')) {
-      $profile[$profile_name]['info']['version'] = $projects['oa_core']['info']['version'];
+    $uri = 'profiles/' . $profile_name . '/' . $profile_name . '.profile';
+    $filename = dirname($uri) . '/' . $profile_name . '.info';
+    $info = drupal_parse_info_file($filename);
+    $info['project'] = $profile_name;
+    $info['hidden'] = FALSE;
+    if (!isset($info['_info_file_ctime'])) {
+      $info['_info_file_ctime'] = filectime($filename);
     }
-    $projects[$profile_name] = $profile[$profile_name];
-    foreach ($projects as $key => $project) {
-      // remove any local OA submodules
-      if (!empty($project['info']['package']) && ($project['info']['package'] == 'Open Atrium')) {
-        unset($projects[$key]);
+    if (!isset($info['datestamp'])) {
+      $info['datestamp'] = 0;
+    }
+    $profile = array(
+      'name' => $profile_name,
+      'info' => $info,
+      'project_type' => 'module',
+      'project_status' => TRUE,
+      'includes' => array($profile_name => $info['name']),
+    );
+    $projects[$profile_name] = $profile;
+    if (!variable_get('oa_update_enable', FALSE)) {
+      foreach ($projects as $key => $project) {
+        // remove any local OA submodules
+        if (!empty($project['info']['package']) && ($project['info']['package'] == 'Open Atrium')) {
+          unset($projects[$key]);
+        }
       }
     }
   }

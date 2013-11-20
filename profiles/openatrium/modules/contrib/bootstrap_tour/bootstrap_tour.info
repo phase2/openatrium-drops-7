@@ -2,12 +2,12 @@ name = Bootstrap tour
 description = Provides Bootstrap-based tours to guide users through navigations of the site
 core = 7.x
 
-dependencies[] = libraries (2.x)
 dependencies[] = jquery_update
+dependencies[] = ctools
 
-; Information added by  packaging script on 2013-11-04
-version = "7.x-1.0-beta4"
+; Information added by  packaging script on 2013-11-16
+version = "7.x-1.0-beta5"
 core = "7.x"
 project = "bootstrap_tour"
-datestamp = "1383601773"
+datestamp = "1384560555"
 

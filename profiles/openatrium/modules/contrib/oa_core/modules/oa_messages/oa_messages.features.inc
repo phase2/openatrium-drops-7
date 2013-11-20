@@ -37,9 +37,9 @@ function oa_messages_default_message_type() {
           "safe_value" : "\\u003Cp\\u003E[[message:field-oa-message-space]] @{message:user:name} replied to [message:field-oa-node-ref:title]\\u003C\\/p\\u003E\\n"
         },
         {
-          "value" : "@{message:user:name} replied to \\u003Ca href=\\u0022\\/comment\\/[message:field-oa-comment-ref:cid]#comment-[message:field-oa-comment-ref:cid]\\u0022\\u003E[message:field-oa-node-ref:title]\\u003C\\/a\\u003E\\r\\n[message:field-oa-message-text:value] [message:field-oa-comment-ref:comment-body:value]\\r\\n\\u003Ca href=\\u0022[message:field-oa-node-ref:url]\\u0022\\u003EClick here\\u003C\\/a\\u003E to see the discussion.",
+          "value" : "[message:timestamp:oa_date]\\u003Cbr \\\\u003E\\u003Ch3\\u003E@{message:user:name} replied to \\u003Ca href=\\u0022\\/comment\\/[message:field-oa-comment-ref:cid]#comment-[message:field-oa-comment-ref:cid]\\u0022\\u003E[message:field-oa-node-ref:title]\\u003C\\/a\\u003E\\u003C/h3\\u003E\\n[message:field-oa-message-text:value] [message:field-oa-comment-ref:comment-body:value]\\n\\u003Ca href=\\u0022[message:field-oa-node-ref:url]\\u0022\\u003EClick here\\u003C\\/a\\u003E to see the discussion.",
           "format" : "full_html",
-          "safe_value" : "@{message:user:name} replied to \\u003Ca href=\\u0022\\/comment\\/[message:field-oa-comment-ref:cid]#comment-[message:field-oa-comment-ref:cid]\\u0022\\u003E[message:field-oa-node-ref:title]\\u003C\\/a\\u003E\\n[message:field-oa-message-text:value] [message:field-oa-comment-ref:comment-body:value]\\n\\u003Ca href=\\u0022[message:field-oa-node-ref:url]\\u0022\\u003EClick here\\u003C\\/a\\u003E to see the discussion."
+          "safe_value" : "[message:timestamp:oa_date]\\u003Cbr \\\\u003E\\u003Ch3\\u003E@{message:user:name} replied to \\u003Ca href=\\u0022\\/comment\\/[message:field-oa-comment-ref:cid]#comment-[message:field-oa-comment-ref:cid]\\u0022\\u003E[message:field-oa-node-ref:title]\\u003C\\/a\\u003E\\u003C/h3\\u003E\\n[message:field-oa-message-text:value] [message:field-oa-comment-ref:comment-body:value]\\n\\u003Ca href=\\u0022[message:field-oa-node-ref:url]\\u0022\\u003EClick here\\u003C\\/a\\u003E to see the discussion."
         },
         {
           "value" : "\\u003Ca href=\\u0022[site:url]user\\/@{message:user:uid}\\u0022 class=\\u0022oa-userlink\\u0022\\u003E@{message:user:name}\\u003C\\/a\\u003E replied to \\u003Ca href=\\u0022\\/comment\\/[message:field-oa-comment-ref:cid]#comment-[message:field-oa-comment-ref:cid]\\u0022\\u003E\\u003Cstrong\\u003E[message:field-oa-node-ref:title]\\u003C\\/strong\\u003E\\u003C\\/a\\u003E",
@@ -48,13 +48,13 @@ function oa_messages_default_message_type() {
         },
         {
           "value" : "[message:field-oa-message-text:value] [message:field-oa-node-ref:title]",
-          "format" : "panopoly_html_text",
-          "safe_value" : "\\u003Cp\\u003E[message:field-oa-message-text:value] [message:field-oa-node-ref:title]\\u003C\\/p\\u003E\\n"
+          "format" : "full_html",
+          "safe_value" : "[message:field-oa-message-text:value] [message:field-oa-node-ref:title]"
         },
         {
           "value" : "[message:field-oa-comment-ref:comment-body:value]",
-          "format" : "panopoly_html_text",
-          "safe_value" : "\\u003Cp\\u003E[message:field-oa-comment-ref:comment-body:value]\\u003C\\/p\\u003E\\n"
+          "format" : "full_html",
+          "safe_value" : "[message:field-oa-comment-ref:comment-body:value]"
         }
       ]
     }
@@ -78,9 +78,9 @@ function oa_messages_default_message_type() {
           "safe_value" : "\\u003Cp\\u003E[[message:field-oa-message-space]] @{message:user:name} created [message:field-oa-node-ref:title]\\u003C\\/p\\u003E\\n"
         },
         {
-          "value" : "\\u003Cp\\u003E[message:field-oa-message-text:value]\\u0026nbsp;[message:field-oa-node-ref:body]\\u003C\\/p\\u003E",
-          "format" : "panopoly_wysiwyg_text",
-          "safe_value" : "\\u003Cp\\u003E[message:field-oa-message-text:value]\\u00a0[message:field-oa-node-ref:body]\\u003C\\/p\\u003E\\n"
+          "value" : "[message:timestamp:oa_date]\\u003Cbr \\\\u003E\\u003Ch3\\u003E@{message:user:name} created \\u003Ca href=\\u0022\\/comment\\/[message:field-oa-comment-ref:cid]#comment-[message:field-oa-comment-ref:cid]\\u0022\\u003E[message:field-oa-node-ref:title]\\u003C\\/a\\u003E\\u003C/h3\\u003E\\n\\u003Cp\\u003E[message:field-oa-message-text:value]\\u0026nbsp;[message:field-oa-node-ref:body]\\u003C\\/p\\u003E",
+          "format" : "full_html",
+          "safe_value" : "[message:timestamp:oa_date]\\u003Cbr \\\\u003E\\u003Ch3\\u003E@{message:user:name} created \\u003Ca href=\\u0022\\/comment\\/[message:field-oa-comment-ref:cid]#comment-[message:field-oa-comment-ref:cid]\\u0022\\u003E[message:field-oa-node-ref:title]\\u003C\\/a\\u003E\\u003C/h3\\u003E\\n\\u003Cp\\u003E[message:field-oa-message-text:value]\\u0026nbsp;[message:field-oa-node-ref:body]\\u003C\\/p\\u003E"
         },
         {
           "value" : "\\u003Ca href=\\u0022[site:url]user\\/@{message:user:uid}\\u0022 class=\\u0022oa-userlink\\u0022\\u003E@{message:user:name}\\u003C\\/a\\u003E created \\u003Ca href=\\u0022[site:url]node\\/[message:field-oa-node-ref:nid]\\u0022\\u003E\\u003Cstrong\\u003E[message:field-oa-node-ref:title]\\u003C\\/strong\\u003E\\u003C\\/a\\u003E",
@@ -89,13 +89,13 @@ function oa_messages_default_message_type() {
         },
         {
           "value" : "[message:field-oa-message-text:value] [message:field-oa-node-ref:body]",
-          "format" : "panopoly_html_text",
-          "safe_value" : "\\u003Cp\\u003E[message:field-oa-message-text:value] [message:field-oa-node-ref:body]\\u003C\\/p\\u003E\\n"
+          "format" : "full_html",
+          "safe_value" : "[message:field-oa-message-text:value] [message:field-oa-node-ref:body]"
         },
         {
-          "value" : "\\u003Cp\\u003E\\u003Cspan\\u003E[message:field-oa-node-ref:body]\\u003C\\/span\\u003E\\u003C\\/p\\u003E",
-          "format" : "panopoly_wysiwyg_text",
-          "safe_value" : "\\u003Cp\\u003E\\u003Cspan\\u003E[message:field-oa-node-ref:body]\\u003C\\/span\\u003E\\u003C\\/p\\u003E\\n"
+          "value" : "[message:field-oa-node-ref:body]",
+          "format" : "full_html",
+          "safe_value" : "[message:field-oa-node-ref:body]"
         }
       ]
     }
@@ -114,14 +114,14 @@ function oa_messages_default_message_type() {
     "arguments" : null,
     "message_text" : { "und" : [
         {
-          "value" : "@{message:user:name} deleted: [message:field-deleted-title]",
+          "value" : "[[message:field-oa-message-space]] @{message:user:name} deleted: [message:field-deleted-title]",
           "format" : "plain_text",
-          "safe_value" : "\\u003Cp\\u003E@{message:user:name} deleted: [message:field-deleted-title]\\u003C\\/p\\u003E\\n"
+          "safe_value" : "\\u003Cp\\u003E[[message:field-oa-message-space]] @{message:user:name} deleted: [message:field-deleted-title]\\u003C\\/p\\u003E\\n"
         },
         {
-          "value" : "@{message:user:name} deleted [message:field-deleted-title]",
-          "format" : "panopoly_html_text",
-          "safe_value" : "\\u003Cp\\u003E@{message:user:name} deleted [message:field-deleted-title]\\u003C\\/p\\u003E\\n"
+          "value" : "[message:timestamp:oa_date]\\u003Cbr \\\\u003E@{message:user:name} deleted [message:field-deleted-title]",
+          "format" : "full_html",
+          "safe_value" : "[message:timestamp:oa_date]\\u003Cbr \\\\u003E@{message:user:name} deleted [message:field-deleted-title]"
         },
         {
           "value" : "\\u003Ca href=\\u0022[site:url]user\\/@{message:user:uid}\\u0022\\u003E@{message:user:name}\\u003C\\/a\\u003E deleted \\u003Cstrong\\u003E[message:field-deleted-title]\\u003C\\/strong\\u003E",
@@ -155,14 +155,14 @@ function oa_messages_default_message_type() {
     "arguments" : null,
     "message_text" : { "und" : [
         {
-          "value" : "[message:field-oa-message-space:title] : @{message:user:name} updated SpaceX",
+          "value" : "[message:field-oa-message-space:title] : @{message:user:name} updated members of Space",
           "format" : "plain_text",
-          "safe_value" : "\\u003Cp\\u003E[message:field-oa-message-space:title] : @{message:user:name} updated SpaceX\\u003C\\/p\\u003E\\n"
+          "safe_value" : "\\u003Cp\\u003E[message:field-oa-message-space:title] : @{message:user:name} updated members of Space\\u003C\\/p\\u003E\\n"
         },
         {
-          "value" : "[message:field-oa-message-space:title] : [message:field-oa-message-text:value]",
-          "format" : "panopoly_html_text",
-          "safe_value" : "\\u003Cp\\u003E[message:field-oa-message-space:title] : [message:field-oa-message-text:value]\\u003C\\/p\\u003E\\n"
+          "value" : "[message:timestamp:oa_date]\\u003Cbr \\\\u003E[message:field-oa-message-space:title] : [message:field-oa-message-text:value]",
+          "format" : "full_html",
+          "safe_value" : "[message:timestamp:oa_date]\\u003Cbr \\\\u003E[message:field-oa-message-space:title] : [message:field-oa-message-text:value]"
         },
         {
           "value" : "\\u003Ca href=\\u0022[site:url]user\\/@{message:user:uid}\\u0022\\u003E@{message:user:name}\\u003C\\/a\\u003E updated Space : \\u003Ca href=\\u0022[site:url]node\\/[message:field-oa-message-space:nid]\\u0022\\u003E[message:field-oa-message-space:title]\\u003C\\/a\\u003E",
@@ -186,14 +186,14 @@ function oa_messages_default_message_type() {
     "arguments" : null,
     "message_text" : { "und" : [
         {
-          "value" : "[message:field-oa-message-space] : @{message:user:name} updated [message:field-oa-node-ref:title]",
+          "value" : "[[message:field-oa-message-space]] @{message:user:name} updated [message:field-oa-node-ref:title]",
           "format" : "plain_text",
-          "safe_value" : "\\u003Cp\\u003E[message:field-oa-message-space] : @{message:user:name} updated [message:field-oa-node-ref:title]\\u003C\\/p\\u003E\\n"
+          "safe_value" : "\\u003Cp\\u003E[[message:field-oa-message-space]] @{message:user:name} updated [message:field-oa-node-ref:title]\\u003C\\/p\\u003E\\n"
         },
         {
-          "value" : "\\u003Cp\\u003E[message:field-oa-message-text:value]\\u0026nbsp;[message:field-oa-node-ref:oa-log]\\u003C\\/p\\u003E\\u003Cp\\u003E!{message:field-oa-node-ref:oa-diff}\\u003C\\/p\\u003E",
-          "format" : "panopoly_wysiwyg_text",
-          "safe_value" : "\\u003Cp\\u003E[message:field-oa-message-text:value]\\u00a0[message:field-oa-node-ref:oa-log]\\u003C\\/p\\u003E\\n\\u003Cp\\u003E!{message:field-oa-node-ref:oa-diff}\\u003C\\/p\\u003E\\n"
+          "value" : "[message:timestamp:oa_date]\\u003Cbr \\\\u003E\\u003Ch3\\u003E@{message:user:name} updated \\u003Ca href=\\u0022\\/comment\\/[message:field-oa-comment-ref:cid]#comment-[message:field-oa-comment-ref:cid]\\u0022\\u003E[message:field-oa-node-ref:title]\\u003C\\/a\\u003E\\u003C/h3\\u003E\\n\\u003Cp\\u003E[message:field-oa-message-text:value]\\u0026nbsp;[message:field-oa-node-ref:oa-log]\\u003C\\/p\\u003E\\u003Cp\\u003E!{message:field-oa-node-ref:oa-diff}\\u003C\\/p\\u003E",
+          "format" : "full_html",
+          "safe_value" : "[message:timestamp:oa_date]\\u003Cbr \\\\u003E\\u003Ch3\\u003E@{message:user:name} updated \\u003Ca href=\\u0022\\/comment\\/[message:field-oa-comment-ref:cid]#comment-[message:field-oa-comment-ref:cid]\\u0022\\u003E[message:field-oa-node-ref:title]\\u003C\\/a\\u003E\\u003C/h3\\u003E\\n\\u003Cp\\u003E[message:field-oa-message-text:value]\\u0026nbsp;[message:field-oa-node-ref:oa-log]\\u003C\\/p\\u003E\\u003Cp\\u003E!{message:field-oa-node-ref:oa-diff}\\u003C\\/p\\u003E"
         },
         {
           "value" : "\\u003Ca href=\\u0022[site:url]user\\/@{message:user:uid}\\u0022 class=\\u0022oa-userlink\\u0022\\u003E@{message:user:name}\\u003C\\/a\\u003E updated \\u003Ca href=\\u0022[message:field-oa-node-ref:url]\\u0022\\u003E\\u003Cstrong\\u003E[message:field-oa-node-ref:title]\\u003C\\/strong\\u003E\\u003C\\/a\\u003E",
@@ -207,8 +207,8 @@ function oa_messages_default_message_type() {
         },
         {
           "value" : "!{message:field-oa-node-ref:oa-diff}",
-          "format" : "panopoly_html_text",
-          "safe_value" : "\\u003Cp\\u003E!{message:field-oa-node-ref:oa-diff}\\u003C\\/p\\u003E\\n"
+          "format" : "full_html",
+          "safe_value" : "!{message:field-oa-node-ref:oa-diff}"
         }
       ]
     }

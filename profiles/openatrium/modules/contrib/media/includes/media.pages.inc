@@ -45,12 +45,23 @@ function media_file_page_edit_multiple($files) {
   $form['buttons']['cancel'] = array(
     '#type' => 'link',
     '#title' => t('Cancel'),
-    '#href' => isset($_GET['destination']) ? $_GET['destination'] : 'admin/content/file',
     '#weight' => 50,
   );
+  if (isset($_GET['destination'])) {
+    $form['buttons']['cancel']['#href'] = $_GET['destination'];
+  }
+  else if (user_access('administer files')) {
+    $form['buttons']['cancel']['#href'] = 'admin/content/file';
+  }
+  else {
+    $form['buttons']['cancel']['#href'] = '<front>';
+  }
 
   // Override the page title since each file form sets a title.
   drupal_set_title(t('Edit multiple files'));
+
+  // Allow other modules to alter the form.
+  drupal_alter('media_edit_multiple_form', $form);
 
   return $form;
 }

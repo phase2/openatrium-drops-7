@@ -119,7 +119,8 @@ function media_import_batch_import_files($files, &$context) {
   $files =& $context['sandbox']['files'];
 
   // Take a cut of files.  Let's do 10 at a time.
-  $length = (count($files) > media_variable_get('import_batch_size')) ? media_variable_get('import_batch_size') : count($files);
+  $import_batch_size = variable_get('media__import_batch_size', 20);
+  $length = (count($files) > $import_batch_size) ? $import_batch_size : count($files);
   $to_process = array_splice($files, 0, $length);
   $image_in_message = '';
 
@@ -170,26 +171,14 @@ function media_admin_config_browser($form, &$form_state) {
     }
   }
 
-  $form[media_variable_name('dialog_theme')] = array(
+  $form['media__dialog_theme'] = array(
     '#type' => 'select',
     '#title' => t('Media browser theme'),
     '#options' => $theme_options,
     '#description' => t("This theme will be used for all media related dialogs.
       It can be different from your site's theme because many site themes do not
       work well in the small windows which media uses."),
-    '#default_value' => media_variable_get('dialog_theme'),
-  );
-
-  $form[media_variable_name('file_extensions')] = array(
-    '#type' => 'textfield',
-    '#title' => t('Allowed file extensions'),
-    '#default_value' => media_variable_get('file_extensions'),
-    '#description' => t('File extensions which are accepted in the media
-      browser. Use spaces to separate (for example: "jpg gif pdf doc").
-      <br/><em>Note that this can be overriden on a per-field basis when
-      creating multimedia asset fields and files of certain extensions cannot be
-      embedded at this time.</em>'),
-    '#maxlength' => 255,
+    '#default_value' => variable_get('media__dialog_theme', ''),
   );
 
   // Additional configuration if the WYSIWYG module is enabled.
@@ -201,37 +190,37 @@ function media_admin_config_browser($form, &$form_state) {
     '#access' => module_exists('wysiwyg'),
   );
   $plugins = media_get_browser_plugin_info();
-  $form['wysiwyg'][media_variable_name('wysiwyg_browser_plugins')] = array(
+  $form['wysiwyg']['media__wysiwyg_browser_plugins'] = array(
     '#type' => 'checkboxes',
     '#title' => t('Enabled browser plugins'),
     '#options' => array(),
     '#required' => FALSE,
-    '#default_value' => media_variable_get('wysiwyg_browser_plugins'),
+    '#default_value' => variable_get('media__wysiwyg_browser_plugins', array()),
     '#description' => t('If no plugins are selected, they will all be available.'),
   );
   foreach ($plugins as $key => $plugin) {
-    $form['wysiwyg'][media_variable_name('wysiwyg_browser_plugins')]['#options'][$key] = !empty($plugin['title']) ? $plugin['title'] : $key;
+    $form['wysiwyg']['media__wysiwyg_browser_plugins']['#options'][$key] = !empty($plugin['title']) ? $plugin['title'] : $key;
   }
-  $form['wysiwyg'][media_variable_name('wysiwyg_upload_directory')] = array(
+  $form['wysiwyg']['media__wysiwyg_upload_directory'] = array(
     '#type' => 'textfield',
     '#title' => t("File directory for uploaded media"),
-    '#default_value' => media_variable_get('wysiwyg_upload_directory'),
+    '#default_value' => variable_get('media__wysiwyg_upload_directory', ''),
     '#description' => t('Optional subdirectory within the upload destination where files will be stored. Do not include preceding or trailing slashes.'),
   );
 
   if (module_exists('token')) {
-    $form['wysiwyg'][media_variable_name('wysiwyg_upload_directory')]['#description'] .= t('This field supports tokens.');
+    $form['wysiwyg']['media__wysiwyg_upload_directory']['#description'] .= t('This field supports tokens.');
     $form['wysiwyg']['tokens'] = array(
       '#theme' => 'token_tree',
       '#dialog' => TRUE,
     );
   }
 
-  $form['wysiwyg'][media_variable_name('wysiwyg_allowed_types')] = array(
+  $form['wysiwyg']['media__wysiwyg_allowed_types'] = array(
     '#type' => 'checkboxes',
     '#title' => t('Allowed types in WYSIWYG'),
     '#options' => file_entity_type_get_names(),
-    '#default_value' => media_variable_get('wysiwyg_allowed_types'),
+    '#default_value' => variable_get('media__wysiwyg_allowed_types', array('audio', 'image', 'video', 'document')),
   );
   $form['array_filter'] = array('#type' => 'value', '#value' => TRUE);
 
@@ -243,13 +232,13 @@ function media_admin_config_browser($form, &$form_state) {
  * Manipulate values before form is submitted.
  */
 function media_admin_config_browser_pre_submit(&$form, &$form_state) {
-  if (!$form_state['values'][media_variable_name('dialog_theme')]) {
-    media_variable_del('dialog_theme');
-    unset($form_state['values'][media_variable_name('dialog_theme')]);
+  if (!$form_state['values']['media__dialog_theme']) {
+    variable_del('media__dialog_theme');
+    unset($form_state['values']['media__dialog_theme']);
   }
-  $wysiwyg_browser_plugins = array_unique(array_values($form_state['values'][media_variable_name('wysiwyg_browser_plugins')]));
+  $wysiwyg_browser_plugins = array_unique(array_values($form_state['values']['media__wysiwyg_browser_plugins']));
   if (empty($wysiwyg_browser_plugins[0])) {
-    media_variable_del('wysiwyg_browser_plugins');
-    unset($form_state['values'][media_variable_name('wysiwyg_browser_plugins')]);
+    variable_del('media__wysiwyg_browser_plugins');
+    unset($form_state['values']['media__wysiwyg_browser_plugins']);
   }
 }

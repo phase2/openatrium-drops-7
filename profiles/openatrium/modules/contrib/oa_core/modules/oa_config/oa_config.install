@@ -17,4 +17,22 @@ function oa_config_install() {
   if (!empty($private_path) && !is_dir($private_path)) {
     mkdir($private_path, 0775, TRUE);
   }
+  oa_config_ensure_default_group_rids();
+}
+
+function oa_config_ensure_default_group_rids() {
+  foreach (array('oa_space', 'oa_group') as $bundle) {
+    if ($roles = og_roles('node', $bundle)) {
+      if ($rid = array_search(OG_ADMINISTRATOR_ROLE, $roles)) {
+        variable_set('og_group_manager_default_rids_node_' . $bundle, array($rid => $rid));
+      }
+    }
+  }
+}
+
+/**
+ * Fix the default rids.
+ */
+function oa_config_update_7101() {
+  oa_config_ensure_default_group_rids();
 }

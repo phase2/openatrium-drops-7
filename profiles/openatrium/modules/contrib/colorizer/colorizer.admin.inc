@@ -222,7 +222,8 @@ function colorizer_admin_form_validate($form, &$form_state) {
   if (!empty($form_state['values']['palette'])) {
     foreach ($form_state['values']['palette'] as $key => $color) {
       if (!preg_match('/^#([a-f0-9]{3}){1,2}$/iD', $color)) {
-        form_set_error('palette][' . $key, t('%name must be a valid hexadecimal CSS color value.', array('%name' => $form['color']['palette'][$key]['#title'])));
+        form_set_error('palette][' . $key, t('%name must be a valid hexadecimal CSS color value.',
+          array('%name' => $form['colorizer_colors']['palette'][$key]['#title'])));
       }
     }
   }

@@ -12,10 +12,57 @@
 function oa_messages_digest_oa_message_notifiers_alter(&$notifiers) {
   $notifiers[] = array(
     'title' => 'Daily Digest Email',
-    'id'    => 'digest_day');
+    'id'    => 'digest_day',
+    'default' => FALSE,
+  );
   $notifiers[] = array(
     'title' => 'Weekly Digest Email',
-    'id'    => 'digest_week');
+    'id'    => 'digest_week',
+    'default' => FALSE,
+  );
+}
+
+/**
+ * Implements hook_message_digest_view_mode_alter
+ */
+function oa_messages_digest_message_digest_view_mode_alter(&$context) {
+  $context['view_modes'] = array('message_notify_email_body');
+  // check global disable flag
+  if (!variable_get('oa_messages_notifications', TRUE)) {
+    $context['deliver'] = FALSE;
+  }
+  else {
+    //otherwise check user-specific setting
+    $account = user_load($context['uid']);
+    $space_id = $context['gid'];
+    $plugin_name = $context['plugin']['name'];
+    $defaults = isset($account->data['oa_messages']['message_notifications'][$space_id]) ? $account->data['oa_messages']['message_notifications'][$space_id] : array();
+
+    $allowed = FALSE;
+    foreach ($defaults as $key => $value) {
+      if (isset($value[$plugin_name])) {
+        if (!empty($value[$plugin_name])) {
+          $allowed = TRUE;
+          break;
+        }
+      }
+      elseif (!empty($context['plugin']['default'])) {
+        $allowed = TRUE;
+        break;
+      }
+    }
+    $context['deliver'] = $allowed;
+  }
+}
+
+/**
+ * Implements hook_message_digest_aggregate_alter()
+ */
+function oa_messages_digest_message_digest_aggregate_alter(&$context) {
+  if (!empty($context['account']) && !empty($context['account']->data['digest_grouping']) && $context['account']->data['digest_grouping'] == 'global') {
+    // Allow users to group all groups together in the same digest.
+    $context['gid'] = 0;
+  }
 }
 
 /**
@@ -42,3 +89,4 @@ function oa_messages_digest_form_alter(&$form, &$form_state, $form_id) {
 function oa_messages_digest_oa_user_settings_form_submit($form_state, $user) {
   return array('digest_grouping' => $form_state['values']['oa_messages']['digest_grouping']);
 }
+

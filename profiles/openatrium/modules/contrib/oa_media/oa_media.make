@@ -6,9 +6,9 @@ projects[colorbox][subdir] = contrib
 projects[colorbox][version] = 2.4
 
 projects[media_colorbox][subdir] = contrib
-projects[media_colorbox][version] = 1.0-rc4
 projects[media_colorbox][download][type] = git
 projects[media_colorbox][download][branch] = 7.x-1.x
+projects[media_colorbox][download][revision] = d01819
 projects[media_colorbox][patch][2087565] = http://drupal.org/files/media_colorbox_private-file-permission-2087565-1.patch
 
 libraries[colorbox][download][type] = file

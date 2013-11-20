@@ -7,6 +7,7 @@
 namespace('Drupal.media.browser');
 
 Drupal.media.browser.selectedMedia = [];
+Drupal.media.browser.activeTab = 0;
 Drupal.media.browser.mediaAdded = function () {};
 Drupal.media.browser.selectionFinalized = function (selectedMedia) {
   // This is intended to be overridden if a callee wants to be triggered
@@ -16,20 +17,22 @@ Drupal.media.browser.selectionFinalized = function (selectedMedia) {
 
 Drupal.behaviors.MediaBrowser = {
   attach: function (context) {
-    if (Drupal.settings.media.selectedMedia) {
+    if (Drupal.settings.media && Drupal.settings.media.selectedMedia) {
       Drupal.media.browser.selectMedia(Drupal.settings.media.selectedMedia);
       // Fire a confirmation of some sort.
       Drupal.media.browser.finalizeSelection();
     }
 
     // Instantiate the tabs.
-    $('#media-browser-tabset').tabs({
-      // Ensure that the modal resizes to the content on each tab switch.
-      show: Drupal.media.browser.resizeIframe
+    $('#media-browser-tabset').tabs();
+
+    $('.ui-tabs-nav li').mouseup(function() {
+      Drupal.media.browser.activeTab = $(this).index();
     });
 
     $('.media-browser-tab').each( Drupal.media.browser.validateButtons );
 
+    Drupal.media.browser.selectActiveTab();
     Drupal.media.browser.selectErrorTab();
 
   }
@@ -98,14 +101,6 @@ Drupal.media.browser.finalizeSelection = function () {
   }
 };
 
-/**
- * Resize the Media Browser to the content height.
- */
-Drupal.media.browser.resizeIframe = function (event) {
-  var h = $('body').height();
-  $(parent.window.document).find('#mediaBrowser').height(h);
-};
-
 Drupal.media.browser.selectErrorTab = function() {
   // Find the ID of a tab with an error in it
   var errorTabID = $('#media-browser-tabset')
@@ -119,8 +114,36 @@ Drupal.media.browser.selectErrorTab = function() {
     // Find the index of the tab
     var index = $('#media-browser-tabset a').index(tab);
     // Select the tab
-    $('#media-browser-tabset').tabs('select', index)
+    Drupal.media.browser.selectTab(index);
   }
 }
+
+Drupal.media.browser.selectActiveTab = function() {
+  // Find the index of the last active tab.
+  setTimeout(function() {
+    Drupal.media.browser.selectTab(Drupal.media.browser.activeTab);
+  }, 10);
+};
+
+/**
+ * Helper function to change the media browser jQuery UI tabs
+ * since it requires two different methods dependingon the version.
+ */
+Drupal.media.browser.selectTab = function(index) {
+  var ver = jQuery.ui.version.split('.');
+  if (ver[0] == '1' && parseInt(ver[1]) <= 8) {
+    // jQuery UI <= 1.8
+    $('#media-browser-tabset').tabs('select', index);
+  }
+  else {
+    // jQuery UI 1.9+
+    $('#media-browser-tabset').tabs('option', 'active', index);
+  }
+
+  $('.media-modal-frame').width('100%');
+
+  // Update the active tab variable.
+  Drupal.media.browser.activeTab = index;
+};
 
 }(jQuery));

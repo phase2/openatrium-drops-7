@@ -22,77 +22,11 @@ class MediaFileUsageTest extends MediaTestHelper {
    * Enable media and file entity modules for testing.
    */
   public function setUp() {
-    parent::setUp(array('media', 'file_entity'));
+    parent::setUp();
 
     // Create and log in a user.
     $account = $this->drupalCreateUser(array('administer nodes', 'create article content'));
     $this->drupalLogin($account);
-  }
-
-  /**
-    * Generates markup to be inserted for a file.
-    *
-    * This is a PHP version of InsertMedia.insert() from js/wysiwyg-media.js.
-    *
-    * @param int $fid
-    *   Drupal file id
-    * @param int $count
-    *   Quantity of markup to insert
-    *
-    * @return string
-    *   Filter markup.
-    */
-  private function generateFileMarkup($fid, $count = 1) {
-    $file_usage_markup = '';
-
-    // Build the data that is used in a media tag.
-    $data = array(
-      'fid' => $fid,
-      'type' => 'media',
-      'view_mode' => 'preview',
-      'attributes' => array(
-        'height' => 100,
-        'width' => 100,
-        'classes' => 'media-element file_preview',
-      )
-    );
-
-    // Create the file usage markup.
-    for ($i = 1; $i <= $count; $i++) {
-      $file_usage_markup .= '<p>[[' . drupal_json_encode($data) . ']]</p>';
-    }
-
-    return $file_usage_markup;
-  }
-
-
-  /**
-   * Utility function to create a test node.
-   *
-   * @param int $fid
-   *   Create the node with media markup in the body field
-   *
-   * @return int
-   *   Returns the node id
-   */
-  private function createNode($fid = FALSE) {
-    $markup = '';
-    if (! empty($fid)) {
-      $markup = $this->generateFileMarkup($fid);
-    }
-
-    // Create an article node with file markup in the body field.
-    $edit = array(
-      'title' => $this->randomName(8),
-      'body[und][0][value]' => $markup,
-    );
-    // Save the article node. First argument is the URL, then the value array
-    // and the third is the label the button that should be "clicked".
-    $this->drupalPost('node/add/article', $edit, t('Save'));
-
-    // Get the article node that was saved by the unique title.
-    $node = $this->drupalGetNodeByTitle($edit['title']);
-    return $node->nid;
   }
 
   /**
@@ -133,7 +67,7 @@ class MediaFileUsageTest extends MediaTestHelper {
     // Create a new revision that has two instances of the file. File usage will
     // be 4.
     $node = node_load($nid);
-    $node->body[LANGUAGE_NONE][0]['value'] = $this->generateFileMarkup($fid, 2);
+    $node->body[LANGUAGE_NONE][0]['value'] = $this->generateJsonTokenMarkup($fid, 2);
     $node->revision = TRUE;
     node_save($node);
 
@@ -163,7 +97,7 @@ class MediaFileUsageTest extends MediaTestHelper {
 
     // Create a new revision that has the file on it. File usage will be 5.
     $node = node_load($nid);
-    $node->body[LANGUAGE_NONE][0]['value'] = $this->generateFileMarkup($fid, 1);
+    $node->body[LANGUAGE_NONE][0]['value'] = $this->generateJsonTokenMarkup($fid, 1);
     $node->revision = TRUE;
     node_save($node);
 
@@ -194,7 +128,7 @@ class MediaFileUsageTest extends MediaTestHelper {
 
     // Create a new revision with the file on it twice. File usage will be 4.
     $node = node_load($nid);
-    $node->body[LANGUAGE_NONE][0]['value'] = $this->generateFileMarkup($fid, 2);
+    $node->body[LANGUAGE_NONE][0]['value'] = $this->generateJsonTokenMarkup($fid, 2);
     $node->revision = TRUE;
     node_save($node);
 
@@ -206,7 +140,7 @@ class MediaFileUsageTest extends MediaTestHelper {
     // Re-save current revision with file on it once instead of twice. File
     // usage will be 3.
     $node = node_load($nid);
-    $node->body[LANGUAGE_NONE][0]['value'] = $this->generateFileMarkup($fid, 1);
+    $node->body[LANGUAGE_NONE][0]['value'] = $this->generateJsonTokenMarkup($fid, 1);
     $saved_vid = $node->vid;
     node_save($node);
 

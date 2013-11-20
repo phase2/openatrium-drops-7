@@ -12,9 +12,6 @@
 /* INCLUDES                                  */
 /* ***************************************** */
 
-// A registry of variable_get defaults.
-require_once dirname(__FILE__) . '/includes/media.variables.inc';
-
 // Code relating to using media as a field.
 require_once dirname(__FILE__) . '/includes/media.fields.inc';
 
@@ -38,7 +35,6 @@ function media_hook_info() {
     'media_wysiwyg_allowed_view_modes_alter',
     'media_format_form_prepare_alter',
     'media_token_to_markup_alter',
-    'media_file_displays_alter',
     'query_media_browser_alter',
   );
 
@@ -75,7 +71,7 @@ function media_entity_info_alter(&$entity_info) {
   // For sites that updated from Media 1.x, continue to provide these deprecated
   // view modes.
   // @see http://drupal.org/node/1051090
-  if (media_variable_get('show_deprecated_view_modes')) {
+  if (variable_get('media__show_deprecated_view_modes', FALSE)) {
     $entity_info['file']['view modes'] += array(
       'media_link' => array(
         'label' => t('Link'),
@@ -185,7 +181,8 @@ function media_menu() {
       'title' => 'Edit multiple files',
       'page callback' => 'media_file_page_edit_multiple',
       'page arguments' => array(4),
-      'access arguments' => array('edit any files'),
+      'access callback' =>  '_media_file_entity_access_recursive',
+      'access arguments' => array(4, 'update'),
       'file' => 'includes/media.pages.inc',
     );
   }
@@ -248,7 +245,7 @@ function media_admin_paths() {
 
   // If the media browser theme is set to the admin theme, ensure it gets set
   // as an admin path as well.
-  $dialog_theme = media_variable_get('dialog_theme');
+  $dialog_theme = variable_get('media__dialog_theme', '');
   if (empty($dialog_theme) || $dialog_theme == variable_get('admin_theme')) {
     $paths['media/browser'] = TRUE;
     $paths['media/browser/*'] = TRUE;
@@ -304,7 +301,7 @@ function media_theme() {
 
     // Display a file as a large icon.
     'media_formatter_large_icon' => array(
-      'variables' => array('file' => NULL, 'attributes' => array()),
+      'variables' => array('file' => NULL, 'attributes' => array(), 'style_name' => 'media_thumbnail'),
       'file' => 'includes/media.theme.inc',
     ),
   );
@@ -316,6 +313,7 @@ function media_theme() {
 function media_image_default_styles() {
   $styles = array();
   $styles['media_thumbnail'] = array(
+    'label' => 'Media thumbnail (100x100)',
     'effects' => array(
       array(
         'name' => 'image_scale_and_crop',
@@ -325,34 +323,6 @@ function media_image_default_styles() {
     ),
   );
   return $styles;
-}
-
-/**
- * Implements hook_file_update().
- */
-function media_file_update($file) {
-  media_filter_invalidate_caches($file->fid);
-}
-
-/**
- * Implements hook_file_delete().
- */
-function media_file_delete($file) {
-  db_delete('media_filter_usage')->condition('fid', $file->fid)->execute();
-}
-
-/**
- * Implements hook_image_style_flush().
- *
- * This hook is invoked by Drupal core when cached image derivatives are no
- * longer valid.
- *
- * @see media_styles_style_flush()
- * @see media_file_style_flush()
- */
-function media_image_style_flush($style) {
-  // When a image style is flushed, clear the filter and field caches.
-  media_filter_invalidate_caches();
 }
 
 /**
@@ -379,7 +349,7 @@ function media_page_alter(&$page) {
   // Check if there are file types that need migration and display a message
   // to user if so.
   $menu = menu_get_item();
-  if (media_variable_get('display_types_migration_mess') && $menu['path'] == 'admin/structure/file-types') {
+  if (variable_get('media__display_types_migration_mess', TRUE) && $menu['path'] == 'admin/structure/file-types') {
     if ($migratable_types = _media_get_migratable_file_types()) {
       drupal_set_message(t('There are disabled/deleted file types that can be migrated to their new alternatives. Visit <a href="!url">migration page</a> to get more information.', array('!url' => url('admin/structure/file-types/upgrade'))));
     }
@@ -588,29 +558,26 @@ function media_form_wysiwyg_profile_form_alter(&$form, &$form_state) {
 }
 
 /**
- * Implements hook_form_FORM_ID_alter().
+ * Access callback for the media-multi form.
+ *
+ * @param $files
+ *   An array of files being editing on the multiform.
+ * @param $op
+ *   A string containing the operation requested, such as 'update'.
+ * @return
+ *   TRUE if the current user has access to edit all of the files, otherwise FALSE.
  */
-function media_form_file_entity_add_upload_alter(&$form, &$form_state) {
-  if (isset($form['upload']['#upload_validators'])) {
-    $validators = &$form['upload']['#upload_validators'];
-
-    // If the list of allowed extensions is the default provided by file_entity
-    // then change the default to the more permissive media extension list.
-    if (isset($validators['file_validate_extensions']) && $validators['file_validate_extensions'] == array(variable_get('file_entity_default_allowed_extensions', 'jpg jpeg gif png txt doc docx xls xlsx pdf ppt pptx pps ppsx odt ods odp'))) {
-      $validators['file_validate_extensions'] = array(media_variable_get('file_extensions'));
+function _media_file_entity_access_recursive($files, $op) {
+  // Check that the current user can access each file.
+  if (!empty($files)) {
+    foreach ($files as $file) {
+      if (!file_entity_access($op, $file)) {
+        return FALSE;
+      }
     }
+    return TRUE;
   }
-}
-
-/**
- * Implements hook_file_download_access().
- */
-function media_file_download_access($field, $entity_type, $entity) {
-  if ($entity_type == 'media') {
-    // @todo replace this with file_entity_access one, when downloads
-    // are supported by file_entity module.
-    return user_access('view files');
-  }
+  return FALSE;
 }
 
 /* ***************************************** */
@@ -632,13 +599,6 @@ function media_multi_load($fids) {
   return file_load_multiple(explode(' ', $fids));
 }
 
-/**
- * Returns the type of the media file to be used as a page title.
- */
-function media_type_page_title($type) {
-  return t('@type media type settings', array('@type' => $type->label));
-}
-
 /* ***************************************** */
 /* Callbacks                                 */
 /* ***************************************** */
@@ -650,7 +610,7 @@ function media_file_list_element_process($element, $edit, $form_state, $form) {
   $element['list'] = array(
     '#type'     => 'select',
     '#options'  => $element['#options'],
-    '#size'     => media_variable_get('file_list_size'),
+    '#size'     => variable_get('media__file_list_size', 10),
   );
   return $element;
 }
@@ -722,27 +682,7 @@ function media_library() {
  * will default to the administration theme, unless set otherwise.
  */
 function media_dialog_get_theme_name() {
-  return media_variable_get('dialog_theme', variable_get('admin_theme'));
-}
-
-/**
- * A wrapper around simplexml to retrieve a given XML file.
- *
- * @param string $url
- *   The URL to the XML to retrieve.
- * @param bool $display_errors
- *   Optional; if TRUE, then we'll display errors to the end user. They'll be
- *   logged to the watchdog in any case.
- * @param bool $refresh
- *   Optional; if TRUE, then we'll force a new load of the XML. Otherwise,
- *   a cached version will be retrieved if possible.
- *
- * @return object
- *   A fully populated object, or FALSE on an error.
- */
-function media_retrieve_xml($url, $display_errors = FALSE, $refresh = FALSE) {
-  module_load_include('inc', 'media', 'includes/media.xml');
-  return _media_retrieve_xml($url, $display_errors, $refresh);
+  return variable_get('media__dialog_theme', variable_get('admin_theme'));
 }
 
 /**
@@ -887,7 +827,7 @@ function media_element_info() {
       ),
     ),
     '#attributes' => array(
-      'class' => array('media-widget'),
+      'class' => array('media-widget', 'form-item'),
     ),
     '#attached' => array(
       'library' => array(
@@ -956,7 +896,7 @@ function media_element_process(&$element, &$form_state, $form) {
       ),
     ),
     '#weight' => 20,
-    '#access' => file_entity_access('update', $file),
+    '#access' => $file ? file_entity_access('update', $file) : TRUE, // only do perm check for existing files
   );
   $element['remove'] = array(
     '#type' => 'link',
@@ -1012,22 +952,13 @@ function media_element_validate(&$element, &$form_state) {
       }
     }
     if (!$has_value) {
-      form_error($element, t('%element_title is required.', array('%element_title' => $element['#title'])));
+      form_error($element, t('%element_title field is required.', array('%element_title' => $element['#title'])));
     }
   }
 }
 
 /**
  * Implements hook_filter_info().
- *
- * For performance, the media filter is allowed to be cached by default. See
- * media_filter_invalidate_caches() for details. Some sites may use advanced
- * media styles with rendering implentations that differs per theme or based on
- * other runtime information. For these sites, it may be necessary to implement
- * a module with a hook_filter_info_alter() implementation that sets
- * $info['media_filter']['cache'] to FALSE.
- *
- * @see media_filter_invalidate_caches()
  */
 function media_filter_info() {
   $filters['media_filter'] = array(
@@ -1064,13 +995,12 @@ function media_get_thumbnail_preview($file, $link = NULL) {
   if (!file_type_is_enabled($file->type)) {
     $file->type = file_get_type($file);
   }
-  // @todo should CSS be attached to the form element here?
-  // $element['#attached']['css'][] = drupal_get_path('module', 'media') . '/css/media.css';
-  drupal_add_css(drupal_get_path('module', 'media') . '/css/media.css');
+
   $preview = file_view_file($file, 'preview');
   $preview['#show_names'] = TRUE;
   $preview['#add_link'] = $link;
   $preview['#theme_wrappers'][] = 'media_thumbnail';
+  $preview['#attached']['css'][] = drupal_get_path('module', 'media') . '/css/media.css';
   return $preview;
 }
 
@@ -1119,20 +1049,73 @@ function media_file_displays_alter(&$displays, $file, $view_mode) {
         $file->{$field_name} = $value;}
     }
   }
+
+  // Alt and title are special.
+  // @see file_entity_file_load
+  $alt = variable_get('file_entity_alt', '[file:field_file_image_alt_text]');
+  $title = variable_get('file_entity_title', '[file:field_file_image_title_text]');
+
+  $replace_options = array(
+    'clear' => TRUE,
+    'sanitize' => FALSE,
+  );
+
+  // Load alt and title text from fields.
+  if (!empty($alt)) {
+    $file->alt = token_replace($alt, array('file' => $file), $replace_options);
+  }
+  if (!empty($title)) {
+    $file->title = token_replace($title, array('file' => $file), $replace_options);
+  }
 }
 
 /**
- * Implements hook_flush_caches().
+ * Implements hook_file_default_displays_alter().
  */
-function media_flush_caches() {
-  // Garbage collection for the {media_filter_usage} table. If an fid was last
-  // recorded four months ago (minimum three months due to logic in
-  // media_filter_track_usage()), remove it from this table while the filter
-  // and field caches are being cleared. If the fid is still in use, it will
-  // be added back to the table the next time check_markup() runs on that
-  // content. This prevents fids from staying in this table indefinitely,
-  // even if the post that references them is edited or deleted.
-  db_delete('media_filter_usage')->condition('timestamp', REQUEST_TIME - 86400 * 120, '<')->execute();
+function media_file_default_displays_alter(&$file_displays) {
+  // Image previews should be displayed using the media image style.
+  if (isset($file_displays['image__preview__file_field_image'])) {
+    $file_displays['image__preview__file_field_image']->settings['image_style'] = 'media_thumbnail';
+  }
+
+  // Video previews should be displayed using a large filetype icon.
+  if (isset($file_displays['video__preview__file_field_file_default'])) {
+    $file_displays['video__preview__file_field_file_default']->status = FALSE;
+  }
+
+  $file_display = new stdClass();
+  $file_display->api_version = 1;
+  $file_display->name = 'video__preview__file_field_media_large_icon';
+  $file_display->weight = 50;
+  $file_display->status = TRUE;
+  $file_display->settings = '';
+  $file_displays['video__preview__file_field_media_large_icon'] = $file_display;
+
+  // Audio previews should be displayed using a large filetype icon.
+  if (isset($file_displays['audio__preview__file_field_file_default'])) {
+    $file_displays['audio__preview__file_field_file_default']->status = FALSE;
+  }
+
+  $file_display = new stdClass();
+  $file_display->api_version = 1;
+  $file_display->name = 'audio__preview__file_field_media_large_icon';
+  $file_display->weight = 50;
+  $file_display->status = TRUE;
+  $file_display->settings = '';
+  $file_displays['audio__preview__file_field_media_large_icon'] = $file_display;
+
+  // Document previews should be displayed using a large filetype icon.
+  if (isset($file_displays['document__preview__file_field_file_default'])) {
+    $file_displays['document__preview__file_field_file_default']->status = FALSE;
+  }
+
+  $file_display = new stdClass();
+  $file_display->api_version = 1;
+  $file_display->name = 'document__preview__file_field_media_large_icon';
+  $file_display->weight = 50;
+  $file_display->status = TRUE;
+  $file_display->settings = '';
+  $file_displays['document__preview__file_field_media_large_icon'] = $file_display;
 }
 
 /**
@@ -1315,4 +1298,29 @@ function _media_get_migratable_file_types() {
   }
 
   return array_diff($types, $enabled_types);
+}
+
+/**
+ * Returns the default set of allowed attributes for use with WYSIWYG.
+ *
+ * @return array
+ *   An array of whitelisted attributes.
+ */
+function _media_wysiwyg_allowed_attributes_default() {
+  return array(
+    'alt',
+    'title',
+    'height',
+    'width',
+    'hspace',
+    'vspace',
+    'border',
+    'align',
+    'style',
+    'class',
+    'id',
+    'usemap',
+    'data-picture-group',
+    'data-picture-align',
+  );
 }

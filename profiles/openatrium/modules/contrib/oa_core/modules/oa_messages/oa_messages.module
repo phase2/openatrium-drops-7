@@ -105,7 +105,7 @@ function oa_messages_create($message_type, $entity = NULL, $entity_type = 'node'
 
     $wrapper->save();
 
-    if ($send && module_exists('message_subscribe') && isset($entity) && ($entity_type == 'node')) {
+    if ($send && variable_get('oa_messages_notifications', TRUE) && module_exists('message_subscribe') && isset($entity) && ($entity_type == 'node')) {
       $notify_options = oa_messages_build_notify_options();
       $subscribe_options = oa_messages_build_subscribe_options($entity, $message);
       message_subscribe_send_message('node', $entity, $message, $notify_options, $subscribe_options);
@@ -132,14 +132,16 @@ function oa_messages_build_notify_options() {
  */
 function oa_messages_build_subscribe_options($entity, $message) {
   $options = array();
-  $users = oa_notifications_get_notifications($entity);
-  foreach ($users as $uid => $user) {
-    // Disable certain notifiers based on preferences.
-    $notifiers = oa_messages_determine_user_notifiers($user, $entity, $message);
-    $options['uids'][$uid] = array(
-      'entity' => $user,
-      'notifiers' => $notifiers,
-    );
+  if (module_exists('oa_notifications')) {
+    $users = oa_notifications_get_notifications($entity);
+    foreach ($users as $uid => $user) {
+      // Disable certain notifiers based on preferences.
+      $notifiers = oa_messages_determine_user_notifiers($user, $entity, $message);
+      $options['uids'][$uid] = array(
+        'entity' => $user,
+        'notifiers' => $notifiers,
+      );
+    }
   }
 
   return $options;
@@ -159,22 +161,24 @@ function oa_messages_determine_user_notifiers($user, $entity, $message, $notifie
   if (!empty($entity->{OA_SPACE_FIELD}[LANGUAGE_NONE][0]['target_id'])) {
     $space_id = $entity->{OA_SPACE_FIELD}[LANGUAGE_NONE][0]['target_id'];
 
-    // If no settings have been saved, assume all.
+    // If no settings have been saved, set defaults.
     if (empty($settings)) {
       foreach ($notifiers as $notifier) {
-        $allowed_notifiers[] = $notifier['id'];
+        if (!empty($notifier['default'])) {
+          $allowed_notifiers[] = $notifier['id'];
+        }
       }
     }
     else {
       foreach ($notifiers as $notifier) {
-        // If unset, assume it should send.
-        if (!isset($settings[$space_id][$message->type][$notifier['id']]) || $settings[$space_id][$message->type][$notifier['id']]) {
+        // If unset, use default.
+        if ((!isset($settings[$space_id][$message->type][$notifier['id']]) || $settings[$space_id][$message->type][$notifier['id']]) &&
+          !empty($notifier['id'])) {
           $allowed_notifiers[] = $notifier['id'];
         }
       }
     }
   }
-
   return $allowed_notifiers;
 }
 
@@ -186,7 +190,9 @@ function oa_message_notifiers() {
   $notifiers = array(
     array(
     'title' => 'Email',
-    'id'    => 'oa_email'));
+    'id'    => 'oa_email',
+    'default' => TRUE,
+  ));
   drupal_alter('oa_message_notifiers', $notifiers);
   return $notifiers;
 }

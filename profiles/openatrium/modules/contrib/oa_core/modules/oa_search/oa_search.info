@@ -29,3 +29,10 @@ features[page_manager_handlers][] = search_node_panel_context
 features[page_manager_handlers][] = search_node_panel_context_2
 features[page_manager_handlers][] = search_user_panel_context
 files[] = oa_search.facetapi.inc
+
+; Information added by  packaging script on 2013-11-18
+version = "7.x-2.08"
+core = "7.x"
+project = "oa_core"
+datestamp = "1384810705"
+

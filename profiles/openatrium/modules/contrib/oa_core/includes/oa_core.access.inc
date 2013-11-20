@@ -59,6 +59,19 @@ function oa_core_node_grants($account, $op) {
     return $cache[$account->uid];
   }
 
+  // Handle unpublished content permissions
+  if (user_access('bypass node access') || user_access('view own unpublished content')) {
+    // get a list of unpublished nodes owned by this user
+    $query = db_select('node', 'n');
+    $query->fields('n', array('nid'))
+      ->condition('n.status', 0);
+    if (!user_access('bypass node access')) {
+      // user with bypass access can access all unpublished content
+      $query->condition('n.uid', $account->uid);
+    }
+    $grants[OA_UNPUBLISHED_REALM] = $query->execute()->fetchCol(0);
+  }
+
   // Combine the spaces the user is part of with public spaces.
   $member_spaces = oa_core_get_groups_by_user($account, 'node');
   $spaces = array_merge($member_spaces, oa_core_get_public_spaces());
@@ -117,8 +130,17 @@ function oa_core_node_grants($account, $op) {
 function oa_core_node_access_records($node) {
   $sids = array();
   if ($node->status == 0) {
-    // don't change access for unpublished nodes
-    // keep normal Drupal access (should be set for only Own access)
+    // Drupal doesn't handle grants for unpublished nodes
+    // Grants are needed for Views to work
+    $grants[] = array(
+      'realm' => OA_UNPUBLISHED_REALM,
+      'gid' => $node->nid,
+      'grant_view' => 1,
+      'grant_update' => 0,
+      'grant_delete' => 0,
+      'priority' => 0,
+    );
+    return $grants;
   }
   elseif ($node->type == OA_SECTION_TYPE) {
     if (!oa_core_section_is_public($node)) {

@@ -58,10 +58,6 @@
   margin-right: 0;
 }
 
-.media-browser-tab.ui-tabs-panel {
-  border: 1px solid #cccccc;
-}
-
 /* *********************************************************** */
 /* Media item display */
 
@@ -73,7 +69,6 @@
 }
 
 .media-item img {
-  height: auto;
   margin-bottom: 10px;
 }
 

@@ -72,11 +72,16 @@ class MessageDigest extends MessageNotifierBase {
         $gid = 0;
       }
       $account = user_load($row->receiver);
-      if (!empty($account->data['digest_grouping']) && $account->data['digest_grouping'] == 'global') {
-        // Allow users to group all groups together in the same digest.
-        $gid = 0;
+      $context = array(
+        'account' => $account,  // reference only
+        'data' => $row,
+        'gid' => $gid,  // set this to zero to aggregate group content
+        'plugin' => $this->plugin, // reference only
+      );
+      drupal_alter('message_digest_aggregate', $context);
+      if (!empty($context['data']->mid)) {
+        $message_groups[$context['data']->receiver][$context['gid']][] = $context['data']->mid;
       }
-      $message_groups[$row->receiver][$row->gid][] = $row->mid;
     }
     return $message_groups;
   }
@@ -85,22 +90,28 @@ class MessageDigest extends MessageNotifierBase {
    * Given an array of mids, build the full message content for them
    * and combine them into one blob of email content.
    */
-  public function format($digest) {
+  public function format($digest, $view_modes) {
     $output_array = array();
-    // There should only be one view_mode for each message_digest plugin,
-    // but just in case, we grab just the first one.
-    $view_modes = $this->plugin['view_modes'];
-    reset($view_modes);
-    $view_mode = key($view_modes);
     foreach ($digest as $mid) {
       $message = message_load($mid);
       if (empty($message) || !is_object($message)) {
         continue;
       }
-      $content = $message->buildContent($view_mode);
-      $output_array[] = render($content);
+      $rows = array();
+      foreach ($view_modes as $view_mode) {
+        $content = $message->buildContent($view_mode);
+        $rows[$view_mode] = render($content);
+      }
+      $output_array[] = theme('message_digest_row', array(
+        'rows' => $rows,
+        'plugin' => $this->plugin,
+        'message' => $message,
+      ));
     }
-    return implode('<hr />', $output_array); // @TODO: Use a theme function + template for this.
+    return theme('message_digest', array(
+      'messages' => $output_array,
+      'plugin' => $this->plugin,
+    ));
   }
 
   /**

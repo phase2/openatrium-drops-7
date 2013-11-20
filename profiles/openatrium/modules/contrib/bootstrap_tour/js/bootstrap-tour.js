@@ -23,10 +23,24 @@
       }
 
       var path = Drupal.settings.basePath;
+      var prev = Drupal.t("« Prev");
+      var next = Drupal.t("Next »");
+      var endtour = Drupal.t("End Tour");
       var t = new Tour({
         storage: window.localStorage,
         basePath: path,
-        debug: true
+        template: "<div class='popover tour'> \
+          <div class='arrow'></div> \
+          <h3 class='popover-title'></h3> \
+          <div class='popover-content'></div> \
+          <nav class='popover-navigation'> \
+              <div class='btn-group'> \
+                  <button class='btn btn-default' data-role='prev'>"+prev+"</button> \
+                  <button class='btn btn-default' data-role='next'>"+next+"</button> \
+              </div> \
+              <button class='btn btn-default' data-role='end'>"+endtour+"</button> \
+          </nav> \
+          </div>"
       });
 
       $.each(tourConfig.steps, function(index, step) {

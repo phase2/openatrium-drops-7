@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * @file
+ * Tests the public interface of the oa_core_section_is_public function
+ */
+
+class oa_corePermissionWeb extends oa_coreBaseWebTest {
+  static function getInfo() {
+    return array(
+      'name' => 'Test permissioning',
+      'description' => 'Test space permissioning',
+      'group' => 'OA',
+    );
+  }
+  function test_oa_sectionsAccess() {
+    extract($this->createOaSpaceAndUsers());
+    $space_admin_2 = $this->createUserInOaSpace($space);
+    // Create as admin.
+    $og_roles = og_roles('node', $space->type, $space->nid, FALSE, FALSE);
+    $rid = array_search(OG_ADMINISTRATOR_ROLE, $og_roles);
+    og_role_grant('node', $space->nid, $space_admin_2->uid, $rid);
+    $space_admin_2 = user_load($space_admin_2->uid);
+
+    $this->assertTrue($space->uid == $space_admin->uid, t('Space manager is owner of space'));
+    $this->assertTrue(og_user_access('node', $space->nid, 'manage members', $space_admin), t('Space manager can manage members'));
+    $this->assertTrue(og_user_access('node', $space->nid, 'manage members', $space_admin_2), t('Space admin can manage members'));
+  }
+}

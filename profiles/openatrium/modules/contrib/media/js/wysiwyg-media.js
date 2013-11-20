@@ -42,7 +42,7 @@ Drupal.wysiwyg.plugins.media = {
       var insert = new InsertMedia(instanceId);
       if (this.isNode(data.node)) {
         // Change the view mode for already-inserted media.
-        var media_file = extract_file_info($(data.node));
+        var media_file = Drupal.media.filter.extract_file_info($(data.node));
         insert.onSelect([media_file]);
       }
       else {
@@ -61,39 +61,7 @@ Drupal.wysiwyg.plugins.media = {
    * that will show in the editor.
    */
   attach: function (content, settings, instanceId) {
-    ensure_tagmap();
-
-    var tagmap = Drupal.settings.tagmap,
-        matches = content.match(/\[\[.*?\]\]/g),
-        media_definition;
-
-    if (matches) {
-      for (var index in matches) {
-        var macro = matches[index];
-
-        if (tagmap[macro]) {
-          var media_json = macro.replace('[[', '').replace(']]', '');
-
-          // Make sure that the media JSON is valid.
-          try {
-            media_definition = JSON.parse(media_json);
-          }
-          catch (err) {
-            media_definition = null;
-          }
-          if (media_definition) {
-            // Apply attributes.
-            var element = create_element(tagmap[macro], media_definition);
-            var markup = outerHTML(element);
-
-            content = content.replace(macro, markup);
-          }
-        }
-        else {
-          debug.debug("Could not find content for " + macro);
-        }
-      }
-    }
+    content = Drupal.media.filter.replaceTokenWithPlaceholder(content);
     return content;
   },
 
@@ -101,44 +69,7 @@ Drupal.wysiwyg.plugins.media = {
    * Detach function, called when a rich text editor detaches
    */
   detach: function (content, settings, instanceId) {
-    ensure_tagmap();
-    var tagmap = Drupal.settings.tagmap,
-        i = 0,
-        markup,
-        macro;
-
-    // Replace all media placeholders with their JSON macro representations.
-    //
-    // There are issues with using jQuery to parse the WYSIWYG content (see
-    // http://drupal.org/node/1280758), and parsing HTML with regular
-    // expressions is a terrible idea (see http://stackoverflow.com/a/1732454/854985)
-    //
-    // WYSIWYG editors act wacky with complex placeholder markup anyway, so an
-    // image is the most reliable and most usable anyway: images can be moved by
-    // dragging and dropping, and can be resized using interactive handles.
-    //
-    // Media requests a WYSIWYG place holder rendering of the file by passing
-    // the wysiwyg => 1 flag in the settings array when calling
-    // media_get_file_without_label().
-    //
-    // Finds the media-element class.
-    var classRegex = 'class=[\'"][^\'"]*?media-element';
-    // Image tag with the media-element class.
-    var regex = '<img[^>]+' + classRegex + '[^>]*?>';
-    // Or a span with the media-element class (used for documents).
-    // \S\s catches any character, including a linebreak; JavaScript does not
-    // have a dotall flag.
-    regex += '|<span[^>]+' + classRegex + '[^>]*?>[\\S\\s]+?</span>';
-    var matches = content.match(RegExp(regex, 'gi'));
-    if (matches) {
-      for (i = 0; i < matches.length; i++) {
-        markup = matches[i];
-        macro = create_macro($(markup));
-        tagmap[macro] = markup;
-        content = content.replace(markup, macro);
-      }
-    }
-
+    content = Drupal.media.filter.replacePlaceholderWithToken(content);
     return content;
   }
 };
@@ -178,21 +109,17 @@ InsertMedia.prototype = {
    * tagmap.
    */
   insert: function (formatted_media) {
-    var element = create_element(formatted_media.html, {
+    var element = Drupal.media.filter.create_element(formatted_media.html, {
           fid: this.mediaFile.fid,
           view_mode: formatted_media.type,
           attributes: formatted_media.options,
           fields: formatted_media.options
         });
-
-    var markup = outerHTML(element),
-        macro = create_macro(element);
+    // Get the markup and register it for the macro / placeholder handling.
+    var markup = Drupal.media.filter.getWysiwygHTML(element);
 
     // Insert placeholder markup into wysiwyg.
     Drupal.wysiwyg.instances[this.instanceId].insert(markup);
-    // Store macro/markup pair in the tagmap.
-    ensure_tagmap();
-    Drupal.settings.tagmap[macro] = markup;
   }
 };
 
@@ -202,7 +129,7 @@ InsertMedia.prototype = {
  * Ensures the tag map has been initialized.
  */
 function ensure_tagmap () {
-  Drupal.settings.tagmap = Drupal.settings.tagmap || {};
+  return Drupal.media.filter.ensure_tagmap();
 }
 
 /**
@@ -213,39 +140,11 @@ function ensure_tagmap () {
  *    A html element to be used to represent the inserted media element.
  * @param info (object)
  *    A object containing the media file information (fid, view_mode, etc).
+ *
+ * @deprecated
  */
 function create_element (html, info) {
-  if ($('<div></div>').append(html).text().length === html.length) {
-    // Element is not an html tag. Surround it in a span element
-    // so we can pass the file attributes.
-    html = '<span>' + html + '</span>';
-  }
-  var element = $(html);
-
-  // Move attributes from the file info array to the placeholder element.
-  if (info.attributes) {
-    $.each(Drupal.settings.media.wysiwyg_allowed_attributes, function(i, a) {
-      if (info.attributes[a]) {
-        element.attr(a, info.attributes[a]);
-      }
-    });
-    delete(info.attributes);
-  }
-
-  // Important to url-encode the file information as it is being stored in an
-  // html data attribute.
-  info.type = info.type || "media";
-  element.attr('data-file_info', encodeURI(JSON.stringify(info)));
-
-  // Adding media-element class so we can find markup element later.
-  var classes = ['media-element'];
-
-  if(info.view_mode){
-    classes.push('file-' + info.view_mode.replace(/_/g, '-'));
-  }
-  element.addClass(classes.join(' '));
-
-  return element;
+  return Drupal.media.filter.create_element(html, info);
 }
 
 /**
@@ -253,13 +152,11 @@ function create_element (html, info) {
  *
  * @param element (jQuery object)
  *    A media element with attached serialized file info.
+ *
+ * @deprecated
  */
 function create_macro (element) {
-  var file_info = extract_file_info(element);
-  if (file_info) {
-    return '[[' + JSON.stringify(file_info) + ']]';
-  }
-  return false;
+  return Drupal.media.filter.create_macro(element);
 }
 
 /**
@@ -267,49 +164,22 @@ function create_macro (element) {
  *
  * @param element (jQuery object)
  *    A media element with attached serialized file info.
+ *
+ * @deprecated
  */
 function extract_file_info (element) {
-  var file_json = $.data(element, 'file_info') || element.data('file_info'),
-      file_info,
-      value;
-
-  try {
-    file_info = JSON.parse(decodeURIComponent(file_json));
-  }
-  catch (err) {
-    file_info = null;
-  }
-
-  if (file_info) {
-    file_info.attributes = {};
-
-    // Extract whitelisted attributes.
-    $.each(Drupal.settings.media.wysiwyg_allowed_attributes, function(i, a) {
-      if (value = element.attr(a)) {
-        file_info.attributes[a] = value;
-      }
-    });
-    delete(file_info.attributes['data-file_info']);
-
-    // Extract the link text, if there is any.
-    if (link_text = element.find('a').html()) {
-      file_info.link_text = link_text;
-    }
-    else {
-      file_info.link_text = null;
-    }
-  }
-
-  return file_info;
+  return Drupal.media.filter.extract_file_info(element);
 }
 
 /**
  * Gets the HTML content of an element.
  *
  * @param element (jQuery object)
+ *
+ * @deprecated
  */
 function outerHTML (element) {
-  return $('<div>').append(element.eq(0).clone()).html();
+  return Drupal.media.filter.outerHTML(element);
 }
 
 })(jQuery);

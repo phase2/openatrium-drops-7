@@ -38,13 +38,14 @@ function oa_dashboard_oa_navigation_content_type_render($subtype, $conf, $panel_
         $space_picture = array_shift($space_picture);
         $vars['height'] = $space_picture['height'];
         $vars['width'] = 0; // prevents stretching
-        $vars['banner'] = theme('image', array(
+        $vars['banner'] = theme('image_style', array(
+          'style_name' => 'oa_banner',
           'path' => $space_picture['uri'],
           'width' => $space_picture['width'],
           'height' => $space_picture['height'],
           'alt' => $space_picture['alt'],
           'attributes' => array(
-            'class' => 'oa-banner-img'
+            'class' => array('oa-banner-img')
           ),
         ));
       }
@@ -76,7 +77,7 @@ function oa_dashboard_oa_navigation_content_type_render($subtype, $conf, $panel_
         'height' => $vars['height'],
         'alt' => t('Site banner'),
         'attributes' => array(
-          'class' => 'oa-site-banner-img',
+          'class' => array('oa-site-banner-img'),
         ),
       )), '<front>', array('html' => TRUE));
       $vars['width'] = 0;

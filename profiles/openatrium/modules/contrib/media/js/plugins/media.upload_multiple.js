@@ -5,11 +5,6 @@ Drupal.behaviors.mediaUploadMultiple.attach = function (context, settings) {
   // it has created, so we need to resize the browser iframe after it's done.
   var uploader = jQuery('#edit-upload').pluploadQueue();
   if (uploader) {
-    // Handle the case in which the uploader has already finished initializing.
-    Drupal.media.browser.resizeIframe();
-    // Handle the case in which the uploader has not yet initialized.
-    uploader.bind("PostInit", Drupal.media.browser.resizeIframe);
-
     uploader.bind('StateChanged', Drupal.behaviors.mediaUploadMultiple.submit);
   }
 };

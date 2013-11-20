@@ -25,9 +25,20 @@ function message_digest_cron() {
     // Gather up all the messages into neat little digests and send 'em out.
     $digests = $notifier->aggregate();
     foreach ($digests as $uid => $groups) {
-      foreach($groups as $gid => $messages) {
-        $formatted_messages = $notifier->format($messages);
-        $result = $notifier->deliverDigest($uid, $gid, $formatted_messages);
+      foreach ($groups as $gid => $messages) {
+        $context = array(
+          'uid' => $uid, // reference only, cannot change
+          'gid' => $gid,
+          'view_modes' => $plugin['view_modes'],
+          'deliver' => TRUE,  // set to FALSE to prevent delivery
+          'plugin' => $plugin, // reference only
+          'messages' => $messages,
+        );
+        drupal_alter('message_digest_view_mode', $context);
+        if ($context['deliver']) {
+          $formatted_messages = $notifier->format($context['messages'], $context['view_modes']);
+          $result = $notifier->deliverDigest($uid, $context['gid'], $formatted_messages);
+        }
       }
       $notifier->markSent($uid, $plugin_name);
     }
@@ -68,3 +79,39 @@ function message_digest_ctools_plugin_directory($module, $plugin) {
     return 'plugins/' . $plugin;
   }
 }
+
+/**
+ * Implements hook_theme().
+ */
+function message_digest_theme() {
+  return array(
+    'message_digest' => array(
+      'variables' => array(
+        'messages' => NULL,
+        'plugin' => NULL,
+      ),
+    ),
+    'message_digest_row' => array(
+      'variables' => array(
+        'rows' => NULL,
+        'plugin' => NULL,
+        'message' => NULL,
+      ),
+    ),
+  );
+}
+
+/**
+ * Theme function for message_digest
+ */
+function theme_message_digest($vars) {
+  return implode("\n<hr />", $vars['messages']);
+}
+
+/**
+ * Theme function for message_digest_row
+ */
+function theme_message_digest_row($vars) {
+  return implode($vars['rows']);
+}
+

@@ -201,6 +201,14 @@ function colorizer_clearcache() {
 }
 
 /**
+ * Implements hook_flush_caches().
+ */
+function colorizer_flush_caches() {
+  colorizer_clearcache();
+  return array();
+}
+
+/**
  * Converts a hex color into an RGB triplet.
  */
 function _colorizer_unpack($hex, $normalize = FALSE) {
@@ -283,5 +291,3 @@ function _colorizer_rgb2hsl($rgb) {
 
   return array($h, $s, $l);
 }
-
-

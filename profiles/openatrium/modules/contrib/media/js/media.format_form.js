@@ -30,16 +30,6 @@ Drupal.behaviors.mediaFormatForm = {
       $('<a class="button fake-ok">' + Drupal.t('Submit') + '</a>').appendTo($('#media-format-form')).bind('click', Drupal.media.formatForm.submit);
       $('<a class="button fake-cancel">' + Drupal.t('Cancel') + '</a>').appendTo($('#media-format-form')).bind('click', Drupal.media.formatForm.submit);
     });
-
-    // Resize the window on load.
-    // @TODO this duplicates Drupal.media.browser.resizeIframe()
-    //       can we put a resize function into media.core.js?
-    $(document).ready(function () {
-      // Get the height and add a bit of padding to acomidate the form buttons.
-      var h = $('body').height() + 20;
-      $(parent.window.document).find('#mediaStyleSelector').height(h);
-    });
-
   }
 };
 

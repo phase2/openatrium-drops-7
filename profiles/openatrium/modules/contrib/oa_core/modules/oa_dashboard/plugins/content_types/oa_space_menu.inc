@@ -35,13 +35,14 @@ function oa_dashboard_oa_space_menu_content_type_render($subtype, $conf, $panel_
         $space_picture = array_shift($space_picture);
         $vars['height'] = $space_picture['height'];
         $vars['width'] = $space_picture['width'];
-        $vars['banner'] = theme('image', array(
+        $vars['banner'] = theme('image_style', array(
+          'style_name' => 'oa_banner',
           'path' => $space_picture['uri'],
           'width' => $space_picture['width'],
           'height' => $space_picture['height'],
           'alt' => $space_picture['alt'],
           'attributes' => array(
-            'class' => 'oa-banner-img'
+            'class' => array('oa-banner-img')
           ),
         ));
       }

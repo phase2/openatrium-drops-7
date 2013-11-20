@@ -6,9 +6,9 @@ dependencies[] = media
 files[] = includes/MediaBrowserInternet.inc
 
 
-; Information added by drush on 2013-11-06
-version = "7.x-2.0-unstable7+62-dev"
+; Information added by drush on 2013-11-20
+version = "7.x-2.0-alpha3+12-dev"
 core = "7.x"
 project = "media"
-datestamp = "1383756398"
+datestamp = "1384919115"
 

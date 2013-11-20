@@ -48,7 +48,7 @@ function bootstrap_tour_run_tour($name, $force = FALSE) {
 
   drupal_add_js(array('bootstrapTour' => array('tour' => $tour)), 'setting');
 
-  if ($library = libraries_detect('bootstrap_tour') && !empty($library['installed'])) {
+  if (module_exists('libraries') && $library = libraries_detect('bootstrap_tour') && !empty($library['installed'])) {
     libraries_load('bootstrap_tour');
   }
   else {
@@ -91,7 +91,7 @@ function bootstrap_tour_page_build(&$page) {
         $tour->steps = unserialize($tour->steps);
       }
       $path = $tour->steps[0]['path'];
-      if ($path == current_path() || $path == request_path()) {
+      if ($path == current_path() || $path == request_path() || ($path == '<front>' && request_path() == '')) {
         bootstrap_tour_run_tour($tour->name);
       }
     }
@@ -103,13 +103,6 @@ function bootstrap_tour_page_build(&$page) {
  */
 function bootstrap_tour_menu() {
   $items = array();
-  $items['admin/build/tours'] = array(
-    'title' => 'Site Tours',
-    'description' => 'Create, edit and delete guided site tours',
-    'page callback' => 'bootstrap_tour_list',
-    'access arguments' => array('administer bootstrap tours'),
-    'type' => MENU_NORMAL_ITEM,
-  );
   $items['admin/structure/tours'] = array(
     'title' => 'Site Tours',
     'description' => 'Create, edit and delete guided site tours',

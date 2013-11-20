@@ -7,9 +7,9 @@ dependencies[] = features
 
 
 
-; Information added by drush on 2013-11-06
+; Information added by drush on 2013-11-20
 version = "7.x-1.0-alpha9+0-dev"
 core = "7.x"
 project = "defaultconfig"
-datestamp = "1383756417"
+datestamp = "1384919114"
 

@@ -164,8 +164,16 @@ files[] = tests/oa_coreBase.test
 files[] = tests/oa_coreAccessWeb.test
 files[] = tests/oa_core_section_accessUnit.test
 files[] = tests/oa_core_section_is_publicUnit.test
+files[] = tests/oa_corePermissionWeb.test
 files[] = views/views_handler_filter_is_parent.inc
 files[] = plugins/views/oa_views_plugin_exposed_form.inc
 files[] = plugins/views/oa_core_og_group_ref_views_handler_filter_in_operator.inc
 files[] = plugins/views/oa_core_oa_section_ref_views_handler_filter_in_operator.inc
 project path = profiles/openatrium/modules/contrib
+
+; Information added by  packaging script on 2013-11-18
+version = "7.x-2.08"
+core = "7.x"
+project = "oa_core"
+datestamp = "1384810705"
+

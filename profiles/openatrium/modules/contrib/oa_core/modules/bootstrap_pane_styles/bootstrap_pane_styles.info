@@ -2,3 +2,10 @@ name = Bootstrap Panel Pane Styles
 description = Styles panel panes as bootstrap components. Most have twitter bootstrap to work (such as via twitter bootstrap ui module or a bootstrap based theme)
 core = 7.x
 package = Panels
+
+; Information added by  packaging script on 2013-11-18
+version = "7.x-2.08"
+core = "7.x"
+project = "oa_core"
+datestamp = "1384810705"
+

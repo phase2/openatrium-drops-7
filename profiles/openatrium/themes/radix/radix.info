@@ -24,9 +24,9 @@ features[] = name
 features[] = favicon
 
 
-; Information added by drush on 2013-11-06
+; Information added by drush on 2013-11-20
 version = "7.x-2.0-beta5+7-dev"
 core = "7.x"
 project = "radix"
-datestamp = "1383756405"
+datestamp = "1384919096"
 

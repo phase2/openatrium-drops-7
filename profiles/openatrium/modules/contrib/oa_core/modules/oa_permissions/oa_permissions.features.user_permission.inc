@@ -822,6 +822,7 @@ function oa_permissions_user_default_permissions() {
     'name' => 'save draft',
     'roles' => array(
       'administrator' => 'administrator',
+      'authenticated user' => 'authenticated user',
       'editor' => 'editor',
     ),
     'module' => 'save_draft',
@@ -915,6 +916,7 @@ function oa_permissions_user_default_permissions() {
     'name' => 'view own unpublished content',
     'roles' => array(
       'administrator' => 'administrator',
+      'authenticated user' => 'authenticated user',
       'editor' => 'editor',
     ),
     'module' => 'node',

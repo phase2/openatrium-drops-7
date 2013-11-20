@@ -38,6 +38,10 @@ define('OA_SPACE_FIELD', 'og_group_ref');
  * The access realm of space member.
  */
 define('OA_ACCESS_REALM', 'oa_access');
+/**
+ * The access realm of unpublished content.
+ */
+define('OA_UNPUBLISHED_REALM', 'oa_unpublished');
 
 /**
  * Implements hook_ctools_plugin_directory().

@@ -1,0 +1,16 @@
+﻿
+/* AddThisEvent */
+.addthisevent-drop 						{display:inline-block;position:relative;z-index:999998;font-family:arial;color:#333!important;background:#f4f4f4 url(../gfx/icon-calendar-t1.png) no-repeat 9px 50%;text-decoration:none;border:1px solid #d9d9d9;color:#555;font-weight:bold;font-size:14px;text-decoration:none;padding:9px 12px 8px 35px;-moz-border-radius:2px;-webkit-border-radius:2px;}
+.addthisevent-drop:hover 				{border:1px solid #aab9d4;color:#555;font-weight:bold;font-size:14px;text-decoration:none;}
+.addthisevent-drop:active 				{top:1px;}
+.addthisevent-selected 					{background-color:#f7f7f7;}
+.addthisevent_dropdown 					{width:200px;position:absolute;z-index:99999;padding:6px 0px 0px 0px;background:#fff;text-align:left;display:none;margin-top:-2px;margin-left:-1px;border-top:1px solid #c8c8c8;border-right:1px solid #bebebe;border-bottom:1px solid #a8a8a8;border-left:1px solid #bebebe;-moz-border-radius:2px;-webkit-border-radius:2px;-webkit-box-shadow:1px 3px 6px rgba(0,0,0,0.15);-moz-box-shadow:1px 3px 6px rgba(0,0,0,0.15);box-shadow:1px 3px 6px rgba(0,0,0,0.15);}
+.addthisevent_dropdown span 			{width:175px;display:block;line-height:110%;background:#fff;text-decoration:none;font-size:12px;color:#6d84b4;padding:8px 10px 9px 15px;}
+.addthisevent_dropdown span:hover 		{background:#f4f4f4;color:#6d84b4;text-decoration:none;font-size:12px;}
+.addthisevent span 						{display:none!important;}
+.addthisevent-drop ._url,.addthisevent-drop ._start,.addthisevent-drop ._end,.addthisevent-drop ._summary,.addthisevent-drop ._description,.addthisevent-drop ._location,.addthisevent-drop ._organizer,.addthisevent-drop ._organizer_email,.addthisevent-drop ._facebook_event,.addthisevent-drop ._all_day_event {display:none!important;}
+.addthisevent_dropdown .copyx 			{width:200px;height:21px;display:block;position:relative;cursor:default;}
+.addthisevent_dropdown .brx 			{width:180px;height:1px;overflow:hidden;background:#e0e0e0;position:absolute;z-index:100;left:10px;top:9px;}
+.addthisevent_dropdown .frs 			{position:absolute;top:5px;cursor:pointer;right:10px;padding-left:10px;font-style:normal;font-weight:normal;text-align:right;z-index:101;line-height:110%;background:#fff;text-decoration:none;font-size:9px;color:#cacaca;}
+.addthisevent_dropdown .frs:hover 		{color:#6d84b4;}
+.addthisevent 							{visibility:hidden;}

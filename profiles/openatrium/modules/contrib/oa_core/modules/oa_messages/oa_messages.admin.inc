@@ -111,7 +111,7 @@ function oa_messages_build_message_notifications_table($user, $defaults = array(
         foreach ($notifiers as $notifier) {
           $value = isset($defaults['message_notifications'][$space->nid][$message_type->name][$notifier['id']]) ?
             $defaults['message_notifications'][$space->nid][$message_type->name][$notifier['id']] :
-            $notifier['id'] == 'oa_email' ? TRUE : FALSE; // Only default to TRUE if it's the regular email type.
+            $notifier['default'];
 
           $table[$space->nid][$message_type->name][$notifier['id']] = array(
             '#type' => 'checkbox',
@@ -149,5 +149,26 @@ function oa_messages_oa_user_settings_form_submit($form_state, $user) {
     'message_notifications' => $message_notifications,
     'email_type' => $form_state['values']['oa_messages']['email_type'],
   ));
+}
+
+/**
+ * Add plugin-specific configuration to main Open Atrium settings form
+ * @param $form
+ * @param $form_state
+ * @param $form_id
+ */
+function oa_messages_form_oa_core_configure_form_alter(&$form, &$form_state, $form_id) {
+  $form['oa_messages'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Notifications'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  $form['oa_messages']['oa_messages_notifications'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Enable notifications',
+    '#description' => 'If off, no notifications will be sent.  If on, notifications are controlled by individual user settings.',
+    '#default_value' => variable_get('oa_messages_notifications', TRUE),
+  );
 }
 

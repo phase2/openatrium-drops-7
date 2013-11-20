@@ -96,7 +96,7 @@ function media_wysiwyg_view_mode_form_alter(&$form, $form_state, $form_id)  {
     case 'media_format_form':
       $file = $form['#media'];
 
-      $default_view_mode = media_variable_get('wysiwyg_default_view_mode');
+      $default_view_mode = variable_get('media__wysiwyg_default_view_mode', 'full');
 
       $view_mode = !empty($form_state['values']['format']) ? $form_state['values']['format'] : $default_view_mode;
 
@@ -104,7 +104,9 @@ function media_wysiwyg_view_mode_form_alter(&$form, $form_state, $form_id)  {
       $form['preview']['#prefix'] = '<div id="preview">';
       $form['preview']['#suffix'] = '</div>';
 
-      $form['options']['format']['#default_value'] = $default_view_mode;
+      if (!isset($form['options']['format']['#default_value'])) {
+        $form['options']['format']['#default_value'] = $view_mode;
+      }
       $form['options']['format']['#ajax'] = array(
         'callback' => 'media_format_form_preview',
         'wrapper' => 'preview',

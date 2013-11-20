@@ -96,9 +96,9 @@ features[variable][] = colorbox_visibility
 features[variable][] = field_bundle_settings_file__document
 project path = sites/all/modules/contrib
 
-; Information added by drupal.org packaging script on 2013-10-23
-version = "7.x-2.0"
+; Information added by  packaging script on 2013-11-18
+version = "7.x-2.01"
 core = "7.x"
 project = "oa_media"
-datestamp = "1382536526"
+datestamp = "1384788206"
 

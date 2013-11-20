@@ -1,0 +1,77 @@
+<?php
+/**
+ * @file
+ * Code for the Open Atrium HTML email feature.
+ */
+
+/**
+ * Implements hook_theme_registry_alter
+ */
+function oa_htmlmail_theme_registry_alter(&$theme_registry) {
+  if (!empty($theme_registry['htmlmail'])) {
+    $theme_registry['htmlmail']['function'] = 'oa_appearance_htmlmail';
+  }
+}
+
+/**
+ * OA Theme override for HTMLMail
+ */
+function oa_htmlmail_htmlmail($vars) {
+  // add custom css, specifically for formatting oa-diff tables
+  // most css copied from oa-diff.css
+  $css = '';
+  $css_file = drupal_get_path('module', 'oa_htmlmail') . '/oa_htmlmail.css';
+  if (!empty($css_file) && file_exists($css_file)) {
+    $css = file_get_contents($css_file);
+    // convert css styles into inline for email
+    $css = '<style type="text/css">' . "\n" .
+      "<!--\n" .
+      $css .
+      "-->\n" .
+      "</style>\n";
+  }
+
+  $space_id = (!empty($vars['params']['gid'])) ? $vars['params']['gid'] : 0;
+  $header = '';
+  if (module_exists('oa_appearance')) {
+    // render a custom header for the space if defined
+    if ($space = node_load(oa_core_get_group_from_node($space_id))) {
+      $field = field_get_items('node', $space, OA_SPACE_BANNER_POSITION);
+    }
+    if (!empty($field[0]['value'])) {
+      $space_picture = field_get_items('node', $space, 'field_oa_banner');
+      if (!empty($space_picture)) {
+        $space_picture = array_shift($space_picture);
+        $header = theme('image_style', array(
+          'style_name' => 'oa_banner',
+          'path' => $space_picture['uri'],
+          'width' => $space_picture['width'],
+          'height' => $space_picture['height'],
+          'alt' => $space_picture['alt'],
+          'attributes' => array(
+            'class' => array('oa-banner-img'),
+          ),
+        ));
+        $header .= "<br \>\n";
+      }
+    }
+  }
+  if (!empty($space)) {
+    $header .= '<h2>' . t('Digest for: ') . $space->title . '</h2><hr \>';
+  }
+
+  // create final HTML output for email
+  $output =
+    "<html>\n" .
+    "<head>\n" .
+    $css .
+    "</head>\n" .
+    "<body>\n" .
+    $header .
+    "<div class='htmlmail-body'>\n" .
+    $vars['body'] .
+    "</div>\n" .
+    "</body>\n" .
+    "</html>\n";
+  return $output;
+}

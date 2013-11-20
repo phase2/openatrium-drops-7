@@ -5,3 +5,10 @@ stylesheets[all][] = oa_widgets.css
 dependencies[] = ctools
 dependencies[] = oa_core
 dependencies[] = oa_sections
+
+; Information added by  packaging script on 2013-11-18
+version = "7.x-2.08"
+core = "7.x"
+project = "oa_core"
+datestamp = "1384810705"
+
