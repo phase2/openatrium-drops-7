@@ -22,9 +22,9 @@ features[features_overrides][] = views_view.oa_worktracker.display|task_list|dis
 features[field_base][] = field_oa_worktracker_duedate
 features[field_instance][] = node-oa_worktracker_task-field_oa_worktracker_duedate
 
-; Information added by drupal.org packaging script on 2013-10-22
-version = "7.x-2.0-beta2"
+; Information added by Drupal.org packaging script on 2013-12-05
+version = "7.x-2.0-beta6"
 core = "7.x"
 project = "oa_worktracker"
-datestamp = "1382471626"
+datestamp = "1386268717"
 

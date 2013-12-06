@@ -4012,7 +4012,7 @@ function user_file_download_access($field, $entity_type, $entity) {
  * @todo: Remove in D8, pending upgrade path.
  */
 function user_system_info_alter(&$info, $file, $type) {
-  if ($type == 'module' && $file->name == 'profile' && db_table_exists('profile_field')) {
+  if ($type == 'module' && $file->name == 'profile' && defined('MAINTENANCE_MODE') && MAINTENANCE_MODE != 'install' && db_table_exists('profile_field')) {
     $info['hidden'] = FALSE;
   }
 }

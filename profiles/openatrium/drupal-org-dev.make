@@ -2,34 +2,7 @@ api = 2
 core = 7.x
 
 ; ************************************************
-; ********** OPEN ATRIUM'S DEPENDENCIES **********
-
-; Features Override
-projects[features_override][version] = 2.0-rc1
-projects[features_override][subdir] = contrib
-projects[features_override][type] = module
-
-; Diff
-projects[diff][subdir] = contrib
-projects[diff][version] = 3.2
-
-; Job Scheduler
-projects[job_scheduler][subdir] = contrib
-projects[job_scheduler][version] = 2.0-alpha3
-
-; Mail System
-projects[mailsystem][subdir] = contrib
-projects[mailsystem][version] = 2.34
-
-; HTML Mail
-projects[htmlmail][subdir] = contrib
-projects[htmlmail][version] = 2.65
-
-; ******** End Open Atrium's Dependencies ********
-; ************************************************
-
-; ************************************************
-; ************* Open Atrium Plugins - DEV ********
+; ************* Open Atrium Plugins DEV **********
 
 projects[oa_core][download][type] = git
 projects[oa_core][subdir] = contrib
@@ -59,7 +32,7 @@ projects[oa_events_import][download][branch] = 7.x-2.x
 projects[oa_worktracker][download][type] = git
 projects[oa_worktracker][subdir] = contrib
 projects[oa_worktracker][download][url] = http://git.drupal.org/project/oa_worktracker.git
-projects[oa_worktracker][download][branch] = 7.x-1.x
+projects[oa_worktracker][download][branch] = 7.x-2.x
 
 projects[oa_contextual_tabs][download][type] = git
 projects[oa_contextual_tabs][subdir] = contrib
@@ -94,6 +67,13 @@ projects[devel][download][url] = http://git.drupal.org/project/devel.git
 projects[devel][download][branch] = 7.x-1.x
 projects[devel][subdir] = contrib
 
+; Coder
+projects[coder][type] = module
+projects[coder][download][type] = git
+projects[coder][download][url] = http://git.drupal.org/project/coder.git
+projects[coder][download][branch] = 7.x-2.x
+projects[coder][subdir] = contrib
+
 ; ********** End Open Atrium's Plugins ***********
 ; ************************************************
 
@@ -119,13 +99,6 @@ projects[date_facets][download][revision] = a7a35f8
 projects[google_analytics][subdir] = contrib
 projects[google_analytics][version] = 1.3
 
-; Coder
-projects[coder][type] = module
-projects[coder][download][type] = git
-projects[coder][download][url] = http://git.drupal.org/project/coder.git
-projects[coder][download][branch] = 7.x-2.x
-projects[coder][subdir] = contrib
-
 ; ************************************************
 ; ******************* PANOPOLY *******************
 
@@ -141,11 +114,10 @@ projects[coder][subdir] = contrib
 ; and also does not support include[]
 ; so we need to copy the panopoly.make file here
 
-projects[panopoly_core][version] = 1.0-rc5
 projects[panopoly_core][subdir] = panopoly
 projects[panopoly_core][download][branch] = 7.x-1.x
+projects[panopoly_core][download][revision] = 4f4996
 projects[panopoly_core][download][type] = git
-projects[panopoly_core][patch][1837312] = http://drupal.org/files/panopoly_core-panelizer_default_permissions-1837312-26.patch
 
 projects[panopoly_images][version] = 1.0-rc5
 projects[panopoly_images][subdir] = panopoly
@@ -153,37 +125,38 @@ projects[panopoly_images][subdir] = panopoly
 projects[panopoly_theme][version] = 1.0-rc5
 projects[panopoly_theme][subdir] = panopoly
 
-projects[panopoly_magic][version] = 1.0-rc5
 projects[panopoly_magic][subdir] = panopoly
 projects[panopoly_magic][download][branch] = 7.x-1.x
 projects[panopoly_magic][download][type] = git
+projects[panopoly_magic][download][revision] = 7dc1a5
 projects[panopoly_magic][patch][2016527] = http://drupal.org/files/2016643_panopoly_magic_screw_pre_render_with_2016527-5.patch
 projects[panopoly_magic][patch][2017159] = http://drupal.org/files/2017159_panopoly_magic_preview_post_render-22.patch
 
 projects[panopoly_widgets][version] = 1.0-rc5
 projects[panopoly_widgets][subdir] = panopoly
 
-projects[panopoly_admin][version] = 1.0-rc5
 projects[panopoly_admin][subdir] = panopoly
 projects[panopoly_admin][download][branch] = 7.x-1.x
 projects[panopoly_admin][download][type] = git
-projects[panopoly_admin][patch][2071133] = http://drupal.org/files/panopoly_admin-2071133-3.patch
+projects[panopoly_admin][download][revision] = 39caff
 
 projects[panopoly_users][version] = 1.0-rc5
 projects[panopoly_users][subdir] = panopoly
 
-projects[panopoly_pages][version] = 1.0-rc5
 projects[panopoly_pages][subdir] = panopoly
 projects[panopoly_pages][download][branch] = 7.x-1.x
+projects[panopoly_pages][download][revision] = 97638f
 projects[panopoly_pages][download][type] = git
-projects[panopoly_pages][patch][2008762] = http://drupal.org/files/2008762-panopoly_pages-missing-depedency-15.patch
-projects[panopoly_pages][patch][1837312] = http://drupal.org/files/panopoly_pages-panelizer_default_permissions-1837312-26.patch
 
-projects[panopoly_wysiwyg][version] = 1.0-rc5
 projects[panopoly_wysiwyg][subdir] = panopoly
+projects[panopoly_wysiwyg][download][branch] = 7.x-1.x
+projects[panopoly_wysiwyg][download][revision] = 0aaf3b
+projects[panopoly_wysiwyg][download][type] = git
 
-projects[panopoly_search][version] = 1.0-rc5
 projects[panopoly_search][subdir] = panopoly
+projects[panopoly_search][download][branch] = 7.x-1.x
+projects[panopoly_search][download][revision] = 5bf251
+projects[panopoly_search][download][type] = git
 
 ; ***************** End Panopoly *****************
 ; ************************************************

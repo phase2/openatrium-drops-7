@@ -84,3 +84,10 @@ function oa_worktracker_update_7005() {
   features_revert(array('oa_worktracker' => array('message_type', 'variable', 'panelizer_defaults', 'views_view')));
 }
 
+/**
+ * Revert panopoly_users so that the 'Your Tasks' widget appears on the user dashboard.
+ */
+function oa_worktracker_update_7201() {
+  features_revert(array('panopoly_users' => array('panelizer_defaults')));
+}
+

@@ -14,4 +14,5 @@ function message_subscribe_uninstall() {
   variable_del('message_subscribe_default_notifiers');
   variable_del('message_subscribe_flag_prefix');
   variable_del('message_subscribe_use_queue');
+  variable_del('message_subscribe_notify_own_actions');
 }

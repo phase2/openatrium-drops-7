@@ -114,8 +114,8 @@ function fullcalendar_views_pre_view(&$view, &$display_id, &$args) {
       $max = date('Y-m', strtotime($min . ' +1 month'));
     }
     else {
-      $min = $settings['date']['year'] . '-' . ($settings['date']['month'] + 1);
-      $max = $settings['date']['year'] . '-' . ($settings['date']['month'] + 2);
+      $min = date('Y-m', mktime(0, 0, 0, $settings['date']['month'] + 1, 1, $settings['date']['year']));
+      $max = date('Y-m', mktime(0, 0, 0, $settings['date']['month'] + 2, 1, $settings['date']['year']));
     }
     $min = date('Y-m-d', strtotime($min . ' -2 weeks'));
     $max = date('Y-m-d', strtotime($max . ' +2 weeks'));

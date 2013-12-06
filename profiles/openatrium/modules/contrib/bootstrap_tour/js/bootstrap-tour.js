@@ -58,13 +58,16 @@
             }
             options.path += step.path;
           }
-          if (!(tourConfig.isFirstStep && index == 0) && step.path.indexOf('?tour') === -1 && step.path.indexOf('&tour') === -1) {
+          if (step.path.indexOf('?tour') === -1 && step.path.indexOf('&tour') === -1) {
             if (!tourConfig.cleanUrls) {
               options.path += '&';
             } else {
               options.path += '?';
             }
-            options.path += 'tour=' + tourConfig.name + '&step=' + index;
+            options.path += 'tour=' + tourConfig.name;
+            if (!(tourConfig.isFirstStep && index == 0)) {
+              options.path += '&step=' + index;
+            }
           }
         }
 

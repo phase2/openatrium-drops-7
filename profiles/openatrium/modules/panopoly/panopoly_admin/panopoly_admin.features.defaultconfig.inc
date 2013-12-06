@@ -388,6 +388,7 @@ function panopoly_admin_defaultconfig_user_default_permissions() {
     'name' => 'save draft',
     'roles' => array(
       'administrator' => 'administrator',
+      'editor' => 'editor',
     ),
     'module' => 'save_draft',
   );

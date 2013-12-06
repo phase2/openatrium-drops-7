@@ -3,9 +3,9 @@ description = Colorize your theme
 core = 7.x
 
 
-; Information added by  packaging script on 2013-11-15
-version = "7.x-1.0-beta2"
+; Information added by  packaging script on 2013-12-04
+version = "7.x-1.0-beta3"
 core = "7.x"
 project = "colorizer"
-datestamp = "1384551211"
+datestamp = "1386185910"
 

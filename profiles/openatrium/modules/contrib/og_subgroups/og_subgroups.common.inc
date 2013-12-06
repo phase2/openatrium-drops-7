@@ -85,7 +85,7 @@ function og_subgroups_get_users_group($entity_type = 'node', $entity = NULL, $st
     list($id) = entity_extract_ids($entity_type, $entity);
   }
   else {
-    $id = $entity;
+    $id = is_numeric($entity) ? $entity : 0;
   }
   // Get a string identifier of the states, so we can retrieve it from cache.
   if ($states) {
@@ -141,7 +141,7 @@ function og_subgroups_get_associated_entities($entity_type, $entity, $fields = a
     list($id) = entity_extract_ids($entity_type, $entity);
   }
   else {
-    $id = $entity;
+    $id = is_numeric($entity) ? $entity : 0;
   }
   if (isset($cache[$entity_type][$id])) {
     // Return cached values.

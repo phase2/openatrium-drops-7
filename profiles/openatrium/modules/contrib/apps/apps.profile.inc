@@ -477,7 +477,7 @@ function apps_install_verify() {
 
   // Verify web server write permissions
   $install_permissions = apps_installer_has_write_access();
-  $vars = array('@install_path' => APPS_INSTALL_PATH);
+  $vars = array('@install_path' => APPS_INSTALL_PATH, '@lib_path' => apps_installer_lib_dir());
   $form['webserver'] = array(
     '#type' => 'fieldset',
     '#title' => t('Webserver direct install (!status)', array('!status' => $install_permissions ? t('Enabled!') : t('Not enabled'))),
@@ -487,8 +487,8 @@ function apps_install_verify() {
     '#weight' => $install_permissions ? 2 : 12,
   );
   $form['webserver']['#description'] .= $install_permissions
-    ? t('You have write permissions to @install_path.', $vars) . '<br /><br />'
-    : t('You do not have sufficient permissions to install by webserver direct install. In order to assign these permissions, go to the root of your drupal install and type <br/><br/><strong>sudo chmod -R 777 @install_path</strong>', $vars) . '<br /><br />';
+    ? t('You have write permissions to @install_path and @lib_path', $vars) . '<br /><br />'
+    : t('You do not have sufficient permissions to install by webserver direct install. In order to assign these permissions, go to the root of your drupal install and type <br/><br/><strong>sudo chmod 777 @install_path</strong><br/><strong>sudo chmod 777 @lib_path</strong>', $vars) . '<br /><br />';
   $form['webserver']['#description'] .= t('Be aware that there are security issues with leaving your site in this state.');
 
   // When altering this form and adding an install option, set this value to

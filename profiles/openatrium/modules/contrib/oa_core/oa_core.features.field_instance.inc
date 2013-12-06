@@ -598,7 +598,7 @@ function oa_core_field_default_field_instances() {
   t('Group visibility');
   t('Primary Image');
   t('Provide a description of this group');
-  t('Select to set the visibility of this group to the entire HITRC space.');
+  t('Select to set the visibility of this group to the entire site.');
   t('The Image associated with the Space');
   t('This description of the Space will appear on the Space Page. ');
 

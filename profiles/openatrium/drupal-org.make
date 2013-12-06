@@ -2,52 +2,25 @@ api = 2
 core = 7.x
 
 ; ************************************************
-; ********** OPEN ATRIUM'S DEPENDENCIES **********
-
-; Features Override
-projects[features_override][version] = 2.0-rc1
-projects[features_override][subdir] = contrib
-projects[features_override][type] = module
-
-; Diff
-projects[diff][subdir] = contrib
-projects[diff][version] = 3.2
-
-; Job Scheduler
-projects[job_scheduler][subdir] = contrib
-projects[job_scheduler][version] = 2.0-alpha3
-
-; Mail System
-projects[mailsystem][subdir] = contrib
-projects[mailsystem][version] = 2.34
-
-; HTML Mail
-projects[htmlmail][subdir] = contrib
-projects[htmlmail][version] = 2.65
-
-; ******** End Open Atrium's Dependencies ********
-; ************************************************
-
-; ************************************************
 ; ************* Open Atrium Plugins RELEASE ******
 
 projects[oa_core][subdir] = contrib
-projects[oa_core][version] = 2.08
+projects[oa_core][version] = 2.12
 
 projects[oa_discussion][subdir] = contrib
-projects[oa_discussion][version] = 2.0
+projects[oa_discussion][version] = 2.11
 
 projects[oa_wiki][subdir] = contrib
-projects[oa_wiki][version] = 2.01
+projects[oa_wiki][version] = 2.11
 
 projects[oa_events][subdir] = contrib
-projects[oa_events][version] = 2.02
+projects[oa_events][version] = 2.12
 
 projects[oa_events_import][subdir] = contrib
-projects[oa_events_import][version] = 2.0
+projects[oa_events_import][version] = 2.10
 
 projects[oa_worktracker][subdir] = contrib
-projects[oa_worktracker][version] = 2.0-beta2
+projects[oa_worktracker][version] = 2.0-beta6
 
 projects[oa_contextual_tabs][subdir] = contrib
 projects[oa_contextual_tabs][version] = 2.0
@@ -56,13 +29,13 @@ projects[oa_notifications][subdir] = contrib
 projects[oa_notifications][version] = 2.0
 
 projects[oa_media][subdir] = contrib
-projects[oa_media][version] = 2.01
+projects[oa_media][version] = 2.10
 
 projects[oa_subspaces][subdir] = contrib
-projects[oa_subspaces][version] = 2.0
+projects[oa_subspaces][version] = 2.10
 
 projects[oa_radix][type] = theme
-projects[oa_radix][version] = 2.01
+projects[oa_radix][version] = 2.11
 
 ; ********** End Open Atrium's Plugins ***********
 ; ************************************************
@@ -106,9 +79,8 @@ projects[google_analytics][version] = 1.3
 
 projects[panopoly_core][subdir] = panopoly
 projects[panopoly_core][download][branch] = 7.x-1.x
-projects[panopoly_core][download][revision] = 68d38a
+projects[panopoly_core][download][revision] = 4f4996
 projects[panopoly_core][download][type] = git
-projects[panopoly_core][patch][1837312] = http://drupal.org/files/panopoly_core-panelizer_default_permissions-1837312-26.patch
 
 projects[panopoly_images][version] = 1.0-rc5
 projects[panopoly_images][subdir] = panopoly
@@ -129,23 +101,25 @@ projects[panopoly_widgets][subdir] = panopoly
 projects[panopoly_admin][subdir] = panopoly
 projects[panopoly_admin][download][branch] = 7.x-1.x
 projects[panopoly_admin][download][type] = git
-projects[panopoly_admin][download][revision] = 53f59e
+projects[panopoly_admin][download][revision] = 39caff
 
 projects[panopoly_users][version] = 1.0-rc5
 projects[panopoly_users][subdir] = panopoly
 
 projects[panopoly_pages][subdir] = panopoly
 projects[panopoly_pages][download][branch] = 7.x-1.x
-projects[panopoly_pages][download][revision] = 4125aa
+projects[panopoly_pages][download][revision] = 97638f
 projects[panopoly_pages][download][type] = git
-projects[panopoly_pages][patch][2008762] = http://drupal.org/files/2008762-panopoly_pages-missing-depedency-15.patch
-projects[panopoly_pages][patch][1837312] = http://drupal.org/files/panopoly_pages-panelizer_default_permissions-1837312-26.patch
 
-projects[panopoly_wysiwyg][version] = 1.0-rc5
 projects[panopoly_wysiwyg][subdir] = panopoly
+projects[panopoly_wysiwyg][download][branch] = 7.x-1.x
+projects[panopoly_wysiwyg][download][revision] = 0aaf3b
+projects[panopoly_wysiwyg][download][type] = git
 
-projects[panopoly_search][version] = 1.0-rc5
 projects[panopoly_search][subdir] = panopoly
+projects[panopoly_search][download][branch] = 7.x-1.x
+projects[panopoly_search][download][revision] = 5bf251
+projects[panopoly_search][download][type] = git
 
 ; ***************** End Panopoly *****************
 ; ************************************************

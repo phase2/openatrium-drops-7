@@ -917,13 +917,15 @@ function _menu_link_translate(&$item, $translate = FALSE) {
       $item['access'] = FALSE;
       return FALSE;
     }
+    // We always need to load objects where appropriate.
+    // Problems may arise if this step is skipped.
+    if (!empty($item['load_functions']) && !_menu_load_objects($item, $map)) {
+      // An error occurred loading an object.
+      $item['access'] = FALSE;
+      return FALSE;
+    }
     // menu_tree_check_access() may set this ahead of time for links to nodes.
     if (!isset($item['access'])) {
-      if (!empty($item['load_functions']) && !_menu_load_objects($item, $map)) {
-        // An error occurred loading an object.
-        $item['access'] = FALSE;
-        return FALSE;
-      }
       _menu_check_access($item, $map);
     }
     // For performance, don't localize a link the user can't access.

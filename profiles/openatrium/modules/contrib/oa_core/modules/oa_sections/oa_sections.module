@@ -129,3 +129,10 @@ function _oa_sections_get_current_selected_space($entity, $set_value = NULL) {
   }
   return $value;
 }
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function oa_core_form_oa_section_node_form_alter(&$form, &$form_state, &$form_id) {
+  _oa_core_hide_comment_settings($form);
+}

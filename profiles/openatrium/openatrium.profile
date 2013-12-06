@@ -21,10 +21,12 @@ function openatrium_install_tasks(&$install_state) {
   //require_once(drupal_get_path('module', 'panopoly_theme') . '/panopoly_theme.profile.inc');
   //$tasks = $tasks + panopoly_theme_profile_theme_selection_install_task($install_state);
 
-  $tasks['open_atrium_features_revert_all'] = array(
-    'type' => 'normal',
-  );
+// Don't think this is needed anymore with latest version of Features
+//  $tasks['open_atrium_features_revert_all'] = array(
+//    'type' => 'normal',
+//  );
 
+// Need to rebuild search index tables since oa_search changes panopoly_search
   $tasks['open_atrium_rebuild_search'] = array(
     'type' => 'normal',
   );

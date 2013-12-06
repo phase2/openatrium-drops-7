@@ -23,7 +23,7 @@ While entering content, choose an input format that utilizes the caption filter.
 In a plain textarea, the entered code should look like this:
 
 A simple caption:
-[caption]<img src="" alt="" />This is an image caption[/caption]
+[caption caption="This is an image caption"]<img src="" alt="" />[/caption]
 
 Aligned Caption (can be left, center or right):
-[caption align=right]<img src="" alt="" />This is a right aligned caption[/caption]
+[caption caption="This is a right aligned caption" align="right"]<img src="" alt="" />[/caption]

@@ -50,6 +50,13 @@ function oa_permissions_og_features_default_permissions() {
     ),
   );
 
+  // Exported og permission: 'node:oa_group:manage appearance'
+  $permissions['node:oa_group:manage appearance'] = array(
+    'roles' => array(
+      'administrator member' => 'administrator member',
+    ),
+  );
+
   // Exported og permission: 'node:oa_group:manage members'
   $permissions['node:oa_group:manage members'] = array(
     'roles' => array(
@@ -73,13 +80,6 @@ function oa_permissions_og_features_default_permissions() {
 
   // Exported og permission: 'node:oa_group:manage roles'
   $permissions['node:oa_group:manage roles'] = array(
-    'roles' => array(
-      'administrator member' => 'administrator member',
-    ),
-  );
-
-  // Exported og permission: 'node:oa_group:manage appearance'
-  $permissions['node:oa_group:manage appearance'] = array(
     'roles' => array(
       'administrator member' => 'administrator member',
     ),
@@ -180,6 +180,13 @@ function oa_permissions_og_features_default_permissions() {
     ),
   );
 
+  // Exported og permission: 'node:oa_space:manage appearance'
+  $permissions['node:oa_space:manage appearance'] = array(
+    'roles' => array(
+      'administrator member' => 'administrator member',
+    ),
+  );
+
   // Exported og permission: 'node:oa_space:manage members'
   $permissions['node:oa_space:manage members'] = array(
     'roles' => array(
@@ -203,13 +210,6 @@ function oa_permissions_og_features_default_permissions() {
 
   // Exported og permission: 'node:oa_space:manage roles'
   $permissions['node:oa_space:manage roles'] = array(
-    'roles' => array(
-      'administrator member' => 'administrator member',
-    ),
-  );
-
-  // Exported og permission: 'node:oa_space:manage appearance'
-  $permissions['node:oa_space:manage appearance'] = array(
     'roles' => array(
       'administrator member' => 'administrator member',
     ),

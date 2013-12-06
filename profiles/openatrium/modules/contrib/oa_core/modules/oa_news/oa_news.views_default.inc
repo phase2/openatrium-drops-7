@@ -251,7 +251,7 @@ function oa_news_views_default_views() {
       'context_optional' => 1,
       'panel' => '0',
       'fixed' => '',
-      'label' => 'Content: OpenAtrium Section (oa_section_ref)',
+      'label' => 'Content: Open Atrium Section (oa_section_ref)',
     ),
   );
   $export['open_atrium_news'] = $view;

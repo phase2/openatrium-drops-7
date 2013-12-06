@@ -8,7 +8,7 @@ core = 7.x
 projects[backports][version] = 1.0-alpha1
 projects[backports][subdir] = contrib
 
-projects[module_filter][version] = 1.7
+projects[module_filter][version] = 1.8
 projects[module_filter][subdir] = contrib
 
 projects[simplified_menu_admin][version] = 1.0-beta2

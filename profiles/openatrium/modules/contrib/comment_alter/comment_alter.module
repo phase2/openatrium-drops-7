@@ -140,7 +140,13 @@ function comment_alter_form_comment_form_alter(&$form, &$form_state, $form_id) {
         }
         else {
           $field_item = $field_items[0];
-          $columns = $field_item['#columns'];
+          if (isset($field_item['#columns'])) {
+            $columns = $field_item['#columns'];
+          }
+          else {
+            $field_item = reset($field_item);
+            $columns = $field_item['#columns'];
+          }
         }
         foreach ($columns as $column) {
           $alterable_columns[$field_alias[$field_name]][$column] = $column;
@@ -190,7 +196,7 @@ function _comment_alter_cleanup(&$a) {
 }
 
 /**
- * Helper function to convert $form/$form_state back into the format expected by 
+ * Helper function to convert $form/$form_state back into the format expected by
  * by the Field API.
  *
  * @param array $form
@@ -295,6 +301,10 @@ function _comment_alter_submit_node_fields($form, &$form_state) {
       foreach ($form_state['values']['comment_alter']['fields'] as $field_name => $field_alias) {
         field_attach_submit('node', $node, $new_form, $new_form_state, array('field_name' => $field_name));
       }
+      // Special support for the Title field via the Title module.
+      if (module_exists('title') && isset($form_state['values']['comment_alter']['fields']['title_field'])) {
+        title_entity_sync('node', $node, $node->language);
+      }
       // Creating a new node revision regardless the node type settings.
       $node->revision = TRUE;
       // Disable node updated notifications that caused by comment_alter.
@@ -340,8 +350,8 @@ function comment_alter_comment_load($comments) {
  *
  * @return array
  *   An associative array with keys being the changed field names and values
- *   being associative arrays with 3 keys:
- *   - name: field's name being changed.
+ *   being lists of associative arrays with 3 keys:
+ *   - name: field's name being changed (only for the first field value).
  *   - old: array of old field values.
  *   - new: array of new field values.
  *
@@ -362,17 +372,28 @@ function comment_alter_get_changed_fields($comment, $langcode) {
       'language' => $langcode,
     );
     $comment_alter_fields = comment_alter_get_alterable_fields($node->type);
+    // Because the 'title_field' is 'hidden' on all display modes, the Diff
+    // module will skip over it. However, the diff module has special support
+    // for the 'title' property, so we swap 'title_field' for 'title'.
+    if (($title_field_index = array_search('title_field', $comment_alter_fields)) !== FALSE) {
+      $comment_alter_fields[$title_field_index] = 'title';
+    }
     $diffs = diff_compare_entities($old_node, $new_node, $context);
     foreach ($diffs as $field_name => $diff) {
       // Only compare fields that belong to us.
       if (in_array($field_name, $comment_alter_fields)) {
         list ($old, $new) = diff_extract_state($diff, $context['states'][0]);
         if ($old != $new) {
-          $changed_fields[$field_name] = array(
-            'name' => $diff['#name'],
-            'old' => $old,
-            'new' => $new,
-          );
+          $rows = diff_get_rows($old, $new);
+          $line = 0;
+          foreach ($rows as $row) {
+            $changed_fields[$field_name][] = array(
+              'name' => $line ? '' : $diff['#name'],
+              'old' => array(empty($row[1]['data']) ? '' : $row[1]['data']),
+              'new' => array(empty($row[3]['data']) ? '' : $row[3]['data']),
+            );
+            $line++;
+          }
         }
       }
     }
@@ -416,7 +437,7 @@ function comment_alter_theme() {
  *
  * @param array $variables
  *   An associative array containing:
- *   - changed_fields: an array of changed fields, with these indexes:
+ *   - changed_fields: a list of arrays of changed fields, with these indexes:
  *     - name: field's name being changed.
  *     - old: array of old field values.
  *     - new: array of new field values.
@@ -428,12 +449,14 @@ function comment_alter_theme() {
 function theme_comment_alter_diff(&$variables) {
   $rows = array();
   foreach ($variables['changed_fields'] as $field) {
-    $rows[] = array(
-      $field['name'] . ':',
-      implode(', ', $field['old']),
-      '&raquo;',
-      implode(', ', $field['new']),
-    );
+    foreach ($field as $value) {
+      $rows[] = array(
+        empty($value['name']) ? '' : ($value['name'] . ':'),
+        implode(', ', $value['old']),
+        '&raquo;',
+        implode(', ', $value['new']),
+      );
+    }
   }
   drupal_add_css(drupal_get_path('module', 'comment_alter') . '/comment_alter.css');
   return theme('table', array(

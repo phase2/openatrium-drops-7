@@ -2,9 +2,6 @@ name = Open Atrium News
 description = News layout for Open Atrium
 core = 7.x
 package = Open Atrium
-php = 5.2.4
-version = 7.x-2.0
-project = oa_news
 dependencies[] = ctools
 dependencies[] = oa_core
 dependencies[] = panelizer
@@ -21,9 +18,9 @@ features[views_view][] = open_atrium_news
 features_exclude[dependencies][oa_layouts] = oa_layouts
 project path = sites/all/modules/contrib/oa_core/modules
 
-; Information added by  packaging script on 2013-11-18
-version = "7.x-2.08"
+; Information added by Drupal.org packaging script on 2013-12-06
+version = "7.x-2.12"
 core = "7.x"
 project = "oa_core"
-datestamp = "1384810705"
+datestamp = "1386337120"
 

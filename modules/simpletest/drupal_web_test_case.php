@@ -1419,6 +1419,8 @@ class DrupalWebTestCase extends DrupalTestCase {
     if (!$this->setupEnvironment) {
       return FALSE;
     }
+    // Indicate a test is preparing/running.
+    drupal_test_running(TRUE);
 
     // Reset all statics and variables to perform tests in a clean environment.
     $conf = array();

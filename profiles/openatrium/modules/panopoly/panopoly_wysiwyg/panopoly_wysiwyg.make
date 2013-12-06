@@ -22,8 +22,11 @@ projects[linkit][subdir] = contrib
 projects[image_resize_filter][version] = 1.13
 projects[image_resize_filter][subdir] = contrib
 
-projects[caption_filter][version] = 1.2
+projects[caption_filter][version] = 1.x-dev
 projects[caption_filter][subdir] = contrib
+projects[caption_filter][download][type] = git
+projects[caption_filter][download][revision] = b8097ee
+projects[caption_filter][download][branch] = 7.x-1.x
 
 ; Include our Editors
 

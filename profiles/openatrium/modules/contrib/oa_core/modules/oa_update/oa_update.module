@@ -61,19 +61,29 @@ function oa_update_admin_form() {
 
   // display the update status for just our profile
   $profile_name = drupal_get_profile();
-  if (!empty($profile_name) && ($available = update_get_available(TRUE)) &&
-      !empty($available[$profile_name])) {
-    module_load_include('inc', 'update', 'update.compare');
-    module_load_include('inc', 'update', 'update.report');
-    $data = update_calculate_project_data($available);
-    $profile[$profile_name] = $data[$profile_name];
-    $markup = theme('update_report', array('data' => $profile));
-    $markup = str_replace(
-      '<h3>' . t('Modules') . '</h3>',
-      '<h3>' . t('Distribution') . '</h3>', $markup);
-    $form['profile'] = array(
-      '#markup' => $markup,
-    );
+  if (!empty($profile_name)) {
+    $available = update_get_available(TRUE);
+    if (empty($available[$profile_name])) {
+      // if we haven't fetched the update info for the profile yet
+      // then do it now
+      module_load_include('inc', 'update', 'update.fetch');
+      $project = oa_update_get_profile($profile_name);
+      _update_process_fetch_task($project);
+      $available = update_get_available(TRUE);
+    }
+    if (!empty($available[$profile_name])) {
+      module_load_include('inc', 'update', 'update.compare');
+      module_load_include('inc', 'update', 'update.report');
+      $data = update_calculate_project_data($available);
+      $profile[$profile_name] = $data[$profile_name];
+      $markup = theme('update_report', array('data' => $profile));
+      $markup = str_replace(
+        '<h3>' . t('Modules') . '</h3>',
+        '<h3>' . t('Distribution') . '</h3>', $markup);
+      $form['profile'] = array(
+        '#markup' => $markup,
+      );
+    }
   }
 
   $form['update'] = array(
@@ -119,39 +129,40 @@ function oa_update_admin_form_submit($form, &$form_state) {
 }
 
 /**
+ * Build the Project array needed by Update module for profile_name
+ */
+function oa_update_get_profile($profile_name) {
+  // add the profile back into the module list to fetch update status for
+  $uri = 'profiles/' . $profile_name . '/' . $profile_name . '.profile';
+  $filename = dirname($uri) . '/' . $profile_name . '.info';
+  $info = drupal_parse_info_file($filename);
+  $info['project'] = $profile_name;
+  $info['hidden'] = FALSE;
+  if (!isset($info['_info_file_ctime'])) {
+    $info['_info_file_ctime'] = filectime($filename);
+  }
+  if (!isset($info['datestamp'])) {
+    $info['datestamp'] = 0;
+  }
+  $profile = array(
+    'name' => $profile_name,
+    'info' => $info,
+    'project_type' => 'module',
+    'project_status' => TRUE,
+    'includes' => array($profile_name => $info['name']),
+  );
+
+  return $profile;
+}
+
+/**
  * Implements hook_update_projects_alter().
  */
 function oa_update_update_projects_alter(&$projects) {
   $profile_name = drupal_get_profile();
   if (!empty($profile_name)) {
-    // add the profile back into the module list to fetch update status for
-    $uri = 'profiles/' . $profile_name . '/' . $profile_name . '.profile';
-    $filename = dirname($uri) . '/' . $profile_name . '.info';
-    $info = drupal_parse_info_file($filename);
-    $info['project'] = $profile_name;
-    $info['hidden'] = FALSE;
-    if (!isset($info['_info_file_ctime'])) {
-      $info['_info_file_ctime'] = filectime($filename);
-    }
-    if (!isset($info['datestamp'])) {
-      $info['datestamp'] = 0;
-    }
-    $profile = array(
-      'name' => $profile_name,
-      'info' => $info,
-      'project_type' => 'module',
-      'project_status' => TRUE,
-      'includes' => array($profile_name => $info['name']),
-    );
+    $profile = oa_update_get_profile($profile_name);
     $projects[$profile_name] = $profile;
-    if (!variable_get('oa_update_enable', FALSE)) {
-      foreach ($projects as $key => $project) {
-        // remove any local OA submodules
-        if (!empty($project['info']['package']) && ($project['info']['package'] == 'Open Atrium')) {
-          unset($projects[$key]);
-        }
-      }
-    }
   }
 }
 

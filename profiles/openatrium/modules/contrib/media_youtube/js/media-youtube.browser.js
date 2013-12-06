@@ -32,7 +32,7 @@
         var files = new Array();
         files.push(file);
         Drupal.media.browser.selectMedia(files);
-        $("input[name='sumitted-video']").val(uri);
+        $("input[name='submitted-video']").val(uri);
       });
 
 //      $('.')

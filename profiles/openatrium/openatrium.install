@@ -9,8 +9,12 @@
  * Implements hook_install().
  */
 function openatrium_install() {
-  node_access_rebuild();
+  // set the default theme
   _openatrium_set_up_theme();
+  // update admin and member permissions
+  oa_adminrole_update_roles();
+  // rebuild content permissions for first time
+  node_access_rebuild();
 }
 
 /**

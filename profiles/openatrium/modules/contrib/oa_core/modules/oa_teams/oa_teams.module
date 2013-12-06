@@ -135,4 +135,9 @@ function oa_teams_remove_member_menu($tid, $uid) {
   return;
 }
 
-
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function oa_core_form_oa_team_node_form_alter(&$form, &$form_state, &$form_id) {
+  _oa_core_hide_comment_settings($form);
+}

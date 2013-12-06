@@ -16,11 +16,26 @@ function media_youtube_file_formatter_info() {
     'default settings' => array(),
     'view callback' => 'media_youtube_file_formatter_video_view',
     'settings callback' => 'media_youtube_file_formatter_video_settings',
+    'mime types' => array('video/youtube'),
   );
 
-  foreach (array('width', 'height', 'autohide', 'autoplay', 'color', 'enablejsapi', 'loop', 'modestbranding', 'nocookie', 'origin', 'protocol', 'protocol_specify', 'rel', 'showinfo', 'theme') as $setting) {
-    $formatters['media_youtube_video']['default settings'][$setting] = media_youtube_variable_get($setting);
-  }
+  $formatters['media_youtube_video']['default settings'] = array(
+    'width' => 640,
+    'height' => 390,
+    'autohide' => 2,
+    'autoplay' => FALSE,
+    'color' => 'red',
+    'enablejsapi' => FALSE,
+    'loop' => FALSE,
+    'modestbranding' => FALSE,
+    'nocookie' => FALSE,
+    'origin' => '',
+    'protocol' => 'https:',
+    'protocol_specify' => FALSE,
+    'rel' => TRUE,
+    'showinfo' => TRUE,
+    'theme' => 'dark',
+  );
 
   $formatters['media_youtube_image'] = array(
     'label' => t('YouTube Preview Image'),
@@ -30,6 +45,7 @@ function media_youtube_file_formatter_info() {
     ),
     'view callback' => 'media_youtube_file_formatter_image_view',
     'settings callback' => 'media_youtube_file_formatter_image_settings',
+    'mime types' => array('video/youtube'),
   );
 
   return $formatters;
@@ -256,73 +272,65 @@ function media_youtube_file_formatter_image_settings($form, &$form_state, $setti
 }
 
 /**
- * Implements hook_file_default_displays().
+ * Implements hook_file_default_displays_alter().
  */
-function media_youtube_file_default_displays() {
-
-  // Default settings for displaying as a video.
-  $default_displays = array();
-
-  $default_video_settings = array(
-    'default' => array(
-      'width' => 640,
-      'height' => 390,
-    ),
-    'teaser' => array(
-      'width' => 560,
-      'height' => 340,
-      'autoplay' => FALSE,
-    ),
-    // Legacy view modes included to support older versions of Media,
-    // before #1051090 went through. They do no harm and can sit here
-    // until there is a Media 2.x stable.
-    // @TODO: Remove when Media 2.0 is released.
-    'media_large' => array(
-      'width' => 560,
-      'height' => 340,
-      'autoplay' => FALSE,
-    ),
-    'media_original' => array(
-      'width' => 640,
-      'height' => 390,
-      'autoplay' => media_youtube_variable_get('autoplay'),
-    ),
+function media_youtube_file_default_displays_alter(&$file_displays) {
+  // Video previews should be displayed using a large filetype icon.
+  $file_display = new stdClass();
+  $file_display->api_version = 1;
+  $file_display->name = 'video__default__media_youtube_video';
+  $file_display->weight = 0;
+  $file_display->status = TRUE;
+  $file_display->settings = array(
+    'width' => '640',
+    'height' => '390',
+    'theme' => 'dark',
+    'color' => 'red',
+    'autohide' => '2',
+    'autoplay' => 0,
+    'loop' => 0,
+    'showinfo' => 1,
+    'modestbranding' => 0,
+    'rel' => 1,
+    'nocookie' => 0,
+    'protocol_specify' => 0,
+    'protocol' => 'https:',
+    'enablejsapi' => 0,
+    'origin' => '',
   );
-  foreach ($default_video_settings as $view_mode => $settings) {
-    $display_name = 'video__' . $view_mode . '__media_youtube_video';
-    $default_displays[$display_name] = (object) array(
-      'api_version' => 1,
-      'name' => $display_name,
-      'status' => 1,
-      'weight' => 1,
-      'settings' => $settings,
-    );
-  }
+  $file_displays['video__default__media_youtube_video'] = $file_display;
 
-  // Default settings for displaying a video preview image.
-  // We enable preview images even for view modes that also play video
-  // for use inside a running WYSIWYG editor. We weight them so video
-  // formatters come first in the cascade to make sure the video formatter
-  // is used whenever possible.
-  $default_image_styles = array(
-    'default' => 'large',
-    'preview' => 'square_thumbnail',
-    'teaser' => 'large',
-    // Legacy view modes, see note above.
-    'media_preview' => 'square_thumbnail',
-    'media_large' => 'large',
-    'media_original' => '',
+  $file_display = new stdClass();
+  $file_display->api_version = 1;
+  $file_display->name = 'video__preview__media_youtube_image';
+  $file_display->weight = 0;
+  $file_display->status = TRUE;
+  $file_display->settings = array(
+    'image_style' => 'media_thumbnail',
   );
-  foreach ($default_image_styles as $view_mode => $image_style) {
-    $display_name = 'video__' . $view_mode . '__media_youtube_image';
-    $default_displays[$display_name] = (object) array(
-      'api_version' => 1,
-      'name' => $display_name,
-      'status' => 1,
-      'weight' => 2,
-      'settings' => array('image_style' => $image_style),
-    );
-  }
+  $file_displays['video__preview__media_youtube_image'] = $file_display;
 
-  return $default_displays;
+  $file_display = new stdClass();
+  $file_display->api_version = 1;
+  $file_display->name = 'video__teaser__media_youtube_video';
+  $file_display->weight = 0;
+  $file_display->status = TRUE;
+  $file_display->settings = array(
+    'width' => '560',
+    'height' => '340',
+    'theme' => 'dark',
+    'color' => 'red',
+    'autohide' => '2',
+    'autoplay' => 0,
+    'loop' => 0,
+    'showinfo' => 1,
+    'modestbranding' => 0,
+    'rel' => 1,
+    'nocookie' => 0,
+    'protocol_specify' => 0,
+    'protocol' => 'https:',
+    'enablejsapi' => 0,
+    'origin' => '',
+  );
+  $file_displays['video__teaser__media_youtube_video'] = $file_display;
 }

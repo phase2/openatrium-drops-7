@@ -315,9 +315,9 @@ files[] = tests/views_view.test
 files[] = tests/views_ui.test
 
 
-; Information added by drush on 2013-11-20
+; Information added by drush on 2013-12-06
 version = "7.x-3.7+14-dev"
 core = "7.x"
 project = "views"
-datestamp = "1384919116"
+datestamp = "1386365968"
 

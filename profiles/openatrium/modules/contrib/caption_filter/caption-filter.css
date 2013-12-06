@@ -3,15 +3,22 @@
  * Caption filter default styling for displaying image captions.
  */
 
+div.caption,
+div.caption-width-container {
+  max-width: 100%;
+}
+
 div.caption-inner {
   border: 1px solid #CCC;
   padding: 4px;
   background: #F3F3F3;
   font-size: 0.857em; /* assuming you have a base font size of 14px, this is 12px */
   text-align: center;
+  max-width: 100%;
+  width: auto;
 }
 
-div.caption p {
+div.caption p.caption-text {
   margin: .25em 0;
 }
 
@@ -37,6 +44,6 @@ div.caption-center {
   text-align: center;
 }
 
-div.caption-center .caption-inner {
+div.caption-center .caption-width-container {
   display: inline-block;
 }

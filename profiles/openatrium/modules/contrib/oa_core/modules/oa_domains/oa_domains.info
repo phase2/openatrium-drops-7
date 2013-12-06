@@ -2,18 +2,17 @@ name = Open Atrium Domains
 description = Provides domain per space
 core = 7.x
 package = Open Atrium
-version = 7.x-2.0
-project = oa_domains
 dependencies[] = features
 dependencies[] = text
+dependencies[] = oa_core
 features[features_api][] = api:2
 features[field_base][] = field_oa_space_domain
 features[field_instance][] = node-oa_space-field_oa_space_domain
 project path = profiles/openatrium/modules
 
-; Information added by  packaging script on 2013-11-18
-version = "7.x-2.08"
+; Information added by Drupal.org packaging script on 2013-12-06
+version = "7.x-2.12"
 core = "7.x"
 project = "oa_core"
-datestamp = "1384810705"
+datestamp = "1386337120"
 

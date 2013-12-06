@@ -579,6 +579,292 @@ function oa_worktracker_views_default_views() {
   $handler->display->display_options['arguments']['nid']['summary']['number_of_records'] = '0';
   $handler->display->display_options['arguments']['nid']['summary']['format'] = 'default_summary';
   $handler->display->display_options['arguments']['nid']['summary_options']['items_per_page'] = '25';
+
+  /* Display: User tasks */
+  $handler = $view->new_display('panel_pane', 'User tasks', 'user_tasks');
+  $handler->display->display_options['defaults']['title'] = FALSE;
+  $handler->display->display_options['title'] = 'Your Tasks';
+  $handler->display->display_options['defaults']['style_plugin'] = FALSE;
+  $handler->display->display_options['style_plugin'] = 'table';
+  $handler->display->display_options['style_options']['columns'] = array(
+    'timestamp' => 'timestamp',
+    'title' => 'title',
+    'realname_1' => 'realname_1',
+    'realname' => 'realname',
+    'title_1' => 'title_1',
+    'field_oa_worktracker_priority' => 'field_oa_worktracker_priority',
+    'field_oa_worktracker_task_type' => 'field_oa_worktracker_task_type',
+    'field_oa_worktracker_task_status' => 'field_oa_worktracker_task_status',
+    'comment_count' => 'comment_count',
+    'last_updated' => 'last_updated',
+  );
+  $handler->display->display_options['style_options']['default'] = 'last_updated';
+  $handler->display->display_options['style_options']['info'] = array(
+    'timestamp' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'title' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'realname_1' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'realname' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'title_1' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'field_oa_worktracker_priority' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'field_oa_worktracker_task_type' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'field_oa_worktracker_task_status' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'comment_count' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'last_updated' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'desc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+  );
+  $handler->display->display_options['defaults']['style_options'] = FALSE;
+  $handler->display->display_options['defaults']['row_plugin'] = FALSE;
+  $handler->display->display_options['defaults']['row_options'] = FALSE;
+  $handler->display->display_options['defaults']['relationships'] = FALSE;
+  /* Relationship: Entity Reference: Referenced Entity */
+  $handler->display->display_options['relationships']['field_oa_worktracker_assigned_to_target_id']['id'] = 'field_oa_worktracker_assigned_to_target_id';
+  $handler->display->display_options['relationships']['field_oa_worktracker_assigned_to_target_id']['table'] = 'field_data_field_oa_worktracker_assigned_to';
+  $handler->display->display_options['relationships']['field_oa_worktracker_assigned_to_target_id']['field'] = 'field_oa_worktracker_assigned_to_target_id';
+  $handler->display->display_options['relationships']['field_oa_worktracker_assigned_to_target_id']['label'] = 'Assigned to';
+  /* Relationship: Entity Reference: Referenced Entity */
+  $handler->display->display_options['relationships']['oa_section_ref_target_id']['id'] = 'oa_section_ref_target_id';
+  $handler->display->display_options['relationships']['oa_section_ref_target_id']['table'] = 'field_data_oa_section_ref';
+  $handler->display->display_options['relationships']['oa_section_ref_target_id']['field'] = 'oa_section_ref_target_id';
+  $handler->display->display_options['relationships']['oa_section_ref_target_id']['label'] = 'Section';
+  $handler->display->display_options['relationships']['oa_section_ref_target_id']['required'] = TRUE;
+  /* Relationship: Content: Author */
+  $handler->display->display_options['relationships']['uid']['id'] = 'uid';
+  $handler->display->display_options['relationships']['uid']['table'] = 'node';
+  $handler->display->display_options['relationships']['uid']['field'] = 'uid';
+  $handler->display->display_options['relationships']['uid']['label'] = 'Author';
+  $handler->display->display_options['relationships']['uid']['required'] = TRUE;
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* Field: Content: Has new content */
+  $handler->display->display_options['fields']['timestamp']['id'] = 'timestamp';
+  $handler->display->display_options['fields']['timestamp']['table'] = 'history';
+  $handler->display->display_options['fields']['timestamp']['field'] = 'timestamp';
+  $handler->display->display_options['fields']['timestamp']['label'] = '';
+  $handler->display->display_options['fields']['timestamp']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['timestamp']['element_label_colon'] = FALSE;
+  /* Field: Content: Title */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['fields']['title']['label'] = 'Task';
+  $handler->display->display_options['fields']['title']['alter']['alter_text'] = TRUE;
+  $handler->display->display_options['fields']['title']['alter']['text'] = '[title] [timestamp]';
+  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+  $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
+  /* Field: Realname: Real name */
+  $handler->display->display_options['fields']['realname_1']['id'] = 'realname_1';
+  $handler->display->display_options['fields']['realname_1']['table'] = 'realname';
+  $handler->display->display_options['fields']['realname_1']['field'] = 'realname';
+  $handler->display->display_options['fields']['realname_1']['relationship'] = 'uid';
+  $handler->display->display_options['fields']['realname_1']['label'] = 'Created by';
+  $handler->display->display_options['fields']['realname_1']['exclude'] = TRUE;
+  /* Field: Realname: Real name */
+  $handler->display->display_options['fields']['realname']['id'] = 'realname';
+  $handler->display->display_options['fields']['realname']['table'] = 'realname';
+  $handler->display->display_options['fields']['realname']['field'] = 'realname';
+  $handler->display->display_options['fields']['realname']['relationship'] = 'field_oa_worktracker_assigned_to_target_id';
+  $handler->display->display_options['fields']['realname']['label'] = 'Assigned to';
+  /* Field: Content: Title */
+  $handler->display->display_options['fields']['title_1']['id'] = 'title_1';
+  $handler->display->display_options['fields']['title_1']['table'] = 'node';
+  $handler->display->display_options['fields']['title_1']['field'] = 'title';
+  $handler->display->display_options['fields']['title_1']['relationship'] = 'oa_section_ref_target_id';
+  $handler->display->display_options['fields']['title_1']['label'] = 'Section';
+  /* Field: Content: Priority */
+  $handler->display->display_options['fields']['field_oa_worktracker_priority']['id'] = 'field_oa_worktracker_priority';
+  $handler->display->display_options['fields']['field_oa_worktracker_priority']['table'] = 'field_data_field_oa_worktracker_priority';
+  $handler->display->display_options['fields']['field_oa_worktracker_priority']['field'] = 'field_oa_worktracker_priority';
+  /* Field: Content: Type */
+  $handler->display->display_options['fields']['field_oa_worktracker_task_type']['id'] = 'field_oa_worktracker_task_type';
+  $handler->display->display_options['fields']['field_oa_worktracker_task_type']['table'] = 'field_data_field_oa_worktracker_task_type';
+  $handler->display->display_options['fields']['field_oa_worktracker_task_type']['field'] = 'field_oa_worktracker_task_type';
+  /* Field: Content: Status */
+  $handler->display->display_options['fields']['field_oa_worktracker_task_status']['id'] = 'field_oa_worktracker_task_status';
+  $handler->display->display_options['fields']['field_oa_worktracker_task_status']['table'] = 'field_data_field_oa_worktracker_task_status';
+  $handler->display->display_options['fields']['field_oa_worktracker_task_status']['field'] = 'field_oa_worktracker_task_status';
+  /* Field: Content: Comment count */
+  $handler->display->display_options['fields']['comment_count']['id'] = 'comment_count';
+  $handler->display->display_options['fields']['comment_count']['table'] = 'node_comment_statistics';
+  $handler->display->display_options['fields']['comment_count']['field'] = 'comment_count';
+  $handler->display->display_options['fields']['comment_count']['label'] = 'Comments';
+  $handler->display->display_options['fields']['comment_count']['alter']['path'] = 'node/';
+  $handler->display->display_options['fields']['comment_count']['separator'] = '';
+  /* Field: Content: Updated/commented date */
+  $handler->display->display_options['fields']['last_updated']['id'] = 'last_updated';
+  $handler->display->display_options['fields']['last_updated']['table'] = 'node_comment_statistics';
+  $handler->display->display_options['fields']['last_updated']['field'] = 'last_updated';
+  $handler->display->display_options['fields']['last_updated']['label'] = 'Updated';
+  $handler->display->display_options['fields']['last_updated']['date_format'] = 'time ago';
+  $handler->display->display_options['defaults']['sorts'] = FALSE;
+  $handler->display->display_options['defaults']['arguments'] = FALSE;
+  /* Contextual filter: User: Uid */
+  $handler->display->display_options['arguments']['uid']['id'] = 'uid';
+  $handler->display->display_options['arguments']['uid']['table'] = 'users';
+  $handler->display->display_options['arguments']['uid']['field'] = 'uid';
+  $handler->display->display_options['arguments']['uid']['relationship'] = 'field_oa_worktracker_assigned_to_target_id';
+  $handler->display->display_options['arguments']['uid']['default_action'] = 'not found';
+  $handler->display->display_options['arguments']['uid']['default_argument_type'] = 'fixed';
+  $handler->display->display_options['arguments']['uid']['summary']['number_of_records'] = '0';
+  $handler->display->display_options['arguments']['uid']['summary']['format'] = 'default_summary';
+  $handler->display->display_options['arguments']['uid']['summary_options']['items_per_page'] = '25';
+  $handler->display->display_options['defaults']['filter_groups'] = FALSE;
+  $handler->display->display_options['defaults']['filters'] = FALSE;
+  /* Filter criterion: Content: Published */
+  $handler->display->display_options['filters']['status']['id'] = 'status';
+  $handler->display->display_options['filters']['status']['table'] = 'node';
+  $handler->display->display_options['filters']['status']['field'] = 'status';
+  $handler->display->display_options['filters']['status']['value'] = 1;
+  $handler->display->display_options['filters']['status']['group'] = 1;
+  $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+  /* Filter criterion: Content: Type */
+  $handler->display->display_options['filters']['type']['id'] = 'type';
+  $handler->display->display_options['filters']['type']['table'] = 'node';
+  $handler->display->display_options['filters']['type']['field'] = 'type';
+  $handler->display->display_options['filters']['type']['value'] = array(
+    'oa_worktracker_task' => 'oa_worktracker_task',
+  );
+  $handler->display->display_options['filters']['type']['group'] = 1;
+  /* Filter criterion: Content: Status (field_oa_worktracker_task_status) */
+  $handler->display->display_options['filters']['field_oa_worktracker_task_status_value']['id'] = 'field_oa_worktracker_task_status_value';
+  $handler->display->display_options['filters']['field_oa_worktracker_task_status_value']['table'] = 'field_data_field_oa_worktracker_task_status';
+  $handler->display->display_options['filters']['field_oa_worktracker_task_status_value']['field'] = 'field_oa_worktracker_task_status_value';
+  $handler->display->display_options['filters']['field_oa_worktracker_task_status_value']['group'] = 1;
+  $handler->display->display_options['filters']['field_oa_worktracker_task_status_value']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_oa_worktracker_task_status_value']['expose']['operator_id'] = 'field_oa_worktracker_task_status_value_op';
+  $handler->display->display_options['filters']['field_oa_worktracker_task_status_value']['expose']['label'] = 'Status';
+  $handler->display->display_options['filters']['field_oa_worktracker_task_status_value']['expose']['operator'] = 'field_oa_worktracker_task_status_value_op';
+  $handler->display->display_options['filters']['field_oa_worktracker_task_status_value']['expose']['identifier'] = 'field_oa_worktracker_task_status_value';
+  $handler->display->display_options['filters']['field_oa_worktracker_task_status_value']['expose']['multiple'] = TRUE;
+  $handler->display->display_options['filters']['field_oa_worktracker_task_status_value']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
+  /* Filter criterion: Content: Priority (field_oa_worktracker_priority) */
+  $handler->display->display_options['filters']['field_oa_worktracker_priority_value']['id'] = 'field_oa_worktracker_priority_value';
+  $handler->display->display_options['filters']['field_oa_worktracker_priority_value']['table'] = 'field_data_field_oa_worktracker_priority';
+  $handler->display->display_options['filters']['field_oa_worktracker_priority_value']['field'] = 'field_oa_worktracker_priority_value';
+  $handler->display->display_options['filters']['field_oa_worktracker_priority_value']['group'] = 1;
+  $handler->display->display_options['filters']['field_oa_worktracker_priority_value']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_oa_worktracker_priority_value']['expose']['operator_id'] = 'field_oa_worktracker_priority_value_op';
+  $handler->display->display_options['filters']['field_oa_worktracker_priority_value']['expose']['label'] = 'Priority';
+  $handler->display->display_options['filters']['field_oa_worktracker_priority_value']['expose']['operator'] = 'field_oa_worktracker_priority_value_op';
+  $handler->display->display_options['filters']['field_oa_worktracker_priority_value']['expose']['identifier'] = 'field_oa_worktracker_priority_value';
+  $handler->display->display_options['filters']['field_oa_worktracker_priority_value']['expose']['multiple'] = TRUE;
+  $handler->display->display_options['filters']['field_oa_worktracker_priority_value']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
+  /* Filter criterion: Content: Type (field_oa_worktracker_task_type) */
+  $handler->display->display_options['filters']['field_oa_worktracker_task_type_value']['id'] = 'field_oa_worktracker_task_type_value';
+  $handler->display->display_options['filters']['field_oa_worktracker_task_type_value']['table'] = 'field_data_field_oa_worktracker_task_type';
+  $handler->display->display_options['filters']['field_oa_worktracker_task_type_value']['field'] = 'field_oa_worktracker_task_type_value';
+  $handler->display->display_options['filters']['field_oa_worktracker_task_type_value']['group'] = 1;
+  $handler->display->display_options['filters']['field_oa_worktracker_task_type_value']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_oa_worktracker_task_type_value']['expose']['operator_id'] = 'field_oa_worktracker_task_type_value_op';
+  $handler->display->display_options['filters']['field_oa_worktracker_task_type_value']['expose']['label'] = 'Type';
+  $handler->display->display_options['filters']['field_oa_worktracker_task_type_value']['expose']['operator'] = 'field_oa_worktracker_task_type_value_op';
+  $handler->display->display_options['filters']['field_oa_worktracker_task_type_value']['expose']['identifier'] = 'field_oa_worktracker_task_type_value';
+  $handler->display->display_options['filters']['field_oa_worktracker_task_type_value']['expose']['multiple'] = TRUE;
+  $handler->display->display_options['filters']['field_oa_worktracker_task_type_value']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
+  $handler->display->display_options['pane_title'] = 'User Tasks';
+  $handler->display->display_options['pane_category']['name'] = 'Open Atrium';
+  $handler->display->display_options['pane_category']['weight'] = '0';
+  $handler->display->display_options['allow']['use_pager'] = 0;
+  $handler->display->display_options['allow']['items_per_page'] = 'items_per_page';
+  $handler->display->display_options['allow']['offset'] = 0;
+  $handler->display->display_options['allow']['link_to_view'] = 0;
+  $handler->display->display_options['allow']['more_link'] = 0;
+  $handler->display->display_options['allow']['path_override'] = 0;
+  $handler->display->display_options['allow']['title_override'] = 'title_override';
+  $handler->display->display_options['allow']['exposed_form'] = 'exposed_form';
+  $handler->display->display_options['allow']['exposed_form_configure'] = 'exposed_form_configure';
+  $handler->display->display_options['allow']['fields_override'] = 'fields_override';
+  $handler->display->display_options['exposed_form_overrides'] = array(
+    'filters' => array(
+      'keys' => 'pane_and_exposed',
+      'realname_1' => 'pane_and_exposed',
+      'realname' => 'pane_and_exposed',
+      'field_oa_worktracker_priority_value' => 'pane_and_exposed',
+      'field_oa_worktracker_task_status_value' => 'pane_and_exposed',
+      'field_oa_worktracker_task_type_value' => 'pane_and_exposed',
+    ),
+  );
+  $handler->display->display_options['argument_input'] = array(
+    'uid' => array(
+      'type' => 'context',
+      'context' => 'entity:user.uid',
+      'context_optional' => 0,
+      'panel' => '0',
+      'fixed' => '',
+      'label' => 'User',
+    ),
+  );
   $export['oa_worktracker'] = $view;
 
   return $export;

@@ -35,13 +35,16 @@
  *     worker. see message_subscribe_queue_worker().
  *   - "entity access": Determine if access to view the entity should be applied
  *     when getting the list of subscribed users. Defaults to TRUE.
+ *   - "notify_own_actions": Determines if the user that created the entity
+ *      gets notified of their own action. If TRUE the author will get notified.
+ *      Defaults to FALSE.
  * @param $context
  *   Optional; Array keyed with the entity type and array of entity IDs as
  *   the value. For example, if the event is related to a node
  *   entity, the implementing module might pass along with the node
  *   itself, the node author and related taxonomy terms.
  *
- *   @code
+ * @code
  *   $context = array(
  *     'node' => array(1),
  *     // The node author.
@@ -49,13 +52,14 @@
  *     // Related taxonomy terms.
  *     'taxonomy_term' => array(100, 200, 300)
  *   );
- *   @endcode
+ * @endcode
  *
  * @return
  *   The message object.
  */
 function message_subscribe_send_message($entity_type, $entity, Message $message, $notify_options = array(), $subscribe_options = array(), $context = array()) {
   $use_queue = isset($subscribe_options['use queue']) ? $subscribe_options['use queue'] : variable_get('message_subscribe_use_queue', FALSE);
+  $notify_own_actions = isset($subscribe_options['notify_own_actions']) ? $subscribe_options['notify_own_actions'] : variable_get('message_subscribe_notify_own_actions', FALSE);
 
   // Save message by default.
   $subscribe_options += array(
@@ -68,6 +72,7 @@ function message_subscribe_send_message($entity_type, $entity, Message $message,
     'use queue' => $use_queue,
     'queue' => FALSE,
     'entity access' => TRUE,
+    'notify_own_actions' => $notify_own_actions,
   );
 
   if (empty($message->mid) && $subscribe_options['save message']) {
@@ -86,7 +91,8 @@ function message_subscribe_send_message($entity_type, $entity, Message $message,
 
     // Get the context once, so we don't need to process it every time
     // a worker claims the item.
-    $context = message_subscribe_get_basic_context($entity_type, $entity, $subscribe_options, $context);
+    $context = $context ? $context : message_subscribe_get_basic_context($entity_type, $entity, $subscribe_options, $context);
+
     $subscribe_options['skip context'] = TRUE;
 
     // Add item to the queue.
@@ -112,14 +118,13 @@ function message_subscribe_send_message($entity_type, $entity, Message $message,
   if ($subscribe_options['uids']) {
     // We got a list of user IDs directly from the implementing module,
     // However we need to adhere to the range.
-    $uids = $subscribe_options['range'] ? array_slice($subscribe_options['uids'], 0, $subscribe_options['range'], TRUE): $subscribe_options['uids'];
+    $uids = $subscribe_options['range'] ? array_slice($subscribe_options['uids'], 0, $subscribe_options['range'], TRUE) : $subscribe_options['uids'];
   }
 
   if (empty($uids) && !$uids = message_subscribe_get_subscribers($entity_type, $entity, $message, $subscribe_options, $context)) {
     // If we use a queue, it will be deleted.
     return $message;
   }
-
 
   foreach ($uids as $uid => $values) {
     $last_uid = $uid;
@@ -188,17 +193,18 @@ function message_subscribe_send_message($entity_type, $entity, Message $message,
  *   Array keyed with the user IDs to send email, and array with the flags
  *   the used it for the subscription, and the notifier names.
  *
- *   @code
+ * @code
  *   array(
  *     1 => array(
  *       'flags' => array('subscribe_node', 'subscribe_user'),
  *       'notifiers' => array('email', 'sms'),
  *     ),
  *   );
- *   @endcode
+ * @endcode
  */
 function message_subscribe_get_subscribers($entity_type, $entity, Message $message, $subscribe_options = array(), &$context = array()) {
   $context = $context ? $context : message_subscribe_get_basic_context($entity_type, $entity, $subscribe_options, $context);
+  $notify_own_actions = isset($subscribe_options['notify_own_actions']) ? $subscribe_options['notify_own_actions'] : variable_get('message_subscribe_notify_own_actions', FALSE);
 
   $uids = array();
   // We don't use module_invoke_all() is we want to retain the array keys,
@@ -207,6 +213,11 @@ function message_subscribe_get_subscribers($entity_type, $entity, Message $messa
     $function = $module . '_message_subscribe_get_subscribers';
     $result = $function($message, $subscribe_options, $context);
     foreach ($result as $uid => $values) {
+      // See if the author of the entity gets notified.
+      if ($notify_own_actions && $entity->uid == $uid) {
+        continue;
+      }
+
       if (!empty($subscribe_options['entity access'])) {
         $account = user_load($uid);
         if (!entity_access('view', $entity_type, $entity, $account)) {
@@ -214,6 +225,7 @@ function message_subscribe_get_subscribers($entity_type, $entity, Message $messa
           continue;
         }
       }
+
       $uids[$uid] = $values;
     }
   }
@@ -353,7 +365,7 @@ function message_subscribe_message_subscribe_get_subscribers(Message $message, $
   $range = $subscribe_options['range'];
 
   // Find the users that subscribed to each context.
-  foreach($context as $entity_type => $entity_ids) {
+  foreach ($context as $entity_type => $entity_ids) {
     if (!$entity_ids) {
       continue;
     }
@@ -371,10 +383,18 @@ function message_subscribe_message_subscribe_get_subscribers(Message $message, $
     // Query all the entity IDs inside the given flags. We don't use
     // flag_get_content_flags() as we want to get all the flaggings of an
     // entity-type in a single query.
-    $query = db_select('flag_content', 'fc')
-      ->fields('fc')
-      ->condition('content_type', $entity_type)
-      ->condition('content_id', $entity_ids, 'IN')
+    if (FLAG_API_VERSION == 2) {
+      $query = db_select('flag_content', 'fc')
+        ->condition('content_type', $entity_type)
+        ->condition('content_id', $entity_ids, 'IN');
+    }
+    else {
+      $query = db_select('flagging', 'fc')
+        ->condition('entity_type', $entity_type)
+        ->condition('entity_id', $entity_ids, 'IN');
+    }
+
+    $query->fields('fc')
       ->condition('fid', array_keys($fids), 'IN')
       ->condition('uid', $subscribe_options['last uid'], '>')
       ->orderBy('uid', 'ASC');
@@ -386,6 +406,7 @@ function message_subscribe_message_subscribe_get_subscribers(Message $message, $
     $result = $query->execute();
 
     foreach ($result as $row) {
+
       $uids[$row->uid] = !empty($uids[$row->uid]) ? $uids[$row->uid] : array('notifiers' => array());
       // Register the flag name.
       $flag_name = $fids[$row->fid];
@@ -446,7 +467,7 @@ function message_subscribe_flag_default_flags() {
   $flags = array();
   // Exported flag: "Content".
   $flags['subscribe_node'] = array(
-    'content_type' => 'node',
+    'entity_type' => 'node',
     'title' => 'Content',
     'global' => '0',
     'types' => array(),
@@ -458,7 +479,7 @@ function message_subscribe_flag_default_flags() {
     'unflag_message' => 'You are no longer subscribed to this item.',
     'unflag_denied_text' => '',
     'link_type' => 'toggle',
-    'roles' => array(
+    'import_roles' => array(
       'flag' => array(
         0 => '2',
       ),
@@ -477,12 +498,13 @@ function message_subscribe_flag_default_flags() {
     'locked' => array(
       0 => 'name',
     ),
-    'api_version' => 2,
+    'api_version' => 3,
     'status' => FALSE,
   );
+
   // Exported flag: "Terms".
   $flags['subscribe_term'] = array(
-    'content_type' => 'taxonomy_term',
+    'entity_type' => 'taxonomy_term',
     'title' => 'Terms',
     'global' => '0',
     'types' => array(),
@@ -494,7 +516,7 @@ function message_subscribe_flag_default_flags() {
     'unflag_message' => 'You are no longer subscribed to this item.',
     'unflag_denied_text' => '',
     'link_type' => 'toggle',
-    'roles' => array(
+    'import_roles' => array(
       'flag' => array(
         0 => '2',
       ),
@@ -510,12 +532,12 @@ function message_subscribe_flag_default_flags() {
     'locked' => array(
       0 => 'name',
     ),
-    'api_version' => 2,
+    'api_version' => 3,
     'status' => FALSE,
   );
   // Exported flag: "Users".
   $flags['subscribe_user'] = array(
-    'content_type' => 'user',
+    'entity_type' => 'user',
     'title' => 'Users',
     'global' => '0',
     'types' => array(),
@@ -527,7 +549,7 @@ function message_subscribe_flag_default_flags() {
     'unflag_message' => 'You are no longer subscribed to this item.',
     'unflag_denied_text' => '',
     'link_type' => 'toggle',
-    'roles' => array(
+    'import_roles' => array(
       'flag' => array(
         0 => '2',
       ),
@@ -544,14 +566,14 @@ function message_subscribe_flag_default_flags() {
     'locked' => array(
       0 => 'name',
     ),
-    'api_version' => 2,
+    'api_version' => 3,
     'status' => FALSE,
   );
 
   if (module_exists('og')) {
     // Exported flag: "Groups".
     $flags['subscribe_og'] = array(
-      'content_type' => 'node',
+      'entity_type' => 'node',
       'title' => 'Groups',
       'global' => '0',
       'types' => array(),
@@ -563,7 +585,7 @@ function message_subscribe_flag_default_flags() {
       'unflag_message' => 'You are no longer subscribed to this item.',
       'unflag_denied_text' => '',
       'link_type' => 'toggle',
-      'roles' => array(
+      'import_roles' => array(
         'flag' => array(
           0 => '2',
         ),
@@ -582,9 +604,31 @@ function message_subscribe_flag_default_flags() {
       'locked' => array(
         0 => 'name',
       ),
-      'api_version' => 2,
+      'api_version' => 3,
       'status' => FALSE,
     );
+  }
+
+  if (FLAG_API_VERSION == 2) {
+
+    $flags['subscribe_node']['api_version'] = $flags['subscribe_term']['api_version'] = $flags['subscribe_user']['api_version'] = 2;
+    $flags['subscribe_node']['content_type'] = 'node';
+    $flags['subscribe_term']['content_type'] = 'taxonomy_term';
+    $flags['subscribe_user']['content_type'] = 'user';
+
+    $flags['subscribe_node']['roles'] = $flags['subscribe_node']['import_roles'];
+    $flags['subscribe_term']['roles'] = $flags['subscribe_term']['import_roles'];
+    $flags['subscribe_user']['roles'] = $flags['subscribe_user']['import_roles'];
+
+    unset($flags['subscribe_node']['import_roles'], $flags['subscribe_term']['import_roles'], $flags['subscribe_user']['import_roles']);
+    unset($flags['subscribe_node']['entity_type'], $flags['subscribe_term']['entity_type'], $flags['subscribe_user']['entity_type']);
+
+    if (module_exists('og')) {
+      $flags['subscribe_og']['api_version'] = 2;
+      $flags['subscribe_og']['content_type'] = 'node';
+      $flags['subscribe_og']['roles'] = $flags['subscribe_og']['import_roles'];
+      unset($flags['subscribe_og']['entity_type'], $flags['subscribe_og']['import_roles']);
+    }
   }
 
   return $flags;

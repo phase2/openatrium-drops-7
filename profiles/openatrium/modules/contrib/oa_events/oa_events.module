@@ -469,3 +469,10 @@ function oa_events_views_content_type_modal_submit(&$form, &$form_state) {
     $form_state['conf']['include_attachments'] = $form_state['values']['include_attachments'];
   }
 }
+
+/**
+ * Implements hook_form_alter for node edit forms
+ */
+function oa_events_form_oa_event_node_form_alter(&$form, &$form_state, $form_id) {
+  drupal_add_js(drupal_get_path('module', 'oa_events') . '/js/oa_events.js');
+}

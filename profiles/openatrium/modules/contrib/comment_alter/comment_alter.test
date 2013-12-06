@@ -92,7 +92,7 @@ class CommentAlterBaseTestCase extends DrupalWebTestCase {
   /**
    * Asserts that a Comment Alter diff table on the current page is as expected.
    *
-   * @param array $values
+   * @param array $test
    *   An associative array with keys for the field name referring to arrays
    *   with exactly two values: the original and new value as human readable
    *   strings.
@@ -100,20 +100,48 @@ class CommentAlterBaseTestCase extends DrupalWebTestCase {
    *   If there are multiple diff tables on the page, this specifies which one
    *   in sequential order.
    */
-  protected function assertCommentDiff($values, $ord = 0) {
+  protected function assertCommentDiff($test, $ord = 0) {
     // Extract the values from the '<table class="comment-alter-diff">...</table>'
     $results = $this->xpath('//table[@class=:class]', array(':class' => 'comment-alter-diff'));
     $result = $results[$ord];
     $fields = array();
+    $last_field_name = NULL;
     foreach ($result->tbody->tr as $tr) {
-      $fields[rtrim($tr->td[0], ':')] = array((string)$tr->td[1], (string)$tr->td[3]);
+      // Figure out the field name.
+      $field_name = rtrim($tr->td[0], ':');
+      if (empty($field_name)) {
+        $field_name = $last_field_name;
+      }
+
+      // Grab the values and clear for NULL.
+      $values = array($tr->td[1], $tr->td[3]);
+      foreach ($values as $index => $value) {
+        if ((string)$value == '&') {
+          $values[$index] = NULL;
+        }
+        elseif ((string)$value->div->asXML() == '<div> </div>') {
+          // For file fields, it puts the original values as <div>&nbsp;</div>
+          // which becomes a crazy UTF-8 character when doing $value->asXML(),
+          // so we need special support here.
+          $values[$index] = NULL;
+        }
+        else {
+          $values[$index] = strip_tags($value->asXML());
+        }
+      }
+
+      // Add to the array and store the field_name process.
+      $fields[$field_name][] = $values;
+      $last_field_name = $field_name;
     }
 
     // Compare the values passed in against what's on the page
-    foreach ($values as $field_name => $value) {
+    foreach ($test as $field_name => $values) {
       $this->assertTrue(isset($fields[$field_name]), "No field called '$field_name' found in comment alter diff #$ord");
-      $this->assertEqual($fields[$field_name][0], $value[0], "Comment alter diff original for field '$field_name' doesn't match: {$fields[$field_name][0]} != {$value[0]}");
-      $this->assertEqual($fields[$field_name][1], $value[1], "Comment alter diff changed for field '$field_name' doesn't match: {$fields[$field_name][1]} != {$value[1]}");
+      foreach ($values as $index => $value) {
+        $this->assertEqual($fields[$field_name][$index][0], $value[0], "Comment alter diff original for field '$field_name' [$index] doesn't match: {$fields[$field_name][$index][0]} != {$value[0]}");
+        $this->assertEqual($fields[$field_name][$index][1], $value[1], "Comment alter diff changed for field '$field_name' [$index] doesn't match: {$fields[$field_name][$index][1]} != {$value[1]}");
+      }
     }
   }
 }
@@ -146,12 +174,14 @@ class CommentAlterListTextTestCase extends CommentAlterBaseTestCase {
     ));
 
     $this->createNodeThenPostComment(
-      array($field_name => array('und' => array(0 => array('value' => 1)))),
+      array($field_name => array(LANGUAGE_NONE => array(0 => array('value' => 1)))),
       array("comment_alter_{$field_name}[" . LANGUAGE_NONE . ']' => '2')
     );
 
     $this->assertCommentDiff(array(
-      $field_name => array('One', 'Two'),
+      $field_name => array(
+        array('One', 'Two')
+      ),
     ));
   }
 
@@ -164,12 +194,15 @@ class CommentAlterListTextTestCase extends CommentAlterBaseTestCase {
     ));
 
     $this->createNodeThenPostComment(
-      array($field_name => array('und' => array(0 => array('value' => 1)))),
+      array($field_name => array(LANGUAGE_NONE => array(0 => array('value' => 1)))),
       array("comment_alter_{$field_name}[" . LANGUAGE_NONE . '][]' => array('1', '2'))
     );
 
     $this->assertCommentDiff(array(
-      $field_name => array('One', 'One, Two'),
+      $field_name => array(
+        array('One', 'One'),
+        array(NULL, 'Two'),
+      ),
     ));
   }
 
@@ -182,12 +215,14 @@ class CommentAlterListTextTestCase extends CommentAlterBaseTestCase {
     ));
 
     $this->createNodeThenPostComment(
-      array($field_name => array('und' => array(0 => array('value' => 1)))),
+      array($field_name => array(LANGUAGE_NONE => array(0 => array('value' => 1)))),
       array("comment_alter_{$field_name}[" . LANGUAGE_NONE . ']' => '2')
     );
 
     $this->assertCommentDiff(array(
-      $field_name => array('One', 'Two'),
+      $field_name => array(
+        array('One', 'Two'),
+      ),
     ));
   }
 
@@ -200,12 +235,15 @@ class CommentAlterListTextTestCase extends CommentAlterBaseTestCase {
     ));
 
     $this->createNodeThenPostComment(
-      array($field_name => array('und' => array(0 => array('value' => 1)))),
+      array($field_name => array(LANGUAGE_NONE => array(0 => array('value' => 1)))),
       array("comment_alter_{$field_name}[" . LANGUAGE_NONE . '][2]' => TRUE)
     );
 
     $this->assertCommentDiff(array(
-      $field_name => array('One', 'One, Two'),
+      $field_name => array(
+        array('One', 'One'),
+        array(NULL, 'Two'),
+      ),
     ));
   }
 }
@@ -238,12 +276,14 @@ class CommentAlterTextTestCase extends CommentAlterBaseTestCase {
     $this->assertNotEqual($old_value, $new_value);
 
     $this->createNodeThenPostComment(
-      array($field_name => array('und' => array(0 => array('value' => $old_value)))),
+      array($field_name => array(LANGUAGE_NONE => array(0 => array('value' => $old_value)))),
       array("comment_alter_{$field_name}[" . LANGUAGE_NONE . '][0][value]' => $new_value)
     );
 
     $this->assertCommentDiff(array(
-      $field_name => array($old_value, $new_value),
+      $field_name => array(
+        array($old_value, $new_value)
+      ),
     ));
   }
 
@@ -257,12 +297,15 @@ class CommentAlterTextTestCase extends CommentAlterBaseTestCase {
     $this->assertNotEqual($old_value, $new_value);
 
     $this->createNodeThenPostComment(
-      array($field_name => array('und' => array(0 => array('value' => $old_value)))),
+      array($field_name => array(LANGUAGE_NONE => array(0 => array('value' => $old_value)))),
       array("comment_alter_{$field_name}[" . LANGUAGE_NONE . '][1][value]' => $new_value)
     );
 
     $this->assertCommentDiff(array(
-      $field_name => array($old_value, "$old_value, $new_value"),
+      $field_name => array(
+        array($old_value, $old_value),
+        array(NULL, $new_value)
+      ),
     ));
   }
 }
@@ -301,11 +344,13 @@ class CommentAlterFileTestCase extends CommentAlterBaseTestCase {
 
     $this->createNodeThenPostComment(
       array(),
-      array("files[comment_alter_{$field_name}_und_0]" => drupal_realpath($file->uri))
+      array("files[comment_alter_{$field_name}_" . LANGUAGE_NONE . '_0]' => drupal_realpath($file->uri))
     );
 
     $this->assertCommentDiff(array(
-      $field_name => array('', 'File: ' . basename($file->uri)),
+      $field_name => array(
+        array(NULL, 'File: ' . basename($file->uri)),
+      ),
     ));
   }
 
@@ -319,14 +364,15 @@ class CommentAlterFileTestCase extends CommentAlterBaseTestCase {
     $file2 = $this->getTestFile('text');
 
     $this->createNodeThenPostComment(
-      array($field_name => array('und' => array(0 => (array)$file1))),
-      array("files[comment_alter_{$field_name}_und_1]" => drupal_realpath($file2->uri))
+      array($field_name => array(LANGUAGE_NONE => array(0 => (array)$file1))),
+      array("files[comment_alter_{$field_name}_" . LANGUAGE_NONE . '_1]' => drupal_realpath($file2->uri))
     );
 
     $this->assertCommentDiff(array(
       $field_name => array(
-        'File: ' . basename($file1->uri),
-        'File: ' . basename($file1->uri) . ', File: ' . basename($file2->uri)),
+        array('File: ' . basename($file1->uri), 'File: ' . basename($file1->uri)),
+        array(NULL, 'File: ' . basename($file2->uri)),
+      ),
     ));
   }
 }
@@ -372,7 +418,7 @@ class CommentAlterDoubleFieldTestCase extends CommentAlterBaseTestCase {
     $comment_value = $this->randomName();
 
     $this->createNodeThenPostComment(
-      array($field_name => array('und' => array(0 => array('value' => $old_value)))),
+      array($field_name => array(LANGUAGE_NONE => array(0 => array('value' => $old_value)))),
       array(
         "comment_alter_{$field_name}[" . LANGUAGE_NONE . '][0][value]' => $new_value,
         "{$field_name}[" . LANGUAGE_NONE . '][0][value]' => $comment_value,
@@ -380,7 +426,9 @@ class CommentAlterDoubleFieldTestCase extends CommentAlterBaseTestCase {
     );
 
     $this->assertCommentDiff(array(
-      $field_name => array($old_value, $new_value),
+      $field_name => array(
+        array($old_value, $new_value),
+      ),
     ));
 
     // Check that the comment value appeared and that the field label was different

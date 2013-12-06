@@ -9,11 +9,47 @@
  * @see http://core.svn.wordpress.org/branches/3.2/wp-admin/js/editor.dev.js
  */
 (function() {
+  // Load the plugin-specific language pack.
+  tinymce.PluginManager.requireLangPack('captionfilter');
+
   tinymce.create('tinymce.plugins.CaptionFilter', {
 
     init : function(ed, url) {
       var t = this;
       t.url = url;
+
+      // Register the command.
+      ed.addCommand('CaptionFilter', function() {
+        ed.windowManager.open({
+          file : Drupal.settings.basePath + 'index.php?q=caption_filter/tinymce',
+          width : 400 + parseInt(ed.getLang('captionfilter.delta_width', 0)),
+          height : 200 + parseInt(ed.getLang('captionfilter.delta_height', 0)),
+          inline : 1
+        }, {
+          plugin_url : url
+        });
+      });
+
+      // Register the button.
+      ed.addButton('captionfilter', {
+        title : 'captionfilter.desc',
+        cmd : 'CaptionFilter',
+        image : url + '/caption-filter.gif'
+      });
+
+      // Add a handler to activate/deactivate the button.
+      ed.onNodeChange.add(function(ed, command, node) {
+        var p = ed.dom.getParent(node, 'DIV');
+        var selection = ed.selection.getContent();
+
+        // Enable if an image is selected, or if inside an existing caption.
+        command.setDisabled('captionfilter',
+          !(node.nodeName === 'IMG' && selection) &&
+          !(p && ed.dom.hasClass(p, 'caption-inner'))
+        );
+        // Light up the button if inside an existing caption.
+        command.setActive('captionfilter', p && ed.dom.hasClass(p, 'caption-inner'));
+      });
 
       function _do_filter(ed, o) {
         o.content = Drupal.captionFilter.toHTML(o.content, 'tinymce');
@@ -30,10 +66,6 @@
 
       // Resize the caption wrapper when the image is soft-resized by the user.
       ed.onMouseUp.add(function(ed, e) {
-        // Webkit (Safari/Chrome) and Opera currently don't have resize handles.
-        if (tinymce.isWebKit || tinymce.isOpera)
-          return;
-
         var img = ed.selection.getNode();
         if (img.nodeName == 'IMG') {
           window.setTimeout(function(){
@@ -107,7 +139,7 @@
                 align = cmd.substr(7).toLowerCase();
                 wrapperClass = 'caption-' + align;
                 ed.dom.addClass(captionWrapper, wrapperClass);
-  
+
                 if (align == 'center')
                   ed.dom.addClass(captionWrapper, 'mceIEcenter');
                 else

@@ -136,6 +136,7 @@ http://www.whitehouse.gov/',
   // Exported field_instance: 'node-oa_event-field_oa_date'
   $field_instances['node-oa_event-field_oa_date'] = array(
     'bundle' => 'oa_event',
+    'comment_alter' => 0,
     'deleted' => 0,
     'description' => '',
     'display' => array(
@@ -186,7 +187,7 @@ http://www.whitehouse.gov/',
       'active' => 1,
       'module' => 'date',
       'settings' => array(
-        'display_all_day' => 0,
+        'display_all_day' => 1,
         'increment' => 15,
         'input_format' => 'M j Y - g:i:sa',
         'input_format_custom' => '',
@@ -420,6 +421,7 @@ http://www.whitehouse.gov/',
   // Exported field_instance: 'node-oa_event-og_group_ref'
   $field_instances['node-oa_event-og_group_ref'] = array(
     'bundle' => 'oa_event',
+    'comment_alter' => 0,
     'default_value' => NULL,
     'deleted' => 0,
     'description' => '',
@@ -459,6 +461,11 @@ http://www.whitehouse.gov/',
     'entity_type' => 'node',
     'field_name' => 'og_group_ref',
     'label' => 'Groups audience',
+    'options_limit' => 0,
+    'options_limit_empty_behaviour' => 0,
+    'options_limit_fields' => array(
+      'body' => 0,
+    ),
     'required' => 1,
     'settings' => array(
       'behaviors' => array(

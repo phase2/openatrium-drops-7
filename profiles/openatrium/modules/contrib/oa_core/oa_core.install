@@ -88,3 +88,17 @@ function oa_core_update_7210() {
 function oa_core_update_7211() {
   module_enable(array('htmlmail', 'oa_htmlmail'));
 }
+
+/**
+ * Enable oa_adminrole.
+ */
+function oa_core_update_7213() {
+  module_enable(array('oa_adminrole'));
+}
+
+/**
+ * Enable trash_flag, oa_archive.
+ */
+function oa_core_update_7214() {
+  module_enable(array('trash_flag', 'oa_archive'));
+}

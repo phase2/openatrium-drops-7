@@ -20,15 +20,6 @@ function oa_permissions_user_default_permissions() {
     'module' => 'media_internet',
   );
 
-  // Exported permission: 'administer panelizer node oa_group breadcrumbs'.
-  $permissions['administer panelizer node oa_group breadcrumbs'] = array(
-    'name' => 'administer panelizer node oa_group breadcrumbs',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'panelizer',
-  );
-
   // Exported permission: 'administer panelizer node oa_group content'.
   $permissions['administer panelizer node oa_group content'] = array(
     'name' => 'administer panelizer node oa_group content',
@@ -828,24 +819,6 @@ function oa_permissions_user_default_permissions() {
     'module' => 'save_draft',
   );
 
-  // Exported permission: 'trash any content'.
-  $permissions['trash any content'] = array(
-    'name' => 'trash any content',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'trash_flag',
-  );
-
-  // Exported permission: 'untrash any content'.
-  $permissions['untrash any content'] = array(
-    'name' => 'untrash any content',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'trash_flag',
-  );
-
   // Exported permission: 'use panels in place editing'.
   $permissions['use panels in place editing'] = array(
     'name' => 'use panels in place editing',
@@ -931,24 +904,6 @@ function oa_permissions_user_default_permissions() {
       'authenticated user' => 'authenticated user',
     ),
     'module' => 'file_entity',
-  );
-
-  // Exported permission: 'view trash bin'.
-  $permissions['view trash bin'] = array(
-    'name' => 'view trash bin',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'trash_flag',
-  );
-
-  // Exported permission: 'view trash content'.
-  $permissions['view trash content'] = array(
-    'name' => 'view trash content',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'trash_flag',
   );
 
   return $permissions;

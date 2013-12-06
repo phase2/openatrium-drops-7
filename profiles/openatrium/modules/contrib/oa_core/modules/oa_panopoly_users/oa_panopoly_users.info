@@ -2,9 +2,6 @@ name = Open Atrium Panopoly Users
 description = Overrides for Panopoly Users
 core = 7.x
 package = Open Atrium
-php = 5.2.4
-version = 7.x-2.0
-project = oa_panopoly_users
 dependencies[] = ctools
 dependencies[] = features
 dependencies[] = image
@@ -78,9 +75,9 @@ features_exclude[field_base][field_user_about] = field_user_about
 features_exclude[field_base][field_user_picture] = field_user_picture
 project path = sites/all/modules/contrib/oa_core/modules
 
-; Information added by  packaging script on 2013-11-18
-version = "7.x-2.08"
+; Information added by Drupal.org packaging script on 2013-12-06
+version = "7.x-2.12"
 core = "7.x"
 project = "oa_core"
-datestamp = "1384810705"
+datestamp = "1386337120"
 

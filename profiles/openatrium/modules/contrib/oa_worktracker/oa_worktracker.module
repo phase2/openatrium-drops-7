@@ -184,6 +184,72 @@ function oa_worktracker_strongarm_alter(&$data) {
 }
 
 /**
+ * Implement hook_panelizer_defaults_override_alter().
+ *
+ * @todo: Features Override should be able to handle this!
+ */
+function oa_worktracker_panelizer_defaults_override_alter(&$data) {
+  if (isset($data['user:user:default'])) {
+    $data['user:user:default']->display->content['oa_worktracker_user_tasks'] = (object) array(
+      'pid' => 'oa_worktracker_user_tasks',
+      'panel' => 'contentheader',
+      'type' => 'views_panes',
+      'subtype' => 'oa_worktracker-user_tasks',
+      'shown' => TRUE,
+      'access' => array(),
+      'configuration' => array(
+        'show_exposed_form' => 1,
+        'items_per_page' => 10,
+        'fields_override' => array(
+          'timestamp' => 0,
+          'title' => 1,
+          'realname_1' => 0,
+          'realname' => 0,
+          'title_1' => 1,
+          'field_oa_worktracker_priority' => 1,
+          'field_oa_worktracker_task_type' => 1,
+          'field_oa_worktracker_task_status' => 1,
+          'comment_count' => 1,
+          'last_updated' => 1,
+        ),
+        'exposed' => array(
+          'field_oa_worktracker_task_status_value' => array(),
+          'field_oa_worktracker_priority_value' => array(),
+          'field_oa_worktracker_task_type_value' => array(),
+          'widget_title' => 'Your Tasks',
+          'sort_by' => NULL,
+          'sort_order' => NULL,
+        ),
+        'override_title' => '',
+        'override_title_text' => '',
+        'view_mode' => 'teaser',
+        'widget_title' => 'Your Tasks',
+        'use_pager' => NULL,
+        'pager_id' => NULL,
+        'offset' => NULL,
+        'link_to_view' => NULL,
+        'more_link' => NULL,
+        'path' => NULL,
+        'view_settings' => 'fields',
+        'header_type' => 'none',
+        'context' => array(
+          0 => 'panelizer',
+        ),
+      ),
+      'cache' => array(),
+      'style' => array(
+        'settings' => NULL,
+      ),
+      'css' => array(),
+      'extras' => array(),
+      'position' => 3,
+      'locks' => array(),
+    );
+    $data['user:user:default']->display->panels['contentheader'][] = 'oa_worktracker_user_tasks';
+  }
+}
+
+/**
  * Form callback for the apps configuration form.
  */
 function oa_worktracker_apps_configure_form($form, &$form_state) {
@@ -284,9 +350,12 @@ function oa_worktracker_theme_comment_alter_diff(&$variables) {
   $node_type = $new_node->type;
 
   $rows = array();
-  foreach ($variables['changed_fields'] as $field_name => $field) {
+  foreach ($variables['changed_fields'] as $field_name => $values) {
+    // Support for Comment Alter 1.0-rc3 to ease the transition.
+    $values = !isset($values[0]) ? array($values) : $values;
+
     $row = array();
-    $row[] = $field['name'] . ':';
+    $row[] = empty($values[0]['name']) ? '' : ($values[0]['name'] . ':');
 
     $info = field_info_field($field_name);
     if ($info['type'] == 'file') {
@@ -301,9 +370,11 @@ function oa_worktracker_theme_comment_alter_diff(&$variables) {
       $row[] = _oa_worktracker_file_changes($added, 'add');
     }
     else {
-      $row[] = implode(', ', $field['old']);
-      $row[] = '&raquo;';
-      $row[] = implode(', ', $field['new']);
+      foreach ($values as $value) {
+        $row[] = implode(', ', $value['old']);
+        $row[] = '&raquo;';
+        $row[] = implode(', ', $value['new']);
+      }
     }
     $rows[] = $row;
   }

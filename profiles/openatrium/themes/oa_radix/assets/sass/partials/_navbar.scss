@@ -12,13 +12,15 @@ z-index: 1000;
   top: 0;
   .navbar-inner {
     border: 0;
+    padding: 0;
     .btn {
       margin: 0;
     }
   }
   .panel-panel {
-    padding: 0;
+    padding: 0 20px;
     margin: 0 0 0 -5px;
+    min-height: 0;
     .panel-pane {
       margin: 0 0 0 5px;
       padding: 5px 0;
@@ -31,7 +33,7 @@ z-index: 1000;
       padding: 5px $gridGutterWidth 0;
       background-color: #003853;
       .oa-menu-banner {
-        padding-bottom: 5px;
+        padding-bottom: 0;
       }
       .pane-content {
         ul.nav {

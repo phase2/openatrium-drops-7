@@ -104,13 +104,6 @@ function og_subgroups_views_api() {
 }
 
 /**
- * Implements hook_og_user_access_alter().
- */
-function og_subgroups_og_get_groups_by_user_alter(&$og_memberships, $account) {
-  $og_memberships = og_subgroups_children_load_multiple($og_memberships);
-}
-
-/**
  * Implements hook_node_grants().
  */
 function og_subgroups_node_grants($account, $op) {

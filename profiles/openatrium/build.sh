@@ -2,10 +2,21 @@
 # Script to build OpenAtrium 2.x
 # Make sure the correct number of args was passed from the command line
 if [ $# -eq 0 ]; then
-  echo "Usage $0 target_build_dir"
+  echo "Usage $0 [-d] target_build_dir"
   exit 1
 fi
-DRUSH_OPTS='--working-copy --no-gitinfofile --no-cache'
+DRUSH_OPTS='--no-cache'
+while getopts ":d" opt; do
+  case $opt in
+    d) # dev arguments
+      DRUSH_OPTS='--working-copy --no-gitinfofile --no-cache'
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      ;;
+  esac
+done
+shift $((OPTIND-1))
 MAKEFILE='build-openatrium.make'
 TARGET=$1
 # Make sure we have a target directory

@@ -23,6 +23,7 @@ body.overlay {
 }
 #header,
 .navbar-inner,
+.navbar-inner .panel-panel,
 .navbar-inverse .navbar-inner {
 background-color: @bottom;
 background-image: -moz-linear-gradient(top, @top, @bottom);
@@ -47,6 +48,9 @@ background-image: linear-gradient(to bottom, @bottom, @toolbarbtn);
 box-shadow: none;
 border-color: @toolbarborder;
 color: @toolbartext;
+}
+.oa-space-menu .navbar-inner {
+  background-image: none;
 }
 .navbar-inverse ul#oa_breadcrumb .btn.btn-inverse,
 .navbar-inner ul#oa_breadcrumb .btn,

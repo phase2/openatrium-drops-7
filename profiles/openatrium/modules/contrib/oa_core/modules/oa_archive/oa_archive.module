@@ -1,0 +1,18 @@
+<?php
+/**
+ * @file
+ * Code for the Open Atrium Archive feature.
+ */
+
+include_once 'oa_archive.features.inc';
+
+/**
+ * Implements hook_node_access().
+ *
+ * Deny delete access when trash flag is in use.
+ */
+function oa_archive_node_access($node, $op, $account) {
+  if (($op == 'delete') && variable_get('oa_archive_disable_delete', FALSE) &&  module_exists('trash_flag')) {
+    return NODE_ACCESS_DENY;
+  }
+}

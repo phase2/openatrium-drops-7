@@ -2,7 +2,7 @@
 require "compass_twitter_bootstrap";
 require "compass_radix";
 
-environment = :development
+environment = :production
 
 # Set this to the root of your project when deployed:
 http_path = "/"
@@ -15,6 +15,7 @@ javascripts_dir = "assets/javascripts"
 # You can select your preferred output style here (can be overridden via the command line):
 # output_style = :expanded or :nested or :compact or :compressed
 output_style = (environment == :development) ? :expanded : :expanded
+output_style = (environment == :production) ? :compressed : output_style
 
 # To enable relative paths to assets via compass helper functions. Uncomment:
 relative_assets = true

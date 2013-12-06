@@ -2545,6 +2545,23 @@ function drupal_get_bootstrap_phase() {
 }
 
 /**
+ * Returns whether a simpletest is running or peparing to run.
+ *
+ * @param $set
+ *   Set whether a test is running.
+ *
+ * @return
+ *   TRUE if test is running, false otherwise.
+ */
+function drupal_test_running($set = NULL) {
+  static $test_running = NULL;
+  if (isset($set)) {
+    $test_running = $set;
+  }
+  return isset($test_running) ? $test_running : (bool)drupal_valid_test_ua();
+}
+
+/**
  * Returns the test prefix if this is an internal request from SimpleTest.
  *
  * @return

@@ -56,7 +56,7 @@ projects[pathauto][patch][936222] = http://drupal.org/files/pathauto-persist-936
 projects[token][version] = 1.5
 projects[token][subdir] = contrib
 
-projects[entity][version] = 1.1
+projects[entity][version] = 1.2
 projects[entity][subdir] = contrib
 
 projects[libraries][version] = 2.1
@@ -67,7 +67,7 @@ projects[libraries][subdir] = contrib
 projects[date][version] = 2.6
 projects[date][subdir] = contrib
 
-projects[entityreference][version] = 1.0
+projects[entityreference][version] = 1.1
 projects[entityreference][subdir] = contrib
 
 projects[field_group][version] = 1.1
@@ -78,11 +78,13 @@ projects[link][subdir] = contrib
 
 ; Harness the Power of Features and Apps with Default Content
 
-projects[apps][version] = 1.0-beta7
 projects[apps][subdir] = contrib
-projects[apps][patch][1790902] = http://drupal.org/files/1790902-check-last-modified-existing.patch
+projects[apps][download][type] = git
+projects[apps][download][branch] = 7.x-1.x
+projects[apps][download][revision] = b9d82b7
+projects[apps][patch][1790902] = http://drupal.org/files/1790902.4-check-last-modified-existing.patch
 
-projects[features][version] = 2.0-rc1
+projects[features][version] = 2.0
 projects[features][subdir] = contrib
 
 projects[strongarm][version] = 2.0
@@ -90,11 +92,23 @@ projects[strongarm][subdir] = contrib
 
 projects[defaultconfig][version] = 1.0-alpha9
 projects[defaultconfig][subdir] = contrib
+projects[defaultconfig][patch][2042799] = http://drupal.org/files/default_config_delete_only_if_overriden.patch
+projects[defaultconfig][patch][2043307] = http://drupal.org/files/defaultconfig_include_features_file.patch
+projects[defaultconfig][patch][2008178] = http://drupal.org/files/defaultconfig-rebuild-filters-2008178-4_0.patch
+projects[defaultconfig][patch][1861054] = http://drupal.org/files/fix-defaultconfig_rebuild_all.patch
 
 projects[defaultcontent][version] = 1.0-alpha9
 projects[defaultcontent][subdir] = contrib
 projects[defaultcontent][patch][1754428] = http://drupal.org/files/1754428-allow-node-export-alter.patch
 projects[defaultcontent][patch][1757782] = http://drupal.org/files/1757782-cannot-import-menu-hierarchy-8.patch
+
+projects[migrate][version] = "2.5"
+projects[migrate][type] = "module"
+projects[migrate][subdir] = "contrib"
+
+projects[migrate_extras][version] = "2.5"
+projects[migrate_extras][type] = "module"
+projects[migrate_extras][subdir] = "contrib"
 
 ; Recommended Modules
 projects[devel][version] = 1.3

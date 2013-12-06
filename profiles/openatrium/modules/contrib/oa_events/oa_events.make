@@ -10,6 +10,7 @@ projects[fullcalendar][download][type] = git
 projects[fullcalendar][download][revision] = aee5cb9
 projects[fullcalendar][download][branch] = 7.x-2.x
 projects[fullcalendar][patch][2044391] = http://drupal.org/files/fullcalendar-legend-entityreference_taxonomy-2044391-1.patch
+projects[fullcalendar][patch][2148083] = http://drupal.org/files/issues/fullcalendar_december-2148083-1.patch
 
 projects[colors][type] = module
 projects[colors][subdir] = contrib

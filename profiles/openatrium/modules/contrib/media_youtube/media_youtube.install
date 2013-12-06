@@ -6,25 +6,6 @@
  */
 
 /**
- * Implement hook_install().
- */
-function media_youtube_install() {
-  return array();
-}
-
-/**
- * Implement hook_uninstall().
- */
-function media_youtube_uninstall() {
-  drupal_load('module', 'media_youtube');
-
-  foreach (media_youtube_variable_default() as $variable => $value) {
-    media_youtube_variable_del($variable);
-  }
-  return array(array('success' => TRUE, 'query' => "Deleted all variables in the Media: YouTube namespace."));
-}
-
-/**
  * Clear style and preset caches.
  */
 function media_youtube_update_7001() {
@@ -165,4 +146,13 @@ function media_youtube_update_7201() {
  */
 function media_youtube_update_7202() {
   // Code removed in response to http://drupal.org/node/1911970.
+}
+
+/**
+ * Remove obsolete variables.
+ */
+function media_youtube_update_7203() {
+  foreach (array('width', 'height', 'autohide', 'autoplay', 'color', 'enablejsapi', 'loop', 'modestbranding', 'nocookie', 'origin', 'protocol', 'protocol_specify', 'rel', 'showinfo', 'theme') as $setting) {
+    variable_del("media_youtube__{$setting}");
+  }
 }

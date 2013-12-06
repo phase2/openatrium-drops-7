@@ -42,3 +42,10 @@ function oa_events_schema() {
 function oa_events_update_7001() {
   drupal_install_schema('oa_events');
 }
+
+/**
+ * Enable fullcalendar_create.
+ */
+function oa_events_update_7002() {
+  module_enable(array('fullcalendar_create'));
+}

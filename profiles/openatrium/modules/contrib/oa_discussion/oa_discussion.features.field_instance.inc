@@ -498,7 +498,7 @@ function oa_discussion_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'oa_section_ref',
-    'label' => 'OpenAtrium Section',
+    'label' => 'Open Atrium Section',
     'options_limit' => 1,
     'options_limit_empty_behaviour' => 1,
     'options_limit_fields' => array(
@@ -641,7 +641,7 @@ function oa_discussion_field_default_field_instances() {
   t('Groups audience');
   t('Node');
   t('OG vocabulary');
-  t('OpenAtrium Section');
+  t('Open Atrium Section');
   t('Parent');
   t('Section');
   t('Space');

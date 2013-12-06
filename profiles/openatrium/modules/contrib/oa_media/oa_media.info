@@ -2,8 +2,6 @@ name = Open Atrium Media
 description = Media improvements for Open Atrium
 core = 7.x
 package = Open Atrium
-php = 5.2.4
-version = 7.x-2.0
 project = oa_media
 dependencies[] = colorbox
 dependencies[] = ctools
@@ -96,9 +94,9 @@ features[variable][] = colorbox_visibility
 features[variable][] = field_bundle_settings_file__document
 project path = sites/all/modules/contrib
 
-; Information added by  packaging script on 2013-11-18
-version = "7.x-2.01"
+; Information added by  packaging script on 2013-12-04
+version = "7.x-2.10"
 core = "7.x"
 project = "oa_media"
-datestamp = "1384788206"
+datestamp = "1386185306"
 

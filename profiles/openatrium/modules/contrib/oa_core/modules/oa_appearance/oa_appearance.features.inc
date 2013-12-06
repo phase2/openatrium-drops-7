@@ -21,6 +21,7 @@ function oa_appearance_image_default_styles() {
 
   // Exported image style: oa_banner.
   $styles['oa_banner'] = array(
+    'label' => 'oa_banner',
     'name' => 'oa_banner',
     'effects' => array(
       1 => array(

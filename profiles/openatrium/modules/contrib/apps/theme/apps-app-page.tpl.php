@@ -5,13 +5,14 @@
     
     <h2><?php print $version_title; ?></h2>
     <div class = 'app-version'><?php print $version ?></div>
-    
-    <div class="divider"></div>
-    
-    <!--Ratings-->
-    <h2><?php print $rating_title; ?></h2>
-    <h3><?php print $rating_caption; ?></h3>
-    <?php print drupal_render($rating); ?>
+
+    <!-- Print ratings if enabled -->
+    <?php if (isset($rating)): ?>
+      <div class="divider"></div>
+      <h2><?php print $rating_title; ?></h2>
+      <h3><?php print $rating_caption; ?></h3>
+      <?php print drupal_render($rating); ?>
+    <?php endif; ?>
   </div>
   <div class="app-main">
     <div id="app-top">

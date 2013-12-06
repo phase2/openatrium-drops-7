@@ -6,7 +6,7 @@
  */
 
 /**
- * Basic filter for OpenAtrium section access
+ * Basic filter for Open Atrium section access
  */
 class views_handler_field_oa_updated_post extends views_handler_field_numeric {
 

@@ -370,6 +370,11 @@ ul#media-browser-library-list {
   padding: 0 13px 1px;
 }
 
+#media-browser-tabset a.button {
+  height: 30px; /* 2px less than input, because borders are handled differently */
+  display: inline-block;
+}
+
 #media-browser-tabset .media-browser-tab, 
 #media-browser-tabset .ui-tabs-nav {
   border: none;

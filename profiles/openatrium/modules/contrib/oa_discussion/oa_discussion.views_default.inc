@@ -720,7 +720,7 @@ function oa_discussion_views_default_views() {
       'context_optional' => 1,
       'panel' => '0',
       'fixed' => '',
-      'label' => 'Content: OpenAtrium Section (oa_section_ref)',
+      'label' => 'Content: Open Atrium Section (oa_section_ref)',
     ),
   );
   $handler->display->display_options['inherit_panels_path'] = '1';

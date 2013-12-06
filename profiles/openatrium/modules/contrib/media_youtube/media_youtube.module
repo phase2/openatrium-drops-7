@@ -14,11 +14,16 @@
  * Assess if M:YT 3.x could be formatters added on to the OEmbed module.
  */
 
-// A registry of variable_get defaults.
-include_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'media_youtube') . '/includes/media_youtube.variables.inc';
+/**
+ * This is the rest point for the YouTube api.
+ *
+ * Avoid using the gdata api url when possible. Too many calls will result in
+ * throttling and 403 errors.
+ */
+define('MEDIA_YOUTUBE_REST_API', 'https://gdata.youtube.com/feeds/api/videos');
 
 // Hooks and callbacks for integrating with File Entity module for display.
-include_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'media_youtube') . '/includes/media_youtube.formatters.inc';
+require_once dirname(__FILE__) . '/includes/media_youtube.formatters.inc';
 
 /**
  * Implements hook_media_internet_providers().
@@ -53,7 +58,7 @@ function media_youtube_theme($existing, $type, $theme, $path) {
     'media_youtube_video' => array(
       'variables' => array('uri' => NULL, 'options' => array()),
       'file' => 'media_youtube.theme.inc',
-      'path' => $path . '/includes/themes',
+      'path' => $path . '/themes',
       'template' => 'media-youtube-video',
     ),
   );
@@ -63,8 +68,8 @@ function media_youtube_theme($existing, $type, $theme, $path) {
  * Implements hook_media_parse().
  *
  * @todo This hook should be deprecated. Refactor Media module to not call it
- *   any more, since media_internet should be able to automatically route to the
- *   appropriate handler.
+ * any more, since media_internet should be able to automatically route to the
+ * appropriate handler.
  */
 function media_youtube_media_parse($embed_code) {
   $handler = new MediaInternetYouTubeHandler($embed_code);
@@ -74,24 +79,10 @@ function media_youtube_media_parse($embed_code) {
 /**
  * Implements hook_file_mimetype_mapping_alter().
  *
- * Regster the video/youtube mimetype.
+ * Register the video/youtube mimetype.
  */
 function media_youtube_file_mimetype_mapping_alter(&$mapping) {
   $mapping['mimetypes'][] = 'video/youtube';
-}
-
-/**
- * Implements hook_ctools_plugin_api().
- */
-function media_youtube_ctools_plugin_api($owner, $api) {
-  static $api_versions = array(
-    'file_entity' => array(
-      'file_default_displays' => 1,
-    ),
-  );
-  if (isset($api_versions[$owner][$api])) {
-    return array('version' => $api_versions[$owner][$api]);
-  }
 }
 
 /**
@@ -212,7 +203,7 @@ function media_youtube_add($form, &$form_state = array()) {
     '#markup' => $prev . ' ' . $next,
   );
 
-  $form['sumitted-video'] = array(
+  $form['submitted-video'] = array(
     '#type' => 'hidden',
     '#default_value' => FALSE,
   );
@@ -248,7 +239,7 @@ function media_youtube_add_validate($form, &$form_state) {
   if ($form_state['values']['op'] == t('Apply')) {
     return;
   }
-  $uri = $form_state['values']['sumitted-video'];
+  $uri = $form_state['values']['submitted-video'];
   try {
     $file = file_uri_to_object($uri, TRUE);
   }
@@ -297,7 +288,7 @@ function media_youtube_add_validate($form, &$form_state) {
  * @TODO: Document this function.
  */
 function media_youtube_add_submit($form, &$form_state) {
-  $uri = $form_state['values']['sumitted-video'];
+  $uri = $form_state['values']['submitted-video'];
   try {
     // Save the remote file
     $file = file_uri_to_object($uri, TRUE);
@@ -337,7 +328,37 @@ function media_youtube_add_submit($form, &$form_state) {
  */
 function media_youtube_video_search($options = array()) {
   $options['v'] = 2;
-  return media_retrieve_xml(url(MEDIA_YOUTUBE_REST_API, array('query' => $options)));
+
+  $request = drupal_http_request(url(MEDIA_YOUTUBE_REST_API, array('query' => $options)));
+  if (!isset($request->error)) {
+    $entry = simplexml_load_string($request->data);
+  }
+  else {
+    throw new Exception("Error Processing Request. (Error: {$request->code}, {$request->error})");
+
+    //if request wasn't successful, create object for return to avoid errors
+    $entry = new SimpleXMLElement();
+  }
+
+  return media_youtube_unserialize_xml($entry);
+}
+
+/**
+ * Recursively converts a SimpleXMLElement object into an array.
+ *
+ * @param object $xml
+ *   The original XML object.
+ */
+function media_youtube_unserialize_xml($xml) {
+  if ($xml instanceof SimpleXMLElement) {
+    $xml = (array) $xml;
+  }
+  if (is_array($xml)) {
+    foreach ($xml as $key => $item) {
+      $xml[$key] = media_youtube_unserialize_xml($item);
+    }
+  }
+  return $xml;
 }
 
 /**

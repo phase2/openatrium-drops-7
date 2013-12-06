@@ -2,11 +2,10 @@ name = Open Atrium Layouts
 description = Contains the default panels pages and layouts
 core = 7.x
 package = Open Atrium
-version = 7.x-2.0
-project = oa_layouts
 dependencies[] = ctools
 dependencies[] = features
 dependencies[] = menu
+dependencies[] = oa_core
 dependencies[] = oa_sections
 dependencies[] = page_manager
 dependencies[] = panelizer
@@ -36,9 +35,9 @@ features[variable][] = panelizer_defaults_node_oa_section
 features[variable][] = panelizer_defaults_node_oa_space
 project path = profiles/openatrium/modules/contrib/oa_core/modules
 
-; Information added by  packaging script on 2013-11-18
-version = "7.x-2.08"
+; Information added by Drupal.org packaging script on 2013-12-06
+version = "7.x-2.12"
 core = "7.x"
 project = "oa_core"
-datestamp = "1384810705"
+datestamp = "1386337120"
 

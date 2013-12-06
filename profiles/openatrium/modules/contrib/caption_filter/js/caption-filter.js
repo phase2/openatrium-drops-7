@@ -8,7 +8,7 @@
 
 $(document).bind('insertIntoActiveEditor', function(event, options) {
   if (options['fields']['title'] && Drupal.settings.captionFilter.widgets[options['widgetType']]) {
-    options['content'] = '[caption]' + options['content'] + options['fields']['title'] + '[/caption]';
+    options['content'] = '[caption caption="' + options['fields']['title'].replace(/"/g, '\\"') + '"]' + options['content'] + '[/caption]';
   }
 });
 
@@ -22,11 +22,13 @@ Drupal.captionFilter.toHTML = function(co, editor) {
     c = c.replace(/\\&#39;|\\&#039;/g, '&#39;').replace(/\\&quot;/g, '&quot;');
     id = b.match(/id=['"]([^'"]+)/i);
     cls = b.match(/align=['"]([^'"]+)/i);
+    ct = b.match(/caption=['"]([^'"]+)/i);
     w = c.match(/width=['"]([0-9]+)/);
 
     id = ( id && id[1] ) ? id[1] : '';
     cls = ( cls && cls[1] ) ? 'caption-' + cls[1] : '';
-    w = ( w && w[1] ) ? w[1] : '';
+    ct = ( ct && ct[1] ) ? ct[1].replace(/\\\\"/,'"') : '';
+    w = ( w && w[1] ) ? parseInt(w[1])+'px' : 'auto';
 
     if (editor == 'tinymce')
       tempClass = (cls == 'caption-center') ? 'mceTemp mceIEcenter' : 'mceTemp';
@@ -35,17 +37,26 @@ Drupal.captionFilter.toHTML = function(co, editor) {
     else
       tempClass = '';
 
-    return '<div class="caption ' + cls + ' ' + tempClass + ' draggable"><div class="caption-inner" style="width: '+(parseInt(w))+'px">' + c + '</div></div>';
+    if (ct) {
+      return '<div class="caption ' + cls + ' ' + tempClass + ' draggable"><div class="caption-width-container" style="width: ' + w + '"><div class="caption-inner">' + c + '<p class="caption-text">' + ct + '</p></div></div></div>';
+    }
+    else {
+      return '<div class="caption ' + cls + ' ' + tempClass + ' draggable"><div class="caption-width-container" style="width: ' + w + '"><div class="caption-inner">' + c + '</div></div></div>';
+    }
   });
 };
 
 Drupal.captionFilter.toTag = function(co) {
-  return co.replace(/(<div class="caption [^"]*">)\s*<div[^>]+>(.+?)<\/div>\s*<\/div>\s*/gi, function(match, captionWrapper, contents) {
+  return co.replace(/(<div class="caption [^"]*">)\s*<div[^>]+>\s*<div[^>]+>(.+?)<\/div>\s*<\/div>\s*<\/div>\s*/gi, function(match, captionWrapper, contents) {
     var align;
     align = captionWrapper.match(/class=.*?caption-(left|center|right)/i);
     align = (align && align[1]) ? align[1] : '';
+    caption = contents.match(/\<p class=\"caption-text\"\>(.*)\<\/p\>/);
+    caption_html = (caption && caption[0]) ? caption[0] : '';
+    caption = (caption && caption[1]) ? caption[1].replace(/"/g, '\\"') : '';
+    contents = contents.replace(caption_html, '');
 
-    return '[caption' + (align ? (' align="' + align + '"') : '') + ']' + contents + '[/caption]';
+    return '[caption' + (caption ? (' caption="' + caption + '"') : '') + (align ? (' align="' + align + '"') : '') + ']' + contents + '[/caption]';
   });
 };
 

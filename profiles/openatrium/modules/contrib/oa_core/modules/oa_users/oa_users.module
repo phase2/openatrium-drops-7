@@ -123,25 +123,3 @@ function oa_users_picture($user = NULL, $image_style = 'oa_small_thumbnail', $ur
     }
   }
 }
-
-/**
- * Implements hook_features_export_alter().
- */
-function oa_users_features_export_alter(&$export, $module_name) {
-  // Trash flag should be recommanded, not a depedency.
-  if (!empty($export['dependencies']) && in_array('trash_flag', $export['dependencies'])) {
-    $export['features_exclude']['dependencies']['trash_flag'] = 'trash_flag';
-    unset($export['dependencies'][array_search('trash_flag', $export['dependencies'])]);
-  }
-}
-
-/**
- * Implements hook_node_access().
- *
- * Deny delete access when trash flag is in use.
- */
-function og_users_node_access($node, $op, $account) {
-  if ($op == 'delete' && module_exists('trash_flag')) {
-    return NODE_ACCESS_DENY;
-  }
-}

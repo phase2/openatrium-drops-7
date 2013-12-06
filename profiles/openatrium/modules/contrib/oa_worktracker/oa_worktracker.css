@@ -33,6 +33,14 @@
 }
 
 /**
+ * Don't make the diffchanges red and bold by default!
+ */
+.comment-alter-diff span.diffchange {
+  color: inherit;
+  font-weight: inherit;
+}
+
+/**
  * Our customizations for file diff.
  */
 .oa-worktracker-diff-add,
@@ -49,16 +57,20 @@
 /**
  * Space out the items on the Task list filter better.
  */
-.pane-oa-worktracker-task-list .views-exposed-form .views-exposed-widget {
+.pane-oa-worktracker-task-list .views-exposed-form .views-exposed-widget,
+.pane-oa-worktracker-user-tasks .views-exposed-form .views-exposed-widget {
   width: 30%;
 }
-.pane-oa-worktracker-task-list .views-exposed-form .views-exposed-widget .form-text {
+.pane-oa-worktracker-task-list .views-exposed-form .views-exposed-widget .form-text,
+.pane-oa-worktracker-user-tasks .views-exposed-form .views-exposed-widget .form-text {
   width: 95%;
 }
-.pane-oa-worktracker-task-list .views-exposed-form .views-exposed-widget.views-submit-button {
+.pane-oa-worktracker-task-list .views-exposed-form .views-exposed-widget.views-submit-button,
+.pane-oa-worktracker-user-tasks .views-exposed-form .views-exposed-widget.views-submit-button {
   width: 100%;
 }
-.pane-oa-worktracker-task-list .views-exposed-form .views-exposed-widget .form-submit {
+.pane-oa-worktracker-task-list .views-exposed-form .views-exposed-widget .form-submit,
+.pane-oa-worktracker-user-tasks .views-exposed-form .views-exposed-widget .form-submit {
   margin: 1em 0;
 }
 

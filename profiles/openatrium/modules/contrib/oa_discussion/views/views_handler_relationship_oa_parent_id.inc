@@ -6,7 +6,7 @@
  */
 
 /**
- * Relationship for OpenAtrium parent
+ * Relationship for Open Atrium parent
  */
 class views_handler_relationship_oa_parent_id extends views_handler_relationship {
 
