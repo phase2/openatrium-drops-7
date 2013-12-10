@@ -19,7 +19,25 @@ function oa_core_install_load_profile(&$install_state) {
     mkdir($private_path, 0775, TRUE);
   }
 
+  // ** Code from panopoly_core.profile.inc copied here **
+  //
+  // Cannot call this directly because of a Pantheon issue
+  // require_once(drupal_get_path('module', 'panopoly_core') . '/panopoly_core.profile.inc');
+  // panopoly_core_install_load_profile($install_state);
+
+  // Loading the install profile normally
+  install_load_profile($install_state);
+
   // Include any dependencies that we might have missed...
-  require_once(drupal_get_path('module', 'panopoly_core') . '/panopoly_core.profile.inc');
-  panopoly_core_install_load_profile($install_state);
+  $dependencies = $install_state['profile_info']['dependencies'];
+  foreach ($dependencies as $module) {
+    $module_info = drupal_parse_info_file(drupal_get_path('module', $module) . '/' . $module . '.info');
+    if (!empty($module_info['dependencies'])) {
+      foreach ($module_info['dependencies'] as $dependency) {
+        $parts = explode(' (', $dependency, 2);
+        $dependencies[] = array_shift($parts);
+      }
+    }
+  }
+  $install_state['profile_info']['dependencies'] = array_unique($dependencies);
 }
