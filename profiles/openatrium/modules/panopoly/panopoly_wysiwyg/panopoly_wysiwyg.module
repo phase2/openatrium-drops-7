@@ -99,8 +99,8 @@ function panopoly_wysiwyg_filter_process_format($element) {
   // Also format this all a bit different so that it looks right
   if (!variable_get('panopoly_wysiwyg_show_format_details', FALSE)) {
     $element['format']['#weight'] = 1;
-    $element['format']['#prefix'] = '<div class="format-toggle">';
-    $element['format']['#suffix'] = '</div><div class="clearfix"></div>';
+    $element['format']['#prefix'] = '<div class="clearfix"><div class="format-toggle">';
+    $element['format']['#suffix'] = '</div></div>';
     unset($element['format']['#type']);
     $element['format']['format']['#title'] = 'Editor: ';
     $element['format']['help']['#access'] = FALSE;

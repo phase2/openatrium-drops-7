@@ -77,7 +77,7 @@ function file_entity_file_insert($file) {
 }
 
 /**
- * Implement hook_file_update().
+ * Implements hook_file_update().
  */
 function file_entity_file_update($file) {
   // Ensure field data is saved since file_save() does not in Drupal 7.
@@ -123,10 +123,10 @@ function file_entity_file_update($file) {
 
     // Flush image style derivatives whenever an image is updated.
     image_path_flush($file->uri);
+  }
 
   // Clear any related field caches.
   file_entity_invalidate_field_caches($file);
-  }
 }
 
 /**
@@ -143,9 +143,9 @@ function file_entity_file_delete($file) {
   db_delete('file_metadata')->condition('fid', $file->fid)->execute();
 
   // Remove this file from the search index if needed.
-  // This code is implemented in file entity module rather than in search module,
-  // because file entity module is implementing search module's API, not the other
-  // way around.
+  // This code is implemented in file entity module rather than in search
+  // module because file entity is implementing search module's API, not the
+  // other way around.
   if (module_exists('search')) {
     search_reindex($file->fid, 'file');
   }
@@ -155,21 +155,13 @@ function file_entity_file_delete($file) {
  * Implements hook_file_mimetype_mapping_alter().
  */
 function file_entity_file_mimetype_mapping_alter(&$mapping) {
-  // Fix the mime type mapping for ogg.
-  // @todo Remove when http://drupal.org/node/1239376 is fixed in core (7.8).
-  $new_mappings['ogg'] = 'audio/ogg';
-
-  // Add support for m4v.
-  // @todo Remove when http://drupal.org/node/1290486 is fixed in core (7.9).
-  $new_mappings['m4v'] = 'video/x-m4v';
-
   // Add support for mka and mkv.
-  // @todo Remove when http://drupal.org/node/1293140 is fixed in core.
+  // @todo Remove when http://drupal.org/node/1443070 is fixed in core.
   $new_mappings['mka'] = 'audio/x-matroska';
   $new_mappings['mkv'] = 'video/x-matroska';
 
   // Add support for weba, webm, and webp.
-  // @todo Remove when http://drupal.org/node/1347624 is fixed in core.
+  // @todo Remove when http://drupal.org/node/1443070 is fixed in core.
   $new_mappings['weba'] = 'audio/webm';
   $new_mappings['webm'] = 'video/webm';
   $new_mappings['webp'] = 'image/webp';
@@ -190,8 +182,24 @@ function file_entity_file_mimetype_mapping_alter(&$mapping) {
  * Implements hook_file_load().
  */
 function file_entity_file_load($files) {
+  $alt = variable_get('file_entity_alt', '[file:field_file_image_alt_text]');
+  $title = variable_get('file_entity_title', '[file:field_file_image_title_text]');
+
+  $replace_options = array(
+    'clear' => TRUE,
+    'sanitize' => FALSE,
+  );
+
   foreach ($files as $file) {
     $file->metadata = array();
+
+    // Load alt and title text from fields.
+    if (!empty($alt)) {
+      $file->alt = token_replace($alt, array('file' => $file), $replace_options);
+    }
+    if (!empty($title)) {
+      $file->title = token_replace($title, array('file' => $file), $replace_options);
+    }
   }
 
   // Load and unserialize metadata.
@@ -244,12 +252,7 @@ function _file_entity_update_image_field_dimensions($file) {
   }
 
   // Find all image field enabled on the site.
-  $image_fields = array();
-  foreach (field_info_fields() as $field) {
-    if ($field['type'] == 'image') {
-      $image_fields[] = $field['field_name'];
-    }
-  }
+  $image_fields = _file_entity_get_fields_by_type('image');
 
   foreach ($image_fields as $image_field) {
     $query = new EntityFieldQuery();

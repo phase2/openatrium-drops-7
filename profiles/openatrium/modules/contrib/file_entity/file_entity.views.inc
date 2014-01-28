@@ -113,6 +113,9 @@ function file_entity_views_data() {
  * Implements hook_views_data_alter().
  */
 function file_entity_views_data_alter(&$data) {
+  // Add access tag for all queries against file_managed.
+  $data['file_managed']['table']['base']['access query tag'] = 'file_access';
+  // Override the filename field handler.
   $data['file_managed']['filename']['field']['handler'] = 'views_handler_field_file_filename';
 }
 

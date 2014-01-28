@@ -2,7 +2,6 @@ name = Panopoly Magic
 description = Weaves together the chaos magic.
 core = 7.x
 package = Panopoly
-php = 5.2.4
 project = panopoly_magic
 dependencies[] = ctools
 dependencies[] = fape
@@ -13,12 +12,11 @@ dependencies[] = views
 scripts[] = panopoly-magic.js
 stylesheets[all][] = css/panopoly-magic.css
 stylesheets[all][] = css/panopoly-modal.css
-features[features_api][] = api:1
+features[features_api][] = api:2
 
-
-; Information added by drush on 2013-12-06
-version = "7.x-1.0-rc5+0-dev"
+; Information added by Drupal.org packaging script on 2013-12-22
+version = "7.x-1.0"
 core = "7.x"
 project = "panopoly_magic"
-datestamp = "1386365937"
+datestamp = "1387715609"
 

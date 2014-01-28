@@ -15,14 +15,10 @@ define('OA_SESSION_SECTION', 'oa_section_id');
  */
 function oa_section_get_section_context() {
   $menu = menu_get_object();
-  if (!isset($menu->nid) || !session_id()) {
-    return 0;
-  }
-
-  $nid = $menu->nid;
-  $node = node_load($nid);
-  if (empty($node)) {
-    return 0;
+  if (!isset($menu->nid) || !($node = node_load($menu->nid))) {
+    // not a node page
+    // so only return SESSION if it's already set
+    return isset($_SESSION[OA_SESSION_SECTION]) ? $_SESSION[OA_SESSION_SECTION] : 0;
   }
 
   $set_session = 0;
@@ -76,8 +72,45 @@ function oa_section_context_form_node_form_alter(&$form, &$form_state, $form_id)
   elseif (!empty($_SESSION[OA_SESSION_SECTION])) {
     $section = $_SESSION[OA_SESSION_SECTION];
   }
-
   if (!empty($form[OA_SECTION_FIELD][LANGUAGE_NONE]['#options']) && empty($form[OA_SECTION_FIELD][LANGUAGE_NONE]['#default_value']) && !empty($section) && array_key_exists($section, $form[OA_SECTION_FIELD][LANGUAGE_NONE]['#options'])) {
     $form[OA_SECTION_FIELD][LANGUAGE_NONE]['#default_value'] = $section;
   }
 }
+
+/**
+ * Implements hook_entity_property_info().
+ *
+ * Add the current-section to the system token (i.e. like current-user).
+ */
+function oa_section_context_entity_property_info() {
+  $info = array();
+  // Add meta-data about the basic node properties.
+  $properties = &$info['site']['properties'];
+
+  $properties['oa_section_context'] = array(
+    'label' => t('Current OA section'),
+    'description' => t('The current Open Atrium Section from context, if exists.'),
+    'getter callback' => 'oa_section_context_get_properties',
+    'type' => 'node',
+  );
+
+  return $info;
+}
+
+/**
+ * Property getter callback.
+ *
+ * Get the current section from context.
+ *
+ * @code
+ *   $wrapper = entity_metadata_site_wrapper();
+ *   $group = $wrapper->oa_section_context->value();
+ * @endcode
+ */
+function oa_section_context_get_properties($data = FALSE, array $options, $name) {
+  if ($section_id = oa_section_get_section_context()) {
+    return entity_load_single('node', $section_id);
+  }
+}
+
+

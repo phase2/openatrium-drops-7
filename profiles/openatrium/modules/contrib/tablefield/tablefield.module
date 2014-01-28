@@ -626,7 +626,6 @@ function tablefield_field_widget_form(&$form, &$form_state, $field, $instance, $
       'callback' => 'tablefield_rebuild_form_ajax',
       'wrapper' => 'tablefield-' . $field['field_name'] . '-' . $delta . '-wrapper',
       'effect' => 'fade',
-      'event' => 'click'
     ),
   );
 

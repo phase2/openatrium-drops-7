@@ -2,7 +2,6 @@ name = Panopoly Images
 description = Provides scaling and cropping to images.
 core = 7.x
 package = Panopoly
-php = 5.2.4
 project = panopoly_images
 dependencies[] = ctools
 dependencies[] = features
@@ -10,7 +9,7 @@ dependencies[] = file_entity
 dependencies[] = image
 dependencies[] = media
 features[ctools][] = file_entity:file_default_displays:1
-features[features_api][] = api:1
+features[features_api][] = api:2
 features[file_display][] = image__default__file_field_file_default
 features[file_display][] = image__default__file_field_file_rendered
 features[file_display][] = image__default__file_field_file_table
@@ -45,9 +44,9 @@ features[image][] = panopoly_image_square
 features[image][] = panopoly_image_thumbnail
 features[image][] = panopoly_image_video
 
-; Information added by drupal.org packaging script on 2013-07-31
-version = "7.x-1.0-rc5"
+; Information added by Drupal.org packaging script on 2013-12-22
+version = "7.x-1.0"
 core = "7.x"
 project = "panopoly_images"
-datestamp = "1375305388"
+datestamp = "1387715310"
 

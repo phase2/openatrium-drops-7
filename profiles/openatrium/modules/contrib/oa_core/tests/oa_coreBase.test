@@ -48,6 +48,16 @@ abstract class oa_coreBaseWebTest extends SimpleTestCloneTestCase {
     return empty($space->group_access[LANGUAGE_NONE][0]['value']);
   }
 
+  protected function oaSetOGPermission($perm, $access = 1) {
+    $roles = array_flip(og_roles('node', 'oa_space'));
+    // Add create permission.
+    $permissions = array(
+      $perm => $access,
+    );
+    og_role_change_permissions($roles[OG_AUTHENTICATED_ROLE], $permissions);
+    drupal_static_reset('node_access');
+  }
+
   protected function assertOptionExists($id, $option, $message = '') {
     $elements = $this->xpath('//select[@id=:id]//option[@value=:option]', array(':id' => $id, ':option' => $option));
     return $this->assertTrue(!empty($elements[0]), $message ? $message : t('Option @option for field @id is selected.', array('@option' => $option, '@id' => $id)), t('Browser'));

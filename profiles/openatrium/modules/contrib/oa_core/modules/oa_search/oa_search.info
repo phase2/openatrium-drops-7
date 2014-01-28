@@ -9,9 +9,12 @@ dependencies[] = page_manager
 dependencies[] = panopoly_search
 dependencies[] = search_api
 dependencies[] = strongarm
+dependencies[] = views
+dependencies[] = views_content
 features[ctools][] = facetapi:facetapi_defaults:1
 features[ctools][] = page_manager:pages_default:1
 features[ctools][] = strongarm:strongarm:1
+features[ctools][] = views:views_default:3.0
 features[facetapi][] = search_api@database_node_index::created
 features[facetapi][] = search_api@database_node_index::type
 features[facetapi][] = search_api@database_node_index:block:oa_section_ref:title
@@ -19,6 +22,7 @@ features[facetapi][] = search_api@database_node_index:block:og_group_ref:title
 features[facetapi][] = search_api@node_index::created
 features[facetapi][] = search_api@node_index:block:oa_section_ref:title
 features[facetapi][] = search_api@node_index:block:og_group_ref:title
+features[facetapi][] = search_api@user_index:block:og_user_node
 features[features_api][] = api:2
 features[features_override_items][] = variable.search_active_modules
 features[features_overrides][] = variable.search_active_modules.value|file_entity
@@ -26,11 +30,15 @@ features[features_overrides][] = variable.search_active_modules.value|user
 features[page_manager_handlers][] = search_node_panel_context
 features[page_manager_handlers][] = search_node_panel_context_2
 features[page_manager_handlers][] = search_user_panel_context
+features[search_api_index][] = user_index
+features[variable][] = facetapi:block_cache:search_api@user_index
+features[views_view][] = oa_user_search
+features_exclude[dependencies][entity] = entity
 files[] = oa_search.facetapi.inc
 
-; Information added by Drupal.org packaging script on 2013-12-06
-version = "7.x-2.12"
+; Information added by Drupal.org packaging script on 2014-01-27
+version = "7.x-2.13"
 core = "7.x"
 project = "oa_core"
-datestamp = "1386337120"
+datestamp = "1390859944"
 

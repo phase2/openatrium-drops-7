@@ -24,9 +24,9 @@ features[bootstrap_tour][] = welcome_to_oa2_
 features[ctools][] = bootstrap_tour:bootstrap_tour_tour:1
 features[features_api][] = api:2
 
-; Information added by Drupal.org packaging script on 2013-12-06
-version = "7.x-2.12"
+; Information added by Drupal.org packaging script on 2014-01-27
+version = "7.x-2.13"
 core = "7.x"
 project = "oa_core"
-datestamp = "1386337120"
+datestamp = "1390859944"
 

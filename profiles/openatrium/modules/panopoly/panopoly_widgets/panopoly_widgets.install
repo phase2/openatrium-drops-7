@@ -82,6 +82,19 @@ function panopoly_widgets_field_schema($field) {
 }
 
 /**
+ * Implements hook_update_dependencies().
+ */
+function panopoly_widgets_update_dependencies() {
+  $deps = array();
+  $deps['panopoly_widgets'][7005] = array(
+    // I think that file_load() in our panopoly_widgets_update_7005() will
+    // attempt to use pathauto, which means it's a dependency.
+    'panopoly_core' => 7002,
+  );
+  return $deps;
+}
+
+/**
  * Implementation of hook_update_N().
  *
  * Adding the default files for images, spotlights, and files to the database
@@ -177,4 +190,13 @@ function panopoly_widgets_update_7005(&$sandbox) {
     // Deletes the variable
     variable_del($variable_name);
   }
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Revert the 'file_display' so YouTube works in WYSIWYG with newer Media.
+ */
+function panopoly_widgets_update_7006(&$sandbox) {
+  features_revert(array('panopoly_widgets' => array('file_display')));
 }

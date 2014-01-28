@@ -56,6 +56,14 @@ function panopoly_widgets_page_build(&$page) {
 
   // Add our custom javascript to the footer to override other things.
   drupal_add_js(drupal_get_path('module', 'panopoly_widgets') . '/panopoly-widgets.js', array('scope' => 'footer'));
+
+  // If jquery_update was used to update jQuery UI to version 1.9 or higher
+  // than we need to load a plugin to add the '.rotate' function to the tabs
+  // widget.
+  $jquery_ui = drupal_get_library('system', 'ui');
+  if (version_compare($jquery_ui['version'], '1.9', '>=')) {
+    drupal_add_js(drupal_get_path('module', 'panopoly_widgets') . '/jquery-ui-tabs-rotate.js', array('scope' => 'footer'));
+  }
 }
     
 /**
@@ -151,7 +159,7 @@ function panopoly_widgets_form_alter(&$form, &$form_state, $form_id) {
     $form['widget_settings']['#type'] = 'fieldset';
     $form['widget_settings']['#title'] = t('General Settings');
     $form['title']['#attributes']['placeholder'] = $form['title']['#title'];
-    unset($form['title']['#title']);
+    $form['title']['#title_display'] = 'invisible';
     $form['widget_settings']['title'] = $form['title'];
     unset($form['title']);
 

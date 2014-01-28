@@ -59,6 +59,6 @@ function panopoly_admin_general_panes_content_type_render($subtype, $conf, $pane
   // Create the Output
   ksort($plugin_data);
   $pane = new stdClass();
-  $pane->content .= theme('table', array('header' => $header, 'rows' => $plugin_data));
+  $pane->content = theme('table', array('header' => $header, 'rows' => $plugin_data));
   return $pane;
 }

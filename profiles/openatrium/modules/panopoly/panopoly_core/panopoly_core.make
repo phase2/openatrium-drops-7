@@ -8,6 +8,7 @@ core = 7.x
 projects[ctools][version] = 1.3
 projects[ctools][subdir] = contrib
 projects[ctools][patch][1925018] = http://drupal.org/files/ctools-1925018-61.patch
+projects[ctools][patch][2153811] = http://drupal.org/files/issues/ctools-views-pane-sort-by-2153811-2.patch
 
 projects[panels][version] = 3.x-dev
 projects[panels][subdir] = contrib
@@ -35,6 +36,7 @@ projects[fape][subdir] = contrib
 projects[fape][download][type] = git
 projects[fape][download][revision] = 1143ee2
 projects[fape][download][branch] = 7.x-1.x
+projects[fape][patch][1846156] = http://drupal.org/files/fape-1846156-5.patch
 
 ; Views Magic
 
@@ -56,7 +58,7 @@ projects[pathauto][patch][936222] = http://drupal.org/files/pathauto-persist-936
 projects[token][version] = 1.5
 projects[token][subdir] = contrib
 
-projects[entity][version] = 1.2
+projects[entity][version] = 1.3
 projects[entity][subdir] = contrib
 
 projects[libraries][version] = 2.1
@@ -70,14 +72,15 @@ projects[date][subdir] = contrib
 projects[entityreference][version] = 1.1
 projects[entityreference][subdir] = contrib
 
-projects[field_group][version] = 1.1
+projects[field_group][version] = 1.3
 projects[field_group][subdir] = contrib
 
-projects[link][version] = 1.1
+projects[link][version] = 1.2
 projects[link][subdir] = contrib
 
 ; Harness the Power of Features and Apps with Default Content
 
+projects[apps][version] = 1.x-dev
 projects[apps][subdir] = contrib
 projects[apps][download][type] = git
 projects[apps][download][branch] = 7.x-1.x

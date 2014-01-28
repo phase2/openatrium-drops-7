@@ -102,19 +102,19 @@ div.modal-content-preview-button {
  */
 #modal-content .form-item-offset,
 #modal-content .form-item-items-per-page,
-#modal-content .form-item-sort-order, 
-#modal-content .form-item-sort-by {
+#modal-content .form-item-exposed-sort-order, 
+#modal-content .form-item-exposed-sort-by {
   float: left;
   width: 175px;
 }
 
 #modal-content .form-item-offset,
-#modal-content .form-item-sort-order {
+#modal-content .form-item-exposed-sort-order {
   clear: none;
 }
 
-#modal-content .form-item-sort-order label,
-#modal-content .form-item-sort-by label {
+#modal-content .form-item-exposed-sort-order label,
+#modal-content .form-item-exposed-sort-by label {
   float: left;
   font-weight: normal;
   margin-right: 5px;

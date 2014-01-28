@@ -491,7 +491,7 @@ function panopoly_core_defaultconfig_strongarm() {
 function panopoly_core_defaultconfig_user_default_permissions() {
   $permissions = array();
 
-  // Exported permission: administer panels styles.
+  // Exported permission: 'administer panels styles'.
   $permissions['administer panels styles'] = array(
     'name' => 'administer panels styles',
     'roles' => array(
@@ -501,7 +501,7 @@ function panopoly_core_defaultconfig_user_default_permissions() {
     'module' => 'panels',
   );
 
-  // Exported permission: change layouts in place editing.
+  // Exported permission: 'change layouts in place editing'.
   $permissions['change layouts in place editing'] = array(
     'name' => 'change layouts in place editing',
     'roles' => array(
@@ -511,7 +511,7 @@ function panopoly_core_defaultconfig_user_default_permissions() {
     'module' => 'panels',
   );
 
-  // Exported permission: use page manager.
+  // Exported permission: 'use page manager'.
   $permissions['use page manager'] = array(
     'name' => 'use page manager',
     'roles' => array(
@@ -521,7 +521,7 @@ function panopoly_core_defaultconfig_user_default_permissions() {
     'module' => 'page_manager',
   );
 
-  // Exported permission: use panels in place editing.
+  // Exported permission: 'use panels in place editing'.
   $permissions['use panels in place editing'] = array(
     'name' => 'use panels in place editing',
     'roles' => array(
@@ -543,13 +543,13 @@ function panopoly_core_defaultconfig_user_default_roles() {
   // Exported role: administrator.
   $roles['administrator'] = array(
     'name' => 'administrator',
-    'weight' => '2',
+    'weight' => 2,
   );
 
   // Exported role: editor.
   $roles['editor'] = array(
     'name' => 'editor',
-    'weight' => '3',
+    'weight' => 3,
   );
 
   return $roles;

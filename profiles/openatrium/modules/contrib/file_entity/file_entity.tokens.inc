@@ -108,10 +108,12 @@ function file_entity_tokens($type, $tokens, array $data = array(), array $option
         case 'name':
           $replacements[$original] = $sanitize ? check_plain($file_type->label) : $file_type->label;
           break;
+
         case 'machine-name':
           // This is a machine name so does not ever need to be sanitized.
           $replacements[$original] = $file_type->type;
           break;
+
         case 'count':
           $query = db_select('file_managed');
           $query->condition('type', $file_type->type);
@@ -119,6 +121,7 @@ function file_entity_tokens($type, $tokens, array $data = array(), array $option
           $count = $query->countQuery()->execute()->fetchField();
           $replacements[$original] = (int) $count;
           break;
+
         case 'edit-url':
           $replacements[$original] = url('admin/structure/file-types/manage/' . $file_type->type . '/fields', $url_options);
           break;

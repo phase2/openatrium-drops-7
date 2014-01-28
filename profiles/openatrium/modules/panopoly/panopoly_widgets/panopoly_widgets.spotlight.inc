@@ -165,7 +165,7 @@ function panopoly_widgets_field_formatter_view($entity_type, $entity, $field, $i
 
   // Assemble the tabs content
   foreach ($items as $delta => $item_data) {
-    $element[$delta]['#markup'] = ($delta == 0) ? $header . theme('panopoly_spotlight_view', array('items' => $item_data, 'delta' => $delta, 'settings' => $settings)) : theme('panopoly_spotlight_view', array('items' => $item_data, 'delta' => $delta, 'settings' => $settings));
+    $element[$delta]['#markup'] = (($delta == 0) ? $header : '') . theme('panopoly_spotlight_view', array('items' => $item_data, 'delta' => $delta, 'settings' => $settings));
   }
   return $element;
 }
@@ -182,26 +182,26 @@ function panopoly_widgets_field_widget_form(&$form, &$form_state, $field, $insta
 
     // Define the element
     $element['title'] = array(
-      '#title' => 'Title',
+      '#title' => t('Title'),
       '#type' => 'textfield',
       '#default_value' => isset($items[$delta]['title']) ? $items[$delta]['title'] : NULL,
     );
 
     $element['link'] = array(
-      '#title' => 'Link',
+      '#title' => t('Link'),
       '#type' => 'textfield',
       '#default_value' => isset($items[$delta]['link']) ? $items[$delta]['link'] : NULL,
     );
 
     $element['fid'] = array(
-      '#title' => 'Image',
+      '#title' => t('Image'),
       '#type' => 'managed_file',
       '#upload_location' => file_field_widget_uri($field, $instance),
       '#default_value' => isset($items[$delta]['fid']) ? $items[$delta]['fid'] : NULL,
     );
 
     $element['description'] = array(
-      '#title' => 'Description',
+      '#title' => t('Description'),
       '#type' => 'textarea',
       '#rows' => '2',
       '#resizable' => FALSE,
@@ -210,6 +210,20 @@ function panopoly_widgets_field_widget_form(&$form, &$form_state, $field, $insta
   }
 
   return $element;
+}
+
+/**
+ * Implements hook_field_validate().
+ */
+function panopoly_widgets_field_validate($entity_type, $entity, $field, $instance, $langcode, $items, &$errors) {
+  foreach ($items as $delta => $item) {
+    if (!panopoly_widgets_field_is_empty($item, $field) && empty($item['fid'])) {
+      $errors[$field['field_name']][$langcode][$delta][] = array(
+        'error' => 'panopoly_widgets_spotlight_image_required',
+        'message' => t('!name field is required.', array('!name' => t('Image'))),
+      );
+    }
+  }
 }
 
 /**
@@ -237,7 +251,16 @@ function panopoly_widgets_field_presave($entity_type, $entity, $field, $instance
  * Implements hook_field_load().
  */
 function panopoly_widgets_field_load($entity_type, $entities, $field, $instances, $langcode, &$items, $age) {
+  $entity_items_copy = $items;
   image_field_load($entity_type, $entities, $field, $instances, $langcode, $items, $age);
+
+  // image_field_load() will overwrite 'title' with the image title. Here we
+  // return it to the item title.
+  foreach ($entity_items_copy as $entity_id => $items_copy) {
+    foreach ($items_copy as $delta => $item) {
+      $items[$entity_id][$delta]['title'] = $item['title'];
+    }
+  }
 }
 
 /**
@@ -300,6 +323,9 @@ function panopoly_widgets_field_prepare_view($entity_type, $entities, $field, $i
 function theme_panopoly_spotlight_view($variables) {
   $title = $variables['items']['title'];
   $description = $variables['items']['description'];
+  $link = $variables['items']['link'];
+  $settings = $variables['settings'];
+
   if (module_exists('uuid')) {
     $image_entity = entity_uuid_load('file', array($variables['items']['uuid']));
     $image = file_load(array_pop($image_entity)->fid);
@@ -307,17 +333,21 @@ function theme_panopoly_spotlight_view($variables) {
   else {
     $image = (object) $variables['items'];
   }
-  $link = $variables['items']['link'];
-  $settings = $variables['settings'];
 
   $output = '<div id="' . 'panopoly-spotlight-' . $variables['delta'] . '" class="' . 'panopoly-spotlight' . '">';
   $output .= theme('image_style', array('style_name' => $settings['image_style'], 'path' => $image->uri));
   $output .= '<div class="panopoly-spotlight-wrapper">';
-  $output .= '<h3 class="panopoly-spotlight-label">' . t('Spotlight') . '</h3>';
-  $output .= '<div class="panopoly-spotlight-info">';
-  $output .= '<h2>' . l($title, $link) . '</h2>';
-  $output .= '<p>' . $description . '</p>';
-  $output .= '</div>';
+  if (!empty($title) || !empty($link)) {
+    if (empty($title)) {
+      $title = t('Link');
+    }
+    $output .= '<h3 class="panopoly-spotlight-label">' . (empty($link) ? check_plain($title) : l($title, $link)) . '</h3>';
+  }
+  if (!empty($description)) {
+    $output .= '<div class="panopoly-spotlight-info">';
+    $output .= '<p>' . $description . '</p>';
+    $output .= '</div>';
+  }
   $output .= '</div>';
   $output .= '</div>';
 

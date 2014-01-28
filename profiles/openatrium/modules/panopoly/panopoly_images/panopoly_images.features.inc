@@ -7,8 +7,7 @@
 /**
  * Implements hook_ctools_plugin_api().
  */
-function panopoly_images_ctools_plugin_api() {
-  list($module, $api) = func_get_args();
+function panopoly_images_ctools_plugin_api($module = NULL, $api = NULL) {
   if ($module == "file_entity" && $api == "file_default_displays") {
     return array("version" => "1");
   }
@@ -57,6 +56,7 @@ function panopoly_images_image_default_styles() {
         'weight' => 3,
       ),
     ),
+    'label' => 'panopoly_image_featured',
   );
 
   // Exported image style: panopoly_image_full.
@@ -80,6 +80,7 @@ function panopoly_images_image_default_styles() {
         'weight' => 2,
       ),
     ),
+    'label' => 'panopoly_image_full',
   );
 
   // Exported image style: panopoly_image_half.
@@ -103,6 +104,7 @@ function panopoly_images_image_default_styles() {
         'weight' => 1,
       ),
     ),
+    'label' => 'panopoly_image_half',
   );
 
   // Exported image style: panopoly_image_quarter.
@@ -126,6 +128,7 @@ function panopoly_images_image_default_styles() {
         'weight' => 1,
       ),
     ),
+    'label' => 'panopoly_image_quarter',
   );
 
   // Exported image style: panopoly_image_spotlight.
@@ -148,6 +151,7 @@ function panopoly_images_image_default_styles() {
         'weight' => 2,
       ),
     ),
+    'label' => 'panopoly_image_spotlight',
   );
 
   // Exported image style: panopoly_image_square.
@@ -170,6 +174,7 @@ function panopoly_images_image_default_styles() {
         'weight' => 1,
       ),
     ),
+    'label' => 'panopoly_image_square',
   );
 
   // Exported image style: panopoly_image_thumbnail.
@@ -193,6 +198,7 @@ function panopoly_images_image_default_styles() {
         'weight' => 1,
       ),
     ),
+    'label' => 'panopoly_image_thumbnail',
   );
 
   // Exported image style: panopoly_image_video.
@@ -215,6 +221,7 @@ function panopoly_images_image_default_styles() {
         'weight' => 1,
       ),
     ),
+    'label' => 'panopoly_image_video',
   );
 
   return $styles;

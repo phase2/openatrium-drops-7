@@ -75,6 +75,17 @@ function panopoly_core_uninstall() {
 
 }
 
+/**
+ * Implements hook_update_dependencies().
+ */
+function panopoly_core_update_dependencies() {
+  $deps = array();
+  $deps['panopoly_core'][7002] = array(
+    'pathauto' => 7006,
+  );
+  return $deps;
+}
+
 /** 
  * Panopoly Beta 5 Update: Correctly Setting install_task to "done"
  */
@@ -83,10 +94,13 @@ function panopoly_core_update_7001(&$sandbox) {
 }
 
 /**
- * Ensure latest pathauto_update_7006() has run.
+ * Move pathauto state information from pathauto to pathauto_state.
  */
 function panopoly_core_update_7002() {
+  module_load_install('pathauto');
   if (function_exists('pathauto_update_7006')) {
+    // Call it here because it needs to be re-run if it was previously run
+    // with an older version of the patch from #936222.
     $res = pathauto_update_7006();
     if (db_table_exists('pathauto')) {
       db_query("INSERT INTO {pathauto_state} (entity_type, entity_id, pathauto) SELECT entity_type, entity_id, pathauto FROM {pathauto}");

@@ -477,20 +477,19 @@ function oa_search_default_page_manager_handlers() {
     $pane->pid = 'new-13';
     $pane->panel = 'contentmain';
     $pane->type = 'views_panes';
-    $pane->subtype = 'panopoly_database_search-search_database_results';
+    $pane->subtype = 'oa_user_search-search_user_results';
     $pane->shown = TRUE;
     $pane->access = array();
     $pane->configuration = array(
-      'items_per_page' => '10',
+      'items_per_page' => '20',
       'fields_override' => array(
-        'field_featured_image' => 1,
-        'title' => 1,
-        'body' => 1,
+        'uid' => 0,
+        'field_user_display_name' => 1,
+        'mail' => 1,
+        'field_user_picture' => 1,
       ),
       'exposed' => array(
         'widget_title' => '',
-        'use_pager' => 1,
-        'pager_id' => '0',
         'sort_by' => NULL,
         'sort_order' => NULL,
       ),
@@ -507,11 +506,12 @@ function oa_search_default_page_manager_handlers() {
       'link_to_view' => NULL,
       'more_link' => NULL,
       'path' => NULL,
-      'view_settings' => 'nodes',
+      'view_settings' => 'fields',
       'header_type' => 'none',
     );
     $pane->cache = array();
     $pane->style = array(
+      'style' => 'default',
       'settings' => NULL,
     );
     $pane->css = array();
@@ -548,8 +548,30 @@ function oa_search_default_page_manager_handlers() {
     $pane->locks = array();
     $display->content['new-14'] = $pane;
     $display->panels['header'][0] = 'new-14';
+    $pane = new stdClass();
+    $pane->pid = 'new-15';
+    $pane->panel = 'sidebar';
+    $pane->type = 'block';
+    $pane->subtype = 'facetapi-l0aef2Lyf50iLShW3gCJg8JWaun2956f';
+    $pane->shown = TRUE;
+    $pane->access = array();
+    $pane->configuration = array(
+      'override_title' => 1,
+      'override_title_text' => 'Spaces',
+    );
+    $pane->cache = array();
+    $pane->style = array(
+      'settings' => array(),
+      'style' => 'oa_styles_oa_pane',
+    );
+    $pane->css = array();
+    $pane->extras = array();
+    $pane->position = 0;
+    $pane->locks = array();
+    $display->content['new-15'] = $pane;
+    $display->panels['sidebar'][0] = 'new-15';
   $display->hide_title = PANELS_TITLE_FIXED;
-  $display->title_pane = 'new-13';
+  $display->title_pane = '0';
   $handler->conf['display'] = $display;
   $export['search_user_panel_context'] = $handler;
 

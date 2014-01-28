@@ -21,7 +21,7 @@ function panopoly_pages_defaultconfig_features() {
 function panopoly_pages_defaultconfig_user_default_permissions() {
   $permissions = array();
 
-  // Exported permission: create panopoly_page content.
+  // Exported permission: 'create panopoly_page content'.
   $permissions['create panopoly_page content'] = array(
     'name' => 'create panopoly_page content',
     'roles' => array(
@@ -31,7 +31,7 @@ function panopoly_pages_defaultconfig_user_default_permissions() {
     'module' => 'node',
   );
 
-  // Exported permission: delete any panopoly_page content.
+  // Exported permission: 'delete any panopoly_page content'.
   $permissions['delete any panopoly_page content'] = array(
     'name' => 'delete any panopoly_page content',
     'roles' => array(
@@ -41,7 +41,7 @@ function panopoly_pages_defaultconfig_user_default_permissions() {
     'module' => 'node',
   );
 
-  // Exported permission: delete own panopoly_page content.
+  // Exported permission: 'delete own panopoly_page content'.
   $permissions['delete own panopoly_page content'] = array(
     'name' => 'delete own panopoly_page content',
     'roles' => array(
@@ -51,7 +51,7 @@ function panopoly_pages_defaultconfig_user_default_permissions() {
     'module' => 'node',
   );
 
-  // Exported permission: edit any panopoly_page content.
+  // Exported permission: 'edit any panopoly_page content'.
   $permissions['edit any panopoly_page content'] = array(
     'name' => 'edit any panopoly_page content',
     'roles' => array(
@@ -61,7 +61,7 @@ function panopoly_pages_defaultconfig_user_default_permissions() {
     'module' => 'node',
   );
 
-  // Exported permission: edit own panopoly_page content.
+  // Exported permission: 'edit own panopoly_page content'.
   $permissions['edit own panopoly_page content'] = array(
     'name' => 'edit own panopoly_page content',
     'roles' => array(

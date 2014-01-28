@@ -303,6 +303,58 @@ function oa_core_file_entity_access($op, $file, $account) {
   return FILE_ENTITY_ACCESS_IGNORE;
 }
 
+/**
+ * Implements hook_query_media_browser_alter().
+ * Add private file access support to media browser
+ */
+function oa_core_query_media_browser_alter(QueryAlterableInterface $query) {
+
+  if (!user_access('administer nodes') && module_implements('node_grants')) {
+    // first, remove the existing condition from media.media.inc that prevents private files
+    $where =& $query->conditions();
+    foreach ($where as $delta => $condition) {
+      if (($condition['value'] == 'private://%') && ($condition['operator'] == 'NOT LIKE')) {
+        unset($where[$delta]);
+        break;
+      }
+    }
+
+    // next, add a proper node_access query restriction
+    $or = db_or();
+    // Ensure that the query is against the file_managed table.
+    $tables = $query->getTables();
+    if (empty($tables['file_managed'])) {
+      throw new Exception(t('Media browser being queried without the file_managed table.'));
+    }
+    $alias = $tables['file_managed']['alias'];
+
+    // get down to which node has the attachment
+    $query->addJoin('LEFT', 'field_data_field_oa_media', 'media_field', "media_field.field_oa_media_fid = $alias.fid AND media_field.entity_type = 'node'");
+    $query->addJoin('LEFT', 'node', 'node', "node.nid = media_field.entity_id");
+    $query->addJoin('LEFT', 'node_access', 'node_access', "node.nid = node_access.nid");
+
+    // this is from views_handler_filter_node_access.inc
+    // cannot just use the addTag('node access') because base table of query is not node
+    $table = 'node_access';
+    $grants = db_or();
+    foreach (node_access_grants('view') as $realm => $gids) {
+      foreach ($gids as $gid) {
+        $grants->condition(db_and()
+          ->condition($table . '.gid', $gid)
+          ->condition($table . '.realm', $realm)
+        );
+      }
+    }
+    $or->condition(db_and()
+      ->condition($grants)
+      ->condition($table . '.grant_view', 1, '>=')
+    );
+
+    // finally, put back the "private" condition as an OR state for public files
+    $or->condition($alias . '.uri', db_like('private://') . '%', 'NOT LIKE');
+    $query->condition($or);
+  }
+}
 
 /**
  * Implements hook_og_membership_insert().

@@ -44,7 +44,7 @@ function oa_buttons_add_section_content_render($subtype, $conf, $args, $context)
       );
       $block = new stdClass();
       $block->title = t('Create Content');
-      $block->content = command_buttons_render_buttons($buttons, $classes);
+      $block->content = command_buttons_render_buttons($buttons, $classes, $node_types);
     }
   }
   return $block;

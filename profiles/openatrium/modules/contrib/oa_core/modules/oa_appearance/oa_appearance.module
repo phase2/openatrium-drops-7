@@ -25,7 +25,7 @@ define('OA_SPACE_BANNER_SPACE_MENU', 4);
  * Set the colorizer instance to a space-specific value
  */
 function oa_appearance_colorizer_instance_alter(&$instance) {
-  $space_id = oa_core_get_space_context();
+  $space_id = oa_core_get_space_home_context();
   $instance = $instance . '_' . $space_id;
 }
 

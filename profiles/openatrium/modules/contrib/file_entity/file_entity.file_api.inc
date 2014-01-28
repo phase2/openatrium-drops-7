@@ -13,11 +13,11 @@ define('FILE_TYPE_NONE', 'undefined');
 /**
  * Returns information about file formatters from hook_file_formatter_info().
  *
- * @param $formatter_type
+ * @param string $formatter_type
  *   (optional) A file formatter type name. If ommitted, all file formatter
  *   will be returned.
  *
- * @return
+ * @return string|array
  *   Either a file formatter description, as provided by
  *   hook_file_formatter_info(), or an array of all existing file formatters,
  *   keyed by formatter type name.
@@ -40,7 +40,10 @@ function file_info_formatter_types($formatter_type = NULL) {
 }
 
 /**
- * Clears all cached configuration related to file types, formatters, and display settings.
+ * Clears caches that are related to file entity.
+ *
+ * Clears all cached configuration related to file types, formatters, and
+ * display settings.
  */
 function file_info_cache_clear() {
   // Clear the CTools managed caches.
@@ -51,24 +54,24 @@ function file_info_cache_clear() {
   // Clear the formatter type cache, managed by file_info_formatter_types().
   drupal_static_reset('file_info_formatter_types');
 
-  // Clear file type caches
+  // Clear file type caches.
   drupal_static_reset('file_type_get_names');
 }
 
 /**
  * Construct a drupal_render() style array from an array of loaded files.
  *
- * @param $files
+ * @param array $files
  *   An array of files as returned by file_load_multiple().
- * @param $view_mode
+ * @param string $view_mode
  *   View mode.
- * @param $weight
+ * @param int $weight
  *   An integer representing the weight of the first file in the list.
- * @param $langcode
+ * @param string $langcode
  *   A string indicating the language field values are to be shown in. If no
  *   language is provided the current content language is used.
  *
- * @return
+ * @return array
  *   An array in the format expected by drupal_render().
  */
 function file_view_multiple($files, $view_mode = 'full', $weight = 0, $langcode = NULL) {
@@ -81,11 +84,11 @@ function file_view_multiple($files, $view_mode = 'full', $weight = 0, $langcode 
 
   $build = array();
   foreach ($files as $file) {
-    $build[$file->fid] = file_view($file, $view_mode, $langcode);
-    $build[$file->fid]['#weight'] = $weight;
+    $build['files'][$file->fid] = file_view($file, $view_mode, $langcode);
+    $build['files'][$file->fid]['#weight'] = $weight;
     $weight++;
   }
-  $build['#sorted'] = TRUE;
+  $build['files']['#sorted'] = TRUE;
 
   return $build;
 }
@@ -93,15 +96,15 @@ function file_view_multiple($files, $view_mode = 'full', $weight = 0, $langcode 
 /**
  * Generate an array for rendering the given file.
  *
- * @param $file
+ * @param object $file
  *   A file object.
- * @param $view_mode
+ * @param string $view_mode
  *   View mode.
- * @param $langcode
+ * @param string $langcode
  *   (optional) A language code to use for rendering. Defaults to the global
  *   content language of the current request.
  *
- * @return
+ * @return array
  *   An array as expected by drupal_render().
  */
 function file_view($file, $view_mode = 'full', $langcode = NULL) {
@@ -141,11 +144,11 @@ function file_view($file, $view_mode = 'full', $langcode = NULL) {
 /**
  * Builds a structured array representing the file's content.
  *
- * @param $file
+ * @param object $file
  *   A file object.
- * @param $view_mode
+ * @param string $view_mode
  *   View mode, e.g. 'default', 'full', etc.
- * @param $langcode
+ * @param string $langcode
  *   (optional) A language code to use for rendering. Defaults to the global
  *   content language of the current request.
  */
@@ -199,17 +202,17 @@ function file_build_content($file, $view_mode = 'full', $langcode = NULL) {
 /**
  * Generate an array for rendering just the file portion of a file entity.
  *
- * @param $file
+ * @param object $file
  *   A file object.
- * @param $displays
+ * @param string|array $displays
  *   Can be either:
  *   - the name of a view mode;
  *   - or an array of custom display settings, as returned by file_displays().
- * @param $langcode
+ * @param string $langcode
  *   (optional) A language code to use for rendering. Defaults to the global
  *   content language of the current request.
  *
- * @return
+ * @return array
  *   An array as expected by drupal_render().
  */
 function file_view_file($file, $displays = 'full', $langcode = NULL) {
@@ -235,11 +238,13 @@ function file_view_file($file, $displays = 'full', $langcode = NULL) {
     if (!empty($display['status'])) {
       $formatter_info = file_info_formatter_types($formatter_type);
       // Under normal circumstances, the UI prevents enabling formatters for
-      // incompatible file types. In case this was somehow circumvented (for
+      // incompatible MIME types. In case this was somehow circumvented (for
       // example, a module updated its formatter definition without updating
       // existing display settings), perform an extra check here.
-      if (isset($formatter_info['file types']) && !in_array($file->type, $formatter_info['file types'])) {
-        continue;
+      if (isset($formatter_info['mime types'])) {
+        if (!file_entity_match_mimetypes($formatter_info['mime types'], $file->filemime)) {
+          continue;
+        }
       }
       if (isset($formatter_info['view callback']) && ($function = $formatter_info['view callback']) && function_exists($function)) {
         $display['type'] = $formatter_type;
@@ -282,7 +287,7 @@ function file_view_file($file, $displays = 'full', $langcode = NULL) {
  */
 
 /**
- * Returns an array of possible displays to use for a file type in a given view mode.
+ * Returns an array of displays to use for a file type in a given view mode.
  *
  * It is common for a site to be configured with broadly defined file types
  * (e.g., 'video'), and to have different files of this type require different
@@ -296,12 +301,12 @@ function file_view_file($file, $displays = 'full', $langcode = NULL) {
  * is capable of displaying the file), or return nothing (if it is incapable of
  * displaying the file). The first render array returned is the one used.
  *
- * @param $file_type
+ * @param string $file_type
  *   The type of file.
- * @param $view_mode
+ * @param string $view_mode
  *   The view mode.
  *
- * @return
+ * @return array
  *   An array keyed by the formatter type name. Each item in the array contains
  *   the following key/value pairs:
  *   - status: Whether this display is enabled. If not TRUE, file_view_file()
@@ -433,7 +438,7 @@ function file_type_load_multiple(array $names) {
  *
  * This includes all enabled and disabled file types.
  *
- * @param boolean $reset
+ * @param bool $reset
  *   If TRUE, the static cache of all file types will be flushed prior to
  *   loading. This can be important on listing pages where file types might
  *   have changed on the page load.
@@ -557,7 +562,7 @@ function file_type_save($type) {
  * This function can be called on its own, or via the CTools exportables
  * 'delete callback' for {file_type} objects.
  *
- * @param $type
+ * @param object|string $type
  *   Either a loaded file type object or the machine-name of the type.
  */
 function file_type_delete($type) {
@@ -609,10 +614,10 @@ function file_type_disable($type) {
 /**
  * Determines file type for a given file.
  *
- * @param $file
+ * @param object $file
  *   File object.
  *
- * @return
+ * @return string
  *   Machine name of file type that should be used for given file.
  */
 function file_get_type($file) {
@@ -627,16 +632,19 @@ function file_get_type($file) {
  */
 
 /**
- * Helper function to sort an array by the value of each item's 'weight' key, while preserving relative order of items that have equal weight.
+ * Sorts an array by weight.
+ *
+ * Helper function to sort an array by the value of each item's 'weight' key,
+ * while preserving relative order of items that have equal weight.
  */
 function _file_sort_array_by_weight(&$a) {
-  $i=0;
+  $i = 0;
   foreach ($a as $key => $item) {
     if (!isset($a[$key]['weight'])) {
       $a[$key]['weight'] = 0;
     }
     $original_weight[$key] = $a[$key]['weight'];
-    $a[$key]['weight'] += $i/1000;
+    $a[$key]['weight'] += $i / 1000;
     $i++;
   }
   uasort($a, 'drupal_sort_weight');
@@ -664,17 +672,18 @@ function _file_entity_sort_weight_label($a, $b) {
 /**
  * Returns a file object which can be passed to file_save().
  *
- * @param $uri
+ * @param string $uri
  *   A string containing the URI, path, or filename.
- * @param $use_existing
+ * @param bool $use_existing
  *   (Optional) If TRUE and there's an existing file in the {file_managed}
  *   table with the passed in URI, then that file object is returned.
  *   Otherwise, a new file object is returned. Default is TRUE.
  *
- * @return
+ * @return object|bool
  *   A file object, or FALSE on error.
  *
- * @todo This should probably be named file_load_by_uri($uri, $create_if_not_exists).
+ * @todo This should probably be named
+ *   file_load_by_uri($uri, $create_if_not_exists).
  * @todo Remove this function when http://drupal.org/node/685818 is fixed.
  */
 function file_uri_to_object($uri, $use_existing = TRUE) {
@@ -718,13 +727,13 @@ function file_delete_multiple(array $fids) {
       foreach ($files as $fid => $file) {
         module_invoke_all('file_delete', $file);
         module_invoke_all('entity_delete', $file, 'file');
-        // Skip calling field_attach_delete as file_entity_file_delete() does this.
-        //field_attach_delete('file', $file);
-
+        // Skip calling field_attach_delete as file_entity_file_delete()
+        // does this.
+        // field_attach_delete('file', $file);
         // Remove this file from the search index if needed.
-        // This code is implemented in file_entity module rather than in search module,
-        // because node module is implementing search module's API, not the other
-        // way around.
+        // This code is implemented in file_entity module rather than in search
+        // module, because node module is implementing search module's API,
+        // not the other way around.
         if (module_exists('search')) {
           search_reindex($fid, 'file');
         }

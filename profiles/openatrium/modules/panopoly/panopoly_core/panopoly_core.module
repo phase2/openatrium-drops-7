@@ -230,3 +230,55 @@ function panopoly_core_view_mode_options() {
   }
   return $options;
 }
+
+/**
+ * Helpfer function to import demo content for apps using Migrate.
+ */
+function _panopoly_core_import_demo_content($classes = array()) {
+  // Ensure that migration classes are registered.
+  migrate_get_module_apis(TRUE);
+
+  // Process the migrations to import demo content.
+  foreach ($classes as $class) {
+    // Get a handle on our migration class.
+    $migration = Migration::getInstance($class);
+
+    // Disable message output from migrate ince this import is used within
+    // the context of the Apps module where these messages make no sense.
+    Migration::setDisplayFunction('_panopoly_core_null_message');
+
+    // Process the migration.
+    $migration->processImport();
+  }
+}
+
+/**
+ * Helpfer function to import demo content for apps using Migrate.
+ */
+function _panopoly_core_rollback_demo_content($classes = array()) {
+  // Roll back the migrations to delete the demo content.
+  foreach ($classes as $class) {
+    // Get a handle on our migration class.
+    $migration = Migration::getInstance($class);
+
+    // Disable message output from migrate ince this import is used within
+    // the context of the Apps module where these messages make no sense.
+    Migration::setDisplayFunction('_panopoly_core_null_message');
+
+    // Roll back the migration.
+    $migration->processRollback();
+  }
+
+  // deregister the Migration classes since it will not exist after the
+  // module is disabled.
+  foreach ($classes as $class) {
+    Migration::deregisterMigration($class);
+  }
+}
+
+/**
+ * Helpfer function to import demo content for apps using Migrate.
+ */
+function _panopoly_core_null_message($message, $level) {
+  return;
+}

@@ -35,6 +35,7 @@ function file_entity_pathauto($op) {
         $settings['patternitems'][$file_type] = t('Pattern for all @file_type paths.', array('@file_type' => $type->label));
       }
       return (object) $settings;
+
     default:
       break;
   }

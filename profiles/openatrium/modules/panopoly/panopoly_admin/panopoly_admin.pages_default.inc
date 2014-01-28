@@ -294,6 +294,14 @@ function panopoly_admin_default_page_manager_pages() {
         'context' => 'logged-in-user',
         'not' => FALSE,
       ),
+      2 => array(
+        'name' => 'perm',
+        'settings' => array(
+          'perm' => 'administer panels layouts',
+        ),
+        'context' => 'logged-in-user',
+        'not' => FALSE,
+      ),
     ),
     'logic' => 'and',
     'type' => 'none',
@@ -398,6 +406,14 @@ function panopoly_admin_default_page_manager_pages() {
         'name' => 'perm',
         'settings' => array(
           'perm' => 'access administration pages',
+        ),
+        'context' => 'logged-in-user',
+        'not' => FALSE,
+      ),
+      2 => array(
+        'name' => 'perm',
+        'settings' => array(
+          'perm' => 'use page manager',
         ),
         'context' => 'logged-in-user',
         'not' => FALSE,
@@ -524,6 +540,14 @@ function panopoly_admin_default_page_manager_pages() {
         'name' => 'perm',
         'settings' => array(
           'perm' => 'access administration pages',
+        ),
+        'context' => 'logged-in-user',
+        'not' => FALSE,
+      ),
+      2 => array(
+        'name' => 'perm',
+        'settings' => array(
+          'perm' => 'administer page manager',
         ),
         'context' => 'logged-in-user',
         'not' => FALSE,

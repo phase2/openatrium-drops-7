@@ -26,10 +26,12 @@ function panopoly_search_form_alter(&$form, &$form_state, $form_id) {
  */
 function panopoly_search_all_form_submit($form, &$form_state) {
   $keys = trim($form_state['values']['keys']);
-  $form_state['redirect'] = array('search/site/' . $keys);
+  $module = !empty($form_state['values']['module']) ? $form_state['values']['module'] : 'site';
+  $module = ($module === 'node') ? 'site' : $module;
+  $form_state['redirect'] = array('search/' . $module . '/' . $keys);
 }
 
-/** 
+/**
  * Implementation of hook_modules_enabled()
  */
 function panopoly_search_modules_enabled($modules) {

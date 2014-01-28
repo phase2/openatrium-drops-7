@@ -34,6 +34,7 @@ function oa_search_enable_pages() {
   // Add pages
   $pages = array(
     'search-node' => FALSE,
+    'search-user' => FALSE,
     'page-panopoly_search' => TRUE,
   );
   ctools_include('export');
@@ -78,3 +79,11 @@ function oa_search_rebuild_index() {
 function oa_search_update_7002() {
   oa_search_rebuild_index();
 }
+
+/**
+ * Enable user search page
+ */
+function oa_search_update_7003() {
+  oa_search_enable_pages();
+}
+

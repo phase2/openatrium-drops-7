@@ -38,7 +38,7 @@
   };
 
   function determineSearchPath(term, type, space) {
-    var path = 'search' + '/' + (type === 'users' ? 'user' : 'node') + '/' + term;
+    var path =  Drupal.settings.basePath +  'search' + '/' + (type === 'users' ? 'user' : 'node') + '/' + term;
     if (type === 'this_space') {
       // %3A instead of : because of some weird double encoding on the backend.
       path += '?f[0]=' + encodeURIComponent('og_group_ref%3Atitle:' + space);

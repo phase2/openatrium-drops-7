@@ -165,7 +165,7 @@ function panopoly_admin_form_alter(&$form, &$form_state, $form_id) {
   }
 
   // Move the featured field into publishing options
-  if (!empty($form['field_featured_status'])) {
+  if (!empty($form['field_featured_status']) && $form['options']['#access']) {
     $form['options']['field_featured_status'] = $form['field_featured_status'];
     $form['field_featured_status'] = array('#language' => $form['options']['field_featured_status']['#language']);
   }
@@ -192,8 +192,7 @@ function panopoly_admin_form_alter(&$form, &$form_state, $form_id) {
 
     // Adjust options for Date Popup Module
     if (module_exists('date_popup_authored')) {
-      unset($form['author']['date']['#description']);
-      unset($form['author']['date']['#title']);
+      $form['author']['date']['#title_display'] = 'invisible';
       $form['author']['date']['#size'] = 20;
     }
   }
@@ -206,7 +205,7 @@ function panopoly_admin_form_alter(&$form, &$form_state, $form_id) {
       )
     );
     $form['revision_information']['log']['#weight'] = 10;
-    unset($form['revision_information']['log']['#title']);
+    $form['revision_information']['log']['#title_display'] = 'invisible';
     $form['revision_information']['revision']['#weight'] = 9;
     $form['options']['revision'] = $form['revision_information']['revision'];
     $form['options']['log'] = $form['revision_information']['log'];

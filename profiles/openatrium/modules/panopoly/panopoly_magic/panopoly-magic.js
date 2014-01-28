@@ -28,25 +28,26 @@
   Drupal.behaviors.panopolyMagicAutosubmit = {
     attach: function (context, settings) {
       // Replaces click with mousedown for submit so both normal and ajax work.
-      $('.ctools-auto-submit-click', context).click(function(event) {
+      $('.ctools-auto-submit-click', context)
+      // Exclude the 'Style' type form because then you have to press the
+      // "Next" button multiple times.
+      // @todo: Should we include the places this works rather than excluding?
+      .filter(function () { return $(this).closest('form').attr('id').indexOf('panels-edit-style-type-form') !== 0; })
+      .click(function(event) {
         if ($(this).hasClass('ajax-processed')) {
           event.stopImmediatePropagation();
           $(this).trigger('mousedown');
           return false;
         }
       });
+
       // 'this' references the form element
       function triggerSubmit (e) {
-        var $this = $(this);
-        if (!$this.hasClass('ctools-ajaxing')) {
-          $this.addClass('ctools-ajaxing');
+        var $this = $(this), preview_widget = $('.widget-preview', context);
+        if (!preview_widget.hasClass('panopoly-magic-loading')) {
+          preview_widget.addClass('panopoly-magic-loading');
           $this.find('.ctools-auto-submit-click').click();
         }
-      }
-
-      function triggerDisable (e) {
-        var $this = $(this);
-        $this.find(':submit:not(.ctools-auto-submit-click)').val(Drupal.t('Updating...')).addClass('form-disabled').attr('disabled', 'disabled');
       }
 
       // e.keyCode: key
@@ -68,26 +69,26 @@
         27  // esc
       ];
 
-      // Disable save button and update label on auto submit. 
-      $(':submit.ctools-auto-submit-click', context)
-      .once('ctools-auto-submit')
-      .bind('click', function (e) {
-        triggerDisable.call(e.target.form);
-      });
-
       // Special handling for link field widgets. This ensures content which is ahah'd in still properly autosubmits.
       $('.field-widget-link-field input:text', context).addClass('panopoly-textfield-autosubmit').addClass('ctools-auto-submit-exclude');
 
-      // Handle title fields.
+      // Handle text fields and textareas.
       var timer;
-      $('.panopoly-textfield-autosubmit', context)
+      $('.panopoly-textfield-autosubmit, .panopoly-textarea-autosubmit', context)
       .once('ctools-auto-submit')
-      .bind('keyup keydown blur', function (e) {
+      .bind('keyup blur', function (e) {
         var $element;
         $element = $('.widget-preview .pane-title', context);
 
+        clearTimeout(timer);
+
+        // Filter out discarded keys.
+        if (e.type !== 'blur' && $.inArray(e.keyCode, discardKeyCode) > 0) {
+          return;
+        }
+
         // Special handling for title elements.
-        if (($element.length || !$.inArray(e.keycode, discardKeyCode)) && $(e.target).parent().hasClass('form-item-title')) {
+        if ($element.length && $(e.target).parent('.form-item-title,.form-item-widget-title').length) {
 
           // If all text was removed, remove the existing title markup from the dom.
           if (!$(e.target).val().length) {
@@ -104,13 +105,11 @@
         } 
         // Automatically submit the field on blur. This won't happen if title markup is already present.
         else if (e.type == 'blur') {
-          clearTimeout(timer);
           triggerSubmit.call(e.target.form)
         }
         // If all else fails, just trigger a timer to submit the form a second after the last activity.
         else {
-          clearTimeout(timer);
-          timer = setTimeout(function () { triggerSubmit.call(e.target.form); }, 1000)
+          timer = setTimeout(function () { triggerSubmit.call(e.target.form); }, 1000);
         }
       });
   
@@ -119,22 +118,6 @@
       .once('ctools-auto-submit')
       .blur(function (e) {
         triggerSubmit.call(e.target.form);
-      });
-
-      // Handle textarea fields.
-      $('.panopoly-textarea-autosubmit', context)
-      .once('ctools-auto-submit')
-      .bind('keyup keydown blur', function (e) {
-        // On blur just autosubmit the form.
-        if (e.type == 'blur') {
-          clearTimeout(timer);
-          triggerSubmit.call(e.target.form)
-        }
-        // Otherwise set a 1 second delay on anything that's a valid keypress.
-        else {
-          clearTimeout(timer);
-          timer = setTimeout(function () { triggerSubmit.call(e.target.form); }, 1000)
-        }
       });
 
       // Prevent ctools auto-submit from firing when changing text formats.

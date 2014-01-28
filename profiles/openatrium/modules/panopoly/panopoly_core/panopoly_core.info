@@ -2,7 +2,6 @@ name = Panopoly Core
 description = The magical core of the Panopoly framework.
 core = 7.x
 package = Panopoly
-php = 5.2.4
 project = panopoly_core
 dependencies[] = ctools
 dependencies[] = date
@@ -57,8 +56,9 @@ features[defaultconfig][] = user_default_permissions:use page manager
 features[defaultconfig][] = user_default_permissions:use panels in place editing
 features[defaultconfig][] = user_default_roles:administrator
 features[defaultconfig][] = user_default_roles:editor
-features[features_api][] = api:1
-features[field][] = taxonomy_term-panopoly_categories-field_featured_image
+features[features_api][] = api:2
+features[field_base][] = field_featured_image
+features[field_instance][] = taxonomy_term-panopoly_categories-field_featured_image
 features[panelizer_defaults][] = taxonomy_term:panopoly_categories:default
 features[panelizer_defaults][] = taxonomy_term:panopoly_categories:default:default
 features[panelizer_defaults][] = taxonomy_term:panopoly_categories:default:featured
@@ -72,9 +72,9 @@ features[variable][] = panelizer_taxonomy_term:panopoly_categories_allowed_types
 features[views_view][] = panopoly_taxonomy
 
 
-; Information added by drush on 2013-12-06
-version = "7.x-1.0-rc5+9-dev"
+; Information added by drush on 2014-01-28
+version = "7.x-1.0+3-dev"
 core = "7.x"
 project = "panopoly_core"
-datestamp = "1386365939"
+datestamp = "1390929299"
 

@@ -22,6 +22,18 @@ function panopoly_search_uninstall() {
 
 }
 
+/**
+ * Implements hook_update_dependencies().
+ */
+function panopoly_search_update_dependencies() {
+  $deps = array();
+  // We need search_api_solr_update_7102() to run before panpoly_core_update_7002().
+  $deps['panopoly_core'][7002] = array(
+    'search_api_solr' => 7102,
+  );
+  return $deps;
+}
+
 /** 
  * Panopoly Beta 4 Update: Enabling Search API DB Module
  */

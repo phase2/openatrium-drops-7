@@ -188,14 +188,17 @@ class OgSubspacesSelectionHandler extends EntityReference_SelectionHandler_Gener
       return array();
     }
 
-    if (!module_exists('entityreference_prepopulate') || empty($this->instance['settings']['behaviors']['prepopulate'])) {
-      return array();
+    // want to check for create access to public spaces
+    $ids = oa_core_get_public_spaces();
+
+    // add support for entityreference_prepopulate
+    if (module_exists('entityreference_prepopulate') && !empty($this->instance['settings']['behaviors']['prepopulate'])) {
+      $pre_ids = entityreference_prepopulate_get_values($this->field, $this->instance, FALSE);
+      if (is_array($pre_ids)) {
+        $ids = array_merge($ids, $pre_ids);
+      }
     }
 
-    // Don't try to validate the IDs.
-    if (!$ids = entityreference_prepopulate_get_values($this->field, $this->instance, FALSE)) {
-      return array();
-    }
     $node_type = $this->instance['bundle'];
     foreach ($ids as $delta => $id) {
       if (!is_numeric($id) || !$id || !og_user_access($this->field['settings']['target_type'], $id, "create $node_type content")) {

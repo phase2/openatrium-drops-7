@@ -52,7 +52,7 @@ function oa_update_admin_form() {
     '#markup' => '<p>' .
       t('Drupal Distributions contain a carefully selected set of module
       versions along with specific patches.  You should never update individual modules
-      within a distribution unless you are an experience developer.')
+      within a distribution unless you are an experienced developer.')
       . '</p><p>' .
       t('If you REALLY know what you are doing, you can find the links to the normal Drupal
         update pages in the collapsed section below.')

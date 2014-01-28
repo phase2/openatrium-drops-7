@@ -32,7 +32,7 @@ function oa_buttons_form_oa_space_node_form_alter(&$form, &$form_state, $form_id
 }
 
 /**
- * Provides override for node pages which impliment sections and spaces.
+ * Provides override for node pages which implement sections and spaces.
  */
 function oa_buttons_node_overrides(&$form, &$form_state, $form_id) {
   $node_type_options = oa_buttons_get_node_type_options();

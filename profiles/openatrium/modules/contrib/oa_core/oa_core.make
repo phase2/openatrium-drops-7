@@ -60,6 +60,7 @@ projects[media][subdir] = contrib
 projects[media][download][type] = git
 projects[media][download][revision] = 4a88319
 projects[media][download][branch] = 7.x-2.x
+projects[media][patch][2104193] = http://drupal.org/files/issues/media_remove_file_display_alter-2104193-17.patch
 
 ; Override panopoly_core.make: 72f3d17
 ; Update token to allow disabling of empty token errors during test runs
@@ -81,8 +82,12 @@ projects[defaultconfig][patch][2043307] = http://drupal.org/files/defaultconfig_
 projects[defaultconfig][patch][2008178] = http://drupal.org/files/defaultconfig-rebuild-filters-2008178-4_0.patch
 
 ; Entity API
-projects[entity][version] = 1.2
+; projects[entity][version] = 1.3
 projects[entity][subdir] = contrib
+projects[entity][download][type] = git
+projects[entity][download][branch] = 7.x-1.x
+projects[entity][download][revision] = dec9952
+projects[entity][patch][1782134] = http://drupal.org/files/entity-translatable_fields_not_overriding_und_with_empty_values-1782134-5.patch
 
 ; Features
 projects[features][version] = 2.0
@@ -144,7 +149,7 @@ projects[flag][patch][2027091] = http://drupal.org/files/flag_hook_flag_default_
 ; Trash Flag
 projects[trash_flag][type] = module
 projects[trash_flag][subdir] = contrib
-projects[trash_flag][version] = 1.0-beta1
+projects[trash_flag][version] = 1.0-beta2
 
 ; MimeMail
 projects[mimemail][type] = module
@@ -268,6 +273,13 @@ projects[mailsystem][version] = 2.34
 ; HTML Mail
 projects[htmlmail][subdir] = contrib
 projects[htmlmail][version] = 2.65
+
+; Date Facets
+projects[date_facets][subdir] = contrib
+projects[date_facets][download][type] = git
+projects[date_facets][download][url] = http://git.drupal.org/project/date_facets.git
+projects[date_facets][download][branch] = 7.x-1.x
+projects[date_facets][download][revision] = a7a35f8
 
 ; ##### Organic Groups related #####
 ; Organic Groups

@@ -23,7 +23,7 @@ function oa_widgets_content_visibility_render($subtype, $conf, $args, $context =
     return;
   }
   $block = new stdClass();
-  $block->title = 'Content Visibility';
+  $block->title = t('Content Visibility');
 
   $node = $context->data;
   $vars = oa_core_visibility_data($node);

@@ -46,6 +46,16 @@ function oa_search_theme() {
       'arguments' => array('view' => NULL, 'options' => NULL, 'row' => NULL),
       'path' => $path,
     ),
+    'views_view_fields__search_user_results' => array(
+      'template'  => 'views-view-fields--search-user-results',
+      'base hook' => 'views_view_fields',
+      'preprocess functions' => array(
+        'template_preprocess',
+        'template_preprocess_views_view_fields',
+      ),
+      'arguments' => array('view' => NULL, 'options' => NULL, 'row' => NULL),
+      'path' => $path,
+    ),
   );
 }
 
