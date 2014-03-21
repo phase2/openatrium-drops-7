@@ -33,7 +33,7 @@ function oa_home_default_render($subtype, $conf, $args, $context = NULL) {
   $block->title = '';
   $vars = array();
   if (!$user->uid) {
-    $login_block = block_load('user','login');
+    $login_block = block_load('user', 'login');
     $vars['login'] = _block_get_renderable_array(_block_render_blocks(array($login_block)));
   }
   else {

@@ -10,9 +10,9 @@ files[] = og_access.install
 ; Tests
 files[] = og_access.test
 
-; Information added by drush on 2013-12-06
+; Information added by drush on 2014-02-26
 version = "7.x-2.4+2-dev"
 core = "7.x"
 project = "og"
-datestamp = "1386365957"
+datestamp = "1393449070"
 

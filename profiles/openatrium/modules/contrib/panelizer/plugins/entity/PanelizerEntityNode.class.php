@@ -138,8 +138,14 @@ class PanelizerEntityNode extends PanelizerEntityDefault {
     if ($_GET['q'] == 'admin/structure/types' && !empty($page['content']['system_main']['node_table'])) {
       // shortcut
       $table = &$page['content']['system_main']['node_table'];
-      // Modify the header.
-      $table['#header'][1]['colspan'] = 5;
+
+      // Operations column should always be the last column in header. Increase
+      // its colspan by one to include possible panelizer link.
+      $operationsCol = end($table['#header']);
+      if (!empty($operationsCol['colspan'])) {
+        $operationsColKey = key($table['#header']);
+        $table['#header'][$operationsColKey]['colspan']++;
+      }
 
       // Since we can't tell what row a type is for, but we know that they
       // were generated in this order, go through the original types

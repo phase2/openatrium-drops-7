@@ -2,23 +2,22 @@ name = Panels Customerror
 description = Replaces access denied/page not found with panel pages
 core = 7.x
 package = Panels
-php = 5.2.4
 dependencies[] = ctools
 dependencies[] = page_manager
 dependencies[] = panels
 dependencies[] = strongarm
 features[ctools][] = page_manager:pages_default:1
 features[ctools][] = strongarm:strongarm:1
-features[features_api][] = api:1
-features[page_manager_pages][] = panels_customerror_404
+features[features_api][] = api:2
 features[page_manager_pages][] = panels_customerror_403
+features[page_manager_pages][] = panels_customerror_404
 features[variable][] = site_403
 features[variable][] = site_404
 project path = sites/all/modules/
 
-; Information added by drupal.org packaging script on 2013-08-29
-version = "7.x-1.0-beta1"
+; Information added by Drupal.org packaging script on 2014-02-19
+version = "7.x-1.0"
 core = "7.x"
 project = "panels_customerror"
-datestamp = "1377799917"
+datestamp = "1392840523"
 

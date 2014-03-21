@@ -4,9 +4,9 @@ core = 7.x
 
 files[] = simple_gmap.module
 
-; Information added by drupal.org packaging script on 2012-09-26
-version = "7.x-1.0"
+; Information added by Drupal.org packaging script on 2014-01-03
+version = "7.x-1.2"
 core = "7.x"
 project = "simple_gmap"
-datestamp = "1348681791"
+datestamp = "1388781572"
 

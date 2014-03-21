@@ -393,7 +393,10 @@ function panels_panel_context_export(&$handler, $indent) {
       unset($handler->conf[$item]);
     }
   }
-  $display->did = 'new';
+  $display = (object) array(
+    'did' => 'new',
+    'uuid' => ctools_uuid_generate(),
+  );
   $handler->conf['display'] = $display;
 }
 

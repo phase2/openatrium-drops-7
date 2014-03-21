@@ -20,6 +20,9 @@ ul.oa_toolbar {
 .drupal-navbar .navbar-icon-toggle-vertical {
   display: none;
 }
+.touch .drupal-navbar .navbar-tray-vertical.active {
+  bottom: 0 !important;
+}
 .navbar .oa-navigation .nav {
   display: inline-block;
   float: none;

@@ -106,7 +106,7 @@ function panelizer_form_alter(&$form, &$form_state, $form_id) {
     $handler->hook_form_alter($form, $form_state, $form_id);
 
     // Support default content and layout settings
-    foreach($handler->plugin['bundles'] as $bundle_name => $bundle) {
+    foreach ($handler->plugin['bundles'] as $bundle_name => $bundle) {
       if ($form_id == 'panels_common_settings' && $form_state['build_info']['args'][0] == 'panelizer_' . $handler->entity_type . ':' . $bundle_name) {
 
         // Provide settings for the default content and layout options
@@ -136,7 +136,7 @@ function panelizer_form_alter(&$form, &$form_state, $form_id) {
         if (variable_get($form_state['build_info']['args'][0] . '_allowed_types_default', FALSE)) {
           $content_types = ctools_content_get_all_types();
           $content_types['other'] = array('title' => t('Other'), 'weight' => 10);
-          foreach($content_types as $content_type => $content_type_value) {
+          foreach ($content_types as $content_type => $content_type_value) {
             if (!empty($form['content_types'][$content_type]['options'])) {
               $form['content_types'][$content_type]['options']['#disabled'] = TRUE;
             }
@@ -1266,24 +1266,18 @@ function panelizer_features_pipe_panelizer_defaults_alter(&$more, $data, $export
     $variables = array(
       'panelizer_defaults_' . $entity_type . '_' . $bundle,
       'panelizer_' . $entity_type . ':' . $bundle . '_allowed_layouts',
+      'panelizer_' . $entity_type . ':' . $bundle . '_allowed_layouts_default',
       'panelizer_' . $entity_type . ':' . $bundle . '_allowed_types',
-      'panelizer_' . $entity_type . ':' . $bundle . '_default'
+      'panelizer_' . $entity_type . ':' . $bundle . '_allowed_types_default',
+      'panelizer_' . $entity_type . ':' . $bundle . '_default',
     );
-
-    if (module_exists('strongarm')) {
-      foreach ($variables as $key => $variable) {
-        if (variable_get($variable) === NULL) {
-          unset($variables[$key]);
-        }
-      }
-    }
 
     foreach ($variables as $variable) {
       $more['variable'][$variable] = $variable;
     }
   }
 
-  return array();
+  return $more;
 }
 
 // -----------------------------------------------------------------------

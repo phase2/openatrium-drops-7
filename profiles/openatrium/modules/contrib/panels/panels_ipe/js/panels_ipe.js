@@ -269,7 +269,7 @@ function DrupalPanelsIPE(cache_key, cfg) {
     $('div.panels-ipe-on').hide();
 
     $('.panels-ipe-editing').removeClass('panels-ipe-editing');
-    $('div.panels-ipe-sort-container', ipe.topParent).sortable("destroy");
+    $('div.panels-ipe-sort-container.ui-sortable', ipe.topParent).sortable("destroy");
   };
 
   this.saveEditing = function() {
@@ -330,9 +330,6 @@ function DrupalPanelsIPE(cache_key, cfg) {
       $('div.panels-ipe-portlet-static', this).each(function() {
         $(this).prependTo($(this).parent().parent());
       });
-
-      // Also remove the last panel separator.
-      $('div.panel-separator', this).filter(':last').remove();
     });
   }
 

@@ -22,6 +22,7 @@ features[facetapi][] = search_api@database_node_index:block:og_group_ref:title
 features[facetapi][] = search_api@node_index::created
 features[facetapi][] = search_api@node_index:block:oa_section_ref:title
 features[facetapi][] = search_api@node_index:block:og_group_ref:title
+features[facetapi][] = search_api@solr_user_index:block:og_user_node
 features[facetapi][] = search_api@user_index:block:og_user_node
 features[features_api][] = api:2
 features[features_override_items][] = variable.search_active_modules
@@ -30,15 +31,19 @@ features[features_overrides][] = variable.search_active_modules.value|user
 features[page_manager_handlers][] = search_node_panel_context
 features[page_manager_handlers][] = search_node_panel_context_2
 features[page_manager_handlers][] = search_user_panel_context
+features[page_manager_handlers][] = search_user_panel_context_2
+features[search_api_index][] = solr_user_index
 features[search_api_index][] = user_index
+features[variable][] = facetapi:block_cache:search_api@solr_user_index
 features[variable][] = facetapi:block_cache:search_api@user_index
 features[views_view][] = oa_user_search
+features[views_view][] = oa_user_solr_search
 features_exclude[dependencies][entity] = entity
 files[] = oa_search.facetapi.inc
 
-; Information added by Drupal.org packaging script on 2014-01-27
-version = "7.x-2.13"
+; Information added by Drupal.org packaging script on 2014-02-26
+version = "7.x-2.15"
 core = "7.x"
 project = "oa_core"
-datestamp = "1390859944"
+datestamp = "1393428820"
 

@@ -335,7 +335,14 @@ function oa_worktracker_strongarm() {
           'weight' => '1',
         ),
       ),
-      'display' => array(),
+      'display' => array(
+        'oa_worktracker_submitted' => array(
+          'default' => array(
+            'weight' => '12',
+            'visible' => TRUE,
+          ),
+        ),
+      ),
     ),
   );
   $export['field_bundle_settings_node__oa_worktracker_task'] = $strongarm;

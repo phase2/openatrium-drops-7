@@ -269,14 +269,6 @@ function oa_worktracker_views_default_views() {
   $handler->display->display_options['fields']['last_updated']['date_format'] = 'time ago';
   $handler->display->display_options['defaults']['sorts'] = FALSE;
   $handler->display->display_options['defaults']['arguments'] = FALSE;
-  /* Contextual filter: Content: OpenAtrium Section (oa_section_ref) */
-  $handler->display->display_options['arguments']['oa_section_ref_target_id']['id'] = 'oa_section_ref_target_id';
-  $handler->display->display_options['arguments']['oa_section_ref_target_id']['table'] = 'field_data_oa_section_ref';
-  $handler->display->display_options['arguments']['oa_section_ref_target_id']['field'] = 'oa_section_ref_target_id';
-  $handler->display->display_options['arguments']['oa_section_ref_target_id']['default_argument_type'] = 'fixed';
-  $handler->display->display_options['arguments']['oa_section_ref_target_id']['summary']['number_of_records'] = '0';
-  $handler->display->display_options['arguments']['oa_section_ref_target_id']['summary']['format'] = 'default_summary';
-  $handler->display->display_options['arguments']['oa_section_ref_target_id']['summary_options']['items_per_page'] = '25';
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
   $handler->display->display_options['defaults']['filters'] = FALSE;
   /* Filter criterion: Content: Published */
@@ -294,6 +286,46 @@ function oa_worktracker_views_default_views() {
     'oa_worktracker_task' => 'oa_worktracker_task',
   );
   $handler->display->display_options['filters']['type']['group'] = 1;
+  /* Filter criterion: Content: Groups audience (og_group_ref) */
+  $handler->display->display_options['filters']['og_group_ref_target_id']['id'] = 'og_group_ref_target_id';
+  $handler->display->display_options['filters']['og_group_ref_target_id']['table'] = 'og_membership';
+  $handler->display->display_options['filters']['og_group_ref_target_id']['field'] = 'og_group_ref_target_id';
+  $handler->display->display_options['filters']['og_group_ref_target_id']['group'] = 1;
+  $handler->display->display_options['filters']['og_group_ref_target_id']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['operator_id'] = 'og_group_ref_target_id_op';
+  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['label'] = 'Space';
+  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['operator'] = 'og_group_ref_target_id_op';
+  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['identifier'] = 'og_group_ref_target_id';
+  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
+  $handler->display->display_options['filters']['og_group_ref_target_id']['group_info']['label'] = 'Groups audience (og_group_ref)';
+  $handler->display->display_options['filters']['og_group_ref_target_id']['group_info']['identifier'] = 'og_group_ref_target_id';
+  $handler->display->display_options['filters']['og_group_ref_target_id']['group_info']['remember'] = FALSE;
+  $handler->display->display_options['filters']['og_group_ref_target_id']['group_info']['group_items'] = array(
+    1 => array(),
+    2 => array(),
+    3 => array(),
+  );
+  /* Filter criterion: Content: Open Atrium Section (oa_section_ref) */
+  $handler->display->display_options['filters']['oa_section_ref_target_id']['id'] = 'oa_section_ref_target_id';
+  $handler->display->display_options['filters']['oa_section_ref_target_id']['table'] = 'field_data_oa_section_ref';
+  $handler->display->display_options['filters']['oa_section_ref_target_id']['field'] = 'oa_section_ref_target_id';
+  $handler->display->display_options['filters']['oa_section_ref_target_id']['group'] = 1;
+  $handler->display->display_options['filters']['oa_section_ref_target_id']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['oa_section_ref_target_id']['expose']['operator_id'] = 'oa_section_ref_target_id_op';
+  $handler->display->display_options['filters']['oa_section_ref_target_id']['expose']['label'] = 'Section';
+  $handler->display->display_options['filters']['oa_section_ref_target_id']['expose']['operator'] = 'oa_section_ref_target_id_op';
+  $handler->display->display_options['filters']['oa_section_ref_target_id']['expose']['identifier'] = 'oa_section_ref_target_id';
+  $handler->display->display_options['filters']['oa_section_ref_target_id']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
   /* Filter criterion: Search: Search Terms */
   $handler->display->display_options['filters']['keys']['id'] = 'keys';
   $handler->display->display_options['filters']['keys']['table'] = 'search_index';
@@ -362,6 +394,7 @@ function oa_worktracker_views_default_views() {
   $handler->display->display_options['filters']['field_oa_worktracker_task_status_value']['id'] = 'field_oa_worktracker_task_status_value';
   $handler->display->display_options['filters']['field_oa_worktracker_task_status_value']['table'] = 'field_data_field_oa_worktracker_task_status';
   $handler->display->display_options['filters']['field_oa_worktracker_task_status_value']['field'] = 'field_oa_worktracker_task_status_value';
+  $handler->display->display_options['filters']['field_oa_worktracker_task_status_value']['group'] = 1;
   $handler->display->display_options['filters']['field_oa_worktracker_task_status_value']['exposed'] = TRUE;
   $handler->display->display_options['filters']['field_oa_worktracker_task_status_value']['expose']['operator_id'] = 'field_oa_worktracker_task_status_value_op';
   $handler->display->display_options['filters']['field_oa_worktracker_task_status_value']['expose']['label'] = 'Status';
@@ -378,6 +411,7 @@ function oa_worktracker_views_default_views() {
   $handler->display->display_options['filters']['field_oa_worktracker_priority_value']['id'] = 'field_oa_worktracker_priority_value';
   $handler->display->display_options['filters']['field_oa_worktracker_priority_value']['table'] = 'field_data_field_oa_worktracker_priority';
   $handler->display->display_options['filters']['field_oa_worktracker_priority_value']['field'] = 'field_oa_worktracker_priority_value';
+  $handler->display->display_options['filters']['field_oa_worktracker_priority_value']['group'] = 1;
   $handler->display->display_options['filters']['field_oa_worktracker_priority_value']['exposed'] = TRUE;
   $handler->display->display_options['filters']['field_oa_worktracker_priority_value']['expose']['operator_id'] = 'field_oa_worktracker_priority_value_op';
   $handler->display->display_options['filters']['field_oa_worktracker_priority_value']['expose']['label'] = 'Priority';
@@ -394,6 +428,7 @@ function oa_worktracker_views_default_views() {
   $handler->display->display_options['filters']['field_oa_worktracker_task_type_value']['id'] = 'field_oa_worktracker_task_type_value';
   $handler->display->display_options['filters']['field_oa_worktracker_task_type_value']['table'] = 'field_data_field_oa_worktracker_task_type';
   $handler->display->display_options['filters']['field_oa_worktracker_task_type_value']['field'] = 'field_oa_worktracker_task_type_value';
+  $handler->display->display_options['filters']['field_oa_worktracker_task_type_value']['group'] = 1;
   $handler->display->display_options['filters']['field_oa_worktracker_task_type_value']['exposed'] = TRUE;
   $handler->display->display_options['filters']['field_oa_worktracker_task_type_value']['expose']['operator_id'] = 'field_oa_worktracker_task_type_value_op';
   $handler->display->display_options['filters']['field_oa_worktracker_task_type_value']['expose']['label'] = 'Type';
@@ -421,11 +456,13 @@ function oa_worktracker_views_default_views() {
   $handler->display->display_options['allow']['fields_override'] = 'fields_override';
   $handler->display->display_options['exposed_form_overrides'] = array(
     'filters' => array(
+      'og_group_ref_target_id' => '',
+      'oa_section_ref_target_id' => '',
       'keys' => 'pane_and_exposed',
       'realname_1' => 'pane_and_exposed',
       'realname' => 'pane_and_exposed',
-      'field_oa_worktracker_priority_value' => 'pane_and_exposed',
       'field_oa_worktracker_task_status_value' => 'pane_and_exposed',
+      'field_oa_worktracker_priority_value' => 'pane_and_exposed',
       'field_oa_worktracker_task_type_value' => 'pane_and_exposed',
     ),
   );

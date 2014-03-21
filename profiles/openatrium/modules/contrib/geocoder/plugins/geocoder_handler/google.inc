@@ -24,6 +24,12 @@ $plugin = array(
  */
 function geocoder_google($address, $options = array()) {
   try {
+    $delay_trigger = &drupal_static(__FUNCTION__);
+    $delay = variable_get('geocoder_google_delay', 0);
+    if ($delay > 0 && $delay_trigger) {
+      usleep($delay * 1000);
+    }
+
     geophp_load();
 
     $query = array(
@@ -33,6 +39,7 @@ function geocoder_google($address, $options = array()) {
 
     $url = url("http://maps.googleapis.com/maps/api/geocode/json", array('query' => $query));
     $result = drupal_http_request($url);
+    $delay_trigger = TRUE;
 
     if (isset($result->error)) {
       $args = array(

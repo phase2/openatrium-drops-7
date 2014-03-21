@@ -298,7 +298,7 @@ function oa_core_members_widget_add_group_form_submit($form, &$form_state) {
       'field_name' => OA_PARENT_SPACE));
     drupal_set_message(t('Group @group added to space.', array('@group' => $group->title)));
   }
-  $form_state['redirect'] = 'node/'. $space->nid . '/members/parents';
+  $form_state['redirect'] = 'node/' . $space->nid . '/members/parents';
 }
 
 

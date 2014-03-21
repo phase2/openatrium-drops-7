@@ -126,6 +126,15 @@ function comment_alter_form_comment_form_alter(&$form, &$form_state, $form_id) {
         // is set to last, it even gets displayed above comment subject.
         $form[$field_alias[$field_name]]['#weight'] = $field_infos[$field_alias[$field_name]]['weight'];
 
+        // Special hack for date fields. This wouldn't be necessary if we
+        // didn't rename the fields in order to allow the same field to be used
+        // twice on the the comment form.
+        if (!empty($form[$field_alias[$field_name]][$field_language][0]['#element_validate'][0]) && $form[$field_alias[$field_name]][$field_language][0]['#element_validate'][0] == 'date_combo_validate') {
+          foreach (element_children($form[$field_alias[$field_name]][$field_language]) as $date_item_index) {
+            $form[$field_alias[$field_name]][$field_language][$date_item_index]['#element_validate'][0] = '_comment_alter_date_combo_validate';
+          }
+        }
+
         // Remember that this field is alterable.
         $alterable_fields[$field_name] = $field_alias[$field_name];
         // Fetch the alterable columns from field items themselves. If the
@@ -230,6 +239,24 @@ function _comment_alter_validate_node_fields($form, &$form_state) {
   list ($new_form, $new_form_state) = _comment_alter_convert_form($form, $form_state);
   foreach ($form_state['values']['comment_alter']['fields'] as $field_name => $field_alias) {
     field_attach_form_validate('node', $form_state['node'], $new_form, $new_form_state, array('field_name' => $field_name));
+  }
+}
+
+/**
+ * Special element validate callback for date fields.
+ *
+ * This is a apecial hack for date fields. This wouldn't be necessary if we
+ * didn't rename the fields in order to allow the same field to be used twice
+ * on the the comment form.
+ */
+function _comment_alter_date_combo_validate($element, &$form_state) {
+  $field_name = $element['#field_name'];
+  $field_alias = 'comment_alter_' . $field_name;
+  $form = array($field_alias => array());
+  list ($new_form, $new_form_state) = _comment_alter_convert_form($form, $form_state);
+  date_combo_validate($element, $new_form_state);
+  if (!form_get_errors()) {
+    $form_state['values'][$field_alias] = $new_form_state['values'][$field_alias];
   }
 }
 

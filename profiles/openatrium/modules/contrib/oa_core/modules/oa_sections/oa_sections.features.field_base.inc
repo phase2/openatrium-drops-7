@@ -53,6 +53,40 @@ function oa_sections_field_default_field_bases() {
     'type' => 'entityreference',
   );
 
+  // Exported field_base: 'field_oa_section'
+  $field_bases['field_oa_section'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_oa_section',
+    'foreign keys' => array(
+      'tid' => array(
+        'columns' => array(
+          'tid' => 'tid',
+        ),
+        'table' => 'taxonomy_term_data',
+      ),
+    ),
+    'indexes' => array(
+      'tid' => array(
+        0 => 'tid',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'taxonomy',
+    'settings' => array(
+      'allowed_values' => array(
+        0 => array(
+          'vocabulary' => 'section_type',
+          'parent' => 0,
+        ),
+      ),
+    ),
+    'translatable' => 0,
+    'type' => 'taxonomy_term_reference',
+  );
+
   // Exported field_base: 'field_oa_section_weight'
   $field_bases['field_oa_section_weight'] = array(
     'active' => 1,
@@ -119,11 +153,11 @@ function oa_sections_field_default_field_bases() {
     'entity_types' => array(),
     'field_name' => 'field_oa_user_ref',
     'foreign keys' => array(
-      'node' => array(
+      'users' => array(
         'columns' => array(
-          'target_id' => 'nid',
+          'target_id' => 'uid',
         ),
-        'table' => 'node',
+        'table' => 'users',
       ),
     ),
     'indexes' => array(

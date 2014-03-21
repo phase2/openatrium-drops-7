@@ -38,6 +38,20 @@ abstract class FeedsPlugin extends FeedsConfigurable implements FeedsSourceInter
   abstract public function pluginType();
 
   /**
+   * Returns the plugin definition.
+   *
+   * @return array
+   *   The plugin definition array.
+   *
+   * @see ctools_get_plugins()
+   */
+  public function pluginDefinition() {
+    $importer = feeds_importer($this->id);
+    $plugin_key = $importer->config[$this->pluginType()]['plugin_key'];
+    return ctools_get_plugins('feeds', 'plugins', $plugin_key);
+  }
+
+  /**
    * Save changes to the configuration of this object.
    * Delegate saving to parent (= Feed) which will collect
    * information from this object by way of getConfig() and store it.

@@ -10,6 +10,9 @@
     padding-bottom: 15px;
   }
 }
+.row-fluid [class="span12"] {
+  min-height: 0;
+}
 .content .bryant-flipped-sidebar-inner,
 .content .burr-flipped-sidebar-inner {
   padding-top: 0;
@@ -54,7 +57,9 @@ div#panels-ipe-control-container {
 
 // OA pane
 // --------------------------------------------------
-.oa-pane {
+.oa-pane,
+body.page-node-edit #main .burr-flipped-sidebar-inner,
+body.page-node-add #main .burr-flipped-sidebar-inner {
   border: 1px solid #e3e3e3;
   border-bottom: 0;
   @include border-radius(4px);
@@ -82,6 +87,18 @@ div#panels-ipe-control-container {
     .oa-list {
       margin-left: -16px;
       margin-right: -16px;
+    }
+  }
+  .pane-section-sidebar-top {
+    padding: 0;
+    > .pane-content {
+      padding: 0;
+    }
+  }
+  .pane-default-section-sidebar {
+    padding: 0;
+    > .pane-content {
+      padding: 0;
     }
   }
   .oa-list {

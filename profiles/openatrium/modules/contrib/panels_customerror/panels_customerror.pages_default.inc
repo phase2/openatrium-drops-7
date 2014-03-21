@@ -11,87 +11,15 @@ function panels_customerror_default_page_manager_pages() {
   $page = new stdClass();
   $page->disabled = FALSE; /* Edit this to true to make a default page disabled initially */
   $page->api_version = 1;
-  $page->name = 'panels_customerror_404';
-  $page->task = 'page';
-  $page->admin_title = 'Panels Custom Error Page Not Found';
-  $page->admin_description = '';
-  $page->path = 'page-not-found';
-  $page->access = array();
-  $page->menu = array();
-  $page->arguments = array();
-  $page->conf = array(
-    'admin_paths' => FALSE,
-  );
-  $page->default_handlers = array();
-  $handler = new stdClass();
-  $handler->disabled = FALSE; /* Edit this to true to make a default handler disabled initially */
-  $handler->api_version = 1;
-  $handler->name = 'page_panels_customerror_404_panel_context';
-  $handler->task = 'page';
-  $handler->subtask = 'panels_customerror_404';
-  $handler->handler = 'panel_context';
-  $handler->weight = 0;
-  $handler->conf = array(
-    'title' => 'Panel',
-    'no_blocks' => 0,
-    'pipeline' => 'standard',
-    'body_classes_to_remove' => '',
-    'body_classes_to_add' => '',
-    'css_id' => '',
-    'css' => '',
-    'contexts' => array(),
-    'relationships' => array(),
-  );
-  $display = new panels_display();
-  $display->layout = 'onecol';
-  $display->layout_settings = array();
-  $display->panel_settings = array(
-    'style_settings' => array(
-      'default' => NULL,
-      'middle' => NULL,
-    ),
-  );
-  $display->cache = array();
-  $display->title = 'Page not found';
-  $display->content = array();
-  $display->panels = array();
-    $pane = new stdClass();
-    $pane->pid = 'new-1';
-    $pane->panel = 'middle';
-    $pane->type = 'block';
-    $pane->subtype = 'panels_customerror-404';
-    $pane->shown = TRUE;
-    $pane->access = array();
-    $pane->configuration = array(
-      'override_title' => 0,
-      'override_title_text' => '',
-    );
-    $pane->cache = array();
-    $pane->style = array(
-      'settings' => NULL,
-    );
-    $pane->css = array();
-    $pane->extras = array();
-    $pane->position = 0;
-    $pane->locks = array();
-    $display->content['new-1'] = $pane;
-    $display->panels['middle'][0] = 'new-1';
-  $display->hide_title = PANELS_TITLE_FIXED;
-  $display->title_pane = 'new-1';
-  $handler->conf['display'] = $display;
-  $page->default_handlers[$handler->name] = $handler;
-  $pages['panels_customerror_404'] = $page;
-
-  $page = new stdClass();
-  $page->disabled = FALSE; /* Edit this to true to make a default page disabled initially */
-  $page->api_version = 1;
   $page->name = 'panels_customerror_403';
   $page->task = 'page';
   $page->admin_title = 'Panels Custom Error Access Denied';
-  $page->admin_description = 'Donec porta odio vitae ante elementum, vel laoreet tellus ullamcorper. Vestibulum a nibh tempus; egestas quam laoreet, pellentesque risus! Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Donec imperdiet nulla nibh. Nullam et diam faucibus, adipiscing amet.
-';
+  $page->admin_description = '';
   $page->path = 'access-denied';
-  $page->access = array();
+  $page->access = array(
+    'type' => 'none',
+    'settings' => NULL,
+  );
   $page->menu = array();
   $page->arguments = array();
   $page->conf = array(
@@ -133,10 +61,11 @@ function panels_customerror_default_page_manager_pages() {
   );
   $display->cache = array();
   $display->title = 'Access Denied';
+  $display->uuid = '7e0e26d2-b517-443a-9d53-95a60f476fa6';
   $display->content = array();
   $display->panels = array();
     $pane = new stdClass();
-    $pane->pid = 'new-2';
+    $pane->pid = 'new-1ce0c00a-b09b-478b-abbf-84adde639905';
     $pane->panel = 'left';
     $pane->type = 'block';
     $pane->subtype = 'panels_customerror-403';
@@ -154,10 +83,11 @@ function panels_customerror_default_page_manager_pages() {
     $pane->extras = array();
     $pane->position = 0;
     $pane->locks = array();
-    $display->content['new-2'] = $pane;
-    $display->panels['left'][0] = 'new-2';
+    $pane->uuid = '1ce0c00a-b09b-478b-abbf-84adde639905';
+    $display->content['new-1ce0c00a-b09b-478b-abbf-84adde639905'] = $pane;
+    $display->panels['left'][0] = 'new-1ce0c00a-b09b-478b-abbf-84adde639905';
     $pane = new stdClass();
-    $pane->pid = 'new-3';
+    $pane->pid = 'new-b19d6807-c315-4527-8585-91ef94b57833';
     $pane->panel = 'right';
     $pane->type = 'block';
     $pane->subtype = 'user-login';
@@ -175,13 +105,93 @@ function panels_customerror_default_page_manager_pages() {
     $pane->extras = array();
     $pane->position = 0;
     $pane->locks = array();
-    $display->content['new-3'] = $pane;
-    $display->panels['right'][0] = 'new-3';
+    $pane->uuid = 'b19d6807-c315-4527-8585-91ef94b57833';
+    $display->content['new-b19d6807-c315-4527-8585-91ef94b57833'] = $pane;
+    $display->panels['right'][0] = 'new-b19d6807-c315-4527-8585-91ef94b57833';
   $display->hide_title = PANELS_TITLE_FIXED;
-  $display->title_pane = 'new-2';
+  $display->title_pane = '0';
   $handler->conf['display'] = $display;
   $page->default_handlers[$handler->name] = $handler;
   $pages['panels_customerror_403'] = $page;
+
+  $page = new stdClass();
+  $page->disabled = FALSE; /* Edit this to true to make a default page disabled initially */
+  $page->api_version = 1;
+  $page->name = 'panels_customerror_404';
+  $page->task = 'page';
+  $page->admin_title = 'Panels Custom Error Page Not Found';
+  $page->admin_description = '';
+  $page->path = 'page-not-found';
+  $page->access = array(
+    'type' => 'none',
+    'settings' => NULL,
+  );
+  $page->menu = array();
+  $page->arguments = array();
+  $page->conf = array(
+    'admin_paths' => FALSE,
+  );
+  $page->default_handlers = array();
+  $handler = new stdClass();
+  $handler->disabled = FALSE; /* Edit this to true to make a default handler disabled initially */
+  $handler->api_version = 1;
+  $handler->name = 'page_panels_customerror_404_panel_context';
+  $handler->task = 'page';
+  $handler->subtask = 'panels_customerror_404';
+  $handler->handler = 'panel_context';
+  $handler->weight = 0;
+  $handler->conf = array(
+    'title' => 'Panel',
+    'no_blocks' => 0,
+    'pipeline' => 'standard',
+    'body_classes_to_remove' => '',
+    'body_classes_to_add' => '',
+    'css_id' => '',
+    'css' => '',
+    'contexts' => array(),
+    'relationships' => array(),
+  );
+  $display = new panels_display();
+  $display->layout = 'onecol';
+  $display->layout_settings = array();
+  $display->panel_settings = array(
+    'style_settings' => array(
+      'default' => NULL,
+      'middle' => NULL,
+    ),
+  );
+  $display->cache = array();
+  $display->title = 'Page not found';
+  $display->uuid = '17b277ea-d05c-4565-93c9-95bde15960eb';
+  $display->content = array();
+  $display->panels = array();
+    $pane = new stdClass();
+    $pane->pid = 'new-c2b62bd5-89d0-45c6-85f7-9560a772726c';
+    $pane->panel = 'middle';
+    $pane->type = 'block';
+    $pane->subtype = 'panels_customerror-404';
+    $pane->shown = TRUE;
+    $pane->access = array();
+    $pane->configuration = array(
+      'override_title' => 0,
+      'override_title_text' => '',
+    );
+    $pane->cache = array();
+    $pane->style = array(
+      'settings' => NULL,
+    );
+    $pane->css = array();
+    $pane->extras = array();
+    $pane->position = 0;
+    $pane->locks = array();
+    $pane->uuid = 'c2b62bd5-89d0-45c6-85f7-9560a772726c';
+    $display->content['new-c2b62bd5-89d0-45c6-85f7-9560a772726c'] = $pane;
+    $display->panels['middle'][0] = 'new-c2b62bd5-89d0-45c6-85f7-9560a772726c';
+  $display->hide_title = PANELS_TITLE_FIXED;
+  $display->title_pane = '0';
+  $handler->conf['display'] = $display;
+  $page->default_handlers[$handler->name] = $handler;
+  $pages['panels_customerror_404'] = $page;
 
   return $pages;
 

@@ -29,6 +29,6 @@ function geofield_map_views_plugins() {
       ),
     ),
   );
-  
+
   return $plugins;
 }

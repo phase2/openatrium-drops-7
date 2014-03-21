@@ -5,11 +5,16 @@ if [ $# -eq 0 ]; then
   echo "Usage $0 [-d] target_build_dir"
   exit 1
 fi
-DRUSH_OPTS='--no-cache'
+DEV_BUILD=0
 while getopts ":d" opt; do
   case $opt in
     d) # dev arguments
       DRUSH_OPTS='--working-copy --no-gitinfofile --no-cache'
+      MAKEFILE='build-openatrium-dev.make'
+      DEV_BUILD=1
+      ;;
+    r) # release arg
+      MAKEFILE='build-openatrium-release.make'
       ;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
@@ -17,16 +22,17 @@ while getopts ":d" opt; do
   esac
 done
 shift $((OPTIND-1))
-MAKEFILE='build-openatrium.make'
 TARGET=$1
 # Make sure we have a target directory
 if [ -z "$TARGET" ]; then
-  echo "Usage $0 target_build_diri"
+  echo "Usage $0 target_build_dir"
   exit 2
 fi
+CURDIR=`pwd -P`
+ORIG_TARGET=$TARGET
+TARGET=$TARGET"__build"
 CALLPATH=`dirname "$0"`
 ABS_CALLPATH=`cd "$CALLPATH"; pwd -P`
-BASE_PATH=`cd ..; pwd`
 
 echo '_______      ___'
 echo '| ___ |     /  |'
@@ -36,43 +42,100 @@ echo '|____ |  / / | |'
 echo '   OpenAtrium   '
 echo '================'
 
-# Temp move settings
-echo 'Backing up settings.php...'
-mv "$TARGET/sites/default/settings.php" settings.php
 set -e
+if [ $DEV_BUILD -eq 1 ]; then
+  echo "*** DEVELOPMENT BUILD ***"
+fi
+echo "Building to build dir: $TARGET"
 echo 'Verifying make...'
 drush verify-makefile
 # Remove current drupal dir
-echo 'Wiping Drupal directory...'
-rm -rf "$TARGET"
+if [ -e "$TARGET" ]; then
+  echo 'Removing old build directory...'
+  rm -rf "$TARGET"
+fi
 # Do the build
-echo 'Running drush make...'
-drush make $DRUSH_OPTS "$ABS_CALLPATH/$MAKEFILE" "$TARGET"
+if [ $DEV_BUILD -eq 1 ]; then
+# Dev version
+  DRUSH_OPTS='--working-copy --no-gitinfofile --no-cache'
+  # first build core
+  MAKEFILE='drupal-org-core.make'
+  echo "Building Drupal core..."
+  drush make --prepare-install $DRUSH_OPTS "$ABS_CALLPATH/$MAKEFILE" "$TARGET"
+  # now get the latest profile distro
+  # now build the dev version
+  cd "$TARGET"
+  MAKEFILE='drupal-org-dev.make'
+  echo "Building the profile -dev version..."
+  drush make --yes --no-core $DRUSH_OPTS "$ABS_CALLPATH/$MAKEFILE" --contrib-destination=profiles/openatrium
+  if [ -e "profiles/openatrium" ]; then
+    cd "profiles/openatrium"
+    echo "Downloading latest profile..."
+    git init .
+    git remote add --track 7.x-2.x origin http://git.drupal.org/project/openatrium.git
+    git fetch
+    git checkout 7.x-2.x
+  fi
+  cd $CURDIR
+else
+# Release version
+  MAKEFILE='build-openatrium.make'
+  DRUSH_OPTS='--no-cache --prepare-install'
+  echo 'Running drush make...'
+  drush make $DRUSH_OPTS "$ABS_CALLPATH/$MAKEFILE" "$TARGET"
+fi
 set +e
-# Build Symlinks
-echo 'Setting up symlinks...'
-DRUPAL=`cd "$TARGET"; pwd -P`
-# openatrium profile now fully included in distro, so no link is needed
-# ln -s "$ABS_CALLPATH" "$DRUPAL/profiles/openatrium"
-ln -s /opt/files/openatrium "$DRUPAL/sites/default/files"
-# Restore settings
-echo 'Restoring settings...'
-ln -s "$BASE_PATH/settings.php" "$DRUPAL/sites/default/settings.php"
+# check to see if drush make was successful by checking for oa_core module
+if [ -e "$TARGET/profiles/openatrium/modules/contrib/oa_core" ]; then
+  # Restore previous sites folder if build was successful
+  if [ -e "$ORIG_TARGET/sites" ]; then
+    echo "Restoring sites folder from: $ORIG_TARGET/sites"
+    rm -rf "$TARGET/sites"
+    mv "$ORIG_TARGET/sites" "$TARGET/sites"
+  fi
 
-# Move libraries from profile into site libraries
-# Modules properly using Library API don't need this, but many modules
-# don't support libraries in the profile (like WYSIWYG)
-mv $DRUPAL/profiles/openatrium/libraries $DRUPAL/sites/all/libraries
+  echo "Moving files to: $ORIG_TARGET"
+  if [ -e "$ORIG_TARGET" ]; then
+    rm -rf "$ORIG_TARGET"
+  fi
+  if [ -e "$ORIG_TARGET" ]; then
+    echo "Error removing old files.  Please fix permissions."
+    exit 1
+  fi
+  mv $TARGET $ORIG_TARGET
+  DRUPAL=`cd "$ORIG_TARGET"; pwd -P`
 
-# Clear caches and Run updates
-cd "$DRUPAL"
-echo 'Clearing caches...'
-drush cc all; drush cc all;
-echo 'Running updates...'
-drush updb -y;
-# @TODO Figure out why this cc all is needed
-drush cc drush;
-echo 'Reverting all features...'
-drush fra -y;
-drush cc all;
-echo 'Build complete.'
+  echo "Active site now in: $DRUPAL"
+
+  # Copy libraries from profile into site libraries
+  # Modules properly using Library API don't need this, but many modules
+  # don't support libraries in the profile (like WYSIWYG)
+  echo "Copying library files."
+  rsync -r $DRUPAL/profiles/openatrium/libraries/ $DRUPAL/sites/all/libraries/
+
+  if [ $DEV_BUILD -eq 1 ]; then
+    echo 'Connecting to github -dev repositories.'
+    ./add-remotes.sh $DRUPAL/profiles/openatrium
+  fi
+
+  if [ ! -e "$DRUPAL/sites/default/settings.php" ]; then
+    echo "No settings.php file found"
+    echo "Please run the install.php script to install Drupal and Open Atrium"
+    exit 1
+  fi
+
+  # Clear caches and Run updates
+  cd "$DRUPAL"
+  echo 'Running updates...'
+  drush updb -y;
+  # @TODO Figure out why this cc all is needed
+  drush cc drush;
+  echo 'Reverting all features...'
+  drush fra -y;
+  echo 'Clearing caches...'
+  drush cc all;
+  echo 'Build completed successfully!'
+else
+  echo 'Error in build.'
+  exit 2
+fi

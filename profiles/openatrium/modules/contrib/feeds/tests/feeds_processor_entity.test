@@ -1,0 +1,56 @@
+<?php
+
+/**
+ * @file
+ * Tests for plugins/FeedsEntityProcessor.inc.
+ */
+
+/**
+ * Test aggregating a feed as node items.
+ */
+class FeedsEntityProcessorTest extends FeedsWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Processor: Entity',
+      'description' => 'Tests importing entities using the generic processor.',
+      'group' => 'Feeds',
+      'dependencies' => array('entity_test'),
+    );
+  }
+
+  /**
+   * Set up test.
+   */
+  public function setUp() {
+    parent::setUp(array('entity_test'));
+    // Create an importer configuration.
+    $this->createImporterConfiguration('Syndication', 'syndication');
+    $this->setPlugin('syndication', 'FeedsEntityProcessorEntity_test');
+  }
+
+  /**
+   * Test basic entity creation.
+   */
+  public function test() {
+    $bundle = drupal_strtolower($this->randomName());
+
+    // Create bundle entity.
+    entity_create('entity_test_type', array(
+      'id' => drupal_strtolower($this->randomName()),
+      'name' => $bundle,
+    ))->save();
+
+    $this->setSettings('syndication', 'FeedsEntityProcessorEntity_test', array(
+      'bundle' => $bundle,
+    ));
+
+    // Run import.
+    $this->createFeedNode();
+
+    // Assert 10 items aggregated after creation of the node.
+    $this->assertText('Created 10 test entity');
+    $this->assertEqual(10, db_query("SELECT COUNT(*) FROM {entity_test}")->fetchField());
+  }
+
+}

@@ -75,6 +75,7 @@ features[og_features_permission][] = node:oa_space:untrash any content
 features[og_features_permission][] = node:oa_space:update group
 features[og_features_permission][] = node:oa_space:use any oa button space_type
 features[og_features_permission][] = node:oa_space:view trash bin
+features[user_permission][] = access user profiles
 features[user_permission][] = add media from remote sources
 features[user_permission][] = administer panelizer node oa_group content
 features[user_permission][] = administer panelizer node oa_group context
@@ -168,9 +169,9 @@ features[user_permission][] = view private files
 features[variable][] = og_group_manager_admin_role
 features[variable][] = og_group_manager_full_access
 
-; Information added by Drupal.org packaging script on 2014-01-27
-version = "7.x-2.13"
+; Information added by Drupal.org packaging script on 2014-02-26
+version = "7.x-2.15"
 core = "7.x"
 project = "oa_core"
-datestamp = "1390859944"
+datestamp = "1393428820"
 

@@ -9,9 +9,10 @@ stylesheets[all][] = css/panopoly-featured.css
 stylesheets[all][] = css/panopoly-accordian.css
 features[features_api][] = api:2
 
-; Information added by Drupal.org packaging script on 2013-12-22
-version = "7.x-1.0"
+
+; Information added by drush on 2014-02-26
+version = "7.x-1.0+1-dev"
 core = "7.x"
 project = "panopoly_theme"
-datestamp = "1387715620"
+datestamp = "1393449054"
 

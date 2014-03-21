@@ -62,7 +62,7 @@ function oa_worktracker_field_group_info() {
       'label' => 'Task information',
       'instance_settings' => array(
         'required_fields' => 1,
-        'classes' => '',
+        'classes' => 'group-oa-worktracker-task-info',
         'description' => '',
       ),
       'formatter' => 'open',
@@ -88,12 +88,13 @@ function oa_worktracker_field_group_info() {
       2 => 'field_oa_worktracker_task_status',
       3 => 'field_oa_worktracker_task_type',
       4 => 'oa_section_ref',
+      5 => 'oa_worktracker_submitted',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
       'label' => 'Task information',
       'instance_settings' => array(
-        'classes' => 'group-oa-worktracker-task-info-display',
+        'classes' => 'group-oa-worktracker-task-info group-oa-worktracker-task-info-display',
         'description' => '',
       ),
       'formatter' => 'open',
@@ -125,7 +126,7 @@ function oa_worktracker_field_group_info() {
       'label' => 'Task information',
       'instance_settings' => array(
         'required_fields' => 1,
-        'classes' => '',
+        'classes' => 'group-oa-worktracker-task-info',
         'description' => '',
       ),
       'formatter' => 'open',

@@ -14,6 +14,7 @@ files[] = libraries/PuSHSubscriber.inc
 
 ; Plugins
 files[] = plugins/FeedsCSVParser.inc
+files[] = plugins/FeedsEntityProcessor.inc
 files[] = plugins/FeedsFetcher.inc
 files[] = plugins/FeedsFileFetcher.inc
 files[] = plugins/FeedsHTTPFetcher.inc
@@ -40,12 +41,15 @@ files[] = tests/feeds_mapper_profile.test
 files[] = tests/feeds_mapper.test
 files[] = tests/feeds_mapper_config.test
 files[] = tests/feeds_fetcher_file.test
+files[] = tests/feeds_fetcher_http.test
+files[] = tests/feeds_processor_entity.test
 files[] = tests/feeds_processor_node.test
 files[] = tests/feeds_processor_term.test
 files[] = tests/feeds_processor_user.test
 files[] = tests/feeds_scheduler.test
 files[] = tests/feeds_mapper_link.test
 files[] = tests/feeds_mapper_taxonomy.test
+files[] = tests/http_request.test
 files[] = tests/parser_csv.test
 
 ; Views integration
@@ -57,9 +61,9 @@ files[] = views/feeds_views_handler_field_source.inc
 files[] = views/feeds_views_handler_filter_severity.inc
 
 
-; Information added by drush on 2013-12-06
-version = "7.x-2.0-alpha8+6-dev"
+; Information added by drush on 2014-02-26
+version = "7.x-2.0-alpha8+33-dev"
 core = "7.x"
 project = "feeds"
-datestamp = "1386365960"
+datestamp = "1393449071"
 

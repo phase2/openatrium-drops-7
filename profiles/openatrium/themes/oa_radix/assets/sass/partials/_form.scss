@@ -125,9 +125,6 @@ form {
     background: transparent;
     @include box-shadow(none);
     @include border-radius(0);
-    h3.pane-title {
-      margin: -15px -15px 10px;
-    }
     .pane-content {
       padding: 0;
     }
@@ -159,7 +156,7 @@ form {
   .container-inline-date {
     .date-padding {
       padding: 0;
-    }  
+    }
     .form-item-date-time,
     .form-item-date-date {
       padding-bottom: 0.5em;

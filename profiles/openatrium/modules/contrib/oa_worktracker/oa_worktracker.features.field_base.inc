@@ -33,17 +33,12 @@ function oa_worktracker_field_default_field_bases() {
     'locked' => 0,
     'module' => 'entityreference',
     'settings' => array(
-      'handler' => 'views',
+      'handler' => 'oa_worktracker_assigned',
       'handler_settings' => array(
         'behaviors' => array(
           'views-select-list' => array(
             'status' => 0,
           ),
-        ),
-        'view' => array(
-          'args' => array(),
-          'display_name' => 'entityreference_1',
-          'view_name' => 'open_atrium_user_filters',
         ),
       ),
       'target_type' => 'user',

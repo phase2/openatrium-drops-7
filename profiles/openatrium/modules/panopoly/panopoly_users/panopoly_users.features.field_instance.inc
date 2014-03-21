@@ -86,7 +86,7 @@ function panopoly_users_field_default_field_instances() {
       'file_extensions' => 'png gif jpg jpeg',
       'max_filesize' => '',
       'max_resolution' => '',
-      'min_resolution' => '300x200',
+      'min_resolution' => '80x80',
       'title_field' => 0,
       'user_register_form' => 0,
     ),

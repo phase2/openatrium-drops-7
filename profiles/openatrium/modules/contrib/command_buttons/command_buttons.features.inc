@@ -7,10 +7,8 @@
 /**
  * Implements hook_ctools_plugin_api().
  */
-function command_buttons_ctools_plugin_api() {
-  list($module, $api) = func_get_args();
+function command_buttons_ctools_plugin_api($module = NULL, $api = NULL) {
   if ($module == "field_group" && $api == "field_group") {
     return array("version" => "1");
   }
 }
-

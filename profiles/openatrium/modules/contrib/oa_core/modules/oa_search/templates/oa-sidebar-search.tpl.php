@@ -16,11 +16,11 @@
       </button>
     </div>
     <?php if (count(array_filter($options)) == 1): ?>
-      <div class="options element-invisible">
-      <input type="radio" name="searchOptions" value="<?php print array_shift(array_values($options)); ?>" checked>
+      <div class="options element-invisible <?php print $extra_classes?>">
+      <input type="radio" name="searchOptions" value="<?php print array_shift(array_keys($options)); ?>" checked>
       </div>
     <?php else: ?>
-      <ul class="options">
+      <ul class="options <?php print $extra_classes?>">
       <?php $checked = TRUE; ?>
       <?php foreach ($options as $option => $label): ?>
         <li>
@@ -32,6 +32,9 @@
         <?php $checked = FALSE; ?>
       <?php endforeach; ?>
       </ul>
+    <?php endif; ?>
+    <?php if (!empty($spaces)): ?>
+      <?php print $spaces; ?>
     <?php endif; ?>
   </form>
 </div>

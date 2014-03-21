@@ -83,7 +83,7 @@ function views_content_views_panes_content_type_content_type($subtype, $plugin) 
 function _views_content_panes_content_type($view, $display) {
   // Ensure the handler is the right type, as Views will fall back to
   // the default display if something is broken:
-  if (get_class($display->handler) != 'views_content_plugin_display_panel_pane') {
+  if (!is_a($display->handler, 'views_content_plugin_display_panel_pane')) {
     return;
   }
 
@@ -143,10 +143,10 @@ function views_content_views_panes_content_type_render($subtype, $conf, $panel_a
     return;
   }
 
-  $allow = $view->display_handler->get_option('allow');
-
   $conf['pane_contexts'] = $contexts;
   $view->display_handler->set_pane_conf($conf);
+
+  $allow = $view->display_handler->get_option('allow');
   if ($allow['path_override'] && !empty($conf['path'])) {
     $view->override_path = $conf['path'];
   }
@@ -406,6 +406,14 @@ function views_content_views_panes_content_type_edit_form($form, &$form_state) {
         '#type' => 'item',
         '#id' => 'views-exposed-pane',
       );
+
+      if($exposed_form_overrides[$type][$key] == 'configureable') {
+        $form['exposed'][$id]['expose_to_visitor'] = array(
+          '#type' => 'checkbox',
+          '#title' => t('Expose to Visitor'),
+          '#default_value' => isset($conf['exposed'][$id]['expose_to_visitor']) ? $conf['exposed'][$id]['expose_to_visitor'] : 0,
+        );
+      }
 
       if (!empty($info['label'])) {
         $form['exposed'][$id]['#title'] = $info['label'];

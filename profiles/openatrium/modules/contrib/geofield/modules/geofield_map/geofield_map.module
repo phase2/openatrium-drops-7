@@ -59,7 +59,7 @@ function geofield_map_field_formatter_view($entity_type, $entity, $field, $insta
   $data = array();
 
   foreach ($items as $item) {
-    $geometry = geoPHP::load($item['wkt'], 'wkt');
+    $geometry = geoPHP::load($item['geom']);
     if (!empty($geometry)) {
       $datum = json_decode($geometry->out('json'));
       $datum->properties = array(

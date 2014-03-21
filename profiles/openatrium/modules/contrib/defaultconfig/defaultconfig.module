@@ -276,7 +276,7 @@ function defaultconfig_modules_disabled($modules) {
  */
 function defaultconfig_rebuild_all() {
   features_include();
-  $components = module_invoke_all('defaultconfig_components');
+  $components = defaultconfig_get_components();
   foreach ($components as $name => $component) {
     $component['name'] = $component;
     defaultconfig_component_rebuild($component);

@@ -142,7 +142,10 @@ function media_youtube_add($form, &$form_state = array()) {
     $empty = TRUE;
   }
   else {
-    foreach ($search['entry'] as $video) {
+    // $search['entry'] is different depending on whether there is a single
+    // result or multiple results. So normalise it.
+    $videos = isset($search['entry']['id']) ? array($search['entry']) : $search['entry'];
+    foreach ($videos as $video) {
       try {
         $uri = media_parse_to_uri($video['link'][0]['@attributes']['href']);
       }
@@ -253,7 +256,7 @@ function media_youtube_add_validate($form, &$form_state) {
     return;
   }
 
-  $validators = $form['#validators'];
+  $validators = isset($form['#validators']) ? $form['#validators'] : array();
   if ($validators) {
     // Check for errors. @see media_add_upload_validate calls file_save_upload().
     // this code is ripped from file_save_upload because we just want the validation part.
@@ -308,9 +311,7 @@ function media_youtube_add_submit($form, &$form_state) {
   }
 
   // Redirect to the file edit page after submission.
-  // @TODO: media_access() is a wrapper for file_entity_access(). Switch to the
-  // new function when Media 1.x is deprecated.
-  if (media_access('update', $file)) {
+  if (media_youtube_access('update', $file)) {
     $destination = array('destination' => 'admin/content/file');
     if (isset($_GET['destination'])) {
       $destination = drupal_get_destination();
@@ -321,6 +322,32 @@ function media_youtube_add_submit($form, &$form_state) {
   else {
     $form_state['redirect'] = 'admin/content/file';
   }
+}
+
+/**
+ * Determine if a user may perform the given operation on the specified file.
+ *
+ * Enables compatibility with Media 1.x and 2.x by providing a wrapper around
+ * both media_access() and file_entity_access().
+ *
+ * @return boolean
+ *   TRUE if the operation may be performed, FALSE otherwise.
+ *
+ * @see media_access()
+ * @see file_entity_access()
+ */
+function media_youtube_access($op, $file = NULL, $account = NULL) {
+  if (function_exists('file_entity_access')) {
+    $access = file_entity_access($op, $file, $account);
+  }
+  elseif (function_exists('media_access')) {
+    $access = media_access($op, $account);
+  }
+  else {
+    $access = FALSE;
+  }
+
+  return $access;
 }
 
 /**

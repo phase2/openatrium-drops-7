@@ -6,25 +6,30 @@
  */
 
 /**
- * Plugin which creates a view on the resulting object
- * and formats it as an iCal VEVENT.
+ * A Views plugin which builds an iCal VEVENT from a single node.
  */
 class date_ical_plugin_row_ical_entity extends views_plugin_row {
   
   // Basic properties that let the row style follow relationships.
-  var $base_table = 'node';
-  var $base_field = 'nid';
+  protected $base_table = 'node';
+  protected $base_field = 'nid';
   
   // Stores the nodes loaded with pre_render.
-  var $entities = array();
+  protected $entities = array();
   
-  function init(&$view, &$display, $options = NULL) {
+  /**
+   * Initialize the row plugin.
+   */
+  public function init(&$view, &$display, $options = NULL) {
     parent::init($view, $display, $options);
     $this->base_table = $view->base_table;
     $this->base_field = $view->base_field;
   }
   
-  function option_definition() {
+  /**
+   * Set up the options for the row plugin.
+   */
+  public function option_definition() {
     $options = parent::option_definition();
     $options['date_field'] = array('default' => array());
     $options['summary_field'] = array('default' => array());
@@ -33,17 +38,18 @@ class date_ical_plugin_row_ical_entity extends views_plugin_row {
   }
   
   /**
-   * Provide a form for setting options.
+   * Build the form for setting the row plugin's options.
    */
-  function options_form(&$form, &$form_state) {
+  public function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
     
-    // Build the select dropdown for the date field that the user wants to use
-    // to populate the date fields in VEVENTs.
+    // Build the select dropdown for the Date field that the user wants to use
+    // to populate the date properties in VEVENTs.
     $data = date_views_fields($this->base_table);
     $options = array();
     foreach ($data['name'] as $item => $value) {
-      // We only want to see one value for each field, skip '_value2', and other columns.
+      // We only want to see one value for each field, so we need to
+      // skip '_value2' and other columns.
       if ($item == $value['fromto'][0]) {
         $options[$item] = $value['label'];
       }
@@ -58,7 +64,7 @@ class date_ical_plugin_row_ical_entity extends views_plugin_row {
       '#required' => TRUE,
     );
     $form['instructions'] = array(
-      // The surrounding <div> is necessary to ensure that the settings dialog expands to show everything.
+      // The surrounding <div> ensures that the settings dialog expands.
       '#prefix' => '<div style="font-size: 90%">',
       '#suffix' => '</div>',
       '#markup' => t("Each item's Title and iCal view mode will be included as the SUMMARY and DESCRIPTION elements (respectively) in the VEVENTs output by this View.
@@ -82,7 +88,7 @@ class date_ical_plugin_row_ical_entity extends views_plugin_row {
         Choose which text, taxonomy term reference or Node Reference field you would like to be output as the SUMMARY.
         If using a Node Reference, the Title of the referenced node will be used.'),
     );
-
+    
     // Build the select dropdown for the text/node_reference field that the user
     // wants to use to (optionally) populate the LOCATION.
     $location_fields = date_ical_get_location_fields($this->base_table);
@@ -101,18 +107,21 @@ class date_ical_plugin_row_ical_entity extends views_plugin_row {
     );
   }
   
-  function pre_render($values) {
-    // @TODO When the date is coming in through a relationship, the nid
-    // of the view is not the right node to use, then we need the related node.
-    // Need to sort out how that should be handled.
-    
+  /**
+   * Preload the list of entities which will appear in the view.
+   *
+   * TODO: When the date is coming in through a relationship, the nid
+   * of the view is not the right node to use: we need the related node.
+   * Need to sort out how that should be handled.
+   */
+  public function pre_render($values) {
     // Preload each entity used in this view from the cache.
     // Provides all the entity values relatively cheaply, and we don't
     // need to do it repeatedly for the same entity if there are
     // multiple results for one entity.
     $ids = array();
     foreach ($values as $row) {
-      // Use the $id as the key so we don't create more than one value per entity.
+      // Use the $id as the key so we create only value per entity.
       $id = $row->{$this->field_alias};
       
       // Node revisions need special loading.
@@ -140,37 +149,37 @@ class date_ical_plugin_row_ical_entity extends views_plugin_row {
     }
   }
   
-  function render($row) {
-    global $base_url;
+  /**
+   * Renders the entities returned by the view into event arrays.
+   */
+  public function render($row) {
     $id = $row->{$this->field_alias};
     if (!is_numeric($id)) {
-      return;
+      return NULL;
     }
     
     // Load the specified entity:
     $entity = $this->entities[$id];
     if (empty($entity)) {
-      return;
+      // This can happen when an RRULE is involved.
+      return NULL;
     }
     
     $date_fields = date_views_fields($this->base_table);
     $date_info = $date_fields['name'][$this->options['date_field']];
     $field_name  = str_replace(array('_value', '_value2'), '', $date_info['real_field_name']);
-    $table_name  = $date_info['table_name'];
     $delta_field = $date_info['delta_field'];
     $is_field    = $date_info['is_field'];
     
-    // This is ugly and hacky but I can't figure out any generic way to
-    // recognize that the node module is going to give some the revision timestamp
-    // a different field name on the entity than the actual column name in the database.
+    // Sometimes the timestamp is actually the revision timestamp.
     if ($this->view->base_table == 'node_revision' && $field_name == 'timestamp') {
       $field_name = 'revision_timestamp';
     }
     
     if (!isset($entity->$field_name)) {
       // This entity doesn't have the date property that the user configured
-      // our view to use. We can't do anything with it
-      return;
+      // our view to use. We can't do anything with it.
+      return NULL;
     }
     $date_field = $entity->$field_name;
     
@@ -187,12 +196,13 @@ class date_ical_plugin_row_ical_entity extends views_plugin_row {
         return;
       }
       $date_field = $items[$delta];
-      $domain = check_plain($_SERVER['SERVER_NAME']);
+      global $base_url;
+      $domain = preg_replace('#^https?://#', '', $base_url);
       $entity->date_id[] = "calendar.$id.$field_name.$delta@$domain";
       
       if (!empty($date_field['value'])) {
         $start = new DateObject($date_field['value'], $date_field['timezone_db']);
-        if (array_key_exists('value2', $date_field)) {
+        if (!empty($date_field['value2'])) {
           $end = new DateObject($date_field['value2'], $date_field['timezone_db']);
         }
         else {
@@ -206,8 +216,8 @@ class date_ical_plugin_row_ical_entity extends views_plugin_row {
     }
     
     // Set the item date to the proper display timezone.
-    $start->setTimezone(new dateTimezone($date_field['timezone']));
-    $end->setTimezone(new dateTimezone($date_field['timezone']));
+    $start->setTimezone(new DateTimeZone($date_field['timezone']));
+    $end->setTimezone(new DateTimeZone($date_field['timezone']));
     
     // Check if the start and end dates indicate that this is an All Day event.
     $all_day = date_is_all_day(
@@ -233,7 +243,7 @@ class date_ical_plugin_row_ical_entity extends views_plugin_row {
       // Only attempt this is the entity actually has this field.
       $items = field_get_items($this->entity_type, $entity, $location_field_name);
       if ($items) {
-        $location_field = $items[$delta];
+        $location_field = $items[0];
         if ($location_info['type'] == 'node_reference') {
           // Make sure this Node Reference actually references a node.
           if ($location_field['nid']) {
@@ -243,12 +253,30 @@ class date_ical_plugin_row_ical_entity extends views_plugin_row {
         }
         elseif ($location_info['type'] == 'addressfield') {
           $locations = array();
-          foreach($location_field as $key => $loc) {
+          foreach ($location_field as $key => $loc) {
             if ($loc && !in_array($key, array('first_name', 'last_name'))) {
               $locations[] = $loc;
             }
           }
           $location = implode(', ', array_reverse($locations));
+        }
+        elseif ($location_info['type'] == 'location') {
+          $included_fields = array(
+            'name',
+            'additional',
+            'street',
+            'city',
+            'province_name',
+            'postal_code',
+            'country_name'
+          );
+          $location_data = array();
+          foreach ($included_fields as $included_field) {
+            if (!empty($location_field[$included_field])) {
+              $location_data[] = $location_field[$included_field];
+            }
+          }
+          $location = check_plain(implode(', ', $location_data));
         }
         else {
           $location = check_plain($location_field['value']);
@@ -256,11 +284,12 @@ class date_ical_plugin_row_ical_entity extends views_plugin_row {
       }
     }
     
-    // Create the rendered display using the display settings from the 'iCal' view mode.
+    // Create the rendered event using the display settings from the
+    // iCal view mode.
     $rendered_array = entity_view($this->entity_type, array($entity), 'ical', $this->language, TRUE);
     $data = array(
       'description' => drupal_render($rendered_array),
-      'summary' => entity_label($this->entity_type, $entity)
+      'summary' => entity_label($this->entity_type, $entity),
     );
     if (!empty($this->options['summary_field']) && $this->options['summary_field'] != 'default_title') {
       $summary_fields = date_ical_get_summary_fields();
@@ -270,28 +299,29 @@ class date_ical_plugin_row_ical_entity extends views_plugin_row {
       $items = field_get_items($this->entity_type, $entity, $summary_field_name);
       $summary = '';
       if ($items) {
-        $summary_field = $items[$delta];
+        $summary_field = $items[0];
         if ($summary_info['type'] == 'node_reference') {
           // Make sure this Node Reference actually references a node.
           if ($summary_field['nid']) {
             $node = node_load($summary_field['nid']);
-            $summary = check_plain($node->title);
+            $summary = $node->title;
           }
         }
         elseif ($summary_info['type'] == 'taxonomy_term_reference') {
           $terms = taxonomy_term_load_multiple($items);
-          // Make sure that there are terms that were loaded
+          // Make sure that there are terms that were loaded.
           if ($terms) {
+            $term_names = array();
             foreach ($terms as $term) {
-              $summary .= check_plain($term->name) . ', ';
+              $term_names[] = $term->name;
             }
+            $summary = implode(', ', $term_names);
           }
-          $summary = trim($summary);
         }
         else {
-          $summary = check_plain($summary_field['value']);
+          $summary = trim($summary_field['value']);
         }
-      $data['summary'] = ($summary)? $summary : $data['summary'];
+        $data['summary'] = $summary ? $summary : $data['summary'];
       }
     }
     // Allow other modules to alter the HTML of the Summary and Description,
@@ -302,7 +332,7 @@ class date_ical_plugin_row_ical_entity extends views_plugin_row {
       'entity_type' => $this->entity_type,
       'language' => $this->language,
     );
-    drupal_alter('date_ical_html', $data, $this->view, $context);
+    drupal_alter('date_ical_export_html', $data, $this->view, $context);
     
     $event = array();
     $event['summary'] = date_ical_sanitize_text($data['summary']);
@@ -313,27 +343,41 @@ class date_ical_plugin_row_ical_entity extends views_plugin_row {
     $uri = entity_uri($this->entity_type, $entity);
     $uri['options']['absolute'] = TRUE;
     $event['url'] = url($uri['path'], $uri['options']);
-    $event['uid'] = !empty($entity->date_id) ? $entity->date_id[0] : $event['url'];
     $event['rrule'] = $is_field && array_key_exists('rrule', $date_field) ? $date_field['rrule'] : '';
     if ($location) {
       $event['location'] = $location;
     }
     
-    // If we are using a repeat rule (and not just multi-day events)
-    // we remove the item from the entities.
+    // For this event's UID, use either the date_id generated by the Date
+    // module, or the event page's URL if the date_id isn't available.
+    $event['uid'] = !empty($entity->date_id) ? $entity->date_id[0] : $event['url'];
+    
+    // If we are using a repeat rule (and not just multi-day events) we
+    // remove the item from the entities list so that its VEVENT won't be
+    // re-created.
     if ($event['rrule']) {
       $this->entities[$id] = NULL;
     }
-    // Pull the 'changed' date from the entity, so that subscription clients can tell if the event has been updated.
-    // According to the iCal standard, LAST-MODIFIED must be UTC. Fortunately, Drupal stores timestamps in the DB
-    // as UTC, so we just need to specify that UTC be used rather than the server's local timezone.
+    
+    // According to the iCal standard, CREATED and LAST-MODIFIED must be UTC.
+    // Fortunately, Drupal stores timestamps in the DB as UTC, so we just need
+    // to tell DateObject to treat the timestamp as UTC from the start.
+    if (isset($entity->created)) {
+      $event['created'] = new DateObject($entity->created, 'UTC');
+    }
+    // Pull the 'changed' date from the entity (if available), so that
+    // subscription clients can tell if the event has been updated.
     if (isset($entity->changed)) {
-      $event['last-modified'] = new DateObject($entity->changed, new DateTimeZone('UTC'));
+      $event['last-modified'] = new DateObject($entity->changed, 'UTC');
+    }
+    elseif (isset($entity->created)) {
+      // If changed is unset, but created is, use that for last-modified.
+      $event['last-modified'] = new DateObject($entity->created, 'UTC');
     }
     
     // Allow other modules to alter the structured event object, before it gets
-    // passed to the style plugin to be converted into an iCal VEVENT.
-    drupal_alter('date_ical_feed_event_render', $event, $this->view, $context);
+    // passed to the style plugin to be converted into an iCalcreator vevent.
+    drupal_alter('date_ical_export_raw_event', $event, $this->view, $context);
     
     return $event;
   }

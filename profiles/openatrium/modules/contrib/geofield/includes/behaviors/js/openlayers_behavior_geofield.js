@@ -26,7 +26,6 @@ OpenLayers.Control.GeofieldEditingToolbar = OpenLayers.Class(
         OpenLayers.Control.Panel.prototype.initialize.apply(this, [options]);
 
         var controls = [];
-        var tools = options.tools;
         var tool = null;
 
         if (options.allow_edit && options.allow_edit !== 0) {
@@ -46,10 +45,10 @@ OpenLayers.Control.GeofieldEditingToolbar = OpenLayers.Class(
           controls = [new OpenLayers.Control.Navigation()];
         }
 
-        if (tools && tools.length) {
-          for (var i = 0, il = tools.length; i < il; i += 1) {
+        if (options.feature_types && options.feature_types.length) {
+          for (var i = 0, il = options.feature_types.length; i < il; i += 1) {
             // capitalize first letter
-            tool = tools[i][0].toUpperCase() + tools[i].slice(1);
+            tool = options.feature_types[i][0].toUpperCase() + options.feature_types[i].slice(1);
             controls.push(
               new OpenLayers.Control.DrawFeature(layer, OpenLayers.Handler[tool], {'displayClass': 'olControlDrawFeature' + tool})
             );
@@ -85,8 +84,11 @@ OpenLayers.Control.GeofieldEditingToolbar = OpenLayers.Class(
    */
   Drupal.behaviors.openlayers_behavior_geofield = {
     'attach': function(context, settings) {
+      
+      // Only attach the behavior to a map
+      if (!$(context).hasClass('openlayers-map')) return;
+
       var data = $(context).data('openlayers'),
-          behavior = data && data.map.behaviors['openlayers_behavior_geofield'],
           dataProjection = new OpenLayers.Projection('EPSG:4326'),
           features, wktFormat;
 
@@ -101,7 +103,7 @@ OpenLayers.Control.GeofieldEditingToolbar = OpenLayers.Class(
       // populate our wkt input field
       function updateWKTField (features) {
         var WktWriter = initWktFormat(features.object.map.projection);
-        // limits are to be checked server-side, not here.
+        // limits are to checked both server-side and here.
         // for a single shape avoid GEOMETRYCOLLECTION
         var toSerialize = features.object.features;
         // don't serialize empty feature
@@ -117,15 +119,19 @@ OpenLayers.Control.GeofieldEditingToolbar = OpenLayers.Class(
 
       // keep only one features for each map input
       function limitFeatures (features) {
-        // copy a list of features
-        var copyFeatures = features.object.features.slice();
-        // only keep the last one
-        var lastFeature = copyFeatures.pop();
-        // we remove a lot of features, don't trigger events
-        features.object.destroyFeatures(copyFeatures, {silient: true});
+        var cardinality = Drupal.settings.geofield.widget_settings.cardinality;
+        if (cardinality >= 1) {
+          // Calculate how many features we need to delete off the beginning of the feature array
+          var deleteNum = features.object.features.length - cardinality;
+          if (deleteNum > 0) {
+            var featuresToDelete = features.object.features.slice(0,deleteNum);
+            // we remove a lot of features, don't trigger events
+            features.object.destroyFeatures(featuresToDelete, {silient: true});
+          }
+        }
       }
 
-      if (behavior && !$(context).hasClass('geofield-processed')) {
+      if (!$(context).hasClass('geofield-processed')) {
         // we get the .form-item wrapper which is a slibling of our hidden input
         var $wkt = $(context).closest('.form-item').parent().find('input.geofield_wkt');
         // if there is no form input this shouldn't be activated
@@ -139,7 +145,7 @@ OpenLayers.Control.GeofieldEditingToolbar = OpenLayers.Class(
           data.openlayers.addLayer(dataLayer);
 
           // only one feature on each map register before adding our data
-          if (Drupal.settings.geofield.data_storage == 'single') {
+          if (Drupal.settings.geofield.widget_settings.data_storage == 'single') {
             dataLayer.events.register('featureadded', $wkt, limitFeatures);
           }
 
@@ -155,31 +161,22 @@ OpenLayers.Control.GeofieldEditingToolbar = OpenLayers.Class(
           dataLayer.events.register('featureremoved', $wkt, updateWKTField);
           dataLayer.events.register('afterfeaturemodified', $wkt, updateWKTField);
 
-          // transform options object to array
-          behavior.tools = [];
-          // add a new 'tools' key which is an array of enabled features
-          $.each(behavior.feature_types, function (key, value) {
-            if (value) {
-              behavior.tools.push(key);
-            }
-          });
           // create toolbar
-          var geofieldControl = new OpenLayers.Control.GeofieldEditingToolbar(dataLayer, behavior);
+          var geofieldControl = new OpenLayers.Control.GeofieldEditingToolbar(dataLayer, Drupal.settings.geofield.widget_settings);
           data.openlayers.addControl(geofieldControl);
 
-          // on submit recalculate everything to be up to date
+          // Process features-modified on form submission: write features to WKT field / recalculate everything to be up to date.
           var formData = {
             'control': geofieldControl,
             'dataLayer': dataLayer
           };
-          function handleSubmit (e) {
+          $(context).parents('form').bind('submit', formData, function(e) {
             $.map(e.data.control.controls, function(c) { c.deactivate(); });
-            dataLayer.events.triggerEvent('featuremodified');
-          }
-          $(context).parents('form').bind('submit', formData, handleSubmit);
+            dataLayer.events.triggerEvent('afterfeaturemodified');
+          });
         }
         $(context).addClass('geofield-processed');
-      } // if
+      }
     }
   };
 })(jQuery);

@@ -45,11 +45,13 @@
         });
         if ($delta_height > 0) {
           var $total_height = $height + $delta_height;
-          $oa_navbar.height($total_height);
           $('body').css('padding-top', $total_height + 'px');
-        }
-        if (typeof(Drupal.displace) != "undefined") {
-          Drupal.displace();  // recalculate offsets
+          if (typeof(Drupal.displace) != "undefined") {
+            Drupal.displace();  // recalculate offsets
+          }
+          else {
+            $oa_navbar.height($total_height);
+          }
         }
       }
     }

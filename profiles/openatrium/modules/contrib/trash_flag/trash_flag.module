@@ -45,7 +45,7 @@ function trash_flag_flag_access($flag, $content_id, $action, $account) {
       }
     }
     // Fallback to normal permission checks.
-    return $access || 
+    return $access ||
           user_access("$op any content", $account) ||
           user_access("$op any $type content", $account) ||
           ($account->uid == $node->uid && user_access("$op own $type content", $account));
@@ -287,25 +287,3 @@ function trash_flag_node_access($node, $op, $account) {
   }
 }
 
-/**
- * Implements hook_features_pipe_node_alter().
- */
-function trash_flag_features_pipe_node_alter(&$more, $data, $export) {
-  foreach ($data as $type) {
-    $more['user_permission'][] = "trash any $type content";
-    $more['user_permission'][] = "trash own $type content";
-    $more['user_permission'][] = "untrash any $type content";
-    $more['user_permission'][] = "untrash own $type content";
-    if (module_exists('og')) {
-     $group_types = array();
-      foreach (array_keys(node_type_get_names()) as $group_type) {
-        if (og_is_group_type('node', $group_type)) {
-          $more['og_features_permission'][] = 'node:' . $group_type . ':' . "trash any $type content";
-          $more['og_features_permission'][] = 'node:' . $group_type . ':' . "trash own $type content";
-          $more['og_features_permission'][] = 'node:' . $group_type . ':' . "untrash any $type content";
-          $more['og_features_permission'][] = 'node:' . $group_type . ':' . "untrash own $type content";
-        }
-      }
-    }
-  }
-}

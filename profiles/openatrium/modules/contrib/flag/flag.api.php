@@ -54,6 +54,18 @@ function hook_flag_default_flags() {
 }
 
 /**
+ * Alter the definition of default flags.
+ *
+ * @param array &$flags
+ *   An array keyed by flag machine name containing flag definitions.
+ */
+function hook_flag_default_flags_alter(&$flags) {
+  if (!empty($flags['bookmark'])) {
+    $flags['bookmark']['title'] = 'Bananana Bookmark';
+  }
+}
+
+/**
  * Allow modules to alter a flag when it is initially loaded.
  *
  * @see flag_get_flags().

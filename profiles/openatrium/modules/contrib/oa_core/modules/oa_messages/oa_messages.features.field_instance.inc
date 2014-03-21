@@ -26,6 +26,12 @@ function oa_messages_field_default_field_instances() {
         'type' => 'entityreference_label',
         'weight' => 6,
       ),
+      'message_notify_daily_digest' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
       'message_notify_email_body' => array(
         'label' => 'above',
         'settings' => array(),
@@ -37,6 +43,12 @@ function oa_messages_field_default_field_instances() {
         'settings' => array(),
         'type' => 'hidden',
         'weight' => 5,
+      ),
+      'message_notify_weekly_digest' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
       ),
       'oa_river_accordian' => array(
         'label' => 'above',
@@ -96,6 +108,12 @@ function oa_messages_field_default_field_instances() {
         'type' => 'entityreference_label',
         'weight' => 2,
       ),
+      'message_notify_daily_digest' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
       'message_notify_email_body' => array(
         'label' => 'above',
         'settings' => array(),
@@ -107,6 +125,12 @@ function oa_messages_field_default_field_instances() {
         'settings' => array(),
         'type' => 'hidden',
         'weight' => 7,
+      ),
+      'message_notify_weekly_digest' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
       ),
       'oa_river_accordian' => array(
         'label' => 'above',
@@ -163,6 +187,12 @@ function oa_messages_field_default_field_instances() {
         'type' => 'entityreference_label',
         'weight' => 0,
       ),
+      'message_notify_daily_digest' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
       'message_notify_email_body' => array(
         'label' => 'above',
         'settings' => array(),
@@ -174,6 +204,12 @@ function oa_messages_field_default_field_instances() {
         'settings' => array(),
         'type' => 'hidden',
         'weight' => 8,
+      ),
+      'message_notify_weekly_digest' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
       ),
       'oa_river_accordian' => array(
         'label' => 'above',
@@ -228,6 +264,12 @@ function oa_messages_field_default_field_instances() {
         'type' => 'text_default',
         'weight' => 4,
       ),
+      'message_notify_daily_digest' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
       'message_notify_email_body' => array(
         'label' => 'above',
         'settings' => array(),
@@ -239,6 +281,12 @@ function oa_messages_field_default_field_instances() {
         'settings' => array(),
         'type' => 'hidden',
         'weight' => 6,
+      ),
+      'message_notify_weekly_digest' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
       ),
       'oa_river_accordian' => array(
         'label' => 'above',
@@ -298,6 +346,12 @@ function oa_messages_field_default_field_instances() {
         'type' => 'entityreference_label',
         'weight' => 5,
       ),
+      'message_notify_daily_digest' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
       'message_notify_email_body' => array(
         'label' => 'above',
         'settings' => array(),
@@ -309,6 +363,12 @@ function oa_messages_field_default_field_instances() {
         'settings' => array(),
         'type' => 'hidden',
         'weight' => 9,
+      ),
+      'message_notify_weekly_digest' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
       ),
       'oa_river_accordian' => array(
         'label' => 'above',
@@ -365,6 +425,12 @@ function oa_messages_field_default_field_instances() {
         'type' => 'entityreference_label',
         'weight' => 6,
       ),
+      'message_notify_daily_digest' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
       'message_notify_email_body' => array(
         'label' => 'above',
         'settings' => array(),
@@ -372,6 +438,12 @@ function oa_messages_field_default_field_instances() {
         'weight' => 0,
       ),
       'message_notify_email_subject' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'message_notify_weekly_digest' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
@@ -432,6 +504,12 @@ function oa_messages_field_default_field_instances() {
         'type' => 'entityreference_label',
         'weight' => 5,
       ),
+      'message_notify_daily_digest' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
       'message_notify_email_body' => array(
         'label' => 'above',
         'settings' => array(),
@@ -439,6 +517,12 @@ function oa_messages_field_default_field_instances() {
         'weight' => 0,
       ),
       'message_notify_email_subject' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'message_notify_weekly_digest' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
@@ -497,6 +581,12 @@ function oa_messages_field_default_field_instances() {
         'type' => 'text_default',
         'weight' => 7,
       ),
+      'message_notify_daily_digest' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
       'message_notify_email_body' => array(
         'label' => 'above',
         'settings' => array(),
@@ -504,6 +594,12 @@ function oa_messages_field_default_field_instances() {
         'weight' => 0,
       ),
       'message_notify_email_subject' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'message_notify_weekly_digest' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
@@ -567,6 +663,12 @@ function oa_messages_field_default_field_instances() {
         'type' => 'entityreference_label',
         'weight' => 0,
       ),
+      'message_notify_daily_digest' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
       'message_notify_email_body' => array(
         'label' => 'above',
         'settings' => array(),
@@ -574,6 +676,12 @@ function oa_messages_field_default_field_instances() {
         'weight' => 0,
       ),
       'message_notify_email_subject' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'message_notify_weekly_digest' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
@@ -632,6 +740,12 @@ function oa_messages_field_default_field_instances() {
         'type' => 'text_default',
         'weight' => 5,
       ),
+      'message_notify_daily_digest' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
       'message_notify_email_body' => array(
         'label' => 'above',
         'settings' => array(),
@@ -639,6 +753,12 @@ function oa_messages_field_default_field_instances() {
         'weight' => 0,
       ),
       'message_notify_email_subject' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'message_notify_weekly_digest' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
@@ -700,6 +820,12 @@ function oa_messages_field_default_field_instances() {
         'type' => 'text_default',
         'weight' => 4,
       ),
+      'message_notify_daily_digest' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
       'message_notify_email_body' => array(
         'label' => 'above',
         'settings' => array(),
@@ -707,6 +833,12 @@ function oa_messages_field_default_field_instances() {
         'weight' => 0,
       ),
       'message_notify_email_subject' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'message_notify_weekly_digest' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
@@ -770,6 +902,12 @@ function oa_messages_field_default_field_instances() {
         'type' => 'entityreference_label',
         'weight' => 8,
       ),
+      'message_notify_daily_digest' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
       'message_notify_email_body' => array(
         'label' => 'above',
         'settings' => array(),
@@ -777,6 +915,12 @@ function oa_messages_field_default_field_instances() {
         'weight' => 0,
       ),
       'message_notify_email_subject' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'message_notify_weekly_digest' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
@@ -837,6 +981,12 @@ function oa_messages_field_default_field_instances() {
         'type' => 'entityreference_label',
         'weight' => 7,
       ),
+      'message_notify_daily_digest' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
       'message_notify_email_body' => array(
         'label' => 'above',
         'settings' => array(),
@@ -844,6 +994,12 @@ function oa_messages_field_default_field_instances() {
         'weight' => 0,
       ),
       'message_notify_email_subject' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'message_notify_weekly_digest' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
@@ -904,6 +1060,12 @@ function oa_messages_field_default_field_instances() {
         'type' => 'entityreference_label',
         'weight' => 1,
       ),
+      'message_notify_daily_digest' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
       'message_notify_email_body' => array(
         'label' => 'above',
         'settings' => array(),
@@ -911,6 +1073,12 @@ function oa_messages_field_default_field_instances() {
         'weight' => 0,
       ),
       'message_notify_email_subject' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'message_notify_weekly_digest' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
@@ -971,6 +1139,12 @@ function oa_messages_field_default_field_instances() {
         'type' => 'entityreference_label',
         'weight' => 0,
       ),
+      'message_notify_daily_digest' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
       'message_notify_email_body' => array(
         'label' => 'above',
         'settings' => array(),
@@ -978,6 +1152,12 @@ function oa_messages_field_default_field_instances() {
         'weight' => 0,
       ),
       'message_notify_email_subject' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'message_notify_weekly_digest' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
@@ -1036,6 +1216,12 @@ function oa_messages_field_default_field_instances() {
         'type' => 'text_default',
         'weight' => 2,
       ),
+      'message_notify_daily_digest' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
       'message_notify_email_body' => array(
         'label' => 'above',
         'settings' => array(),
@@ -1043,6 +1229,12 @@ function oa_messages_field_default_field_instances() {
         'weight' => 0,
       ),
       'message_notify_email_subject' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'message_notify_weekly_digest' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
@@ -1106,6 +1298,12 @@ function oa_messages_field_default_field_instances() {
         'type' => 'entityreference_label',
         'weight' => 5,
       ),
+      'message_notify_daily_digest' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
       'message_notify_email_body' => array(
         'label' => 'above',
         'settings' => array(),
@@ -1113,6 +1311,12 @@ function oa_messages_field_default_field_instances() {
         'weight' => 0,
       ),
       'message_notify_email_subject' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'message_notify_weekly_digest' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
@@ -1173,6 +1377,12 @@ function oa_messages_field_default_field_instances() {
         'type' => 'entityreference_label',
         'weight' => 4,
       ),
+      'message_notify_daily_digest' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
       'message_notify_email_body' => array(
         'label' => 'above',
         'settings' => array(),
@@ -1180,6 +1390,12 @@ function oa_messages_field_default_field_instances() {
         'weight' => 0,
       ),
       'message_notify_email_subject' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'message_notify_weekly_digest' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
@@ -1238,6 +1454,12 @@ function oa_messages_field_default_field_instances() {
         'type' => 'text_default',
         'weight' => 6,
       ),
+      'message_notify_daily_digest' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
       'message_notify_email_body' => array(
         'label' => 'above',
         'settings' => array(),
@@ -1245,6 +1467,12 @@ function oa_messages_field_default_field_instances() {
         'weight' => 0,
       ),
       'message_notify_email_subject' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'message_notify_weekly_digest' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
@@ -1308,6 +1536,12 @@ function oa_messages_field_default_field_instances() {
         'type' => 'entityreference_label',
         'weight' => 0,
       ),
+      'message_notify_daily_digest' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
       'message_notify_email_body' => array(
         'label' => 'above',
         'settings' => array(),
@@ -1319,6 +1553,12 @@ function oa_messages_field_default_field_instances() {
         'settings' => array(),
         'type' => 'hidden',
         'weight' => 5,
+      ),
+      'message_notify_weekly_digest' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
       ),
       'oa_river_accordian' => array(
         'label' => 'above',

@@ -20,11 +20,11 @@
         <?php print $picture; ?>
     </div>
     <div class="dropdown-menu" role="menu" aria-labelledby="section-dropdown">
-      <ul>
-        <li><?php print l(t('Dashboard'), $links['dashboard']); ?></li>
-        <li><?php print l(t('Edit profile'), $links['edit_profile']); ?></li>
-        <li><?php print l(t('Log out'), $links['logout']); ?></li>
-      </ul>
+      <?php
+        // Sort the links by 'weight' before rendering them.
+        uasort($links['#links'], 'drupal_sort_weight');
+        print render($links);
+      ?>
     </div>
   </div>
 </div>

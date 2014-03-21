@@ -30,6 +30,69 @@ function oa_worktracker_views_api($module = NULL, $api = NULL) {
 }
 
 /**
+ * Implements hook_panelizer_defaults_override_alter().
+ */
+function oa_worktracker_panelizer_defaults_override_alter(&$data) {
+  if (isset($data['user:user:default'])) {
+    $data['user:user:default']->display->content['new-7e2787f8-3f6c-4b3b-a1bb-e11225e395d5'] = (object) array(
+          'pid' => 'new-7e2787f8-3f6c-4b3b-a1bb-e11225e395d5',
+          'panel' => 'contentheader',
+          'type' => 'views_panes',
+          'subtype' => 'oa_worktracker-user_tasks',
+          'shown' => TRUE,
+          'access' => array(),
+          'configuration' => array(
+            'show_exposed_form' => 1,
+            'items_per_page' => 10,
+            'fields_override' => array(
+              'timestamp' => 0,
+              'title' => 1,
+              'realname_1' => 0,
+              'realname' => 0,
+              'title_1' => 1,
+              'field_oa_worktracker_priority' => 1,
+              'field_oa_worktracker_task_type' => 1,
+              'field_oa_worktracker_task_status' => 1,
+              'comment_count' => 1,
+              'last_updated' => 1,
+            ),
+            'exposed' => array(
+              'field_oa_worktracker_task_status_value' => array(),
+              'field_oa_worktracker_priority_value' => array(),
+              'field_oa_worktracker_task_type_value' => array(),
+              'widget_title' => 'Your Tasks',
+              'sort_by' => NULL,
+              'sort_order' => NULL,
+            ),
+            'override_title' => '',
+            'override_title_text' => '',
+            'view_mode' => 'teaser',
+            'widget_title' => 'Your Tasks',
+            'use_pager' => NULL,
+            'pager_id' => NULL,
+            'offset' => NULL,
+            'link_to_view' => NULL,
+            'more_link' => NULL,
+            'path' => NULL,
+            'view_settings' => 'fields',
+            'header_type' => 'none',
+            'context' => array(
+              0 => 'panelizer',
+            ),
+          ),
+          'cache' => array(),
+          'style' => '',
+          'css' => array(),
+          'extras' => array(),
+          'position' => 3,
+          'locks' => array(),
+          'uuid' => '7e2787f8-3f6c-4b3b-a1bb-e11225e395d5',
+        ); /* WAS: '' */
+    $data['user:user:default']->display->panels['contentheader']['3'] = 'new-7e2787f8-3f6c-4b3b-a1bb-e11225e395d5'; /* WAS: '' */
+  }
+}
+
+/**
  * Implements hook_default_message_type().
  */
 function oa_worktracker_default_message_type() {
@@ -53,9 +116,9 @@ function oa_worktracker_default_message_type() {
           "safe_value" : "\\u003Cp\\u003E[[message:field-oa-message-space]] @{message:user:name} updated [message:field-oa-node-ref:title]\\u003C\\/p\\u003E\\n"
         },
         {
-          "value" : "@{message:user:name} updated \\u003Ca href=\\u0022\\/comment\\/[message:field-oa-comment-ref:cid]#comment-[message:field-oa-comment-ref:cid]\\u0022\\u003E[message:field-oa-node-ref:title]\\u003C\\/a\\u003E\\r\\n[message:field-oa-message-text:value] [message:field-oa-comment-ref:comment-body:value]\\r\\n[message:field-oa-node-ref:oa-diff:@{message:field-oa-node-ref:vid}]\\r\\n\\u003Ca href=\\u0022[message:field-oa-node-ref:url]\\u0022\\u003EClick here\\u003C\\/a\\u003E to see the task and it\\u0027s history.",
+          "value" : "@{message:user:name} updated \\u003Ca href=\\u0022\\/comment\\/[message:field-oa-comment-ref:cid]#comment-[message:field-oa-comment-ref:cid]\\u0022\\u003E[message:field-oa-node-ref:title]\\u003C\\/a\\u003E\\r\\n[message:field-oa-message-text:value] [message:field-oa-comment-ref:comment-body:value]\\r\\n[message:field-oa-node-ref:oa-diff:@{message:field-oa-node-ref:vid}]\\r\\n\\u003Ca href=\\u0022[message:field-oa-node-ref:url]\\u0022\\u003EClick here\\u003C\\/a\\u003E to see the task and its history.",
           "format" : "full_html",
-          "safe_value" : "@{message:user:name} updated \\u003Ca href=\\u0022\\/comment\\/[message:field-oa-comment-ref:cid]#comment-[message:field-oa-comment-ref:cid]\\u0022\\u003E[message:field-oa-node-ref:title]\\u003C\\/a\\u003E\\n[message:field-oa-message-text:value] [message:field-oa-comment-ref:comment-body:value]\\n[message:field-oa-node-ref:oa-diff:@{message:field-oa-node-ref:vid}]\\n\\u003Ca href=\\u0022[message:field-oa-node-ref:url]\\u0022\\u003EClick here\\u003C\\/a\\u003E to see the task and it\\u0027s history."
+          "safe_value" : "@{message:user:name} updated \\u003Ca href=\\u0022\\/comment\\/[message:field-oa-comment-ref:cid]#comment-[message:field-oa-comment-ref:cid]\\u0022\\u003E[message:field-oa-node-ref:title]\\u003C\\/a\\u003E\\n[message:field-oa-message-text:value] [message:field-oa-comment-ref:comment-body:value]\\n[message:field-oa-node-ref:oa-diff:@{message:field-oa-node-ref:vid}]\\n\\u003Ca href=\\u0022[message:field-oa-node-ref:url]\\u0022\\u003EClick here\\u003C\\/a\\u003E to see the task and its history."
         },
         {
           "value" : "\\u003Ca href=\\u0022[site:url]user\\/@{message:user:uid}\\u0022 class=\\u0022oa-userlink\\u0022\\u003E@{message:user:name}\\u003C\\/a\\u003E updated \\u003Ca href=\\u0022\\/comment\\/[message:field-oa-comment-ref:cid]#comment-[message:field-oa-comment-ref:cid]\\u0022\\u003E\\u003Cstrong\\u003E[message:field-oa-node-ref:title]\\u003C\\/strong\\u003E\\u003C\\/a\\u003E",

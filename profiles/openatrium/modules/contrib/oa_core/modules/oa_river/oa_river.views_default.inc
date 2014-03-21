@@ -186,12 +186,14 @@ function oa_river_views_default_views() {
   $handler->display->display_options['fields']['rendered_entity_1']['alter']['strip_tags'] = TRUE;
   $handler->display->display_options['fields']['rendered_entity_1']['alter']['trim'] = TRUE;
   $handler->display->display_options['fields']['rendered_entity_1']['alter']['preserve_tags'] = '<b> <i> <strong> <em> <a> <img>';
+  $handler->display->display_options['fields']['rendered_entity_1']['alter']['html'] = TRUE;
   $handler->display->display_options['fields']['rendered_entity_1']['element_type'] = 'span';
   $handler->display->display_options['fields']['rendered_entity_1']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['rendered_entity_1']['element_default_classes'] = FALSE;
   $handler->display->display_options['fields']['rendered_entity_1']['link_to_entity'] = 1;
   $handler->display->display_options['fields']['rendered_entity_1']['display'] = 'view';
   $handler->display->display_options['fields']['rendered_entity_1']['view_mode'] = 'oa_river_accordian';
+  $handler->display->display_options['fields']['rendered_entity_1']['bypass_access'] = 0;
   /* Field: Message River Body */
   $handler->display->display_options['fields']['rendered_entity_2']['id'] = 'rendered_entity_2';
   $handler->display->display_options['fields']['rendered_entity_2']['table'] = 'views_entity_message';

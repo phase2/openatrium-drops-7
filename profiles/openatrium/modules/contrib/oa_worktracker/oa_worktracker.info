@@ -13,7 +13,8 @@ dependencies[] = file
 dependencies[] = media
 dependencies[] = message
 dependencies[] = node
-dependencies[] = oa_core (>2.10)
+dependencies[] = oa_core (>2.13)
+dependencies[] = oa_layouts
 dependencies[] = oa_media
 dependencies[] = oa_messages
 dependencies[] = oa_panopoly_users
@@ -39,8 +40,7 @@ features[defaultconfig][] = user_default_permissions:edit own comments
 features[defaultconfig][] = user_default_permissions:post comments
 features[defaultconfig][] = user_default_permissions:skip comment approval
 features[features_api][] = api:2
-features[features_override_items][] = panelizer_defaults.user:user:default
-features[features_overrides][] = panelizer_defaults.user:user:default.display|content|oa_worktracker_user_tasks
+features[features_overrides][] = panelizer_defaults.user:user:default.display|content|new-7e2787f8-3f6c-4b3b-a1bb-e11225e395d5
 features[features_overrides][] = panelizer_defaults.user:user:default.display|panels|contentheader|3
 features[field_base][] = field_oa_worktracker_assigned_to
 features[field_base][] = field_oa_worktracker_priority
@@ -90,14 +90,13 @@ features[variable][] = panelizer_defaults_node_oa_worktracker_task
 features[views_view][] = oa_worktracker
 features_exclude[dependencies][trash_flag] = trash_flag
 features_exclude[dependencies][date] = date
-features_exclude[features_overrides][panelizer_defaults.user:user:default.display|content|new-6] = panelizer_defaults.user:user:default.display|content|new-6
 features_exclude[field_base][field_oa_worktracker_duedate] = field_oa_worktracker_duedate
 features_exclude[field_base][comment_body] = comment_body
 features_exclude[field_instance][node-oa_worktracker_task-field_oa_worktracker_duedate] = node-oa_worktracker_task-field_oa_worktracker_duedate
 
-; Information added by Drupal.org packaging script on 2013-12-05
-version = "7.x-2.0-beta6"
+; Information added by Drupal.org packaging script on 2014-02-25
+version = "7.x-2.0-beta11"
 core = "7.x"
 project = "oa_worktracker"
-datestamp = "1386268717"
+datestamp = "1393363405"
 

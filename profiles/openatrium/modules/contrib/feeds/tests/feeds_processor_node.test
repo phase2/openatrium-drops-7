@@ -455,4 +455,48 @@ class FeedsRSStoNodesTest extends FeedsWebTestCase {
     $node_count = db_query("SELECT COUNT(*) FROM {node}")->fetchField();
     $this->assertEqual($node_count, 11, t('Correct number of nodes in the database.'));
   }
+
+  /**
+   * Tests expiring nodes.
+   */
+  public function testExpiry() {
+    // Create importer configuration.
+    $this->setSettings('syndication', NULL, array('content_type' => ''));
+    $this->setSettings('syndication', 'FeedsNodeProcessor', array(
+      'expire' => 2592000,
+    ));
+
+    // Create importer.
+    $this->importURL('syndication');
+
+    // Set date of a few nodes to current date so they don't expire.
+    $edit = array(
+      'date' => date('Y-m-d'),
+    );
+    $this->drupalPost('node/2/edit', $edit, 'Save');
+    $this->assertText(date('m/d/Y'), 'Found correct date.');
+    $this->drupalPost('node/5/edit', $edit, 'Save');
+    $this->assertText(date('m/d/Y'), 'Found correct date.');
+
+    // Run cron to schedule jobs.
+    $this->cronRun();
+
+    // Set feeds source expire to run immediately.
+    db_update('job_schedule')
+      ->fields(array(
+        'next' => 0,
+      ))
+      ->condition('name', 'feeds_source_expire')
+      ->execute();
+
+    // Run cron to execute scheduled jobs.
+    $this->cronRun();
+
+    // Query the feeds_items table and count the number of entries.
+    $row_count = db_query('SELECT COUNT(*) FROM {feeds_item}')->fetchField();
+
+    // Check that number of feeds items is equal to the expected items.
+    $this->assertEqual($row_count, 2, 'Nodes expired.');
+  }
+
 }

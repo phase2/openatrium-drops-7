@@ -202,15 +202,13 @@ function oa_events_field_formatter_view($entity_type, $entity, $field, $instance
       ),
     );
 
-    if ($dates['start']['month'] == $dates['end']['month']) {
-      // For now always use the start date. We may add multi-day event to the
-      // widget at some point in the future.
-      $day = $dates['start']['day'];
-
-      $element[0] = array(
-        '#markup' => theme('oa_event_date', array('month' => $dates['start']['month'], 'day' => $day)),
-      );
-    }
+    // For now always use the start date. We may add multi-day event to the
+    // widget at some point in the future.
+    $day = $dates['start']['day'];
+    $month = $dates['start']['month'];
+    $element[0] = array(
+      '#markup' => theme('oa_event_date', array('month' => $month, 'day' => $day)),
+    );
   }
   elseif ($display['type'] == 'oa_events_upcoming_date') {
     $event_info = oa_events_find_next_event($items);
@@ -475,4 +473,5 @@ function oa_events_views_content_type_modal_submit(&$form, &$form_state) {
  */
 function oa_events_form_oa_event_node_form_alter(&$form, &$form_state, $form_id) {
   drupal_add_js(drupal_get_path('module', 'oa_events') . '/js/oa_events.js');
+  _oa_core_hide_comment_settings($form);
 }

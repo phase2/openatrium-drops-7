@@ -12,9 +12,6 @@ function panopoly_users_update_dependencies() {
   $deps = array();
   $deps['panopoly_users'][7001] = array(
     'panopoly_core' => 7002,
-    // This is necessary because we clear all caches at the end of that update
-    // function and this adds the 'cache_entity_fieldable_panels_pane' table.
-    'fieldable_panels_panes' => 7107,
   );
   return $deps;
 }
@@ -33,5 +30,7 @@ function panopoly_users_update_7001() {
     ));
   }
 
-  drupal_flush_all_caches();
+  // Set the variables that would be set via defaultconfig.
+  variable_set('user_pictures', 1);
+  variable_set('user_picture_style', 'panopoly_image_thumbnail');
 }

@@ -74,7 +74,17 @@ function media_youtube_preprocess_media_youtube_video(&$variables) {
   if ($variables['options']['autohide'] != '2') {
     $query['autohide'] = $variables['options']['autohide'];
   }
-
+  if ($variables['options']['captions'] > '0') {
+    // Add captions parameters to the query.
+    $query['cc_load_policy'] = '1';
+    if ($variables['options']['captions'] > '1') {
+      global $language;
+      // We can specify a default language for captions.
+      if ($language->language != LANGUAGE_NONE) {
+        $query['cc_lang_pref'] = $language->language;
+      }
+    }
+  }
   // Non-query options.
   if ($variables['options']['nocookie']) {
     $url_base = 'youtube-nocookie.com';

@@ -10,10 +10,10 @@
  */
 ?>
 
-<div class="panel-display boxton clearfix <?php if (!empty($class)) { print $class; } ?>" <?php if (!empty($css_id)) { print "id=\"$css_id\""; } ?>>
-
-  <div class="boxton-container boxton-content boxton-content-region panel-panel">
-    <?php print $content['contentmain']; ?>
+<div class="panel-display boxton clearfix container <?php if (!empty($class)) { print $class; } ?>" <?php if (!empty($css_id)) { print "id=\"$css_id\""; } ?>>
+  <div class="row-fluid">
+    <div class="boxton-container boxton-content boxton-content-region panel-panel span12">
+      <?php print $content['contentmain']; ?>
+    </div>
   </div>
-
 </div><!-- /.boxton -->

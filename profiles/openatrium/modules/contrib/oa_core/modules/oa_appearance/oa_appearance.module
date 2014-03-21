@@ -234,3 +234,16 @@ function oa_appearance_edit_form_submit($form, &$form_state) {
   module_load_include('admin.inc', 'colorizer');
   colorizer_admin_form_submit($form, $form_state);
 }
+
+/**
+ * Implements hook_oa_clone_group_metadata().
+ */
+function oa_appearance_oa_clone_group_metadata($node, $original_nid) {
+  // Clone the colorizer values from the original.
+  foreach (list_themes() as $theme_name => $theme_info) {
+    if ($palette = variable_get('colorizer_' . $theme_name . '_' . $original_nid . '_palette', FALSE)) {
+      variable_set('colorizer_' . $theme_name . '_' . $node->nid . '_palette', $palette);
+      colorizer_update_stylesheet($theme_name, $theme_name . '_' . $node->nid, $palette);
+    }
+  }
+}

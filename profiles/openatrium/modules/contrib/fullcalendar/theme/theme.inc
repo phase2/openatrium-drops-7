@@ -245,21 +245,35 @@ function fullcalendar_prepare_events($view, $rows, $options) {
           }
 
           list($start, $end, $all_day) = $dates;
+
+          // Add a class if the event was in the past or is in the future, based
+          // on the end time. We can't do this in hook_fullcalendar_classes()
+          // because the date hasn't been processed yet.
+          if (($all_day && strtotime($start) < strtotime('today')) || (!$all_day && strtotime($end) < REQUEST_TIME)) {
+            $time_class = 'fc-event-past';
+          }
+          elseif (strtotime($start) > REQUEST_TIME) {
+            $time_class = 'fc-event-future';
+          }
+          else {
+            $time_class = 'fc-event-now';
+          }
+
           $event[] = array(
             '#theme' => 'link',
             '#text' => $item['rendered']['#markup'],
             '#path' => $entity->url,
             '#options' => array(
               'attributes' => array(
-                'allDay' => $all_day,
-                'start' => $start,
-                'end' => $end,
-                'editable' => $entity->editable,
-                'field' => $field['field_name'],
-                'index' => $index,
-                'eid' => $entity->eid,
-                'entity_type' => $entity->entity_type,
-                'cn' => $entity->class,
+                'data-all-day' => $all_day,
+                'data-start' => $start,
+                'data-end' => $end,
+                'data-editable' => $entity->editable,
+                'data-field' => $field['field_name'],
+                'data-index' => $index,
+                'data-eid' => $entity->eid,
+                'data-entity-type' => $entity->entity_type,
+                'data-cn' => $entity->class . ' ' . $time_class,
                 'title' => strip_tags(htmlspecialchars_decode($entity->title, ENT_QUOTES)),
                 'class' => array('fullcalendar-event-details'),
               ),

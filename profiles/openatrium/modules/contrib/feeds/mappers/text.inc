@@ -33,45 +33,27 @@ function text_feeds_processor_targets_alter(&$targets, $entity_type, $bundle_nam
 /**
  * Callback for mapping text fields.
  */
-function text_feeds_set_target($source, $entity, $target, $value) {
-  if (empty($value)) {
-    return;
-  }
-
-  if (!is_array($value)) {
-    $value = array($value);
-  }
-
+function text_feeds_set_target($source, $entity, $target, array $values) {
   if (isset($source->importer->processor->config['input_format'])) {
     $format = $source->importer->processor->config['input_format'];
   }
 
-  $info = field_info_field($target);
-
-  // Iterate over all values.
   $field = isset($entity->$target) ? $entity->$target : array('und' => array());
 
-  // Allow for multiple mappings to the same target.
-  $delta = count($field['und']);
+  // Iterate over all values.
+  foreach ($values as $value) {
 
-  foreach ($value as $v) {
-
-    if ($info['cardinality'] == $delta) {
-      break;
+    if (is_object($value) && ($value instanceof FeedsElement)) {
+      $value = $value->getValue();
     }
 
-    if (is_object($v) && ($v instanceof FeedsElement)) {
-      $v = $v->getValue();
-    }
-
-    if (is_scalar($v)) {
-      $field['und'][$delta]['value'] = $v;
-
+    if (is_scalar($value) && strlen($value)) {
+      $value = array('value' => (string) $value);
       if (isset($format)) {
-        $field['und'][$delta]['format'] = $format;
+        $value['format'] = $format;
       }
 
-      $delta++;
+      $field['und'][] = $value;
     }
   }
 

@@ -30,6 +30,11 @@ function geofield_field_formatter_info() {
       'field types' => array('geofield'),
       'settings' => array('data' => 'full'),
     ),
+    'geofield_geohash' => array(
+      'label' => t('Geohash'),
+      'field types' => array('geofield'),
+      'settings' => array('data' => 'full'),
+    ),
     'geofield_latlon' => array(
       'label' => t('Latitude/Longitude'),
       'field types' => array('geofield'),
@@ -67,7 +72,7 @@ function geofield_field_formatter_info() {
     'settings' => array('data' => '', 'address' => 0),
   );
   $formatters['geofield_description'] = array(
-    'label' => t('Decriptive Text (Accessibility)'),
+    'label' => t('Descriptive Text (Accessibility)'),
     'field types' => array('geofield'),
     'settings' => array('data' => '', 'address' => 0),
   );
@@ -210,20 +215,27 @@ function geofield_field_formatter_settings_summary($field, $instance, $view_mode
 function geofield_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $element = array();
 
+  // First check to see if we have any value and remove any unset deltas
+  foreach ($items as $delta => $item) {
+    if (empty($item['geom'])) {
+      unset($items[$delta]);
+    }
+  }
+
   // Transform into centroid or bounding if needed
   if ($display['settings']['data'] != 'full') {
     geophp_load();
     if ($display['settings']['data'] == 'centroid') {
       foreach ($items as $delta => $item) {
         $centroid_wkt = 'POINT(' . $item['lon'] . ' ' . $item['lat'] . ')';
-        $centroid = geoPHP::load($centroid_wkt, 'wkt');
+        $centroid = geoPHP::load($centroid_wkt);
         $items[$delta] = geofield_get_values_from_geometry($centroid);
       }
     }
     if ($display['settings']['data'] == 'bounding') {
       foreach ($items as $delta => $item) {
         $envelope_wkt = 'POLYGON ((' . $item['left'] . ' ' . $item['top'] . ', ' . $item['right'] . ' ' . $item['top'] . ', ' . $item['right'] . ' ' . $item['bottom'] . ', ' . $item['left'] . ' ' . $item['bottom'] . ', ' . $item['left'] . ' ' . $item['top'] . '))';
-        $envelope = geoPHP::load($envelope_wkt, 'wkt');
+        $envelope = geoPHP::load($envelope_wkt);
         $items[$delta] = geofield_get_values_from_geometry($envelope);
       }
     }
@@ -251,14 +263,18 @@ function geofield_field_formatter_view($entity_type, $entity, $field, $instance,
 
   switch ($display['type']) {
     case 'geofield_wkt':
+      geophp_load();
       foreach ($items as $delta => $item) {
-        $element[$delta] = array('#markup' => $item['wkt']);
+        $geometry = geoPHP::load($item['geom']);
+        $wkt = $geometry->out('wkt');
+        $microdata = _geofield_item_microdata_propertyvalue($entity, $instance, $item);
+        $element[$delta] = array('#markup' => $wkt . $microdata);
       }
       return $element;
     case 'geofield_geojson':
       geophp_load();
       foreach ($items as $delta => $item) {
-        $geometry = geoPHP::load($item['wkt'], 'wkt');
+        $geometry = geoPHP::load($item['geom']);
         $json = $geometry->out('json');
         $element[$delta] = array('#markup' => $json);
       }
@@ -266,7 +282,7 @@ function geofield_field_formatter_view($entity_type, $entity, $field, $instance,
     case 'geofield_kml':
       geophp_load();
       foreach ($items as $delta => $item) {
-        $geometry = geoPHP::load($item['wkt'], 'wkt');
+        $geometry = geoPHP::load($item['geom']);
         $kml = $geometry->out('kml');
         $element[$delta] = array('#markup' => $kml);
       }
@@ -274,30 +290,40 @@ function geofield_field_formatter_view($entity_type, $entity, $field, $instance,
     case 'geofield_gpx':
       geophp_load();
       foreach ($items as $delta => $item) {
-        $geometry = geoPHP::load($item['wkt'], 'wkt');
+        $geometry = geoPHP::load($item['geom']);
         $kml = $geometry->out('gpx');
         $element[$delta] = array('#markup' => $kml);
       }
       return $element;
+    case 'geofield_geohash':
+      geophp_load();
+      foreach ($items as $delta => $item) {
+        $geometry = geoPHP::load($item['geom']);
+        $geohash = $geometry->out('geohash');
+        $element[$delta] = array('#markup' => $geohash);
+      }
+      return $element;
     case 'geofield_latlon':
       foreach ($items as $delta => $item) {
+        $microdata = _geofield_item_microdata_propertyvalue($entity, $instance, $item);
         if ($display['settings']['labels']) {
-          $output = t('Latitude: !latitude <br/>Longitude: !longitude', array('!latitude' => $item['lat'], '!longitude' => $item['lon']));
+          $element[$delta] = array('#markup' => t('Latitude: !latitude <br/>Longitude: !longitude' . $microdata, array('!latitude' => $item['lat'], '!longitude' => $item['lon'])));
         }
         else {
-          $output = $item['lat'] . ', ' . $item['lon'];
+          $element[$delta] = array('#markup' => $item['lat'] . ', ' . $item['lon'] . $microdata);
         }
-        $element[$delta] = array('#markup' => $output);
       }
       return $element;
     case 'geofield_lat':
       foreach ($items as $delta => $item) {
-        $element[$delta] = array('#markup' => $item['lat']);
+        $microdata = _geofield_item_microdata_propertyvalue($entity, $instance, $item);
+        $element[$delta] = array('#markup' => $item['lat'] . $microdata);
       }
       return $element;
     case 'geofield_lon':
       foreach ($items as $delta => $item) {
-        $element[$delta] = array('#markup' => $item['lon']);
+        $microdata = _geofield_item_microdata_propertyvalue($entity, $instance, $item);
+        $element[$delta] = array('#markup' => $item['lon'] . $microdata);
       }
       return $element;
     case 'geofield_geo_type':
@@ -324,13 +350,53 @@ function geofield_field_formatter_view($entity_type, $entity, $field, $instance,
   return $element;
 }
 
+/**
+ * Function to return appropriate GeoCoordinates/GeoShape properties.
+ *
+ * This is developing code, as an example. Output can be made available to the
+ * theme, as specific site may want to display or not data based on other
+ * factors.
+ */
+function _geofield_item_microdata_propertyvalue($entity, $instance, $item) {
+  $output = '';
+
+  // If there is no microdata mapping for the field, return an empty string.
+  if (isset($entity->microdata[$instance['field_name']])) {
+    $microdata = $entity->microdata[$instance['field_name']];
+  }
+  else {
+    return '';
+  }
+
+  if ($item['geo_type'] == 'point') {
+    foreach (array('lat', 'lon') as $property) {
+      $microdata[$property]['#attributes']['content'] = $item[$property];
+      $output .= '<meta' . drupal_attributes($microdata[$property]['#attributes']) .' />';
+    }
+  }
+  else {
+    $schemaorg_shape = geofield_schemaorg_shape($item);
+    $microdata['schemaorg_shape']['#attributes']['content'] = $schemaorg_shape;
+    $output .= '<meta' . drupal_attributes($microdata['schemaorg_shape']['#attributes']) .' />';
+  }
+
+  return $output;
+}
+
 function _geofield_openlayers_formatter($map_name, $items) {
   $features = array();
+  geophp_load();
 
   // Create array of $features
   foreach ($items as $delta) {
+    if (array_key_exists('geom', $delta)) {
+      $geometry = geoPHP::load($delta['geom']);
+    }
+    else {
+      $geometry = geoPHP::load($delta);
+    }
     $features[] = array(
-      'wkt' => $delta['wkt'],
+      'wkt' => $geometry->out('wkt'),
       'projection' => 'EPSG:4326',
     );
   }
@@ -362,7 +428,7 @@ function _geofield_openlayers_formatter($map_name, $items) {
 
 function _geofield_def_list_formatter($item, $settings) {
   geophp_load();
-  $geometry = geoPHP::load($item['wkt'], 'wkt');
+  $geometry = geoPHP::load($item['geom']);
 
   // Single types
   $single_types = array('Point', 'LineString', 'Polygon');
@@ -397,7 +463,9 @@ function _geofield_def_list_formatter_dl($info) {
 
 function _geofield_description_formatter($item, $settings) {
   geophp_load();
-  $geometry = geoPHP::load($item['wkt'], 'wkt');
+  $geometry = geoPHP::load($item['geom']);
+
+  if (!$geometry) return '';
 
   // Single types
   $single_types = array('Point', 'LineString', 'Polygon');

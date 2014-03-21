@@ -23,7 +23,7 @@ function oa_widgets_user_profile_render($subtype, $conf, $args, $context = NULL)
   $block->title = '';
 
   $vars = array();
-  oa_dashboard_preprocess_oa_user_badge($vars);
+  template_preprocess_oa_user_badge($vars);
 
   global $user;
   if ($user->uid) {

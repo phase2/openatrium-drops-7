@@ -12,6 +12,8 @@ body {
   }
   @include breakpoint('mini-tablet') {
     padding-top: 90px;
+    padding-left: 0;
+    padding-right: 0;
   }
   @include breakpoint('phone') {
     padding-top: 0;
@@ -20,7 +22,7 @@ body {
     min-height: 100%;
     height: auto !important;
     height: 100%;
-    margin: 0 auto -100px;
+    margin: 0 20px -100px;
   }
   #push {
     height: 100px;

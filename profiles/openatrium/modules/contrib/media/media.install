@@ -52,6 +52,9 @@ function media_install() {
   catch (Exception $e) {
     watchdog_exception('media', $e);
   }
+
+  // Fix File Entity default displays issue with exports.
+  _media_default_displays();
 }
 
 /**
@@ -1070,4 +1073,44 @@ function media_update_7218() {
   }
 
   variable_del('media__xml_cache_expire');
+}
+
+/**
+ * Fix overridden issues with File Displays
+ */
+function media_update_7226() {
+  _media_default_displays();
+}
+
+/**
+ * Instantiate the File Entity display overrides.
+ */
+function _media_default_displays() {
+  // Create initial display settings.
+  module_load_include('inc', 'file_entity', 'file_entity.file_api');
+  $default_image_styles = array(
+    'preview' => 'media_thumbnail',
+  );
+  $default_types = array(
+    'audio' => 'audio',
+    'document' => 'document',
+    'video' => 'video',
+  );
+  foreach ($default_types as $types) {
+    foreach ($default_image_styles as $view_mode => $image_style) {
+      $existing_display = file_displays_load($types, $view_mode);
+      if (empty($existing_display)) {
+        $display_name = $types . '__' . $view_mode . '__file_field_media_large_icon';
+        $display = array(
+          'api_version' => 1,
+          'name' => $display_name,
+          'status' => 1,
+          'weight' => 50,
+          'settings' => array('image_style' => $image_style),
+          'export_type' => NULL,
+        );
+        file_display_save((object) $display);
+      }
+    }
+  }
 }

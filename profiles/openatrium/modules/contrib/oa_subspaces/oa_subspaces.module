@@ -25,40 +25,46 @@ function oa_subspaces_form_node_form_alter(&$form, $form_state, $form_id) {
   if (isset($form[OA_PARENT_SPACE][LANGUAGE_NONE][0])) {
     $form['#validate'][] = 'oa_subspaces_form_node_form_validate';
 
+    // make some shortcut pointers to make the rest of this code easier to read
+    $parent_default = &$form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default'];
+    $parent_admin   = &$form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['admin'];
+
     // clean up the edit form
-    if (!empty($form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['admin']['#options'])) {
+    if (!empty($parent_admin['#options'])) {
       $all = array();
-      foreach ($form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default']['#options'] + $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['admin']['#options'] as $op => $value) {
+      foreach ($parent_default['#options'] + $parent_admin['#options'] as $op => $value) {
         if (is_array($value)) {
-          $all += $value;
+          foreach($value as $id => $title) {
+            $all[$id] = $title . ' ' . '[' . drupal_strtolower($op) . ']';
+          }
         }
         else {
           $all[$op] = $value;
         }
       }
-      $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default']['#options'] = $all;
+      $parent_default['#options'] = $all;
 //    don't unset the 'admin' field, just hide it for simplicity.
 //    need value to persist in form
-      $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['admin']['#access'] = FALSE;
+      $parent_admin['#access'] = FALSE;
     }
-    $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default']['#title'] = t('Parents');
-    $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default']['#description'] = t('Inherit membership from the selected parents.');
+    $parent_default['#title'] = t('Parents');
+    $parent_default['#description'] = t('Inherit membership from the selected parents.');
     $type = $form['#node']->type;
-    $admin_access = user_access('create ' . $type . ' content') || user_access('administer group');
+    $gid = oa_core_get_space_context();
+    $admin_access = og_user_access('node', $gid, "create $type content") || user_access('administer group');
     if (empty($form['#node']->nid)) {
-      $gid = oa_core_get_space_context();
       // If they are being granted create permission based on group permission
       // restrict the parent field to current group so don't have to deal with
       // changing values in form based on changed parent field.
       if (!$admin_access) {
-        if (!$gid || !in_array($gid, $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default'])) {
+        if (!$gid || !in_array($gid, array_keys($parent_default['#options']))) {
           drupal_access_denied();
           die();
         }
         else {
-          $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default']['#default_value'] = array($gid => $gid);
-          $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default']['#access'] = FALSE;
-          drupal_set_title(t('Create @type in @title', array('@type' => node_type_get_name($type), '@title' => $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default']['#options'][$gid])));
+          $parent_default['#default_value'] = array($gid => $gid);
+          $parent_default['#access'] = FALSE;
+          drupal_set_title(t('Create @type in @title', array('@type' => node_type_get_name($type), '@title' => $parent_default['#options'][$gid])));
         }
       }
     }
@@ -73,9 +79,9 @@ function oa_subspaces_form_node_form_alter(&$form, $form_state, $form_id) {
     if (!empty($node->nid)) {
       $children = array();
       _oa_subspaces_get_children_groups('node', $node->nid, $children);
-      foreach ($form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default']['#options'] as $key => $option) {
+      foreach ($parent_default['#options'] as $key => $option) {
         if (($key == $node->nid) || (in_array($key, $children))) {
-          unset($form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default']['#options'][$key]);
+          unset($parent_default['#options'][$key]);
         }
       }
     }
@@ -89,6 +95,15 @@ function oa_subspaces_form_node_form_alter(&$form, $form_state, $form_id) {
       // a required warning when 0 is valid and works fine otherwise
       $form[OG_USER_INHERITANCE_PERMISSION_FIELD][LANGUAGE_NONE]['#required'] = FALSE;
     }
+  }
+
+  // fill in any value specified in URL
+  $parent = NULL;
+  if (!empty($_GET[OA_PARENT_SPACE]) && is_numeric($_GET[OA_PARENT_SPACE])) {
+    $parent = $_GET[OA_PARENT_SPACE];
+  }
+  if (!empty($parent_default['#options']) && empty($parent_default['#default_value']) && !empty($parent) && array_key_exists($parent, $parent_default['#options'])) {
+    $parent_default['#default_value'] = $parent;
   }
 }
 

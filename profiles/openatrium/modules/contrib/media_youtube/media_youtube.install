@@ -6,6 +6,105 @@
  */
 
 /**
+ * Implements hook_install().
+ */
+function media_youtube_install() {
+  // Create initial display settings.
+  module_load_include('inc', 'file_entity', 'file_entity.file_api');
+  $default_image_styles = array(
+    'preview' => 'media_thumbnail',
+    'teaser' => 'medium',
+    'full' => 'large',
+  );
+
+  foreach ($default_image_styles as $view_mode => $image_style) {
+    $existing_display = file_displays_load('image', $view_mode);
+
+    if (empty($existing_display)) {
+      $display_name = 'image__' . $view_mode . '__file_image';
+      $display = array(
+        'api_version' => 1,
+        'name' => $display_name,
+        'status' => 1,
+        'weight' => 5,
+        'settings' => array('image_style' => $image_style),
+        'export_type' => NULL,
+      );
+      file_display_save((object) $display);
+    }
+  }
+
+
+  $existing_display = file_displays_load('video', 'default');
+  if (empty($existing_display)) {
+    // Video previews should be displayed using a large filetype icon.
+    $display = array(
+      'api_version' => 1,
+      'name' => 'video__default__media_youtube_video',
+      'weight' => 0,
+      'status' => 1,
+      'settings' => array(
+        'width' => '640',
+        'height' => '390',
+        'theme' => 'dark',
+        'color' => 'red',
+        'autohide' => '2',
+        'autoplay' => 0,
+        'loop' => 0,
+        'showinfo' => 1,
+        'modestbranding' => 0,
+        'rel' => 1,
+        'nocookie' => 0,
+        'protocol_specify' => 0,
+        'protocol' => 'https:',
+        'enablejsapi' => 0,
+        'origin' => '',
+      ),
+    );
+    file_display_save((object) $display);
+
+    $display = array(
+      'api_version' => 1,
+      'name' => 'video__preview__media_youtube_image',
+      'weight' => 0,
+      'status' => 1,
+      'settings' => array(
+        'image_style' => 'media_thumbnail',
+      ),
+    );
+    file_display_save((object) $display);
+
+    $display = array(
+      'api_version' => 1,
+      'name' => 'video__teaser__media_youtube_video',
+      'weight' => 0,
+      'status' => 1,
+      'settings' => array(
+        'width' => '560',
+        'height' => '340',
+        'theme' => 'dark',
+        'color' => 'red',
+        'autohide' => '2',
+        'autoplay' => 0,
+        'loop' => 0,
+        'showinfo' => 1,
+        'modestbranding' => 0,
+        'rel' => 1,
+        'nocookie' => 0,
+        'protocol_specify' => 0,
+        'protocol' => 'https:',
+        'enablejsapi' => 0,
+        'origin' => '',
+      ),
+    );
+    file_display_save((object) $display);
+
+  }
+
+
+}
+
+/**
  * Clear style and preset caches.
  */
 function media_youtube_update_7001() {

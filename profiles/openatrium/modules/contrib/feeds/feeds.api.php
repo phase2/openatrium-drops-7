@@ -188,6 +188,13 @@ function hook_feeds_after_save(FeedsSource $source, $entity, $item, $entity_id) 
  */
 function hook_feeds_after_import(FeedsSource $source) {
   // See geotaxonomy module's implementation for an example.
+
+  // We can also check for an exception in this hook. The exception should not
+  // be thrown here, Feeds will handle it.
+  if (isset($source->exception)) {
+    watchdog('mymodule', 'An exception occurred during importing!', array(), WATCHDOG_ERROR);
+    mymodule_panic_reaction($source);
+  }
 }
 
 /**
@@ -297,17 +304,16 @@ function hook_feeds_processor_targets_alter(&$targets, $entity_type, $bundle_nam
  *   An entity object, for instance a node object.
  * @param $target
  *   A string identifying the target on the node.
- * @param $value
+ * @param $values
  *   The value to populate the target with.
  * @param $mapping
  *  Associative array of the mapping settings from the per mapping
  *  configuration form.
  */
-function my_module_set_target($source, $entity, $target, $value, $mapping) {
-  $entity->{$target}[$entity->language][0]['value'] = $value;
+function my_module_set_target($source, $entity, $target, array $values, $mapping) {
+  $entity->{$target}[$entity->language][0]['value'] = reset($values);
   if (isset($source->importer->processor->config['input_format'])) {
-    $entity->{$target}[$entity->language][0]['format'] =
-      $source->importer->processor->config['input_format'];
+    $entity->{$target}[$entity->language][0]['format'] = $source->importer->processor->config['input_format'];
   }
 }
 

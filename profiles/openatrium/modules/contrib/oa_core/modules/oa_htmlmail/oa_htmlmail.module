@@ -9,7 +9,7 @@
  */
 function oa_htmlmail_theme_registry_alter(&$theme_registry) {
   if (!empty($theme_registry['htmlmail'])) {
-    $theme_registry['htmlmail']['function'] = 'oa_appearance_htmlmail';
+    $theme_registry['htmlmail']['function'] = 'oa_htmlmail_htmlmail';
   }
 }
 

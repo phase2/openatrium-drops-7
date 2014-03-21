@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * oa_events.feeds_importer_default.inc
+ * oa_events_import.feeds_importer_default.inc
  */
 
 /**
@@ -24,11 +24,14 @@ function oa_events_import_feeds_importer_default() {
         'use_pubsubhubbub' => FALSE,
         'designated_hub' => '',
         'request_timeout' => NULL,
+        'auto_scheme' => 'http',
       ),
     ),
     'parser' => array(
-      'plugin_key' => 'DateIcalIcalcreatorParser',
-      'config' => array(),
+      'plugin_key' => 'DateiCalFeedsParser',
+      'config' => array(
+        'indefinite_count' => '52',
+      ),
     ),
     'processor' => array(
       'plugin_key' => 'FeedsNodeProcessor',

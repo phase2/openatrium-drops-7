@@ -111,4 +111,22 @@ function oa_buttons_update_7009() {
   }
 }
 
+/**
+ * Update descriptions of space and section types
+ */
+function oa_buttons_update_7010() {
+  $terms = oa_buttons_get_default_terms();
+  foreach ($terms as $term) {
+    // force default terms to be recreated
+    if (!empty($term['description']) && ($current_term = current(taxonomy_get_term_by_name($term['name'], $term['taxonomy'])))) {
+//      if (empty($current_term->description)) {
+        $current_term->description = $term['description'];
+        $current_term->format = 'panopoly_wysiwyg_text';
+        taxonomy_term_save($current_term);
+//      }
+    }
+  }
+}
+
+
 

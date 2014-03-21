@@ -140,7 +140,7 @@ function oa_core_strongarm() {
           'weight' => '0',
         ),
         'path' => array(
-          'weight' => '8',
+          'weight' => '1',
         ),
       ),
       'display' => array(),

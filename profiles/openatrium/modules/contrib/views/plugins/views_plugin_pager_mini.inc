@@ -63,7 +63,7 @@ class views_plugin_pager_mini extends views_plugin_pager_full {
     );
     return theme($pager_theme, array(
       'tags' => $tags,
-      'element' => $this->get_pager_id(),
+      'element' => $this->options['id'],
       'parameters' => $input,
     ));
   }

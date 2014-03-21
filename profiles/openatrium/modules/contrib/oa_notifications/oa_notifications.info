@@ -2,7 +2,6 @@ name = Open Atrium Notifications
 description = A module that handles all of the functionality for notifications for Open Atrium
 core = 7.x
 package = Open Atrium
-php = 5.2.4
 dependencies[] = ctools
 dependencies[] = flag
 dependencies[] = oa_core
@@ -12,9 +11,9 @@ features[features_api][] = api:2
 features[page_manager_pages][] = user_subscribed_content
 project path = sites/all/modules/contrib
 
-; Information added by drupal.org packaging script on 2013-10-22
-version = "7.x-2.0"
+; Information added by Drupal.org packaging script on 2014-02-25
+version = "7.x-2.14"
 core = "7.x"
 project = "oa_notifications"
-datestamp = "1382471613"
+datestamp = "1393364010"
 

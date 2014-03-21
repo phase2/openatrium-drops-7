@@ -6,7 +6,6 @@
 
 include_once 'oa_buttons.features.inc';
 
-
 /**
  * Implements hook_ctools_plugin_directory
  */
@@ -15,7 +14,6 @@ function oa_buttons_ctools_plugin_directory($owner, $plugin_type) {
     return 'plugins/content_types';
   }
 }
-
 
 /**
  * Implements hook_form_FORM_ID_alter().
@@ -39,7 +37,6 @@ function oa_buttons_node_overrides(&$form, &$form_state, $form_id) {
   $form['field_oa_node_types'][$form['field_oa_node_types']['#language']]['#options'] = $node_type_options;
    $node_options = field_get_items('node', $form['#node'], 'field_oa_node_types', LANGUAGE_NONE);
 
-
   if (!empty($node_options)) {
     foreach ($node_options as $opt) {
       $node_options_defaults[] = $opt['value'];
@@ -47,72 +44,28 @@ function oa_buttons_node_overrides(&$form, &$form_state, $form_id) {
     $form['field_oa_node_types'][$form['field_oa_node_types']['#language']]['#default_value'] = $node_options_defaults;
   }
 
-
-
-  if ($form['#node']->type == 'oa_section') {
-    $section_terms = oa_buttons_get_section_terms('section_type');
-  }
-  elseif ($form['#node']->type == 'oa_space') {
-    $section_terms = oa_buttons_get_section_terms('space_type');
-  }
-
-  $form['panelizer']['#states'] = array(
-    'visible' => array(
-      ':input[name="field_oa_section_override[und]"]' => array('checked' => TRUE),
-    ),
-    'invisible' => array(
-      ':input[name="field_oa_section_override[und]"]' => array('checked' => FALSE),
-    ),
+  $form['#attached']['js'][] = array(
+    'data' => drupal_get_path('module', 'oa_buttons') . '/oa_buttons.js',
+    'type' => 'file',
   );
-
-  $js_options = oa_buttons_prepare_terms($section_terms);
-
-  drupal_add_js(array('oaButtons' => $js_options), 'setting');
-  drupal_add_js(drupal_get_path('module', 'oa_buttons') . '/oa_buttons.js', 'file');
 }
 
 /**
- * Prepare term information for putting into Drupal.settings.
+ * Implements hook_oa_core_space_type_options().
  */
-function oa_buttons_prepare_terms($terms) {
-  $js_options = array();
-  foreach ($terms as $term) {
-    $layout = field_get_items('taxonomy_term', $term, 'field_oa_section_layout', LANGUAGE_NONE);
-    $node_options = field_get_items('taxonomy_term', $term, 'field_oa_node_types', LANGUAGE_NONE);
+function oa_buttons_oa_core_space_type_options($term, $vocab_name) {
+  $options = array(
+    'node_options' => array(),
+  );
 
-
-    $js_options[$term->tid] = array(
-      'layout' => $layout[0]['value'],
-      'node_options' => array(),
-    );
-
-    if (!empty($node_options)) {
-      foreach ($node_options as $option) {
-        $js_options[$term->tid]['node_options'][] = $option['value'];
-      }
+  $node_types = field_get_items('taxonomy_term', $term, 'field_oa_node_types', LANGUAGE_NONE);
+  if (!empty($node_types)) {
+    foreach ($node_types as $option) {
+      $options['node_options'][] = $option['value'];
     }
   }
 
-  return $js_options;
-}
-
-function oa_buttons_get_section_terms($section) {
-  $tids = array();
-  $query = db_select('taxonomy_term_data', 'td');
-  $query->fields('td', array('tid'));
-  $query->join('taxonomy_vocabulary', 'v', 'v.vid = td.vid');
-  $results = $query->condition('v.machine_name', $section)
-        ->execute();
-
-  while ($result = $results->fetchObject()) {
-    $tids[] = $result->tid;
-  }
-
-  if (count($tids)) {
-    return taxonomy_term_load_multiple($tids);
-  }
-
-  return $tids;
+  return $options;
 }
 
 /**
@@ -120,25 +73,12 @@ function oa_buttons_get_section_terms($section) {
  */
 function oa_buttons_form_taxonomy_form_term_alter(&$form, &$form_state, $form_id) {
   $term = (object) $form['#term'];
-  $vocab = $form['#vocabulary']->machine_name;
+  $vocab_name = $form['#vocabulary']->machine_name;
 
-  $sections = array(
-    'section_type' => 'oa_section',
-    'space_type' => 'oa_space',
-  );
-
-  if (array_key_exists($vocab, $sections)) {
-
-    $layout_defaults = array();
-    $node_options_defaults = array();
-
-    $layout = field_get_items('taxonomy_term', $term, 'field_oa_section_layout', LANGUAGE_NONE);
+  if (in_array($vocab_name, array('space_type', 'section_type'))) {
     $node_options = field_get_items('taxonomy_term', $term, 'field_oa_node_types', LANGUAGE_NONE);
 
-    if (!empty($layout[0]['value'])) {
-      $layout_defaults[] = $layout[0]['value'];
-    }
-
+    $node_options_defaults = array();
     if (!empty($node_options)) {
       foreach ($node_options as $opt) {
         $node_options_defaults[] = $opt['value'];
@@ -151,16 +91,7 @@ function oa_buttons_form_taxonomy_form_term_alter(&$form, &$form_state, $form_id
       $form['field_oa_node_types'][$form['field_oa_node_types']['#language']]['#options'] = $node_type_options;
       $form['field_oa_node_types'][$form['field_oa_node_types']['#language']]['#default_value'] = $node_options_defaults;
     }
-
-    // Provide section layout options.
-    $section_layouts = oa_buttons_get_section_layout_options($sections[$vocab]);
-    if (isset($form['field_oa_section_layout'])) {
-      $form['field_oa_section_layout'][$form['field_oa_section_layout']['#language']]['#options'] = $section_layouts;
-      $form['field_oa_section_layout'][$form['field_oa_section_layout']['#language']]['#default_value'] = $layout_defaults;
-    }
-
   }
-
 }
 
 /**
@@ -168,7 +99,6 @@ function oa_buttons_form_taxonomy_form_term_alter(&$form, &$form_state, $form_id
  */
 function oa_buttons_get_node_type_options() {
   $node_type_options = array();
-
 
   $node_type_options = array();
   $result = db_select('command_buttons', 'b')
@@ -181,53 +111,6 @@ function oa_buttons_get_node_type_options() {
   }
 
   return $node_type_options;
-}
-
-/**
- * Build a list of section layouts based on oa_section panelizer displays.
- */
-function oa_buttons_get_section_layout_options($bundle) {
-  $plugins = panelizer_get_entity_plugins();
-  $node_plugin = panelizer_entity_plugin_get_handler($plugins['node']);
-  foreach ($node_plugin->plugin['view modes'] as $view_mode => $view_mode_info) {
-    $view_bundle = $bundle . '.' . $view_mode;
-
-    // Ignore view modes that don't have a choice or already have their
-    // own custom panel set up.
-    if (!$node_plugin->has_panel_choice($view_bundle) || !empty($entity->panelizer[$view_mode]->did)) {
-      continue;
-    }
-
-    $panelizers = $node_plugin->get_default_panelizer_objects($view_bundle);
-
-    $options = array();
-    foreach ($panelizers as $name => $panelizer) {
-      if (empty($panelizer->disabled)) {
-        $options[$name] = $panelizer->title ? $panelizer->title : t('Default');
-      }
-    }
-
-    if (!empty($entity->panelizer[$view_mode]->name)) {
-      $name = $entity->panelizer[$view_mode]->name;
-    }
-    else {
-      if ($node_plugin->has_default_panel($view_bundle)) {
-        $name = implode(':', array($node_plugin->entity_type, $bundle, 'default'));
-        if ($view_mode != 'page_manager') {
-          $name .= ':' . $view_mode;
-        }
-      }
-      else {
-        $name = '';
-      }
-    }
-
-    if (!$node_plugin->has_default_panel($view_bundle)) {
-      $options = array('' => t('-- No panel --')) + $options;
-    }
-  }
-
-  return $options;
 }
 
 /**
@@ -367,7 +250,7 @@ function oa_buttons_modules_enabled($modules) {
 function oa_buttons_create_default_terms() {
   $terms = oa_buttons_get_default_terms();
   foreach ($terms as $term) {
-    oa_buttons_create_term($term['taxonomy'], $term['name'], $term['node_options'], $term['layout']);
+    oa_buttons_create_term($term['taxonomy'], $term['name'], $term['description'], $term['node_options'], $term['layout']);
   }
 }
 
@@ -379,24 +262,21 @@ function oa_buttons_get_default_terms() {
     array(
       'taxonomy' => 'space_type',
       'name' => 'Default',
+      'description' => 'This is the default space layout with the Recent Activity stream in the main region.',
       'node_options' => array(),
       'layout' => 'node:oa_space:default'
     ),
     array(
-      'taxonomy' => 'space_type',
-      'name' => 'Space Members',
-      'node_options' => array(),
-      'layout' => 'node:oa_space:space_description'
-    ),
-    array(
       'taxonomy' => 'section_type',
       'name' => 'Default',
+      'description' => 'This is the default section layout with the Recent Activity stream in the main region.',
       'node_options' => array(),
       'layout' => 'node:oa_section:default'
     ),
     array(
       'taxonomy' => 'section_type',
       'name' => 'Calendar Section',
+      'description' => 'Allows users to create <em>Events</em> and view them on a calendar.',
       'node_options' => array(
         'oa_event',
       ),
@@ -405,6 +285,7 @@ function oa_buttons_get_default_terms() {
     array(
       'taxonomy' => 'section_type',
       'name' => 'Discussion Section',
+      'description' => 'Allows users to create <em>Discussion posts</em> and displays a list of topics.',
       'node_options' => array(
         'oa_discussion_post',
       ),
@@ -413,6 +294,7 @@ function oa_buttons_get_default_terms() {
     array(
       'taxonomy' => 'section_type',
       'name' => 'News Section',
+      'description' => 'Allows users to create <em>Document pages</em> and displays a News article listing.',
       'node_options' => array(
         'oa_wiki_page',
       ),
@@ -425,33 +307,6 @@ function oa_buttons_get_default_terms() {
 
 function _oa_buttons_perm_name($machine_name, $tid) {
   return 'use oa button ' . $machine_name . ' for ' . $tid . ' term';
-}
-
-/**
- * Allowed values callback for using particular space types.
- */
-function oa_buttons_get_allowed_types($field) {
-  $options = array();
-  $gid = oa_core_get_space_context();
-  // If no gid, may be using this as a filter or such.
-  // @see oa_subspaces_form_node_form_alter().
-  if (!$gid || !module_exists('oa_subspaces') || user_access('administer group') || user_access('create oa_space content') || og_user_access('node', $gid, 'use any oa button space_type') || og_user_access('node', $gid, 'administer group')) {
-    return taxonomy_allowed_values($field);
-  }
-  if ($gid) {
-    foreach ($field['settings']['allowed_values'] as $tree) {
-      if ($vocabulary = taxonomy_vocabulary_machine_name_load($tree['vocabulary'])) {
-        if ($terms = taxonomy_get_tree($vocabulary->vid, $tree['parent'])) {
-          foreach ($terms as $term) {
-            if (og_user_access('node', $gid, _oa_buttons_perm_name($tree['vocabulary'], $term->tid))) {
-              $options[$term->tid] = str_repeat('-', $term->depth) . $term->name;
-            }
-          }
-        }
-      }
-    }
-  }
-  return $options;
 }
 
 function oa_buttons_og_permission() {
@@ -480,19 +335,35 @@ function oa_buttons_og_permission() {
  *   The vocabulary machine name.
  * @param $name
  *   The human readable label of the term.
+ * @param $description
+ *   The human readable description of the term.
  * @param $node_options
  *   An array of node types which should be allowed within the section.
  * @param $layout
  *   The panelizer layout key to use for this section.
  */
-function oa_buttons_create_term($taxonomy, $name, $node_options, $layout, $update = FALSE) {
+function oa_buttons_create_term($taxonomy, $name, $description, $node_options, $layout, $update = FALSE) {
+
   $vocab = taxonomy_vocabulary_machine_name_load($taxonomy);
-  if (!($term = current(taxonomy_get_term_by_name($name, $taxonomy))) || $update) {
-    if (!$vocab) {
-      // Revert features to known proper state, also clear the static for taxonomy_get_term_by_name().;
-      features_revert(array('oa_buttons' => array('taxonomy','field_base', 'field_instance')));
-      drupal_static('taxonomy_vocabulary_get_names');
-      $vocab = taxonomy_vocabulary_machine_name_load($taxonomy);
+  // Make sure the Taxonomy is available.
+  if (!$vocab) {
+    features_revert(array(
+      'oa_core' => array('taxonomy'),
+      'oa_sections' => array('taxonomy'),
+    ));
+    drupal_static('taxonomy_vocabulary_get_names');
+    $vocab = taxonomy_vocabulary_machine_name_load($taxonomy);
+  }
+
+  if (!empty($vocab) && !($term = current(taxonomy_get_term_by_name($name, $taxonomy))) || $update) {
+
+    // Make sure the fields from oa_buttons are available.
+    $field_info = field_info_instances('taxonomy_term', $taxonomy);
+    if (empty($field_info['field_oa_section_layout']) || empty($field_info['field_oa_node_types'])) {
+      features_revert(array(
+        'oa_buttons' => array('field_base', 'field_instance'),
+      ));
+      field_info_cache_clear();
     }
 
     if ($term && $update) {
@@ -503,6 +374,8 @@ function oa_buttons_create_term($taxonomy, $name, $node_options, $layout, $updat
       $term = (object) array(
         'vid' => $vocab->vid,
         'name' => $name,
+        'description' => $description,
+        'format' => 'panopoly_wysiwyg_text',
         'field_oa_section_layout' => array(
           LANGUAGE_NONE => array(
             array('value' => $layout),
@@ -596,7 +469,6 @@ function oa_buttons_clear_section_button_cache($gid = NULL) {
     }
   }
 }
-
 
 /**
  * Implements hook_flush_caches().

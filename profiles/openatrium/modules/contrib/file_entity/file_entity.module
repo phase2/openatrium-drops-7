@@ -189,6 +189,20 @@ function file_entity_menu() {
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -10,
   );
+  $items['file/add/upload/file'] = array(
+    'title' => 'File',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+  $items['file/add/upload/archive'] = array(
+    'title' => 'Archive',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('file_entity_upload_archive_form'),
+    'access arguments' => array('administer files'),
+    'file' => 'file_entity.pages.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => -5,
+  );
   $items['file/%file'] = array(
     'title callback' => 'entity_label',
     'title arguments' => array('file', 1),
@@ -1878,6 +1892,13 @@ function _file_entity_query_file_entity_access_alter($query, $type) {
           $file_conditions->exists($subquery);
         }
         // Otherwise attach it to the node query itself.
+        elseif ($table == 'file_managed') {
+          // Fix for https://drupal.org/node/2073085
+          $db_or = db_or();
+          $db_or->exists($subquery);
+          $db_or->isNull($falias . '.' . $field);
+          $query->condition($db_or);
+        }
         else {
           $query->exists($subquery);
         }
@@ -2160,48 +2181,15 @@ function image_file_default_displays_alter(&$file_displays) {
     $file_displays['image__default__file_field_file_default']->status = FALSE;
   }
 
-  $file_display = new stdClass();
-  $file_display->api_version = 1;
-  $file_display->name = 'image__default__file_field_image';
-  $file_display->weight = 50;
-  $file_display->status = TRUE;
-  $file_display->settings = array(
-    'image_style' => '',
-    'image_link' => '',
-  );
-  $file_displays['image__default__file_field_image'] = $file_display;
-
   // Image previews should be displayed as image thumbnails by default.
   if (isset($file_displays['image__preview__file_field_file_default'])) {
     $file_displays['image__preview__file_field_file_default']->status = FALSE;
   }
 
-  $file_display = new stdClass();
-  $file_display->api_version = 1;
-  $file_display->name = 'image__preview__file_field_image';
-  $file_display->weight = 50;
-  $file_display->status = TRUE;
-  $file_display->settings = array(
-    'image_style' => 'thumbnail',
-    'image_link' => '',
-  );
-  $file_displays['image__preview__file_field_image'] = $file_display;
-
   // Image teasers should be displayed as medium images by default.
   if (isset($file_displays['image__teaser__file_field_file_default'])) {
     $file_displays['image__teaser__file_field_file_default']->status = FALSE;
   }
-
-  $file_display = new stdClass();
-  $file_display->api_version = 1;
-  $file_display->name = 'image__teaser__file_field_image';
-  $file_display->weight = 50;
-  $file_display->status = TRUE;
-  $file_display->settings = array(
-    'image_style' => 'medium',
-    'image_link' => 'content',
-  );
-  $file_displays['image__teaser__file_field_image'] = $file_display;
 }
 
 /**
@@ -2265,7 +2253,7 @@ function pathauto_file_operations() {
  */
 function pathauto_file_update_alias(stdClass $file, $op, array $options = array()) {
   // Skip processing if the user has disabled pathauto for the file.
-  if (isset($file->path['pathauto']) && empty($file->path['pathauto'])) {
+  if (isset($file->path['pathauto']) && empty($file->path['pathauto']) && empty($options['force'])) {
     return;
   }
 
@@ -2542,7 +2530,7 @@ function file_entity_field_attach_load($entity_type, $entities, $age, $options) 
           foreach ($items as $delta => $item) {
             // If alt and title text is not specified, fall back to alt and
             // title text on the file.
-            if (empty($item['alt']) || empty($item['title'])) {
+            if (!empty($item['fid']) && (empty($item['alt']) || empty($item['title']))) {
               $file = file_load($item['fid']);
               foreach (array('alt', 'title') as $key) {
                 if (empty($item[$key]) && !empty($file->{$key})) {

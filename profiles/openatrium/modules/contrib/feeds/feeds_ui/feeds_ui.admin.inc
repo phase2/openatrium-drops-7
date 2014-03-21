@@ -718,7 +718,7 @@ function feeds_ui_mapping_settings_form_callback($form, $form_state) {
  * Validation handler for feeds_ui_mapping_form().
  */
 function feeds_ui_mapping_form_validate($form, &$form_state) {
-  if (empty($form_state['values']['source']) xor empty($form_state['values']['target'])) {
+  if (!strlen($form_state['values']['source']) xor !strlen($form_state['values']['target'])) {
 
     // Check triggering_element here so we can react differently for ajax
     // submissions.
@@ -726,7 +726,7 @@ function feeds_ui_mapping_form_validate($form, &$form_state) {
 
       // Regular form submission.
       case 'op':
-        if (empty($form_state['values']['source'])) {
+        if (!strlen($form_state['values']['source'])) {
           form_error($form['source'], t('You must select a mapping source.'));
         }
         else {
@@ -790,7 +790,7 @@ function feeds_ui_mapping_form_submit($form, &$form_state) {
 
   $processor->addConfig(array('mappings' => $mappings));
 
-  if (!empty($form_state['values']['source']) && !empty($form_state['values']['target'])) {
+  if (strlen($form_state['values']['source']) && strlen($form_state['values']['target'])) {
     try {
       $mappings = $processor->getMappings();
       $mappings[] = array(
@@ -1185,6 +1185,7 @@ function feeds_ui_importer_import_submit($form, &$form_state) {
   $save = feeds_importer($importer->id);
   $save->setConfig($importer->config);
   foreach (array('fetcher', 'parser', 'processor') as $type) {
+    $save->setPlugin($importer->config[$type]['plugin_key']);
     $save->$type->setConfig($importer->config[$type]['config']);
   }
   $save->save();

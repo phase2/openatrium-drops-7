@@ -20,6 +20,22 @@ define('OA_TEAM_FIELD', 'field_oa_team_ref');
 define('OA_USER_FIELD', 'field_oa_user_ref');
 
 /**
+ * Implements hook_menu().
+ */
+function oa_sections_menu() {
+  $items = array();
+  $items['node/add/oa-section/%'] = array(
+    'title' => 'Create Section',
+    'page callback' => 'oa_core_create_space_page_callback',
+    'page arguments' => array('oa_section', 3),
+    'access callback' => 'node_access',
+    'access arguments' => array('create', 'oa_section'),
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
  * Implements hook_og_menu_single_menu_parent().
  */
 function oa_sections_og_menu_single_menu_parent($conf) {
@@ -133,6 +149,49 @@ function _oa_sections_get_current_selected_space($entity, $set_value = NULL) {
 /**
  * Implements hook_form_FORM_ID_alter().
  */
-function oa_core_form_oa_section_node_form_alter(&$form, &$form_state, &$form_id) {
+function oa_sections_form_oa_section_node_form_alter(&$form, &$form_state, $form_id) {
+  // If we are on the node add form that is specific to this Section type, we
+  // take the 'Section type' from the URL and hide the field.
+  if (arg(0) == 'node' && arg(1) == 'add' && arg(2) == 'oa-section' && ($section_tid = arg(3)) && !empty($section_tid)) {
+    $form['field_oa_section']['und']['#default_value'] = array($section_tid);
+    $form['field_oa_section']['#access'] = FALSE;
+  }
+
   _oa_core_hide_comment_settings($form);
+  _oa_core_setup_node_space_type($form, 'section_type', 'field_oa_section');
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function oa_sections_form_taxonomy_form_term_alter(&$form, &$form_state, $form_id) {
+  if ($form['#vocabulary']->machine_name  == 'section_type') {
+    _oa_core_setup_taxonomy_space_type($form, 'oa_section');
+  }
+}
+
+/**
+ * Implements hook_views_pre_render().
+ */
+function oa_sections_views_pre_render(&$view) {
+  if ($view->name == 'oa_sections_section_types') {
+    if (count($view->result) == 1) {
+      // If there is only one Section type, then we jump to it automatically.
+      $args = $_GET;
+      unset($args['q']);
+      drupal_goto('node/add/oa-section/' . $view->result[0]->tid, array('query' => $args));
+    }
+    elseif (user_access('administer taxonomy')) {
+      $view->attachment_before = '<p>' . t('Manage existing <em>Section types</em> or add new ones by <a href="!url">administrating the taxonomy</a>.', array('!url' => url('admin/structure/taxonomy/section_type'))) . '</p>';
+    }
+  }
+}
+
+/**
+ * Implements hook_views_pre_view().
+ */
+function oa_sections_views_pre_view(&$view) {
+  if ($view->name == 'oa_sections_section_types') {
+    oa_core_views_copy_get_arguments_to_link($view);
+  }
 }

@@ -62,7 +62,7 @@
   left: -10px; /* LTR */
   width: 20px;
   height: 25px;
-  background: url(images/lock.png) no-repeat 50% 2px;
+  background: url(../images/lock.png) no-repeat 50% 2px;
   cursor: pointer;
 }
 #palette .unlocked {

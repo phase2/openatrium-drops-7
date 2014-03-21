@@ -9,15 +9,16 @@ features[ctools][] = strongarm:strongarm:1
 features[features_api][] = api:2
 features[variable][] = chosen_jquery_selector
 features[variable][] = chosen_minimum
+features[variable][] = chosen_minimum_multiple
+features[variable][] = chosen_minimum_single
 features[variable][] = file_default_scheme
 features[variable][] = file_entity_file_upload_wizard_skip_scheme
 features[variable][] = og_context_negotiation_group_context
 features[variable][] = og_context_providers_weight_group_context
-project path = profiles/openatrium/modules/contrib/oa_core/modules
 
-; Information added by Drupal.org packaging script on 2014-01-27
-version = "7.x-2.13"
+; Information added by Drupal.org packaging script on 2014-02-26
+version = "7.x-2.15"
 core = "7.x"
 project = "oa_core"
-datestamp = "1390859944"
+datestamp = "1393428820"
 

@@ -113,26 +113,24 @@ function oa_adminrole_update_og_permissions($type = '') {
       }
     }
 
-    if ($perms) {
-      db_delete('og_role_permission')
-        ->condition('rid', array_merge($admin_rids, $member_rids), 'IN')
-        ->condition('permission', array_keys($perms), 'IN')
-        ->execute();
-      $query = db_insert('og_role_permission')
-        ->fields(array('rid', 'permission', 'module'));
+    if (!empty($perms)) {
+      $member_permissions = array();
+      $admin_permissions = array();
       foreach ($perms as $perm => $module) {
         // add admin to all perms
-        foreach ($admin_rids as $rid) {
-          $query->values(array($rid, $perm, $module));
-        }
+        $admin_permissions[] = $perm;
+
         // add member to all "own" perms
         if (strpos($perm, ' own ') !== FALSE) {
-          foreach ($member_rids as $rid) {
-            $query->values(array($rid, $perm, $module));
-          }
+          $member_permissions[] = $perm;
         }
       }
-      $query->execute();
+      foreach ($member_rids as $rid) {
+        og_role_grant_permissions($rid, $member_permissions);
+      }
+      foreach ($admin_rids as $rid) {
+        og_role_grant_permissions($rid, $admin_permissions);
+      }
       // don't give messages during install
       if (!defined('MAINTENANCE_MODE')) {
         drupal_set_message(t('The <em>@role</em> role has been added to @type group/space permissions.', array('@role' => OG_ADMINISTRATOR_ROLE, '@type' => $type)));

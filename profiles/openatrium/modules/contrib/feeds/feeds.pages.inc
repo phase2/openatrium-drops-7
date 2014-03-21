@@ -36,7 +36,22 @@ function feeds_page() {
     }
   }
   if (empty($rows)) {
-    drupal_set_message(t('There are no importers, go to <a href="@importers">Feed importers</a> to create one or enable an existing one.', array('@importers' => url('admin/structure/feeds'))));
+    // The feeds_ui module is enabled.
+    if (module_exists('feeds_ui') && user_access('administer feeds')) {
+      drupal_set_message(t('There are no importers, go to <a href="@importers">Feed importers</a> to create one or enable an existing one.', array('@importers' => url('admin/structure/feeds'))));
+    }
+    else {
+      // The feeds_ui module is not enabled but the current user has access to
+      // Modules to enable it.
+      if (user_access('administer modules')) {
+        drupal_set_message(t('The Feeds UI Admin module is not enabled and there are no importers, go to <a href="@modules">Modules</a> and enable Feeds Admin UI. Then go to <a href="@importers">Feed importers</a> to create one or enable an existing one.', array('@modules' => url('admin/modules'), '@importers' => url('admin/structure/feeds'))));
+      }
+      else {
+        // The feeds_ui module is not enabled and the current user cannot
+        // enable it.
+        drupal_set_message(t("The Feeds UI Admin module is not enabled. Please contact the Administrator for your site and ask them to enable it."));
+      }
+    }
   }
   $header = array(
     t('Import'),
@@ -111,7 +126,6 @@ function feeds_import_form_submit($form, &$form_state) {
 
   // Add to schedule, make sure importer is scheduled, too.
   $source->schedule();
-  $source->importer->schedule();
 }
 
 /**

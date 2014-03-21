@@ -153,7 +153,7 @@ class panels_renderer_ipe extends panels_renderer_editor {
 
       // Get the administrative title.
       $content_type = ctools_get_content_type($pane->type);
-      $title = ctools_content_get_subtype($content_type, $pane->subtype) ? ctools_content_admin_title($content_type, $pane->subtype, $pane->configuration, $this->display->context) : t('Unknown');
+      $title = ctools_content_admin_title($content_type, $pane->subtype, $pane->configuration, $this->display->context);
 
       $content->content = t('Placeholder for empty or inaccessible "@title"', array('@title' => html_entity_decode($title, ENT_QUOTES)));
       // Add these to prevent notices.

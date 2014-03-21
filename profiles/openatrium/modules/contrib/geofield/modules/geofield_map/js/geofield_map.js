@@ -1,7 +1,9 @@
 (function ($) {
   Drupal.behaviors.geofieldMap = {
     attach: function(context, settings) {
-      
+      Drupal.geoField = Drupal.geoField || {};
+      Drupal.geoField.maps = Drupal.geoField.maps || {};
+
       $('.geofieldMap', context).once('geofield-processed', function(index, element) {
         var data = undefined;
         var map_settings = [];
@@ -59,6 +61,10 @@
           };
 
           var map = new google.maps.Map($(element).get(0), myOptions);
+          // Store a reference to the map object so other code can interact
+          // with it.
+          Drupal.geoField.maps[elemID] = map;
+
           var range = new google.maps.LatLngBounds();
 
           var infowindow = new google.maps.InfoWindow({

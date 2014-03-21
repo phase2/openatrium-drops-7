@@ -11,7 +11,7 @@ Drupal.behaviors.colorizer = {
     var i, j, colors, field_name;
     // This behavior attaches by ID, so is only valid once on a page.
     var form = $('.colorizer-form', context).once('color');
-    if (form.length == 0) {
+    if (form.length === 0) {
       return;
     }
     var inputs = [];
@@ -60,10 +60,10 @@ Drupal.behaviors.colorizer = {
     // Set up colorScheme selector.
     $('#edit-scheme', form).change(function () {
       var schemes = settings.color.schemes, colorScheme = this.options[this.selectedIndex].value;
-      if (colorScheme != '' && schemes[colorScheme]) {
+      if (colorScheme !== '' && schemes[colorScheme]) {
         // Get colors of active scheme.
         colors = schemes[colorScheme];
-        for (field_name in colors) {
+        for (var field_name in colors) {
           callback($('#edit-palette-' + field_name), colors[field_name], false, true);
         }
         preview();
@@ -78,7 +78,7 @@ Drupal.behaviors.colorizer = {
       var css = settings.css;
       var palette = settings.color.reference;
       // perform the variable replacement in css template
-      for (field_name in palette) {
+      for (var field_name in palette) {
         value = $('#edit-palette-' + field_name).val();
         find = '@'+field_name+'\\b';
         css = css.replace(new RegExp(find, 'g'), value);
@@ -88,9 +88,14 @@ Drupal.behaviors.colorizer = {
       // see if sheet is already created
       if (!style) {
         style = document.createElement('style');
-        style.type = 'text/css';
-        // WebKit hack :(
-        style.appendChild(document.createTextNode(""));
+        style.setAttribute('type', 'text/css');
+
+        var cssText = '';
+        if (style.styleSheet) { // IE does it this way
+          style.styleSheet.cssText = cssText;
+        } else { // everyone else does it this way
+          style.appendChild(document.createTextNode(cssText));
+        }
         document.getElementsByTagName("head")[0].appendChild(style);
       }
 

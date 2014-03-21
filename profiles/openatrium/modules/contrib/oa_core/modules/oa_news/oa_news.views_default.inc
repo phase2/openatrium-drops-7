@@ -36,10 +36,6 @@ function oa_news_views_default_views() {
   $handler->display->display_options['pager']['options']['quantity'] = '9';
   $handler->display->display_options['style_plugin'] = 'default';
   $handler->display->display_options['row_plugin'] = 'fields';
-  /* Relationship: OG membership: OG membership from Node */
-  $handler->display->display_options['relationships']['og_membership_rel']['id'] = 'og_membership_rel';
-  $handler->display->display_options['relationships']['og_membership_rel']['table'] = 'node';
-  $handler->display->display_options['relationships']['og_membership_rel']['field'] = 'og_membership_rel';
   /* Relationship: Content: Author */
   $handler->display->display_options['relationships']['uid']['id'] = 'uid';
   $handler->display->display_options['relationships']['uid']['table'] = 'node';
@@ -161,18 +157,6 @@ function oa_news_views_default_views() {
   $handler->display->display_options['sorts']['created']['table'] = 'node';
   $handler->display->display_options['sorts']['created']['field'] = 'created';
   $handler->display->display_options['sorts']['created']['order'] = 'DESC';
-  /* Contextual filter: OG membership: Group ID */
-  $handler->display->display_options['arguments']['gid']['id'] = 'gid';
-  $handler->display->display_options['arguments']['gid']['table'] = 'og_membership';
-  $handler->display->display_options['arguments']['gid']['field'] = 'gid';
-  $handler->display->display_options['arguments']['gid']['relationship'] = 'og_membership_rel';
-  $handler->display->display_options['arguments']['gid']['default_action'] = 'default';
-  $handler->display->display_options['arguments']['gid']['default_argument_type'] = 'og_context';
-  $handler->display->display_options['arguments']['gid']['summary']['number_of_records'] = '0';
-  $handler->display->display_options['arguments']['gid']['summary']['format'] = 'default_summary';
-  $handler->display->display_options['arguments']['gid']['summary_options']['items_per_page'] = '25';
-  $handler->display->display_options['arguments']['gid']['specify_validation'] = TRUE;
-  $handler->display->display_options['arguments']['gid']['validate']['type'] = 'og';
   /* Filter criterion: Content: Published */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'node';
@@ -200,31 +184,41 @@ function oa_news_views_default_views() {
   $handler->display->display_options['filters']['is_parent']['id'] = 'is_parent';
   $handler->display->display_options['filters']['is_parent']['table'] = 'field_data_oa_parent';
   $handler->display->display_options['filters']['is_parent']['field'] = 'is_parent';
+  /* Filter criterion: Content: Groups audience (og_group_ref) */
+  $handler->display->display_options['filters']['og_group_ref_target_id']['id'] = 'og_group_ref_target_id';
+  $handler->display->display_options['filters']['og_group_ref_target_id']['table'] = 'og_membership';
+  $handler->display->display_options['filters']['og_group_ref_target_id']['field'] = 'og_group_ref_target_id';
+  $handler->display->display_options['filters']['og_group_ref_target_id']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['operator_id'] = 'og_group_ref_target_id_op';
+  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['label'] = 'Space';
+  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['operator'] = 'og_group_ref_target_id_op';
+  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['identifier'] = 'og_group_ref_target_id';
+  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
+  /* Filter criterion: Content: Open Atrium Section (oa_section_ref) */
+  $handler->display->display_options['filters']['oa_section_ref_target_id']['id'] = 'oa_section_ref_target_id';
+  $handler->display->display_options['filters']['oa_section_ref_target_id']['table'] = 'field_data_oa_section_ref';
+  $handler->display->display_options['filters']['oa_section_ref_target_id']['field'] = 'oa_section_ref_target_id';
+  $handler->display->display_options['filters']['oa_section_ref_target_id']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['oa_section_ref_target_id']['expose']['operator_id'] = 'oa_section_ref_target_id_op';
+  $handler->display->display_options['filters']['oa_section_ref_target_id']['expose']['label'] = 'Section';
+  $handler->display->display_options['filters']['oa_section_ref_target_id']['expose']['operator'] = 'oa_section_ref_target_id_op';
+  $handler->display->display_options['filters']['oa_section_ref_target_id']['expose']['identifier'] = 'oa_section_ref_target_id';
+  $handler->display->display_options['filters']['oa_section_ref_target_id']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
 
   /* Display: Recent News */
   $handler = $view->new_display('panel_pane', 'Recent News', 'oa_recent_news');
   $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
   $handler->display->display_options['defaults']['arguments'] = FALSE;
-  /* Contextual filter: OG membership: Group ID */
-  $handler->display->display_options['arguments']['gid']['id'] = 'gid';
-  $handler->display->display_options['arguments']['gid']['table'] = 'og_membership';
-  $handler->display->display_options['arguments']['gid']['field'] = 'gid';
-  $handler->display->display_options['arguments']['gid']['relationship'] = 'og_membership_rel';
-  $handler->display->display_options['arguments']['gid']['default_action'] = 'default';
-  $handler->display->display_options['arguments']['gid']['default_argument_type'] = 'og_context';
-  $handler->display->display_options['arguments']['gid']['summary']['number_of_records'] = '0';
-  $handler->display->display_options['arguments']['gid']['summary']['format'] = 'default_summary';
-  $handler->display->display_options['arguments']['gid']['summary_options']['items_per_page'] = '25';
-  $handler->display->display_options['arguments']['gid']['specify_validation'] = TRUE;
-  $handler->display->display_options['arguments']['gid']['validate']['type'] = 'og';
-  /* Contextual filter: Content: Open Atrium Section (oa_section_ref) */
-  $handler->display->display_options['arguments']['oa_section_ref_target_id']['id'] = 'oa_section_ref_target_id';
-  $handler->display->display_options['arguments']['oa_section_ref_target_id']['table'] = 'field_data_oa_section_ref';
-  $handler->display->display_options['arguments']['oa_section_ref_target_id']['field'] = 'oa_section_ref_target_id';
-  $handler->display->display_options['arguments']['oa_section_ref_target_id']['default_argument_type'] = 'fixed';
-  $handler->display->display_options['arguments']['oa_section_ref_target_id']['summary']['number_of_records'] = '0';
-  $handler->display->display_options['arguments']['oa_section_ref_target_id']['summary']['format'] = 'default_summary';
-  $handler->display->display_options['arguments']['oa_section_ref_target_id']['summary_options']['items_per_page'] = '25';
   $handler->display->display_options['pane_category']['name'] = 'Open Atrium';
   $handler->display->display_options['pane_category']['weight'] = '0';
   $handler->display->display_options['allow']['use_pager'] = 'use_pager';
@@ -235,23 +229,13 @@ function oa_news_views_default_views() {
   $handler->display->display_options['allow']['path_override'] = 0;
   $handler->display->display_options['allow']['title_override'] = 'title_override';
   $handler->display->display_options['allow']['exposed_form'] = 'exposed_form';
+  $handler->display->display_options['allow']['exposed_form_configure'] = 0;
   $handler->display->display_options['allow']['fields_override'] = 'fields_override';
-  $handler->display->display_options['argument_input'] = array(
-    'gid' => array(
-      'type' => 'context',
-      'context' => 'entity:node.nid',
-      'context_optional' => 1,
-      'panel' => '0',
-      'fixed' => '31',
-      'label' => 'OG membership: Group ID',
-    ),
-    'oa_section_ref_target_id' => array(
-      'type' => 'context',
-      'context' => 'entity:node.nid',
-      'context_optional' => 1,
-      'panel' => '0',
-      'fixed' => '',
-      'label' => 'Content: Open Atrium Section (oa_section_ref)',
+  $handler->display->display_options['exposed_form_overrides'] = array(
+    'filters' => array(
+      'type' => '',
+      'og_group_ref_target_id' => '',
+      'oa_section_ref_target_id' => '',
     ),
   );
   $export['open_atrium_news'] = $view;

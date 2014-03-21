@@ -12,9 +12,9 @@ files[] = apps.installer.inc
 files[] = apps.test
 
 
-; Information added by drush on 2013-12-06
+; Information added by drush on 2014-02-26
 version = "7.x-1.0-beta7+15-dev"
 core = "7.x"
 project = "apps"
-datestamp = "1386365944"
+datestamp = "1393449056"
 

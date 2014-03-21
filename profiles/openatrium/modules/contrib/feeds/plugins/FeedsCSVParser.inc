@@ -127,6 +127,7 @@ class FeedsCSVParser extends FeedsParser {
         $uniques[] = check_plain($mapping['source']);
       }
     }
+    $sources = array_unique($sources);
 
     $output = t('Import !csv_files with one or more of these columns: !columns.', array('!csv_files' => l(t('CSV files'), 'http://en.wikipedia.org/wiki/Comma-separated_values'), '!columns' => implode(', ', $sources)));
     $items = array();
@@ -208,6 +209,11 @@ class FeedsCSVParser extends FeedsParser {
     $mappings = feeds_importer($this->id)->processor->config['mappings'];
     $sources = $uniques = array();
     foreach ($mappings as $mapping) {
+      if (in_array(check_plain($mapping['source']), $uniques) || in_array(check_plain($mapping['source']), $sources)) {
+        // Skip columns we've already seen.
+        continue;
+      }
+
       if (!empty($mapping['unique'])) {
         $uniques[] = check_plain($mapping['source']);
       }

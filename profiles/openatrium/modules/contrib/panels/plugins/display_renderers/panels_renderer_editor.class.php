@@ -186,12 +186,12 @@ class panels_renderer_editor extends panels_renderer_standard {
 
     $style_title = isset($style['title']) ? $style['title'] : t('Default');
 
-    $style_links[] = array(
+    $style_links['title'] = array(
       'title' => $style_title,
       'attributes' => array('class' => array('panels-text')),
     );
 
-    $style_links[] = array(
+    $style_links['change'] = array(
       'title' => t('Change'),
       'href' => $this->get_url('style-type', $type, $id),
       'attributes' => array('class' => array('ctools-use-modal')),
@@ -199,7 +199,7 @@ class panels_renderer_editor extends panels_renderer_standard {
 
     $function = $type != 'pane' ? 'settings form' : 'pane settings form';
     if (panels_plugin_get_function('styles', $style, $function)) {
-      $style_links[] = array(
+      $style_links['settings'] = array(
         'title' => t('Settings'),
         'href' => $this->get_url('style-settings', $type, $id),
         'attributes' => array('class' => array('ctools-use-modal')),
@@ -307,14 +307,14 @@ class panels_renderer_editor extends panels_renderer_standard {
     $links = array();
 
     if (!empty($pane->shown)) {
-      $links[] = array(
+      $links['top']['disabled'] = array(
         'title' => t('Disable this pane'),
         'href' => $this->get_url('hide', $pane->pid),
         'attributes' => array('class' => array('use-ajax')),
       );
     }
     else {
-      $links[] = array(
+      $links['top']['enable'] = array(
         'title' => t('Enable this pane'),
         'href' => $this->get_url('show', $pane->pid),
         'attributes' => array('class' => array('use-ajax')),
@@ -322,13 +322,13 @@ class panels_renderer_editor extends panels_renderer_standard {
     }
 
     if (isset($this->display->title_pane) && $this->display->title_pane == $pane->pid) {
-      $links['panels-set-title'] = array(
+      $links['top']['panels-set-title'] = array(
         'title' => t('&#x2713;Panel title'),
         'html' => TRUE,
       );
     }
     else {
-      $links['panels-set-title'] = array(
+      $links['top']['panels-set-title'] = array(
         'title' => t('Panel title'),
         'href' => $this->get_url('panel-title', $pane->pid),
         'attributes' => array('class' => array('use-ajax')),
@@ -338,7 +338,7 @@ class panels_renderer_editor extends panels_renderer_standard {
     $subtype = ctools_content_get_subtype($content_type, $pane->subtype);
 
     if (ctools_content_editable($content_type, $subtype, $pane->configuration)) {
-      $links[] = array(
+      $links['top']['settings'] = array(
         'title' => isset($content_type['edit text']) ? $content_type['edit text'] : t('Settings'),
         'href' => $this->get_url('edit-pane', $pane->pid),
         'attributes' => array('class' => array('ctools-use-modal')),
@@ -346,7 +346,7 @@ class panels_renderer_editor extends panels_renderer_standard {
     }
 
     if (user_access('administer advanced pane settings')) {
-      $links[] = array(
+      $links['top']['css'] = array(
         'title' => t('CSS properties'),
         'href' => $this->get_url('pane-css', $pane->pid),
         'attributes' => array('class' => array('ctools-use-modal')),
@@ -354,26 +354,10 @@ class panels_renderer_editor extends panels_renderer_standard {
     }
 
     if (user_access('administer panels styles')) {
-      $links[] = array(
-        'title' => '<hr />',
-        'html' => TRUE,
-      );
-
-      $style_links = $this->get_style_links('pane', $pane->pid);
-
-      $links[] = array(
-        'title' => '<span class="dropdown-header">' . t('Style') . '</span>' . theme_links(array('links' => $style_links, 'attributes' => array(), 'heading' => array())),
-        'html' => TRUE,
-        'attributes' => array('class' => array('panels-sub-menu')),
-      );
+      $links['style'] = $this->get_style_links('pane', $pane->pid);
     }
 
     if (user_access('administer pane access')) {
-      $links[] = array(
-        'title' => '<hr />',
-        'html' => TRUE,
-      );
-
       $contexts = $this->display->context;
       // Make sure we have the logged in user context
       if (!isset($contexts['logged-in-user'])) {
@@ -385,7 +369,7 @@ class panels_renderer_editor extends panels_renderer_standard {
       if (!empty($pane->access['plugins'])) {
         foreach ($pane->access['plugins'] as $id => $test) {
           $plugin = ctools_get_access_plugin($test['name']);
-          $access_title  = isset($plugin['title']) ? $plugin['title'] : t('Broken/missing access plugin %plugin', array('%plugin' => $test['name']));
+          $access_title = isset($plugin['title']) ? $plugin['title'] : t('Broken/missing access plugin %plugin', array('%plugin' => $test['name']));
           $access_description = ctools_access_summary($plugin, $contexts, $test);
 
           $visibility_links[] = array(
@@ -396,37 +380,28 @@ class panels_renderer_editor extends panels_renderer_standard {
         }
       }
       if (empty($visibility_links)) {
-        $visibility_links[] = array(
+        $visibility_links['no_rules'] = array(
           'title' => t('No rules'),
           'attributes' => array('class' => array('panels-text')),
         );
       }
 
-      $visibility_links[] = array(
+      $visibility_links['add_rule'] = array(
         'title' => t('Add new rule'),
         'href' => $this->get_url('access-add-test', $pane->pid),
         'attributes' => array('class' => array('ctools-use-modal')),
       );
 
-      $visibility_links[] = array(
+      $visibility_links['settings'] = array(
         'title' => t('Settings'),
         'href' => $this->get_url('access-settings', $pane->pid),
         'attributes' => array('class' => array('ctools-use-modal')),
       );
 
-      $links[] = array(
-        'title' => '<span class="dropdown-header">' . t('Visibility rules') . '</span>' . theme_links(array('links' => $visibility_links, 'attributes' => array(), 'heading' => array())),
-        'html' => TRUE,
-        'attributes' => array('class' => array('panels-sub-menu')),
-      );
+      $links['visibility'] = $visibility_links;
     }
 
     if (user_access('use panels locks')) {
-      $links[] = array(
-        'title' => '<hr />',
-        'html' => TRUE,
-      );
-
       $lock_type = !empty($pane->locks['type']) ? $pane->locks['type'] : 'none';
       switch ($lock_type) {
         case 'immovable':
@@ -441,62 +416,44 @@ class panels_renderer_editor extends panels_renderer_standard {
           break;
       }
 
-      $lock_links[] = array(
+      $lock_links['lock'] = array(
         'title' => $lock_method,
         'attributes' => array('class' => array('panels-text')),
       );
-      $lock_links[] = array(
+      $lock_links['change'] = array(
         'title' => t('Change'),
         'href' => $this->get_url('lock', $pane->pid),
         'attributes' => array('class' => array('ctools-use-modal')),
       );
 
-      $links[] = array(
-        'title' => '<span class="dropdown-header">' . t('Locking') . '</span>' . theme_links(array('links' => $lock_links, 'attributes' => array(), 'heading' => array())),
-        'html' => TRUE,
-        'attributes' => array('class' => array('panels-sub-menu')),
-      );
+      $links['lock'] = $lock_links;
     }
 
     if (panels_get_caches() && user_access('use panels caching features')) {
-      $links[] = array(
-        'title' => '<hr />',
-        'html' => TRUE,
-      );
-
       $method = isset($pane->cache['method']) ? $pane->cache['method'] : 0;
       $info = panels_get_cache($method);
       $cache_method = isset($info['title']) ? $info['title'] : t('No caching');
-      $cache_links[] = array(
+      $cache_links['title'] = array(
         'title' => $cache_method,
         'attributes' => array('class' => array('panels-text')),
       );
-      $cache_links[] = array(
+      $cache_links['change'] = array(
         'title' => t('Change'),
         'href' => $this->get_url('cache-method', $pane->pid),
         'attributes' => array('class' => array('ctools-use-modal')),
       );
       if (panels_plugin_get_function('cache', $info, 'settings form')) {
-        $cache_links[] = array(
+        $cache_links['settings'] = array(
           'title' => t('Settings'),
           'href' => $this->get_url('cache-settings', $pane->pid),
           'attributes' => array('class' => array('ctools-use-modal')),
         );
       }
 
-      $links[] = array(
-        'title' => '<span class="dropdown-header">' . t('Caching') . '</span>' . theme_links(array('links' => $cache_links, 'attributes' => array(), 'heading' => array())),
-        'html' => TRUE,
-        'attributes' => array('class' => array('panels-sub-menu')),
-      );
+      $links['cache'] = $cache_links;
     }
 
-    $links[] = array(
-      'title' => '<hr />',
-      'html' => TRUE,
-    );
-
-    $links[] = array(
+    $links['bottom']['remove'] = array(
       'title' => t('Remove'),
       'href' => '#',
       'attributes' => array(
@@ -505,7 +462,35 @@ class panels_renderer_editor extends panels_renderer_standard {
       ),
     );
 
-    return theme('ctools_dropdown', array('title' => theme('image', array('path' => ctools_image_path('icon-configure.png', 'panels'))), 'links' => $links, 'image' => TRUE));
+    // Allow others to add/remove links from pane context menu.
+    // Grouped by 'top', 'style', 'visibility', 'lock', 'cache' and 'bottom'
+    drupal_alter('get_pane_links', $links, $pane, $content_type);
+
+    $dropdown_links = $links['top'];
+    foreach (array(
+  'style' => 'Style',
+  'visibility' => 'Visibility rules',
+  'lock' => 'Locking',
+  'cache' => 'Caching'
+    ) as $category => $label) {
+      $dropdown_links[] = array(
+        'title' => '<hr />',
+        'html' => TRUE,
+      );
+      $dropdown_links[] = array(
+        'title' => '<span class="dropdown-header">' . t($label) . '</span>' . theme_links(array('links' => $links[$category], 'attributes' => array(), 'heading' => array())),
+        'html' => TRUE,
+        'attributes' => array('class' => array('panels-sub-menu')),
+      );
+    }
+
+    $dropdown_links[] = array(
+      'title' => '<hr />',
+      'html' => TRUE,
+    );
+    $dropdown_links = array_merge($dropdown_links, $links['bottom']);
+
+    return theme('ctools_dropdown', array('title' => theme('image', array('path' => ctools_image_path('icon-configure.png', 'panels'))), 'links' => $dropdown_links, 'image' => TRUE));
   }
 
   // -----------------------------------------------------------------------
@@ -656,7 +641,19 @@ class panels_renderer_editor extends panels_renderer_standard {
     $content_type = ctools_get_content_type($type_name);
     $subtype = ctools_content_get_subtype($content_type, $subtype_name);
 
-    if (!isset($step) || !isset($this->cache->new_pane)) {
+    // Determine if we are adding a different pane than previously cached. This
+    // is used to load the different pane into cache so that multistep forms
+    // have the correct context instead of a previously cached version that
+    // does not match the pane currently being added.
+    $is_different_pane = FALSE;
+    if (isset($this->cache) && isset($this->cache->new_pane)) {
+      $diff_type = $type_name != $this->cache->new_pane->type;
+      $diff_subtype = $subtype_name != $this->cache->new_pane->subtype;
+
+      $is_different_pane = $diff_type || $diff_subtype;
+    }
+
+    if (!isset($step) || !isset($this->cache->new_pane) || $is_different_pane) {
       $pane = panels_new_pane($type_name, $subtype_name, TRUE);
       $this->cache->new_pane = &$pane;
     }

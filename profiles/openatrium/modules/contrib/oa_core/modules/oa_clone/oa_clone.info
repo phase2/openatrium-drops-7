@@ -1,0 +1,26 @@
+name = Open Atrium Clone
+description = Integrates the Node clone module with Open Atrium.
+core = 7.x
+package = Open Atrium
+dependencies[] = clone
+dependencies[] = conditional_fields
+dependencies[] = entityreference
+dependencies[] = features
+dependencies[] = list
+dependencies[] = oa_buttons
+dependencies[] = strongarm
+features[conditional_fields][] = taxonomy_term:space_type
+features[ctools][] = strongarm:strongarm:1
+features[features_api][] = api:2
+features[field_base][] = field_oa_clone_enabled
+features[field_base][] = field_oa_clone_space
+features[field_instance][] = taxonomy_term-space_type-field_oa_clone_enabled
+features[field_instance][] = taxonomy_term-space_type-field_oa_clone_space
+features[variable][] = clone_use_node_type_name
+
+; Information added by Drupal.org packaging script on 2014-02-26
+version = "7.x-2.15"
+core = "7.x"
+project = "oa_core"
+datestamp = "1393428820"
+

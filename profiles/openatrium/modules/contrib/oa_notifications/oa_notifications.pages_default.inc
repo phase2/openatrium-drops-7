@@ -49,6 +49,8 @@ function oa_notifications_default_page_manager_pages() {
       ),
     ),
     'logic' => 'and',
+    'type' => 'none',
+    'settings' => NULL,
   );
   $page->menu = array(
     'type' => 'tab',
@@ -104,10 +106,11 @@ function oa_notifications_default_page_manager_pages() {
   );
   $display->cache = array();
   $display->title = '';
+  $display->uuid = '0605f9d8-dad2-40fc-ab36-65b50781d5ed';
   $display->content = array();
   $display->panels = array();
     $pane = new stdClass();
-    $pane->pid = 'new-1';
+    $pane->pid = 'new-decbfbc2-6dcd-48ba-83a0-cb1328113c28';
     $pane->panel = 'middle';
     $pane->type = 'views_panes';
     $pane->subtype = 'open_atrium_content-panel_pane_subscribed';
@@ -148,10 +151,11 @@ function oa_notifications_default_page_manager_pages() {
     $pane->extras = array();
     $pane->position = 0;
     $pane->locks = array();
-    $display->content['new-1'] = $pane;
-    $display->panels['middle'][0] = 'new-1';
+    $pane->uuid = 'decbfbc2-6dcd-48ba-83a0-cb1328113c28';
+    $display->content['new-decbfbc2-6dcd-48ba-83a0-cb1328113c28'] = $pane;
+    $display->panels['middle'][0] = 'new-decbfbc2-6dcd-48ba-83a0-cb1328113c28';
   $display->hide_title = PANELS_TITLE_FIXED;
-  $display->title_pane = 'new-1';
+  $display->title_pane = '0';
   $handler->conf['display'] = $display;
   $page->default_handlers[$handler->name] = $handler;
   $pages['user_subscribed_content'] = $page;

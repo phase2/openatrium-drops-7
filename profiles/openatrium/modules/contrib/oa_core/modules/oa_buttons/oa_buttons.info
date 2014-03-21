@@ -17,26 +17,14 @@ features[conditional_fields][] = node:oa_space
 features[ctools][] = field_group:field_group:1
 features[features_api][] = api:2
 features[field_base][] = field_oa_node_types
-features[field_base][] = field_oa_section
-features[field_base][] = field_oa_section_layout
-features[field_base][] = field_oa_section_override
-features[field_base][] = field_oa_space_type
 features[field_instance][] = node-oa_section-field_oa_node_types
-features[field_instance][] = node-oa_section-field_oa_section
-features[field_instance][] = node-oa_section-field_oa_section_override
 features[field_instance][] = node-oa_space-field_oa_node_types
-features[field_instance][] = node-oa_space-field_oa_section_override
-features[field_instance][] = node-oa_space-field_oa_space_type
 features[field_instance][] = taxonomy_term-section_type-field_oa_node_types
-features[field_instance][] = taxonomy_term-section_type-field_oa_section_layout
 features[field_instance][] = taxonomy_term-space_type-field_oa_node_types
-features[field_instance][] = taxonomy_term-space_type-field_oa_section_layout
-features[taxonomy][] = section_type
-features[taxonomy][] = space_type
 
-; Information added by Drupal.org packaging script on 2014-01-27
-version = "7.x-2.13"
+; Information added by Drupal.org packaging script on 2014-02-26
+version = "7.x-2.15"
 core = "7.x"
 project = "oa_core"
-datestamp = "1390859944"
+datestamp = "1393428820"
 

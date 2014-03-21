@@ -173,7 +173,7 @@ class views_plugin_exposed_form extends views_plugin {
     $view = $this->view;
     $exposed_data = isset($view->exposed_data) ? $view->exposed_data : array();
     $sort_by = isset($exposed_data['sort_by']) ? $exposed_data['sort_by'] : NULL;
-    if (!empty($sort_by) && $this->view->style_plugin->build_sort()) {
+    if (!empty($sort_by)) {
       // Make sure the original order of sorts is preserved
       // (e.g. a sticky sort is often first)
       if (isset($view->sort[$sort_by])) {
@@ -220,17 +220,24 @@ class views_plugin_exposed_form extends views_plugin {
     }
 
     if (count($exposed_sorts)) {
+      if (isset($form_state['input']['sort_by']) && isset($this->view->sort[$form_state['input']['sort_by']])) {
+        $default_sort_order = $form_state['input']['sort_by'];
+      } else {
+        $first_sort = reset($this->view->sort);
+        $default_sort_order = $first_sort->options['order'];
+      }
       $form['sort_by'] = array(
         '#type' => 'select',
         '#options' => $exposed_sorts,
         '#title' => $this->options['exposed_sorts_label'],
+        '#default_value' => $default_sort_order,
       );
       $sort_order = array(
         'ASC' => $this->options['sort_asc_label'],
         'DESC' => $this->options['sort_desc_label'],
       );
       if (isset($form_state['input']['sort_by']) && isset($this->view->sort[$form_state['input']['sort_by']])) {
-        $default_sort_order = $this->view->sort[$form_state['input']['sort_by']]->options['order'];
+        $default_sort_order = $form_state['input']['sort_order'];
       } else {
         $first_sort = reset($this->view->sort);
         $default_sort_order = $first_sort->options['order'];

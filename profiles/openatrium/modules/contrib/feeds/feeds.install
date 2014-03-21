@@ -56,6 +56,7 @@ function feeds_requirements($phase) {
   */
 function feeds_uninstall() {
   variable_del('http_request_timeout');
+  variable_del('feeds_reschedule');
 }
 
 /**
@@ -664,4 +665,19 @@ function feeds_update_7208(&$sandbox) {
   else {
     $sandbox['#finished'] = 1;
   }
+}
+
+/**
+ * Reschedules feeds jobs.
+ */
+function feeds_update_7209() {
+  // Reschedule all importers.
+  variable_set('feeds_reschedule', TRUE);
+
+  // Our expire callback has changed names, remove all existing callbacks.
+  db_delete('job_schedule')
+    ->condition('name', 'feeds_importer_expire')
+    ->execute();
+
+  DrupalQueue::get('feeds_importer_expire')->deleteQueue();
 }

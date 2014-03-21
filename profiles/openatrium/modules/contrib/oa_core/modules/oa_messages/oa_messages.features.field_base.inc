@@ -74,11 +74,11 @@ function oa_messages_field_default_field_bases() {
     'entity_types' => array(),
     'field_name' => 'field_oa_comment_ref',
     'foreign keys' => array(
-      'node' => array(
+      'comment' => array(
         'columns' => array(
-          'target_id' => 'nid',
+          'target_id' => 'cid',
         ),
-        'table' => 'node',
+        'table' => 'comment',
       ),
     ),
     'indexes' => array(

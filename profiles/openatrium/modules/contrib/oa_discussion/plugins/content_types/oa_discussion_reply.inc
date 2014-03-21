@@ -24,8 +24,9 @@ function oa_discussion_reply_render($subtype, $conf, $args, $context = NULL) {
     return;
   }
   $node = $context->data;
-  // only show reply form if user is allowed to create a reply
-  if (!node_access('create', $node)) {
+  // Only show reply form if user is allowed to create a reply.
+  $gid = $node->{OG_AUDIENCE_FIELD}[LANGUAGE_NONE][0]['target_id'];
+  if (!og_user_access('node', $gid, 'write' . ' ' . $subtype . ' ' . 'to discussion post')) {
     return;
   }
   $output = drupal_get_form('oa_discussion_reply_form', $node);
@@ -91,11 +92,15 @@ function oa_discussion_reply_form($form, &$form_state, $node) {
 
   // field_default_form requires #parents be set.
   $form['#parents'] = empty($form['#parents']) ? array() : $form['#parents'];
-  $field = field_info_field('field_oa_media');
-  $instance = field_info_instance('node', 'field_oa_media', 'oa_discussion_post');
 
-  $form['oa_reply']['media'] = field_default_form('node', NULL, $field, $instance, $node->language, NULL, $form, $form_state);
-  form_load_include($form_state, 'inc', 'oa_discussion', 'plugins/content_types/oa_discussion_reply'); // For AJAX add more
+  // Only show attachment form if the user is allowed to add attachments.
+  $gid = $node->{OG_AUDIENCE_FIELD}[LANGUAGE_NONE][0]['target_id'];
+  if (og_user_access('node', $gid, 'add attachment to' . ' ' . $node->type)) {
+    $field = field_info_field('field_oa_media');
+    $instance = field_info_instance('node', 'field_oa_media', 'oa_discussion_post');
+    $form['oa_reply']['media'] = field_default_form('node', NULL, $field, $instance, $node->language, NULL, $form, $form_state);
+    form_load_include($form_state, 'inc', 'oa_discussion', 'plugins/content_types/oa_discussion_reply'); // For AJAX add more
+  }
 
   $form['oa_reply']['submit'] = array(
     '#type' => 'submit',
@@ -111,7 +116,7 @@ function oa_discussion_reply_form_submit($form, &$form_state) {
   $node = $form['#node'];
   $parent_id = $form['#parent_id'];
   $body = $form_state['values']['body'];
-  $media = $form_state['values']['field_oa_media'][LANGUAGE_NONE];
+  $media = isset($form_state['values']['field_oa_media']) ? $form_state['values']['field_oa_media'][LANGUAGE_NONE] : array();
   if (!empty($parent_id) && (!empty($body['value']) || !empty($media))) {
     // determine a title for the reply
     if (!empty($form_state['values']['subject'])) {

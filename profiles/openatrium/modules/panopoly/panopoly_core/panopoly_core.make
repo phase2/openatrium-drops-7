@@ -5,16 +5,11 @@ core = 7.x
 
 ; Panels and Chaos Tools Magic
 
-projects[ctools][version] = 1.3
+projects[ctools][version] = 1.4
 projects[ctools][subdir] = contrib
-projects[ctools][patch][1925018] = http://drupal.org/files/ctools-1925018-61.patch
-projects[ctools][patch][2153811] = http://drupal.org/files/issues/ctools-views-pane-sort-by-2153811-2.patch
 
-projects[panels][version] = 3.x-dev
+projects[panels][version] = 3.4
 projects[panels][subdir] = contrib
-projects[panels][download][type] = git
-projects[panels][download][revision] = 2bb470e
-projects[panels][download][branch] = 7.x-3.x
 
 projects[panels_breadcrumbs][version] = 2.1
 projects[panels_breadcrumbs][subdir] = contrib
@@ -22,11 +17,8 @@ projects[panels_breadcrumbs][subdir] = contrib
 projects[panelizer][version] = 3.1
 projects[panelizer][subdir] = contrib
 
-projects[fieldable_panels_panes][version] = 1.x-dev
+projects[fieldable_panels_panes][version] = 1.5
 projects[fieldable_panels_panes][subdir] = contrib
-projects[fieldable_panels_panes][download][type] = git
-projects[fieldable_panels_panes][download][revision] = 3b9c8b6
-projects[fieldable_panels_panes][download][branch] = 7.x-1.x
 
 projects[pm_existing_pages][version] = 1.4
 projects[pm_existing_pages][subdir] = contrib
@@ -42,11 +34,12 @@ projects[fape][patch][1846156] = http://drupal.org/files/fape-1846156-5.patch
 
 projects[views][version] = 3.7
 projects[views][subdir] = contrib
+projects[views][patch][2037469] = http://drupal.org/files/views-exposed-sorts-2037469-1.patch
 
 projects[views_autocomplete_filters][version] = 1.0
 projects[views_autocomplete_filters][subdir] = contrib
 
-projects[views_bulk_operations][version] = 3.1
+projects[views_bulk_operations][version] = 3.2
 projects[views_bulk_operations][subdir] = contrib
 
 ; The Usual Suspects
@@ -66,7 +59,7 @@ projects[libraries][subdir] = contrib
 
 ; Field modules
 
-projects[date][version] = 2.6
+projects[date][version] = 2.7
 projects[date][subdir] = contrib
 
 projects[entityreference][version] = 1.1
@@ -114,7 +107,7 @@ projects[migrate_extras][type] = "module"
 projects[migrate_extras][subdir] = "contrib"
 
 ; Recommended Modules
-projects[devel][version] = 1.3
+projects[devel][version] = 1.4
 projects[devel][subdir] = contrib
 
 projects[uuid][version] = 1.0-alpha5

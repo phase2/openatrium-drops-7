@@ -204,6 +204,7 @@ class views_content_plugin_display_panel_pane extends views_plugin_display {
                 '#options' => array(
                   '' => t('Pane configuration form only'),
                   'pane_and_exposed' => t('Pane configuration form and exposed form'),
+                  'configureable' => t('Pane and option for exposed form'),
                   'exposed' => t('Exposed form only')
                 ),
                 '#default_value' => !empty($exposed_form_overrides[$type][$filter_id]) ? $exposed_form_overrides[$type][$filter_id] : '',
@@ -472,7 +473,11 @@ class views_content_plugin_display_panel_pane extends views_plugin_display {
     return FALSE;
   }
 
-
+  /**
+   * Set the pane configuration options
+   * Done here in handler for reuse between views_content_views_panes_content_type_render
+   * and views_content_views_pre_view
+   */
   function pane_process_conf() {
     $conf = $this->get_option('pane_conf');
     if (!$conf) {
@@ -502,6 +507,9 @@ class views_content_plugin_display_panel_pane extends views_plugin_display {
             else {
               $args[] = $contexts[$key]->argument;
             }
+          }
+          else {
+            $args[] = isset($arguments[$id]['exception']['value']) ? $arguments[$id]['exception']['value'] : 'all';
           }
           break;
 
@@ -616,12 +624,9 @@ class views_content_plugin_display_panel_pane extends views_plugin_display {
             }
           }
         }
-
-        if (!empty($_GET['order']) && !empty($exposed_input['sort_by'])) {
-          $exposed_input['sort_by'] = $_GET['order'];
-        }
-        elseif (!empty($exposed_form_overrides['sorts']) && isset($current_exposed['sort_by'])) {
+        if (!empty($exposed_form_overrides['sorts']) && isset($current_exposed['sort_by'])) {
           $exposed_input['sort_by'] = $current_exposed['sort_by'];
+          $exposed_input['sort_order'] = $current_exposed['sort_order'];
         }
       }
       // Preserve op so reset works.
@@ -631,5 +636,6 @@ class views_content_plugin_display_panel_pane extends views_plugin_display {
       $this->view->set_exposed_input($exposed_input);
     }
   }
+
 }
 

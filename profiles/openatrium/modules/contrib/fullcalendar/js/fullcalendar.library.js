@@ -60,17 +60,17 @@ Drupal.fullcalendar.fullcalendar.prototype.parseEvents = function (callback) {
   for (var i = 0; i < details.length; i++) {
     var event = $(details[i]);
     events.push({
-      field: event.attr('field'),
-      index: event.attr('index'),
-      eid: event.attr('eid'),
-      entity_type: event.attr('entity_type'),
+      field: event.data('field'),
+      index: event.data('index'),
+      eid: event.data('eid'),
+      entity_type: event.data('entity-type'),
       title: event.attr('title'),
-      start: event.attr('start'),
-      end: event.attr('end'),
+      start: event.data('start'),
+      end: event.data('end'),
       url: event.attr('href'),
-      allDay: (event.attr('allDay') === '1'),
-      className: event.attr('cn'),
-      editable: (event.attr('editable') === '1'),
+      allDay: (event.data('all-day') === 1),
+      className: event.data('cn'),
+      editable: (event.data('editable') === 1),
       dom_id: this.dom_id
     });
   }

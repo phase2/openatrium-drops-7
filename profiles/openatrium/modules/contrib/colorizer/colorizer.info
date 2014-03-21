@@ -3,9 +3,9 @@ description = Colorize your theme
 core = 7.x
 
 
-; Information added by  packaging script on 2013-12-04
-version = "7.x-1.0-beta3"
+; Information added by Drupal.org packaging script on 2014-02-25
+version = "7.x-1.0"
 core = "7.x"
 project = "colorizer"
-datestamp = "1386185910"
+datestamp = "1393365508"
 

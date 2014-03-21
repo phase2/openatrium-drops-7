@@ -1,0 +1,633 @@
+<?php
+/**
+ * @file
+ * Code for the Open Atrium Clone module.
+ */
+
+include_once 'oa_clone.features.inc';
+
+/**
+ * The path to the clone action.
+ */
+define('OA_CLONE_ACTION_PATH', 'node/%node/clone/%clone_token');
+
+/**
+ * The path to the 'Create Space' page.
+ */
+define('OA_CLONE_CREATE_SPACE_PATH', 'node/add/oa-space/%');
+
+/**
+ * Implements hook_menu().
+ */
+function oa_clone_menu() {
+  $items = array();
+  $items['node/%node/oa_clone_create_space_type'] = array(
+    'title' => 'Create Space Type from this Space',
+    'page callback' => 'oa_clone_create_space_type_page_callback',
+    'page arguments' => array(1),
+    'access callback' => 'oa_clone_create_space_type_access_callback',
+    'access arguments' => array(1),
+    'type' => MENU_LOCAL_TASK,
+  );
+  return $items;
+}
+
+/**
+ * Access callback: Check if the user can create a Space type from this node.
+ */
+function oa_clone_create_space_type_access_callback($node) {
+  $vid = taxonomy_vocabulary_machine_name_load('space_type')->vid;
+  return $node->type == 'oa_space' && user_access("edit terms in $vid") && node_access('view', $node);
+}
+
+/**
+ * Page callback: Redirect user to create a new Space type using a node.
+ */
+function oa_clone_create_space_type_page_callback($node) {
+  drupal_goto('admin/structure/taxonomy/space_type/add', array(
+    'query' => array(
+      'oa_clone_space' => $node->nid,
+      'destination' => "node/{$node->nid}",
+    ),
+  ));
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function oa_clone_menu_alter(&$items) {
+  if (isset($items[OA_CLONE_ACTION_PATH])) {
+    // MENU_LOCAL_ACTION doesn't really fit in with Open Atrium's UI design,
+    // it isn't used anywhere else. Instead we use tabs and contextual_tabs,
+    // so let's switch this!
+    $items[OA_CLONE_ACTION_PATH]['type'] = MENU_LOCAL_TASK;
+
+    // We rebuild the node edit form using Panels, but by default the Clone
+    // module won't use this. We replace it's page callback to fix that!
+    $items[OA_CLONE_ACTION_PATH]['page callback'] = 'oa_clone_node_check';
+  }
+
+  if (isset($items[OA_CLONE_CREATE_SPACE_PATH])) {
+    // We have to conditionally replace the normal 'Create Space' page
+    // with one that can clone.
+    $items[OA_CLONE_CREATE_SPACE_PATH]['page callback'] = 'oa_clone_create_space_page_callback';
+  }
+}
+
+/**
+ * Page callback that prompts the user to confirm the operation.
+ *
+ * This code was copied from clone_node_check() and simple changed to call
+ * our oa_clone_node_prepopulate() rather than clone_node_prepopulate().
+ *
+ * @param object $node
+ *   A node object representing the node we are cloning.
+ *
+ * @see clone_node_check()
+ */
+function oa_clone_node_check($node) {
+  $method = variable_get('clone_method', 'prepopulate');
+
+  switch ($method) {
+    case 'save-edit':
+      if (variable_get('clone_nodes_without_confirm', FALSE)) {
+        $new_nid = clone_node_save($node->nid);
+        $options = array();
+        if (!empty($_GET['node-clone-destination'])) {
+          $options['query']['destination'] = $_GET['node-clone-destination'];
+        }
+        drupal_goto('node/' . $new_nid . '/edit', $options);
+      }
+      else {
+        return drupal_get_form('clone_node_confirm', $node);
+      }
+      break;
+    case 'prepopulate':
+    default:
+      // Open Atrium: Here is our one change.
+      return oa_clone_node_prepopulate($node);
+      break;
+  }
+}
+
+/**
+ * Page callback that builds the Clone page with Panels.
+ *
+ * Essentially this is combining page_manager_node_add() with
+ * clone_node_prepopulate() such that our customizations to the node edit form
+ * via Panels are also on the node clone form.
+ *
+ * @param object $original_node
+ *   A node object representing the node we are cloning.
+ * @param boolean $set_title
+ *   (Optional) Whether we should set the title or not; TRUE by default.
+ *
+ * @see page_manager_node_add()
+ * @see clone_node_prepopulate()
+ */
+function oa_clone_node_prepopulate($original_node, $set_title = TRUE) {
+  if (isset($original_node->nid)) {
+    if (clone_is_permitted($original_node->type)) {
+      // Include the file which defines _clone_node_prepare().
+      module_load_include('inc', 'clone', 'clone.pages');
+
+      $node = _clone_node_prepare($original_node, TRUE);
+      if ($set_title) {
+        drupal_set_title($node->title);
+      }
+      else {
+        $node->title = '';
+      }
+
+      // Let other modules do special fixing up.
+      $context = array('method' => 'prepopulate', 'original_node' => $original_node);
+      drupal_alter('clone_node', $node, $context);
+      // Make sure the file defining the node form is loaded.
+      $form_state = array();
+      $form_state['build_info']['args'] = array($node);
+
+      form_load_include($form_state, 'inc', 'page_manager', 'plugins/tasks/node_edit');
+      return page_manager_node_edit($node);
+    }
+  }
+}
+
+/**
+ * Page callback that either returns the normal create page or a clone page.
+ *
+ * Checks the 'Space type' taxonomy to see if this is a clone type or a normal
+ * type and returns either the normal page from 'oa_clone' or the clone page
+ * from 'clone'.
+ *
+ * @param string $type
+ *   The node content type name (ie. oa_space, oa_section).
+ * @param integer $space_tid
+ *   The taxonomy term ID of the 'Space type'.
+ *
+ * @see oa_core_create_space_page_callback()
+ * @see oa_clone_node_prepopulate()
+ */
+function oa_clone_create_space_page_callback($type, $space_tid) {
+  if ($space_type = taxonomy_term_load($space_tid)) {
+    // If this is a clone type, then return oa_clone_node_prepopulate().
+    $wrapper = entity_metadata_wrapper('taxonomy_term', $space_type);
+    if ($wrapper->field_oa_clone_enabled->value() && ($node = $wrapper->field_oa_clone_space->value())) {
+      drupal_set_title(t('Create @name Space', array('@name' => $space_type->name)));
+      return oa_clone_node_prepopulate($node, FALSE);
+    }
+
+    // Otherwise, we fallback on oa_core_create_space_page_callback().
+    return oa_core_create_space_page_callback($type, $space_tid);
+  }
+
+  return MENU_NOT_FOUND;
+}
+
+/**
+ * Implements hook_permision().
+ */
+function oa_clone_permission() {
+  return array(
+    'clone node in any group' => array(
+      'title' => t('Clone any node in any group'),
+      'description' => t('The <em>Clone any node</em> permission only affects nodes that are not in an Organic Group - this permission affects nodes in Organic Groups.'),
+    ),
+    'clone own nodes in any group' => array(
+      'title' => t('Clone own content in any group'),
+      'description' => t('The <em>Clone own nodes</em> permission only affects nodes that are not in an Organic Group - this permission affects nodes in Organic Groups.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_og_permission().
+ */
+function oa_clone_og_permission() {
+  return array(
+    'clone node' => array(
+      'title' => t('Clone any content in this Space'),
+      'default role' => array(OG_ADMINISTRATOR_ROLE),
+    ),
+    'clone own nodes' => array(
+      'title' => t('Clone own content in this Space'),
+      'default role' => array(OG_ADMINISTRATOR_ROLE),
+    ),
+  );
+}
+
+/**
+ * Implements hook_clone_access().
+ */
+function oa_clone_clone_access_alter(&$access, $node) {
+  global $user;
+
+  // We only affect the access of group content types, but we completely take
+  // over the access for those nodes.
+  if (og_is_group_content_type('node', $node->type) && clone_is_permitted($node->type)) {
+    // Make sure that this user has permission to view this node and create
+    // content of the same type.
+    if (!node_access('view', $node) || !node_access('create', $node->type)) {
+      $access = FALSE;
+      return;
+    }
+
+    $own_node = $user->uid && ($node->uid == $user->uid);
+
+    // Next, we check the global Drupal permissions.
+    if (user_access('clone node in any group') || ($own_node && user_access('clone own nodes in any group'))) {
+      $access = TRUE;
+      return;
+    }
+
+    // Finally, we check the group permissions.
+    $gid = oa_core_get_group_from_node($node->nid);
+    $access = og_user_access('node', $gid, 'clone node') || ($own_node && og_user_access('node', $gid, 'clone own nodes'));
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function oa_clone_form_taxonomy_form_term_alter(&$form, &$form_state, $form_id) {
+  $vocabulary = $form['#vocabulary'];
+  if ($vocabulary->machine_name == 'space_type' && !empty($_GET['oa_clone_space']) && ($space = node_load($_GET['oa_clone_space']))) {
+    // Put the Space information in there by default.
+    $form['name']['#default_value'] = $space->title . ' ' . t('Space');
+    $form['description']['#default_value'] = t('A new Space that is just like @title.', array('@title' => $space->title));
+    $form['field_oa_clone_enabled'][LANGUAGE_NONE]['#default_value'] = TRUE;
+    $form['field_oa_clone_space'][LANGUAGE_NONE][0]['target_id']['#default_value'] = $space->title . " ({$space->nid})";
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function oa_clone_form_oa_space_node_form_alter(&$form, &$form_state) {
+  $form['field_oa_space_type'][LANGUAGE_NONE]['#description'] = t('Changing the <em>Space type</em> after the Space has already been created, will only affect the default dashboard layout and available types - not content or configuration.');
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function oa_clone_form_node_form_alter(&$form, &$form_state) {
+  $node = $form['#node'];
+
+  // Fix a weird bug where the 'Other groups' field is always filled on clone
+  // with the same data as the 'Your groups' field. We just clear it out.
+  if (!empty($node->clone_from_original_nid) && isset($form['og_group_ref'][LANGUAGE_NONE][0]['admin'])) {
+    $form['og_group_ref'][LANGUAGE_NONE][0]['admin'][0]['target_id']['#default_value'] = '';
+  }
+}
+
+/**
+ * Implements hook_clone_node_alter().
+ */
+function oa_clone_clone_node_alter(&$node, $context) {
+  // At the moment we don't have much generic that affects all cloning
+  // operations. In general, you shouldn't put things here, but rather in the
+  // module that is responible for the thing you are adding support for.
+  // For example, sandbox support is done in oa_sandbox.
+
+  $original_node = $context['original_node'];
+  if (!empty($original_node->oa_clone_skip)) {
+    $node->oa_clone_skip = TRUE;
+  }
+}
+
+/**
+ * Prepares a node to be cloned via the 'clone' module.
+ *
+ * After you've made any changes, save it using oa_clone_save().
+ *
+ * @param object|int $original_node
+ *   The node object or nid that we are cloning.
+ * @param int $space_nid
+ *   (Optional) The nid of the Space to add this node to.
+ * @param int $section_nid
+ *   (Optional) The nid of the Section to add this node to.
+ * @param boolean $bypass_access_check
+ *   (Optional) If set to TRUE, the access check will be bypassed.
+ *
+ * @return object|NULL
+ *   The new node object that was created or NULL if the user doesn't have
+ *   access to clone it.
+ *
+ * @see oa_clone_save()
+ * @see oa_clone()
+ */
+function oa_clone_prepare($original_node, $space_nid = NULL, $section_nid = NULL, $bypass_access_check = FALSE) {
+  if (!is_object($original_node)) {
+    $original_node = node_load($original_node);
+    $original_node->oa_clone_skip = TRUE;
+  }
+
+  if ($bypass_access_check || clone_access_cloning($original_node)) {
+    module_load_include('inc', 'clone', 'clone.pages');
+
+    $node = _clone_node_prepare($original_node, FALSE);
+    if ($space_nid) {
+      if ($node->type == 'oa_space') {
+        $node->oa_parent_space[LANGUAGE_NONE][0]['target_id'] = $space_nid;
+      }
+      else {
+        $node->og_group_ref[LANGUAGE_NONE][0]['target_id'] = $space_nid;
+      }
+    }
+    if ($section_nid) {
+      $node->oa_section_ref[LANGUAGE_NONE][0]['target_id'] = $section_nid;
+    }
+
+    $context = array('method' => 'save-edit', 'original_node' => $original_node);
+    drupal_alter('clone_node', $node, $context);
+
+    return $node;
+  }
+}
+
+/**
+ * Saves a cloned node via the 'clone' module.
+ *
+ * You should have created the original $node object via the oa_clone_prepare()
+ * function.
+ *
+ * @param $node
+ *   The new node object to be saved.
+ *
+ * @see oa_clone_prepare()
+ * @see oa_clone()
+ */
+function oa_clone_save($node) {
+  node_save($node);
+  if (module_exists('rules')) {
+    rules_invoke_event('clone_node', $node, $original_node);
+  }
+}
+
+/**
+ * Clones a node using the 'clone' module.
+ *
+ * This is just a shortcut for calling oa_clone_prepare() and then
+ * oa_clone_save().
+ *
+ * @param object|int $original_node
+ *   The node object or nid that we are cloning.
+ * @param int $space_nid
+ *   (Optional) The nid of the Space to add this node to.
+ * @param int $section_nid
+ *   (Optional) The nid of the Section to add this node to.
+ * @param boolean $bypass_access_check
+ *   (Optional) If set to TRUE, the access check will be bypassed.
+ *
+ * @return object|NULL
+ *   The new node object that was created or NULL if the user doesn't have
+ *   access to clone it.
+ *
+ * @see oa_clone_prepare()
+ * @see oa_clone_save()
+ */
+function oa_clone($original_node, $space_nid = NULL, $section_nid = NULL, $bypass_access_check = FALSE) {
+  $node = oa_clone_prepare($original_node, $space_nid, $section_nid, $bypass_access_check);
+  if ($node) {
+    oa_clone_save($node);
+  }
+  return $node;
+}
+
+/**
+ * Gets all the content within a particular Section.
+ *
+ * @param int $nid
+ *   The node ID of the Section.
+ *
+ * @return array
+ *   An array of node IDs.
+ */
+function oa_clone_get_section_content($nid) {
+  $query = new EntityFieldQuery();
+  $query
+    ->entityCondition('entity_type', 'node')
+    ->fieldCondition('oa_section_ref', 'target_id', $nid);
+  $result = $query->execute();
+  if (isset($result['node'])) {
+    return array_keys($result['node']);
+  }
+  return array();
+}
+
+/**
+ * Gets all the memberships within a particular Group.
+ *
+ * @param int $nid
+ *   The node ID of the Group.
+ *
+ * @return array
+ *   An array of og_membership IDs.
+ */
+function oa_clone_get_group_memberships($nid) {
+  $query = new EntityFieldQuery();
+  $query
+    ->entityCondition('entity_type', 'og_membership')
+    ->propertyCondition('group_type', 'node')
+    ->propertyCondition('gid', $nid)
+    ->propertyCondition('entity_type', 'user');
+  $result = $query->execute();
+  if (isset($result['og_membership'])) {
+    return array_keys($result['og_membership']);
+  }
+  return array();
+}
+
+/**
+ * Implements hook_entity_insert().
+ */
+function oa_clone_node_insert($node) {
+  if (in_array($node->type, array('oa_section', 'oa_space', 'oa_group')) && !empty($node->clone_from_original_nid) && empty($node->oa_clone_skip)) {
+    $original_nid = $node->clone_from_original_nid;
+
+    $batch = array(
+      'title' => t('Cloning content...'),
+      'operations' => array(),
+      'finished' => 'oa_clone_batch_finished',
+    );
+
+    switch ($node->type) {
+      case 'oa_section':
+        $batch['operations'][] = array('oa_clone_batch_clone_section_content', array($node, $original_nid));
+        break;
+
+      case 'oa_space':
+        _oa_clone_batch_space($batch, $node, $original_nid);
+        break;
+
+      case 'oa_group':
+        $batch['operations'][] = array('oa_clone_batch_clone_group_memberships', array($node, $original_nid));
+        $batch['operations'][] = array('oa_clone_batch_clone_group_metadata', array($node, $original_nid));
+        break;
+    }
+
+    batch_set($batch);
+  }
+}
+
+/**
+ * Recursively clone a Space while setting up a batch for cloning content.
+ */
+function _oa_clone_batch_space(&$batch, $space, $original_space_nid) {
+  // Clone the OG metadata.
+  $batch['operations'][] = array('oa_clone_batch_clone_group_metadata', array($space, $original_space_nid));
+
+  // Clone all the Sections in this Space.
+  foreach (array_keys(oa_core_space_sections($original_space_nid)) as $original_section_nid) {
+    if ($clone_section = oa_clone($original_section_nid, $space->nid)) {
+      $batch['operations'][] = array('oa_clone_batch_clone_section_content', array($clone_section, $original_section_nid));
+    }
+  }
+
+  // Clone all sub-Spaces in this Space.
+  $associated_entities = og_subgroups_get_associated_entities('node', $original_space_nid);
+  if (!empty($associated_entities['node'])) {
+    foreach ($associated_entities['node'] as $original_subspace_nid) {
+      if ($clone_subspace = oa_clone($original_subspace_nid, $space->nid)) {
+        _oa_clone_batch_space($batch, $clone_subspace, $original_subspace_nid);
+      }
+    }
+  }
+
+  // TODO: Find all non-section / non-sub-space content in this Space and clone it.
+}
+
+/**
+ * Callback for cloning all the content in a section.
+ *
+ * @param object $node
+ *   Node object representing the Section we are going to popuplate.
+ * @param int $original_nid
+ *   The node ID of the original Section we are cloning data from.
+ * @param array &$context
+ *   A place where we can store values that need to b passed from one iteration
+ *   of this batch operation to the next.
+ */
+function oa_clone_batch_clone_section_content($node, $original_nid, &$context) {
+  // The first time through, set up all the variables.
+  if (empty($context['sandbox']['max'])) {
+    $context['sandbox']['content_ids'] = oa_clone_get_section_content($original_nid);
+    $context['sandbox']['max'] = count($context['sandbox']['content_ids']);
+    $context['sandbox']['nid'] = $node->nid;
+    $context['sandbox']['progress'] = 0;
+    $context['results']['total'] = (!empty($context['results']['total']) ? $context['results']['total'] : 0) + $context['sandbox']['max'];
+  }
+
+  // Get the next node.
+  $next_id = array_shift($context['sandbox']['content_ids']);
+  if (!$next_id) {
+    $context['sandbox']['finished'] = TRUE;
+    return;
+  }
+
+  // Get the original node and mark it so that it doesn't get cloned again.
+  $original_node = node_load($next_id);
+  $original_node->oa_clone_skip = TRUE;
+
+  // Clone it, setting to the new Space and Section.
+  $clone = oa_clone($original_node, $node->og_group_ref[LANGUAGE_NONE][0]['target_id'], $node->nid);
+  // Remeber: $clone can be NULL, if the user doesn't have permission to clone this node!
+
+  // Bump the progress indicator.
+  $context['sandbox']['progress']++;
+
+  // Report progress if not finished and run again.
+  $context['finished'] = $context['sandbox']['progress'] / $context['sandbox']['max'];
+}
+
+/**
+ * Callback for cloning all the memberships in a group.
+ *
+ * @param object $node
+ *   Node object representing the Group we are going to popuplate.
+ * @param int $original_nid
+ *   The node ID of the original Group we are cloning data from.
+ * @param array &$context
+ *   A place where we can store values that need to b passed from one iteration
+ *   of this batch operation to the next.
+ */
+function oa_clone_batch_clone_group_memberships($node, $original_nid, &$context) {
+  // The first time through, set up all the variables.
+  if (empty($context['sandbox']['max'])) {
+    $context['sandbox']['membership_ids'] = oa_clone_get_group_memberships($original_nid);
+    $context['sandbox']['max'] = count($context['sandbox']['membership_ids']);
+    $context['sandbox']['gid'] = $node->nid;
+    $context['sandbox']['progress'] = 0;
+  }
+
+  // Get the next node.
+  $next_id = array_shift($context['sandbox']['membership_ids']);
+  if (!$next_id) {
+    $context['sandbox']['finished'] = TRUE;
+    return;
+  }
+
+  // Clone the original membership, change it to the new group and save.
+  $original_membership = og_membership_load($next_id);
+  $membership = clone $original_membership;
+  $membership->id = NULL;
+  $membership->gid = $node->nid;
+  og_membership_save($membership);
+
+  // Bump the progress indicator.
+  $context['sandbox']['progress']++;
+
+  // Report progress if not finished and run again.
+  $context['finished'] = $context['sandbox']['progress'] / $context['sandbox']['max'];
+}
+
+/**
+ * Callback for cloning Organic Groups metadata (variables, permisssions, etc).
+ *
+ * @param object $node
+ *   Node object representing the Space or Group that we are going to configure.
+ * @param int $original_nid
+ *   The node ID of the original Space or Group we are cloning metadata from.
+ * @param array &$context
+ *   A place where we can store values that need to b passed from one iteration
+ *   of this batch operation to the next.
+ */
+function oa_clone_batch_clone_group_metadata($node, $original_nid, &$context) {
+  // Clone OG variables.
+  foreach (variable_realm_controller('og')->getEnabledVariables() as $name) {
+    variable_realm_set('og', 'node_' . $node->nid, $name, variable_realm_get('og', 'node_' . $original_nid, $name));
+  }
+
+  // Clone OG roles.
+  $original_role_map = array();
+  $original_roles = og_roles('node', $node->type, $original_nid);
+  foreach ($original_roles as $original_rid => $original_name) {
+    $original_role_map[$original_name] = $original_rid;
+    // If this is a custom role, then we have to create it.
+    if (!in_array($original_name, array(OG_ANONYMOUS_ROLE, OG_AUTHENTICATED_ROLE, OG_ADMINISTRATOR_ROLE))) {
+      $role = og_role_create($original_name, 'node', $node->nid, $node->type);
+      og_role_save($role);
+    }
+  }
+
+  // Clone OG permissions.
+  $permissions = og_role_permissions($original_roles);
+  foreach (og_roles('node', $node->type, $node->nid) as $rid => $name) {
+    og_role_change_permissions($rid, $permissions[$original_role_map[$name]]);
+  }
+
+  // Allow other modules to copy group metadata too.
+  module_invoke_all('oa_clone_group_metadata', $node, $original_nid);
+}
+
+/**
+ * Callback for when cloning batch finishes.
+ */
+function oa_clone_batch_finished($success, $results, $operations) {
+  if ($success) {
+    $total = !empty($results['total']) ? $results['total'] : 0;
+    drupal_set_message(t('Finished cloning @num_ids peices of content successfully.', array('@num_ids' => $total + 1)));
+  }
+  else {
+    drupal_set_message(t('Error cloning content.'), 'error');
+  }
+}

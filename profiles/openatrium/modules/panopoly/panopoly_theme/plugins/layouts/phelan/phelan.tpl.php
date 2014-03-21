@@ -10,15 +10,15 @@
  */
 ?>
 
-<div class="panel-display phelan clearfix <?php if (!empty($class)) { print $class; } ?>" <?php if (!empty($css_id)) { print "id=\"$css_id\""; } ?>>
+<div class="panel-display phelan clearfix container <?php if (!empty($class)) { print $class; } ?>" <?php if (!empty($css_id)) { print "id=\"$css_id\""; } ?>>
 
-  <div class="phelan-container phelan-column-content clearfix">
-    <div class="phelan-column-content-region phelan-column1 phelan-column panel-panel">
+  <div class="phelan-container phelan-column-content clearfix row-fluid">
+    <div class="phelan-column-content-region phelan-column1 phelan-column panel-panel span6">
       <div class="phelan-column-content-region-inner phelan-column1-inner phelan-column-inner panel-panel-inner">
         <?php print $content['column1']; ?>
       </div>
     </div>
-    <div class="phelan-column-content-region phelan-column2 phelan-column panel-panel">
+    <div class="phelan-column-content-region phelan-column2 phelan-column panel-panel span6">
       <div class="phelan-column-content-region-inner phelan-column2-inner phelan-column-inner panel-panel-inner">
         <?php print $content['column2']; ?>
       </div>

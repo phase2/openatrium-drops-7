@@ -33,41 +33,28 @@ function date_feeds_processor_targets_alter(&$targets, $entity_type, $bundle_nam
 }
 
 /**
- * Implements hook_feeds_set_target().
- *
- * @param $node
- *   The target node.
- * @param $field_name
- *   The name of field on the target node to map to.
- * @param $feed_element
- *   The value to be mapped. Should be either a (flexible) date string
- *   or a FeedsDateTimeElement object.
- *
+ * Callback for setting target values.
  */
-function date_feeds_set_target($source, $entity, $target, $feed_element) {
+function date_feeds_set_target($source, $entity, $target, array $values) {
   list($field_name, $sub_field) = explode(':', $target, 2);
 
-  if (!is_array($feed_element)) {
-    $feed_element = array($feed_element);
-  }
-
   $delta = 0;
-  foreach ($feed_element as $f) {
+  foreach ($values as $value) {
 
-    if (!($feed_element instanceof FeedsDateTimeElement)) {
+    if (!($value instanceof FeedsDateTimeElement)) {
 
-      if (empty($f) || !is_numeric($f) && is_string($f) && !date_create($f)) {
-        $f = new FeedsDateTimeElement(NULL, NULL);
+      if (empty($value) || !is_numeric($value) && is_string($value) && !date_create($value)) {
+        $value = new FeedsDateTimeElement(NULL, NULL);
       }
       elseif ($sub_field == 'end') {
-        $f = new FeedsDateTimeElement(NULL, $f);
+        $value = new FeedsDateTimeElement(NULL, $value);
       }
       else {
-        $f = new FeedsDateTimeElement($f, NULL);
+        $value = new FeedsDateTimeElement($value, NULL);
       }
     }
 
-    $f->buildDateField($entity, $field_name, $delta);
+    $value->buildDateField($entity, $field_name, $delta);
     $delta++;
   }
 }

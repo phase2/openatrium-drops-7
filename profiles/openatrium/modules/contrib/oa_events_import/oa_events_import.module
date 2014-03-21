@@ -32,6 +32,7 @@ function oa_events_import_form_oa_ical_importer_node_form_alter(&$form, &$form_s
   unset($form['field_basic_file_file']);
   $form['feeds']['FeedsHTTPFetcher']['source']['#required'] = FALSE;
   $form['#validate'] = array_merge(array('oa_events_import_form_oa_ical_importer_node_form_validate'), $form['#validate']);;
+  _oa_core_hide_comment_settings($form);
 }
 
 /**

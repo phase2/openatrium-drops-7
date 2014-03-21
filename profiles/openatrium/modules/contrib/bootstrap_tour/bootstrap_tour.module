@@ -21,6 +21,9 @@ function bootstrap_tour_run_tour($name, $force = FALSE) {
     }
   }
 
+  // Set this as the current tour in the session.
+  $_SESSION['tour'] = $name;
+
   if (!empty($tour->steps) && !is_array($tour->steps)) {
     $tour->steps = unserialize($tour->steps);
   }
@@ -48,7 +51,7 @@ function bootstrap_tour_run_tour($name, $force = FALSE) {
 
   drupal_add_js(array('bootstrapTour' => array('tour' => $tour)), 'setting');
 
-  if (module_exists('libraries') && $library = libraries_detect('bootstrap_tour') && !empty($library['installed'])) {
+  if (module_exists('libraries') && ($library = libraries_detect('bootstrap_tour')) && !empty($library['installed'])) {
     libraries_load('bootstrap_tour');
   }
   else {
@@ -70,22 +73,30 @@ function bootstrap_tour_run_tour($name, $force = FALSE) {
  */
 function bootstrap_tour_page_build(&$page) {
   $tours = bootstrap_tour_load_all();
-  foreach($tours as $tour) {
-    if (!empty($_GET['tour']) && $_GET['tour'] == $tour->name) {
-      // Force a tour to run if ?tour=tourname is in the query string.
-      bootstrap_tour_run_tour($tour->name, TRUE);
-      return;
+
+  // Force a tour to run if the tour name is in the session vars or
+  // ?tour=tourname is in the query string.
+  $current_name = !empty($_SESSION['tour']) ? $_SESSION['tour'] : NULL;
+  $current_name = !empty($_GET['tour']) ? $_GET['tour'] : $current_name;
+  if (!empty($current_name)) {
+    foreach($tours as $tour) {
+      if ($tour->name == $current_name) {
+        bootstrap_tour_run_tour($tour->name, TRUE);
+        return;
+      }
     }
   }
-  foreach($tours as $tour) {
-    if (!empty($_SESSION['nexttour']) && $_SESSION['nexttour'] == $tour->name) {
-      // Force a tour to run if the tour name is in the session vars.
-      bootstrap_tour_run_tour($tour->name, TRUE);
-      return;
+  // Force the next tour to run if the tour name is in the session vars.
+  if (!empty($_SESSION['nexttour'])) {
+    foreach($tours as $tour) {
+      if ($_SESSION['nexttour'] == $tour->name) {
+        bootstrap_tour_run_tour($tour->name, TRUE);
+        return;
+      }
     }
   }
+  // Otherwise, only run the tour if it's set to auto-run and we're on the path of one of the steps.
   foreach($tours as $tour) {
-    // Otherwise, only run the tour if it's set to auto-run and we're on the path of one of the steps.
     if (!empty($tour->steps) && $tour->autorun) {
       if (!is_array($tour->steps)) {
         $tour->steps = unserialize($tour->steps);

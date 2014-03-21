@@ -134,28 +134,12 @@ class FeedsNodeProcessor extends FeedsProcessor {
   }
 
   /**
-   * Implement expire().
-   *
-   * @todo: move to processor stage?
+   * Overrides parent::expiryQuery().
    */
-  public function expire($time = NULL) {
-    if ($time === NULL) {
-      $time = $this->expiryTime();
-    }
-    if ($time == FEEDS_EXPIRE_NEVER) {
-      return;
-    }
-    $count = $this->getLimit();
-    $nodes = db_query_range("SELECT n.nid FROM {node} n JOIN {feeds_item} fi ON fi.entity_type = 'node' AND n.nid = fi.entity_id WHERE fi.id = :id AND n.created < :created", 0, $count, array(':id' => $this->id, ':created' => REQUEST_TIME - $time));
-    $nids = array();
-    foreach ($nodes as $node) {
-      $nids[$node->nid] = $node->nid;
-    }
-    $this->entityDeleteMultiple($nids);
-    if (db_query_range("SELECT 1 FROM {node} n JOIN {feeds_item} fi ON fi.entity_type = 'node' AND n.nid = fi.entity_id WHERE fi.id = :id AND n.created < :created", 0, 1, array(':id' => $this->id, ':created' => REQUEST_TIME - $time))->fetchField()) {
-      return FEEDS_BATCH_ACTIVE;
-    }
-    return FEEDS_BATCH_COMPLETE;
+  protected function expiryQuery(FeedsSource $source, $time) {
+    $select = parent::expiryQuery($source, $time);
+    $select->condition('e.created', REQUEST_TIME - $time, '<');
+    return $select;
   }
 
   /**
@@ -378,4 +362,5 @@ class FeedsNodeProcessor extends FeedsProcessor {
     }
     return 0;
   }
+
 }

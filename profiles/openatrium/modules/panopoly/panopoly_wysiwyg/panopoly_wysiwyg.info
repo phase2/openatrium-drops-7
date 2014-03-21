@@ -32,9 +32,9 @@ features[wysiwyg][] = panopoly_html_text
 features[wysiwyg][] = panopoly_wysiwyg_text
 
 
-; Information added by drush on 2014-01-28
-version = "7.x-1.0+1-dev"
+; Information added by drush on 2014-02-26
+version = "7.x-1.1+1-dev"
 core = "7.x"
 project = "panopoly_wysiwyg"
-datestamp = "1390929292"
+datestamp = "1393449049"
 

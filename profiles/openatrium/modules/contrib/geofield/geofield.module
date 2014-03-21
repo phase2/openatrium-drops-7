@@ -1,9 +1,23 @@
 <?php
 
-require_once('geofield.widgets.inc');
-require_once('geofield.formatters.inc');
-require_once('geofield.openlayers.inc');
-require_once('geofield.feeds.inc');
+module_load_include('inc', 'geofield', 'geofield.elements');
+module_load_include('inc', 'geofield', 'geofield.widgets');
+module_load_include('inc', 'geofield', 'geofield.formatters');
+module_load_include('inc', 'geofield', 'geofield.openlayers');
+module_load_include('inc', 'geofield', 'geofield.feeds');
+module_load_include('inc', 'geofield', 'geofield.apachesolr');
+module_load_include('inc', 'geofield', 'geofield.schemaorg');
+module_load_include('inc', 'geofield', 'geofield.microdata');
+
+/* *
+ * Max length of geohashes (imposed by database column length).
+ */
+define('GEOFIELD_GEOHASH_LENGTH', 16);
+
+/**
+ * Contrib modules can check this global variable to see if geofield is running the new WKB geom schema
+ */
+$geofield_geom_schema = TRUE;
 
 /**
  * Implements hook_field_info().
@@ -15,75 +29,328 @@ function geofield_field_info() {
       'description' => t('This field stores geo information.'),
       'default_widget' => 'geofield_wkt',
       'default_formatter' => 'geofield_wkt',
-      'instance_settings' => array(
-        'local_solr' => array(
-          'enabled' => FALSE,
-          'lat_field' => 'lat',
-          'lng_field' => 'lng',
-        ),
+      'settings' => array(
+        'srid' => '4326',
+        'backend' => 'default',
       ),
       'property_type' => 'geofield',
       'property_callbacks' => array('geofield_property_info_callback'),
+      'microdata' => TRUE,
     ),
   );
 }
 
 /**
- * Implements hook_field_presave().
- * PDO throws an error when attempting to insert an empty string into a float
- * field. Go through all values and convert empty strings to NULL.
+ * Implements hook_field_update_field.
+ * 
+ * If a geofield has been created, check to see if the plugin controlling it
+ * defines a 'postinstall' callback, if so, call it.
  */
-function geofield_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
-  if ($field['type'] === 'geofield') {
-    foreach ($items as $delta => $item) {
-      if (!empty($item)) {
-        foreach ($item as $k => $v) {
-          if ($v === '') {
-            $item[$k] = NULL;
+function geofield_field_update_field($field, $prior_field, $has_data) {
+  if ($field['type'] == 'geofield') {
+    $backend = ctools_get_plugins('geofield', 'geofield_backend', $field['settings']['backend']);
+    if (!empty($backend['update_field'])) {
+      $postinstall_callback = $backend['update_field'];
+      $postinstall_callback($field, $prior_field, $has_data);
+    }
+  }
+}
+
+/**
+ * Implements hook_field_update_instance().
+ *
+ * We implement this hook to prevent instance settings that may not apply to our different
+ * widgets from breaking when switching widgets. See http://drupal.org/node/1840920.
+ */
+
+function geofield_field_update_instance($instance, $prior_instance) {
+  if (!empty($instance['widget']['type']) && !empty($prior_instance['widget']['type']) && $instance['widget']['type'] != $prior_instance['widget']['type']) {
+    $instance['default_value'] = array();
+    _field_write_instance($instance, TRUE);
+    field_cache_clear();
+  }
+}
+
+/**
+ * Implements hook_field_delete_field.
+ * 
+ * If a geofield has been deleted, check to see if the plugin controlling it
+ * defines a 'postdelete' callback, if so, call it.
+ */
+function geofield_field_delete_field($field) {
+  if ($field['type'] == 'geofield') {
+    $backend = ctools_get_plugins('geofield', 'geofield_backend', $field['settings']['backend']);
+    if (!empty($backend['delete_field'])) {
+      $delete_field_callback = $backend['delete_field'];
+      $delete_field_callback($field);
+    }
+  }
+}
+
+/**
+ * Implements hook_field_settings_form().
+ */
+function geofield_field_settings_form($field, $instance, $has_data) {
+  ctools_include('plugins');
+  $settings = $field['settings'];
+
+  $backend_options = array();
+  $backends = ctools_get_plugins('geofield', 'geofield_backend');
+  foreach ($backends as $id => $backend) {
+    if (isset($backend['requirements'])) {
+      if ($backend['requirements']) {
+        $callback = $backend['requirements'];
+        $error = '';
+        if (!$callback($error)) {
+          $form['backend_error'][] = array(
+            //@@TODO: Use t() func
+            //@@TODO: css to add some red and bold
+            '#markup' => '<div class="geofield-backend-error">' . $backend['title'] . ' not usable because ' . $error . '</div>',
+          );
+          continue;
+        }
+      }
+    }
+    $backend_options[$id] = $backend['title'];
+  }
+
+  $form['backend'] = array(
+    '#type' => 'select',
+    '#title' => 'Storage Backend',
+    '#default_value' => $settings['backend'],
+    '#options' => $backend_options,
+    '#description' => "Select the Geospatial storage backend you would like to use to store geofield geometry data. If you don't know what this means, select 'Default'.",
+    '#disabled' => $has_data,
+  );
+  
+  $form['settings'] = array(
+    '#tree' => TRUE,
+  );
+
+  // Expose backend-settings, if they have them
+  foreach ($backends as $id => $backend) {
+    if (isset($backend['settings'])) {
+      if ($backend['settings']) {
+        $callback = $backend['settings'];
+        $form[$id] = array(
+          '#type' => 'fieldset',
+          '#tree' => TRUE,
+          '#title' => $backend['title'] . ' Settings',
+          '#states' => array(
+            'visible' => array(
+              ':input[name="field[settings][backend]"]' => array('value' => $id),
+            ),
+          ),
+        );
+        $form[$id] = array_merge($form[$id], $callback($field, $instance, $has_data));
+      }
+    }
+  }
+
+  return $form;
+}
+
+/**
+ * Implements hook_field_validate().
+ */
+function geofield_field_validate($entity_type, $entity, $field, $instance, $langcode, $items, &$errors) {
+  ctools_include('plugins');
+  $backend = ctools_get_plugins('geofield', 'geofield_backend', $field['settings']['backend']);
+
+  foreach ($items as $delta => $item) {
+    $geom_empty = geofield_geom_is_empty($item);
+
+    // Required field empty.
+    if ($instance['required'] && $geom_empty) {
+      $errors[$field['field_name']][$langcode][$delta][] = array(
+        'error' => 'data_missing', 
+        'message' => t('%name is required and must not be empty.', array('%name' => $instance['label'])),
+      );
+    }
+    else {
+      // Geometry errors.
+      if ($geom_empty) {
+        return FALSE;
+      }
+      else {
+        $error = geofield_validate_geom($item);
+        if ($error) {
+          $errors[$field['field_name']][$langcode][$delta][] = array(
+            'error' => 'data_faulty', 
+            'message' => t('%name: Specified location data is invalid.', array('%name' => $instance['label'])),
+          );
+        }
+
+        if (!empty($backend['validate'])) {
+          $validate_callback = $backend['validate'];
+          $error = $validate_callback($item);
+          if ($error) {
+            $errors[$field['field_name']][$langcode][$delta][] = array(
+              'error' => 'data_faulty',
+              'message' => t('%name: Specified location data is invalid.', array('%name' => $instance['label'])),
+            );
           }
         }
-        $widget = $instance['widget'];
-        if ($widget['type'] == 'geofield_wkt') {
-          $master_column = 'wkt';
-        }
-        elseif ($widget['type'] == 'geofield_latlon') {
-          $master_column = 'latlon';
-        }
-        elseif ($widget['type'] == 'geofield_bounds') {
-          $master_column = 'bounds';
-        }
-        elseif ($widget['type'] == 'geofield_geolocation') {
-          $master_column = 'latlon';
-        }
-        else {
-          $master_column = 'wkt';
-        }
-        $item += array('master_column' => $master_column);
-        geofield_compute_values($item, $item['master_column']);
-        $items[$delta] = $item;
       }
     }
   }
 }
 
 /**
- * Implements hook_field_is_empty().
+ * Validates input data against the geometry processor
+ * @param array $item
+ * Geometry field submission
+ * @return \Exception|null
+ *  If validates, return NULL, else error text
  */
-function geofield_field_is_empty($item, $field) {
-  // TODO: This is ugly. Please fix.
-  if (!empty($item['master_column'])) {
-    switch ($item['master_column']) {
-      case 'wkt';
-        return (empty($item['wkt']));
-      case 'latlon':
-        return (empty($item['lat']) && empty($item['lon']));
-      case 'bounds':
-        return (empty($item['left']) && empty($item['right']) && empty($item['top']) && empty($item['bottom']));
+function geofield_validate_geom($item) {
+  if (is_string($item)) {
+    try {
+      $values = geofield_compute_values($item);
+    }
+    catch (Exception $e) {
+      return $e;
     }
   }
   else {
-    return (empty($item['wkt']));
+    try {
+      $input_format = !empty($item['input_format']) ? $item['input_format'] : NULL;
+      $values = geofield_compute_values($item['geom'], $input_format);
+    }
+    catch (Exception $e) {
+      return $e;
+    }
   }
+  return NULL;
+}
+
+/**
+ * Check whether geometry is empty
+ * @param array $item
+ *  Geometry field submission
+ * @return boolean
+ *  If empty, return TRUE
+ */
+function geofield_geom_is_empty($item) {
+  if (!empty($item['input_format'])) {
+    switch ($item['input_format']) {
+      case 'wkt':
+        if (empty($item['geom'])) {
+          return TRUE;
+        }
+        break;
+      case 'lat/lon':
+        if (empty($item['geom']['lat']) || empty($item['geom']['lon'])) {
+          return TRUE;
+        }
+        break;
+      case 'bounds':
+        if (empty($item['geom']['top']) || empty($item['geom']['right']) || empty($item['geom']['bottom']) || empty($item['geom']['left'])) {
+          return TRUE;
+        }
+        break;
+      case 'json':
+        if (empty($item['geom'])) {
+          return TRUE;
+        }
+        break;
+    }
+  }
+  else {
+    return empty($item['geom']);
+  }
+}
+
+/**
+ * Implements hook_field_presave().
+ */
+function geofield_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  if ($field['type'] === 'geofield') {
+    /**
+     * Edge case. Currently, Drupal will set a field value to the default value if the current value
+     * is empty, even if it's set by the user. This bypasses our validation, and currently non-valid WKB
+     * data in geom causes catastrophic failures in entity_load. To compensate, we add the default value
+     * in early. When the core issue is fixed, we should drop this code.
+     *
+     * Geofield Issue: http://drupal.org/node/1886852
+     * Core Issue: http://drupal.org/node/1253820
+     */
+    if ($instance['required'] == 0 && empty($items)) {
+      $entity_ids = entity_extract_ids($entity_type, $entity);
+      if (empty($entity_ids[0])) {
+        $items = isset($instance['default_value']) ? array($instance['default_value']) : array();
+      }
+    }
+
+    ctools_include('plugins');
+
+    $backend = ctools_get_plugins('geofield', 'geofield_backend', $field['settings']['backend']);
+    $save_callback = $backend['save'];
+    // For each delta, we compute all the auxiliary columns and transform the geom column into a geometry object
+    // We then pass the geometry object (now stored in the geom column) to the backend to prepare it for insertion into the database
+    foreach ($items as $delta => $item) {
+      $items[$delta] = geofield_compute_values($item);
+      if (isset($items[$delta]['geom']) && $items[$delta]['geom']) {
+        $items[$delta]['geom'] = $save_callback($items[$delta]['geom']);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_field_load().
+ *
+ * Geofield stores it's data as WKB, but a binary format can cause 
+ * issues/confusion with working with other modules, notably Services.
+ * To improve DX/discoverability of what we're storing, we convert
+ * to WKT on load.
+ */
+function geofield_field_load($entity_type, $entities, $field, $instances, $langcode, &$items, $age) {
+  geophp_load();
+  if (geoPHP::geosInstalled()) {
+    // process geometry directly with GEOS to help with performance/memory issues.
+    $reader = new GEOSWKBReader();
+    $writer = new GEOSWKTWriter();
+    $writer->setTrim(TRUE);
+    foreach ($entities as $id => $entity) {
+      foreach ($items[$id] as $delta => $item) {
+        if (!empty($item['geom'])) {
+          $raw_geom = unpack('H*', $item['geom']);
+          $geom = $reader->readHEX($raw_geom[1]);
+          $items[$id][$delta]['geom'] = $writer->write($geom);
+        }
+      }
+    }
+  }
+  else {
+    foreach ($entities as $id => $entity) {
+      foreach ($items[$id] as $delta => $item) {
+        if (!empty($item['geom'])) {
+          $geom = geophp::load($item['geom']);
+          if ($geom) {
+            $items[$id][$delta]['geom'] = $geom->out('wkt');
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_content_is_empty().
+ */
+function geofield_field_is_empty($item, $field) {
+  if (isset($item['input_format'])) {
+    switch ($item['input_format']) {
+      case GEOFIELD_INPUT_LAT_LON:
+        return ((trim($item['geom']['lat']) == '') || (trim($item['geom']['lon']) == ''));
+      case GEOFIELD_INPUT_BOUNDS:
+        return ((trim($item['geom']['top']) == '') || (trim($item['geom']['right']) == '') ||
+        (trim($item['geom']['bottom']) == '') || (trim($item['geom']['left']) == ''));
+    }
+  }
+  //@@TODO: Check if it's an empty geometry as per geoPHP $geometry->empty()
+  return empty($item['geom']);
 }
 
 /**
@@ -91,7 +358,7 @@ function geofield_field_is_empty($item, $field) {
  */
 function geofield_views_api() {
   return array(
-    'api' => '3.0-alpha1',
+    'api' => '3.0',
     'path' => drupal_get_path('module', 'geofield') . '/views',
   );
 }
@@ -101,6 +368,7 @@ function geofield_views_api() {
  */
 function geofield_ctools_plugin_type() {
   return array(
+    'geofield_backend' => array(),
     'behaviors' => array(
       'use hooks' => TRUE,
     )
@@ -114,69 +382,29 @@ function geofield_ctools_plugin_api($module, $api) {
   return array('version' => 1);
 }
 
- /**
- * Implements hook_field_instance_settings_form().
- */
-function geofield_field_instance_settings_form($field, $instance) {
-  $form = array();
-  // Add in local solr settings
-  if (module_exists('apachesolr')) {
-
-    if (isset($instance['settings']['solrspatial'])) $setting = $instance['settings']['solrspatial'];
-    else $setting = array();
-
-    $form['solrspatial'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Local Solr Settings'),
-      '#tree' => TRUE,
-    );
-
-    $form['solrspatial']['enabled'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Index field in Solr for spatial search'),
-      '#default_value' => isset($setting['enabled']) ? $setting['enabled'] : '',
-    );
-
-    $form['solrspatial']['lat_field'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Name of the Solr Latitude Field'),
-      '#default_value' => isset($setting['lat_field']) ? $setting['lat_field'] : '',
-    );
-
-    $form['solrspatial']['lng_field'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Name of the Solr Lonitude Field'),
-      '#default_value' => isset($setting['lng_field']) ? $setting['lng_field'] : '',
-    );
-    $form['solrspatial']['latlng_field'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Name of the Solr LatLon Field'),
-      '#default_value' => isset($setting['latlng_field']) ? $setting['latlng_field'] : '',
-    );
+/**
+* Implementation of hook_ctools_plugin_directory().
+*/
+function geofield_ctools_plugin_directory($module, $plugin) {
+  if ($plugin == 'geofield_backend') {
+    return 'includes/' . $plugin;
   }
-
-  return $form;
 }
 
 /**
  * Geofield Compute Values
  *
- *  Compute all dependant values. We compute all other values from whichever
- * column is specified in the master_column value
- *
+ * @todo: documentation
  * Steps:
  * 1. Load the geoPHP library
  * 2. Load the Geometry object from the master-column
  * 3. Get out all the computer values from the Geometry object
  * 4. Set all the values
- *
- * Allowed values for master_column are wkt, latlon, bounds
  */
-function geofield_compute_values(&$values, $master_column = 'wkt') {
-
-  // If only a wkt string has been passed in, then format it correctly by wrapping it in an array
-  if ($master_column == 'wkt' && !is_array($values)) {
-    $values = array('wkt' => $values);
+function geofield_compute_values($raw_data, $input_format = NULL) {
+  // If raw_data is NULL, false, or otherwise empty, just return an empty array of values
+  if (empty($raw_data)) {
+    return array();
   }
 
   // Load up geoPHP to do the conversions
@@ -186,37 +414,10 @@ function geofield_compute_values(&$values, $master_column = 'wkt') {
     return;
   }
 
-  // Load up the geometry object from the master-column data
-  if ($master_column == 'wkt') {
-    $wkt = $values['wkt'];
-    if ($wkt) {
-      $geometry = geoPHP::load($wkt, 'wkt');
-    }
-  }
-
-  if ($master_column == 'latlon') {
-    $lat = $values['lat'];
-    $lon = $values['lon'];
-    if (is_numeric($lat) && is_numeric($lon)) {
-      $geometry = new Point(floatval($lon), floatval($lat));
-    }
-  }
-
-  if ($master_column == 'bounds') {
-    $top = $values['top'];
-    $bottom = $values['bottom'];
-    $right = $values['right'];
-    $left = $values['left'];
-
-    if (is_numeric($top) && is_numeric($bottom) && is_numeric($right) && is_numeric($left)) {
-      $wkt_bounds_format = 'POLYGON((left bottom,right bottom,right top,left top,left bottom))';
-      $wkt = strtr($wkt_bounds_format, array('top' => $top, 'bottom' => $bottom, 'right' => $right, 'left' => $left));
-      $geometry = geoPHP::load($wkt, 'wkt');
-    }
-  }
+  $geometry = geofield_geometry_from_values($raw_data, $input_format);
 
   // Get values from geometry
-  if (isset($geometry)) {
+  if (!empty($geometry)) {
     $values = geofield_get_values_from_geometry($geometry);
   }
   else {
@@ -227,80 +428,101 @@ function geofield_compute_values(&$values, $master_column = 'wkt') {
 }
 
 /**
+ * Primary function for processing geoPHP geometry objects from raw data.
+ * @param $raw_data
+ *   The info we're trying to process. Valid input can be a string or an array. If $raw_data is a string,
+ *   the value is passed directly to geophp for parsing. If $raw_data is an array (as is expected for Lat/Lon or
+ *   Bounds input), process into raw WKT and generate geometry object from there.
+ * @param $input_format
+ *   Geofield module defined constants that specify a specific type of input. Useful for ensuring that only a specific
+ *   type of data is valid (i.e., if we're expecting WKT, valid GeoJSON doesn't get processed).
+ * @return
+ *   A populated geoPHP geometry object if valid geometry, no return otherwise.
+ *
+ * @TODO: Refactor the function to not check for $input_format from both the optional secondary parameter and 
+ *   an array item in $raw_data. This is probably an artifact from how Geofield's widgets pass data to various field
+ *   hooks. We should only check the optional secondary parameter.
+ * @TODO: Move constants from geofield.widgets.inc to geofield.module
+ * @TODO: Provide useful failure return (FALSE)
+ */
+
+function geofield_geometry_from_values($raw_data, $input_format = NULL) {
+  // Load up geoPHP to do the conversions
+  $geophp = geophp_load();
+  if (!$geophp) {
+    drupal_set_message(t("Unable to load geoPHP library. Not all values will be calculated correctly"), 'error');
+    return;
+  }
+
+  if (is_array($raw_data)) {
+    if (!empty($raw_data['input_format'])) {
+      if ($raw_data['input_format'] == GEOFIELD_INPUT_LAT_LON) {
+        $geometry = new Point($raw_data['geom']['lon'], $raw_data['geom']['lat']);
+      }
+      elseif ($raw_data['input_format'] == GEOFIELD_INPUT_BOUNDS) {
+        $wkt_bounds_format = 'POLYGON((left bottom,right bottom,right top,left top,left bottom))';
+        $wkt = strtr($wkt_bounds_format, array('top' => $raw_data['geom']['top'],
+          'right' => $raw_data['geom']['right'],
+          'bottom' => $raw_data['geom']['bottom'],
+          'left' => $raw_data['geom']['left']));
+        $geometry = geoPHP::load($wkt);
+      }
+      else {
+        $geometry = geoPHP::load($raw_data['geom'], $raw_data['input_format']);
+      }
+    } else {
+      // No input format - let geoPHP figure it out
+      if (!empty($raw_data['geom'])) {
+        $geometry = geoPHP::load($raw_data['geom']);
+      }
+      // Special case, raw input (Services/Feeds) that only specifies lat/lon.
+      elseif (!empty($raw_data['lat']) && !empty($raw_data['lon'])) {
+        $geometry = new Point($raw_data['lon'], $raw_data['lat']);
+      }
+    }
+  }
+  else {
+    if ($input_format) {
+      $geometry = geoPHP::load($raw_data, $input_format);
+    }
+    else {
+      // All we have at this point is a raw string. let GeoPHP figure it out
+      $geometry = geoPHP::load($raw_data);
+    }
+  }
+
+  if (isset($geometry)) {
+    return $geometry;
+  }
+}
+
+/**
  * Given a geometry object from geoPHP, return a values array
  */
 function geofield_get_values_from_geometry($geometry) {
+  $values = array();
+
   $centroid = $geometry->getCentroid();
   $bounding = $geometry->getBBox();
 
-  $values['wkt'] = $geometry->out('wkt');
+  $values['geom'] = $geometry->out('wkb');
+
   $values['geo_type'] = drupal_strtolower($geometry->getGeomType());
 
-  $values['lat'] = $centroid->getY();
-  $values['lon'] = $centroid->getX();
+  if ($centroid) {
+    $values['lat'] = $centroid->y();
+    $values['lon'] = $centroid->x();
+  }
 
   $values['top'] = $bounding['maxy'];
   $values['bottom'] = $bounding['miny'];
   $values['right'] = $bounding['maxx'];
   $values['left'] = $bounding['minx'];
 
+  // Truncate geohash to max length.
+  $values['geohash'] = substr($geometry->out('geohash'), 0, GEOFIELD_GEOHASH_LENGTH);
+
   return $values;
-}
-
-/**
- * Implements hook_apachesolr_field_mappings().
- */
-function geofield_apachesolr_field_mappings() {
-  return array(
-    'geofield' => array(
-      'indexing_callback' => 'geofield_apachesolr_index',
-      'facets' => TRUE,
-    )
-  );
-}
-
-/**
- * Name callback for field name
- */
-function geofield_apachesolr_index($node, $field_name, $index_key, $field_info) {
-  $return = array();
-  if (isset($node->$field_name)) {
-    // Load the instance settings for the field
-    $instance = field_info_instance('node', $field_name, $node->type);
-    if (!empty($instance['settings']['solrspatial'])) {
-      if ($values = field_get_items('node', $node, $field_name)) {
-        $values = reset($values);
-        $return = array(
-          array(
-            'key' => $instance['settings']['solrspatial']['lat_field'],
-            'value' => $values['lat']
-          ),
-          array(
-            'key' => $instance['settings']['solrspatial']['lng_field'],
-            'value' =>  $values['lon']
-          ),
-          array(
-            'key' => $instance['settings']['solrspatial']['latlng_field'],
-            'value' =>  $values['lat'] . ',' . $values['lon']
-          ),
-          array(
-            'key' => 'ss_geo_wkt',
-            'value' => $values['wkt'],
-          ),
-        );
-      }
-    }
-  }
-
-  return $return;
-}
-
-/**
- * Implements hook_apachesolr_query_alter()
- */
-function geofield_apachesolr_query_alter($query) {
-  // Add the WKT field field
-  $query->addParam('fl', 'ss_geo_wkt');
 }
 
 
@@ -442,110 +664,52 @@ function geofield_latlon_DECtoCCS($dec, $axis) {
 }
 
 /**
- * Callback to alter the property info of geofield fields.
+ * Haversine formula, useful for injecting into an SQL statement. In instances where it isn't possible to pass in variables dynamically (i.e. field
+ *   definitions), this function will bake in values directly into the snippet.
  *
- * @see geofield_field_info().
+ * @param $options
+ *   An array of parameters that can be passed along to be injected directly into the SQL snippet. The following array keys are checked...
+ *     - origin_latitude
+ *     - origin_longitude
+ *     - destination_latitude
+ *     - destination_longitude
+ *     - earth_radius
+ *
+ * @return
+ *   A string suitable for injection into DBTNG. Any option passed into the function will be baked into the string directly. Any variable missing will
+ *     be represented as :[variable]. (i.e. :earth_radius).
  */
-function geofield_property_info_callback(&$info, $entity_type, $field, $instance, $field_type) {
-  $name = $field['field_name'];
-  $property = &$info[$entity_type]['bundles'][$instance['bundle']]['properties'][$name];
 
-  $property['type'] = ($field['cardinality'] != 1) ? 'list<geofield>' : 'geofield';
-  $property['getter callback'] = 'entity_metadata_field_verbatim_get';
-  $property['setter callback'] = 'entity_metadata_field_verbatim_set';
-//  $property['auto creation'] = 'geofield_default_values';
-  $property['property info'] = geofield_data_property_info('Geofield');
+function geofield_haversine($options = array()) {
+  $formula = '( :earth_radius * ACOS( COS( RADIANS(:origin_latitude) ) * COS( RADIANS(:destination_latitude) ) * COS( RADIANS(:destination_longitude) - RADIANS(:origin_longitude) ) + SIN( RADIANS(:origin_latitude) ) * SIN( RADIANS(:destination_latitude) ) ) )';
 
-  unset($property['query callback']);
+  foreach ($options as $key => $option) {
+    if (is_numeric($option)) {
+      $formula = str_replace(':' . $key, $option, $formula);
+    }
+    else {
+      $formula = str_replace(':' . $key, db_escape_field($option), $formula);
+    }
+  }
+
+  return $formula;
 }
 
 /**
- * Defines info for the properties of the geofield field data structure.
+ * Helper function to get all geofield fields.
+ *
+ * @return
+ *   an array of field definitions for all geofields as defined by field_info_fields().
  */
-function geofield_data_property_info($name = NULL) {
-  // Build an array of basic property information for the geofield field.
-  $properties = array(
-    'wkt' => array(
-      'label' => 'Well-known text',
-      'type' => 'text',
-    ),
-    'geo_type' => array(
-      'label' => 'Geo Type',
-      'options list' => '_geofield_geo_types_options_callback',
-      'required' => TRUE,
-    ),
-    'lat' => array(
-      'label' => 'Latitude',
-      'type' => 'decimal',
-      'required' => TRUE,
-      'setter callback' => 'entity_property_verbatim_set',
-    ),
-    'lon' => array(
-      'label' => 'Longitude',
-      'type' => 'decimal',
-      'required' => TRUE,
-      'setter callback' => 'entity_property_verbatim_set',
-    ),
-    'left' => array(
-      'label' => 'Left Latitude',
-      'type' => 'decimal',
-      'setter callback' => 'entity_property_verbatim_set',
-    ),
-    'top' => array(
-      'label' =>  'Top Longitude',
-      'type' => 'decimal',
-      'setter callback' => 'entity_property_verbatim_set',
-    ),
-    'right' => array(
-      'label' => 'Right Latitude',
-      'type' => 'decimal',
-      'setter callback' => 'entity_property_verbatim_set',
-    ),
-    'bottom' => array(
-      'label' => 'Bottom Longitude',
-      'type' => 'decimal',
-      'setter callback' => 'entity_property_verbatim_set',
-    ),
-    'srid' => array(
-      'label' => 'Projection (SRID)',
-      'type' => 'integer'
-    ),
-    'latlon' => array(
-      'label' => 'LatLong Pair',
-      'type'  => 'string',
-      'getter callback' => 'geofield_return_latlon',
-    ),
-  );
+function _geofield_get_geofield_fields() {
+  $geofield_fields = array();
+  $fields = field_info_fields();
 
-
-  // Add the default values for each of the geofield properties.
-  foreach ($properties as $key => &$value) {
-    $value += array(
-      'description' => !empty($name) ? t('!label of field %name', array('!label' => $value['label'], '%name' => $name)) : '',
-      'getter callback' => 'entity_property_verbatim_get',
-    );
+  foreach ($fields as $field => $info) {
+    if ($info['type'] == 'geofield') {
+      $geofield_fields[$field] = $info;
+    }
   }
 
-  return $properties;
-}
-
-
-function _geofield_geo_types_options_callback() {
-
-  $geophp = geophp_load();
-  if (!$geophp) {
-    return;
-  }
-  return geoPHP::geometryList();
-
-}
-
-/**
- * Gets the a latlong property.
- */
-function geofield_return_latlon($data, array $options, $name) {
-  if ((is_array($data) || (is_object($data) && $data instanceof ArrayAccess))) {
-    return $data['lat'] . ',' . $data['lon'];
-  }
-  return NULL;
+  return $geofield_fields;
 }

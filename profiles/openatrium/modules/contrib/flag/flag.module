@@ -1775,13 +1775,15 @@ function flag_get_default_flags($include_disabled = FALSE) {
     $function = $module . '_flag_default_flags';
     foreach ($function() as $flag_name => $flag_info) {
       // Backward compatibility: old exported default flags have their names
-      // in $flag_info instead, so we use the += operator to not overwrite it.
-      $default_flags_info[$flag_name] = $flag_info += array(
+      // in $flag_info instead, so we use the + operator to not overwrite it.
+      $default_flags_info[$flag_name] = $flag_info + array(
         'name' => $flag_name,
         'module' => $module,
       );
     }
   }
+
+  // Allow modules to alter definitions using hook_flag_default_flags_alter().
   drupal_alter('flag_default_flags', $default_flags_info);
 
   foreach ($default_flags_info as $flag_info) {

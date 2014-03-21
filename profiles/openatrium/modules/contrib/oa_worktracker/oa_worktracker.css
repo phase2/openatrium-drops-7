@@ -32,6 +32,12 @@
   width: 30%;
 }
 
+.group-oa-worktracker-task-info .submitted {
+  margin-top: 1em;
+  font-size: .8em;
+  font-style: italic;
+}
+
 /**
  * Don't make the diffchanges red and bold by default!
  */

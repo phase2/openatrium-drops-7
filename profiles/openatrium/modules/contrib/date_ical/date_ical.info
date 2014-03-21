@@ -1,5 +1,5 @@
 name = Date iCal
-description = Allows creation of iCal feeds using Views, and provides a Feeds plugin for parsing iCal feeds.
+description = Enables export of iCal feeds using Views, and import of iCal feeds using Feeds.
 package = Date/Time
 php = 5.3
 core = 7.x
@@ -10,29 +10,20 @@ dependencies[] = libraries (>=7.x-2.0)
 dependencies[] = date
 dependencies[] = date_api
 
-; Date iCal doesn't actually depend on Feeds, but it's iCal import functionality won't work without it.
+; Date iCal doesn't actually depend on Feeds, but its iCal import functionality won't be usable without it.
 ;dependencies[] = feeds
 
-; Includes
+; Includes for iCal feed export using Views
 files[] = includes/date_ical_plugin_row_ical_entity.inc
 files[] = includes/date_ical_plugin_row_ical_fields.inc
 files[] = includes/date_ical_plugin_style_ical_feed.inc
-files[] = includes/DateIcalFeedsParser.inc
-files[] = includes/DateIcalIcalcreatorParser.inc
-files[] = includes/DateIcalDateModuleParser.inc
 
-; Tests
-files[] = tests/date_ical_parser.test
-files[] = tests/date_ical_parser_text.test
-files[] = tests/date_ical_parser_link.test
-files[] = tests/date_ical_parser_date.test
-files[] = tests/date_ical_parser_location.test
-files[] = tests/date_ical_parser_categories.test
+; Includes for iCal feed import using Feeds
+files[] = includes/DateiCalFeedsParser.inc
 
-
-; Information added by drush on 2013-12-06
-version = "7.x-2.8+5-dev"
+; Information added by Drupal.org packaging script on 2014-02-04
+version = "7.x-3.1"
 core = "7.x"
 project = "date_ical"
-datestamp = "1386365954"
+datestamp = "1391480015"
 

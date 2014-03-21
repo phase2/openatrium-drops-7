@@ -68,7 +68,7 @@ function oa_dashboard_oa_navigation_content_type_render($subtype, $conf, $panel_
       $site_file->metadata['height'] = 43;
       $site_file->metadata['width'] = 161;
     }
-    if ($site_file) {
+    if (!empty($site_file)) {
       $vars['height'] = (!empty($site_file->metadata['height'])) ? $site_file->metadata['height'] : 0;
       $vars['width'] = (!empty($site_file->metadata['width'])) ? $site_file->metadata['width'] : 0;
       $vars['banner'] = l(theme('image', array(

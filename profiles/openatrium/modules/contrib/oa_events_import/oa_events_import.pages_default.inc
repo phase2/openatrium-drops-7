@@ -106,10 +106,11 @@ function oa_events_import_default_page_manager_pages() {
   );
   $display->cache = array();
   $display->title = '%node:title';
+  $display->uuid = '629687bb-6710-47d4-bfed-192fdf2805d3';
   $display->content = array();
   $display->panels = array();
     $pane = new stdClass();
-    $pane->pid = 'new-1';
+    $pane->pid = 'new-1fbcc5ee-cfac-4e6c-9e8e-04c2e3b5aeea';
     $pane->panel = 'contentmain';
     $pane->type = 'views_panes';
     $pane->subtype = 'open_atrium_ical_importers-oa_ical_feeds';
@@ -140,8 +141,9 @@ function oa_events_import_default_page_manager_pages() {
     $pane->extras = array();
     $pane->position = 0;
     $pane->locks = array();
-    $display->content['new-1'] = $pane;
-    $display->panels['contentmain'][0] = 'new-1';
+    $pane->uuid = '1fbcc5ee-cfac-4e6c-9e8e-04c2e3b5aeea';
+    $display->content['new-1fbcc5ee-cfac-4e6c-9e8e-04c2e3b5aeea'] = $pane;
+    $display->panels['contentmain'][0] = 'new-1fbcc5ee-cfac-4e6c-9e8e-04c2e3b5aeea';
   $display->hide_title = PANELS_TITLE_FIXED;
   $display->title_pane = '0';
   $handler->conf['display'] = $display;

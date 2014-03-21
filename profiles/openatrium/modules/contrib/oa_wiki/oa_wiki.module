@@ -29,3 +29,53 @@ function oa_wiki_node_prepare($node) {
     $conf['menu_parent_oa_wiki_page'] = OG_MENU_SINGLE_MENU_NAME . ':' . $plid;
   }
 }
+
+/**
+ * Implements hook_strongarm_alter().
+ */
+function oa_wiki_strongarm_alter(&$items) {
+  // If workbench_moderation is enabled when oa_wiki is enabled, then we enable
+  // moderation for oa_wiki_pages.
+  if (module_exists('workbench_moderation')) {
+    $node_options_name = "node_options_oa_wiki_page";
+    if (isset($items[$node_options_name])) {
+      $items[$node_options_name]->value[] = 'moderation';
+      sort($items[$node_options_name]->value);
+    }
+  }
+}
+
+/**
+ * Implements hook_modules_implements_alter().
+ */
+function oa_wiki_module_implements_alter(&$implementations, $hook) {
+  if ($hook == 'strongarm_alter') {
+    // Move oa_wiki's implementation to the first one any other modules can
+    // override our default easily if they don't want workbenech enabled.
+    $group = $implementations['oa_wiki'];
+    unset($implementations['oa_wiki']);
+    $implementations = array_merge(array('oa_wiki' => $group), $implementations);
+  }
+}
+
+/**
+ * Implements hook_modules_installed().
+ */
+function oa_wiki_modules_installed($modules) {
+  // If workbench_moderation gets enabled later, then we set the variable
+  // manually so the user doesn't have to worry about reverting the feature.
+  if (in_array('workbench_moderation', $modules)) {
+    $node_options_name = "node_options_oa_wiki_page";
+    $node_options = variable_get($node_options_name, array());
+    $node_options[] = 'moderation';
+    sort($node_options);
+    variable_set($node_options_name, $node_options);
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function oa_wiki_form_oa_wiki_page_node_form_alter(&$form, &$form_state) {
+  _oa_core_hide_comment_settings($form);
+}

@@ -144,6 +144,26 @@ function oa_discussion_publish($node) {
 }
 
 /**
+ * Implements hook_og_permission().
+ */
+function oa_discussion_og_permission() {
+  return array(
+    'write oa_discussion_reply to discussion post' => array(
+      'title' => t('Reply to a discussion post'),
+      'description' => t('Allow a group member to reply to a discussion post.'),
+      'roles' => array(OG_AUTHENTICATED_ROLE),
+      'default role' => array(OG_AUTHENTICATED_ROLE, OG_ADMINISTRATOR_ROLE),
+    ),
+    'add attachment to oa_discussion_post' => array(
+      'title' => t('Add attachment to a discussion post reply'),
+      'description' => t('Allow a group member to add an attachment to a discussion post reply.'),
+      'roles' => array(OG_AUTHENTICATED_ROLE),
+      'default role' => array(OG_AUTHENTICATED_ROLE, OG_ADMINISTRATOR_ROLE),
+    ),
+  );
+}
+
+/**
  * Preprocess the media thumbnail.
  * Add any additional File Caption
  */
@@ -346,3 +366,67 @@ function oa_discussion_notifications_users_alter(&$users, $node) {
   }
 }
 
+/**
+ * Implements hook_module_implements_alter().
+ */
+function oa_discussion_module_implements_alter(&$implementations, $hook) {
+  if ($hook == 'clone_access_alter') {
+    // Make sure we run last because we need to absolutely revoke access
+    // if the discussion is a reply (ie. no other module should turn give
+    // access back).
+    $group = $implementations['oa_discussion'];
+    unset($implementations['oa_discussion']);
+    $implementations['oa_discussion'] = $group;
+  }
+}
+
+/**
+ * Implements hook_clone_access_alter().
+ */
+function oa_discussion_clone_access_alter(&$access, $node) {
+  // If this is a reply, don't allow it to be cloned!
+  if (!empty($node->oa_parent[LANGUAGE_NONE][0]['target_id'])) {
+    $access = FALSE;
+  }
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function oa_discussion_node_insert($node) {
+  if ($node->type == 'oa_discussion_post' && !empty($node->clone_from_original_nid) && module_exists('oa_clone')) {
+    $original_nid = $node->clone_from_original_nid;
+
+    // Get the replies.
+    $query = new EntityFieldQuery();
+    $query
+      ->entityCondition('entity_type', 'node')
+      ->entityCondition('bundle', 'oa_discussion_post')
+      ->fieldCondition('oa_parent', 'target_id', $original_nid);
+    $result = $query->execute();
+
+    // Get the Space and Section ids from the current discussion. This is
+    // important, because this clone could be creating a whole new Space or
+    // Section which these replies are going into.
+    $space_nid = $node->og_group_ref[LANGUAGE_NONE][0]['target_id'];
+    $section_nid = $node->oa_section_ref[LANGUAGE_NONE][0]['target_id'];
+
+    // Clone all the replies, attaching them to this new discussion.
+    if (!empty($result['node'])) {
+      $original_replies = node_load_multiple(array_keys($result['node']));
+      foreach ($original_replies as $original_reply) {
+        if ($clone = oa_clone_prepare($original_reply, $space_nid, $section_nid, TRUE)) {
+          $clone->oa_parent[LANGUAGE_NONE][0]['target_id'] = $node->nid;
+          oa_clone_save($clone);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function oa_discussion_form_oa_discussion_post_node_form_alter(&$form, &$form_state) {
+  _oa_core_hide_comment_settings($form);
+}

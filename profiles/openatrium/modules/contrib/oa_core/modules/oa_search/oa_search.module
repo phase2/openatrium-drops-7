@@ -6,14 +6,11 @@
 
 include_once 'oa_search.features.inc';
 
-
 /**
- * Implements hook_ctools_plugin_directory
+ * Implementation of hook_ctools_plugin_directory()
  */
-function oa_search_ctools_plugin_directory($owner, $plugin_type) {
-  if ($owner == 'ctools' && $plugin_type == 'content_types') {
-    return 'plugins/content_types';
-  }
+function oa_search_ctools_plugin_directory($module, $plugin) {
+  return 'plugins/' . $plugin;
 }
 
 /**
@@ -33,6 +30,8 @@ function oa_search_theme() {
       'template' => 'oa-sidebar-search',
       'variables' => array(
         'options' => array(),
+        'spaces' => array(),
+        'extra_classes' => '',
       ),
       'path' => drupal_get_path('module', 'oa_search') . '/templates',
     ),
@@ -48,6 +47,26 @@ function oa_search_theme() {
     ),
     'views_view_fields__search_user_results' => array(
       'template'  => 'views-view-fields--search-user-results',
+      'base hook' => 'views_view_fields',
+      'preprocess functions' => array(
+        'template_preprocess',
+        'template_preprocess_views_view_fields',
+      ),
+      'arguments' => array('view' => NULL, 'options' => NULL, 'row' => NULL),
+      'path' => $path,
+    ),
+    'views_view_fields__search_solr_results' => array(
+      'template'  => 'views-view-fields--search-solr-results',
+      'base hook' => 'views_view_fields',
+      'preprocess functions' => array(
+        'template_preprocess',
+        'template_preprocess_views_view_fields',
+      ),
+      'arguments' => array('view' => NULL, 'options' => NULL, 'row' => NULL),
+      'path' => $path,
+    ),
+    'views_view_fields__search_user_solr_results' => array(
+      'template'  => 'views-view-fields--search-user-solr-results',
       'base hook' => 'views_view_fields',
       'preprocess functions' => array(
         'template_preprocess',

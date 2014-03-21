@@ -298,7 +298,7 @@ function oa_events_views_default_views() {
   $handler->display->display_options['arguments']['og_group_ref_target_id']['summary']['number_of_records'] = '0';
   $handler->display->display_options['arguments']['og_group_ref_target_id']['summary']['format'] = 'default_summary';
   $handler->display->display_options['arguments']['og_group_ref_target_id']['summary_options']['items_per_page'] = '25';
-  /* Contextual filter: Content: OpenAtrium Section (oa_section_ref) */
+  /* Contextual filter: Content: Open Atrium Section (oa_section_ref) */
   $handler->display->display_options['arguments']['oa_section_ref_target_id']['id'] = 'oa_section_ref_target_id';
   $handler->display->display_options['arguments']['oa_section_ref_target_id']['table'] = 'field_data_oa_section_ref';
   $handler->display->display_options['arguments']['oa_section_ref_target_id']['field'] = 'oa_section_ref_target_id';
@@ -499,7 +499,7 @@ function oa_events_views_default_views() {
     3 => 0,
     4 => 0,
   );
-  /* Filter criterion: Content: OpenAtrium Section (oa_section_ref) */
+  /* Filter criterion: Content: Open Atrium Section (oa_section_ref) */
   $handler->display->display_options['filters']['oa_section_ref_target_id']['id'] = 'oa_section_ref_target_id';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['table'] = 'field_data_oa_section_ref';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['field'] = 'oa_section_ref_target_id';
@@ -589,7 +589,7 @@ function oa_events_views_default_views() {
     3 => 0,
     4 => 0,
   );
-  /* Filter criterion: Content: OpenAtrium Section (oa_section_ref) */
+  /* Filter criterion: Content: Open Atrium Section (oa_section_ref) */
   $handler->display->display_options['filters']['oa_section_ref_target_id']['id'] = 'oa_section_ref_target_id';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['table'] = 'field_data_oa_section_ref';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['field'] = 'oa_section_ref_target_id';
@@ -667,7 +667,7 @@ function oa_events_views_default_views() {
   $handler->display->display_options['arguments']['gid']['summary_options']['items_per_page'] = '25';
   $handler->display->display_options['arguments']['gid']['specify_validation'] = TRUE;
   $handler->display->display_options['arguments']['gid']['validate']['type'] = 'og';
-  /* Contextual filter: Content: OpenAtrium Section (oa_section_ref) */
+  /* Contextual filter: Content: Open Atrium Section (oa_section_ref) */
   $handler->display->display_options['arguments']['oa_section_ref_target_id']['id'] = 'oa_section_ref_target_id';
   $handler->display->display_options['arguments']['oa_section_ref_target_id']['table'] = 'field_data_oa_section_ref';
   $handler->display->display_options['arguments']['oa_section_ref_target_id']['field'] = 'oa_section_ref_target_id';
@@ -804,7 +804,7 @@ function oa_events_views_default_views() {
     3 => 0,
     4 => 0,
   );
-  /* Filter criterion: Content: OpenAtrium Section (oa_section_ref) */
+  /* Filter criterion: Content: Open Atrium Section (oa_section_ref) */
   $handler->display->display_options['filters']['oa_section_ref_target_id']['id'] = 'oa_section_ref_target_id';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['table'] = 'field_data_oa_section_ref';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['field'] = 'oa_section_ref_target_id';
@@ -929,7 +929,7 @@ function oa_events_views_default_views() {
     3 => 0,
     4 => 0,
   );
-  /* Filter criterion: Content: OpenAtrium Section (oa_section_ref) */
+  /* Filter criterion: Content: Open Atrium Section (oa_section_ref) */
   $handler->display->display_options['filters']['oa_section_ref_target_id']['id'] = 'oa_section_ref_target_id';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['table'] = 'field_data_oa_section_ref';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['field'] = 'oa_section_ref_target_id';
@@ -1046,8 +1046,6 @@ function oa_events_views_default_views() {
   $handler->display->display_options['pager']['type'] = 'some';
   $handler->display->display_options['style_plugin'] = 'date_ical';
   $handler->display->display_options['style_options']['cal_name'] = '';
-  $handler->display->display_options['style_options']['no_calname'] = 0;
-  $handler->display->display_options['style_options']['disable_webcal'] = 0;
   $handler->display->display_options['row_plugin'] = 'date_ical';
   $handler->display->display_options['row_options']['date_field'] = 'field_data_field_oa_date.field_oa_date_value';
   $handler->display->display_options['row_options']['summary_field'] = 'default_title';

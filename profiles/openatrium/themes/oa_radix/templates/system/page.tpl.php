@@ -17,6 +17,12 @@
         <?php print $oa_toolbar_panel; ?>
       </div>
     </div>
+    <?php if (!empty($oa_banner)): ?>
+      <?php print $oa_banner; ?>
+    <?php endif; ?>
+    <?php if (!empty($oa_space_menu)): ?>
+      <?php print $oa_space_menu; ?>
+    <?php endif; ?>
   </div>
 <?php else: ?>
   <header id="header" class="header" role="header">
@@ -62,17 +68,17 @@
         </div>
       </div>
     </div>
+    <?php if (!empty($oa_banner)): ?>
+      <?php print $oa_banner; ?>
+    <?php endif; ?>
+    <?php if (!empty($oa_space_menu)): ?>
+      <?php print $oa_space_menu; ?>
+    <?php endif; ?>
   </header>
 <?php endif; ?>
 
 <div id="main-wrapper">
-  <?php if (!empty($oa_banner)): ?>
-    <?php print $oa_banner; ?>
-  <?php endif; ?>
-  <?php if (!empty($oa_space_menu)): ?>
-    <?php print $oa_space_menu; ?>
-  <?php endif; ?>
-  <div id="main" class="container">
+  <div id="main" class="main container">
     <?php if ($breadcrumb && (arg(0) == 'admin')): ?>
       <div id="breadcrumb" class="visible-desktop">
         <div class="container">

@@ -15,6 +15,7 @@ function oa_contextual_tabs_strongarm() {
   $strongarm->api_version = 1;
   $strongarm->name = 'contextual_tabs_extract';
   $strongarm->value = 'user*:Edit|Edit profile,icon-pencil
+node/*/clone/confirm:View|Cancel,icon-remove
 node/*/edit:View|Cancel,icon-remove
 View
 Edit,icon-pencil

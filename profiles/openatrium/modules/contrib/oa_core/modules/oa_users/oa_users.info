@@ -17,9 +17,7 @@ features[ctools][] = strongarm:strongarm:1
 features[features_api][] = api:2
 features[field_base][] = field_user_display_name
 features[field_base][] = og_user_node
-features[field_instance][] = user-user-field_user_about
 features[field_instance][] = user-user-field_user_display_name
-features[field_instance][] = user-user-field_user_picture
 features[field_instance][] = user-user-og_user_node
 features[page_manager_pages][] = user_actitivy
 features[variable][] = realname_pattern
@@ -27,9 +25,9 @@ features[variable][] = user_picture_style
 features_exclude[field_base][field_user_about] = field_user_about
 features_exclude[field_base][field_user_picture] = field_user_picture
 
-; Information added by Drupal.org packaging script on 2014-01-27
-version = "7.x-2.13"
+; Information added by Drupal.org packaging script on 2014-02-26
+version = "7.x-2.15"
 core = "7.x"
 project = "oa_core"
-datestamp = "1390859944"
+datestamp = "1393428820"
 

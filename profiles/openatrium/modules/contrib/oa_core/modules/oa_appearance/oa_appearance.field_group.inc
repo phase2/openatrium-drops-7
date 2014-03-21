@@ -32,7 +32,7 @@ function oa_appearance_field_group_info() {
       'formatter' => 'collapsible',
       'instance_settings' => array(
         'description' => '',
-        'classes' => '',
+        'classes' => ' group-oa-banner field-group-fieldset',
         'required_fields' => 1,
       ),
     ),

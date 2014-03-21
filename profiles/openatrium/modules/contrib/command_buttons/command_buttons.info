@@ -2,7 +2,6 @@ name = Command Buttons
 description = Provide command button entities and fieldable panels panes integration.
 core = 7.x
 package = Panels
-php = 5.2.4
 dependencies[] = conditional_fields
 dependencies[] = ctools
 dependencies[] = entity
@@ -49,9 +48,9 @@ files[] = plugins/views/command_buttons_handler_field_edit_entity.inc
 files[] = plugins/views/command_buttons_handler_field_view_entity.inc
 files[] = plugins/views/command_buttons_handler_filter_bundle.inc
 
-; Information added by drupal.org packaging script on 2013-10-22
-version = "7.x-1.0-beta1"
+; Information added by Drupal.org packaging script on 2014-02-25
+version = "7.x-1.0"
 core = "7.x"
 project = "command_buttons"
-datestamp = "1382471564"
+datestamp = "1393364907"
 

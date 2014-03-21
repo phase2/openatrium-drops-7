@@ -118,6 +118,99 @@ function oa_sections_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'node-oa_section-field_oa_section'
+  $field_instances['node-oa_section-field_oa_section'] = array(
+    'bundle' => 'oa_section',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'taxonomy',
+        'settings' => array(),
+        'type' => 'taxonomy_term_reference_link',
+        'weight' => 7,
+      ),
+      'featured' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_oa_section',
+    'label' => 'Section Type',
+    'options_limit' => FALSE,
+    'options_limit_empty_behaviour' => 0,
+    'options_limit_fields' => array(),
+    'required' => 1,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'apply_chosen' => 0,
+      ),
+      'type' => 'options_select',
+      'weight' => 4,
+    ),
+  );
+
+  // Exported field_instance: 'node-oa_section-field_oa_section_override'
+  $field_instances['node-oa_section-field_oa_section_override'] = array(
+    'bundle' => 'oa_section',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'list',
+        'settings' => array(),
+        'type' => 'list_default',
+        'weight' => 9,
+      ),
+      'featured' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_oa_section_override',
+    'label' => 'Override default section options',
+    'required' => 0,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'display_label' => 1,
+      ),
+      'type' => 'options_onoff',
+      'weight' => 5,
+    ),
+  );
+
   // Exported field_instance: 'node-oa_section-field_oa_section_weight'
   $field_instances['node-oa_section-field_oa_section_weight'] = array(
     'bundle' => 'oa_section',
@@ -347,14 +440,57 @@ function oa_sections_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'taxonomy_term-section_type-field_oa_section_layout'
+  $field_instances['taxonomy_term-section_type-field_oa_section_layout'] = array(
+    'bundle' => 'section_type',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => 'Chose the default layout for this section',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'list',
+        'settings' => array(),
+        'type' => 'list_default',
+        'weight' => 0,
+      ),
+      'featured' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'taxonomy_term',
+    'field_name' => 'field_oa_section_layout',
+    'label' => 'Section Layout',
+    'required' => 1,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'apply_chosen' => 0,
+      ),
+      'type' => 'options_select',
+      'weight' => 31,
+    ),
+  );
+
   // Translatables
   // Included for use with string extractors like potx.
   t('Body');
+  t('Chose the default layout for this section');
   t('Determines order of Section in lists.  Higher value moves the section later in the list.  Lower value moves section earlier in the list.');
   t('Groups');
   t('Leave empty for public access, otherwise select Groups that can view this Section.');
   t('Leave empty for public access, otherwise select Space Members that can view this Section.');
   t('Leave empty for public access, otherwise select Teams that can view this Section.');
+  t('Override default section options');
+  t('Section Layout');
+  t('Section Type');
   t('Space ID');
   t('Teams');
   t('Users');

@@ -7,9 +7,9 @@ dependencies[] = message_notify
 files[] = plugins/notifier/abstract.inc
 ;files[] = message_digest.test
 
-; Information added by  packaging script on 2013-11-15
-version = "7.x-1.0-beta4"
+; Information added by Drupal.org packaging script on 2014-02-25
+version = "7.x-1.0"
 core = "7.x"
 project = "message_digest"
-datestamp = "1384533206"
+datestamp = "1393364610"
 

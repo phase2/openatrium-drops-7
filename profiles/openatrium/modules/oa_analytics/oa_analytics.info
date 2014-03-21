@@ -9,9 +9,9 @@ features[defaultconfig][] = strongarm:googleanalytics_custom_var
 features[features_api][] = api:2
 features_exclude[dependencies][defaultconfig] = defaultconfig
 
-; Information added by Drupal.org packaging script on 2013-12-06
-version = "7.x-2.12"
+; Information added by Drupal.org packaging script on 2014-02-26
+version = "7.x-2.15"
 core = "7.x"
 project = "openatrium"
-datestamp = "1386365930"
+datestamp = "1393449045"
 

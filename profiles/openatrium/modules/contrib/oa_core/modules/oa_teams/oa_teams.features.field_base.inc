@@ -18,11 +18,11 @@ function oa_teams_field_default_field_bases() {
     'entity_types' => array(),
     'field_name' => 'field_oa_team_users',
     'foreign keys' => array(
-      'node' => array(
+      'users' => array(
         'columns' => array(
-          'target_id' => 'nid',
+          'target_id' => 'uid',
         ),
-        'table' => 'node',
+        'table' => 'users',
       ),
     ),
     'indexes' => array(

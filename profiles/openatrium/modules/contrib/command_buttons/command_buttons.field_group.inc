@@ -30,7 +30,7 @@ function command_buttons_field_group_info() {
       'label' => 'Icons',
       'instance_settings' => array(
         'required_fields' => 0,
-        'classes' => 'the-icons clearfix',
+        'classes' => 'the-icons clearfix group-icons field-group-fieldset',
         'description' => '',
       ),
       'formatter' => 'collapsed',
