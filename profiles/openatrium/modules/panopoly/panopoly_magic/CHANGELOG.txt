@@ -1,0 +1,14 @@
+Panopoly Magic 7.x-1.2, 2014-13-08
+----------------------------
+- Add CHANGELOG.txt
+- Notice: Undefined index: view_mode line 779 of panopoly_magic when adding existing content  through IPE.
+
+Panopoly Magic 7.x-1.1, 2014-01-13
+----------------------------
+- Update all features.
+- Render preview outside of pane configuration form.
+- Incorrect implementation of CSS 'clearfix'.
+- Spotlight gives an ajax error - hook_field_validate() doesn't run during live preview.
+- Use #parents instead of checking under exposed.
+- Undefined index row_classes, group - use hook_view_pre_view instead of hook_views_pre_render.
+- Views pager settings do not stick.

@@ -776,7 +776,7 @@ function panopoly_magic_form_views_content_views_panes_content_type_edit_form_al
   $form['content_settings']['view_mode'] = array(
     '#type' => 'radios',
     '#options' => panopoly_magic_view_mode_options(),
-    '#default_value' => $conf['view_mode'] ? $conf['view_mode'] : 'teaser',
+    '#default_value' => !empty($conf['view_mode']) ? $conf['view_mode'] : 'teaser',
     '#states' => array(
       'visible' => array(
         ':input[name="view_settings"]' => array('value' => 'nodes'),

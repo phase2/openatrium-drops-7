@@ -70,8 +70,8 @@ function oa_worktracker_duedate_form_oa_worktracker_task_node_form_alter(&$form,
  * Implements hook_form_FORM_ID_alter().
  */
 function oa_worktracker_duedate_form_comment_form_alter(&$form, &$form_state, $form_id) {
-  if ($form['#node']->type == 'oa_worktracker_task' && isset($form['comment_alter_field_oa_worktracker_duedate'])) {
+  if ($form['#node']->type == 'oa_worktracker_task' && isset($form['field_oa_worktracker_duedate'])) {
     $langcode = $form['language']['#value'];
-    $form['comment_alter_field_oa_worktracker_duedate'][$langcode][0]['#after_build'][] = '_oa_worktracker_duedate_set_default_time';
+    $form['field_oa_worktracker_duedate'][$langcode][0]['#after_build'][] = '_oa_worktracker_duedate_set_default_time';
   }
 }

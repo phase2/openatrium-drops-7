@@ -13,14 +13,15 @@ function panopoly_images_init() {
 
 
 /**
- * Implementation of drupal_alter() for media_wysiwyg_allowed_view_modes
+ * Implements hook_media_wysiwyg_wysiwyg_allowed_view_modes_alter().
  */
-function panopoly_images_media_wysiwyg_allowed_view_modes_alter(&$options, $context) {
-
-  // Relabel some options
-  $options['default']['label'] = t('Original Size');
-  $options['teaser']['label'] = t('Quarter Size');
-  $options['preview']['label'] = t('Thumbnail');
+function panopoly_images_media_wysiwyg_wysiwyg_allowed_view_modes_alter(&$options, $context) {
+  if ($context->type == 'image') {
+    // Relabel some options
+    $options['default']['label'] = t('Original Size');
+    $options['teaser']['label'] = t('Quarter Size');
+    $options['preview']['label'] = t('Thumbnail');
+  }
 }
 
 /**

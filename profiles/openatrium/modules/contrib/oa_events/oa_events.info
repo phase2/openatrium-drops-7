@@ -84,9 +84,9 @@ features[views_view][] = oa_event_list
 features[views_view][] = oa_fullcalendar
 project path = sites/all/modules/contrib
 
-; Information added by Drupal.org packaging script on 2014-02-25
-version = "7.x-2.14"
+; Information added by Drupal.org packaging script on 2014-04-08
+version = "7.x-2.16"
 core = "7.x"
 project = "oa_events"
-datestamp = "1393363710"
+datestamp = "1396969456"
 

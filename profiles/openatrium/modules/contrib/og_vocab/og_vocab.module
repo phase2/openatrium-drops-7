@@ -133,7 +133,6 @@ function og_vocab_term_page_access($term) {
     return;
   }
 
-
   if (!$relation = og_vocab_relation_get($term->vid)) {
     // Term doesn't belong to OG-vocab
     return TRUE;
@@ -723,19 +722,48 @@ function og_vocab_sort_weight($a, $b) {
  * Save relation between a vocabulary and a group.
  */
 function og_vocab_relation_save($vid, $group_type, $gid) {
-  if ($og_vocab = og_vocab_relation_get($vid)) {
-    if ($og_vocab->group_type != $group_type || $og_vocab->gid != $gid) {
+  $existing = og_vocab_relation_get_all($vid);
+
+  if ($existing && !variable_get('og_vocab_allow_shared_vocabularies', FALSE)) {
+    if (!empty($existing[$group_type][$gid])) {
       throw new OgVocabException('Vocabulary ID is already associated with another group.');
     }
     return;
   }
 
-  $og_vocab = array(
-    'vid' => $vid,
-    'group_type' => $group_type,
-    'gid' => $gid,
-  );
-  drupal_write_record('og_vocab_relation', $og_vocab);
+  $gids = array($gid);
+  if (variable_get('og_vocab_allow_shared_vocabularies', FALSE)) {
+    if (module_exists('og_subgroups')) {
+      $children = og_subgroups_children_load($group_type, $gid, TRUE, TRUE, TRUE);
+      if (variable_get('og_vocab_inherit_' . $vid, TRUE)) {
+        $gids = $children[$group_type];
+        drupal_set_message(t('Added vocabulary to children groups.'));
+      }
+      else {
+        $query = db_delete('og_vocab_relation')
+          ->condition('group_type', $group_type)
+          ->condition('gid', $children[$group_type], 'IN')
+          ->condition('vid', $vid)
+          ->execute();
+        foreach ($children[$group_type] as $id) {
+          unset($existing[$group_type][$id]);
+        }
+        drupal_set_message(t('Removed vocabulary from children groups.'));
+      }
+    }
+  }
+
+  // now create all the relationships
+  foreach ($gids as $gid) {
+    if (empty($existing[$group_type][$gid])) {
+      $og_vocab_relation = array(
+        'vid' => $vid,
+        'group_type' => $group_type,
+        'gid' => $gid,
+      );
+      drupal_write_record('og_vocab_relation', $og_vocab_relation);
+    }
+  }
 }
 
 /**
@@ -749,6 +777,27 @@ function og_vocab_relation_get($vid) {
       ->condition('vid', $vid)
       ->execute()
       ->fetch();
+  }
+
+  return $cache[$vid];
+}
+
+/**
+ * Get all groups related to a vocabulary.
+ */
+function og_vocab_relation_get_all($vid) {
+  $cache = drupal_static(__FUNCTION__, array());
+  if (!isset($cache[$vid])) {
+    $result = db_select('og_vocab_relation', 'ogr')
+      ->fields('ogr', array('gid', 'group_type'))
+      ->condition('vid', $vid)
+      ->execute()
+      ->fetchAll();
+    $og_vocab = array();
+    foreach ($result as $row) {
+      $og_vocab[$row->group_type][$row->gid] = TRUE;
+    }
+    $cache[$vid] = $og_vocab;
   }
 
   return $cache[$vid];
@@ -775,13 +824,23 @@ function og_vocab_relation_get_by_group($group_type, $gid) {
  *   The entity ID that is deleted.
  *
  */
-function og_vocab_realtion_delete($entity_type, $entity_id) {
+function og_vocab_realtion_delete($entity_type, $entity_id, $vid = NULL) {
   $vids = array();
+  $query = db_delete('og_vocab_relation');
+
   if ($entity_type == 'taxonomy_vocabulary') {
     if (!$relation = og_vocab_relation_get($entity_id)) {
       return;
     }
     $vids[] = $entity_id;
+    $query->condition('vid', $entity_id);
+  }
+  elseif ($vid) {
+    $vids[] = $vid;
+    $query
+      ->condition('group_type', $entity_type)
+      ->condition('gid', $entity_id)
+      ->condition('vid', $vid);
   }
   else {
     // Get the vocabylary ID from the group.
@@ -791,22 +850,35 @@ function og_vocab_realtion_delete($entity_type, $entity_id) {
     foreach ($relations as $relation) {
       $vids[] = $relation->vid;
     }
+    $query
+      ->condition('group_type', $entity_type)
+      ->condition('gid', $entity_id)
+      ->condition('vid', $vid);
   }
-  db_delete('og_vocab_relation')
+  $query->execute();
+
+  // Find out what vocabularies of those we dealt with that has no remaining
+  // relations and delete all OG vocabs for those.
+  $existing_vids = db_select('og_vocab_relation', 'ogr')
+    ->fields('ogr', array('vid'))
     ->condition('vid', $vids, 'IN')
-    ->execute();
+    ->execute()
+    ->fetchCol();
+  $removed_vids = array_diff($vids, $existing_vids);
 
-  // Get all OG vocabs related to the entity_type, and delete them.
-  $query = new EntityFieldQuery();
-  $result = $query->entityCondition('entity_type', 'og_vocab')
-    ->propertyCondition('vid', $vids, 'IN')
-    ->execute();
+  if (!empty($removed_vids)) {
+    // Get all OG vocabs related to the entity_type, and delete them.
+    $query = new EntityFieldQuery();
+    $result = $query->entityCondition('entity_type', 'og_vocab')
+      ->propertyCondition('vid', $removed_vids, 'IN')
+      ->execute();
 
-  if (empty($result['og_vocab'])) {
-    return;
+    if (empty($result['og_vocab'])) {
+      return;
+    }
+
+    entity_delete_multiple('og_vocab', array_keys($result['og_vocab']));
   }
-
-  entity_delete_multiple('og_vocab', array_keys($result['og_vocab']));
 }
 
 
@@ -978,6 +1050,71 @@ function og_vocab_form_taxonomy_overview_vocabularies_alter(&$form, $form_state)
       $form[$key][$op]['#href'] = $path_prefix . str_replace('admin/structure', '', $form[$key][$op]['#href']);
     }
   }
+  // Check if the user has the site-wide permission to administer taxonomy.
+  // If so, the user should be able to add existing vocabularies to this group.
+  if (variable_get('og_vocab_allow_shared_vocabularies', FALSE) && user_access('administer taxonomy')) {
+    // Build options for all vocabularies.
+    $vocabularies = taxonomy_get_vocabularies();
+    $options = array();
+    foreach ($vocabularies as $vid => $vocabulary) {
+      $options[$vid] = filter_xss_admin($vocabulary->name);
+    }
+    // Build the default value.
+    $relations = og_vocab_relation_get_by_group($group_type, $gid);
+    $default_value = array();
+    foreach($relations as $vocabulary) {
+      $default_value[] = $vocabulary->vid;
+    }
+    // Build the form for existing vocabularies.
+    $form['#submit'][] = 'og_vocab_form_taxonomy_overview_vocabularies_submit';
+    $form['og_vocab'] = array(
+      '#type' => 'fieldset',
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#title' => t('Existing vocabularies'),
+      '#description' => t('Select new vocabularies to attach to this group by checking them below, or uncheck them to deattach from this group.'),
+      '#options' => $options,
+    );
+    $form['og_vocab']['relations'] = array(
+      '#type' => 'checkboxes',
+      '#multiple' => TRUE,
+      '#title' => t('Vocabularies'),
+      '#options' => $options,
+      '#default_value' => $default_value,
+    );
+    $form['og_vocab']['context'] = array(
+      '#type' => 'value',
+      '#value' => $context,
+    );
+    // Normally, the save button only shows when there's more than 1 vocabulary.
+    // But since we're adding to the form we need it always.
+    if (empty($form['actions']['submit'])) {
+      $form['actions'] = array('#type' => 'actions');
+      $form['actions']['submit'] = array('#type' => 'submit', '#value' => t('Save'));
+    }
+  }
+}
+
+/**
+ * Submit handler for existing vocabularies.
+ */
+function og_vocab_form_taxonomy_overview_vocabularies_submit(&$form, &$form_state) {
+  $default_value = $form['og_vocab']['relations']['#default_value'];
+  $new_value = array_filter($form_state['values']['og_vocab']['relations']);
+  $context = $form_state['values']['og_vocab']['context'];
+
+  $new_relations = array_diff($new_value, $default_value);
+  if (!empty($new_relations)) {
+    foreach ($new_relations as $vid) {
+      og_vocab_relation_save($vid, $context['group_type'], $context['gid']);
+    }
+    drupal_set_message(t('New vocabularies was attached to this group. You probably want to edit these vocabularies below and configure their group settings right away.'), 'warning');
+  }
+
+  $removed_relations = array_diff($default_value, $new_value);
+  foreach ($removed_relations as $vid) {
+    og_vocab_realtion_delete($context['group_type'], $context['gid'], $vid);
+  }
 }
 
 /**
@@ -1076,6 +1213,14 @@ function og_vocab_form_taxonomy_form_vocabulary_alter(&$form, $form_state) {
     return;
   }
 
+  if (module_exists('og_subgroups')) {
+    $form['og_vocab_inherit'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Propogate vocabulary to subgroups?'),
+      '#description' => t('If enabled, subgroups will inherit this vocabulary.'),
+      '#default_value' => isset($form['#vocabulary']->vid) ? variable_get('og_vocab_inherit_' . $form['#vocabulary']->vid, FALSE) : FALSE,
+    );
+  }
 
   $group = entity_load_single($group_type, $gid);
   list(,, $group_bundle) = entity_extract_ids($group_type, $group);
@@ -1298,6 +1443,11 @@ function og_vocab_form_taxonomy_form_vocabulary_submit(&$form, $form_state) {
   $group_type = $form_state['values']['og_vocab_relation']['group_type'];
   $gid = $form_state['values']['og_vocab_relation']['gid'];
 
+  // Save inheritance setting
+  if (isset($form_state['values']['og_vocab_inherit'])) {
+    variable_set('og_vocab_inherit_' . $vocab->vid, $form_state['values']['og_vocab_inherit']);
+  }
+
   // Save the relation.
   og_vocab_relation_save($vocab->vid, $group_type, $gid);
 
@@ -1434,12 +1584,12 @@ function og_vocab_vocabulary_access($entity_type, $entity_id, $perm, $vocabulary
 
   if ($vocabulary) {
     // Make sure vocabulary ID belongs to the group node.
-    if (!$og_vocab = og_vocab_relation_get($vocabulary->vid)) {
+    if (!$og_vocab = og_vocab_relation_get_all($vocabulary->vid)) {
       return FALSE;
     }
 
     // Check the group matches our passed group.
-    if ($og_vocab->group_type != $entity_type || $og_vocab->gid != $entity_id) {
+    if (empty($og_vocab[$entity_type][$entity_id])) {
       return FALSE;
     }
   }

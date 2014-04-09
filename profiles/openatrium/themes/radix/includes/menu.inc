@@ -15,7 +15,49 @@ function radix_menu_tree(&$variables) {
  * Implements theme_menu_tree__menu_block().
  */
 function radix_menu_tree__menu_block(&$variables) {
-  return '<ul class="menu nav nav-tabs nav-stacked">' . $variables['tree'] . '</ul>';
+  return '<ul class="menu nav nav-pills nav-stacked">' . $variables['tree'] . '</ul>';
+}
+
+/**
+ * Implements theme_menu_tree__navbar_nav().
+ */
+function radix_menu_tree__navbar_nav(&$variables) {
+  return '<ul class="menu nav navbar-nav">' . $variables['tree'] . '</ul>';
+}
+
+/**
+ * Implements theme_menu_tree__navbar_left().
+ */
+function radix_menu_tree__navbar_left(&$variables) {
+  return '<ul class="menu nav navbar-nav navbar-left">' . $variables['tree'] . '</ul>';
+}
+
+/**
+ * Implements theme_menu_tree__navbar_right().
+ */
+function radix_menu_tree__navbar_right(&$variables) {
+  return '<ul class="menu nav navbar-nav navbar-right">' . $variables['tree'] . '</ul>';
+}
+
+/**
+ * Implements theme_menu_tree__nav_tabs().
+ */
+function radix_menu_tree__nav_tabs(&$variables) {
+  return '<ul class="nav nav-tabs">' . $variables['tree'] . '</ul>';
+}
+
+/**
+ * Implements theme_menu_tree__nav_pills().
+ */
+function radix_menu_tree__nav_pills(&$variables) {
+  return '<ul class="nav nav-pills">' . $variables['tree'] . '</ul>';
+}
+
+/**
+ * Implements theme_menu_tree__nav_pills_stacked().
+ */
+function radix_menu_tree__nav_pills_stacked(&$variables) {
+  return '<ul class="nav nav-pills nav-stacked">' . $variables['tree'] . '</ul>';
 }
 
 /**

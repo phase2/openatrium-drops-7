@@ -14,13 +14,17 @@
  * @see comment_alter_form_field_ui_field_edit_form_alter_submit()
  */
 function comment_alter_form_field_ui_field_edit_form_alter(&$form, &$form_state, $form_id) {
-  // Image fields and file fields are not supported by now, peroid.
+  // Image fields fields are not supported by now, peroid.
   // Field collection not currently supported by Diff module.
   // @see http://drupal.org/node/1897196
   if ($form['#field']['type'] == 'image' || $form['#field']['type'] == 'field_collection') {
     return;
   }
   if ($form['instance']['entity_type']['#value'] == 'node') {
+    $bundle_name = $form['instance']['bundle']['#value'];
+    $field_name = $form['instance']['field_name']['#value'];
+    $comment_fields = field_info_instances('comment', 'comment_node_' . $bundle_name);
+
     // Additional custom field values will be automatically stored in the
     // database, so custom save mechanism is not necessary.
     $form['instance']['comment_alter'] = array(
@@ -29,6 +33,13 @@ function comment_alter_form_field_ui_field_edit_form_alter(&$form, &$form_state,
       '#weight' => $form['instance']['required']['#weight'] + 0.5,
       '#default_value' => !empty($form['#instance']['comment_alter']),
     );
+
+    // Make sure the field isn't already on the Comment entity.
+    if (!empty($comment_fields[$field_name])) {
+      $form['instance']['comment_alter']['#default_value'] = FALSE;
+      $form['instance']['comment_alter']['#disabled'] = TRUE;
+      $form['instance']['comment_alter']['#description'] = '<span class="error">' . t('This field also exists on the comment. You must remove it from the comment in order to enable altering this field from comments.') . '</span>';
+    }
   }
 }
 
@@ -44,14 +55,83 @@ function comment_alter_get_alterable_fields($content_type) {
   $comment_alter_fields = &drupal_static(__FUNCTION__);
   if (!isset($comment_alter_fields[$content_type])) {
     $field_infos = field_info_instances('node', $content_type);
+    $comment_fields = field_info_instances('comment', 'comment_node_' . $content_type);
     $comment_alter_fields[$content_type] = array();
     foreach ($field_infos as $field_name => $value) {
-      if (!empty($value['comment_alter'])) {
+      if (!empty($value['comment_alter']) && empty($comment_fields[$field_name])) {
         $comment_alter_fields[$content_type][] = $field_name;
       }
     }
   }
   return $comment_alter_fields[$content_type];
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Don't allow users to add existing fields if they are alterable from comment
+ * on the parent node bundle.
+ */
+function comment_alter_form_field_ui_field_overview_form_alter(&$form, &$form_state) {
+  if ($form['#entity_type'] == 'comment') {
+    // Remove 'comment_node_' from the beginning of the bundle name to get the
+    // node bundle name.
+    $node_bundle_name = substr($form['#bundle'], 13);
+    $comment_alter_fields = comment_alter_get_alterable_fields($node_bundle_name);
+
+    if (!empty($comment_alter_fields)) {
+      $field_options =& $form['fields']['_add_existing_field']['field_name']['#options'];
+      foreach ($field_options as $field_name => $field_label) {
+        if (in_array($field_name, $comment_alter_fields)) {
+          // Remove fields that are alterable from comment on the parent node.
+          unset($field_options[$field_name]);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_requirements().
+ *
+ * If somehow a field is added to a comment bundle which is also alterable from
+ * comment on the parent node bundle, put a message on the system status report.
+ *
+ * We've made it impossible to do this via the UI, but it's still possible via
+ * low-level trickery, so this is a fallback to alert site administrators of a
+ * problem.
+ */
+function comment_alter_requirements($phase) {
+  $requirements = array();
+  if ($phase == 'runtime') {
+    foreach (node_type_get_types() as $bundle_name => $type_obj) {
+      // Get the comment alter fields directly, rather than via
+      // comment_alter_get_alterable_fields(), because it will remove the fields
+      // which are on the comment.
+      $field_infos = field_info_instances('node', $bundle_name);
+      $comment_alter_fields = array();
+      foreach ($field_infos as $field_name => $value) {
+        if (!empty($value['comment_alter'])) {
+          $comment_alter_fields[] = $field_name;
+        }
+      }
+
+      if (!empty($comment_alter_fields)) {
+        $comment_fields = field_info_instances('comment', 'comment_node_' . $bundle_name);
+        foreach ($comment_fields as $field_name => $field_instance) {
+          if (in_array($field_name, $comment_alter_fields)) {
+            $requirements[] = array(
+              'title' => t('Comment alter'),
+              'value' => t('Invalid fields error'),
+              'description' => t('The %field_name field exists on the comment and is alterable from comment on the parent node. Please remove it from the comment or disable altering it from comment!', array('%field_name' => $field_name)),
+              'severity' => REQUIREMENT_ERROR,
+            );
+          }
+        }
+      }
+    }
+  }
+  return $requirements;
 }
 
 /**
@@ -62,52 +142,29 @@ function comment_alter_get_alterable_fields($content_type) {
 function comment_alter_form_comment_form_alter(&$form, &$form_state, $form_id) {
   $node = $form['#node'];
   $comment_alter_fields = comment_alter_get_alterable_fields($node->type);
-  // Add widgets to comment form if comment form is new,
-  // and if comment alter fields are available.
+  // Add widgets to comment form if comment form is new, and if comment alter
+  // fields are available.
   if (empty($form['cid']['#value']) && !empty($comment_alter_fields)) {
-    // OK, let's twist things a little bit. Save our precious $form, call
-    // field_attach_form() which modifies it (by adding the fields),
-    // save the full form with all the fields, restore our precious saved
-    // form without the fields, and add only the needed fields to it.
-    // Simple, isn't it? Weird, but works; patches welcome for a less
-    // resource-hungry version (or simply 'better', by any means).
-    $precious_form = $form;
-    foreach ($comment_alter_fields as $field_name) {
-      // In order to support a field on both the comment and node, we
-      // need to remove the comment one from the form first - otherwise
-      // the call to field_attach_form() below will be a non-op because
-      // it thinks the field is already there.
-      unset($form[$field_name]);
-    }
-    field_attach_form('node', $node, $form, $form_state, $node->language);
-    $full_form = $form;
-    $form = $precious_form;
-    // Every comment alter field goes to the root of the comment form so
-    // this enables that other modules can re-order or group the fields.
-    // Because fields go to the root of the comment form, they get a
-    // prefix to avoid conflicts with another modules or fields. This
-    // prefix comes from comment_alter_field_extra_fields().
+    // Every comment alter field goes to the root of the comment form so this
+    // enables that other modules can re-order or group the fields.
     $field_infos = field_info_extra_fields('comment', 'comment_node_' . $node->type, 'form');
-    // $field_alias holds the original and the prefixed field name pairs.
-    $field_alias = array();
-    foreach ($field_infos as $field_name => $value) {
-      if (substr($field_name, 0, 14) == 'comment_alter_') {
-        $field_alias[substr($field_name, 14)] = $field_name;
-      }
-    }
     // The _comment_alter_submit_node_fields() function needs these two arrays.
-    // This one informs about comment_alterable fields, key is node field
-    // machine name, value is comment form element name (eg. field_foo becomes
-    // comment_alter_field_foo, to avoid namespace clashes).
+    // This one is a list of comment_alterable field.
     $alterable_fields = array();
     // This one informs about comment_alterable columns per comment_alterable
-    // fields. First-level key is the comment form element name (see the
-    // previous one), second-level keys (and values) are the columns which do
-    // have their form elements.
+    // fields. First-level key is the field name, second-level keys (and values)
+    // are the columns which do have their form elements.
     $alterable_columns = array();
     foreach ($comment_alter_fields as $field_name) {
-      if (!empty($full_form[$field_name]) && $full_form[$field_name]['#access']) {
-        $field_language = $full_form[$field_name]['#language'];
+      // Attach the node field to the comment form. We do it on a copy of the
+      // $form, so that we know we are only getting the field element itself and
+      // no other side-effects (for example, the field_groups from the node
+      // entity).
+      $node_form = $form;
+      field_attach_form('node', $node, $node_form, $form_state, $node->language, array('field_name' => $field_name));
+      if (!empty($node_form[$field_name])) {
+        $form[$field_name] = $node_form[$field_name];
+        $field_language = $form[$field_name]['#language'];
         $field_value = array();
         // Not sure that there is a language key in the field if the field value
         // is empty.
@@ -115,35 +172,25 @@ function comment_alter_form_comment_form_alter(&$form, &$form_state, $form_id) {
           $field_value[$field_language] = $node->{$field_name}[$field_language];
         }
         // Comment_alterable node fields must be amongst the comment fields
-        // themselves in order to be able to properly weight/reorderd them, put
+        // themselves in order to be able to properly weight/reorder them, put
         // them into a field_group, etc. on the manage comment fields form.
-        $form[$field_alias[$field_name] . '_old'] = array(
+        $form[$field_name . '_old'] = array(
           '#type' => 'value',
           '#value' => $field_value,
         );
-        $form[$field_alias[$field_name]] = $full_form[$field_name];
-        // TODO: This doesn't seem to be working properly: if the extra field
-        // is set to last, it even gets displayed above comment subject.
-        $form[$field_alias[$field_name]]['#weight'] = $field_infos[$field_alias[$field_name]]['weight'];
-
-        // Special hack for date fields. This wouldn't be necessary if we
-        // didn't rename the fields in order to allow the same field to be used
-        // twice on the the comment form.
-        if (!empty($form[$field_alias[$field_name]][$field_language][0]['#element_validate'][0]) && $form[$field_alias[$field_name]][$field_language][0]['#element_validate'][0] == 'date_combo_validate') {
-          foreach (element_children($form[$field_alias[$field_name]][$field_language]) as $date_item_index) {
-            $form[$field_alias[$field_name]][$field_language][$date_item_index]['#element_validate'][0] = '_comment_alter_date_combo_validate';
-          }
-        }
+        // TODO: This doesn't seem to be working properly: if the extra field is
+        // set to last, it even gets displayed above comment subject.
+        $form[$field_name]['#weight'] = $field_infos[$field_name]['weight'];
 
         // Remember that this field is alterable.
-        $alterable_fields[$field_name] = $field_alias[$field_name];
+        $alterable_fields[$field_name] = $field_name;
         // Fetch the alterable columns from field items themselves. If the
         // #column info is available at the top-level (eg. in the case of a
         // select), grab it from there; in other cases, grab it from the first
         // item.
         // Note: weight changes (changes in order of multivalue fields' values)
         // are not tracked.
-        $field_items = $form[$field_alias[$field_name]][$field_language];
+        $field_items = $form[$field_name][$field_language];
         if (isset($field_items['#columns'])) {
           $columns = $field_items['#columns'];
         }
@@ -158,12 +205,13 @@ function comment_alter_form_comment_form_alter(&$form, &$form_state, $form_id) {
           }
         }
         foreach ($columns as $column) {
-          $alterable_columns[$field_alias[$field_name]][$column] = $column;
+          $alterable_columns[$field_name][$column] = $column;
         }
       }
     }
     if (!empty($alterable_fields)) {
-      // Push down the information gathered to _comment_alter_submit_node_fields()
+      // Push down the information gathered so far to
+      // _comment_alter_submit_node_fields().
       $form['comment_alter'] = array(
         '#type' => 'value',
         '#value' => array(
@@ -175,12 +223,42 @@ function comment_alter_form_comment_form_alter(&$form, &$form_state, $form_id) {
       // Put the node entity in $form_state so can get it in submit/validate
       // without loading it again.
       $form_state['node'] = $node;
-      // Add submit/validate function so we can call field_attach_form_validate()
-      // and field_attach_submit().
+      // Add submit/validate function so we can call
+      // field_attach_form_validate() and field_attach_submit().
       $form['#validate'][] = '_comment_alter_validate_node_fields';
       $form['#submit'][] = '_comment_alter_submit_node_fields';
     }
   }
+}
+
+/**
+ * Helper function to clean up field values for comparison.
+ *
+ * Removes 'add_more' and non-alterable columns (like _weight) so we can compare
+ * the old and new field values and find changes.
+ *
+ * @param array $a
+ *   Array whose empty elements should be removed.
+ */
+function _comment_alter_cleanup_field_values(&$values, $field_name) {
+  // Multiple-value fields should not have an 'add_more' delta (this comes from
+  // the Field API's Form API stuff: 'add_more' delta is the 'Add more' button.
+  foreach ($values[$field_name] as $language => $deltas) {
+    foreach ($values[$field_name][$language] as $delta => $columns) {
+      if ($delta === 'add_more') {
+        unset($values[$field_name][$language][$delta]);
+        continue;
+      }
+      // Non-alterable columns (eg. _weight) should be removed (from
+      // comparison).
+      foreach ($values[$field_name][$language][$delta] as $column => $value) {
+        if (!isset($values['comment_alter']['alterable_columns'][$field_name][$column])) {
+          unset($values[$field_name][$language][$delta][$column]);
+        }
+      }
+    }
+  }
+  _comment_alter_cleanup_arrays($values[$field_name]);
 }
 
 /**
@@ -191,40 +269,17 @@ function comment_alter_form_comment_form_alter(&$form, &$form_state, $form_id) {
  * @param array $a
  *   Array whose empty elements should be removed.
  */
-function _comment_alter_cleanup(&$a) {
+function _comment_alter_cleanup_arrays(&$a) {
   if (is_array($a)) {
     foreach ($a as $key => &$value) {
       if (is_array($value)) {
-        _comment_alter_cleanup($value);
+        _comment_alter_cleanup_arrays($value);
       }
       if (empty($value)) {
         unset($a[$key]);
       }
     }
   }
-}
-
-/**
- * Helper function to convert $form/$form_state back into the format expected by
- * by the Field API.
- *
- * @param array $form
- *   The form array.
- * @param array $form_state
- *   The form state array.
- *
- * @return array
- *   An array with items: the new form and form state arrays.
- */
-function _comment_alter_convert_form($form, $form_state) {
-  $new_form = $form;
-  $new_form_state = $form_state;
-  foreach ($form_state['values']['comment_alter']['fields'] as $field_name => $field_alias) {
-    $new_form[$field_name] = $form[$field_alias];
-    $new_form_state['input'][$field_name] = $form_state['input'][$field_alias];
-    $new_form_state['values'][$field_name] = $form_state['values'][$field_alias];
-  }
-  return array($new_form, $new_form_state);
 }
 
 /**
@@ -236,35 +291,16 @@ function _comment_alter_convert_form($form, $form_state) {
  * @see comment_alter_form_comment_form_alter()
  */
 function _comment_alter_validate_node_fields($form, &$form_state) {
-  list ($new_form, $new_form_state) = _comment_alter_convert_form($form, $form_state);
-  foreach ($form_state['values']['comment_alter']['fields'] as $field_name => $field_alias) {
-    field_attach_form_validate('node', $form_state['node'], $new_form, $new_form_state, array('field_name' => $field_name));
-  }
-}
-
-/**
- * Special element validate callback for date fields.
- *
- * This is a apecial hack for date fields. This wouldn't be necessary if we
- * didn't rename the fields in order to allow the same field to be used twice
- * on the the comment form.
- */
-function _comment_alter_date_combo_validate($element, &$form_state) {
-  $field_name = $element['#field_name'];
-  $field_alias = 'comment_alter_' . $field_name;
-  $form = array($field_alias => array());
-  list ($new_form, $new_form_state) = _comment_alter_convert_form($form, $form_state);
-  date_combo_validate($element, $new_form_state);
-  if (!form_get_errors()) {
-    $form_state['values'][$field_alias] = $new_form_state['values'][$field_alias];
+  foreach ($form_state['values']['comment_alter']['fields'] as $field_name) {
+    field_attach_form_validate('node', $form_state['node'], $form, $form_state, array('field_name' => $field_name));
   }
 }
 
 /**
  * Submit callback for the altered comment form.
  *
- * Determines which fields have actually changed, then called form_attach_submit()
- * on each of them, and saves the resulting node.
+ * Determines which fields have actually changed, then calls
+ * form_attach_submit() on each of them, and saves the resulting node.
  *
  * @see form_attach_submit()
  * @see comment_alter_form_comment_form_alter()
@@ -275,68 +311,48 @@ function _comment_alter_submit_node_fields($form, &$form_state) {
   // changed from the comment form.
   if (isset($values['comment_alter'])) {
     $changed_fields = array();
-    foreach ($values['comment_alter']['fields'] as $field => $field_alias) {
-      $field_alias_old = $field_alias . '_old';
+    foreach ($values['comment_alter']['fields'] as $field_name) {
       // Multiple-value fields should not have an 'add_more' delta (this comes
       // from the Field API's Form API stuff: 'add_more' delta is the 'Add more'
       // button.
-      foreach ($values[$field_alias] as $language => $deltas) {
-        foreach ($values[$field_alias][$language] as $delta => $columns) {
-          if ($delta === 'add_more') {
-            unset($values[$field_alias][$language][$delta]);
-            continue;
-          }
-          // Non-alterable columns (eg. _weight) should be removed (from
-          // comparison).
-          foreach ($values[$field_alias][$language][$delta] as $column => $value) {
-            if (!isset($values['comment_alter']['alterable_columns'][$field_alias][$column])) {
-              unset($values[$field_alias][$language][$delta][$column]);
-            }
-          }
-        }
-      }
-      _comment_alter_cleanup($comment->{$field_alias});
-      // Old values may have extra information in additional fields/columns
-      // without having form elements. We need to get rid of this information
-      // to be able to properly compare the new values (coming from the form)
-      // with the old values (coming from a node object in
-      // comment_alter_form_comment_form_alter()).
-      foreach ($values[$field_alias_old] as $language => $deltas) {
-        foreach ($values[$field_alias_old][$language] as $delta => $columns) {
-          if ($delta === 'add_more') {
-            unset($values[$field_alias][$language][$delta]);
-            continue;
-          }
-          foreach ($values[$field_alias_old][$language][$delta] as $column => $value) {
-            if (!isset($values['comment_alter']['alterable_columns'][$field_alias][$column])) {
-              unset($values[$field_alias_old][$language][$delta][$column]);
-            }
-          }
-        }
-      }
-      _comment_alter_cleanup($values[$field_alias_old]);
-      if ($values[$field_alias . '_old'] != $values[$field_alias]) {
-        $changed_fields[$field] = $field_alias;
+      _comment_alter_cleanup_field_values($values, $field_name);
+      _comment_alter_cleanup_field_values($values, $field_name . '_old');
+      // If field values have changed, add it to the list.
+      if ($values[$field_name . '_old'] != $values[$field_name]) {
+        $changed_fields[$field_name] = $field_name;
       }
     }
 
     if (!empty($changed_fields)) {
       $node = $form_state['node'];
 
-      // Run field_attach_submit for all the changed fields
-      list ($new_form, $new_form_state) = _comment_alter_convert_form($form, $form_state);
-      foreach ($form_state['values']['comment_alter']['fields'] as $field_name => $field_alias) {
-        field_attach_submit('node', $node, $new_form, $new_form_state, array('field_name' => $field_name));
+      // Run field_attach_submit for all the changed fields.
+      foreach ($form_state['values']['comment_alter']['fields'] as $field_name) {
+        field_attach_submit('node', $node, $form, $form_state, array('field_name' => $field_name));
       }
       // Special support for the Title field via the Title module.
       if (module_exists('title') && isset($form_state['values']['comment_alter']['fields']['title_field'])) {
-        title_entity_sync('node', $node, $node->language);
+        // Calling this should be enough:
+        //   title_entity_sync('node', $node, $node->language);
+        // But it isn't. That function uses a static variable to make sure it is
+        // only run once per request, however, under certain conditions observed
+        // when using Panels, title_entity_sync() can be called several times
+        // before ever reaching this point. So, the following code was copied
+        // from title_entity_sync() to avoid the static variable.
+        $fr_info = title_field_replacement_info('node');
+        if ($fr_info) {
+          foreach ($fr_info as $legacy_field => $info) {
+            if (title_field_replacement_enabled('node', $node->type, $legacy_field)) {
+              title_field_sync_get('node', $node, $legacy_field, $info, $node->language);
+            }
+          }
+        }
       }
       // Creating a new node revision regardless the node type settings.
       $node->revision = TRUE;
-      // Disable node updated notifications that caused by comment_alter.
-      // New comment notifications should be enough - this happens when
-      // submitting a comment, not when editing a node, after all.
+      // Disable node updated notifications that caused by comment_alter. New
+      // comment notifications should be enough - this happens when submitting a
+      // comment, not when editing a node, after all.
       if (module_exists('notifications_content')) {
         $node->notifications_content_disable = TRUE;
       }
@@ -408,7 +424,8 @@ function comment_alter_get_changed_fields($comment, $langcode) {
     $diffs = diff_compare_entities($old_node, $new_node, $context);
     foreach ($diffs as $field_name => $diff) {
       // Only compare fields that belong to us.
-      if (in_array($field_name, $comment_alter_fields)) {
+      $field = field_info_field($field_name);
+      if (field_access('view', $field, 'node') && in_array($field_name, $comment_alter_fields)) {
         list ($old, $new) = diff_extract_state($diff, $context['states'][0]);
         if ($old != $new) {
           $rows = diff_get_rows($old, $new);
@@ -434,7 +451,9 @@ function comment_alter_get_changed_fields($comment, $langcode) {
  * @see diff_diffs_show()
  */
 function comment_alter_comment_view($comment, $view_mode, $langcode) {
-  if (($view_mode == 'full') && isset($comment->comment_alter)) {
+  // Strip 'comment_node_' to get the node type machine name.
+  $type = substr($comment->node_type, 13);
+  if (($view_mode == 'full') && isset($comment->comment_alter) && user_access('view comment alterations in ' . $type)) {
     $comment->content['comment_alter'] = array(
       '#theme' => 'comment_alter_diff',
       '#changed_fields' => comment_alter_get_changed_fields($comment, $langcode),
@@ -520,9 +539,9 @@ function comment_alter_field_extra_fields() {
     foreach ($comment_alter_fields as $field_name) {
       $field = field_info_instance('node', $field_name, $type->type);
       // Comment_alterable node fields must be amongst the comment fields
-      // themselves in order to be able to properly weight/reorderd them, put
+      // themselves in order to be able to properly weight/reorder them, put
       // them into a field_group, etc. on the manage comment fields form.
-      $return['comment']['comment_node_' . $type->type]['form']['comment_alter_' . $field_name] = array(
+      $return['comment']['comment_node_' . $type->type]['form'][$field_name] = array(
         'label' => $field['label'],
         'description' => $field['description'],
         'weight' => $weight,
@@ -536,6 +555,20 @@ function comment_alter_field_extra_fields() {
         'weight' => -1,
       );
     }
+  }
+  return $return;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function comment_alter_permission() {
+  $return = array();
+  foreach (node_type_get_types() as $type) {
+    $return['view comment alterations in ' . $type->type] = array(
+      // TODO: I18n support.
+      'title' => t('View comment alterations of %type nodes', array('%type' => $type->name)),
+    );
   }
   return $return;
 }

@@ -112,8 +112,8 @@ function oa_worktracker_panelizer_defaults() {
     $pane->configuration = array(
       'items_per_page' => '10',
       'fields_override' => array(
-        'timestamp' => 0,
         'title' => 1,
+        'timestamp' => 1,
         'realname_1' => 0,
         'realname' => 1,
         'title_1' => 0,
@@ -129,14 +129,11 @@ function oa_worktracker_panelizer_defaults() {
         'og_subspaces_view_all' => 0,
         'oa_section_ref_target_id' => '',
         'keys' => '',
-        'created' => '',
-        'assigned' => '',
+        'realname_1' => '',
+        'realname' => '',
         'field_oa_worktracker_task_status_value' => array(),
         'field_oa_worktracker_priority_value' => array(),
         'field_oa_worktracker_task_type_value' => array(),
-        'widget_title' => 'Tasks',
-        'sort_by' => NULL,
-        'sort_order' => NULL,
       ),
       'context' => array(
         0 => 'panelizer',

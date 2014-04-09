@@ -158,7 +158,7 @@ function oa_dashboard_theme() {
  *   Either the string 'space' or 'section'.
  * @param array $url_query
  *   Associative array to use as the URL query string.
- * 
+ *
  * @return string|NULL
  *   Returns a string containing the rendered jump links or NULL if there are
  *   less than 2 links.
@@ -253,7 +253,7 @@ function template_preprocess_oa_toolbar(&$vars) {
     $vars['space_label'] = $title;
     $vars['space_url'] = url('node/' . $space_id);
     if (isset($vars['show_parents'])) {
-      $parents = oa_core_get_parents($space_id, $space_type);
+      $parents = oa_core_get_parents($space_id, $space_type, NODE_PUBLISHED);
       if (count($parents)) {
         $items = oa_core_get_titles($parents);
         if (!empty($items['titles'][0])) {
@@ -269,7 +269,7 @@ function template_preprocess_oa_toolbar(&$vars) {
             'type' => 'ul',
           ));
         }
-        $siblings = oa_core_get_groups_by_parent($parent_id, $space_type);
+        $siblings = oa_core_get_groups_by_parent($parent_id, $space_type, NODE_PUBLISHED);
         if (count($siblings) > 1) {
           $items = oa_core_get_titles($siblings);
           $list = oa_core_truncate_list($items['links'], 15);
@@ -295,7 +295,7 @@ function template_preprocess_oa_toolbar(&$vars) {
   if (empty($spaces)) {
     // og_get_entity_groups doesn't return anything for anonymous users
     // so return list of all public spaces
-    $spaces = oa_core_get_public_spaces();
+    $spaces = oa_core_get_public_spaces(array(OA_SPACE_TYPE => OA_SPACE_TYPE), NODE_PUBLISHED);
     $menu_title = t('Public Spaces');
   }
   if (empty($spaces)) {
@@ -345,7 +345,7 @@ function template_preprocess_oa_toolbar(&$vars) {
 
   $subspace_list = NULL;
   if (!empty($space) && module_exists('oa_subspaces')) {
-    $subspaces = oa_core_get_groups_by_parent($space_id, $space_type);
+    $subspaces = oa_core_get_groups_by_parent($space_id, $space_type, NODE_PUBLISHED);
     if (!empty($subspaces)) {
       $items = oa_core_get_titles($subspaces, $space_type);
       $subspace_list = $items['links'];
@@ -375,7 +375,7 @@ function template_preprocess_oa_toolbar(&$vars) {
       $section_url = url('node/' . $space_id);
       $items = array();
       // grab the titles of the sections for the current space
-      $sections = oa_core_space_sections($space_id);
+      $sections = oa_core_space_sections($space_id, NODE_PUBLISHED);
       if (!empty($sections)) {
         // check for match with current section id
         foreach ($sections as $sid => $title) {

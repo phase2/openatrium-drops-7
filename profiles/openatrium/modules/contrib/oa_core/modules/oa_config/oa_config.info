@@ -4,9 +4,20 @@ core = 7.x
 package = Open Atrium
 dependencies[] = chosen
 dependencies[] = ctools
+dependencies[] = panopoly_wysiwyg
 dependencies[] = strongarm
 features[ctools][] = strongarm:strongarm:1
 features[features_api][] = api:2
+features[features_override_items][] = filter.panopoly_wysiwyg_text
+features[features_override_items][] = wysiwyg.panopoly_wysiwyg_text
+features[features_overrides][] = filter.panopoly_wysiwyg_text.filters|wysiwyg|settings|style_border-1
+features[features_overrides][] = filter.panopoly_wysiwyg_text.filters|wysiwyg|settings|style_border-2
+features[features_overrides][] = filter.panopoly_wysiwyg_text.filters|wysiwyg|settings|style_color
+features[features_overrides][] = filter.panopoly_wysiwyg_text.filters|wysiwyg|settings|valid_elements
+features[features_overrides][] = wysiwyg.panopoly_wysiwyg_text.settings|buttons|table
+features[variable][] = advagg_core_groups
+features[variable][] = advagg_ie_css_selector_limiter
+features[variable][] = advagg_ie_css_selector_limiter_value
 features[variable][] = chosen_jquery_selector
 features[variable][] = chosen_minimum
 features[variable][] = chosen_minimum_multiple
@@ -15,10 +26,11 @@ features[variable][] = file_default_scheme
 features[variable][] = file_entity_file_upload_wizard_skip_scheme
 features[variable][] = og_context_negotiation_group_context
 features[variable][] = og_context_providers_weight_group_context
+features[variable][] = preprocess_css
 
-; Information added by Drupal.org packaging script on 2014-02-26
-version = "7.x-2.15"
+; Information added by Drupal.org packaging script on 2014-04-08
+version = "7.x-2.16"
 core = "7.x"
 project = "oa_core"
-datestamp = "1393428820"
+datestamp = "1396991656"
 

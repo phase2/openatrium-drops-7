@@ -56,37 +56,41 @@ HOW TO EXPORT AN ICAL FEED USING THE iCal Entities PLUGIN
     size, include additional information from other fields, etc.
 4.  Do this for each of the content types that you wish to include in your
     site's iCal feeds.
-5.  Create a new View that displays the entities that you want to include in the
-    iCal feed.
-6.  Add a "Feed" to the view. Change the Format to "iCal Feed". When you click
-    Apply from that dialog, you'll be given the option to name the calendar,
-    which will appear in your users' calendar clients as the calendar's title.
+5.  Create a new View that displays the entities that you want to include in
+    the iCal feed.
+6.  Add a "Feed" display to the same View. Change the Format to "iCal Feed".
+    When you click "Apply" from that dialog, you'll be given the option to name
+    the calendar, which will appear in your users' calendar clients as the
+    calendar's title.
 7.  Change the Show setting to "iCal Entity".
 8.  In the settings for iCal Entity, select the date field that should be used
     as the event date for the iCal feed. Make sure that you choose a field that
     is a part of every entity that your View displays. Otherwise, the entities
     which don't have that field will be left out of the iCal feed.
-9.  You may optionally choose a field that will be used to populate the Location
-    property of events in your iCal feed. This field can be a text field, a
-    Node Reference field, an Addressfield, or a Location field.
-10. Give the feed a path like 'calendar/%/export.ics', including a '/%/' for 
+9.  You may optionally choose a field that will be used to populate the 
+    Location property of events in your iCal feed. This field can be a text
+    field, a Node Reference field, an Addressfield, or a Location field.
+10. Give the Feed a path like 'calendar/%/export.ics', including a '/%/' for
     every contextual filter in the view.
 11. Make sure the Pager options are set to "Display all items".
 12. Add date filters or arguments that will constrain the view to the items you
     want to be included in the iCal feed.
-13. Attach the feed to a another view (usually a Page view that is displaying
-    the same events). Be aware, though, that attaching the feed to a view with
-    different output will not make the iCal feed include that output. It will
-    always include the events which match the feed's filters.
+13. Using the "Attach to:" setting in the Feed Settings panel, attach the feed
+    to a another display in the same view (usually a Page display). Be aware,
+    though, that the Feed will display exactly what its settings tell it to,
+    regardless of how the Page display is set up. Thus, it's best to ensure
+    that both displays are configured to include the same content.
 14. Save the View.
-15. Navigate to a page which displays the attached view. You should see the iCal
-    icon at the bottom of the view's output. Clicking on the icon will subscribe
-    your preferred calendar app to the iCal feed. However, if you don't have a
-    calendar app set up on your computer, you'll want to go back to the View
-    settings page, click the Settings link next to "Format: iCal Feed", and check
-    "Disable webcal://", then save your View. This will make the iCal icon
-    download a .ics file with the events, instead of loading the events directly
-    into a calendar app.
+15. Navigate to a page which displays the view (usually the Page display's
+    "path" setting). You should see the iCal icon at the bottom of the view's
+    output. Clicking on the icon will subscribe your calendar app to the iCal
+    feed.
+16. If you don't have a calendar app set up on your computer, or you want your
+    users to download the ical feed rather than subscribe to it, you'll want to
+    go back to the View settings page, click the Settings link next to
+    "Format: iCal Feed", and check "Disable webcal://". Then save your View.
+    This will make the iCal icon download a .ics file with the events, instead
+    of loading the events directly into the user's calendar app.
 
 HOW TO EXPORT AN ICAL FEED USING THE iCal Fields PLUGIN
 1-6.These steps are the same as above.
@@ -94,7 +98,7 @@ HOW TO EXPORT AN ICAL FEED USING THE iCal Fields PLUGIN
     your iCal feed with. A Date field is required, and fields that will act as
     the Title and Description of the events are reccomended. You can also
     include a Location field.
-8.  Back in the FORMAT section, change the Show setting to 'iCal Fields'.
+8.  Back in the FORMAT section, change the "Show" setting to 'iCal Fields'.
 9.  In the settings for iCal Fields, choose which views fields you want to use
     for the Date, Title, Description, and Location.
 10+ These steps are the same as above.
@@ -133,16 +137,15 @@ IMPORTING AN ICAL FEED FROM ANOTHER SITE USING Feeds
      you add any more mappings, click "Save" at the bottom of the page.
   2) It's a good idea to map the "Summary/Title" source to the "Title" target,
      and the "Description" source to whatever field is the "body" of the node.
-  3) As of 2014/02/03 there is a major bug in Feeds that leaves the Date
-     values on all imported events blank. You must update your Feeds module
-     to the dev release (https://drupal.org/node/927032) to overcome this bug.
+  3) AS OF 2014/02/03 THERE IS A MAJOR BUG IN THE Feeds THAT LEAVES THE DATE
+     VALUES ON ALL IMPORTED EVENTS BLACNK. YOU MUST UPDATE YOUR Feeds MODULE
+     TO THE DEV RELEASE (https://drupal.org/node/927032) TO OVERCOME THIS BUG.
 - Once you've completed all the mappings, click the "Save" button on the
   bottom left side of the page.
 - Now you can import the iCal feed into nodes by going to the /import page of
   your site (e.g. http://www.exmaple.com/import). Click the link for the
-  importer you just created, and enter the URL of the feed you'd like to
-  import into the "URL" field. Click the "Import" button, and observe the
-  progress.
+  importer you just created, and enter the URL of the feed into the "URL"
+  field. Click the "Import" button, and observe the progress.
 - Once it's done, you should see a green message saying "Created X nodes." If
   you do, you've successfully set up your iCal importer. If you get some other
   message, you'll need to tweak the importer's settings.
@@ -187,7 +190,7 @@ needs to be done to fix your timezones, and clear your Drupal cache.
 ===============================================================================
 ADDITIONAL NOTES
 ===============================================================================
-Date iCal only supports outputting iCal calendars through Views.
+Date iCal only supports exporting iCal calendars by using Views.
 To put an "Add to calendar" button on individual event nodes, try the
 Add to Cal module (http://drupal.org/project/addtocal), or follow the
 instructions created by the estimable nmc at:

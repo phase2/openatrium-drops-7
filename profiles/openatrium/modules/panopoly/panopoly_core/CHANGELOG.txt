@@ -1,0 +1,31 @@
+Panopoly Core 7.x-1.2, 2014-13-08
+---------------------------
+- Add CHANGELOG.txt
+- Use stable Fieldable Panels Panes release.
+- The "Sort by" won't save in the "Content list" widget (switch from ctools patch to views patch).
+- Update to actual CTools 1.4 (security vulnerablity!) and Panels 3.4 releases!.
+- Provide feature module updates for ctools / panels upgrade.
+- Update date module to latest version 2.7.
+- Update 'devel' module to version 1.4.
+- Revert: Installing 'ctools' (1.4) before 'uuid' during Panopoly install causes fatal error.
+- Update views_bulk_operations to version 3.2.
+- Test changes to Ctools (1.4) and Panels (3.4) comming on Feb 5th.
+
+Panopoly Core 7.x-1.1, 2014-01-13
+---------------------------
+- Upgrade from 1.0-rc3 or 1.0-rc2 fails: Table 'pathauto_state' doesn't exist.
+- Update Entity API to 1.3 for security vulnerablity.
+- Add projects[apps][version] = 1.x-dev to makefile.
+- Add helper functions for modules that implement demo content using Migrate.
+- Update all features.
+- FAPE causing "Illegal string offset 'field_name'.
+- Update field_group to version 1.3.
+- The "Sort by" won't save in the "Content list" widget.
+- Update 'link' module to version 1.2.
+- Defaultconfig issues in installation profiles that extend panopoly
+- Add Migrate modules to Panopoly Core to help facilitate better demo content patterns
+- Update Apps module so that Apps can be used in offline mode
+- Troubles Implementing Default Permissions for Panelizer
+- Update features to 2.0.
+- Update 'entity' module to version 1.2 (for security advisory!).
+- Update 'entityreference' module to version 1.1 (for security advisory!).

@@ -14,24 +14,6 @@ function oa_messages_ctools_plugin_api($module = NULL, $api = NULL) {
 }
 
 /**
- * Implements hook_field_default_field_instances_alter().
- */
-function oa_messages_field_default_field_instances_alter(&$data) {
-  if (!module_exists('message_digest')) {
-    $messages = entity_get_info('message');
-    foreach ($messages['bundles'] as $bundle_name => $bundle) {
-      $instances = field_info_instances('message', $bundle_name);
-      foreach ($instances as $instance_name => $instance) {
-        if (isset($data['message-' . $bundle_name . '-' . $instance_name])) {
-          unset($data['message-' . $bundle_name . '-' . $instance_name]['display']['message_notify_daily_digest']);
-          unset($data['message-' . $bundle_name . '-' . $instance_name]['display']['message_notify_weekly_digest']);
-        }
-      }
-    }
-  }
-}
-
-/**
  * Implements hook_default_message_type().
  */
 function oa_messages_default_message_type() {
@@ -55,9 +37,9 @@ function oa_messages_default_message_type() {
           "safe_value" : "\\u003Cp\\u003E[[message:field-oa-message-space]] @{message:user:name} replied to [message:field-oa-node-ref:title]\\u003C\\/p\\u003E\\n"
         },
         {
-          "value" : "[message:timestamp:oa_date]\\u003Cbr \\\\u003E\\u003Ch3\\u003E@{message:user:name} replied to \\u003Ca href=\\u0022\\/comment\\/[message:field-oa-comment-ref:cid]#comment-[message:field-oa-comment-ref:cid]\\u0022\\u003E[message:field-oa-node-ref:title]\\u003C\\/a\\u003E\\u003C\\/h3\\u003E\\n[message:field-oa-message-text:value] [message:field-oa-comment-ref:comment-body:value]\\n\\u003Ca href=\\u0022[message:field-oa-node-ref:url]\\u0022\\u003EClick here\\u003C\\/a\\u003E to see the discussion.",
+          "value" : "[message:timestamp:oa_date]\\u003Cbr \\/\\u003E\\u003Ch3\\u003E@{message:user:name} replied to \\u003Ca href=\\u0022[message:field-oa-comment-ref:url]\\u0022\\u003E[message:field-oa-node-ref:title]\\u003C\\/a\\u003E\\u003C\\/h3\\u003E\\r\\n[message:field-oa-message-text:value] [message:field-oa-comment-ref:comment-body:value]\\r\\n\\u003Ca href=\\u0022[message:field-oa-node-ref:url]\\u0022\\u003EClick here\\u003C\\/a\\u003E to see the discussion.",
           "format" : "full_html",
-          "safe_value" : "[message:timestamp:oa_date]\\u003Cbr \\\\u003E\\u003Ch3\\u003E@{message:user:name} replied to \\u003Ca href=\\u0022\\/comment\\/[message:field-oa-comment-ref:cid]#comment-[message:field-oa-comment-ref:cid]\\u0022\\u003E[message:field-oa-node-ref:title]\\u003C\\/a\\u003E\\u003C\\/h3\\u003E\\n[message:field-oa-message-text:value] [message:field-oa-comment-ref:comment-body:value]\\n\\u003Ca href=\\u0022[message:field-oa-node-ref:url]\\u0022\\u003EClick here\\u003C\\/a\\u003E to see the discussion."
+          "safe_value" : "[message:timestamp:oa_date]\\u003Cbr \\/\\u003E\\u003Ch3\\u003E@{message:user:name} replied to \\u003Ca href=\\u0022[message:field-oa-comment-ref:url]\\u0022\\u003E[message:field-oa-node-ref:title]\\u003C\\/a\\u003E\\u003C\\/h3\\u003E\\n[message:field-oa-message-text:value] [message:field-oa-comment-ref:comment-body:value]\\n\\u003Ca href=\\u0022[message:field-oa-node-ref:url]\\u0022\\u003EClick here\\u003C\\/a\\u003E to see the discussion."
         },
         {
           "value" : "\\u003Ca href=\\u0022[site:url]user\\/@{message:user:uid}\\u0022 class=\\u0022oa-userlink\\u0022\\u003E@{message:user:name}\\u003C\\/a\\u003E replied to \\u003Ca href=\\u0022\\/comment\\/[message:field-oa-comment-ref:cid]#comment-[message:field-oa-comment-ref:cid]\\u0022\\u003E\\u003Cstrong\\u003E[message:field-oa-node-ref:title]\\u003C\\/strong\\u003E\\u003C\\/a\\u003E",
@@ -79,7 +61,7 @@ function oa_messages_default_message_type() {
   }');
   $items['oa_create'] = entity_import('message_type', '{
     "name" : "oa_create",
-    "description" : "Create Content",
+    "description" : "New Content",
     "argument_keys" : [],
     "argument" : [],
     "category" : "message_type",
@@ -120,7 +102,7 @@ function oa_messages_default_message_type() {
   }');
   $items['oa_delete'] = entity_import('message_type', '{
     "name" : "oa_delete",
-    "description" : "Delete Content",
+    "description" : "Deleted",
     "argument_keys" : [],
     "argument" : [],
     "category" : "message_type",
@@ -161,7 +143,7 @@ function oa_messages_default_message_type() {
   }');
   $items['oa_member'] = entity_import('message_type', '{
     "name" : "oa_member",
-    "description" : "Open Atrium Member",
+    "description" : "Membership",
     "argument_keys" : [],
     "argument" : [],
     "category" : "message_type",
@@ -192,7 +174,7 @@ function oa_messages_default_message_type() {
   }');
   $items['oa_update'] = entity_import('message_type', '{
     "name" : "oa_update",
-    "description" : "Update Content",
+    "description" : "Updated",
     "argument_keys" : [],
     "argument" : [],
     "category" : "message_type",

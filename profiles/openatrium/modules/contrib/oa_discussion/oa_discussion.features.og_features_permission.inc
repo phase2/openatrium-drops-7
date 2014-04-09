@@ -34,8 +34,24 @@ function oa_discussion_og_features_default_permissions() {
     ),
   );
 
+  // Exported og permission: 'node:oa_space:add attachment to oa_discussion_post'
+  $permissions['node:oa_space:add attachment to oa_discussion_post'] = array(
+    'roles' => array(
+      'administrator member' => 'administrator member',
+      'member' => 'member',
+    ),
+  );
+
   // Exported og permission: 'node:oa_space:create oa_discussion_post content'
   $permissions['node:oa_space:create oa_discussion_post content'] = array(
+    'roles' => array(
+      'administrator member' => 'administrator member',
+      'member' => 'member',
+    ),
+  );
+
+  // Exported og permission: 'node:oa_space:write oa_discussion_reply to discussion post'
+  $permissions['node:oa_space:write oa_discussion_reply to discussion post'] = array(
     'roles' => array(
       'administrator member' => 'administrator member',
       'member' => 'member',

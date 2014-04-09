@@ -24,10 +24,12 @@ function oa_home_default_render($subtype, $conf, $args, $context = NULL) {
   global $user;
   if (!empty($conf)) {
     // $conf is empty during popup previews, so don't load css
+    global $base_url;
+    $base = parse_url($base_url);
     drupal_add_css(drupal_get_path('module', 'oa_home') . '/oa_home_default.css');
-    drupal_add_css('http://fonts.googleapis.com/css?family=Roboto:300,400,100,700,500', array('type' => 'external'));
-    drupal_add_css('http://fonts.googleapis.com/css?family=Roboto+Condensed:400,700', array('type' => 'external'));
-    drupal_add_css('http://fonts.googleapis.com/css?family=Roboto+Slab:400,100,700', array('type' => 'external'));
+    drupal_add_css($base['scheme'] . '://fonts.googleapis.com/css?family=Roboto:300,400,100,700,500', array('type' => 'external'));
+    drupal_add_css($base['scheme'] . '://fonts.googleapis.com/css?family=Roboto+Condensed:400,700', array('type' => 'external'));
+    drupal_add_css($base['scheme'] . '://fonts.googleapis.com/css?family=Roboto+Slab:400,100,700', array('type' => 'external'));
   }
   $block = new stdClass();
   $block->title = '';
@@ -38,7 +40,7 @@ function oa_home_default_render($subtype, $conf, $args, $context = NULL) {
   }
   else {
     $user_record = user_load($user->uid);
-    $name = (!empty($user_record->realname)) ? $user_record->realname : $user_record->name;
+    $name = oa_core_realname($user_record);
     $vars['username'] = $name;
   }
   $block->content = theme('oa_home_default', $vars);

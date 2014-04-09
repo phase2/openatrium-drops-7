@@ -8,19 +8,8 @@
  * See http://drupal.org/project/media for more details.
  */
 
-/* ***************************************** */
-/* INCLUDES                                  */
-/* ***************************************** */
-
 // Code relating to using media as a field.
 require_once dirname(__FILE__) . '/includes/media.fields.inc';
-
- // Functions for working with [[inline tags]] and wysiwyg editors.
-require_once dirname(__FILE__) . '/includes/media.filter.inc';
-
-/* ***************************************** */
-/* Hook Implementations                      */
-/* ***************************************** */
 
 /**
  * Implements hook_hook_info().
@@ -32,9 +21,6 @@ function media_hook_info() {
     'media_browser_plugin_info_alter',
     'media_browser_plugins_alter',
     'media_browser_params_alter',
-    'media_wysiwyg_allowed_view_modes_alter',
-    'media_format_form_prepare_alter',
-    'media_token_to_markup_alter',
     'query_media_browser_alter',
   );
 
@@ -71,7 +57,7 @@ function media_entity_info_alter(&$entity_info) {
   // For sites that updated from Media 1.x, continue to provide these deprecated
   // view modes.
   // @see http://drupal.org/node/1051090
-  if (variable_get('media__show_deprecated_view_modes', FALSE)) {
+  if (variable_get('media_show_deprecated_view_modes', FALSE)) {
     $entity_info['file']['view modes'] += array(
       'media_link' => array(
         'label' => t('Link'),
@@ -88,16 +74,6 @@ function media_entity_info_alter(&$entity_info) {
     $entity_info['file']['translation']['entity_translation']['class'] = 'MediaEntityTranslationHandler';
     $entity_info['file']['translation']['entity_translation']['path schemes']['media'] = array('edit path' => 'media/%file/edit/%ctools_js');
   }
-}
-
-/**
- * Access callback for files. This function is deprecated.
- *
- * @todo Completely remove this function in favor of file_entity_access after
- * a few releases, to ensure rest of contib catches up.
- */
-function media_access($op, $account = NULL) {
-  return user_access('administer files', $account);
 }
 
 /**
@@ -127,19 +103,6 @@ function media_menu() {
     'weight' => 10,
   );
 
-  // Used to import files from a local filesystem into Drupal.
-  $items['admin/content/file/import'] = array(
-    'title' => 'Import files',
-    'description' => 'Import files into your media library.',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('media_import'),
-    'access arguments' => array('import media'),
-    'type' => MENU_LOCAL_ACTION,
-    'file' => 'includes/media.admin.inc',
-    'weight' => 10,
-  );
-  $items['admin/content/file/thumbnails/import'] = $items['admin/content/file/import'];
-
   $items['media/browser'] = array(
     'title' => 'Media browser',
     'description' => 'Media Browser for picking media and uploading new media',
@@ -162,31 +125,6 @@ function media_menu() {
     'file' => 'includes/media.browser.inc',
   );
 
-  $items['media/%file/format-form'] = array(
-    'title' => 'Style selector',
-    'description' => 'Choose a format for a piece of media',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('media_format_form', 1),
-    'access callback' => 'file_entity_access',
-    'access arguments' => array('view', 1),
-    'file' => 'includes/media.filter.inc',
-    'theme callback' => 'media_dialog_get_theme_name',
-    'type' => MENU_CALLBACK,
-  );
-
-  if (module_exists('multiform')) {
-    // @todo Investigate passing file IDs in query string rather than a menu
-    // argument and then deprecate media_multi_load().
-    $items['admin/content/file/edit-multiple/%media_multi'] = array(
-      'title' => 'Edit multiple files',
-      'page callback' => 'media_file_page_edit_multiple',
-      'page arguments' => array(4),
-      'access callback' =>  '_media_file_entity_access_recursive',
-      'access arguments' => array(4, 'update'),
-      'file' => 'includes/media.pages.inc',
-    );
-  }
-
   // We could re-use the file/%file/edit path for the modal callback, but
   // it is just easier to use our own namespace here.
   $items['media/%file/edit/%ctools_js'] = array(
@@ -195,24 +133,6 @@ function media_menu() {
     'page arguments' => array('media_file_edit_modal', 1, 3),
     'access callback' => 'file_entity_access',
     'access arguments' => array('update', 1),
-    'file' => 'includes/media.pages.inc',
-    'type' => MENU_CALLBACK,
-  );
-
-  // Upgrade interface for old file types.
-  $items['admin/structure/file-types/upgrade'] = array(
-    'title' => 'Upgrade types',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('media_upgrade_file_types'),
-    'access arguments' => array('administer file types'),
-    'file' => 'includes/media.pages.inc',
-    'type' => MENU_CALLBACK,
-  );
-  $items['admin/structure/file-types/upgrade/confirm'] = array(
-    'title' => 'Upgrade types',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('media_upgrade_file_types_confirm'),
-    'access arguments' => array('administer file types'),
     'file' => 'includes/media.pages.inc',
     'type' => MENU_CALLBACK,
   );
@@ -245,7 +165,7 @@ function media_admin_paths() {
 
   // If the media browser theme is set to the admin theme, ensure it gets set
   // as an admin path as well.
-  $dialog_theme = variable_get('media__dialog_theme', '');
+  $dialog_theme = variable_get('media_dialog_theme', '');
   if (empty($dialog_theme) || $dialog_theme == variable_get('admin_theme')) {
     $paths['media/browser'] = TRUE;
     $paths['media/browser/*'] = TRUE;
@@ -263,10 +183,6 @@ function media_permission() {
       'title' => t('Administer media browser'),
       'description' => t('Access media browser settings.'),
     ),
-    'import media' => array(
-      'title' => t('Import media files from the local filesystem'),
-      'description' => t('Simple file importer'),
-    ),
   );
 }
 
@@ -275,11 +191,6 @@ function media_permission() {
  */
 function media_theme() {
   return array(
-    // The default media file list form element.
-    'media_file_list' => array(
-      'variables' => array('element' => NULL),
-    ),
-
     // A preview of the uploaded file.
     'media_thumbnail' => array(
       'render element' => 'element',
@@ -345,93 +256,6 @@ function media_page_alter(&$page) {
       }
     }
   }
-
-  // Check if there are file types that need migration and display a message
-  // to user if so.
-  $menu = menu_get_item();
-  if (variable_get('media__display_types_migration_mess', TRUE) && $menu['path'] == 'admin/structure/file-types') {
-    if ($migratable_types = _media_get_migratable_file_types()) {
-      drupal_set_message(t('There are disabled/deleted file types that can be migrated to their new alternatives. Visit <a href="!url">migration page</a> to get more information.', array('!url' => url('admin/structure/file-types/upgrade'))));
-    }
-  }
-}
-
-/**
- * Implements hook_element_info_alter().
- */
-function media_element_info_alter(&$types) {
-  $types['text_format']['#pre_render'][] = 'media_pre_render_text_format';
-}
-
-/**
- * Implements hook_file_operations().
- */
-function media_file_operations() {
-  $operations = array();
-
-  // If the multiform module is not installed, do not show this option.
-  if (module_exists('multiform')) {
-    $operations['edit_multiple'] = array(
-      'label' => t('Edit selected files'),
-      'callback' => 'media_file_operation_edit_multiple',
-    );
-  }
-
-  return $operations;
-}
-
-/**
- * Return a URL for editing an files.
- *
- * Works with an array of fids or a single fid.
- *
- * @param mixed $fids
- *   An array of file IDs or a single file ID.
- */
-function media_file_edit_url($fids) {
-  if (!is_array($fids)) {
-    $fids = array($fids);
-  }
-
-  if (count($fids) > 1) {
-    return 'admin/content/file/edit-multiple/' . implode(' ', $fids);
-  }
-  else {
-    return 'file/' . reset($fids) . '/edit';
-  }
-}
-
-/**
- * Callback for the edit operation.
- *
- * Redirects the user to the edit multiple files page.
- *
- * @param array $fids
- *   An array of file IDs.
- *
- * @see media_file_page_edit_multiple()
- */
-function media_file_operation_edit_multiple($fids) {
-  // The thumbnail browser returns TRUE/FALSE for each item, so use array keys.
-  $fids = array_keys(array_filter($fids));
-  drupal_goto(media_file_edit_url($fids), array('query' => drupal_get_destination()));
-}
-
-/**
- * Implements hook_forms().
- */
-function media_forms($form_id, $args) {
-  $forms = array();
-  // To support the multiedit form, each form has to have a unique ID.
-  // So we name all the forms media_edit_N where the first requested form is
-  // media_edit_0, 2nd is media_edit_1, etc.
-  module_load_include('inc', 'file_entity', 'file_entity.pages');
-  if ($form_id != 'media_edit' && (strpos($form_id, 'media_edit') === 0)) {
-    $forms[$form_id] = array(
-      'callback' => 'file_entity_edit',
-    );
-  }
-  return $forms;
 }
 
 /**
@@ -534,85 +358,10 @@ function media_browser_form_submit($form, &$form_state) {
     $parameters = array('query' => array('render' => 'media-popup', 'fid' => $file->fid));
   }
 
-  // Multi upload.
-  if (!empty($form_state['files'])) {
-    $files = $form_state['files'];
-    $url = 'media/browser';
-    $parameters = array('query' => array('render' => 'media-popup', 'fid' => array_keys($files)));
-  }
-
   // If $url is set, we had some sort of upload, so redirect the form.
   if (!empty($url)) {
     $form_state['redirect'] = array($url, $parameters);
   }
-}
-
-/**
- * Implements hook_form_FORM_ID_alter().
- */
-function media_form_wysiwyg_profile_form_alter(&$form, &$form_state) {
-  // Add warnings if the media filter is disabled for the WYSIWYG's text format.
-  $form['buttons']['drupal']['media']['#element_validate'][] = 'media_wysiwyg_button_element_validate';
-  $form['buttons']['drupal']['media']['#after_build'][] = 'media_wysiwyg_button_element_validate';
-  form_load_include($form_state, 'inc', 'media', 'wysiwyg_plugins/media');
-}
-
-/**
- * Access callback for the media-multi form.
- *
- * @param $files
- *   An array of files being editing on the multiform.
- * @param $op
- *   A string containing the operation requested, such as 'update'.
- * @return
- *   TRUE if the current user has access to edit all of the files, otherwise FALSE.
- */
-function _media_file_entity_access_recursive($files, $op) {
-  // Check that the current user can access each file.
-  if (!empty($files)) {
-    foreach ($files as $file) {
-      if (!file_entity_access($op, $file)) {
-        return FALSE;
-      }
-    }
-    return TRUE;
-  }
-  return FALSE;
-}
-
-/* ***************************************** */
-/* API FUNCTIONS                             */
-/* ***************************************** */
-
-/**
- * Load callback for %media_multi placeholder in menu paths.
- *
- * @param string $fids
- *   Separated by space (e.g., "3 6 12 99"). This often appears as "+" within
- *   URLs (e.g., "3+6+12+99"), but Drupal automatically decodes paths when
- *   intializing $_GET['q'].
- *
- * @return array
- *   An array of corresponding file entities.
- */
-function media_multi_load($fids) {
-  return file_load_multiple(explode(' ', $fids));
-}
-
-/* ***************************************** */
-/* Callbacks                                 */
-/* ***************************************** */
-
-/**
- * Process callback for the media_browser element.
- */
-function media_file_list_element_process($element, $edit, $form_state, $form) {
-  $element['list'] = array(
-    '#type'     => 'select',
-    '#options'  => $element['#options'],
-    '#size'     => variable_get('media__file_list_size', 10),
-  );
-  return $element;
 }
 
 /**
@@ -682,7 +431,7 @@ function media_library() {
  * will default to the administration theme, unless set otherwise.
  */
 function media_dialog_get_theme_name() {
-  return variable_get('media__dialog_theme', variable_get('admin_theme'));
+  return variable_get('media_dialog_theme', variable_get('admin_theme'));
 }
 
 /**
@@ -955,27 +704,6 @@ function media_element_validate(&$element, &$form_state) {
       form_error($element, t('%element_title field is required.', array('%element_title' => $element['#title'])));
     }
   }
-}
-
-/**
- * Implements hook_filter_info().
- */
-function media_filter_info() {
-  $filters['media_filter'] = array(
-    'title' => t('Convert Media tags to markup'),
-    'description' => t('This filter will convert [[{type:media... ]] tags into markup.'),
-    'process callback' => 'media_filter',
-    'weight' => 2,
-    // @TODO not implemented
-    'tips callback' => 'media_filter_tips',
-  );
-
-  // If the WYSIWYG module is enabled, add additional help.
-  if (module_exists('wysiwyg')) {
-    $filters['media_filter']['description'] .= ' ' . t('This must be enabled for the Media WYSIWYG integration to work with this input format.');
-  }
-
-  return $filters;
 }
 
 /**
@@ -1253,50 +981,4 @@ function media_get_remote_stream_wrappers() {
   $wrappers = array_diff_key($wrappers, file_get_stream_wrappers(STREAM_WRAPPERS_LOCAL_NORMAL));
   $wrappers = array_diff_key($wrappers, file_get_stream_wrappers(STREAM_WRAPPERS_LOCAL_HIDDEN));
   return $wrappers;
-}
-
-
-/**
- * Checks if there are any files that belong to disabled or deleted file
- * types.
- *
- * @return Array of file types (machine names) that are candidates for
- *   migration.
- */
-function _media_get_migratable_file_types() {
-  $query = db_select('file_managed', 'f')
-    ->fields('f', array('type'))
-    ->distinct();
-  $types = $query->execute()->fetchCol();
-  $enabled_types = array();
-  foreach (file_type_get_enabled_types() as $type) {
-    $enabled_types[] = $type->type;
-  }
-
-  return array_diff($types, $enabled_types);
-}
-
-/**
- * Returns the default set of allowed attributes for use with WYSIWYG.
- *
- * @return array
- *   An array of whitelisted attributes.
- */
-function _media_wysiwyg_allowed_attributes_default() {
-  return array(
-    'alt',
-    'title',
-    'height',
-    'width',
-    'hspace',
-    'vspace',
-    'border',
-    'align',
-    'style',
-    'class',
-    'id',
-    'usemap',
-    'data-picture-group',
-    'data-picture-align',
-  );
 }

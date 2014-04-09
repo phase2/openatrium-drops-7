@@ -2,13 +2,19 @@ name = Media Internet Sources
 description = Provides an API for accessing media on various internet services
 package = Media
 core = 7.x
+
 dependencies[] = media
+
 files[] = includes/MediaBrowserInternet.inc
+files[] = includes/MediaInternetBaseHandler.inc
+files[] = includes/MediaInternetFileHandler.inc
+files[] = includes/MediaInternetNoHandlerException.inc
+files[] = includes/MediaInternetValidationException.inc
 
 
-; Information added by drush on 2014-02-26
-version = "7.x-2.0-alpha3+12-dev"
+; Information added by drush on 2014-04-09
+version = "7.x-2.0-alpha3+37-dev"
 core = "7.x"
 project = "media"
-datestamp = "1393449074"
+datestamp = "1397050270"
 

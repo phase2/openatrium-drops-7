@@ -36,7 +36,7 @@ function oa_discussion_default_message_type() {
   $items = array();
   $items['oa_reply'] = entity_import('message_type', '{
     "name" : "oa_reply",
-    "description" : "Open Atrium Reply",
+    "description" : "Discussion Replies",
     "argument_keys" : [],
     "argument" : [],
     "category" : "message_type",

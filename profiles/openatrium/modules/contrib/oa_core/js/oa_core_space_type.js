@@ -1,6 +1,6 @@
 /**
  * @file
- * Javascript for oa_core's 'Space type' functionality.
+ * Javascript for oa_core's space_type/section_type functionality.
  */
 (function ($) {
   Drupal.behaviors.oaCoreSpaceType = {
@@ -8,7 +8,7 @@
       var self = this;
 
       // The default response to oaCoreSpaceTypeChange: select the Panelizer
-      // default for this Space type.
+      // default for this space_type.
       $(document).on('oaCoreSpaceTypeChange', function (e) {
         var $layout_selector = $('select:[name="panelizer[page_manager][name]"]', context);
 

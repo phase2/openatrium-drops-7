@@ -8,11 +8,11 @@
   Drupal.behaviors.toggleReplyVisibility = {
     attach: function(context, settings) {
       var $toggle = $('#toggle-reply-visibility');
-      var $replies = $('.oa-discussion-reply .accordion-body');
+      var $replies = $('.oa-discussion-reply .oa-list-header');
       var expand = true;
-      var expandText = '<i class="icon-plus"></i> Expand All';
-      var collapseText = '<i class="icon-minus"></i> Collapse All';
-      
+      var expandText = '<i class="icon-plus"></i> ' + Drupal.t('Expand All');
+      var collapseText = '<i class="icon-minus"></i> ' + Drupal.t('Collapse All');
+
       $toggle.html(expandText);
       $toggle.click(function() {
         // $replies.collapse(expand ? 'show' : 'hide');
@@ -22,18 +22,22 @@
         if (expand) {
           $replies.each(function() {
             if (!$(this).hasClass('in')) {
-              $(this).collapse('show');
+              $(this).removeClass('oa-discussion-hide');
             }
           });
         }
         else {
-          $replies.collapse('hide');
+          $replies.addClass('oa-discussion-hide');
         }
-        
+
         expand = !expand;
         $toggle.html(expand ? expandText : collapseText);
       });
-    } 
+
+      $('.accordion-toggle .oa-list-header').click(function() {
+        $(this).toggleClass('oa-discussion-hide');
+      });
+    }
   };
 
 })(jQuery);

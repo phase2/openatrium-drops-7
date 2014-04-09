@@ -384,6 +384,11 @@ function oa_buttons_create_term($taxonomy, $name, $description, $node_options, $
         'field_oa_node_types' => array(
           LANGUAGE_NONE => array(),
         ),
+        'path' => array(
+          'alias' => '',
+          'pathauto' => '',
+        ),
+        'oa_button' => TRUE,
       );
     }
 

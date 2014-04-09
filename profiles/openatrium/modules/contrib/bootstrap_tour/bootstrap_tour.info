@@ -5,9 +5,9 @@ core = 7.x
 dependencies[] = jquery_update
 dependencies[] = ctools
 
-; Information added by Drupal.org packaging script on 2014-02-25
-version = "7.x-1.0-beta7"
+; Information added by Drupal.org packaging script on 2014-02-28
+version = "7.x-1.0-beta8"
 core = "7.x"
 project = "bootstrap_tour"
-datestamp = "1393366105"
+datestamp = "1393602208"
 

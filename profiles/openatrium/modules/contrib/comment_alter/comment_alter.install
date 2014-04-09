@@ -10,7 +10,7 @@
  */
 function comment_alter_schema() {
   $schema['comment_alter'] = array(
-    'description' => 'Stores simple site-wide guestbook entries.',
+    'description' => 'Stores {node}.vid changes made by comments.',
     'fields' => array(
       'cid' => array(
         'description' => 'The {comment}.cid this change refers to.',

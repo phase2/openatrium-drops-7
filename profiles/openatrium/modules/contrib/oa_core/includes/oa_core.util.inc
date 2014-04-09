@@ -86,12 +86,15 @@ function oa_core_get_section_context() {
  * @param  string $bundle node type
  * @return array of parent nids
  */
-function oa_core_get_parents($nid, $bundle = OA_SPACE_TYPE) {
+function oa_core_get_parents($nid, $bundle = OA_SPACE_TYPE, $status = NULL) {
   $cache = &drupal_static(__FUNCTION__);
 
   if (!isset($cache[$nid][$bundle])) {
     $query = db_select('node', 'n');
     $query->leftJoin('og_membership', 'f', "n.nid = f.gid");
+    if (isset($status)) {
+      $query->condition('n.status', $status);
+    }
     $result = $query
       ->fields('n', array('nid'))
       ->condition('f.etid', $nid)
@@ -112,7 +115,7 @@ function oa_core_get_parents($nid, $bundle = OA_SPACE_TYPE) {
  * @param  string $bundle node type
  * @return array of children nids
  */
-function oa_core_get_groups_by_parent($nid, $bundle = OA_SPACE_TYPE) {
+function oa_core_get_groups_by_parent($nid, $bundle = OA_SPACE_TYPE, $status = NULL) {
   $cache = &drupal_static(__FUNCTION__);
 
   if (!isset($cache[$nid][$bundle])) {
@@ -122,6 +125,9 @@ function oa_core_get_groups_by_parent($nid, $bundle = OA_SPACE_TYPE) {
       $query->leftJoin('og_membership', 'f', "n.nid = f.etid");
       if (isset($bundle)) {
         $query->condition('n.type', $bundle);
+      }
+      if (isset($status)) {
+        $query->condition('n.status', $status);
       }
       $result = $query
         ->fields('n', array('nid'))
@@ -136,6 +142,9 @@ function oa_core_get_groups_by_parent($nid, $bundle = OA_SPACE_TYPE) {
       $query->leftJoin('og_membership', 'f', "n.nid = f.etid");
       if (isset($bundle)) {
         $query->condition('n.type', $bundle);
+      }
+      if (isset($status)) {
+        $query->condition('n.status', $status);
       }
       $result = $query
         ->fields('n', array('nid'))
@@ -344,14 +353,18 @@ function oa_core_truncate_list($list, $count, $more_link = '', $always_link = FA
  * @return array
  * An array of public gids
  */
-function oa_core_get_public_spaces($group_types = array(OA_SPACE_TYPE => OA_SPACE_TYPE)) {
+function oa_core_get_public_spaces($group_types = array(OA_SPACE_TYPE => OA_SPACE_TYPE), $status = NULL) {
   $public_spaces = &drupal_static(__FUNCTION__);
   if (!isset($public_spaces)) {
-    $query = db_select('field_data_group_access', 'g')
-      ->fields('g', array('entity_id'))
-      ->condition('bundle', $group_types, 'IN')
-      ->condition('entity_type', 'node')
-      ->condition('group_access_value', 0);
+    $query = db_select('node', 'n');
+    $query->rightJoin('field_data_group_access', 'g', "n.nid = g.entity_id AND g.entity_type = 'node'");
+    $query
+      ->fields('n', array('nid'))
+      ->condition('n.type', $group_types, 'IN')
+      ->condition('g.group_access_value', 0);
+    if (isset($status)) {
+      $query->condition('n.status', $status);
+    }
     $public_spaces = $query->execute()->fetchCol(0);
   }
   return $public_spaces;
@@ -363,19 +376,24 @@ function oa_core_get_public_spaces($group_types = array(OA_SPACE_TYPE => OA_SPAC
  * @param  int $gid space ID
  * @return keyed array of section data: $array[$nid] = $title
  */
-function oa_core_space_sections($gid) {
+function oa_core_space_sections($gid, $status = NULL, $bypass_access_check = FALSE) {
   $query = db_select('node', 'n');
   $query->rightJoin('og_membership', 'og', 'n.nid = og.etid');
   $query->leftJoin('field_data_field_oa_section_weight', 'w',
         "n.nid = w.entity_id AND w.entity_type = 'node'");
+  if (isset($status)) {
+    $query->condition('n.status', $status);
+  }
   $query
     ->fields('n', array('nid', 'title'))
     ->condition('n.type', OA_SECTION_TYPE)
     ->condition('og.entity_type', 'node')
     ->condition('og.field_name', OA_SPACE_FIELD)
     ->condition('og.gid', $gid)
-    ->orderBy('w.field_oa_section_weight_value')
-    ->addTag('node_access');
+    ->orderBy('w.field_oa_section_weight_value');
+  if (!$bypass_access_check) {
+    $query->addTag('node_access');
+  }
   $result = $query->execute();
   return $result->fetchAllKeyed(0, 1);
 }
@@ -483,6 +501,13 @@ function oa_core_sort_users_by_name($u1, $u2) {
 
 function oa_core_get_last_word($string) {
   return ($pos =  strrpos($string, ' ')) ?  substr($string, $pos + 1) : $string;
+}
+
+/**
+ * Return the name of a user
+ */
+function oa_core_realname($user) {
+  return !empty($user->realname) ? $user->realname : $user->name;
 }
 
 /**

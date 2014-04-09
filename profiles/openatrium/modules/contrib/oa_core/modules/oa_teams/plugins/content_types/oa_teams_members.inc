@@ -67,9 +67,7 @@ function oa_team_members_render($subtype, $conf, $args, $context = NULL) {
  */
 function oa_teams_entity_build_display($entity, $id) {
   $type = isset($entity->nid) ? 'node' : 'user';
-  $title = ($type == 'user') ?
-    (empty($entity->realname) ? $entity->name : $entity->realname) :
-    $entity->title;
+  $title = ($type == 'user') ? oa_core_realname($entity) : $entity->title;
   $display['title'] = l($title, $type . '/' . $id);
   $display['uid'] = $id;
 

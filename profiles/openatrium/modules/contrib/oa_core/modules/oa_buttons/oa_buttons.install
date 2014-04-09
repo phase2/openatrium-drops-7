@@ -4,6 +4,10 @@
  * @file
  * Install and update functionality..
  */
+
+/**
+ * Implements hook_schema().
+ */
 function oa_buttons_schema() {
   $schema['cache_oa_section_buttons'] = drupal_get_schema_unprocessed('system', 'cache');
   return $schema;

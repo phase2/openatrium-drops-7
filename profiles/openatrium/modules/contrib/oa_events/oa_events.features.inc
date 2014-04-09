@@ -36,7 +36,7 @@ function oa_events_default_message_type() {
   $items = array();
   $items['oa_event_notification'] = entity_import('message_type', '{
     "name" : "oa_event_notification",
-    "description" : "Open Atrium Event Notification",
+    "description" : "Event Reminders",
     "argument_keys" : [],
     "argument" : [],
     "category" : "message_type",

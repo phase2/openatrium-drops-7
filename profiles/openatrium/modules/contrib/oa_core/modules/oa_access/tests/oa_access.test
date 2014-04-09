@@ -6,8 +6,13 @@
 
 /**
  * Parent class for access control tests.
+ *
+ * For the time being, these tests only run with SimpleTestCloneTestCase,
+ * however, it'd be great to get them working with DrupalWebTestCase just
+ * to say we did. :-) SimpleTestCloneTestCase is much, much faster.
  */
-abstract class OpenAtriumAccessBaseTestCase extends DrupalWebTestCase {
+//abstract class OpenAtriumAccessBaseTestCase extends DrupalWebTestCase {
+abstract class OpenAtriumAccessBaseTestCase extends SimpleTestCloneTestCase {
   // The 'standard' profile defines an 'administrator' role which conflicts
   // with panopoly_core's 'administrator' role.
   protected $profile = 'testing';
@@ -583,6 +588,48 @@ class OpenAtriumAccessTestCase extends OpenAtriumAccessBaseTestCase {
     $this->assertFalse(oa_access($space1, 'permission with all option for oa_access_test', $not_in_group));
     $this->assertTrue(oa_access($space1, 'permission with all option for oa_access_test', $team_a['user']));
     $this->assertTrue(oa_access($space1, 'permission with all option for oa_access_test', $team_b['user']));
+  }
+
+  public function testTeamWithAllGroupAccess() {
+    // Create an admin user and login.
+    $account = $this->oaCreateUser(array('create oa_space content'));
+    $this->drupalLogin($account);
+
+    // Create a Space that all our users are going to belong to.
+    $space1 = $this->oaCreateNode(array(
+      'title' => 'Space A',
+      'type'  => 'oa_space',
+      'uid'   => $account->uid,
+    ));
+
+    $team_a = $this->oaCreateTeamWithUser(array('title' => 'Team A'), array('access content'), $space1);
+    $not_in_team = $this->oaCreateUser(array('access content'), $space1);
+    $not_in_space = $this->oaCreateUser(array('access content'));
+
+    $group_permissions = array(
+      // Say (via Groups permissions) that 'All site users' have access to this
+      // permission.
+      0 => array(
+        'oa_access_test' => array('permission with all option for oa_access_test'),
+      ),
+      $team_a['team']->nid => array(
+        'oa_access_test' => array('permission with all option for oa_access_test'),
+      ),
+    );
+    oa_access_set_group_permissions($group_permissions);
+
+    // So, in this case, only members of $team_a should have this permission
+    // even though 'All site users' have it, the Team permissions have further
+    // reduced access.
+    $this->assertTrue(oa_access($space1, 'permission with all option for oa_access_test', $team_a['user']));
+    $this->assertFalse(oa_access($space1, 'permission with all option for oa_access_test', $not_in_team));
+    $this->assertFalse(oa_access($space1, 'permission with all option for oa_access_test', $not_in_space));
+
+    // However, if we are operating outside of a Space context, then all users
+    // should get it, ie. there are no Teams to restrict access further.
+    $this->assertTrue(oa_access(NULL, 'permission with all option for oa_access_test', $team_a['user']));
+    $this->assertTrue(oa_access(NULL, 'permission with all option for oa_access_test', $not_in_team));
+    $this->assertTrue(oa_access(NULL, 'permission with all option for oa_access_test', $not_in_space));
   }
 
   public function testGroupAdminPage() {

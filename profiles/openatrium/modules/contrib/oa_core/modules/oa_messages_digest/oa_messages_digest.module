@@ -6,7 +6,8 @@
  */
 
 /**
- * Implementation of hook_oa_message_notifiers_alter().
+ * Implements hook_oa_message_notifiers_alter().
+ *
  * Add in the Daily and Weekly Digest notifier types.
  */
 function oa_messages_digest_oa_message_notifiers_alter(&$notifiers) {
@@ -23,16 +24,17 @@ function oa_messages_digest_oa_message_notifiers_alter(&$notifiers) {
 }
 
 /**
- * Implements hook_message_digest_view_mode_alter
+ * Implements hook_message_digest_view_mode_alter().
  */
 function oa_messages_digest_message_digest_view_mode_alter(&$context) {
+
   $context['view_modes'] = array('message_notify_email_body');
-  // check global disable flag
-  if (!variable_get('oa_messages_notifications', TRUE)) {
+  // Check global disable flag.
+  if (!variable_get('oa_messages_notifications', TRUE) || empty($context['messages'])) {
     $context['deliver'] = FALSE;
   }
   else {
-    //otherwise check user-specific setting
+    // Check user-specific settings.
     $account = user_load($context['uid']);
     $space_id = $context['gid'];
     $plugin_name = $context['plugin']['name'];
@@ -56,7 +58,7 @@ function oa_messages_digest_message_digest_view_mode_alter(&$context) {
 }
 
 /**
- * Implements hook_message_digest_aggregate_alter()
+ * Implements hook_message_digest_aggregate_alter().
  */
 function oa_messages_digest_message_digest_aggregate_alter(&$context) {
   if (!empty($context['account']) && !empty($context['account']->data['digest_grouping']) && $context['account']->data['digest_grouping'] == 'global') {
@@ -66,27 +68,23 @@ function oa_messages_digest_message_digest_aggregate_alter(&$context) {
 }
 
 /**
- * Implementation of hook_form_alter().
+ * Implements hook_oa_user_settings_form_alter().
  */
-function oa_messages_digest_form_alter(&$form, &$form_state, $form_id) {
-  if ($form_id == 'oa_users_settings_form') {
-    $form['oa_messages']['digest_grouping'] = array(
-      '#type' => 'radios',
-      '#title' => t('Digest Grouping'),
-      '#description' => 'For digest emails, would you like to receive one email per space or one combined email for all spaces?',
-      '#options' => array(
-        'group' => t('Send one digest email per group'),
-        'global' => t('Send one combined digest email for all groups'),
-      ),
-      '#default_value' => 'group',
-    );
-  }
+function oa_messages_digest_oa_user_settings_form_alter(&$form, &$form_state, $user) {
+  $form['oa_messages']['delivery']['digest_grouping'] = array(
+    '#type' => 'radios',
+    '#title' => t('Digest Grouping:'),
+    '#options' => array(
+      'group' => t('Send one digest email per group'),
+      'global' => t('Send one combined digest email for all groups'),
+    ),
+    '#default_value' => isset($user->data['digest_grouping']) ? $user->data['digest_grouping'] : 'group',
+  );
 }
 
 /**
- * Implementation of hook_oa_user_settings_form_submit().
+ * Implements hook_oa_user_settings_form_submit().
  */
 function oa_messages_digest_oa_user_settings_form_submit($form_state, $user) {
-  return array('digest_grouping' => $form_state['values']['oa_messages']['digest_grouping']);
+  return array('digest_grouping' => $form_state['values']['oa_messages']['delivery']['digest_grouping']);
 }
-

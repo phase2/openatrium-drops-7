@@ -80,7 +80,7 @@ function oa_events_field_default_field_instances() {
     'default_value' => NULL,
     'deleted' => 0,
     'description' => 'Location Address and/or link, i.e.,
-1600 Pennsylvania Avenue, NW 
+1600 Pennsylvania Avenue, NW
 Washington, DC 20500
 http://www.whitehouse.gov/',
     'display' => array(
@@ -317,7 +317,7 @@ http://www.whitehouse.gov/',
     'settings' => array(
       'description_field' => 0,
       'file_directory' => '',
-      'file_extensions' => 'jpg jpeg gif png txt doc docx xls xlsx pdf ppt pptx pps ppsx odt ods odp mp3 mov mp4 m4a m4v mpeg avi ogg oga ogv wmv ico',
+      'file_extensions' => 'jpg jpeg gif png txt doc docx xls xlsx pdf ppt pptx pps ppsx odt ods odp mp3 mov mp4 m4a m4v mpeg avi ogg oga ogv weba webp webm',
       'max_filesize' => '',
       'user_register_form' => FALSE,
     ),
@@ -571,7 +571,7 @@ http://www.whitehouse.gov/',
   t('Groups audience');
   t('Location');
   t('Location Address and/or link, i.e.,
-1600 Pennsylvania Avenue, NW 
+1600 Pennsylvania Avenue, NW
 Washington, DC 20500
 http://www.whitehouse.gov/');
   t('OG vocabulary');

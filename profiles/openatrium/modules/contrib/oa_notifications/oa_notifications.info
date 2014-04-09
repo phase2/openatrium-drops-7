@@ -11,9 +11,9 @@ features[features_api][] = api:2
 features[page_manager_pages][] = user_subscribed_content
 project path = sites/all/modules/contrib
 
-; Information added by Drupal.org packaging script on 2014-02-25
-version = "7.x-2.14"
+; Information added by Drupal.org packaging script on 2014-04-08
+version = "7.x-2.17"
 core = "7.x"
 project = "oa_notifications"
-datestamp = "1393364010"
+datestamp = "1396984755"
 

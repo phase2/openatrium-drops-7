@@ -25,34 +25,29 @@
  */
 ?>
 <div class='oa-list oa-discussion-reply well clearfix <?php print $current_class; ?> <?php print $status_class; ?> <?php print $nid_class; ?>'>
-  <div class='pull-right user-badge no-border'>
-    <?php print $name; ?>
-    <?php print $field_user_picture; ?>
-  </div>
   <div class="accordion" id="oa-reply-accordion-<?php print $index; ?>">
-    <div class="accordion-heading">
+    <div>
       <?php print $counter; ?>
-      <div class="accordion-toggle" data-toggle="collapse" data-parent="#oa-reply-accordion-<?php print $index; ?>" href="#oa-reply-body-<?php print $index; ?>">
-        <div class='oa-list-header oa-description '>
+      <div class="accordion-toggle">
+        <div class="oa-list-header oa-description<?php print !empty($in) ? '' : ' oa-discussion-hide' ?>">
           <div class='pull-right'>
             <?php if (!empty($unpublished)): ?>
               <span class="status"><?php print $unpublished; ?></span>
             <?php endif; ?>
             <?php print $timestamp; ?>
-            <?php print $created; ?>
+            <?php print $created; ?>&nbsp;
+            <?php print t('by') . " $name"; ?>
+            <?php print $field_user_picture; ?>
           </div>
-        </div>
-        <h5>
-          <?php print empty($body_1) ? $title : $body_1; ?>
-        </h5>
-      </div>
-      <div id="oa-reply-body-<?php print $index; ?>" class="accordion-body collapse <?php print $in; ?>">
-        <div class="accordion-inner">
-          <?php print $body; ?>
-          <?php print $field_oa_media; ?>
-          <div class="links">
-            <?php print $edit_node; ?>
-            <?php if (!empty($remove_link)): print $remove_link; endif; ?>
+          <div class="oa-reply-body">
+            <?php if (strip_tags($body)):?>
+              <?php print $body; ?>
+            <?php endif; ?>
+            <?php print $field_oa_media; ?>
+            <div class="links">
+              <?php print $edit_node; ?>
+              <?php if (!empty($remove_link)): print $remove_link; endif; ?>
+            </div>
           </div>
         </div>
       </div>

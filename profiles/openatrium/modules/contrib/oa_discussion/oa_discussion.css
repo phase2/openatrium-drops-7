@@ -15,7 +15,33 @@
   display: none;
 }
 
+.oa-list.oa-discussion-reply .oa-pullout-left {
+  padding-top: 13px;
+  height: 24px;
+}
+
 .oa-discussion-reply h5 {
+}
+
+.oa-discussion-reply .oa-reply-body {
+  font-size: 14px;
+  padding: 8px 5px 0 5px;
+}
+
+.oa-discussion-reply .oa-discussion-hide {
+  height: 30px;
+}
+
+.oa-discussion-reply .oa-discussion-hide:hover {
+  background-color: #E0EEFF;
+}
+
+.oa-discussion-reply .pull-right {
+  padding-left: 5px;
+}
+
+.oa-discussion-reply .pull-right + p {
+  margin-top: 5px;
 }
 
 .page-node-edit.node-type-oa-discussion-post div.tabs {

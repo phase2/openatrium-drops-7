@@ -33,6 +33,7 @@
             var term = $search_bar.val();
             var type = $options.find('input:checked').val();
             var arg = 0;
+            var argtext = '';
             if ($spaces.length) {
               arg = $spaces.find('select').val();
               argtext = $spaces.find('select option:selected').text();
@@ -53,7 +54,6 @@
   };
 
   function determineSearchPath(term, type, space, arg, argtext) {
-    console.log(type);
     var path =  Drupal.settings.basePath +  'search' + '/' + (type === 'users' ? 'user' : 'node') + '/' + term;
     if (type === 'this_space') {
       // %3A instead of : because of some weird double encoding on the backend.

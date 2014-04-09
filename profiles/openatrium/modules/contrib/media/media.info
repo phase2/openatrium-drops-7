@@ -17,17 +17,17 @@ files[] = includes/MediaBrowserView.inc
 files[] = includes/MediaEntityTranslationHandler.inc
 files[] = includes/media_views_plugin_display_media_browser.inc
 files[] = includes/media_views_plugin_style_media_browser.inc
-files[] = tests/media.test
-files[] = tests/media.entity.test
-files[] = tests/media.file.usage.test
-files[] = tests/media.macro.test
+files[] = media.test
 
 configure = admin/config/media/browser
 
+; We have to add a fake version so Git checkouts do not fail Media dependencies
+version = 7.x-2.x-dev
 
-; Information added by drush on 2014-02-26
-version = "7.x-2.0-alpha3+12-dev"
+
+; Information added by drush on 2014-04-09
+version = "7.x-2.0-alpha3+37-dev"
 core = "7.x"
 project = "media"
-datestamp = "1393449074"
+datestamp = "1397050270"
 

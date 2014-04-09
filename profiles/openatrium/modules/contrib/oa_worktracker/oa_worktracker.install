@@ -123,3 +123,14 @@ function oa_worktracker_update_7203() {
     }
   }
 }
+
+/**
+ * Set defaults for new 'view comment alterations in oa_worktracker_task' permission from comment_alter.
+ */
+function oa_worktracker_update_7204() {
+  $roles = array(DRUPAL_ANONYMOUS_RID, DRUPAL_AUTHENTICATED_RID);
+  $perms = array('view comment alterations in oa_worktracker_task');
+  foreach ($roles as $rid) {
+    user_role_grant_permissions($rid, $perms);
+  }
+}

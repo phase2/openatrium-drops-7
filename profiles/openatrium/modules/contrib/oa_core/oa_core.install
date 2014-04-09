@@ -102,3 +102,50 @@ function oa_core_update_7213() {
 function oa_core_update_7214() {
   module_enable(array('trash_flag', 'oa_archive'));
 }
+
+/**
+ * Enable clone, oa_clone.
+ */
+function oa_core_update_7215() {
+  module_enable(array('clone', 'oa_clone'));
+}
+
+/**
+ * Enable advagg.
+ */
+function oa_core_update_7216() {
+  module_enable(array('advagg'));
+}
+
+/**
+ * Enable conditional_styles.
+ */
+function oa_core_update_7217() {
+  module_enable(array('conditional_styles'));
+}
+
+/**
+ * Create wide breakpoint for navbar if one does not exist.
+ *
+ * Without this breakpoint, the navbar breaks in IE10+
+ */
+function oa_core_update_7218() {
+  if (module_exists('breakpoints')) {
+    if(!$breakpoint = breakpoints_breakpoint_load('wide', 'navbar', 'module')) {
+      // Add a breakpoint for switching between horizontal and vertical tray
+      // orientation.
+      $breakpoint = new stdClass();
+      $breakpoint->disabled = FALSE;
+      $breakpoint->api_version = 1;
+      $breakpoint->name = 'wide';
+      $breakpoint->breakpoint = 'only screen and (min-width: 50em)';
+      $breakpoint->source = 'navbar';
+      $breakpoint->source_type = 'module';
+      $breakpoint->status = 1;
+      $breakpoint->weight = 0;
+      $breakpoint->multipliers = array();
+      breakpoints_breakpoint_save($breakpoint);
+    }
+  }
+}
+

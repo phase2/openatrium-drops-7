@@ -86,6 +86,7 @@ class OaWorkTracker_SelectionHandler_Assigned implements EntityReference_Selecti
           $options['user'][$uid] = check_plain($this->getLabel($account));
         }
       }
+      asort($options['user']);
     }
     return $options;
   }

@@ -7,20 +7,23 @@ Documentation:  https://drupal.org/node/1840310
 Demo:           http://dev-radix.gotpantheon.com
 Issue Queue:    http://drupal.org/project/issues/radix
 
-Maintainer(s):  Arshad Chummun (http://arshad.github.io)
+# Maintainers
+
+* Arshad Chummun (http://arshad.github.io)
+* Capi Etheriel (http://barraponto.blog.br)
 
 # Subtheming Guide
 
   1. Install the required gems:
-
-      sudo gem install compass_radix -v 2
-
+      
+      sudo gem install compass_radix
+    
     This should install all required gems for Radix.
 
   2. Download the latest Radix and place it in your themes folder.
-
+  
   3. Using drush run the following command to create a subtheme.
-
+  
       drush radix "SUBTHEME_NAME"
 
     You can also specify some options when creating your subtheme.

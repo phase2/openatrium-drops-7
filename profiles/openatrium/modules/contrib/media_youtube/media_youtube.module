@@ -1,17 +1,9 @@
 <?php
 
 /**
- * @file media_youtube/media_youtube.module
- *
- * Media: YouTube provides a stream wrapper and formatters for videos provided
- * by YouTube, available at http://youtube.com/.
- *
- * @TODO:
- * Get the YouTube tab working.
- *  - Search by video name, user name, and channel.
- *  - Default to user's channel videos.
- * Review all code and remove cruft.
- * Assess if M:YT 3.x could be formatters added on to the OEmbed module.
+ * @file
+ * Provides a stream wrapper and formatters appropriate for accessing and
+ * displaying YouTube videos.
  */
 
 /**
@@ -22,18 +14,18 @@
  */
 define('MEDIA_YOUTUBE_REST_API', 'https://gdata.youtube.com/feeds/api/videos');
 
-// Hooks and callbacks for integrating with File Entity module for display.
+// Load all YouTube file formatters.
 require_once dirname(__FILE__) . '/includes/media_youtube.formatters.inc';
 
 /**
  * Implements hook_media_internet_providers().
  */
 function media_youtube_media_internet_providers() {
-  $info['MediaInternetYouTubeHandler'] = array(
-    'title' => t('YouTube'),
+  return array(
+    'MediaInternetYouTubeHandler' => array(
+      'title' => t('YouTube'),
+    ),
   );
-
-  return $info;
 }
 
 /**
@@ -44,7 +36,7 @@ function media_youtube_stream_wrappers() {
     'youtube' => array(
       'name' => t('YouTube videos'),
       'class' => 'MediaYouTubeStreamWrapper',
-      'description' => t('Videos provided by YouTube.'),
+      'description' => t('Remote videos hosted on the YouTube video-sharing website.'),
       'type' => STREAM_WRAPPERS_READ_VISIBLE,
     ),
   );
@@ -78,8 +70,6 @@ function media_youtube_media_parse($embed_code) {
 
 /**
  * Implements hook_file_mimetype_mapping_alter().
- *
- * Register the video/youtube mimetype.
  */
 function media_youtube_file_mimetype_mapping_alter(&$mapping) {
   $mapping['mimetypes'][] = 'video/youtube';

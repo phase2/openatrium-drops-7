@@ -26,10 +26,16 @@
   left: 0;
 }
 
-.group-oa-worktracker-task-info > .fieldset-wrapper > .form-wrapper {
+.group-oa-worktracker-task-info > .fieldset-wrapper > .form-wrapper,
+.group-oa-worktracker-task-info > .fieldset-wrapper > .form-item {
   float: left;
   margin-right: 1em;
   width: 30%;
+}
+
+.group-oa-worktracker-task-info > .fieldset-wrapper > .form-item-oa-worktracker-assigned-to-multiple {
+  /* Same as the margin-bottom that 'select' nodes get. */
+  padding-bottom: 10px;
 }
 
 .group-oa-worktracker-task-info .submitted {
@@ -79,4 +85,3 @@
 .pane-oa-worktracker-user-tasks .views-exposed-form .views-exposed-widget .form-submit {
   margin: 1em 0;
 }
-

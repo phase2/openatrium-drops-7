@@ -12,7 +12,7 @@ include_once 'oa_notifications.features.inc';
 define('SKIP_FLAG', 'oa_skip_notify');
 
 /**
- * Implements hook_ctools_plugin_directory
+ * Implements hook_ctools_plugin_directory().
  */
 function oa_notifications_ctools_plugin_directory($owner, $plugin_type) {
   if ($owner == 'ctools' && $plugin_type == 'content_types') {
@@ -24,7 +24,7 @@ function oa_notifications_ctools_plugin_directory($owner, $plugin_type) {
  * Implements hook_menu().
  */
 function oa_notifications_menu() {
-  // TODO: What are the proper access conditions here
+  // TODO: What are the proper access conditions here.
   $items['js/oa_notifications/details/%node'] = array(
     'title' => 'Open Atrium Notification Details',
     'page callback' => 'oa_notifications_ajax_details',
@@ -34,6 +34,18 @@ function oa_notifications_menu() {
   );
 
   return $items;
+}
+
+/**
+ * Implements hook_contextual_tabs_alter().
+ *
+ * Adds a "Subscribe" or "Unsubscribe" flag.
+ */
+function oa_notifications_contextual_tabs_alter(&$data) {
+  if ($node = menu_get_object()) {
+    drupal_add_js(drupal_get_path('module', 'oa_notifications') . '/oa_notifications.js');
+    array_push($data['links'], array('data' => flag_create_link('subscribe_section_content', $node->nid)));
+  }
 }
 
 /**
@@ -67,15 +79,16 @@ function oa_notifications_theme() {
 /**
  * Return the resolved list of all users to be notified on a piece of content.
  *
- * @param $node
- *    The node to return notifications
- * @return
- *    An array of users keyed by uid
+ * @param object $node
+ *   The node to return notifications.
+ *
+ * @return array
+ *   An array of users keyed by uid.
  */
 function oa_notifications_get_notifications($node) {
   $bucket = &drupal_static(__FUNCTION__);
 
-  // see if notifications should be skipped
+  // See if notifications should be skipped.
   if (oa_notification_skip()) {
     return array();
   }
@@ -111,6 +124,22 @@ function oa_notifications_get_notifications($node) {
       $bucket += $users;
     }
 
+    // Get users who subscribed to entire section.
+    if (isset($node->oa_section_ref[LANGUAGE_NONE][0]['target_id'])) {
+      $users = flag_get_content_flags('node', $node->oa_section_ref[LANGUAGE_NONE][0]['target_id'], 'subscribe_section_content');
+      if (!empty($users) && is_array($users)) {
+        $bucket += $users;
+      }
+    }
+
+    // Get users who subscribed to entire space.
+    if (isset($node->og_group_ref[LANGUAGE_NONE][0]['target_id'])) {
+      $users = flag_get_content_flags('node', $node->og_group_ref[LANGUAGE_NONE][0]['target_id'], 'subscribe_section_content');
+      if (!empty($users) && is_array($users)) {
+        $bucket += $users;
+      }
+    }
+
     // Allow modules to alter users.
     drupal_alter('notifications_users', $bucket, $node);
   }
@@ -123,11 +152,13 @@ function oa_notifications_get_notifications($node) {
  */
 
 /**
- * Get the listing of user with that are in the specified space, or the current
+ * Gets the users for a particular node.
+ *
+ * Get the listing of users that are in the specified space, or the current
  * space if no space is specified that also have access to the provided node.
  *
  * @param int $gid
- *    The space ID
+ *   The space ID.
  */
 function oa_notifications_get_users_for_node($node, $gid = NULL) {
   if (!isset($gid)) {
@@ -143,7 +174,8 @@ function oa_notifications_get_users_for_node($node, $gid = NULL) {
 
   // @TODO: This won't scale. We need users that have access to the given node
   // which is controlled by node_access grants, etc.  Not easily queried.
-  // The move to an autocomplete might make this potential performance problem disappear.
+  // The move to an autocomplete might make this potential performance problem
+  // disappear.
   $users = user_load_multiple(array_keys($results));
   if (isset($node->nid)) {
     foreach ($users as $uid => $user) {
@@ -159,14 +191,16 @@ function oa_notifications_get_users_for_node($node, $gid = NULL) {
  * Return all notifications for given source.  Optionally filtered by type.
  *
  * @param int $source_entity
- *    The loaded source entity
+ *   The loaded source entity.
  * @param string $source_type
- *    The entity type of the source (defaults to 'node')
- * @params string $target_type
- *    An optional parameter that allows to filter the notification based on target type (group, team, user)
- * @return
- *    Returns an associative array of notifications first keyed by target type,
- *    then beneath that keyed by the target_id
+ *   The entity type of the source (defaults to 'node').
+ * @param string $target_type
+ *   An optional parameter that allows to filter the notification based on
+ *   target type (group, team, user).
+ *
+ * @return array
+ *   Returns an associative array of notifications first keyed by target type,
+ *   then beneath that keyed by the target_id.
  */
 function oa_notifications_load_multiple($source_entity, $source_type = 'node', $target_type = NULL) {
   $source_id = current(entity_extract_ids($source_type, $source_entity));
@@ -192,7 +226,10 @@ function oa_notifications_load_multiple($source_entity, $source_type = 'node', $
 }
 
 /**
- * @param $values
+ * Saves notifications.
+ *
+ * @param array $values
+ *   The values to save.
  */
 function oa_notifications_save_notifications($values) {
   if (isset($values['notifications']['skip_notify'])) {
@@ -210,7 +247,7 @@ function oa_notifications_save_notifications($values) {
     if (!isset($values['override']) || $values['override']) {
       foreach (array('group', 'team', 'user') as $type) {
         foreach ($values['notifications'][$type] as $id) {
-          $n = new stdClass;
+          $n = new stdClass();
           $n->source_id = $source_id;
           $n->source_type = $source_type;
           $n->target_id = $id;
@@ -228,11 +265,11 @@ function oa_notifications_save_notifications($values) {
  * Save a collection of Notifications for a particular source item.
  *
  * @param int $source_id
- *    The ID of the source (typically a nid)
+ *   The ID of the source (typically a nid).
  * @param string $source_type
- *    The entity type of the source (defaults to 'node')
+ *   The entity type of the source (defaults to 'node').
  * @param array $notifications
- *    A collection of Notification object for this source
+ *   A collection of Notification object for this source.
  */
 function oa_notifications_save_for_source($source_id, $source_type, $notifications) {
   db_delete('oa_notifications')
@@ -267,17 +304,25 @@ function oa_notifications_node_update($node) {
 }
 
 /**
- * Determine if this is an entity type on which we need to provide notifications
+ * Determine if this is an entity type which we need to provide notifications.
  *
- * @param $node
- * @return
+ * @param object $node
+ *   The node object.
+ *
+ * @return bool
+ *   Returns TRUE if entity type requires providing notifications.
  */
 function oa_notifications_is_notification_type($node) {
   // @TODO: Implement this as configurable. For now, add
   // notifications to any group-content type, and groups themselves.
   $types = oa_core_list_content_types(TRUE);
-  $types[OA_SPACE_TYPE] = TRUE;  // default notifications on spaces
-  unset($types[OA_TEAM_TYPE]); // no notifications on teams
+
+  // Default notifications on spaces.
+  $types[OA_SPACE_TYPE] = TRUE;
+
+  // No notifications on teams.
+  unset($types[OA_TEAM_TYPE]);
+
   return (array_key_exists($node->type, $types));
 }
 
@@ -285,9 +330,6 @@ function oa_notifications_is_notification_type($node) {
  * Implements hook_node_delete().
  *
  * Cleanup the notifications for teams and groups as they are removed.
- *
- * @param $node
- *    The Node being deleted
  */
 function oa_notifications_node_delete($node) {
   if ($node->type == OA_TEAM_TYPE) {
@@ -303,12 +345,12 @@ function oa_notifications_node_delete($node) {
 }
 
 /**
- * Delete notifications for a target
+ * Delete notifications for a target.
  *
  * @param int $id
- *    The target id (e.g. node id)
+ *   The target id (e.g. node id).
  * @param string $type
- *    The target type (e.g. 'group', 'team')
+ *   The target type (e.g. 'group', 'team').
  */
 function oa_notifications_delete_for_target($id, $type) {
   db_delete('oa_notifications')
@@ -318,11 +360,7 @@ function oa_notifications_delete_for_target($id, $type) {
 }
 
 /**
- * Callback for AJAX saving of the notification configuration when on a screen with a quick reply.
- *
- * @param $form
- * @param $form_state
- * @return mixed
+ * AJAX callback saves the quick reply notification configuration.
  */
 function oa_notifications_ajax_callback($form, $form_state) {
   oa_notifications_save_notifications($form_state['values']);
@@ -333,10 +371,6 @@ function oa_notifications_ajax_callback($form, $form_state) {
 
 /**
  * Callback for AJAX saving of the skip-notification option.
- *
- * @param $form
- * @param $form_state
- * @return mixed
  */
 function oa_notifications_skip_ajax_callback($form, $form_state) {
   if (isset($form_state['values']['notifications']['skip_notify'])) {
@@ -349,10 +383,6 @@ function oa_notifications_skip_ajax_callback($form, $form_state) {
 
 /**
  * Define the fields that are used for configuring notifications.
- *
- * @param $form
- * @param $form_state
- * @param $node
  */
 function oa_notifications_form_fields(&$form, &$form_state, $node) {
   $nid = isset($node->nid) ? $node->nid : 0;
@@ -362,7 +392,7 @@ function oa_notifications_form_fields(&$form, &$form_state, $node) {
   );
   $form['source_entity'] = array(
     '#type' => 'value',
-    '#value' => $node
+    '#value' => $node,
   );
 
   $default = array(
@@ -392,10 +422,19 @@ function oa_notifications_form_fields(&$form, &$form_state, $node) {
       oa_notifications_get_default_notifications(0, 0, $override);
   }
   else {
+    // Space node, check for parent space in URL for defaults.
+    $parent = 0;
+    $dont_use_space = TRUE;
+
+    if (!empty($_GET[OA_PARENT_SPACE]) && is_numeric($_GET[OA_PARENT_SPACE])) {
+      $parent = $_GET[OA_PARENT_SPACE];
+      $dont_use_space = NULL;
+    }
+
     $override = TRUE;
     $notifications = $nid ?
       oa_notifications_load_multiple($node) :
-      oa_notifications_get_default_notifications();
+      oa_notifications_get_default_notifications(0, $parent, $dont_use_space);
   }
 
   $notifications = array_merge($default, $notifications);
@@ -407,11 +446,23 @@ function oa_notifications_form_fields(&$form, &$form_state, $node) {
     '#prefix' => '<div id="notifications-fields">',
     '#suffix' => '</div>',
   );
+
+  $group_options = array_map(create_function('$group', 'return $group->title;'), $all_groups);
+  if (($node->type == OA_SPACE_TYPE) && (empty($node->nid))) {
+    // do not add space to notification list when creating a new space
+  }
+  else {
+    $space_id = oa_core_get_space_context();
+    if (!empty($space_id) && ($space = node_load($space_id))) {
+      $group_options = array($space->nid => $space->title) + $group_options;
+    }
+  }
+
   $form['notifications']['group'] = array(
     '#type' => 'select',
     '#title' => t('Groups'),
     '#multiple' => TRUE,
-    '#options' => array_map(create_function('$group', 'return $group->title;'), $all_groups),
+    '#options' => $group_options,
     '#default_value' => array_keys($notifications['group']),
     '#disabled' => !$override,
   );
@@ -431,7 +482,7 @@ function oa_notifications_form_fields(&$form, &$form_state, $node) {
     '#type' => 'select',
     '#title' => t('Users'),
     '#multiple' => TRUE,
-    '#options' => array_map(create_function('$user', 'return $user->realname;'), $space_users),
+    '#options' => array_map(create_function('$user', 'return oa_core_realname($user);'), $space_users),
     '#default_value' => array_keys($notifications['user']),
     '#disabled' => !$override,
   );
@@ -453,13 +504,11 @@ function oa_notifications_form_fields_override_ajax($form, &$form_state) {
 
 
 /**
- * @param $form
- * @param $form_state
- * @param $form_id
+ * Implements hook_form_node_form_alter().
  */
 function oa_notifications_form_node_form_alter(&$form, &$form_state, $form_id) {
-  // we are on a node/edit/add form.
-  // check content type
+  // We are on a node/edit/add form.
+  // Check content type.
   if (isset($form['#node']) && (oa_notifications_is_notification_type($form['#node']))) {
     $form['oa_notifications'] = array(
       '#type' => 'fieldset',
@@ -476,8 +525,10 @@ function oa_notifications_form_node_form_alter(&$form, &$form_state, $form_id) {
 /**
  * Gets a piece of section content's default notifications.
  *
- * @param int $section_id - Node ID of the content's section. Optional.
- * @param int $space_id - Node ID of the content's space. Optional.
+ * @param int $section_id
+ *   Node ID of the content's section. Optional.
+ * @param int $space_id
+ *   Node ID of the content's space. Optional.
  */
 function oa_notifications_get_default_notifications($section_id = 0, $space_id = 0, $override = NULL) {
   $notifications = array();
@@ -513,7 +564,8 @@ function oa_notifications_get_default_notifications($section_id = 0, $space_id =
 /**
  * Return the listing of users to be notified for the provided Node.
  *
- * @param $node
+ * @param object $node
+ *   The node object.
  */
 function oa_notifications_ajax_details($node) {
   $bucket = oa_notifications_get_notifications($node);
@@ -522,7 +574,7 @@ function oa_notifications_ajax_details($node) {
   foreach ($bucket as $uid => $user) {
     if (node_access('view', $node, $user)) {
       $render[$uid] = array(
-        'name' => $user->realname,
+        'name' => oa_core_realname($user),
         'mail' => $user->mail,
       );
     }
@@ -534,10 +586,13 @@ function oa_notifications_ajax_details($node) {
 /**
  * Returns whether or a node is overriding default notifications or not.
  *
- * @param string  $entity_type - Entity type to check
- * @param int     $nid - Entity ID to check.
+ * @param string $entity_type
+ *   Entity type to check
+ * @param int $entity_id
+ *   Entity ID to check.
  *
- * @return int - Whether or not it's overriding. Default is not overriding.
+ * @return int
+ *   Whether or not it's overriding. Default is not overriding.
  */
 function oa_notifications_is_overriding($entity_type, $entity_id) {
   $override = db_select('oa_notifications_override', 'oa_no')
@@ -552,9 +607,12 @@ function oa_notifications_is_overriding($entity_type, $entity_id) {
 /**
  * Saves an entity's override settings.
  *
- * @param string  $entity_type
- * @param int     $entity_id
- * @param mixed   $override - Whether or not they're overriding. Bool or int.
+ * @param string $entity_type
+ *   The entity type.
+ * @param int $entity_id
+ *   The entity id.
+ * @param mixed $override
+ *   Whether or not they're overriding. Bool or int.
  */
 function oa_notifications_save_override($entity_type, $entity_id, $override) {
   db_merge('oa_notifications_override')
@@ -610,7 +668,6 @@ function oa_notifications_flag_default_flags() {
   return $flags;
 }
 
-
 /**
  * Implements hook_preprocess_flag().
  */
@@ -626,7 +683,7 @@ function oa_notifications_preprocess_flag(&$vars) {
 }
 
 /**
- * Reset any notification flag saved in session
+ * Reset any notification flag saved in session.
  */
 function oa_notifications_reset() {
   if (isset($_SESSION[SKIP_FLAG])) {
@@ -635,10 +692,10 @@ function oa_notifications_reset() {
 }
 
 /**
- * Return whether notification should be skipped
+ * Return whether notification should be skipped.
  */
 function oa_notification_skip() {
-  // see if session is overriding the notification option
+  // See if session is overriding the notification option.
   if (isset($_SESSION[SKIP_FLAG])) {
     return $_SESSION[SKIP_FLAG];
   }

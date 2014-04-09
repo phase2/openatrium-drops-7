@@ -3,7 +3,7 @@ distribution_name = Open Atrium 2
 description = A team collaboration platform
 core = 7.x
 exclusive = TRUE
-version = "7.x-2.15"
+version = "7.x-2.16"
 
 base[] = panopoly
 
@@ -54,6 +54,7 @@ dependencies[] = views_ui
 ;
 ; Open Atrium required modules
 ;
+dependencies[] = advagg
 dependencies[] = entity
 dependencies[] = panelizer
 dependencies[] = libraries
@@ -71,6 +72,7 @@ dependencies[] = panels_mini
 dependencies[] = job_scheduler
 dependencies[] = feeds
 dependencies[] = bootstrap_tour
+dependencies[] = conditional_styles
 
 ; Organic Groups
 dependencies[] = og
@@ -142,9 +144,9 @@ dependencies[] = oa_archive
 dependencies[] = panels_customerror
 dependencies[] = apps
 
-; Information added by Drupal.org packaging script on 2014-02-26
-version = "7.x-2.15"
+; Information added by Drupal.org packaging script on 2014-04-09
+version = "7.x-2.16"
 core = "7.x"
 project = "openatrium"
-datestamp = "1393449045"
+datestamp = "1397050245"
 

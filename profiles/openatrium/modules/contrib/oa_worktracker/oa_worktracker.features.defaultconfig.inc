@@ -61,5 +61,16 @@ function oa_worktracker_defaultconfig_user_default_permissions() {
     'module' => 'comment',
   );
 
+  // Exported permission: 'view comment alterations in oa_worktracker_task'.
+  $permissions['view comment alterations in oa_worktracker_task'] = array(
+    'name' => 'view comment alterations in oa_worktracker_task',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'anonymous user' => 'anonymous user',
+      'authenticated user' => 'authenticated user',
+    ),
+    'module' => 'comment_alter',
+  );
+
   return $permissions;
 }

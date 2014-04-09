@@ -6,9 +6,9 @@ core = 7.x
 dependencies[] = htmlmail
 dependencies[] = oa_messages
 
-; Information added by Drupal.org packaging script on 2014-02-26
-version = "7.x-2.15"
+; Information added by Drupal.org packaging script on 2014-04-08
+version = "7.x-2.16"
 core = "7.x"
 project = "oa_core"
-datestamp = "1393428820"
+datestamp = "1396991656"
 

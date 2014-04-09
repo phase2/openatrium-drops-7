@@ -42,5 +42,13 @@
     <h5>
       <?php print $title; ?>
     </h5>
+    <?php
+      if (!empty($row->history_timestamp_new)) {
+        print theme('mark', array('type' => MARK_NEW));
+      }
+      elseif (!empty($timestamp_new) || !empty($timestamp_updated)) {
+        print theme('mark', array('type' => MARK_UPDATED));
+      }
+    ?>
   </div>
 </div>

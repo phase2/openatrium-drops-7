@@ -34,6 +34,11 @@ class DateiCalFeedsParser extends FeedsParser {
       throw new DateIcalException(t('Parsing the data from %url failed. Please ensure that this URL leads to a valid iCal feed.', array('%url' => $url)));
     }
     
+    // Total hack to get around iCalcreator's mistreatment of UID "0".
+    if (empty($calendar->components[0]->uid) || empty($calendar->components[0]->uid['value'])) {
+      $calendar->components[0]->uid = array('value' => 'zero', 'params' => NULL);
+    }
+    
     // Allow modules to alter the vcalendar object before we interpret it.
     $context = array(
       'source' => $source,

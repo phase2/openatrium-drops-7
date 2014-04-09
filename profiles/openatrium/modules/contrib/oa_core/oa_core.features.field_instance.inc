@@ -488,7 +488,7 @@ function oa_core_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'field_oa_space_type',
-    'label' => 'Space Type',
+    'label' => 'Space Blueprint',
     'options_limit' => 0,
     'options_limit_empty_behaviour' => 0,
     'options_limit_fields' => array(
@@ -743,7 +743,7 @@ function oa_core_field_default_field_instances() {
   t('Provide a description of this group');
   t('Select to set the visibility of this group to the entire site.');
   t('Space Layout');
-  t('Space Type');
+  t('Space Blueprint');
   t('The Image associated with the Space');
   t('This description of the Space will appear on the Space Page.');
 

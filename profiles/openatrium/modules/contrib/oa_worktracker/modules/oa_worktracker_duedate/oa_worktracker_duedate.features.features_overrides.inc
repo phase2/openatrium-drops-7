@@ -12,7 +12,7 @@ function oa_worktracker_duedate_features_override_default_overrides() {
   $overrides = array();
 
   // Exported overrides for: field_group
-  $overrides["field_group.group_oa_worktracker_task_info|comment|comment_node_oa_worktracker_task|form.data|children|5"] = 'comment_alter_field_oa_worktracker_duedate';
+  $overrides["field_group.group_oa_worktracker_task_info|comment|comment_node_oa_worktracker_task|form.data|children|5"] = 'field_oa_worktracker_duedate';
   $overrides["field_group.group_oa_worktracker_task_info|node|oa_worktracker_task|default.data|children|5"] = 'field_oa_worktracker_duedate';
   $overrides["field_group.group_oa_worktracker_task_info|node|oa_worktracker_task|form.data|children|5"] = 'field_oa_worktracker_duedate';
 
@@ -20,7 +20,7 @@ function oa_worktracker_duedate_features_override_default_overrides() {
   $overrides["panelizer_defaults.node:oa_section:oa_section_worktracker.display|content|new-3|configuration|fields_override|field_oa_worktracker_duedate"] = 1;
 
   // Exported overrides for: variable
-  $overrides["variable.field_bundle_settings_comment__comment_node_oa_worktracker_task.value|extra_fields|form|comment_alter_field_oa_worktracker_duedate"] = array(
+  $overrides["variable.field_bundle_settings_comment__comment_node_oa_worktracker_task.value|extra_fields|form|field_oa_worktracker_duedate"] = array(
     'weight' => 10,
   );
 

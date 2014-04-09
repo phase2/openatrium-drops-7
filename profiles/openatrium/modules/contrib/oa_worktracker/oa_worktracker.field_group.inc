@@ -30,7 +30,7 @@ function oa_worktracker_field_group_info() {
       'label' => 'Access',
       'instance_settings' => array(
         'required_fields' => 1,
-        'classes' => '',
+        'classes' => 'group-oa-access field-group-fieldset',
         'description' => '',
       ),
       'formatter' => 'collapsed',
@@ -51,18 +51,18 @@ function oa_worktracker_field_group_info() {
     'label' => 'Task information',
     'weight' => '0',
     'children' => array(
-      0 => 'comment_alter_field_oa_worktracker_assigned_to',
-      1 => 'comment_alter_field_oa_worktracker_priority',
-      2 => 'comment_alter_field_oa_worktracker_task_status',
-      3 => 'comment_alter_field_oa_worktracker_task_type',
-      4 => 'comment_alter_oa_section_ref',
+      0 => 'field_oa_worktracker_assigned_to',
+      1 => 'field_oa_worktracker_priority',
+      2 => 'field_oa_worktracker_task_status',
+      3 => 'field_oa_worktracker_task_type',
+      4 => 'oa_section_ref',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
       'label' => 'Task information',
       'instance_settings' => array(
         'required_fields' => 1,
-        'classes' => 'group-oa-worktracker-task-info',
+        'classes' => 'group-oa-worktracker-task-info field-group-fieldset',
         'description' => '',
       ),
       'formatter' => 'open',
@@ -94,7 +94,7 @@ function oa_worktracker_field_group_info() {
     'format_settings' => array(
       'label' => 'Task information',
       'instance_settings' => array(
-        'classes' => 'group-oa-worktracker-task-info group-oa-worktracker-task-info-display',
+        'classes' => 'group-oa-worktracker-task-info group-oa-worktracker-task-info-display field-group-fieldset',
         'description' => '',
       ),
       'formatter' => 'open',
@@ -120,13 +120,14 @@ function oa_worktracker_field_group_info() {
       2 => 'field_oa_worktracker_task_status',
       3 => 'field_oa_worktracker_task_type',
       4 => 'oa_section_ref',
+      5 => 'oa_worktracker_assigned_to_multiple',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
       'label' => 'Task information',
       'instance_settings' => array(
         'required_fields' => 1,
-        'classes' => 'group-oa-worktracker-task-info',
+        'classes' => 'group-oa-worktracker-task-info field-group-fieldset',
         'description' => '',
       ),
       'formatter' => 'open',

@@ -52,7 +52,9 @@ features[node][] = oa_discussion_post
 features[og_features_permission][] = node:oa_group:add attachment to oa_discussion_post
 features[og_features_permission][] = node:oa_group:create oa_discussion_post content
 features[og_features_permission][] = node:oa_group:write oa_discussion_reply to discussion post
+features[og_features_permission][] = node:oa_space:add attachment to oa_discussion_post
 features[og_features_permission][] = node:oa_space:create oa_discussion_post content
+features[og_features_permission][] = node:oa_space:write oa_discussion_reply to discussion post
 features[page_manager_handlers][] = node_edit_panel_context_5
 features[panelizer_defaults][] = node:oa_discussion_post:default
 features[panelizer_defaults][] = node:oa_section:oa_section_discussion
@@ -80,11 +82,11 @@ files[] = views/views_handler_relationship_oa_parent_id.inc
 files[] = views/views_handler_field_oa_last_date.inc
 files[] = views/views_handler_field_oa_new_post.inc
 files[] = views/views_handler_field_oa_updated_post.inc
-project path = sites/all/modules/contrib
+project path = profiles/openatrium/modules/contrib
 
-; Information added by Drupal.org packaging script on 2014-02-25
-version = "7.x-2.14"
+; Information added by Drupal.org packaging script on 2014-04-08
+version = "7.x-2.16"
 core = "7.x"
 project = "oa_discussion"
-datestamp = "1393363411"
+datestamp = "1396968555"
 

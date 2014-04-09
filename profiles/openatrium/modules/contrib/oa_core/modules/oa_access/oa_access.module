@@ -431,10 +431,10 @@ function oa_access_set_group_permissions($group_permissions) {
       foreach ($permissions as $name) {
         db_insert('oa_access')
           ->fields(array(
-                'nid' => $nid,
-                'permission' => $name,
-                'module' => $module,
-                ))
+            'nid' => $nid,
+            'permission' => $name,
+            'module' => $module,
+            ))
           ->execute();
       }
 
@@ -520,6 +520,11 @@ function oa_access($space, $permission, $account = NULL) {
 
   if (!isset($cache[$space_nid][$account->uid])) {
     $groups = oa_access_user_groups($account, $space_nid);
+    // If we have Team permissions, then we don't take the 'all group' into
+    // account - it's overridden by whatever the Team permissions are.
+    if ($space_nid != 0) {
+      unset($groups[0]);
+    }
     $perms = oa_access_get_group_permissions_combined(array_keys($groups));
     $cache[$space_nid][$account->uid] = $perms;
   }

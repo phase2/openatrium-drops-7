@@ -54,10 +54,9 @@ features[variable][] = search_api_facets_search_ids
 features[views_view][] = panopoly_database_search
 features[views_view][] = panopoly_search
 
-
-; Information added by drush on 2014-02-26
-version = "7.x-1.1+1-dev"
+; Information added by Drupal.org packaging script on 2014-03-08
+version = "7.x-1.2"
 core = "7.x"
 project = "panopoly_search"
-datestamp = "1393449049"
+datestamp = "1394300328"
 

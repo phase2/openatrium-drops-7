@@ -38,7 +38,7 @@ function og_vocab_schema() {
         'default'     => 0,
       ),
     ),
-    'primary key' => array('vid'),
+    'primary key' => array('vid', 'gid', 'group_type'),
     'indexes' => array(
       'id' => array('id'),
     ),
@@ -256,4 +256,12 @@ function og_vocab_update_7101() {
  */
 function og_vocab_update_7102() {
   variable_del('og_vocab_use_queue');
+}
+
+/**
+ * Replace the primary key with a compound key.
+ */
+function og_vocab_update_7103() {
+  db_drop_primary_key('og_vocab_relation');
+  db_add_primary_key('og_vocab_relation', array('vid', 'gid', 'group_type'));
 }

@@ -10,7 +10,7 @@
 function oa_core_taxonomy_default_vocabularies() {
   return array(
     'space_type' => array(
-      'name' => 'Space Type',
+      'name' => 'Space Blueprint',
       'machine_name' => 'space_type',
       'description' => '',
       'hierarchy' => 0,

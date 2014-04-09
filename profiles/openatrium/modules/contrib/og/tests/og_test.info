@@ -5,9 +5,9 @@ dependencies[] = og
 hidden = TRUE
 
 
-; Information added by drush on 2014-02-26
+; Information added by drush on 2014-04-09
 version = "7.x-2.4+2-dev"
 core = "7.x"
 project = "og"
-datestamp = "1393449070"
+datestamp = "1397050266"
 

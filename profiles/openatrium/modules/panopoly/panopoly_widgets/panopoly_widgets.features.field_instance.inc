@@ -175,6 +175,7 @@ function panopoly_widgets_field_default_field_instances() {
           'iframe_width' => 600,
           'include_link' => 0,
           'include_map' => 1,
+          'include_static_map' => 0,
           'include_text' => 0,
           'information_bubble' => 0,
           'langcode' => 'en',

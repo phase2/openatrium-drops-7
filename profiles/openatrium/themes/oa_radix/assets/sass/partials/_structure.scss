@@ -16,7 +16,7 @@
 
 // Tabs
 // --------------------------------------------------
-ul.tabs > li > a, 
+ul.tabs > li > a,
 ul.action-links > li > a {
   background: none;
   border: 1px solid transparent;
@@ -88,7 +88,7 @@ div.tabs.main-tabs {
     }
   }
   .accordion-heading .accordion-toggle {
-    padding: 3px 5px;
+    padding: 0;
     &:hover {
       background-color: #E0EEFF;
     }
@@ -126,6 +126,8 @@ div.tabs.main-tabs {
   padding: 6px 5px 0 5px;
   &.oa-description {
     line-height: 20px;
+    overflow: hidden;
+    padding: 0;
   }
 }
 .oa-list-category {

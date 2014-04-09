@@ -51,7 +51,7 @@ function oa_subspaces_form_node_form_alter(&$form, $form_state, $form_id) {
     $parent_default['#description'] = t('Inherit membership from the selected parents.');
     $type = $form['#node']->type;
     $gid = oa_core_get_space_context();
-    $admin_access = og_user_access('node', $gid, "create $type content") || user_access('administer group');
+    $admin_access = user_access('administer group') || ($gid == 0 ? node_access('create', $type) : og_user_access('node', $gid, "create $type content"));
     if (empty($form['#node']->nid)) {
       // If they are being granted create permission based on group permission
       // restrict the parent field to current group so don't have to deal with
@@ -292,8 +292,8 @@ function oa_subspaces_views_query_alter(&$view, &$query) {
     $settings = _oa_subspaces_find_view_settings($view);
     if ($settings['og_subspaces_view_all'] && ($children = oa_subspaces_get_children_groups('node', $view->exposed_input['og_group_ref_target_id']))) {
       foreach ($query->where[1]['conditions'] as $key => $condition) {
-        // @todo - can we calculate this?
-        if ($condition['field'] == 'og_membership.gid' || $condition['field'] == 'node_field_data_field_oa_node_ref__og_membership.gid') {
+        // If the field is 'og_membership.gid' or an alias for the same column.
+        if ($condition['field'] === 'og_membership.gid' || substr($condition['field'], -19) === '__og_membership.gid') {
           $query->where[1]['conditions'][$key]['value'] = array_merge($query->where[1]['conditions'][$key]['value'], $children);
           break;
         }

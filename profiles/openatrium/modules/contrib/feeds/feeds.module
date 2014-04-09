@@ -43,6 +43,33 @@ function feeds_hook_info() {
 }
 
 /**
+ * Implements hook_init().
+ */
+function feeds_init() {
+
+  // We need to get and cache the entity_info to work with the CTools plugins.
+  feeds_get_cached_entity_info(entity_get_info());
+}
+
+/**
+ * Create a static cache of the entity info so that the CTools plugins
+ * works when a module is installed.
+ *
+ * @param null $set_cache
+ *   The entity information.
+ *
+ * @return array
+ *   The entity information.
+ */
+function feeds_get_cached_entity_info($set_cache = NULL) {
+  static $cached_entity_info = NULL;
+  if ($set_cache) {
+    $cached_entity_info = $set_cache;
+  }
+  return $cached_entity_info;
+}
+
+/**
  * Implements hook_cron().
  */
 function feeds_cron() {

@@ -1,0 +1,16 @@
+Panopoly Users 7.x-1.2, 2014-13-08
+----------------------------
+- Add CHANGELOG.txt
+- Escape HTML entities in Panopoly Users settings help.
+- Reduce the minimum user profile picture dimensions to 80x80 (to match our thumbnail size).
+- Provide feature module updates for ctools / panels upgrade.
+- Error upgrading from 1.0-rc5 or lower: SQLSTATE[42S02]: Base table or view not found: Table 'cache_panels' doesn't exist.
+
+Panopoly Users 7.x-1.1, 2014-01-13
+----------------------------
+- Panopoly_users_update_7001 will be skipped due to missing dependency on fieldable_panel_panes_update_7107.
+- Upgrade from 1.0-rc3 or 1.0-rc2 fails: Table 'cache_entity_fieldable_panels_pane' doesn't exist.
+- Upgrade from 1.0-rc3 or 1.0-rc2 fails: Table 'pathauto_state' doesn't exist.
+- Change 'user_picture' support to save field_user_picture value to {user}.picture.
+- Update all features.
+- Fixed bugs in should set 'user_picture' to work with themes that customize 'user-picture.tpl.php'.

@@ -131,21 +131,6 @@
   position: relative;
 }
 
-/* Format form */
-
-#media-format-form {
-  margin: 20px;
-}
-
-#media-format-form .media-item {
-  float: left;
-  margin-right: 10px;
-}
-
-#media-format-form .form-item-format label {
-  display: inline;
-}
-
 /* File field */
 
 .media-widget .preview {
@@ -172,18 +157,4 @@
 
 .media-widget .preview .media-item .label-wrapper label:hover {
   cursor: pointer;
-}
-
-/* Plupload */
-
-body.page-media-format-form #media-browser-page .plupload_start {
-  display: none;
-}
-
-/* Multiedit */
-
-.media-multiedit-form .media-edit-form {
-  border-bottom: 1px solid #AAAAAA;
-  margin-bottom: 1em;
-  margin-top: 1.5em;
 }

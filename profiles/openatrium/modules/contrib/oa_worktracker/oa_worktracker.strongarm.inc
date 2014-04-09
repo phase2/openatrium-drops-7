@@ -78,33 +78,21 @@ function oa_worktracker_strongarm() {
     'extra_fields' => array(
       'form' => array(
         'field_oa_worktracker_assigned_to' => array(
-          'weight' => '2',
-        ),
-        'field_oa_worktracker_task_status' => array(
-          'weight' => '3',
-        ),
-        'field_oa_worktracker_priority' => array(
-          'weight' => '4',
-        ),
-        'field_oa_worktracker_task_type' => array(
-          'weight' => '5',
-        ),
-        'comment_alter_field_oa_worktracker_assigned_to' => array(
           'weight' => '6',
         ),
-        'comment_alter_field_oa_worktracker_priority' => array(
-          'weight' => '8',
-        ),
-        'comment_alter_field_oa_worktracker_task_status' => array(
+        'field_oa_worktracker_task_status' => array(
           'weight' => '7',
         ),
-        'comment_alter_field_oa_worktracker_task_type' => array(
+        'field_oa_worktracker_priority' => array(
+          'weight' => '8',
+        ),
+        'field_oa_worktracker_task_type' => array(
           'weight' => '9',
         ),
-        'comment_alter_oa_section_ref' => array(
+        'oa_section_ref' => array(
           'weight' => '5',
         ),
-        'comment_alter_field_oa_media' => array(
+        'field_oa_media' => array(
           'weight' => '2',
         ),
       ),
@@ -334,11 +322,14 @@ function oa_worktracker_strongarm() {
         'path' => array(
           'weight' => '1',
         ),
+        'oa_worktracker_assigned_to_multiple' => array(
+          'weight' => '8',
+        ),
       ),
       'display' => array(
         'oa_worktracker_submitted' => array(
           'default' => array(
-            'weight' => '12',
+            'weight' => '14',
             'visible' => TRUE,
           ),
         ),

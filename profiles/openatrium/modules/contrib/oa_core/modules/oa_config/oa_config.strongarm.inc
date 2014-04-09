@@ -13,6 +13,27 @@ function oa_config_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'advagg_core_groups';
+  $strongarm->value = 0;
+  $export['advagg_core_groups'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'advagg_ie_css_selector_limiter';
+  $strongarm->value = 1;
+  $export['advagg_ie_css_selector_limiter'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'advagg_ie_css_selector_limiter_value';
+  $strongarm->value = '4095';
+  $export['advagg_ie_css_selector_limiter_value'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'chosen_jquery_selector';
   $strongarm->value = 'select[multiple="multiple"]';
   $export['chosen_jquery_selector'] = $strongarm;
@@ -73,6 +94,13 @@ function oa_config_strongarm() {
     'url' => '-6',
   );
   $export['og_context_providers_weight_group_context'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'preprocess_css';
+  $strongarm->value = 1;
+  $export['preprocess_css'] = $strongarm;
 
   return $export;
 }

@@ -75,7 +75,7 @@ function oa_users_settings_form_submit($form, &$form_state) {
 function oa_users_build_user_details($user, $image_style = 'oa_small_thumbnail') {
   $details = array();
   $details['user'] = $user;
-  $details['realname'] = empty($user->realname) ? $user->name : $user->realname;
+  $details['realname'] = oa_core_realname($user);
   $details['name'] = $user->name;
   $details['picture'] = oa_users_picture($user, $image_style);
   //Build out links

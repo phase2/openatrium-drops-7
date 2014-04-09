@@ -48,6 +48,9 @@ function oa_access_team_permissions_form($form, &$form_state, $group_type, $gid)
     '#markup' => $message
   );
 
+  // Add the node to the form so that alter functions can access it.
+  $form['#gid'] = $gid;
+
   $groups = oa_teams_get_teams_for_space($gid);
   // Add a magic team to represent the 'All' option.
   $groups[] = (object)array(

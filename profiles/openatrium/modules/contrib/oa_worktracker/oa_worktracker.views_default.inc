@@ -102,8 +102,8 @@ function oa_worktracker_views_default_views() {
   $handler->display->display_options['defaults']['style_plugin'] = FALSE;
   $handler->display->display_options['style_plugin'] = 'table';
   $handler->display->display_options['style_options']['columns'] = array(
-    'timestamp' => 'timestamp',
     'title' => 'title',
+    'timestamp' => 'title',
     'realname_1' => 'realname_1',
     'realname' => 'realname',
     'title_1' => 'title_1',
@@ -115,14 +115,14 @@ function oa_worktracker_views_default_views() {
   );
   $handler->display->display_options['style_options']['default'] = 'last_updated';
   $handler->display->display_options['style_options']['info'] = array(
-    'timestamp' => array(
+    'title' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
       'align' => '',
       'separator' => '',
       'empty_column' => 0,
     ),
-    'title' => array(
-      'sortable' => 1,
-      'default_sort_order' => 'asc',
+    'timestamp' => array(
       'align' => '',
       'separator' => '',
       'empty_column' => 0,
@@ -206,6 +206,15 @@ function oa_worktracker_views_default_views() {
   $handler->display->display_options['relationships']['uid']['label'] = 'Author';
   $handler->display->display_options['relationships']['uid']['required'] = TRUE;
   $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* Field: Content: Title */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['fields']['title']['label'] = 'Task';
+  $handler->display->display_options['fields']['title']['alter']['text'] = '[title] [timestamp]';
+  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+  $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
   /* Field: Content: Has new content */
   $handler->display->display_options['fields']['timestamp']['id'] = 'timestamp';
   $handler->display->display_options['fields']['timestamp']['table'] = 'history';
@@ -213,16 +222,6 @@ function oa_worktracker_views_default_views() {
   $handler->display->display_options['fields']['timestamp']['label'] = '';
   $handler->display->display_options['fields']['timestamp']['exclude'] = TRUE;
   $handler->display->display_options['fields']['timestamp']['element_label_colon'] = FALSE;
-  /* Field: Content: Title */
-  $handler->display->display_options['fields']['title']['id'] = 'title';
-  $handler->display->display_options['fields']['title']['table'] = 'node';
-  $handler->display->display_options['fields']['title']['field'] = 'title';
-  $handler->display->display_options['fields']['title']['label'] = 'Task';
-  $handler->display->display_options['fields']['title']['alter']['alter_text'] = TRUE;
-  $handler->display->display_options['fields']['title']['alter']['text'] = '[title] [timestamp]';
-  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
-  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
-  $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
   /* Field: Realname: Real name */
   $handler->display->display_options['fields']['realname_1']['id'] = 'realname_1';
   $handler->display->display_options['fields']['realname_1']['table'] = 'realname';
@@ -353,7 +352,7 @@ function oa_worktracker_views_default_views() {
   $handler->display->display_options['filters']['realname_1']['expose']['operator_id'] = 'realname_1_op';
   $handler->display->display_options['filters']['realname_1']['expose']['label'] = 'Created by';
   $handler->display->display_options['filters']['realname_1']['expose']['operator'] = 'realname_1_op';
-  $handler->display->display_options['filters']['realname_1']['expose']['identifier'] = 'created';
+  $handler->display->display_options['filters']['realname_1']['expose']['identifier'] = 'realname_1';
   $handler->display->display_options['filters']['realname_1']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
@@ -377,7 +376,7 @@ function oa_worktracker_views_default_views() {
   $handler->display->display_options['filters']['realname']['expose']['operator_id'] = 'realname_op';
   $handler->display->display_options['filters']['realname']['expose']['label'] = 'Assigned to';
   $handler->display->display_options['filters']['realname']['expose']['operator'] = 'realname_op';
-  $handler->display->display_options['filters']['realname']['expose']['identifier'] = 'assigned';
+  $handler->display->display_options['filters']['realname']['expose']['identifier'] = 'realname';
   $handler->display->display_options['filters']['realname']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
@@ -503,7 +502,7 @@ function oa_worktracker_views_default_views() {
   $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
   $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
   $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
-  /* Field: Content: Body */
+  /* Field: Content: Description */
   $handler->display->display_options['fields']['body']['id'] = 'body';
   $handler->display->display_options['fields']['body']['table'] = 'field_data_body';
   $handler->display->display_options['fields']['body']['field'] = 'body';
@@ -624,8 +623,8 @@ function oa_worktracker_views_default_views() {
   $handler->display->display_options['defaults']['style_plugin'] = FALSE;
   $handler->display->display_options['style_plugin'] = 'table';
   $handler->display->display_options['style_options']['columns'] = array(
-    'timestamp' => 'timestamp',
     'title' => 'title',
+    'timestamp' => 'title',
     'realname_1' => 'realname_1',
     'realname' => 'realname',
     'title_1' => 'title_1',
@@ -637,14 +636,14 @@ function oa_worktracker_views_default_views() {
   );
   $handler->display->display_options['style_options']['default'] = 'last_updated';
   $handler->display->display_options['style_options']['info'] = array(
-    'timestamp' => array(
+    'title' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
       'align' => '',
       'separator' => '',
       'empty_column' => 0,
     ),
-    'title' => array(
-      'sortable' => 1,
-      'default_sort_order' => 'asc',
+    'timestamp' => array(
       'align' => '',
       'separator' => '',
       'empty_column' => 0,
@@ -728,6 +727,15 @@ function oa_worktracker_views_default_views() {
   $handler->display->display_options['relationships']['uid']['label'] = 'Author';
   $handler->display->display_options['relationships']['uid']['required'] = TRUE;
   $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* Field: Content: Title */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  $handler->display->display_options['fields']['title']['label'] = 'Task';
+  $handler->display->display_options['fields']['title']['alter']['text'] = '[title] [timestamp]';
+  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+  $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
   /* Field: Content: Has new content */
   $handler->display->display_options['fields']['timestamp']['id'] = 'timestamp';
   $handler->display->display_options['fields']['timestamp']['table'] = 'history';
@@ -735,16 +743,6 @@ function oa_worktracker_views_default_views() {
   $handler->display->display_options['fields']['timestamp']['label'] = '';
   $handler->display->display_options['fields']['timestamp']['exclude'] = TRUE;
   $handler->display->display_options['fields']['timestamp']['element_label_colon'] = FALSE;
-  /* Field: Content: Title */
-  $handler->display->display_options['fields']['title']['id'] = 'title';
-  $handler->display->display_options['fields']['title']['table'] = 'node';
-  $handler->display->display_options['fields']['title']['field'] = 'title';
-  $handler->display->display_options['fields']['title']['label'] = 'Task';
-  $handler->display->display_options['fields']['title']['alter']['alter_text'] = TRUE;
-  $handler->display->display_options['fields']['title']['alter']['text'] = '[title] [timestamp]';
-  $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
-  $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
-  $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
   /* Field: Realname: Real name */
   $handler->display->display_options['fields']['realname_1']['id'] = 'realname_1';
   $handler->display->display_options['fields']['realname_1']['table'] = 'realname';

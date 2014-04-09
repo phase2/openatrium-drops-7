@@ -255,17 +255,17 @@ body.page-node-add #main .burr-flipped-sidebar-inner {
     margin: 0;
   }
   .input-append {
-    box-sizing: border-box;
+    @include box-sizing("border-box");
   }
   .search-text {
     height: 32px;
     width: 80%;
-    box-sizing: border-box;
+    @include box-sizing("border-box");
   }
   .submit {
     padding: 5px 0;
     width: 20%;
-    box-sizing: border-box;
+    @include box-sizing("border-box");
   }
   .options {
     margin: 10px 0 0;

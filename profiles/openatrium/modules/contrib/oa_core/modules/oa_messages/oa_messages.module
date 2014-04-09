@@ -170,12 +170,8 @@ function oa_messages_determine_user_notifiers($user, $entity, $message, $notifie
       }
     }
     else {
-      foreach ($notifiers as $notifier) {
-        // If unset, use default.
-        if ((!isset($settings[$space_id][$message->type][$notifier['id']]) || $settings[$space_id][$message->type][$notifier['id']]) &&
-          !empty($notifier['id'])) {
-          $allowed_notifiers[] = $notifier['id'];
-        }
+      if (isset($settings[$space_id]['messages'][$message->type])) {
+        $allowed_notifiers = $settings[$space_id]['methods'];
       }
     }
   }
@@ -211,9 +207,33 @@ function oa_messages_entity_insert($entity, $type) {
  * Implements hook_entity_update().
  */
 function oa_messages_entity_update($entity, $type) {
-  $types = oa_core_list_content_types(TRUE);
-  if ($type == 'node' && array_key_exists($entity->type, $types)) {
-    $message = oa_messages_create('oa_update', $entity, $type);
+  $update = TRUE;
+  $update = (isset($entity->title) && $entity->title !== $entity->original->title) ? TRUE : FALSE;
+
+  if (!$update && module_exists('diff')) {
+    module_load_include('inc', 'diff', 'diff.diff');
+
+    $context = array(
+      'entity_type' => $type,
+      'old_entity' => $entity->original,
+      'new_entity' => $entity,
+      'view_mode' => FALSE,
+    );
+
+    $fields = diff_entity_diff($entity->original, $entity, $context);
+    foreach ($fields as $field => $data) {
+      if ($data['#old'] !== $data['#new']) {
+        $update = TRUE;
+        break;
+      }
+    }
+  }
+
+  if ($update) {
+    $types = oa_core_list_content_types(TRUE);
+    if ($type == 'node' && array_key_exists($entity->type, $types)) {
+      $message = oa_messages_create('oa_update', $entity, $type);
+    }
   }
 }
 
@@ -248,7 +268,7 @@ function oa_messages_comment_insert($comment) {
 function oa_messages_og_membership_prepare($og_membership, $action, $add_type = TRUE) {
   $group = node_load($og_membership->gid);
   $user = user_load($og_membership->etid);
-  $realname = !empty($user->realname) ? $user->realname :$user->name;
+  $realname = oa_core_realname($user);
   $text = l($realname, '/user/' . $user->uid) . ' ' . $action;
   if ($add_type && isset($group->type)) {
     $info = entity_get_info('node');
@@ -302,7 +322,7 @@ function oa_messages_oa_messages_create_alter(&$wrapper, $context) {
       if (isset($wrapper->field_deleted_title)) {
         $wrapper->field_deleted_title = $entity_wrapper->title->value();
       }
-      if (isset($wrapper->field_deleted_summary) && field_info_instance($context['entity_type'], $context['entity'], 'body')) {
+      if (isset($wrapper->field_deleted_summary) && field_info_instance($context['entity_type'], 'body', $context['entity']->type)) {
         $body_value = field_view_field($context['entity_type'], $context['entity'], 'body', array(
             'label' => 'hidden',
             'type' => 'text_summary_or_trimmed',
@@ -427,4 +447,22 @@ function oa_messages_preprocess_htmlmail(&$vars) {
   $vars['message'] = !empty($vars['params']['message_entity']) ? $vars['params']['message_entity'] : array();
   $vars['to_user'] = !empty($vars['message']) ? $vars['message']->user : FALSE;
   $vars['to_user_details'] = !empty($vars['to_user']) ? oa_users_build_user_details($vars['to_user']) : array();
+}
+
+/**
+ * Implements hook_field_default_field_instances_alter().
+ */
+function oa_messages_field_default_field_instances_alter(&$data) {
+  if (!module_exists('message_digest')) {
+    $messages = entity_get_info('message');
+    foreach ($messages['bundles'] as $bundle_name => $bundle) {
+      $instances = field_info_instances('message', $bundle_name);
+      foreach ($instances as $instance_name => $instance) {
+        if (isset($data['message-' . $bundle_name . '-' . $instance_name])) {
+          unset($data['message-' . $bundle_name . '-' . $instance_name]['display']['message_notify_daily_digest']);
+          unset($data['message-' . $bundle_name . '-' . $instance_name]['display']['message_notify_weekly_digest']);
+        }
+      }
+    }
+  }
 }

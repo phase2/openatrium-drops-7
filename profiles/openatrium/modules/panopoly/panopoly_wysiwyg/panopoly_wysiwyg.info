@@ -2,7 +2,6 @@ name = Panopoly WYSIWYG
 description = Integrates a WYSIWYG into Drupal.
 core = 7.x
 package = Panopoly
-php = 5.2.4
 project = panopoly_wysiwyg
 dependencies[] = caption_filter
 dependencies[] = ctools
@@ -13,6 +12,7 @@ dependencies[] = linkit
 dependencies[] = media
 dependencies[] = media_internet
 dependencies[] = media_vimeo
+dependencies[] = media_wysiwyg
 dependencies[] = media_youtube
 dependencies[] = strongarm
 dependencies[] = wysiwyg
@@ -26,15 +26,15 @@ features[features_api][] = api:2
 features[filter][] = panopoly_html_text
 features[filter][] = panopoly_wysiwyg_text
 features[linkit_profiles][] = content_editors
-features[variable][] = media__wysiwyg_allowed_types
-features[variable][] = media__wysiwyg_browser_plugins
+features[variable][] = media_wysiwyg_wysiwyg_allowed_types
+features[variable][] = media_wysiwyg_wysiwyg_browser_plugins
 features[wysiwyg][] = panopoly_html_text
 features[wysiwyg][] = panopoly_wysiwyg_text
 
 
-; Information added by drush on 2014-02-26
-version = "7.x-1.1+1-dev"
+; Information added by drush on 2014-04-09
+version = "7.x-1.2+1-dev"
 core = "7.x"
 project = "panopoly_wysiwyg"
-datestamp = "1393449049"
+datestamp = "1397050249"
 

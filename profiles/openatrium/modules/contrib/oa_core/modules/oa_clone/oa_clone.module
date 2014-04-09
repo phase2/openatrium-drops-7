@@ -22,7 +22,7 @@ define('OA_CLONE_CREATE_SPACE_PATH', 'node/add/oa-space/%');
 function oa_clone_menu() {
   $items = array();
   $items['node/%node/oa_clone_create_space_type'] = array(
-    'title' => 'Create Space Type from this Space',
+    'title' => 'Create Blueprint from this Space',
     'page callback' => 'oa_clone_create_space_type_page_callback',
     'page arguments' => array(1),
     'access callback' => 'oa_clone_create_space_type_access_callback',
@@ -33,7 +33,7 @@ function oa_clone_menu() {
 }
 
 /**
- * Access callback: Check if the user can create a Space type from this node.
+ * Access callback: Check if the user can create a Space Blueprint from this node.
  */
 function oa_clone_create_space_type_access_callback($node) {
   $vid = taxonomy_vocabulary_machine_name_load('space_type')->vid;
@@ -41,7 +41,7 @@ function oa_clone_create_space_type_access_callback($node) {
 }
 
 /**
- * Page callback: Redirect user to create a new Space type using a node.
+ * Page callback: Redirect user to create a new Space Blueprint using a node.
  */
 function oa_clone_create_space_type_page_callback($node) {
   drupal_goto('admin/structure/taxonomy/space_type/add', array(
@@ -155,14 +155,14 @@ function oa_clone_node_prepopulate($original_node, $set_title = TRUE) {
 /**
  * Page callback that either returns the normal create page or a clone page.
  *
- * Checks the 'Space type' taxonomy to see if this is a clone type or a normal
- * type and returns either the normal page from 'oa_clone' or the clone page
- * from 'clone'.
+ * Checks the 'Space Blueprint' taxonomy to see if this is a clone type or a
+ * normal type and returns either the normal page from 'oa_clone' or the clone
+ * page from 'clone'.
  *
  * @param string $type
  *   The node content type name (ie. oa_space, oa_section).
  * @param integer $space_tid
- *   The taxonomy term ID of the 'Space type'.
+ *   The taxonomy term ID of the 'Space Blueprint'.
  *
  * @see oa_core_create_space_page_callback()
  * @see oa_clone_node_prepopulate()
@@ -173,6 +173,7 @@ function oa_clone_create_space_page_callback($type, $space_tid) {
     $wrapper = entity_metadata_wrapper('taxonomy_term', $space_type);
     if ($wrapper->field_oa_clone_enabled->value() && ($node = $wrapper->field_oa_clone_space->value())) {
       drupal_set_title(t('Create @name Space', array('@name' => $space_type->name)));
+      $node->oa_clone_bypass_access_check = TRUE;
       return oa_clone_node_prepopulate($node, FALSE);
     }
 
@@ -224,6 +225,12 @@ function oa_clone_clone_access_alter(&$access, $node) {
   // We only affect the access of group content types, but we completely take
   // over the access for those nodes.
   if (og_is_group_content_type('node', $node->type) && clone_is_permitted($node->type)) {
+    // Bypass the access check and simply allow the user to clone this node.
+    if (!empty($node->oa_clone_bypass_access_check)) {
+      $access = TRUE;
+      return;
+    }
+
     // Make sure that this user has permission to view this node and create
     // content of the same type.
     if (!node_access('view', $node) || !node_access('create', $node->type)) {
@@ -263,7 +270,19 @@ function oa_clone_form_taxonomy_form_term_alter(&$form, &$form_state, $form_id) 
  * Implements hook_form_FORM_ID_alter().
  */
 function oa_clone_form_oa_space_node_form_alter(&$form, &$form_state) {
-  $form['field_oa_space_type'][LANGUAGE_NONE]['#description'] = t('Changing the <em>Space type</em> after the Space has already been created, will only affect the default dashboard layout and available types - not content or configuration.');
+  $node = $form['#node'];
+
+  // For usability, let the user know what affect the 'Space Blueprint' field
+  // will and will not have.
+  $form['field_oa_space_type'][LANGUAGE_NONE]['#description'] = t('Changing the <em>Space Blueprint</em> after the Space has already been created, will only affect the default dashboard layout and available types - not content or configuration.');
+
+  // Pass the 'oa_clone_bypass_access_check' on to the node that gets created.
+  if (empty($node->nid)) {
+    $form['oa_clone_bypass_access_check'] = array(
+      '#type' => 'value',
+      '#value' => !empty($node->oa_clone_bypass_access_check) ? '1' : '0',
+    );
+  }
 }
 
 /**
@@ -321,7 +340,17 @@ function oa_clone_prepare($original_node, $space_nid = NULL, $section_nid = NULL
     $original_node->oa_clone_skip = TRUE;
   }
 
-  if ($bypass_access_check || clone_access_cloning($original_node)) {
+  // We mark the node to bypass access check, which will be recognized by
+  // clone_access_cloning() and passed down to other content contained within
+  // this this $node (ie. Section, sub-Spaces, etc).
+  //
+  // NOTE: This won't bypass ALL access checks. It'll only bypass them for
+  // group content (normal 'clone' module access checks will remain) and some
+  // additional hook_clone_access_alter() function can choose to heed it or not
+  // depending on what they want to do.
+  $original_node->oa_clone_bypass_access_check = $bypass_access_check;
+
+  if (clone_access_cloning($original_node)) {
     module_load_include('inc', 'clone', 'clone.pages');
 
     $node = _clone_node_prepare($original_node, FALSE);
@@ -398,15 +427,25 @@ function oa_clone($original_node, $space_nid = NULL, $section_nid = NULL, $bypas
  *
  * @param int $nid
  *   The node ID of the Section.
+ * @param boolean $bypass_access_check
+ *   (Optional) If TRUE, it will bypass normal access checks.
  *
  * @return array
  *   An array of node IDs.
  */
-function oa_clone_get_section_content($nid) {
+function oa_clone_get_section_content($nid, $bypass_access_check = FALSE) {
   $query = new EntityFieldQuery();
   $query
     ->entityCondition('entity_type', 'node')
     ->fieldCondition('oa_section_ref', 'target_id', $nid);
+
+  if ($bypass_access_check) {
+    $query->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');
+  }
+  else {
+    $query->propertyCondition('status', 1);
+  }
+
   $result = $query->execute();
   if (isset($result['node'])) {
     return array_keys($result['node']);
@@ -438,7 +477,7 @@ function oa_clone_get_group_memberships($nid) {
 }
 
 /**
- * Implements hook_entity_insert().
+ * Implements hook_node_insert().
  */
 function oa_clone_node_insert($node) {
   if (in_array($node->type, array('oa_section', 'oa_space', 'oa_group')) && !empty($node->clone_from_original_nid) && empty($node->oa_clone_skip)) {
@@ -473,12 +512,14 @@ function oa_clone_node_insert($node) {
  * Recursively clone a Space while setting up a batch for cloning content.
  */
 function _oa_clone_batch_space(&$batch, $space, $original_space_nid) {
+  $bypass_access_check = !empty($space->oa_clone_bypass_access_check);
+
   // Clone the OG metadata.
   $batch['operations'][] = array('oa_clone_batch_clone_group_metadata', array($space, $original_space_nid));
 
   // Clone all the Sections in this Space.
-  foreach (array_keys(oa_core_space_sections($original_space_nid)) as $original_section_nid) {
-    if ($clone_section = oa_clone($original_section_nid, $space->nid)) {
+  foreach (array_keys(oa_core_space_sections($original_space_nid, 1, $bypass_access_check)) as $original_section_nid) {
+    if ($clone_section = oa_clone($original_section_nid, $space->nid, NULL, $bypass_access_check)) {
       $batch['operations'][] = array('oa_clone_batch_clone_section_content', array($clone_section, $original_section_nid));
     }
   }
@@ -487,7 +528,7 @@ function _oa_clone_batch_space(&$batch, $space, $original_space_nid) {
   $associated_entities = og_subgroups_get_associated_entities('node', $original_space_nid);
   if (!empty($associated_entities['node'])) {
     foreach ($associated_entities['node'] as $original_subspace_nid) {
-      if ($clone_subspace = oa_clone($original_subspace_nid, $space->nid)) {
+      if ($clone_subspace = oa_clone($original_subspace_nid, $space->nid, NULL, $bypass_access_check)) {
         _oa_clone_batch_space($batch, $clone_subspace, $original_subspace_nid);
       }
     }
@@ -508,9 +549,11 @@ function _oa_clone_batch_space(&$batch, $space, $original_space_nid) {
  *   of this batch operation to the next.
  */
 function oa_clone_batch_clone_section_content($node, $original_nid, &$context) {
+  $bypass_access_check = !empty($node->oa_clone_bypass_access_check);
+
   // The first time through, set up all the variables.
   if (empty($context['sandbox']['max'])) {
-    $context['sandbox']['content_ids'] = oa_clone_get_section_content($original_nid);
+    $context['sandbox']['content_ids'] = oa_clone_get_section_content($original_nid, $bypass_access_check);
     $context['sandbox']['max'] = count($context['sandbox']['content_ids']);
     $context['sandbox']['nid'] = $node->nid;
     $context['sandbox']['progress'] = 0;
@@ -529,7 +572,7 @@ function oa_clone_batch_clone_section_content($node, $original_nid, &$context) {
   $original_node->oa_clone_skip = TRUE;
 
   // Clone it, setting to the new Space and Section.
-  $clone = oa_clone($original_node, $node->og_group_ref[LANGUAGE_NONE][0]['target_id'], $node->nid);
+  $clone = oa_clone($original_node, $node->og_group_ref[LANGUAGE_NONE][0]['target_id'], $node->nid, $bypass_access_check);
   // Remeber: $clone can be NULL, if the user doesn't have permission to clone this node!
 
   // Bump the progress indicator.

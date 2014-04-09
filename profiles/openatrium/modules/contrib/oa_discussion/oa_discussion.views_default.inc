@@ -105,7 +105,7 @@ function oa_discussion_views_default_views() {
   $handler->display->display_options['fields']['title']['element_type'] = '0';
   $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['title']['element_default_classes'] = FALSE;
-  /* Field: Content: Body */
+  /* Field: Content: Description */
   $handler->display->display_options['fields']['body_1']['id'] = 'body_1';
   $handler->display->display_options['fields']['body_1']['table'] = 'field_data_body';
   $handler->display->display_options['fields']['body_1']['field'] = 'body';
@@ -121,7 +121,7 @@ function oa_discussion_views_default_views() {
   $handler->display->display_options['fields']['body_1']['settings'] = array(
     'trim_length' => '80',
   );
-  /* Field: Content: Body */
+  /* Field: Content: Description */
   $handler->display->display_options['fields']['body']['id'] = 'body';
   $handler->display->display_options['fields']['body']['table'] = 'field_data_body';
   $handler->display->display_options['fields']['body']['field'] = 'body';
@@ -292,7 +292,7 @@ function oa_discussion_views_default_views() {
     'image_style' => 'oa_small_thumbnail',
     'image_link' => '',
   );
-  /* Field: Content: Body */
+  /* Field: Content: Description */
   $handler->display->display_options['fields']['body']['id'] = 'body';
   $handler->display->display_options['fields']['body']['table'] = 'field_data_body';
   $handler->display->display_options['fields']['body']['field'] = 'body';
@@ -547,6 +547,12 @@ function oa_discussion_views_default_views() {
   $handler->display->display_options['fields']['title']['element_type'] = '0';
   $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['title']['element_default_classes'] = FALSE;
+  /* Field: Content: New Post */
+  $handler->display->display_options['fields']['timestamp_new_1']['id'] = 'timestamp_new_1';
+  $handler->display->display_options['fields']['timestamp_new_1']['table'] = 'history';
+  $handler->display->display_options['fields']['timestamp_new_1']['field'] = 'timestamp_new';
+  $handler->display->display_options['fields']['timestamp_new_1']['label'] = '';
+  $handler->display->display_options['fields']['timestamp_new_1']['element_label_colon'] = FALSE;
   /* Field: Reply Count */
   $handler->display->display_options['fields']['nid_2']['id'] = 'nid_2';
   $handler->display->display_options['fields']['nid_2']['table'] = 'node';
@@ -798,6 +804,12 @@ function oa_discussion_views_default_views() {
   $handler->display->display_options['fields']['title']['element_type'] = '0';
   $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['title']['element_default_classes'] = FALSE;
+  /* Field: Content: New Post */
+  $handler->display->display_options['fields']['timestamp_new_1']['id'] = 'timestamp_new_1';
+  $handler->display->display_options['fields']['timestamp_new_1']['table'] = 'history';
+  $handler->display->display_options['fields']['timestamp_new_1']['field'] = 'timestamp_new';
+  $handler->display->display_options['fields']['timestamp_new_1']['label'] = '';
+  $handler->display->display_options['fields']['timestamp_new_1']['element_label_colon'] = FALSE;
   /* Field: Reply Count */
   $handler->display->display_options['fields']['nid_2']['id'] = 'nid_2';
   $handler->display->display_options['fields']['nid_2']['table'] = 'node';
@@ -1050,6 +1062,12 @@ function oa_discussion_views_default_views() {
   $handler->display->display_options['fields']['title']['element_type'] = '0';
   $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['title']['element_default_classes'] = FALSE;
+  /* Field: Content: New Post */
+  $handler->display->display_options['fields']['timestamp_new_1']['id'] = 'timestamp_new_1';
+  $handler->display->display_options['fields']['timestamp_new_1']['table'] = 'history';
+  $handler->display->display_options['fields']['timestamp_new_1']['field'] = 'timestamp_new';
+  $handler->display->display_options['fields']['timestamp_new_1']['label'] = '';
+  $handler->display->display_options['fields']['timestamp_new_1']['element_label_colon'] = FALSE;
   /* Field: Reply Count */
   $handler->display->display_options['fields']['nid_2']['id'] = 'nid_2';
   $handler->display->display_options['fields']['nid_2']['table'] = 'node';

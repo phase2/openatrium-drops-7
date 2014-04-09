@@ -109,7 +109,6 @@ features[file_display][] = video__default__file_field_media_colorbox
 features[file_display][] = video__default__file_field_media_large_icon
 features[file_display][] = video__default__file_field_oa_media_formatter
 features[file_display][] = video__default__file_image
-features[file_display][] = video__default__media_youtube_image
 features[file_display][] = video__preview__file_field_file_default
 features[file_display][] = video__preview__file_field_file_download_link
 features[file_display][] = video__preview__file_field_file_rendered
@@ -130,7 +129,6 @@ features[file_display][] = video__teaser__file_field_media_colorbox
 features[file_display][] = video__teaser__file_field_media_large_icon
 features[file_display][] = video__teaser__file_field_oa_media_formatter
 features[file_display][] = video__teaser__file_image
-features[file_display][] = video__teaser__media_youtube_image
 features[variable][] = colorbox_caption_trim
 features[variable][] = colorbox_caption_trim_length
 features[variable][] = colorbox_compression_type
@@ -161,9 +159,9 @@ features[variable][] = colorbox_transition_type
 features[variable][] = colorbox_visibility
 features[variable][] = field_bundle_settings_file__document
 
-; Information added by Drupal.org packaging script on 2014-02-25
-version = "7.x-2.14"
+; Information added by Drupal.org packaging script on 2014-04-08
+version = "7.x-2.16"
 core = "7.x"
 project = "oa_media"
-datestamp = "1393364308"
+datestamp = "1396971852"
 

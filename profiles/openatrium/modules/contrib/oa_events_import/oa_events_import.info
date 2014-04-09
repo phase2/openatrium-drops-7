@@ -60,9 +60,9 @@ features[variable][] = panelizer_defaults_node_oa_ical_importer
 features[views_view][] = open_atrium_ical_importers
 features_exclude[dependencies][panopoly_widgets] = panopoly_widgets
 
-; Information added by Drupal.org packaging script on 2014-02-25
-version = "7.x-2.14"
+; Information added by Drupal.org packaging script on 2014-04-08
+version = "7.x-2.16"
 core = "7.x"
 project = "oa_events_import"
-datestamp = "1393363712"
+datestamp = "1396969754"
 

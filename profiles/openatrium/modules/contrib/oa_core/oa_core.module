@@ -11,7 +11,7 @@ include_once 'includes/oa_core.login.inc';
 include_once 'includes/oa_core.theme.inc';
 
 /**
- * Name of default OpenAtrium Space type.
+ * Name of default OpenAtrium Space content type.
  */
 define('OA_SPACE_TYPE', 'oa_space');
 /**
@@ -153,12 +153,12 @@ function oa_core_menu() {
  * Page callback for the 'Create space' page.
  *
  * This a copy of 'page_manager_node_add' but with the title using the
- * 'Space type' name rather than just the content type name.
+ * space_type name rather than just the content type name.
  *
  * @param string $type
  *   The node content type name (ie. oa_space, oa_section).
  * @param integer $space_tid
- *   The taxonomy term ID of the 'Space type'.
+ *   The taxonomy term ID of the space_type or section_type.
  *
  * @see page_manager_node_add
  */
@@ -302,13 +302,13 @@ function oa_core_form_node_form_alter(&$form, &$form_state, $form_id) {
 function oa_core_views_pre_render(&$view) {
   if ($view->name == 'oa_core_space_types') {
     if (count($view->result) == 1) {
-      // If there is only one Space type, then we jump to it automatically.
+      // If there is only one Space Blueprint, then we jump to it automatically.
       $args = $_GET;
       unset($args['q']);
       drupal_goto('node/add/oa-space/' . $view->result[0]->tid, array('query' => $args));
     }
     elseif (user_access('administer taxonomy')) {
-      $view->attachment_before = '<p>' . t('Manage existing <em>Space types</em> or add new ones by <a href="!url">administrating the taxonomy</a>.', array('!url' => url('admin/structure/taxonomy/space_type'))) . '</p>';
+      $view->attachment_before = '<p>' . t('Manage existing <em>Space Blueprints</em> or add new ones by <a href="!url">administrating the taxonomy</a>.', array('!url' => url('admin/structure/taxonomy/space_type'))) . '</p>';
     }
   }
 }
@@ -890,7 +890,7 @@ function oa_core_get_alias($nid) {
     module_load_include('inc', 'pathauto');
     // return what the proper alias for this node will eventually be
     // don't use 'update' yet since the drupal_get_path_alias() will still be cached
-    $path = pathauto_create_alias('node', 'return', $uri['path'], array('node' => $node), $node->type, $langcode);
+    $path = pathauto_create_alias('node', 'return', $uri['path'], array('node' => $node), $node->type, $node->language);
   }
   $cache[$nid] = $path;
   return $path;
@@ -980,10 +980,10 @@ function oa_core_get_allowed_space_types($field) {
 }
 
 /**
- * Gets all the options for 'Space type'.
+ * Gets all the options for space_type or section_type.
  *
  * @param string $vocab_name
- *   (Optional) The name of the vocabulary for the 'Space type'.
+ *   (Optional) The name of the vocabulary (ex. space_type, section_type).
  */
 function oa_core_get_space_type_options($vocab_name = 'space_type') {
   // Load all the terms for this vocabulary.
@@ -1025,7 +1025,7 @@ function _oa_core_hide_comment_settings(&$form) {
 }
 
 /**
- * Alters a node edit form to setup the 'Space type' functionality.
+ * Alters a node edit form to setup the space_type/section_type functionality.
  *
  * @param array &$form
  *   The Form API array that we are altering.
@@ -1068,8 +1068,8 @@ function _oa_core_setup_node_space_type(&$form, $type = 'space_type', $field_nam
  * Implements hook_form_FORM_ID_alter().
  */
 function oa_core_form_oa_space_node_form_alter(&$form, &$form_state, &$form_id) {
-  // If we are on the node add form that is specific to this Space type, we
-  // take the 'Space type' from the URL and hide the field.
+  // If we are on the node add form that is specific to this Space Blueprint, we
+  // take the 'Space Blueprint' from the URL and hide the field.
   if (arg(0) == 'node' && arg(1) == 'add' && arg(2) == 'oa-space' && ($space_tid = arg(3)) && !empty($space_tid)) {
     $form['field_oa_space_type']['und']['#default_value'] = array($space_tid);
     $form['field_oa_space_type']['#access'] = FALSE;
@@ -1099,6 +1099,7 @@ function oa_core_form_oa_group_node_form_alter(&$form, &$form_state, &$form_id) 
 function oa_core_get_space_type_layout_options($bundle) {
   $plugins = panelizer_get_entity_plugins();
   $node_plugin = panelizer_entity_plugin_get_handler($plugins['node']);
+  $options = array();
   foreach ($node_plugin->plugin['view modes'] as $view_mode => $view_mode_info) {
     $view_bundle = $bundle . '.' . $view_mode;
 
@@ -1110,10 +1111,15 @@ function oa_core_get_space_type_layout_options($bundle) {
 
     $panelizers = $node_plugin->get_default_panelizer_objects($view_bundle);
 
-    $options = array();
     foreach ($panelizers as $name => $panelizer) {
       if (empty($panelizer->disabled)) {
         $options[$name] = $panelizer->title ? $panelizer->title : t('Default');
+        if (!empty($panelizer->title)) {
+          $thisarray = explode(':', $name);
+          if (!empty($thisarray[3])) {
+            $options[$name] = ucfirst($thisarray[3]) . ':' . $options[$name];
+          }
+        }
       }
     }
 
@@ -1141,7 +1147,7 @@ function oa_core_get_space_type_layout_options($bundle) {
 }
 
 /**
- * Alters a taxonomy edit form to setup the 'Space type' functionality.
+ * Alters a taxonomy edit form to setup the 'Space Blueprint' functionality.
  *
  * @param string $layout_bundle
  *   The name of the bundle to get the layout options for.

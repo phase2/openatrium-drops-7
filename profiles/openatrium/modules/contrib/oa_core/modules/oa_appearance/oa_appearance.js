@@ -55,16 +55,22 @@
         }
       }
     }
-  }
+  };
 
   $(window).load(function() {
     var $oa_navbar = $('#oa-navbar');
     var $image = $('.oa-banner-overlay-img');
     var $banner = $('.oa-banner');
     if ($banner.length) {
-      $banner.css( 'height', 'auto'); // let the banner resize from now on
-      $banner.addClass('oa-banner-appeared');
-      $banner.removeClass('oa-banner-hidden');
+      $banner.each( function(index) {
+        $(this).css( 'height', 'auto'); // let the banner resize from now on
+        $(this).addClass('oa-banner-appeared');
+        $(this).removeClass('oa-banner-hidden');
+      });
+    }
+    if (($oa_navbar.length) && (typeof(Drupal.displace) == "undefined")) {
+      $height = $oa_navbar.height();
+      $('body').css('padding-top', $height + 'px');
     }
     // this is needed to allow bootstrap tour to display correctly
     $(window).trigger('resize');

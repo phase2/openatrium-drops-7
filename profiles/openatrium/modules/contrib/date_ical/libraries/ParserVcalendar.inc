@@ -69,6 +69,14 @@ class ParserVcalendar {
       $this->timezones[] = $component;
     }
     
+    // This content array is used by date_ical_import_component_alter() and
+    // date_ical_import_parsed_data_alter().
+    $context2 = array(
+      'calendar' => $this->calendar,
+      'source' => $this->source,
+      'fetcher_result' => $this->fetcherResult,
+    );
+    
     // Collect each component, so we can batch them properly in the next loop.
     $raw_components = array();
     $types = array('VEVENT', 'VTODO', 'VJOURNAL', 'VFREEBUSY', 'VALARM');
@@ -76,12 +84,7 @@ class ParserVcalendar {
       while ($vcalendar_component = $this->calendar->getComponent($type)) {
         // Allow modules to alter the vcalendar component before we parse it
         // into a Feeds-compatible data array.
-        $context = array(
-          'calendar' => $this->calendar,
-          'source' => $this->source,
-          'fetcher_result' => $this->fetcherResult,
-        );
-        drupal_alter('date_ical_import_component', $vcalendar_component, $context);
+        drupal_alter('date_ical_import_component', $vcalendar_component, $context2);
         $raw_components[] = $vcalendar_component;
       }
     }
@@ -100,6 +103,10 @@ class ParserVcalendar {
         $handler = $data['date_ical_parse_handler'];
         $parsed_component[$property_key] = $this->$handler($property_key, $raw_component);
       }
+      // Allow modules to alter the final parsed data before we send it to the
+      // Feeds processor.
+      drupal_alter('date_ical_import_post_parse', $parsed_component, $context2);
+      
       $events[] = $parsed_component;
       // The indices of the original $raw_components array are preserved in
       // $batch, so using the $ndx value here lets us communicate our progress

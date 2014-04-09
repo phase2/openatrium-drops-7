@@ -21,7 +21,7 @@ function panopoly_admin_panels_layouts_content_type_render($subtype, $conf, $pan
 
   // Find all the Panels layouts
   $layout_options = array();
-  $panels_page_allowed_layouts = unserialize(variable_get('panels_page_allowed_layouts'));
+  $panels_page_allowed_layouts = unserialize(variable_get('panels_page_allowed_layouts', serialize('')));
   foreach (panels_get_layouts() as $layout_option) {
     if (empty($layout_option['builder']) || $layout_option['builder'] == FALSE) {
 

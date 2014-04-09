@@ -1,0 +1,18 @@
+Panopoly Widgets 7.x-1.2, 2014-13-08
+------------------------------
+- Add CHANGELOG.txt
+- Errors in widget.css.
+- Remove font-family from spotlight.
+
+Panopoly Widgets 7.x-1.1, 2014-01-13
+------------------------------
+- Upgrade from 1.0-rc3 fails: Table 'pathauto_state' doesn't exist (2nd attempt!).
+- Update simple_gmap to version 1.2.
+- Spotlight widget breaks with jquery_update to jQuery UI >= 1.9.
+- Update all features.
+- Add AJAX bug fix patch to 'tablefield'.
+- Use #title_display rather than unsetting #title.
+- Update simple_gmap to version 1.1.
+- Update file_entity and media to version 2.0-alpha3.
+- Spotlight gives an ajax error and title does not ever change.
+- Move file_entity permissions from panopoly_admin to panopoly_widgets.

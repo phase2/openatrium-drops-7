@@ -72,6 +72,7 @@ function oa_radix_preprocess_page(&$vars) {
   $footer = panels_mini_block_view('oa_footer_panel');
   $vars['oa_footer_panel'] = isset($footer) ? $footer['content'] : '';
 
+  ctools_include('content');
   $banner = ctools_content_render('oa_space_banner', '', array(
     'banner_position' => 2
   ));

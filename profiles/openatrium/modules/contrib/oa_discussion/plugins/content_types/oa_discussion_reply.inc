@@ -96,10 +96,17 @@ function oa_discussion_reply_form($form, &$form_state, $node) {
   // Only show attachment form if the user is allowed to add attachments.
   $gid = $node->{OG_AUDIENCE_FIELD}[LANGUAGE_NONE][0]['target_id'];
   if (og_user_access('node', $gid, 'add attachment to' . ' ' . $node->type)) {
-    $field = field_info_field('field_oa_media');
-    $instance = field_info_instance('node', 'field_oa_media', 'oa_discussion_post');
-    $form['oa_reply']['media'] = field_default_form('node', NULL, $field, $instance, $node->language, NULL, $form, $form_state);
-    form_load_include($form_state, 'inc', 'oa_discussion', 'plugins/content_types/oa_discussion_reply'); // For AJAX add more
+    // mimic how the attachment field is rendered in normal node/add forms
+    $field_name = 'field_oa_media';
+    $field = field_info_field($field_name);
+    $instance = field_info_instance('node', $field_name, 'oa_discussion_post');
+    $form_field = field_default_form('node', NULL, $field, $instance, $node->language, NULL, $form, $form_state);
+    if (!empty($form_field[$field_name])) {
+      // need to preserve the array keys for other modules that hook into media
+      // such as media_multiselect
+      $form[$field_name] = $form_field[$field_name];
+      form_load_include($form_state, 'inc', 'oa_discussion', 'plugins/content_types/oa_discussion_reply'); // For AJAX add more
+    }
   }
 
   $form['oa_reply']['submit'] = array(

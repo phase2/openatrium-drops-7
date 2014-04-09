@@ -41,32 +41,32 @@ function oa_events_import_feeds_importer_default() {
         'authorize' => 1,
         'mappings' => array(
           0 => array(
-            'source' => 'summary',
+            'source' => 'SUMMARY',
             'target' => 'title',
             'unique' => FALSE,
           ),
           1 => array(
-            'source' => 'dtstart',
+            'source' => 'DTSTART',
             'target' => 'field_oa_date:start',
             'unique' => FALSE,
           ),
           2 => array(
-            'source' => 'dtend',
+            'source' => 'DTEND',
             'target' => 'field_oa_date:end',
             'unique' => FALSE,
           ),
           3 => array(
-            'source' => 'description',
+            'source' => 'DESCRIPTION',
             'target' => 'body',
             'unique' => FALSE,
           ),
           4 => array(
-            'source' => 'rrule',
+            'source' => 'RRULE',
             'target' => 'field_oa_date:rrule',
             'unique' => FALSE,
           ),
           5 => array(
-            'source' => 'uid',
+            'source' => 'UID',
             'target' => 'guid',
             'unique' => TRUE,
           ),

@@ -15,6 +15,12 @@ function og_vocab_admin_settings($form_state) {
     '#description' => t('When enabled, access to taxonomy/term/[tid] will be controlled by OG-vocab'),
     '#default_value' => variable_get('og_vocab_term_page_access', FALSE),
   );
+  $form['og_vocab_allow_shared_vocabularies'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Allow groups to share vocabularies'),
+    '#description' => t('When using the %og_vocab module this settings allow groups to share the same vocabularies. Note: Only enable this setting if you have a trusted permission setup. In certain setups shared vocabularies can be edited/deleted by all group administrator.', array('%og_vocab' => 'OG Vocabulary')),
+    '#default_value' => variable_get('og_vocab_allow_shared_vocabularies', FALSE),
+  );
   return system_settings_form($form);
 }
 

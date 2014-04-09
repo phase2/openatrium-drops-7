@@ -27,6 +27,17 @@ function oa_worktracker_variable_info($options) {
     'description' => t("Choose which users you'd like to be able to assign Tasks to."),
     'group' => 'oa_worktracker',
   );
+  $variable['oa_worktracker_assigned_to_multiple'] = array(
+    'type' => 'select',
+    'title' => t('Copy for multiple'),
+    'options' => array(
+      0 => t('Disabled'),
+      1 => t('Enabled'),
+    ),
+    'default' => 1,
+    'description' => t("Allow users to select 'Copy for multiple' as the assigned user when creating new Tasks."),
+    'group' => 'oa_worktracker',
+  );
   $variable['oa_worktracker_allowed_values_priority'] = array(
     'type' => 'oa_worktracker_allowed_values',
     'title' => t('Priority values'),

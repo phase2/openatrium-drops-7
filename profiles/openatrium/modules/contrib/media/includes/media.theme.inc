@@ -7,21 +7,6 @@
  * Theming functions for the Media module.
  */
 
-
-/**
- * Display a media file list.
- *
- * @param array $element
- *   The form element.
- *
- * @return string
- *   HTML of the file list
- */
-function theme_media_file_list($element) {
-  // Add the CSS for our display.
-  return '<div class="media-file-list">' . theme('form_element', $element, $element['#children']) . '</div>';
-}
-
 /**
  * Add messages to the page.
  */
@@ -85,7 +70,7 @@ function template_preprocess_media_thumbnail(&$variables) {
  */
 function theme_media_formatter_large_icon($variables) {
   $file = $variables['file'];
-  $icon_dir = variable_get('media__icon_base_directory', 'public://media-icons') . '/' . variable_get('media__icon_set', 'default');
+  $icon_dir = variable_get('media_icon_base_directory', 'public://media-icons') . '/' . variable_get('media_icon_set', 'default');
   $icon = file_icon_path($file, $icon_dir);
   $variables['path'] = $icon;
 

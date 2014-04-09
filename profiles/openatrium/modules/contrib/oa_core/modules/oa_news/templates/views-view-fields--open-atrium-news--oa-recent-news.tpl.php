@@ -32,6 +32,11 @@
   <?php endif; ?>
   <div class='oa-news-header'>
     <?php print $title; ?>
+    <?php if (!empty($timestamp)): ?>
+      <span class='pull-right'>
+        <?php print $timestamp; ?>
+      </span>
+    <?php endif; ?>
     <div class='oa-news-posted'>
       <?php print t('Posted by ') . $name . t(' on ') . $created; ?>
     </div>

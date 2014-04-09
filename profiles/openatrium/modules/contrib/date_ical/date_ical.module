@@ -261,6 +261,9 @@ function date_ical_sanitize_text($text = '') {
  *   The repeat rule string, formatted like "$rrule|$rdate|$exrule|$exdate".
  */
 function date_ical_feeds_set_rrule($source, $entity, $target, $repeat_rule) {
+  if (is_array($repeat_rule)) {
+    $repeat_rule = $repeat_rule[0];
+  }
   if (empty($repeat_rule)) {
     // Don't alter the entity if there's no repeat rule.
     return;

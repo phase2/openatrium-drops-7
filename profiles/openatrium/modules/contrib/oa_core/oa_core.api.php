@@ -11,10 +11,10 @@
  */
 
 /**
- * Gets 'Space type' options from a Taxonomy term.
+ * Gets space_type or section_type options from a Taxonomy term.
  *
  * This hook is used to take a Taxonomy term and covert it's data into options
- * about a Space type, to be used in Javascript on the node edit page.
+ * about a Space Blueprint, to be used in Javascript on the node edit page.
  *
  * @param object $term
  *   A Taxonomy term object.
@@ -36,7 +36,7 @@ function hook_oa_core_space_type_options($term, $vocab_name) {
 }
 
 /**
- * Alter 'Space type' options from other modules.
+ * Alter the space_type or section_type options from other modules.
  *
  * @param array &$optionts
  *   An associative array keyed by the Taxonomy term id containing the option

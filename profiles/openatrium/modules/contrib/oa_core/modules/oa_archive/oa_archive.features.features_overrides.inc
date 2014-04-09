@@ -25,8 +25,8 @@ function oa_archive_features_override_default_overrides() {
   $overrides["flag.trash.unflag_short"] = 'Remove from archive';
 
   // Exported overrides for: views_view
-  $overrides["views_view.trash_flag_bin.display|default|display_options|title"] = 'Archive';
-  $overrides["views_view.trash_flag_bin.display|page_1|display_options|menu|title"] = 'Archive';
+  $overrides["views_view.trash_flag_bin.display|default|display_options|title"] = 'Show Archive';
+  $overrides["views_view.trash_flag_bin.display|page_1|display_options|menu|title"] = 'Show Archive';
   $overrides["views_view.trash_flag_bin.display|page_1|display_options|path"] = 'node/%/archive';
   $overrides["views_view.trash_flag_bin.display|page|display_options|path"] = 'archive';
 

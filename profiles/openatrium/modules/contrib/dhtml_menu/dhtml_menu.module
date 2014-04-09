@@ -5,6 +5,7 @@
  * @file dhtml_menu.module
  * Initialization and various hook implementations.
  */
+require_once 'dhtml_menu.theme.inc';
 
 /**
  * Implementation of hook_help().
@@ -23,7 +24,6 @@ function dhtml_menu_help($path) {
  * Adds CSS, Javascript and settings to the page.
  */
 function dhtml_menu_init() {
-  module_load_include('inc', 'dhtml_menu', 'dhtml_menu.theme');
   drupal_add_css(drupal_get_path('module', 'dhtml_menu') . '/dhtml_menu.css');
   drupal_add_js(drupal_get_path('module', 'dhtml_menu') . '/dhtml_menu.js');
   drupal_add_js(array('dhtmlMenu' => variable_get('dhtml_menu_settings')), 'setting');

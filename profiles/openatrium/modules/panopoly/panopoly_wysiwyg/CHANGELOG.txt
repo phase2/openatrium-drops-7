@@ -1,0 +1,11 @@
+Panopoly WYSIWYG 7.x-1.2, 2014-13-08
+------------------------------
+- Add CHANGELOG.txt
+- Update image_resize_filter to version 1.14 (security vulnerability!).
+
+Panopoly WYSIWYG 7.x-1.1, 2014-01-13
+------------------------------
+- "Format" selector overlaps vertical tabs below it.
+- Incorrect implementation of CSS 'clearfix' in panopoly_wysiwyg.module.
+- Accessibility improvement - support for aria properties
+- Update Caption Filter to latest dev

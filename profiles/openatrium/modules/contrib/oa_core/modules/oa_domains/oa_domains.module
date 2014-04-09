@@ -54,6 +54,12 @@ function oa_domains_url_outbound_alter(&$path, &$options, $original_path) {
     return;
   }
 
+  // don't process urls if we have not initialized the theme registry yet
+  $theme_registry = _theme_registry_callback();
+  if (!is_array($theme_registry)) {
+    return;
+  }
+
   $prevent_loop = TRUE;
 
   global $base_url;

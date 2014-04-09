@@ -64,21 +64,20 @@ table.mobile-table {
   }
 
   table {
-    margin: 50px; 
-    td, th {
-      padding: 10px;
-      text-align: left;
-    }
+    margin: 50px;
   }
 
-  .mobile-table {
-    tbody tr:nth-child(odd) {
-      background: #eee;
-    }
+  td, th {
+    padding: 10px;
+    text-align: left;
+  }
+
+  .mobile-table tbody tr:nth-child(odd) {
+    background: #eee;
   }
 
   .mobile-table tr {
-    width 50%;
+    width: 50%;
   }
 
   .mobile-table tr.even th,
@@ -95,9 +94,9 @@ table.mobile-table {
 }
 
 /* Spotlight Widget - General Components */
-.pane-bundle-spotlight .ui-widget { font-family: Verdana,Arial,sans-serif/*{ffDefault}*/; font-size: 1em/*{fsDefault}*/; }
+.pane-bundle-spotlight .ui-widget { font-size: 1em/*{fsDefault}*/; }
 .pane-bundle-spotlight .ui-widget .ui-widget { font-size: 1em; }
-.pane-bundle-spotlight .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button { font-family: Verdana,Arial,sans-serif/*{ffDefault}*/; font-size: 1em; }
+.pane-bundle-spotlight .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button { font-size: 1em; }
 .pane-bundle-spotlight .ui-widget-content { border: 0px solid #aaaaaa/*{borderColorContent}*/; background: transparent/*{bgColorContent}*/ /*{bgImgUrlContent}*/ 50%/*{bgContentXPos}*/ 50%/*{bgContentYPos}*/ repeat-x/*{bgContentRepeat}*/; color: #222222/*{fcContent}*/; }
 .pane-bundle-spotlight .ui-widget-content a { color: #222222/*{fcContent}*/; }
 .pane-bundle-spotlight .ui-widget-header { border: 0px solid #aaaaaa/*{borderColorHeader}*/; background: transparent/*{bgColorHeader}*/ /*{bgImgUrlHeader}*/ 50%/*{bgHeaderXPos}*/ 50%/*{bgHeaderYPos}*/ repeat-x/*{bgHeaderRepeat}*/; color: #222222/*{fcHeader}*/; font-weight: bold; }

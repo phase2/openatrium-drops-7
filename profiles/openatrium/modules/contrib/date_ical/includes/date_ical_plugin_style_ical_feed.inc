@@ -410,7 +410,9 @@ class date_ical_plugin_style_ical_feed extends views_plugin_style {
       // Prevent devel module from appending queries to ical export.
       $GLOBALS['devel_shutdown'] = FALSE;
       
-      drupal_add_http_header('Content-Type', 'text/calendar; charset=utf-8');
+      drupal_add_http_header('Content-Type', 'text/calendar; charset=UTF-8');
+      drupal_add_http_header('Cache-Control', 'no-cache, must-revalidate');
+      drupal_add_http_header('Expires', 'Sat, 26 Jul 1997 05:00:00 GMT');
       
       // For sites with Clean URLs disabled, the Display's "path" value ends
       // up only in the query args, meaning the filename won't be set properly

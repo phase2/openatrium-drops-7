@@ -102,13 +102,18 @@ features[field_instance][] = fieldable_panels_pane-table-field_basic_table_table
 features[field_instance][] = fieldable_panels_pane-text-field_basic_text_text
 features[field_instance][] = fieldable_panels_pane-video-field_video_file
 features[file_display][] = video__default__media_youtube_image
+features[file_display][] = video__default__media_youtube_video
 features[file_display][] = video__link__file_field_file_default
+features[file_display][] = video__preview__file_field_media_large_icon
+features[file_display][] = video__preview__media_youtube_image
 features[file_display][] = video__teaser__media_youtube_image
+features[file_display][] = video__teaser__media_youtube_video
 features[views_view][] = panopoly_widgets_general_content
 
-; Information added by Drupal.org packaging script on 2014-01-29
-version = "7.x-1.1"
+
+; Information added by drush on 2014-04-09
+version = "7.x-1.2+1-dev"
 core = "7.x"
 project = "panopoly_widgets"
-datestamp = "1391036975"
+datestamp = "1397050253"
 

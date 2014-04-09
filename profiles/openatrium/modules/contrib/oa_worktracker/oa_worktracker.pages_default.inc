@@ -24,25 +24,8 @@ function oa_worktracker_default_page_manager_handlers() {
     'pipeline' => 'standard',
     'css_id' => 'node-edit',
     'css' => '',
-    'contexts' => array(
-      0 => array(
-        'identifier' => 'Node add form',
-        'keyword' => 'node_add',
-        'name' => 'node_add_form',
-        'type' => 'oa_discussion_post',
-        'id' => 1,
-      ),
-    ),
-    'relationships' => array(
-      0 => array(
-        'identifier' => 'Parent Node',
-        'keyword' => 'parent',
-        'name' => 'entity_from_field:oa_parent-node-node',
-        'delta' => 0,
-        'context' => 'context_node_add_form_1',
-        'id' => 1,
-      ),
-    ),
+    'contexts' => array(),
+    'relationships' => array(),
     'access' => array(
       'plugins' => array(
         0 => array(

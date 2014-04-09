@@ -87,7 +87,7 @@ function panopoly_admin_panels_pane_content_alter($content, $pane, $args, $conte
   $pane->title = (isset($content->title)) ? $content->title : NULL;
 
   // Hide the title of administrative panes when there isn't any content
-  if (!empty($context['argument_node_edit_1']) && !empty($content->content)) {
+  if (!empty($context['argument_node_edit_1']) && !empty($content->content) && is_array($content->content)) {
     foreach($content->content as $content_item) {
       if (is_array($content_item) && isset($content_item['#access']) && $content_item['#access'] === FALSE) {
         $content->title = '';
@@ -588,7 +588,7 @@ function panopoly_admin_is_advanced_plugin($pane_label, $category_label) {
 function panopoly_admin_switch_layout_action($status, $layout_name, $token) {
   
   $commands = array();
-  $panels_page_allowed_layouts = unserialize(variable_get('panels_page_allowed_layouts'));
+  $panels_page_allowed_layouts = unserialize(variable_get('panels_page_allowed_layouts', serialize('')));
   
   if ($token == drupal_get_token($layout_name) && $status == 'enable') {
     $panels_page_allowed_layouts->allowed_layout_settings[$layout_name] = TRUE;
@@ -613,7 +613,7 @@ function panopoly_admin_switch_layout_action($status, $layout_name, $token) {
 function panopoly_admin_switch_pane_action($status, $category_name, $plugin_name, $token) {
 
   $commands = array();
-  $panels_page_allowed_types = variable_get('panels_page_allowed_types');
+  $panels_page_allowed_types = variable_get('panels_page_allowed_types', array());
 
   if ($token == drupal_get_token($plugin_name) && $status == 'enable') {
     $panels_page_allowed_types[$category_name . '-' . $plugin_name] = $category_name . '-' . $plugin_name;

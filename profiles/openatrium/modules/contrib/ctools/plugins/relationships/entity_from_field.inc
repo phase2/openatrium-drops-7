@@ -176,8 +176,9 @@ function ctools_entity_from_field_context($context, $conf) {
 
         $plugin_info = ctools_get_relationship($conf['name']);
         $to_entity_id = $items[$delta][$plugin_info['source key']];
-        $loaded_to_entity = array_shift(entity_load($to_entity, array($to_entity_id)));
-        if(function_exists($to_entity_info['access callback']) && !call_user_func($to_entity_info['access callback'], 'view', $loaded_to_entity)) {
+        $loaded_to_entity = entity_load($to_entity, array($to_entity_id));
+        $loaded_to_entity = array_shift($loaded_to_entity);
+        if (function_exists($to_entity_info['access callback']) && !call_user_func($to_entity_info['access callback'], 'view', $loaded_to_entity)) {
           return ctools_context_create_empty('entity:' . $to_entity, NULL);
         }
         else {

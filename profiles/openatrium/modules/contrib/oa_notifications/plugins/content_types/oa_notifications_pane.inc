@@ -70,7 +70,7 @@ function oa_notifications_render_view($node) {
     foreach ($users as $user) {
       $render['#user'][] = array(
         'uid' => $user->uid,
-        'name' => $user->realname,
+        'name' => oa_core_realname($user),
         'access' => node_access('view', $node, $user),
       );
     }

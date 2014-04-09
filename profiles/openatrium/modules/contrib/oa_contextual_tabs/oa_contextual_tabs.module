@@ -45,9 +45,9 @@ function oa_contextual_tabs_contextual_tabs_alter(&$data) {
  */
 function oa_contextual_tabs_confirmation($node) {
   $flag = flag_load('trash');
-  $op = $flag->is_flagged($content_id) ? 'unflag' : 'flag';
+  $op = $flag->is_flagged($node->nid) ? 'unflag' : 'flag';
   $link = flag_flag_link($flag, $op, $node->nid);
-  drupal_goto($link['href'], array('query' => array('defination' => 'node/' . $node->nid)));
+  drupal_goto($link['href'], array('query' => array('destination' => 'node/' . $node->nid)));
 }
 
 /**

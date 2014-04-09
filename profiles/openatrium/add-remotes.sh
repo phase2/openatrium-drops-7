@@ -12,8 +12,8 @@ echo 'Adding remotes...'
 submodules=( "oa_core" "oa_discussion" "oa_wiki" "oa_events" "oa_events_import" "oa_contextual_tabs" "oa_notifications" "oa_media" "oa_subspaces" )
 for subdir in "${submodules[@]}"
 do
-  cd $TARGET/modules/contrib/$subdir
-  if [ -e ".git" ]; then
+  if [ -e "$TARGET/modules/contrib/$subdir/.git" ]; then
+    cd $TARGET/modules/contrib/$subdir
     echo "** Pulling -dev version of module $subdir in $CURDIR"
     # rename default Drupal git repo created by drush make
     git remote rename origin drupal
@@ -28,8 +28,8 @@ done
 subthemes=( "oa_radix" )
 for subdir in "${subthemes[@]}"
 do
-  cd $TARGET/themes/$subdir
-  if [ -e ".git" ]; then
+  if [ -e "$TARGET/themes/$subdir/.git" ]; then
+    cd $TARGET/themes/$subdir
     echo "** Pulling -dev version of theme $subdir in $CURDIR"
     # rename default Drupal git repo created by drush make
     git remote rename origin drupal
