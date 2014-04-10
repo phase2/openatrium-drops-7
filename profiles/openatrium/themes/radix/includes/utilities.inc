@@ -5,17 +5,10 @@
  */
 
 /**
- * Returns Bootstrap panel classes.
+ * Returns path to the bootstrap library.
  */
-function _radix_get_bootstrap_panel_classes() {
-  return array(
-    'panel-default',
-    'panel-primary',
-    'panel-success',
-    'panel-info',
-    'panel-warning',
-    'panel-danger'
-  );
+function _radix_bootstrap_path() {
+  // TODO.
 }
 
 /**

@@ -12,69 +12,92 @@
 ?>
 <header id="header" class="header" role="header">
   <div class="container">
-    <nav class="navbar navbar-default" role="navigation">
-      <!-- Brand and toggle get grouped for better mobile display -->
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse">
-          <span class="sr-only"><?php print t('Toggle navigation'); ?></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a href="<?php print $front_page; ?>" id="logo" class="navbar-brand">
-          <?php print $site_name; ?>
-        </a>
-      </div> <!-- /.navbar-header -->
+    <div id="navigation" class="navbar">
+      <div class="navbar-inner">
+        <div class="container clearfix">
+          <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+          <a class="btn btn-navbar btn-navbar-menu" data-toggle="collapse" data-target=".nav-menu-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <!-- .btn-navbar-search for collapsed search form -->
+          <?php if ($search_form): ?>
+            <a class="btn btn-navbar btn-navbar-search" data-toggle="collapse" data-target=".nav-search-collapse">
+              <span class="icon-search"></span>
+            </a>
+          <?php endif; ?>
 
-      <!-- Collect the nav links, forms, and other content for toggling -->
-      <div class="collapse navbar-collapse" id="navbar-collapse">
-        <?php if ($main_menu): ?>
-          <?php print render($main_menu); ?>
-        <?php endif; ?>
-        <?php if ($search_form): ?>
-          <?php print $search_form; ?>
-        <?php endif; ?>
-      </div><!-- /.navbar-collapse -->
+          <?php if ($logo): ?>
+            <a href="<?php print $front_page; ?>" title="<?php print t('Home'); ?>" rel="home" id="logo" class="pull-left brand">
+              <?php print $site_name; ?>
+            </a>
+          <?php endif; ?>
 
-    </nav>
-  </div> <!-- /.container -->
+          <div class="nav-collapse nav-menu-collapse">
+            <div class="inner">
+              <?php if ($main_menu): ?>
+                <nav id="main-menu" class="main-menu pull-left" role="navigation">
+                  <?php print render($main_menu); ?>
+                </nav> <!-- /#main-menu -->
+              <?php endif; ?>
+            </div>
+          </div>
+
+          <div class="nav-collapse nav-search-collapse">
+            <div class="inner">
+              <?php if ($search_form): ?>
+                <?php print $search_form; ?>
+              <?php endif; ?>
+            </div>
+          </div>
+
+        </div>
+      </div> 
+    </div> <!-- /#navigation -->
+  </div>
 </header>
 
 <div id="main-wrapper">
-  <div id="main" class="main">
-    <div class="container">
-      <?php if ($breadcrumb): ?>
-        <div id="breadcrumb" class="visible-desktop">
+  <div id="main" class="main <?php print (!$is_panel) ? 'container' : ''; ?>">
+    <?php if ($breadcrumb): ?>
+      <div id="breadcrumb" class="visible-desktop">
+        <div class="container">
           <?php print $breadcrumb; ?>
         </div>
-      <?php endif; ?>
-      <?php if ($messages): ?>
-        <div id="messages">
+      </div>
+    <?php endif; ?>
+    <?php if ($messages): ?>
+      <div id="messages">
+        <div class="container">
           <?php print $messages; ?>
         </div>
-      <?php endif; ?>
-      <div id="page-header">
-        <?php if ($title): ?>
-          <div class="page-header">
-            <h1 class="title"><?php print $title; ?></h1>
-          </div>
-        <?php endif; ?>
-        <?php if ($tabs): ?>
-          <div class="tabs">
-            <?php print render($tabs); ?>
-          </div>
-        <?php endif; ?>
-        <?php if ($action_links): ?>
-          <ul class="action-links">
-            <?php print render($action_links); ?>
-          </ul>
-        <?php endif; ?>
       </div>
-    </div>
-    <div id="content" class="<?php print (!$is_panel) ? 'container' : ''; ?>">
+    <?php endif; ?>
+    <div id="content">
+      <a id="main-content"></a>
+      <div id="page-header">
+          <div class="container">
+            <?php if ($title): ?>
+              <div class="page-header">
+                <h1 class="title"><?php print $title; ?></h1>
+              </div>
+            <?php endif; ?>
+            <?php if ($tabs): ?>
+              <div class="tabs">
+                <?php print render($tabs); ?>
+              </div>
+            <?php endif; ?>
+            <?php if ($action_links): ?>
+              <ul class="nav nav-pills action-links">
+                <?php print render($action_links); ?>
+              </ul>
+            <?php endif; ?>
+          </div>
+      </div>
       <?php print render($page['content']); ?>
     </div>
-  </div> <!-- /#main -->
+  </div>
 </div> <!-- /#main-wrapper -->
 
 <footer id="footer" class="footer" role="footer">

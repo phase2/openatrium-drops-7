@@ -6,16 +6,18 @@
 // Mixins and Variables
 // --------------------------------------------------
 @import "global/variable";
-@import "global/mixin";
 @import "global/helper";
+@import "global/mixin";
+@import "global/font";
 
 // Bootswatch
 // --------------------------------------------------
-@import "bootswatch/variables";
+@import "bootswatch/_variables";
 
 // Radix
 // --------------------------------------------------
 @import "compass_radix";
+@import "compass_radix_responsive";
 
 // Bootswatch
 // --------------------------------------------------
@@ -23,7 +25,6 @@
 
 // Theme CSS
 // --------------------------------------------------
-@import "global/font";
 @import "partials/layout";
 @import "partials/structure";
 @import "partials/menu";
@@ -32,6 +33,5 @@
 @import "partials/view";
 @import "partials/form";
 @import "partials/comment";
-@import "partials/term";
 @import "partials/node";
 @import "partials/user";

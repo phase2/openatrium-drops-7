@@ -2,6 +2,14 @@
  * @file
  * JS for Radix.
  */
-(function ($, Drupal, window, document, undefined) {
-  // 
-})(jQuery, Drupal, this, this.document);
+(function ($) {
+  $(document).ready(function() {
+    // menu dropdown
+    $('.navbar ul.nav li.dropdown').mouseenter(function() {
+      $(this).addClass('open');
+    });
+    $('.navbar ul.nav li.dropdown').mouseleave(function() {
+      $(this).removeClass('open');
+    });
+  });
+})(jQuery);
