@@ -69,7 +69,7 @@ function oa_worktracker_duedate_field_default_field_instances() {
         'year_range' => '-3:+3',
       ),
       'type' => 'date_popup',
-      'weight' => 11,
+      'weight' => 20,
     ),
   );
 

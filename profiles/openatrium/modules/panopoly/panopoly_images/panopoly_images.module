@@ -99,3 +99,33 @@ function panopoly_images_entity_info_alter(&$entity_info) {
     'custom settings' => TRUE,
   );
 }
+
+/**
+ * Implementation of hook_field_widget_form_alter().
+ *
+ * This a minor hack to improve compatiblity with sites that use the
+ * the focal_point module, by disabling focal_point on fields that have
+ * manualcrop enabled. If users want to use focal_point, they simply have
+ * to disable manualcrop for that field.
+ */
+function panopoly_images_field_widget_form_alter(&$element, &$form_state, $context) {
+  $widget = $context['instance']['widget'];
+  if (module_exists('focal_point') && in_array('image', array_filter(variable_get("focal_point_enabled_for", array('image'))))) {
+    if (manualcrop_supported_widgets($widget['type']) && !empty($widget['settings']['manualcrop_enable'])) {
+      foreach (element_children($element) as $delta) {
+        foreach ($element[$delta]['#process'] as $index => $function) {
+          // If this element was processed by focal_point, then we remove all
+          // of it's customizations, so this module can use manualcrop.
+          if (substr($function, 0, 11) == 'focal_point') {
+            unset($element[$delta]['#process'][$index]);
+            unset($element[$delta]['#widget_delta']);
+            if (($class_index = array_search('focal_point', $element[$delta]['#attributes']['class'])) !== FALSE) {
+              unset($element[$delta]['#attributes']['class'][$class_index]);
+            }
+            break;
+          }
+        }
+      }
+    }
+  }
+}

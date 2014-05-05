@@ -34,11 +34,18 @@ function panopoly_widgets_configure_form($form, &$form_state) {
   $form = array();
 
   $form['panopoly_widgets_spotlight_rotation_time'] = array(
-    '#title' => t('Spotlight Rotation Time'),
+    '#title' => t('Spotlight rotation time'),
     '#type' => 'textfield',
     '#required' => TRUE,
     '#default_value' => variable_get('panopoly_widgets_spotlight_rotation_time', 4),
     '#description' => t('How many seconds do you want between rotations of the spotlight widget?'),
+  );
+
+  $form['panopoly_widgets_spotlight_pause_play_buttons'] = array(
+    '#title' => t('Add pause/play button to all spotlight widgets.'),
+    '#type' => 'checkbox',
+    '#default_value' => variable_get('panopoly_widgets_spotlight_pause_play_buttons', 1),
+    '#description' => t('The button will appear under to the slide numbers. Helps with accessibility.'),
   );
 
   return system_settings_form($form);

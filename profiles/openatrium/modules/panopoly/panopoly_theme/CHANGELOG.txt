@@ -1,3 +1,16 @@
+Panopoly Theme 7.x-1.5, 2014-04-30
+----------------------------
+- No changes since last release.
+
+Panopoly Theme 7.x-1.4, 2014-04-24
+----------------------------
+- No changes since last release.
+
+Panopoly Theme 7.x-1.3, 2014-04-23
+----------------------------
+- Classes wrong on "moscone" layouts.
+- Radix span* classes on selby and selby_flipped are incorrect.
+
 Panopoly Theme 7.x-1.2, 2014-13-08
 ----------------------------
 - Add CHANGELOG.txt

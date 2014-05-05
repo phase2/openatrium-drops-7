@@ -157,11 +157,19 @@ function panopoly_widgets_field_formatter_view($entity_type, $entity, $field, $i
   drupal_add_library('system', 'ui.tabs');
 
   // Assemble the tabs header
-  $header = '<ul>';
+  $header = '<div class="panopoly-spotlight-buttons-wrapper">';
+  $header .= '<ul>';
   foreach ($items as $delta => $item_data) {
     $header .= '<li>' . '<a href="#panopoly-spotlight-' . $delta . '">' . ($delta+1) . '</a></li>'; 
   }
   $header .= '</ul>';
+
+  if (variable_get('panopoly_widgets_spotlight_pause_play_buttons', 1)) {
+    $header .= '<div class="panopoly-spotlight-function-buttons">';
+    $header .= '<a href="#" class="panopoly-spotlight-pause-play">' . t('Pause') . '</a>';
+    $header .= '</div>';
+  }
+  $header .= '</div>';  // class="panopoly-spotlight-buttons-wrapper"
 
   // Assemble the tabs content
   foreach ($items as $delta => $item_data) {
@@ -171,7 +179,7 @@ function panopoly_widgets_field_formatter_view($entity_type, $entity, $field, $i
 }
 
 /**
- * Implements hook_widget_form().
+ * Implements hook_field_widget_form().
  */
 function panopoly_widgets_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
 
@@ -198,6 +206,12 @@ function panopoly_widgets_field_widget_form(&$form, &$form_state, $field, $insta
       '#type' => 'managed_file',
       '#upload_location' => file_field_widget_uri($field, $instance),
       '#default_value' => isset($items[$delta]['fid']) ? $items[$delta]['fid'] : NULL,
+    );
+
+    $element['alt'] = array(
+      '#title' => t('Alt text'),
+      '#type' => 'textfield',
+      '#default_value' => isset($items[$delta]['alt']) ? $items[$delta]['alt'] : NULL,
     );
 
     $element['description'] = array(
@@ -242,7 +256,6 @@ function panopoly_widgets_field_presave($entity_type, $entity, $field, $instance
         }
       }
     }
-
     image_field_presave($entity_type, $entity, $field, $instance, $langcode, $items);
   }
 }
@@ -253,7 +266,6 @@ function panopoly_widgets_field_presave($entity_type, $entity, $field, $instance
 function panopoly_widgets_field_load($entity_type, $entities, $field, $instances, $langcode, &$items, $age) {
   $entity_items_copy = $items;
   image_field_load($entity_type, $entities, $field, $instances, $langcode, $items, $age);
-
   // image_field_load() will overwrite 'title' with the image title. Here we
   // return it to the item title.
   foreach ($entity_items_copy as $entity_id => $items_copy) {
@@ -324,6 +336,7 @@ function theme_panopoly_spotlight_view($variables) {
   $title = $variables['items']['title'];
   $description = $variables['items']['description'];
   $link = $variables['items']['link'];
+  $alt = $variables['items']['alt'];
   $settings = $variables['settings'];
 
   if (module_exists('uuid')) {
@@ -335,7 +348,7 @@ function theme_panopoly_spotlight_view($variables) {
   }
 
   $output = '<div id="' . 'panopoly-spotlight-' . $variables['delta'] . '" class="' . 'panopoly-spotlight' . '">';
-  $output .= theme('image_style', array('style_name' => $settings['image_style'], 'path' => $image->uri));
+  $output .= theme('image_style', array('style_name' => $settings['image_style'], 'path' => $image->uri, 'alt' => $alt));
   $output .= '<div class="panopoly-spotlight-wrapper">';
   if (!empty($title) || !empty($link)) {
     if (empty($title)) {

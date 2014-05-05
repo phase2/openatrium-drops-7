@@ -19,6 +19,7 @@ dependencies[] = oa_layouts
 dependencies[] = oa_media
 dependencies[] = oa_messages
 dependencies[] = oa_panopoly_users
+dependencies[] = oa_sections
 dependencies[] = og
 dependencies[] = og_ui
 dependencies[] = options_element
@@ -96,9 +97,9 @@ features_exclude[field_base][field_oa_worktracker_duedate] = field_oa_worktracke
 features_exclude[field_base][comment_body] = comment_body
 features_exclude[field_instance][node-oa_worktracker_task-field_oa_worktracker_duedate] = node-oa_worktracker_task-field_oa_worktracker_duedate
 
-; Information added by Drupal.org packaging script on 2014-04-08
-version = "7.x-2.0-beta12"
+; Information added by Drupal.org packaging script on 2014-05-01
+version = "7.x-2.0-beta13"
 core = "7.x"
 project = "oa_worktracker"
-datestamp = "1396968856"
+datestamp = "1398975529"
 

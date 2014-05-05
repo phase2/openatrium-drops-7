@@ -12,7 +12,10 @@ function oa_worktracker_duedate_field_group_info_alter(&$data) {
     $data['group_oa_worktracker_task_info|comment|comment_node_oa_worktracker_task|form']->data['children']['5'] = 'field_oa_worktracker_duedate'; /* WAS: '' */
   }
   if (isset($data['group_oa_worktracker_task_info|node|oa_worktracker_task|default'])) {
-    $data['group_oa_worktracker_task_info|node|oa_worktracker_task|default']->data['children']['5'] = 'field_oa_worktracker_duedate'; /* WAS: '' */
+    $data['group_oa_worktracker_task_info|node|oa_worktracker_task|default']->data['children']['6'] = 'field_oa_worktracker_duedate'; /* WAS: '' */
+  }
+  if (isset($data['group_oa_worktracker_task_info|node|oa_worktracker_task|form'])) {
+    $data['group_oa_worktracker_task_info|node|oa_worktracker_task|form']->data['children']['6'] = 'field_oa_worktracker_duedate'; /* WAS: '' */
   }
 }
 
@@ -21,7 +24,7 @@ function oa_worktracker_duedate_field_group_info_alter(&$data) {
  */
 function oa_worktracker_duedate_panelizer_defaults_override_alter(&$data) {
   if (isset($data['node:oa_section:oa_section_worktracker'])) {
-    $data['node:oa_section:oa_section_worktracker']->display->content['new-3']->configuration['fields_override']['field_oa_worktracker_duedate'] = 1; /* WAS: '' */
+    $data['node:oa_section:oa_section_worktracker']->display->content['new-083432ea-5fb3-4e40-8c9d-09ed848deab7']->configuration['fields_override']['field_oa_worktracker_duedate'] = 1; /* WAS: '' */
   }
 }
 
@@ -35,4 +38,3 @@ function oa_worktracker_duedate_strongarm_alter(&$data) {
     ); /* WAS: '' */
   }
 }
-

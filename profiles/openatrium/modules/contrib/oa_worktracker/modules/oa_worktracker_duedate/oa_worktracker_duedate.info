@@ -12,21 +12,18 @@ features[features_override_items][] = field_group.group_oa_worktracker_task_info
 features[features_override_items][] = field_group.group_oa_worktracker_task_info|node|oa_worktracker_task|form
 features[features_override_items][] = panelizer_defaults.node:oa_section:oa_section_worktracker
 features[features_override_items][] = variable.field_bundle_settings_comment__comment_node_oa_worktracker_task
-features[features_override_items][] = views_view.oa_worktracker
+features[features_override_items][] = variable.field_bundle_settings_node__oa_worktracker_task
 features[features_overrides][] = field_group.group_oa_worktracker_task_info|comment|comment_node_oa_worktracker_task|form.data|children|5
-features[features_overrides][] = field_group.group_oa_worktracker_task_info|node|oa_worktracker_task|default.data|children|5
-features[features_overrides][] = field_group.group_oa_worktracker_task_info|node|oa_worktracker_task|form.data|children|5
-features[features_overrides][] = panelizer_defaults.node:oa_section:oa_section_worktracker.display|content|new-3|configuration|fields_override|field_oa_worktracker_duedate
+features[features_overrides][] = field_group.group_oa_worktracker_task_info|node|oa_worktracker_task|default.data|children|6
+features[features_overrides][] = field_group.group_oa_worktracker_task_info|node|oa_worktracker_task|form.data|children|6
+features[features_overrides][] = panelizer_defaults.node:oa_section:oa_section_worktracker.display|content|new-083432ea-5fb3-4e40-8c9d-09ed848deab7|configuration|fields_override|field_oa_worktracker_duedate
 features[features_overrides][] = variable.field_bundle_settings_comment__comment_node_oa_worktracker_task.value|extra_fields|form|field_oa_worktracker_duedate
-features[features_overrides][] = views_view.oa_worktracker.display|task_list|display_options|fields|field_oa_worktracker_duedate
-features[features_overrides][] = views_view.oa_worktracker.display|task_list|display_options|style_options|columns|field_oa_worktracker_duedate
-features[features_overrides][] = views_view.oa_worktracker.display|task_list|display_options|style_options|info|field_oa_worktracker_duedate
 features[field_base][] = field_oa_worktracker_duedate
 features[field_instance][] = node-oa_worktracker_task-field_oa_worktracker_duedate
 
-; Information added by Drupal.org packaging script on 2014-04-08
-version = "7.x-2.0-beta12"
+; Information added by Drupal.org packaging script on 2014-05-01
+version = "7.x-2.0-beta13"
 core = "7.x"
 project = "oa_worktracker"
-datestamp = "1396968856"
+datestamp = "1398975529"
 

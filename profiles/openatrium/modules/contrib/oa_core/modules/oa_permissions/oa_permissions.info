@@ -171,9 +171,9 @@ features[og_features_permission][] = node:oa_space:view trash bin
 features[variable][] = og_group_manager_admin_role
 features[variable][] = og_group_manager_full_access
 
-; Information added by Drupal.org packaging script on 2014-04-08
-version = "7.x-2.16"
+; Information added by Drupal.org packaging script on 2014-05-01
+version = "7.x-2.18"
 core = "7.x"
 project = "oa_core"
-datestamp = "1396991656"
+datestamp = "1398972535"
 

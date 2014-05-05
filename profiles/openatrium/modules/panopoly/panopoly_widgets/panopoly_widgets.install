@@ -35,6 +35,9 @@ function panopoly_widgets_uninstall() {
     // Deletes the variable
     variable_del($variable_name);
   }
+
+  variable_del('panopoly_widgets_spotlight_pause_play_buttons');
+  variable_del('panopoly_widgets_spotlight_rotation_time');
 }
 
 /**
@@ -61,6 +64,12 @@ function panopoly_widgets_field_schema($field) {
     );
 
     $schema['columns']['link'] = array(
+      'type' => 'varchar',
+      'length' => '255',
+      'not null' => FALSE,
+    );
+
+    $schema['columns']['alt'] = array(
       'type' => 'varchar',
       'length' => '255',
       'not null' => FALSE,
@@ -199,4 +208,22 @@ function panopoly_widgets_update_7005(&$sandbox) {
  */
 function panopoly_widgets_update_7006(&$sandbox) {
   features_revert(array('panopoly_widgets' => array('file_display')));
+}
+
+/**
+ * Implements hook_update_N().
+ *
+ * Add an "alt" field for spotlight items.
+ */
+function panopoly_widgets_update_7007(&$sandbox) {
+  $spec = array(
+    'type' => 'varchar',
+    'length' => 255,
+    'not null' => FALSE,
+  );
+  $data_table_name = 'field_data_field_basic_spotlight_items';
+  $revision_table_name = 'field_revision_field_basic_spotlight_items';
+  $field_name = 'field_basic_spotlight_items_alt';
+  db_add_field($data_table_name, $field_name, $spec);
+  db_add_field($revision_table_name, $field_name, $spec);
 }

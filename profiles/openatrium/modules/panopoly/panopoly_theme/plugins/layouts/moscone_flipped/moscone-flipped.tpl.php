@@ -31,8 +31,8 @@
     </div>
   </div>
 
-  <div class="moscone-container moscone-header clearfix panel-panel row-fluid">
-    <div class="moscone-container-inner moscone-header-inner panel-panel-inner span12">
+  <div class="moscone-container moscone-footer clearfix panel-panel row-fluid">
+    <div class="moscone-container-inner moscone-footer-inner panel-panel-inner span12">
       <?php print $content['footer']; ?>
     </div>
   </div>

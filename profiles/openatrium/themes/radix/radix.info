@@ -22,3 +22,11 @@ regions[content] = Content
 features[] = logo
 features[] = name
 features[] = favicon
+
+
+; Information added by drush on 2014-05-02
+version = "7.x-2.0+8-dev"
+core = "7.x"
+project = "radix"
+datestamp = "1399051525"
+

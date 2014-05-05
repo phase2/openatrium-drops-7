@@ -47,8 +47,9 @@ function oa_users_user_is_current_user($account) {
 }
 
 /**
- * Page callback for user/%user/settings. Provide a settings form, and hooks
- * for modules to add their own settings.
+ * Page callback for user/%user/settings.
+ *
+ * Provide a settings form, and hooks for modules to add their own settings.
  */
 function oa_users_settings_form($form, &$form_state, $user) {
   $form['#submit'][] = 'oa_users_settings_form_submit';
@@ -59,8 +60,10 @@ function oa_users_settings_form($form, &$form_state, $user) {
 }
 
 /**
- * Form submit callback for user/%user/settings. Provides a hook for modules
- * that added fields to the form to add them to the user's data column.
+ * Form submit callback for user/%user/settings.
+ *
+ * Provides a hook for modules that added fields to the form to add them to the
+ * user's data column.
  */
 function oa_users_settings_form_submit($form, &$form_state) {
   $user = $form_state['build_info']['args'][0];
@@ -78,7 +81,8 @@ function oa_users_build_user_details($user, $image_style = 'oa_small_thumbnail')
   $details['realname'] = oa_core_realname($user);
   $details['name'] = $user->name;
   $details['picture'] = oa_users_picture($user, $image_style);
-  //Build out links
+
+  //Build out links.
   $details['links']['dashboard'] = 'user/' . $user->uid . '/view';
   $details['links']['edit_profile'] = 'user/' . $user->uid . '/edit';
   $details['links']['logout'] = 'user/logout';
@@ -86,7 +90,7 @@ function oa_users_build_user_details($user, $image_style = 'oa_small_thumbnail')
 }
 
 /**
- * Return a user's profile image
+ * Return a user's profile image.
  */
 function oa_users_picture($user = NULL, $image_style = 'oa_small_thumbnail', $url = FALSE) {
   if (isset($user) && !empty($user->field_user_picture)) {
@@ -113,8 +117,8 @@ function oa_users_picture($user = NULL, $image_style = 'oa_small_thumbnail', $ur
       'height' => 30,
       'alt' => t('Your profile picture'),
     );
-    // image styles only supported for images in /files dir
-    // so for now, ignore the image style
+    // Image styles only supported for images in /files dir so for now, ignore
+    // the image style.
     if ($url) {
       return drupal_get_path('module', 'oa_users') . '/oa-user.png';
     }
@@ -122,4 +126,45 @@ function oa_users_picture($user = NULL, $image_style = 'oa_small_thumbnail', $ur
       return theme('image', $image);
     }
   }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function oa_users_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id === 'user_profile_form') {
+    if ($form['#user_category'] === 'user-info') {
+      field_attach_form('user', $form['#user'], $form, $form_state);
+
+      $form['og_user_node']['#access'] = FALSE;
+      $form['links']['#weight'] = -2;
+      $form['field_user_display_name']['#weight'] = -1;
+      $form['field_user_picture']['#weight'] = 0;
+      $form['field_user_about']['#weight'] = 1;
+
+      drupal_set_title(t('User Info'));
+    }
+    elseif ($form['#user_category'] === 'account') {
+      // move required display name after username
+      $form['field_user_display_name']['#weight'] = -9;
+      $form['account']['field_user_display_name'] = $form['field_user_display_name'];
+      unset($form['field_user_display_name']);
+      // disable fields from user-info category
+      $form['field_user_picture']['#access'] = FALSE;
+      $form['field_user_about']['#access'] = FALSE;
+
+      drupal_set_title(t('Account Info'));
+    }
+  }
+}
+
+/**
+ * Implements hook_user_categories().
+ */
+function oa_users_user_categories() {
+  return array(array(
+    'name' => 'user-info',
+    'title' => t('User Info'),
+    'weight' => 1,
+  ));
 }

@@ -15,7 +15,7 @@ function oa_users_field_default_field_instances() {
     'bundle' => 'user',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => '',
+    'description' => 'Full name to be displayed to other users',
     'display' => array(
       'default' => array(
         'label' => 'above',
@@ -116,6 +116,7 @@ function oa_users_field_default_field_instances() {
   // Translatables
   // Included for use with string extractors like potx.
   t('Display Name');
+  t('Full name to be displayed to other users');
   t('Group membership');
 
   return $field_instances;

@@ -14,8 +14,11 @@ projects[module_filter][subdir] = contrib
 projects[simplified_menu_admin][version] = 1.0-beta2
 projects[simplified_menu_admin][subdir] = contrib
 
-projects[date_popup_authored][version] = 1.1
+projects[date_popup_authored][version] = 1.x-dev
 projects[date_popup_authored][subdir] = contrib
+projects[date_popup_authored][download][type] = git
+projects[date_popup_authored][download][revision] = baf315c
+projects[date_popup_authored][download][branch] = 7.x-1.x
 
 projects[admin_views][version] = 1.2
 projects[admin_views][subdir] = contrib
@@ -51,4 +54,4 @@ libraries[backbone][download][type] = get
 libraries[backbone][download][url] = https://github.com/jashkenas/backbone/archive/1.0.0.tar.gz
 
 libraries[underscore][download][type] = get
-libraries[underscore][download][url] = https://github.com/jashkenas/underscore/archive/1.4.4.zip
+libraries[underscore][download][url] = https://github.com/jashkenas/underscore/archive/1.5.2.zip

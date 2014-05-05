@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Contains the OaWorkTracker_SelectionHandler_Assigned class.
+ */
 
 /**
  * An EntityReference selection plugin for Work Tracker assigned users.

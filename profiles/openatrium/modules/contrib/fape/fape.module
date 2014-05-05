@@ -46,8 +46,13 @@ function fape_field_edit_page($entity_type, $entity_id, $field_name, $langcode =
     return MENU_NOT_FOUND;
   }
 
-  if (!isset($langcode) && isset($entity->language)) {
-    $langcode = $entity->language;
+  if (!isset($langcode)) {
+    $langcode = entity_language($entity_type, $entity);
+  }
+
+  // Ensure access to update the entity is granted.
+  if (!entity_access('update', $entity_type, $entity)) {
+    return MENU_ACCESS_DENIED;
   }
 
   // Ensure access to actually update this particular field is granted.
@@ -59,10 +64,20 @@ function fape_field_edit_page($entity_type, $entity_id, $field_name, $langcode =
   list( , , $bundle) = entity_extract_ids($entity_type, $entity);
 
   // This allows us to have limited support for non-field API fields.
-  // Currently we support only node:title.
-  if ($entity_type == 'node' && $field_name == 'title') {
+  // Currently, we have support for node:title, node:author, and node:created.
+  if ($entity_type == 'node' && in_array($field_name, array('title', 'author', 'created'))) {
     $field_instance = TRUE;
-    $subform_id = 'fape_field_edit_node_title_form';
+    switch ($field_name) {
+      case 'title':
+        $subform_id = 'fape_field_edit_node_title_form';
+        break;
+      case 'author':
+        $subform_id = 'fape_field_edit_node_author_form';
+        break;
+      case 'created':
+        $subform_id = 'fape_field_edit_node_created_form';
+        break;
+    }
     if (!node_access('update', $entity)) {
       return MENU_ACCESS_DENIED;
     }
@@ -88,7 +103,19 @@ function fape_field_edit_page($entity_type, $entity_id, $field_name, $langcode =
     'subform_id' => $subform_id,
   );
 
-  drupal_set_title(t('<em>Edit @type</em> @title', array('@type' => $bundle, '@title' => $field_instance['label'])), PASS_THROUGH);
+  // Try to figure out bundle's label for nicer field editing title.
+  $entity_bundles = $entity_info['bundles'];
+  $bundle_label = $bundle;
+  foreach ($entity_bundles as $key => $entity_bundle) {
+    if ($key == $bundle) {
+      if (isset($entity_bundle['label'])) {
+        $bundle_label = $entity_bundle['label'];
+      }
+      break;
+    }
+  }
+
+  drupal_set_title(t('<em>Edit @type</em> @title', array('@type' => $bundle_label, '@title' => $field_instance['label'])), PASS_THROUGH);
 
   $output = drupal_build_form('fape_field_edit_form', $form_state);
   if (!empty($form_state['executed'])) {
@@ -188,8 +215,18 @@ function fape_field_edit_field_form(&$form, &$form_state) {
   $form['#bundle'] = $bundle;
 
   // Let other modules make changes to the form.
+  // Exclude some modules.
+  $excluded_modules = array(
+    'field_group',
+    'metatag',
+    'panelizer',
+    'redirect',
+  );
   // Avoid module_invoke_all() to let parameters be taken by reference.
   foreach (module_implements('field_attach_form') as $module) {
+    if (in_array($module, $excluded_modules)) {
+      continue;
+    }
     $function = $module . '_field_attach_form';
     $function($entity_type, $entity, $form, $form_state, $langcode);
   }
@@ -288,6 +325,106 @@ function fape_field_edit_node_title_form_submit($form, &$form_state) {
 }
 
 /**
+ * Subform to edit the entity 'author' field.
+ *
+ * This isn't a true form. As such it modifies the $form by reference.
+ */
+function fape_field_edit_node_author_form(&$form, &$form_state) {
+  $node = $form_state['entity'];
+
+  $form['name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Authored by'),
+    '#maxlength' => 60,
+    '#autocomplete_path' => 'user/autocomplete',
+    '#default_value' => !empty($node->name) ? $node->name : '',
+    '#weight' => -1,
+    '#description' => t('Leave blank for %anonymous.', array('%anonymous' => variable_get('anonymous', t('Anonymous')))),
+  );
+
+  $form['#validate'][] = 'fape_field_edit_node_author_form_validate';
+  $form['#submit'][] = 'fape_field_edit_node_author_form_submit';
+}
+
+/**
+ * Validates that the submitted author user actually exists.
+ *
+ * @see node_validate()
+ */
+function fape_field_edit_node_author_form_validate($form, &$form_state) {
+  $name = $form_state['values']['name'];
+  if (!empty($name) && !($account = user_load_by_name($name))) {
+    // The use of empty() is mandatory in the context of usernames
+    // as the empty string denotes the anonymous user. In case we
+    // are dealing with an anonymous user we set the user ID to 0.
+    form_set_error('name', t('The username %name does not exist.', array('%name' => $name)));
+  }
+}
+
+/**
+ * Sets the node's user ID to the submitted author user.
+ *
+ * @see node_submit()
+ */
+function fape_field_edit_node_author_form_submit($form, &$form_state) {
+  if ($account = user_load_by_name($form_state['values']['name'])) {
+    $form_state['entity']->uid = $account->uid;
+  }
+  else {
+    $form_state['entity']->uid = 0;
+  }
+}
+
+/**
+ * Subform to edit the entity 'created' field.
+ *
+ * This isn't a true form. As such it modifies the $form by reference.
+ */
+function fape_field_edit_node_created_form(&$form, &$form_state) {
+  $node = $form_state['entity'];
+
+  // It is necessary to call node_object_prepare() on the node to calculate
+  // the node's creation date.
+  node_object_prepare($node);
+
+  $time = !empty($node->date) ? date_format(date_create($node->date), 'Y-m-d H:i:s O') : format_date($node->created, 'custom', 'Y-m-d H:i:s O');
+  $timezone = !empty($node->date) ? date_format(date_create($node->date), 'O') : format_date($node->created, 'custom', 'O');
+
+  $form['date'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Authored on'),
+    '#maxlength' => 25,
+    '#description' => t('Format: %time. The date format is YYYY-MM-DD and %timezone is the time zone offset from UTC. Leave blank to use the time of form submission.', array('%time' => $time, '%timezone' => $timezone)),
+    '#default_value' => !empty($node->date) ? $node->date : '',
+  );
+
+  $form['#validate'][] = 'fape_field_edit_node_created_form_validate';
+  $form['#submit'][] = 'fape_field_edit_node_created_form_submit';
+}
+
+/**
+ * Validates that the submitted date exists and is a valid Unix timestamp.
+ *
+ * @see node_validate()
+ */
+function fape_field_edit_node_created_form_validate($form, &$form_state) {
+  $date = $form_state['values']['date'];
+  if (!empty($date) && strtotime($date) === FALSE) {
+    form_set_error('date', t('You have to specify a valid date.'));
+  }
+}
+
+/**
+ * Sets the node's creation date based on the submitted date value.
+ *
+ * @see node_submit()
+ */
+function fape_field_edit_node_created_form_submit($form, &$form_state) {
+  $date = $form_state['values']['date'];
+  $form_state['entity']->created = !empty($date) ? strtotime($date) : REQUEST_TIME;
+}
+
+/**
  * General submit callback. Simply handles the revision.
  */
 function fape_field_edit_form_submit($form, &$form_state) {
@@ -355,6 +492,7 @@ function fape_panels_pane_content_alter($content, $pane, $args, $context) {
     return;
   }
 
+  // Verify access to the field.
   if ($pane->type == 'entity_field') {
     list($entity_type, $field_name) = explode(':', $pane->subtype);
     $plugin = ctools_get_content_type($pane->type);
@@ -362,27 +500,27 @@ function fape_panels_pane_content_alter($content, $pane, $args, $context) {
     if (entity_access('update', $entity_type, $entity)) {
       $field = field_info_field($field_name);
       if (field_access('edit', $field, $entity_type, $entity)) {
-        list($id, , ) = entity_extract_ids($entity_type, $entity);
+        list($entity_id, , ) = entity_extract_ids($entity_type, $entity);
         $content->admin_links[] = array(
           'title' => t('Edit field'),
-          'alt' => t("Edit the data in this field."),
-          'href' => "admin/field/edit/$entity_type/$id/$field_name",
+          'alt' => t('Edit the data in this field.'),
+          'href' => "admin/field/edit/$entity_type/$entity_id/$field_name",
           'query' => drupal_get_destination(),
         );
       }
     }
   }
 
-  // We also support the node title field specifically.
-  else if ($pane->type == 'node_title') {
+  // We also support the node title, author, and created fields specifically.
+  elseif (in_array($pane->type, array('node_title', 'node_author', 'node_created'))) {
     $plugin = ctools_get_content_type($pane->type);
     $entity = ctools_content_select_context($plugin, $pane->subtype, $pane->configuration, $context)->data;
     if (node_access('update', $entity)) {
-      $nid = $entity->nid;
+      list($ignore, $field_name) = explode('_', $pane->type);
       $content->admin_links[] = array(
         'title' => t('Edit field'),
-        'alt' => t("Edit the data in this field."),
-        'href' => "admin/field/edit/node/$nid/title",
+        'alt' => t('Edit the data in this field.'),
+        'href' => "admin/field/edit/node/{$entity->nid}/$field_name",
         'query' => drupal_get_destination(),
       );
     }

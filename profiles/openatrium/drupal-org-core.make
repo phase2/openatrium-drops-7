@@ -3,7 +3,7 @@ core = 7.x
 
 ; Drupal Core
 projects[drupal][type] = core
-projects[drupal][version] = 7.26
+projects[drupal][version] = 7.27
 ; Patch for handling inherited profiles
 projects[drupal][patch][1356276] = http://drupal.org/files/1356276-make-D7-21.patch
 ; Patch for fixing node_access across non-required Views relationships

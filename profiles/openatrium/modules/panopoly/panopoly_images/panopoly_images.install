@@ -30,3 +30,33 @@ function panopoly_images_install() {
 
   file_info_cache_clear();
 }
+
+/**
+ * Enable the 'manualcrop' module.
+ */
+function panopoly_images_update_7101() {
+  module_enable(array('manualcrop'));
+}
+
+/**
+ * Setup default config for 'manualcrop' on the Media browser.
+ */
+function panopoly_images_update_7102() {
+  $focal_point_enabled = module_exists("focal_point") && in_array("media", array_filter(variable_get("focal_point_enabled_for", array("media"))));
+  variable_set('manualcrop_file_entity_settings_image', array(
+    'manualcrop_enable' => $focal_point_enabled ? 0 : 1,
+    'manualcrop_keyboard' => 1,
+    'manualcrop_thumblist' => 0,
+    'manualcrop_inline_crop' => 0,
+    'manualcrop_crop_info' => 1,
+    'manualcrop_instant_preview' => 1,
+    'manualcrop_instant_crop' => 0,
+    'manualcrop_default_crop_area' => 0,
+    'manualcrop_maximize_default_crop_area' => 0,
+    'manualcrop_styles_mode' => 'include',
+    'manualcrop_styles_list' => array(
+      'panopoly_image_full' => 'panopoly_image_full',
+    ),
+    'manualcrop_require_cropping' => array(),
+  ));
+}

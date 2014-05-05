@@ -53,7 +53,7 @@ function panopoly_magic_menu() {
  * ctools multi step form.
  */
 function panopoly_magic_ajax_form_callback() {
-  list($form, $form_state) = ajax_get_form();
+  list($form, $form_state, $form_id, $form_build_id, $commands) = ajax_get_form();
   ctools_include('content');
   ctools_include('modal');
 

@@ -102,10 +102,15 @@ table.mobile-table {
 .pane-bundle-spotlight .ui-widget-header { border: 0px solid #aaaaaa/*{borderColorHeader}*/; background: transparent/*{bgColorHeader}*/ /*{bgImgUrlHeader}*/ 50%/*{bgHeaderXPos}*/ 50%/*{bgHeaderYPos}*/ repeat-x/*{bgHeaderRepeat}*/; color: #222222/*{fcHeader}*/; font-weight: bold; }
 .pane-bundle-spotlight .ui-widget-header a { color: #222222/*{fcHeader}*/; }
 
+/* Spotlight Widget - Function Buttons */
+.pane-bundle-spotlight .panopoly-spotlight-buttons-wrapper { display: none; z-index: 1; position: absolute; top: 0.7em; right: 0.7em; }
+.pane-bundle-spotlight .panopoly-spotlight-function-buttons { display: inline-block; padding: 0; vertical-align: top; }
+.pane-bundle-spotlight .panopoly-spotlight-function-buttons a { display: inline-block; line-height: 25px; color: #FFFFFF; padding: 0px 10px; background: none; background-color: #000; opacity: .75; border: 1px solid #000000 !important; border-top-left-radius: 0px; border-top-right-radius: 0px; }
+
 /* Spotlight Widget - Tabs Styles */
 .pane-bundle-spotlight .ui-tabs { position: relative; padding: 0em; zoom: 1; }
-.pane-bundle-spotlight .ui-tabs .ui-tabs-nav { margin: 0; padding: .2em .2em 0; }
-.pane-bundle-spotlight .ui-tabs .ui-tabs-nav li { list-style: none; float: left; position: relative; top: 1px; margin: 0 .2em 1px 0; border-bottom: 1px solid #AAAAAA !important; padding: 0; white-space: nowrap; }
+.pane-bundle-spotlight .ui-tabs .ui-tabs-nav { display: inline-block; margin: 0; padding: 0; }
+.pane-bundle-spotlight .ui-tabs .ui-tabs-nav li { list-style: none; float: left; position: relative; top: 0px; margin: 0 .2em 1px 0; border-bottom: 1px solid #AAAAAA !important; padding: 0; white-space: nowrap; }
 .pane-bundle-spotlight .ui-tabs .ui-tabs-nav li a { float: left; padding: 0px 10px; text-decoration: none; }
 .pane-bundle-spotlight .ui-tabs .ui-tabs-nav li.ui-tabs-selected { margin-bottom: 0; padding-bottom: 0px; }
 .pane-bundle-spotlight .ui-tabs .ui-tabs-nav li.ui-tabs-selected a, .ui-tabs .ui-tabs-nav li.ui-state-disabled a, .ui-tabs .ui-tabs-nav li.ui-state-processing a { cursor: text; }
@@ -114,7 +119,7 @@ table.mobile-table {
 .pane-bundle-spotlight .ui-tabs .ui-tabs-hide { display: none !important; }
 
 /* Spotlight Widget - Specific Overrides and Styles */
-.pane-bundle-spotlight .ui-tabs-nav { position: absolute; right: .7em; top: .7em; }
+.pane-bundle-spotlight .ui-tabs-nav { /*position: absolute; right: .7em; top: .7em;*/ }
 .pane-bundle-spotlight .panopoly-spotlight-wrapper { position: absolute; left: 0px; bottom: 0px; }
 .pane-bundle-spotlight .panopoly-spotlight-wrapper h2 { margin: 0; }
 .pane-bundle-spotlight .panopoly-spotlight-wrapper h2 a { text-decoration: none; color: #FFFFFF; }
@@ -126,4 +131,5 @@ table.mobile-table {
 .pane-bundle-spotlight .ui-state-default a { color: #FFFFFF; }
 .pane-bundle-spotlight .ui-tabs .ui-tabs-nav li.ui-state-active { background-color: #FFFFFF; }
 .pane-bundle-spotlight .ui-state-active a { color: #000000; }
+.pane-bundle-spotlight .panopoly-spotlight { position: relative; }
 .pane-bundle-spotlight .panopoly-spotlight .panopoly-image-full { border: 0; }

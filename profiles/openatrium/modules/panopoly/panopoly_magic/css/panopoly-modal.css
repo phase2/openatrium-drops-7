@@ -36,7 +36,7 @@
   color-stop(1, #666666)
   );
   color: #fff;
-  font: bold 16px/50px 'Open Sans', 'Lucida Sans', 'Lucida Grande', verdana sans-serif;
+  font: bold 16px/50px 'Open Sans', 'Lucida Sans', 'Lucida Grande', Verdana, sans-serif;
   vertical-align: middle;
   height: 50px;
   padding: 0 14px 0 24px;
@@ -44,7 +44,7 @@
 
 #modalContent div.ctools-modal-content .modal-title {
   color: #fff;
-  font: bold 16px/50px 'Open Sans', 'Lucida Sans', 'Lucida Grande', verdana sans-serif;
+  font: bold 16px/50px 'Open Sans', 'Lucida Sans', 'Lucida Grande', Verdana, sans-serif;
   text-shadow: none;
   padding: 0;
 }
@@ -84,7 +84,7 @@
   color-stop(0, #DBDCDF),
   color-stop(1, #F6F6F7)
   );
-  font: bold 11px/30px 'Open Sans', 'Lucida Sans', 'Lucida Grande', verdana sans-serif;
+  font: bold 11px/30px 'Open Sans', 'Lucida Sans', 'Lucida Grande', Verdana, sans-serif;
   color: #333;
   text-decoration: none;
   margin-left: 10px;
@@ -243,7 +243,7 @@
 }
   
 #modal-content .fieldset-legend {
-  font: bold 12px/1.5em 'Open Sans', 'Lucida Sans', 'Lucida Grande', verdana sans-serif;
+  font: bold 12px/1.5em 'Open Sans', 'Lucida Sans', 'Lucida Grande', Verdana, sans-serif;
 }
   
 #modal-content fieldset.collapsed legend {
@@ -305,7 +305,7 @@
   position: absolute;
   right: -1px;
   top: -24px;
-  font: bold 11px/23px 'Open Sans', 'Lucida Sans', 'Lucida Grande', verdana sans-serif;
+  font: bold 11px/23px 'Open Sans', 'Lucida Sans', 'Lucida Grande', Verdana, sans-serif;
 }
 
 #modal-content .widget-preview-title .content-type-button div {
@@ -318,7 +318,7 @@
 
 #modal-content .widget-preview-title .content-type-button div a {
   display: block;
-  font: bold 11px/23px 'Open Sans', 'Lucida Sans', 'Lucida Grande',  verdana sans-serif;
+  font: bold 11px/23px 'Open Sans', 'Lucida Sans', 'Lucida Grande',  Verdana, sans-serif;
   color: #fff;
   text-decoration: none;
   background: #5DE000;
@@ -465,7 +465,7 @@
   border: 1px solid #ccc;
   margin-bottom: .5em;
   margin-right: 1em;
-  font: bold 12px/32px 'Open Sans', 'Lucida Sans', 'Lucida Grande',  verdana sans-serif;
+  font: bold 12px/32px 'Open Sans', 'Lucida Sans', 'Lucida Grande',  Verdana, sans-serif;
   text-decoration: none;
   height: 33px;
   color: #666;

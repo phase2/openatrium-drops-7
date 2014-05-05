@@ -24,12 +24,9 @@ projects[ctools][patch][2023705] = http://drupal.org/files/2023705-ctools-autosu
 projects[ctools][patch][2195471] = http://drupal.org/files/issues/ctools-n2195471-1.patch
 
 ; Entity API
-; Override panopoly_core.make: 1.3
-projects[entity][version] = 1.x-dev
+; Override panopoly_core.make: 1.5
+projects[entity][version] = 1.5
 projects[entity][subdir] = contrib
-projects[entity][download][type] = git
-projects[entity][download][branch] = 7.x-1.x
-projects[entity][download][revision] = d9baed
 projects[entity][patch][1782134] = http://drupal.org/files/entity-translatable_fields_not_overriding_und_with_empty_values-1782134-5.patch
 
 ; Panelizer
@@ -46,6 +43,13 @@ projects[panelizer][patch][1982654] = http://drupal.org/files/1982654-panelizer-
 projects[token][version] = 1.5
 projects[token][subdir] = contrib
 projects[token][patch][1999298] = http://drupal.org/files/1999298-disable-test-warnings.patch
+
+; Token
+; Override panopoly_core.make: 1.3
+projects[field_group][version] = 1.3
+projects[field_group][subdir] = contrib
+;following patch not ready yet
+;projects[field_group][patch][1278618] = http://drupal.org/files/issues/field_group-panels-integration-1278618-58.patch
 
 ; Media
 ; Override panopoly_widgets.make: 1f46a9a

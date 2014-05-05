@@ -9,7 +9,7 @@
  * Implements hook_oa_user_settings_form_alter().
  */
 function oa_messages_oa_user_settings_form_alter(&$form, &$form_state, $user) {
-  drupal_set_title('Notification Settings');
+  drupal_set_title(t('Notification Settings'));
   $defaults = isset($user->data['oa_messages']) ? $user->data['oa_messages'] : array();
 
   $form['submit_top'] = array(

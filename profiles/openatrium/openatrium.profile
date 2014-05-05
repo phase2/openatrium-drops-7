@@ -1,6 +1,13 @@
 <?php
 
 /**
+ * @file
+ * Install profile for Open Atrium.
+ */
+
+include_once 'install_from_db/install_from_db.profile';
+
+/**
  * Implements hook_install_tasks()
  */
 function openatrium_install_tasks(&$install_state) {
@@ -21,19 +28,19 @@ function openatrium_install_tasks(&$install_state) {
   //require_once(drupal_get_path('module', 'panopoly_theme') . '/panopoly_theme.profile.inc');
   //$tasks = $tasks + panopoly_theme_profile_theme_selection_install_task($install_state);
 
-  $tasks['open_atrium_features_revert_all'] = array(
+  $tasks['openatrium_features_revert_all'] = array(
     'type' => 'normal',
   );
 
 // Need to rebuild search index tables since oa_search changes panopoly_search
-  $tasks['open_atrium_rebuild_search'] = array(
+  $tasks['openatrium_rebuild_search'] = array(
     'type' => 'normal',
   );
 
   return $tasks;
 }
 
-function open_atrium_features_revert_all() {
+function openatrium_features_revert_all() {
   drupal_set_time_limit(0);
   features_revert(array(
     'oa_core' => array('field_base'),
@@ -43,7 +50,7 @@ function open_atrium_features_revert_all() {
   features_revert();
 }
 
-function open_atrium_rebuild_search() {
+function openatrium_rebuild_search() {
   require_once(drupal_get_path('module', 'oa_search') . '/oa_search.install');
   oa_search_rebuild_index();
 }
@@ -54,6 +61,8 @@ function open_atrium_rebuild_search() {
 function openatrium_install_tasks_alter(&$tasks, $install_state) {
   require_once(drupal_get_path('module', 'oa_core') . '/oa_core.profile.inc');
   $tasks['install_load_profile']['function'] = 'oa_core_install_load_profile';
+  // add option for importing from db
+  install_from_db_install_tasks_alter($tasks, $install_state);
 }
 
 /**

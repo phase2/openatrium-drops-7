@@ -1,3 +1,18 @@
+Panopoly Images 7.x-1.5, 2014-04-30
+-----------------------------
+- No changes since last release.
+
+Panopoly Images 7.x-1.4, 2014-04-24
+-----------------------------
+- Update manualcrop.make to match Drupal.org Whitelist.
+
+Panopoly Images 7.x-1.3, 2014-04-23
+-----------------------------
+- Improve compatibility with focal_point.
+- Manualcrop breaks Video widget.
+- Crop pictures when inserting them.
+- Update Media to at least 7.x-2.0-alpha3+37-dev for PSA-2014-001.
+
 Panopoly Images 7.x-1.2, 2014-13-08
 -----------------------------
 - Add CHANGELOG.txt

@@ -1,0 +1,43 @@
+<?php
+// Ignore the data in these tables, but keep the table structures. Make sure to
+// update the list when new cache tables are added.
+$options['structure-tables']['common'] = array(
+  'cache',
+  'cache_advagg_aggregates',
+  'cache_advagg_info',
+  'cache_block',
+  'cache_bootstrap',
+  'cache_entity_fieldable_panels_pane',
+  'cache_entity_message',
+  'cache_entity_message_type',
+  'cache_entity_message_type_category',
+  'cache_entity_og_membership',
+  'cache_entity_og_membership_type',
+  'cache_field',
+  'cache_filter',
+  'cache_form',
+  'cache_image',
+  'cache_libraries',
+  'cache_menu',
+  'cache_oa_section_buttons',
+  'cache_page',
+  'cache_panels',
+  'cache_path',
+  'cache_search_api_solr',
+  'cache_token',
+  'cache_update',
+  'cache_variable',
+  'cache_views',
+  'cache_views_data',
+  'history',
+  'realname',
+  'search_dataset',
+  'search_index',
+  'search_node_links',
+  'search_total',
+  'sessions',
+  'users',
+);
+// Use the list of cache tables above.
+$options['structure-tables-key'] = 'common';
+?>

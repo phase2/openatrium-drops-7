@@ -110,40 +110,38 @@ function date_popup_authored_form_node_type_form_alter(&$form, &$form_state, $fo
 }
 
 /**
- * Implements hook_form_alter().
+ * Implements hook_form_BASE_FORM_ID_alter() for node_form.
+ *
+ * Replaces default Authored on field with a datepicker on node submission forms.
  */
-function date_popup_authored_form_alter(&$form, $form_state, $form_id) {
-
-  // Replaces default Authored on field with a datepicker on node submission forms.
-  if (strstr($form_id, '_node_form') !== FALSE) {
-    // Date Popup Authored should modify the node submission form only if the
-    // user is allowed to modify the authoring information and it's enabled.
-    if (!($form['author']['#access'] && variable_get('date_popup_authored_enabled_' . $form['type']['#value'], 1))) {
-      return;
-    }
-
-    $form['author']['date']['#type'] = 'date_popup';
-
-    // If there is a date already available, rewrite it to conform to
-    // Date Popup's expected format.
-    if (!empty($form['author']['date']['#default_value'])) {
-      $date = new DateObject($form['author']['date']['#default_value'], NULL, 'Y-m-d H:i:s O');
-      $form['author']['date']['#default_value'] = $date->format('Y-m-d H:i:s');
-    }
-
-    // Set options specific to date_popup.
-    $year_range = variable_get('date_popup_authored_year_range_' . $form['type']['#value'], 3);
-    $form['author']['date']['#date_year_range'] = '-' . $year_range . ':+' . $year_range;
-    $form['author']['date']['#date_format'] = variable_get('date_popup_authored_format_' . $form['type']['#value'], 'm/d/Y - H:i');
-
-    // Unset options that are not relevant to date_popup
-    unset($form['author']['date']['#maxlength']);
-    unset($form['author']['date']['#description']);
-
-    // We need to modify date popup's data during submit
-    // @see http://drupal.org/node/847854
-    $form['#submit'][] = 'date_popup_authored_node_form_submit';
+function date_popup_authored_form_node_form_alter(&$form, $form_state, $form_id) {
+  // Date Popup Authored should modify the node submission form only if the
+  // user is allowed to modify the authoring information and it's enabled.
+  if (!($form['author']['#access'] && variable_get('date_popup_authored_enabled_' . $form['type']['#value'], 1))) {
+    return;
   }
+
+  $form['author']['date']['#type'] = 'date_popup';
+
+  // If there is a date already available, rewrite it to conform to
+  // Date Popup's expected format.
+  if (!empty($form['author']['date']['#default_value'])) {
+    $date = new DateObject($form['author']['date']['#default_value'], NULL, 'Y-m-d H:i:s O');
+    $form['author']['date']['#default_value'] = $date->format('Y-m-d H:i:s');
+  }
+
+  // Set options specific to date_popup.
+  $year_range = variable_get('date_popup_authored_year_range_' . $form['type']['#value'], 3);
+  $form['author']['date']['#date_year_range'] = '-' . $year_range . ':+' . $year_range;
+  $form['author']['date']['#date_format'] = variable_get('date_popup_authored_format_' . $form['type']['#value'], 'm/d/Y - H:i');
+
+  // Unset options that are not relevant to date_popup
+  unset($form['author']['date']['#maxlength']);
+  unset($form['author']['date']['#description']);
+
+  // We need to modify date popup's data during submit
+  // @see http://drupal.org/node/847854
+  $form['#submit'][] = 'date_popup_authored_node_form_submit';
 }
 
 /**

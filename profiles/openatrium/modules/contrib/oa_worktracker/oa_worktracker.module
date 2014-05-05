@@ -154,6 +154,19 @@ function _oa_worktracker_check_section_options(&$options) {
 }
 
 /**
+ * Implements hook_module_implements_alter().
+ */
+function oa_worktracker_module_implements_alter(&$implementations, $hook) {
+  // We need our oa_worktracker_form_oa_worktracker_task_node_form_alter() to
+  // run after save_draft_form_node_form_alter().
+  if ($hook == 'form_alter' && isset($implementations['oa_worktracker'])) {
+    $group = $implementations['oa_worktracker'];
+    unset($implementations['oa_worktracker']);
+    $implementations['oa_worktracker'] = $group;
+  }
+}
+
+/**
  * Implements hook_form_FORM_ID_alter().
  */
 function oa_worktracker_form_oa_worktracker_task_node_form_alter(&$form, &$form_state, $form_id) {
@@ -165,7 +178,7 @@ function oa_worktracker_form_oa_worktracker_task_node_form_alter(&$form, &$form_
   }
 
   if (empty($form['nid']['#value'])) {
-    // Set the default values for 'Priority', 'Status' and 'Type'
+    // Set the default values for 'Priority', 'Status' and 'Type'.
     foreach (array('priority', 'task_status', 'task_type') as $name) {
       $field_name = 'field_oa_worktracker_' . $name;
       $variable_name = 'oa_worktracker_allowed_values_' . $name;
@@ -209,6 +222,10 @@ function oa_worktracker_form_oa_worktracker_task_node_form_alter(&$form, &$form_
         ),
         '#options' => $assigned_to_default,
       );
+
+      // Hide the 'Save as Draft' button because it doesn't do anything sane
+      // in conjunction with the 'Copy for multiple' functionality.
+      $form['actions']['draft']['#access'] = FALSE;
     }
   }
 }
@@ -265,7 +282,7 @@ function oa_worktracker_node_presave($node) {
 function oa_worktracker_node_insert($node) {
   if ($node->type == 'oa_worktracker_task' && !empty($node->oa_worktracker_assigned_to_multiple)) {
     foreach ($node->oa_worktracker_assigned_to_multiple as $uid) {
-      $clone = oa_clone_prepare($node);
+      $clone = oa_clone_prepare($node, NULL, NULL, TRUE);
       $clone->field_oa_worktracker_assigned_to[LANGUAGE_NONE][0]['target_id'] = $uid;
       unset($clone->oa_worktracker_assigned_to_multiple);
       oa_clone_save($clone);
@@ -305,7 +322,7 @@ function oa_worktracker_form_comment_form_alter(&$form, &$form_state, $form_id) 
  */
 function oa_worktracker_form_views_exposed_form_alter(&$form, &$form_state, $form_id) {
   $view = $form_state['view'];
-  if ($view->name == 'oa_worktracker' && $view->current_display == 'task_list') {
+  if ($view->name == 'oa_worktracker' && in_array($view->current_display, array('task_list', 'user_tasks'))) {
     // Set 'open' as the default if we haven't been submitted yet (the request
     // method is GET) and 'open' is actually a valid option. This is a hack
     // around Views issue #1835680: https://drupal.org/node/1835680

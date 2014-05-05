@@ -131,7 +131,7 @@ function oa_core_update_7217() {
  */
 function oa_core_update_7218() {
   if (module_exists('breakpoints')) {
-    if(!$breakpoint = breakpoints_breakpoint_load('wide', 'navbar', 'module')) {
+    if (!$breakpoint = breakpoints_breakpoint_load('wide', 'navbar', 'module')) {
       // Add a breakpoint for switching between horizontal and vertical tray
       // orientation.
       $breakpoint = new stdClass();

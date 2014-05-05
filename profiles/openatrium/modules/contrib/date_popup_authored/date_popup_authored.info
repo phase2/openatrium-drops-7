@@ -4,9 +4,10 @@ core = 7.x
 files[] = date_popup_authored.test
 package = Date/Time
 dependencies[] = date_popup
-; Information added by drupal.org packaging script on 2012-03-31
-version = "7.x-1.1"
+
+; Information added by drush on 2014-05-02
+version = "7.x-1.1+2-dev"
 core = "7.x"
 project = "date_popup_authored"
-datestamp = "1333178146"
+datestamp = "1399051521"
 

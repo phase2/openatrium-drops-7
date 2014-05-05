@@ -27,9 +27,9 @@ function panopoly_search_uninstall() {
  */
 function panopoly_search_update_dependencies() {
   $deps = array();
-  // We need search_api_solr_update_7102() to run before panpoly_core_update_7002().
-  $deps['panopoly_core'][7002] = array(
-    'search_api_solr' => 7102,
+  // We need panopoly_core_update_7002() to run before search_api_solr_update_7102().
+  $deps['search_api_solr'][7102] = array(
+    'panopoly_core' => 7002,
   );
   return $deps;
 }
