@@ -89,7 +89,7 @@ function oa_media_field_default_field_instances() {
     'bundle' => 'image',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => '',
+    'description' => 'Alternative text is used by screen readers, search engines, and when the image cannot be loaded. By adding alt text you improve accessibility and search engine optimization.',
     'display' => array(
       'colorbox' => array(
         'label' => 'above',
@@ -152,7 +152,7 @@ function oa_media_field_default_field_instances() {
     'bundle' => 'image',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => 'Title text attribute',
+    'description' => 'Title text is used in the tool tip when a user hovers their mouse over the image. Adding title text makes it easier to understand the context of an image and improves usability.',
     'display' => array(
       'colorbox' => array(
         'label' => 'above',
@@ -213,9 +213,10 @@ function oa_media_field_default_field_instances() {
   // Translatables
   // Included for use with string extractors like potx.
   t('Alt Text');
+  t('Alternative text is used by screen readers, search engines, and when the image cannot be loaded. By adding alt text you improve accessibility and search engine optimization.');
   t('File Title');
   t('Title Text');
-  t('Title text attribute');
+  t('Title text is used in the tool tip when a user hovers their mouse over the image. Adding title text makes it easier to understand the context of an image and improves usability.');
 
   return $field_instances;
 }

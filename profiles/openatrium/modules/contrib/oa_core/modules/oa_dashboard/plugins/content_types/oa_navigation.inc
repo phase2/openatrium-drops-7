@@ -16,7 +16,6 @@ $plugin = array(
  */
 function oa_dashboard_oa_navigation_content_type_render($subtype, $conf, $panel_args) {
   global $base_url;
-
   $block = new stdClass();
   $block->module = 'oa_dashboard';
 
@@ -83,6 +82,7 @@ function oa_dashboard_oa_navigation_content_type_render($subtype, $conf, $panel_
       $vars['width'] = 0;
     }
   }
+  $vars['show_menu'] = variable_get('oa_mainmenu', TRUE);
   $block->content = theme('oa_navigation', $vars);
 
   return $block;

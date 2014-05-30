@@ -631,11 +631,23 @@ function command_buttons_entity_view($entity, $type, $view_mode, $langcode) {
  *  override it is still nice.
  */
 function command_buttons_render_buttons($commands, $classes, $source = array()) {
+  // Array to hold our duplicate sections if there are any.
+  $duplicates = array();
+
+  // Iterate over the command links to determine if we have duplicate sections.
+  foreach ($source as $command_link) {
+    if (isset($duplicates[$command_link['value']])) {
+      $duplicates[$command_link['value']] = TRUE;
+    }
+    else {
+      $duplicates[$command_link['value']] = FALSE;
+    }
+  }
+
   foreach ($commands as $command) {
 
     // Get the individual commands attached to the button entity.
     $links = field_get_items('command_button', $command, 'field_command_link');
-
 
     // Add the correct css class to each link, do token replacement, and render the link.
     foreach ($links as $link) {
@@ -649,27 +661,51 @@ function command_buttons_render_buttons($commands, $classes, $source = array()) 
       $link['attributes']['class'] = !empty($classes['item_class']) ? $classes['item_class'] : array();
       $link['attributes']['class'] += array(' oa-' . str_replace('-', '_', $command->name));
 
-
       $options = array('attributes' => $link['attributes']);
 
-      if (!empty($source[$command->name])){
-        if ($source[$command->name]['provider_type'] == 'oa_section') {
-          $options['query'] = array('oa_section_ref' => $source[$command->name]['id']);
-        }
-        else if ($source[$command->name]['provider_type'] == 'oa_space') {
-          $options['query'] = array('og_group_ref' => $source[$command->name]['id']);
-        }
-      }
-      if (drupal_valid_path($path)) {
-        $title = token_replace($link['title']);
-        $icon = field_get_items('command_button', $command, 'field_link_icon');
+      foreach ($source as $command_link) {
+        // Make sure we have a command link and that the value matches that of
+        // the command we are currently on.
+        if (!empty($command_link) && $command_link['value'] === $command->name) {
+          if ($command_link['provider_type'] == 'oa_section') {
+            $options['query'] = array('oa_section_ref' => $command_link['id']);
+          }
+          else if ($command_link['provider_type'] == 'oa_space') {
+            $options['query'] = array('og_group_ref' => $command_link['id']);
+          }
+          if (drupal_valid_path($path)) {
 
-        if (!empty($icon[0]['value'])) {
-          $title = '<i class="' . $icon[0]['value'] . '"></i> ' . $title;
-          $options['html'] = TRUE;
-        }
+            // If we don't have duplicate sections just display the default title.
+            if (!$duplicates[$command_link['value']]) {
+              $title = token_replace($link['title']);
+            }
+            // If we have duplicate sections then we will add the title of the
+            // section node to distinguish the difference between them.
+            else {
+              $title = db_select('node', 'n')
+                ->fields('n', array('title'))
+                ->condition('n.nid', $command_link['id'])
+                ->execute()
+                ->fetchField();
+              $title = token_replace($link['title'] . ' ' . t('in') . ' ' . $title);
+            }
 
-        $items[] = '<li>' . l($title, $path, $options) .'</li>';
+            $icon = field_get_items('command_button', $command, 'field_link_icon');
+            if (!empty($icon[0]['value'])) {
+              $title = '<i class="' . $icon[0]['value'] . '"></i> ' . $title;
+              $options['html'] = TRUE;
+            }
+
+            // handle query argument in the command button path
+            $options = array_merge_recursive($options, drupal_parse_url($path));
+            $path = $options['path'];
+            // can't leave 'path' in url $options or the outbound url alter
+            // in oa_domains gets messed up
+            unset($options['path']);
+
+            $items[] = '<li>' . l($title, $path, $options) .'</li>';
+          }
+        }
       }
     }
   }
@@ -812,8 +848,8 @@ function command_buttons_machine_name_load($buttons) {
 
   $results = db_select('command_buttons', 'b')
     ->fields('b', array('bid'))
-    ->condition('bundle', 'node_add')
     ->condition('name', $buttons, 'IN')
+    ->orderBy('title')
     ->execute();
 
   while ($result = $results->fetchObject()) {

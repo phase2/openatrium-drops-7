@@ -595,6 +595,27 @@ function advagg_requirements($phase) {
     );
   }
 
+  // Make hook_element_info_alter worked.
+  $styles_info = element_info('styles');
+  $scripts_info = element_info('scripts');
+  // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
+  if (   empty($styles_info['#pre_render'])
+      || !is_array($styles_info['#pre_render'])
+      || !in_array('advagg_modify_css_pre_render', $styles_info['#pre_render'])
+      || empty($scripts_info['#pre_render'])
+      || !is_array($scripts_info['#pre_render'])
+      || !in_array('advagg_modify_js_pre_render', $scripts_info['#pre_render'])
+      ) {
+    $requirements['advagg_hook_element_info_alter'] = array(
+      'title' => $t('Adv CSS/JS Agg - element_info'),
+      'severity' => REQUIREMENT_WARNING,
+      'value' => $t('Flush your caches.'),
+      'description' => $t('You need to flush your cache_bootstrap cache bin as advagg_hook_element_info_alter() is not working correctly. This can be done near the top of the <a href="@performance">performance page</a> under Clear cache.', array(
+        '@performance' => url('admin/config/development/performance'),
+      )),
+    );
+  }
+
   // Make sure some modules have the correct patches installed.
   if (module_exists('css_emimage')) {
     $file_path = drupal_get_path('module', 'css_emimage');
@@ -710,6 +731,7 @@ function advagg_install_check_via_http(&$requirements) {
   $types = array('css', 'js');
 
   // Make sure we get an advagg fast 404.
+  $mod_url = FALSE;
   if (!variable_get('maintenance_mode', FALSE) && !variable_get('advagg_skip_404_check', FALSE)) {
     foreach ($types as $type) {
       if ($type == 'css') {
@@ -721,16 +743,37 @@ function advagg_install_check_via_http(&$requirements) {
       // Set arguments for drupal_http_request().
       // Make a 404 request to the advagg menu callback.
       $url = file_create_url($path . '/' . $type . ADVAGG_SPACE . REQUEST_TIME . '.' . $type);
-      // Set all timeouts to 12 seconds.
-      $options = array(
-        'timeout' => 12,
-        'dns_timeout' => 12,
-        'connect_timeout' => 12,
-        'ttfb_timeout' => 12,
-      );
+      $options = array();
 
       // Send request.
+      advagg_install_url_mod($url, $options, $mod_url);
       $request = drupal_http_request($url, $options);
+
+      // Try an alt URL if the request code is not positive.
+      if ($request->code < 0) {
+        $mod_url = TRUE;
+        advagg_install_url_mod($url, $options, $mod_url);
+        $new_request = drupal_http_request($url, $options);
+
+        if ($new_request->code < 0) {
+          $description = '';
+          if (!module_exists('httprl')) {
+            $description = t('Enabling the <a href="!httprl">HTTP Parallel Request & Threading Library</a> module might be able to fix this as AdvAgg will use HTTPRL to build the URL if it is enabled.', array('!httprl' => 'https://drupal.org/project/httprl'));
+          }
+          $requirements['advagg_self_request'] = array(
+            'title' => $t('Adv CSS/JS Agg - Self Request Failure'),
+            'severity' => REQUIREMENT_ERROR,
+            'value' => $t('HTTP loopback requests to this server are returning a non positive response code of %code', array('%code' => $new_request->code)),
+            'description' => $t('If you have manually verified that AdvAgg is working correctly you can set the advagg_skip_404_check variable to TRUE in your settings.php. Editing the servers hosts file so the host name points to the localhost might also fix this (127.0.0.1 !hostname).', array('!hostname' => $_SERVER['HTTP_HOST'])) . ' ' . $description,
+          );
+          // Skip the rest of the advagg checks as they will all fail.
+          $types = array();
+          break;
+        }
+        else {
+          $request = $new_request;
+        }
+      }
 
       // @ignore sniffer_commenting_inlinecomment_spacingbefore:5
       // Check response. Report an error if
@@ -872,9 +915,14 @@ function advagg_install_check_via_http(&$requirements) {
       }
 
       // Set arguments for drupal_http_request().
-      $options = array('timeout' => 10, 'headers' => array('Accept-Encoding' => 'gzip, deflate'));
+      $options = array(
+        'headers' => array(
+          'Accept-Encoding' => 'gzip, deflate',
+        ),
+      );
 
       // Send request.
+      advagg_install_url_mod($url, $options, $mod_url);
       $request = drupal_http_request($url, $options);
 
       // @ignore sniffer_commenting_inlinecomment_spacingbefore:4
@@ -1048,7 +1096,6 @@ function advagg_install_check_via_http(&$requirements) {
           // 304.
           $url = file_create_url($url_path . '/' . $filename);
           $options = array(
-            'timeout' => 10,
             'headers' => array(
               'Accept-Encoding' => 'gzip, deflate',
               'If-Modified-Since' => $request->headers['last-modified'],
@@ -1056,6 +1103,7 @@ function advagg_install_check_via_http(&$requirements) {
           );
 
           // Send request.
+          advagg_install_url_mod($url, $options, $mod_url);
           $request = drupal_http_request($url, $options);
           if ($request->code != 304) {
             // Recommend servers configuration be adjusted.
@@ -1164,4 +1212,94 @@ function advagg_install_get_first_advagg_file($file_path) {
   }
 
   return $filename;
+}
+
+/**
+ * Modify $url and $options before making the HTTP request.
+ *
+ * @param string $url
+ *   Full URL.
+ * @param array $options
+ *   Options array for drupal_http_request().
+ * @param bool $mod_url
+ *   Set to TRUE to try and modify the $url variable.
+ *
+ * @return string
+ *   URI is returned.
+ */
+function advagg_install_url_mod(&$url, &$options, $mod_url = FALSE) {
+  // Set the $options array.
+  // Set all timeouts to 8 seconds.
+  $options += array(
+    'timeout' => 8,
+    'dns_timeout' => 8,
+    'connect_timeout' => 8,
+    'ttfb_timeout' => 8,
+  );
+  if (!empty($_SERVER['HTTP_HOST'])) {
+    $options['headers']['Host'] = $_SERVER['HTTP_HOST'];
+  }
+  elseif (!empty($_SERVER['SERVER_NAME'])) {
+    $options['headers']['Host'] = $_SERVER['SERVER_NAME'];
+  }
+  // Set connection to closed to prevent keep-alive from causing a timeout.
+  $options['headers']['Connection'] = 'close';
+  // Set referrer to current page.
+  $options['headers']['Referer'] = $GLOBALS['base_root'] . request_uri();
+
+  if ($mod_url) {
+    $parts = @parse_url($url);
+    if (function_exists('httprl_build_url_self')) {
+      // Remove the base_path from path.
+      $path = substr($parts['path'], strlen($GLOBALS['base_path']));
+      $new_url = httprl_build_url_self($path);
+    }
+    else {
+      if (!empty($_SERVER['HTTP_HOST']) && $parts['host'] != $_SERVER['HTTP_HOST']) {
+        $parts['host'] = $_SERVER['HTTP_HOST'];
+      }
+      elseif (!empty($_SERVER['SERVER_NAME']) && $parts['host'] != $_SERVER['SERVER_NAME']) {
+        $parts['host'] = $_SERVER['SERVER_NAME'];
+      }
+      elseif (!empty($_SERVER['SERVER_ADDR']) && $parts['host'] != $_SERVER['SERVER_ADDR']) {
+        $parts['host'] = $_SERVER['SERVER_ADDR'];
+      }
+      else {
+        $parts['host'] = '127.0.0.1';
+      }
+      $new_url = advagg_install_glue_url($parts);
+    }
+    $url = $new_url;
+  }
+}
+
+/**
+ * Alt to http_build_url().
+ *
+ * @see http://php.net/parse-url#85963
+ *
+ * @param array $parsed
+ *   array from parse_url()
+ *
+ * @return string
+ *   URI is returned.
+ */
+function advagg_install_glue_url($parsed) {
+  if (!is_array($parsed)) {
+    return FALSE;
+  }
+
+  $uri = isset($parsed['scheme']) ? $parsed['scheme'] . ':' . ((strtolower($parsed['scheme']) == 'mailto') ? '' : '//') : '';
+  $uri .= isset($parsed['user']) ? $parsed['user'] . (isset($parsed['pass']) ? ':' . $parsed['pass'] : '') . '@' : '';
+  $uri .= isset($parsed['host']) ? $parsed['host'] : '';
+  $uri .= !empty($parsed['port']) ? ':' . $parsed['port'] : '';
+
+  if (isset($parsed['path'])) {
+    $uri .= (substr($parsed['path'], 0, 1) == '/') ? $parsed['path'] : ((!empty($uri) ? '/' : '') . $parsed['path']);
+  }
+
+  $uri .= isset($parsed['query']) ? '?' . $parsed['query'] : '';
+  $uri .= isset($parsed['fragment']) ? '#' . $parsed['fragment'] : '';
+
+  return $uri;
 }

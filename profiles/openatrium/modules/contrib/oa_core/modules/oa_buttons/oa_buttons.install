@@ -79,7 +79,7 @@ function oa_buttons_update_7007() {
 function oa_buttons_update_7008() {
   $terms = oa_buttons_get_default_terms();
   foreach ($terms as $machine_name => $t) {
-    $vocab = taxonomy_vocabulary_machine_name_load($taxonomy);
+    $vocab = oa_core_taxonomy_vocabulary($taxonomy);
     if ($term = taxonomy_get_term_by_name($t['name'], $t['taxonomy'])) {
       $term = reset($term);
       $term->name = $t['name'];

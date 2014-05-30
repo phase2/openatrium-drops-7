@@ -320,7 +320,7 @@ function oa_appearance_get_space_banner($space_id, $banner_position) {
     if ($cached_value = cache_get($cid)) {
       $static_cache[$static_cache_key] = $cached_value->data;
     }
-    
+
     if (!isset($static_cache[$static_cache_key])) {
       $space = node_load($space_id);
 
@@ -448,7 +448,7 @@ function oa_appearance_get_space_colorizer_instance($base_instance, $space_id) {
     if ($cached_value = cache_get($cid)) {
       $static_cache[$space_id] = $cached_value->data;
     }
-    
+
     if (!isset($static_cache[$space_id])) {
       $space = node_load($space_id);
 

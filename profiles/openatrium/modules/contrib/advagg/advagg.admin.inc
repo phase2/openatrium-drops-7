@@ -54,7 +54,6 @@ function advagg_admin_settings_form($form, $form_state) {
   );
   $options = array(
     -1 => t('Development ~ 100ms'),
-//     0 => t('Disabled ~ 70ms'),
     1 => t('Normal ~ 10ms'),
     3 => t('Aggressive ~ 4ms'),
   );
@@ -81,7 +80,7 @@ function advagg_admin_settings_form($form, $form_state) {
         ),
       );
       $form['global']['dev_container']['advagg_jquery_update_development'] = array(
-        '#markup' => '<p>' . t('You might want to change the <a href="!url">jQuery update compression level</a> to "Development" as well. ', array(
+        '#markup' => '<p>' . t('You might want to change the <a href="!url">jQuery update compression level</a> to "Development" as well.', array(
           '!url' => url('admin/config/development/jquery_update'),
         )) . '</p>',
       );
@@ -96,7 +95,7 @@ function advagg_admin_settings_form($form, $form_state) {
         ),
       );
       $form['global']['prod_container']['advagg_jquery_update_development'] = array(
-        '#markup' => '<p>' . t('You might want to change the <a href="!url">jQuery update compression level</a> to "Production" as well. ', array(
+        '#markup' => '<p>' . t('You might want to change the <a href="!url">jQuery update compression level</a> to "Production" as well.', array(
           '!url' => url('admin/config/development/jquery_update'),
         )) . '</p>',
       );
@@ -133,7 +132,7 @@ function advagg_admin_settings_form($form, $form_state) {
     '#type' => 'textfield',
     '#title' => t('The selector count the IE CSS limiter should use'),
     '#default_value' => variable_get('advagg_ie_css_selector_limiter_value', ADVAGG_IE_CSS_SELECTOR_LIMITER_VALUE),
-    '#description' => t('Internet Explorer before version 10; IE9, IE8, IE7, & IE6 all have 4095 as the limit for the maximum number of css selectors that can be in a file. Use this field to modify the value used 4095 sometimes may be still be too many with media queries.'),
+    '#description' => t('Internet Explorer before version 10; IE9, IE8, IE7, & IE6 all have 4095 as the limit for the maximum number of css selectors that can be in a file. Use this field to modify the value used; 4095 sometimes may be still be too many with media queries.'),
     '#states' => array(
       'visible' => array(
         '#edit-advagg-ie-css-selector-limiter' => array('checked' => TRUE),
@@ -196,7 +195,20 @@ function advagg_admin_operations_form($form, $form_state) {
   $form['bypass'] = array(
     '#type' => 'fieldset',
     '#title' => t('Aggregation Bypass Cookie'),
-    '#description' => t('This will set or remove a cookie that disables aggregation for the remainder of the browser session.'),
+    '#description' => t('This will set or remove a cookie that disables aggregation for a set period of time.'),
+  );
+  $bypass_length = drupal_map_assoc(array(
+    60 * 60 * 6,
+    60 * 60 * 12,
+    60 * 60 * 24,
+    60 * 60 * 24 * 2,
+    60 * 60 * 24 * 7,
+    60 * 60 * 24 * 30,
+  ), 'format_interval');
+  $form['bypass']['timespan'] = array(
+    '#type' => 'select',
+    '#title' => 'Bypass length',
+    '#options' => $bypass_length,
   );
   $form['bypass']['submit'] = array(
     '#type' => 'submit',
@@ -502,7 +514,7 @@ function advagg_admin_settings_form_submit($form, &$form_state) {
 /**
  * Set or remove the AdvAggDisabled cookie.
  */
-function advagg_admin_toggle_bypass_cookie() {
+function advagg_admin_toggle_bypass_cookie($form, &$form_state) {
   $cookie_name = 'AdvAggDisabled';
   $key = drupal_hash_base64(drupal_get_private_key());
 
@@ -515,9 +527,9 @@ function advagg_admin_toggle_bypass_cookie() {
   // If the cookie does not exist then set it.
   else {
     // Cookie will last for 12 hours.
-    setcookie($cookie_name, $key, REQUEST_TIME + (60 * 60 * 12), $GLOBALS['base_path'], '.' . $_SERVER['HTTP_HOST']);
+    setcookie($cookie_name, $key, REQUEST_TIME + $form_state['values']['timespan'], $GLOBALS['base_path'], '.' . $_SERVER['HTTP_HOST']);
     $_COOKIE[$cookie_name] = $key;
-    drupal_set_message(t('AdvAgg Bypass Cookie Set.'));
+    drupal_set_message(t('AdvAgg Bypass Cookie Set for %time.', array('%time' => format_interval($form_state['values']['timespan']))));
   }
 }
 
@@ -598,8 +610,16 @@ function advagg_admin_get_file_info($filename) {
     $data['files'] = $files;
 
     // Get detailed info on each file.
+    $files_info_filenames = array();
     foreach ($data['files'] as $filename => &$info) {
-      $info += advagg_get_info_on_file($filename);
+      $files_info_filenames[] = $filename;
+    }
+
+    // Get filesystem data.
+    $files_info = advagg_get_info_on_files($files_info_filenames);
+
+    foreach ($data['files'] as $filename => &$info) {
+      $info += $files_info[$filename];
       if (module_exists('advagg_bundler')) {
         $bundler = advagg_bundler_analysis($filename);
         $info['group_hash'] = $bundler['group_hash'];

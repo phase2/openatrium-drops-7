@@ -197,6 +197,11 @@ function oa_message_notifiers() {
  * Implements hook_entity_insert().
  */
 function oa_messages_entity_insert($entity, $type) {
+  // only create messages for node updates
+  if ($type !== 'node') {
+    return;
+  }
+
   $types = oa_core_list_content_types(TRUE);
   if ($type == 'node' && array_key_exists($entity->type, $types)) {
     $message = oa_messages_create('oa_create', $entity, $type, '', NULL, $entity->uid);
@@ -207,6 +212,11 @@ function oa_messages_entity_insert($entity, $type) {
  * Implements hook_entity_update().
  */
 function oa_messages_entity_update($entity, $type) {
+  // only create messages for node updates
+  if ($type !== 'node') {
+    return;
+  }
+
   $update = TRUE;
   $update = (isset($entity->title) && $entity->title !== $entity->original->title) ? TRUE : FALSE;
 

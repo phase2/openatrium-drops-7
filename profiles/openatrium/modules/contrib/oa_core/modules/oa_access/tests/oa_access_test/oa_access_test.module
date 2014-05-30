@@ -32,6 +32,24 @@ function oa_access_test_oa_access_permission() {
       'description' => t('Used to test the "All" option'),
       'type' => OA_ACCESS_DEFAULT_PERMISSION | OA_ACCESS_ALLOW_OPTION_ALL,
     ),
+    'access oa_access_test intersection' => array(
+      'title' => t('Access Open Atrium Access Test (Intersection)'),
+      'description' => t('Tests OA_ACCESS_COMBINE_INTERSECTION.'),
+      'type' => OA_ACCESS_DEFAULT_PERMISSION | OA_ACCESS_ALLOW_OPTION_ALL,
+      'combine' => OA_ACCESS_COMBINE_INTERSECTION,
+    ),
+    'access oa_access_test team override' => array(
+      'title' => t('Access Open Atrium Access Test (Team Override)'),
+      'description' => t('Tests OA_ACCESS_COMBINE_TEAM_OVERRIDE.'),
+      'type' => OA_ACCESS_DEFAULT_PERMISSION | OA_ACCESS_ALLOW_OPTION_ALL,
+      'combine' => OA_ACCESS_COMBINE_TEAM_OVERRIDE,
+    ),
+    'access oa_access_test group override' => array(
+      'title' => t('Access Open Atrium Access Test (Group Override)'),
+      'description' => t('Tests OA_ACCESS_COMBINE_GROUP_OVERRIDE.'),
+      'type' => OA_ACCESS_DEFAULT_PERMISSION | OA_ACCESS_ALLOW_OPTION_ALL,
+      'combine' => OA_ACCESS_COMBINE_GROUP_OVERRIDE,
+    ),
   );
   if (!variable_get('oa_access_test_remove_permission', FALSE)) {
     $permissions['a permission for oa_access_test that is only conditionally available'] = array(

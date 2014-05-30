@@ -31,6 +31,7 @@ features[features_api][] = api:2
 features[field_group][] = group_oa_access|node|oa_wiki_page|form
 features[field_instance][] = node-oa_wiki_page-body
 features[field_instance][] = node-oa_wiki_page-field_oa_media
+features[field_instance][] = node-oa_wiki_page-oa_other_spaces_ref
 features[field_instance][] = node-oa_wiki_page-oa_section_ref
 features[field_instance][] = node-oa_wiki_page-og_group_ref
 features[field_instance][] = node-oa_wiki_page-og_vocabulary
@@ -59,9 +60,9 @@ features[variable][] = panelizer_defaults_node_oa_wiki_page
 features[variable][] = panelizer_node:oa_wiki_page_default
 project path = profiles/openatrium/modules/contrib
 
-; Information added by Drupal.org packaging script on 2014-05-01
-version = "7.x-2.18"
+; Information added by Drupal.org packaging script on 2014-05-29
+version = "7.x-2.19"
 core = "7.x"
 project = "oa_wiki"
-datestamp = "1398971331"
+datestamp = "1401393830"
 

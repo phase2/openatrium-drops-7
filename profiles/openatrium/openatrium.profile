@@ -41,18 +41,26 @@ function openatrium_install_tasks(&$install_state) {
 }
 
 function openatrium_features_revert_all() {
+  global $install_state;
   drupal_set_time_limit(0);
-  features_revert(array(
-    'oa_core' => array('field_base'),
-    'oa_sections' => array('field_base', 'field_instance'),
-    'oa_users' => array('field_instance'),
-  ));
-  features_revert();
+  // only revert features when not doing a quick install
+  if (empty($install_state['parameters']['quickstart']) || ($install_state['parameters']['quickstart'] != 'quick')) {
+    features_revert(array(
+      'oa_core' => array('field_base'),
+      'oa_sections' => array('field_base', 'field_instance'),
+      'oa_users' => array('field_instance'),
+    ));
+    features_revert();
+  }
 }
 
 function openatrium_rebuild_search() {
-  require_once(drupal_get_path('module', 'oa_search') . '/oa_search.install');
-  oa_search_rebuild_index();
+  global $install_state;
+  // only rebuild search when not doing a quick install
+  if (empty($install_state['parameters']['quickstart']) || ($install_state['parameters']['quickstart'] != 'quick')) {
+    require_once(drupal_get_path('module', 'oa_search') . '/oa_search.install');
+    oa_search_rebuild_index();
+  }
 }
 
 /**

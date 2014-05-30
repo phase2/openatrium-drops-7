@@ -1,0 +1,9 @@
+/**
+ * When using the exposed filter for Space in the Pane settings dialog, we want
+ * a newline after the select box so that the checkboxes fall onto the next
+ * line.
+ */
+#modal-content #views-exposed-pane div.form-item-exposed-og-group-ref-target-id:after {
+  content: '\a';
+  white-space: pre;
+}

@@ -26,11 +26,12 @@ features[variable][] = file_default_scheme
 features[variable][] = file_entity_file_upload_wizard_skip_scheme
 features[variable][] = og_context_negotiation_group_context
 features[variable][] = og_context_providers_weight_group_context
+features[variable][] = pathauto_reduce_ascii
 features[variable][] = preprocess_css
 
-; Information added by Drupal.org packaging script on 2014-05-01
-version = "7.x-2.18"
+; Information added by Drupal.org packaging script on 2014-05-30
+version = "7.x-2.19"
 core = "7.x"
 project = "oa_core"
-datestamp = "1398972535"
+datestamp = "1401462830"
 

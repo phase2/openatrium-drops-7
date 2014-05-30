@@ -65,7 +65,7 @@ function install_from_db_form($form, &$form_state, &$install_state) {
   }
   $install_state['parameters']['db_import_filename'] = $filename;
 
-  if ($install_state['interactive'] && isset($install_state['parameters']['quickstart'])) {
+  if ($install_state['interactive'] && !empty($install_state['parameters']['quickstart'])) {
     // if url argument is already specified, then just use it
     $form_state['input']['quickstart'] = $install_state['parameters']['quickstart'];
     $form_state['executed'] = TRUE;

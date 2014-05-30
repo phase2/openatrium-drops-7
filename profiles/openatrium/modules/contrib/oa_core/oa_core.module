@@ -841,6 +841,20 @@ function oa_core_form_views_exposed_form_alter(&$form, $form_state) {
   if (!empty($form['og_group_ref_target_id'])) {
     $form['#after_build'][] = 'oa_core_views_exposed_form_rearrange';
   }
+  // If a Space was chosen, and we have a Section selector - then we need to
+  // change the available options to be the Sections in that Space (rather
+  // than the current Space). This is necessary to make the customizations
+  // work that were done in:
+  //   oa_core_form_views_content_views_panes_content_type_edit_form_alter()
+  // Otherwise you'll get the 'An illegal choice has been detected.' message
+  // when selecting a Section in another Space.
+  if (!empty($form_state['input']['og_group_ref_target_id']) && !empty($form['oa_section_ref_target_id'])) {
+    $sections = array(
+      ''    => t('- Active Section -'),
+      'All' => t('- Any -')
+    ) + oa_core_space_sections($form_state['input']['og_group_ref_target_id']);
+    $form['oa_section_ref_target_id']['#options'] = $sections;
+  }
 }
 
 function oa_core_views_exposed_form_rearrange($form) {
@@ -965,7 +979,7 @@ function oa_core_get_allowed_space_types($field) {
   }
   if ($gid) {
     foreach ($field['settings']['allowed_values'] as $tree) {
-      if ($vocabulary = taxonomy_vocabulary_machine_name_load($tree['vocabulary'])) {
+      if ($vocabulary = oa_core_taxonomy_vocabulary($tree['vocabulary'])) {
         if ($terms = taxonomy_get_tree($vocabulary->vid, $tree['parent'])) {
           foreach ($terms as $term) {
             if (og_user_access('node', $gid, _oa_buttons_perm_name($tree['vocabulary'], $term->tid))) {
@@ -1207,5 +1221,47 @@ function oa_core_node_delete_redirect($form, &$form_state) {
   }
   if (!empty($id)) {
     $form_state['redirect'] = 'node/' . $id;
+  }
+}
+
+/**
+ * Implements hook_views_query_alter().
+ */
+function oa_core_views_query_alter(&$view, &$query) {
+  // We only modify views that have 'og_group_ref_target_id' as an exposed
+  // filter and only when that filter has a value. We are adding support for
+  // the 'Visible in other Spaces' (oa_other_spaces_ref) field.
+  if (!empty($view->exposed_input['og_group_ref_target_id']) && is_numeric($view->exposed_input['og_group_ref_target_id']) && !empty($view->filter['og_group_ref_target_id']->options['exposed'])) {
+    // Ensure that we've joined against 'field_data_oa_other_spaces_ref' table.
+    $join = new views_join();
+    $join->construct('field_data_oa_other_spaces_ref', 'node', 'nid', 'entity_id', array(
+      array('field' => 'entity_type', 'value' => 'node'),
+      array('field' => 'deleted', 'value' => 0, 'numeric' => TRUE),
+    ));
+    $alias = $query->ensure_table('field_data_oa_other_spaces_ref', 'node', $join);
+    if ($alias) {
+      // Only change the query if the join to node table worked
+      //
+      // Add a new 'where group' which is an OR and move 'og_group_ref_target_id'
+      // to it (and grab it's value).
+      $value = array();
+      $group = $query->set_where_group('OR');
+      foreach ($query->where[1]['conditions'] as $key => $condition) {
+        // If the field is 'og_membership.gid' or an alias for the same column.
+        if ($condition['field'] === 'og_membership.gid' || substr($condition['field'], -19) === '__og_membership.gid') {
+          // Move the condition to our new where group.
+          $query->add_where($group, $condition['field'], $condition['value'], $condition['operator']);
+          $value = $condition['value'];
+          unset($query->where[1]['conditions'][$key]);
+          break;
+        }
+      }
+
+      // Finally, we filter against 'field_data_oa_other_spaces_ref' with the
+      // same value as was given to 'oa_group_ref_target_id'.
+      if (!empty($value)) {
+        $query->add_where($group, "{$alias}.oa_other_spaces_ref_target_id", $value, 'IN');
+      }
+    }
   }
 }

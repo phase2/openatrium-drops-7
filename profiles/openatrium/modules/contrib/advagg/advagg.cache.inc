@@ -22,10 +22,21 @@ function advagg_scan_for_changes() {
     ->execute();
   if (!empty($result)) {
     module_load_include('inc', 'advagg', 'advagg');
+    $filenames = array();
+
+    $data = array();
     foreach ($result as $row) {
-      $row = (array) $row;
-      // Get filesystem data.
-      $info = advagg_get_info_on_file($row['filename'], TRUE);
+      $filenames[] = $row->filename;
+      $data[$row->filename] = (array) $row;
+    }
+
+    // Get filesystem data.
+    $files_info = advagg_get_info_on_files($filenames, TRUE);
+    foreach ($files_info as $info) {
+      if (!isset($data[$info['data']])) {
+        continue;
+      }
+      $row = $data[$info['data']];
 
       // Select the keys to compare.
       $keys_to_compare = array(
@@ -41,7 +52,7 @@ function advagg_scan_for_changes() {
         }
       }
       // Compare mtime if it is not zero.
-      if (!$changed && !empty($info['mtime']) && $row['mtime'] != $info['mtime']) {
+      if (!$changed && empty($info['split']) && !empty($info['mtime']) && $row['mtime'] != $info['mtime']) {
         $changed = TRUE;
       }
 
@@ -61,23 +72,6 @@ function advagg_scan_for_changes() {
       // If file has changed, add it to the array.
       if ($changed) {
         $files_that_have_changed[$row['filename']] = $info;
-
-        // Remove non advagg core attributes so advagg contrib can react to new
-        // changes to the file.
-        $keys_to_keep = array(
-          'filesize' => 1,
-          'mtime' => 1,
-          'filename_hash' => 1,
-          'content_hash' => 1,
-          'linecount' => 1,
-        );
-        $info = array_intersect_key($info, $keys_to_keep);
-
-        // Save results.
-        $filename_hashes = &drupal_static('advagg_get_info_on_file');
-        $cache_id = 'advagg:file:' . $info['filename_hash'];
-        $filename_hashes[$cache_id] = $info;
-        cache_set($cache_id, $info, 'cache_advagg_info', CACHE_PERMANENT);
       }
     }
   }

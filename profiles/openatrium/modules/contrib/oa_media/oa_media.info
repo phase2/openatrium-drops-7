@@ -18,6 +18,13 @@ stylesheets[all][] = oa_media.css
 features[ctools][] = file_entity:file_default_displays:1
 features[ctools][] = strongarm:strongarm:1
 features[features_api][] = api:2
+features[features_override_items][] = views_view.media_default
+features[features_overrides][] = views_view.media_default.display|default|display_options|filters|oa_section_ref_target_id
+features[features_overrides][] = views_view.media_default.display|default|display_options|filters|og_group_ref_target_id
+features[features_overrides][] = views_view.media_default.display|default|display_options|relationships
+features[features_overrides][] = views_view.media_default.display|media_browser_my_files|display_options|filters|oa_section_ref_target_id
+features[features_overrides][] = views_view.media_default.display|media_browser_my_files|display_options|filters|og_group_ref_target_id
+features[features_overrides][] = views_view.media_default.display|media_browser_my_files|display_options|relationships|reverse_field_oa_media_node
 features[field_base][] = field_file_image_alt_text
 features[field_base][] = field_file_image_title_text
 features[field_base][] = field_file_title
@@ -159,9 +166,9 @@ features[variable][] = colorbox_transition_type
 features[variable][] = colorbox_visibility
 features[variable][] = field_bundle_settings_file__document
 
-; Information added by Drupal.org packaging script on 2014-05-01
-version = "7.x-2.18"
+; Information added by Drupal.org packaging script on 2014-05-29
+version = "7.x-2.19"
 core = "7.x"
 project = "oa_media"
-datestamp = "1398971643"
+datestamp = "1401394734"
 

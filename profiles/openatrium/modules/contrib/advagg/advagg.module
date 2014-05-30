@@ -189,6 +189,7 @@ function advagg_hook_info() {
     'advagg_changed_files',
     'advagg_scan_for_changes',
     'advagg_context_alter',
+    'advagg_get_info_on_files_alter',
   );
   $hooks = array();
   foreach ($advagg_hooks as $hook) {
@@ -393,21 +394,14 @@ function advagg_menu() {
  *   Set to TRUE to skip the 24 hour check.
  */
 function advagg_cron($bypass_time_check = FALSE) {
-  // clear caches per https://drupal.org/node/2216825
-  if (db_table_exists('advagg_aggregates_versions')) {
-    // Scan for new changes.
-    module_load_include('inc', 'advagg', 'advagg.cache');
-    $flushed = advagg_push_new_changes();
-
-    cache_clear_all('*', 'cache_advagg_aggregates', TRUE);
-    cache_clear_all('*', 'cache_advagg_info', TRUE);
-  }
-
   // Execute once a day (24 hours).
   if (!$bypass_time_check && variable_get('advagg_cron_timestamp', 0) > (REQUEST_TIME - 86400)) {
     return array();
   }
   variable_set('advagg_cron_timestamp', REQUEST_TIME);
+
+  // Flush the cache_advagg_info cache bin.
+  cache_clear_all(NULL, 'cache_advagg_info');
 
   $return = array();
   // Clear out all stale advagg aggregated files.
@@ -443,10 +437,10 @@ function advagg_flush_caches($all_bins = FALSE) {
   $flushed = advagg_push_new_changes();
 
   // Get list of cache bins to clear.
-  $bins = array(
-    'cache_advagg_aggregates',
-    'cache_advagg_info',
-  );
+  $bins = array('cache_advagg_aggregates');
+  if ($all_bins) {
+    $bins[] = 'cache_advagg_info';
+  }
   return $bins;
 }
 
@@ -1047,7 +1041,13 @@ function _advagg_process_html(&$variables) {
   $javascript = drupal_add_js();
   // Try the JS cache first; only if not debugging.
   if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) >= 3) {
+    // Exclude JS Settings from the hash.
+    $js_settings = $javascript['settings']['data'];
+    unset($javascript['settings']['data']);
     $js_hash = drupal_hash_base64(serialize($javascript));
+    $javascript['settings']['data'] = $js_settings;
+    $js_settings = drupal_array_merge_deep_array($js_settings);
+
     $js_cache_id = 'advagg:js:full:' . $hooks_hash . ':' . $js_hash;
     $js_cache = cache_get($js_cache_id, 'cache_advagg_aggregates');
   }
@@ -1064,7 +1064,25 @@ function _advagg_process_html(&$variables) {
     $variables['page_bottom'] = '';
   }
   if (!empty($js_cache->data) && !variable_get('advagg_debug', ADVAGG_DEBUG)) {
+    // Replace cached settings with current ones.
     foreach ($js_cache->data as $key => $value) {
+      // Search $value for Drupal.settings.
+      $start = strpos($value, 'jQuery.extend(Drupal.settings,');
+      if ($start !== FALSE) {
+        $end = strpos($value, '});', $start);
+        // Get raw json from the cache and decode it.
+        $json = trim(substr($value, $start+30, $end - $start-30+1));
+        $out = json_decode($json, TRUE);
+
+        // Use ['ajaxPageState']['js'] from the cached data.
+        $js_settings['ajaxPageState']['js'] = $out['ajaxPageState']['js'];
+
+        // Replace cached Drupal.settings with current Drupal.settings for this
+        // page.
+        $json_data = @drupal_json_encode($js_settings);
+        $value = substr($value, 0, $start+30) . $json_data . substr($value, $end+1);
+      }
+
       if (!isset($variables[$key]) || !is_string($variables[$key])) {
         $variables[$key] = '';
       }
@@ -1235,7 +1253,12 @@ function advagg_get_js($scope = 'header', $javascript = NULL, $skip_alter = FALS
     $settings_js = array();
     foreach (array_keys($items) as $key) {
       if ($items[$key]['type'] == 'setting') {
-        $settings_js[] = $items[$key];
+        if (isset($settings_js[$key])) {
+          $settings_js[$key] += $items[$key];
+        }
+        else {
+          $settings_js[$key] = $items[$key];
+        }
         unset($items[$key]);
       }
     }
@@ -1247,7 +1270,7 @@ function advagg_get_js($scope = 'header', $javascript = NULL, $skip_alter = FALS
         // Move $settings_js to the bottom of the js that was added to the
         // header, but has now been moved to the footer via advagg_mod.
         if ($item['group'] > 9000) {
-          array_splice($items, $counter, 0, $settings_js);
+          advagg_array_splice_assoc($items, $counter, 0, $settings_js);
           unset($settings_js);
           break;
         }
@@ -1316,6 +1339,46 @@ function advagg_get_js($scope = 'header', $javascript = NULL, $skip_alter = FALS
   }
 
   return drupal_render($elements);
+}
+
+/**
+ * Remove a portion of the array and replace it with something else.
+ *
+ * @see http://php.net/array-splice#111204
+ *
+ * @param array $input
+ *   The input array.
+ * @param int $offset
+ *   If offset is positive then the start of removed portion is at that offset
+ *   from the beginning of the input array. If offset is negative then it starts
+ *   that far from the end of the input array.
+ * @param int $length
+ *   If length is omitted, removes everything from offset to the end of the
+ *   array. If length is specified and is positive, then that many elements will
+ *   be removed. If length is specified and is negative then the end of the
+ *   removed portion will be that many elements from the end of the array. Tip:
+ *   to remove everything from offset to the end of the array when replacement
+ *   is also specified, use count($input) for length.
+ * @param mixed $replacement
+ *   If replacement array is specified, then the removed elements are replaced
+ *   with elements from this array.
+ *   If offset and length are such that nothing is removed, then the elements
+ *   from the replacement array are inserted in the place specified by the
+ *   offset. Note that keys in replacement array are preserved.
+ *   If replacement is just one element it is not necessary to put array()
+ *   around it, unless the element is an array itself, an object or NULL.
+ */
+function advagg_array_splice_assoc(&$input, $offset, $length, $replacement) {
+  $replacement = (array) $replacement;
+  $key_indices = array_flip(array_keys($input));
+  if (isset($input[$offset]) && is_string($offset)) {
+    $offset = $key_indices[$offset];
+  }
+  if (isset($input[$length]) && is_string($length)) {
+    $length = $key_indices[$length] - $offset;
+  }
+
+  $input = array_slice($input, 0, $offset, TRUE) + $replacement + array_slice($input, $offset + $length, NULL, TRUE);
 }
 
 /**
@@ -1720,6 +1783,7 @@ function advagg_hooks_implemented($all = TRUE) {
       'advagg_js_groups_alter' => array(),
       'advagg_modify_css_pre_render_alter' => array(),
       'advagg_modify_js_pre_render_alter' => array(),
+      'advagg_get_info_on_files_alter' => array(),
       'js_alter' => array(),
       'css_alter' => array(),
     );
@@ -1983,7 +2047,9 @@ function advagg_update_atime($aggregate_filenames_hash, $aggregate_contents_hash
   $cache->data['atime'] = REQUEST_TIME;
 
   // Write to the cache.
-  cache_set($cache_id, $cache->data, 'cache_advagg_info', CACHE_PERMANENT);
+  // CACHE_PERMANENT isn't good here. Use 2 weeks from now + 0-45 days.
+  // The random 0 to 45 day addition is to prevent a cache stampeed.
+  cache_set($cache_id, $cache->data, 'cache_advagg_info', round(REQUEST_TIME + 1209600 + mt_rand(0, 3888000), -3));
 
   // Release Lock.
   lock_release($cache_id);
@@ -2082,7 +2148,7 @@ function advagg_pre_render_scripts($elements) {
     // script element for this file.
     if (isset($group['type']) && $group['type'] == 'file' && isset($group['data'])) {
       $element = $element_defaults;
-      $element['#attributes']['src'] = file_create_url($group['data']);
+      $element['#attributes']['src'] = file_create_url($group['data']) . ($group['cache'] ? '' : '?' . REQUEST_TIME);
       $element['#browsers'] = $group['browsers'];
       if (!empty($group['defer'])) {
         $element['#attributes']['defer'] = 'defer';

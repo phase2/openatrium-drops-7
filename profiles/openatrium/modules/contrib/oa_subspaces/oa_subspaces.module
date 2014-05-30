@@ -5,10 +5,6 @@
  */
 
 include_once 'oa_subspaces.features.inc';
-/**
- * @file
- * Enhance the OG Subgroups module
- */
 
 /**
  * Name of default Parent Space field.
@@ -88,7 +84,7 @@ function oa_subspaces_form_node_form_alter(&$form, $form_state, $form_id) {
     if (isset($form[OG_USER_INHERITANCE_FIELD][LANGUAGE_NONE]) && isset($form[OG_USER_INHERITANCE_PERMISSION_FIELD][LANGUAGE_NONE])) {
       $form[OG_USER_INHERITANCE_PERMISSION_FIELD][LANGUAGE_NONE]['#states'] = array(
         'visible' => array(
-          ':input[name="og_user_inheritance[und]"]' => array(array('value' => 1)),
+          ':input[name="og_user_inheritance[und]"]' => array('value' => 1),
         ),
       );
       // This field acts odd when required but user doesn't have access, throws
@@ -123,18 +119,15 @@ function oa_subspaces_form_node_form_validate($form, &$form_state) {
 }
 
 /**
- * Return possible children of a space, regardless of the Inheritence field
- * we don't want to load all the nodes and for preventing recursive parents
- * we really don't care if the inheritence field is enabled or not
+ * Return children of Space, regardless of the inheritence field.
  *
  * @param $group_type
  *   The group (entity) type.
  * @param $group_id
  *   The group (entity) ID.
- * @param $children_groups
- *   An array of children groups.
  *
- * @see: _og_subgroup_get_user_inherited_groups().
+ * @return array
+ *   An array of NIDs.
  */
 function oa_subspaces_get_children_groups($group_type, $group_id) {
   $children_groups = drupal_static(__FUNCTION__, array());
@@ -163,14 +156,34 @@ function _oa_subspaces_get_children_groups($group_type, $group_id, &$children_gr
 }
 
 /**
+ * Return parents of a Space, regardless of the inheritence field.
+ *
+ * @param $group_type
+ *   The group (entity) type.
+ * @param $group_id
+ *   The group (entity) ID.
+ *
+ * @return array
+ *   An array of NIDs.
+ */
+function oa_subspaces_get_parent_groups($group_type, $group_id) {
+  $result = og_subgroups_parents_load($group_type, $group_id, FALSE);
+  if (!empty($result[$group_type])) {
+    return array_values($result[$group_type]);
+  }
+  return array();
+}
+
+/**
  * Implements hook_form_FORM_ID_alter().
  */
 function oa_subspaces_form_views_exposed_form_alter(&$form, $form_state, $form_id) {
   if (!empty($form['og_group_ref_target_id']['#options'])) {
     _oa_subspaces_rearrange_options($form['og_group_ref_target_id']['#options']);
     $settings = _oa_subspaces_find_view_settings($form_state['view'], $form_state);
-    if ($settings['og_group_ref_target_id'] && is_numeric($settings['og_group_ref_target_id']) && oa_subspaces_get_children_groups('node', $settings['og_group_ref_target_id'])) {
-      _oa_subspaces_add_element($form, $settings['og_subspaces_view_all']);
+    if ($settings['og_group_ref_target_id'] && is_numeric($settings['og_group_ref_target_id'])) {
+      _oa_subspaces_add_element_all($form, $settings['og_subspaces_view_all']);
+      _oa_subspaces_add_element_parent($form, $settings['og_subspaces_view_parent']);
     }
   }
 }
@@ -200,16 +213,29 @@ function oa_subspaces_form_views_content_views_panes_content_type_edit_form_alte
   if (!empty($form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id'])) {
     $settings = _oa_subspaces_find_view_settings($form_state['view'], $form_state);
     _oa_subspaces_rearrange_options($form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id']['#options']);
-    _oa_subspaces_add_element($form['exposed']['filter-og_group_ref_target_id'], $settings['og_subspaces_view_all'], array('exposed', 'og_subspaces_view_all'));
+    _oa_subspaces_add_element_all($form['exposed']['filter-og_group_ref_target_id'], $settings['og_subspaces_view_all'], array('exposed', 'og_subspaces_view_all'));
+    _oa_subspaces_add_element_parent($form['exposed']['filter-og_group_ref_target_id'], $settings['og_subspaces_view_parent'], array('exposed', 'og_subspaces_view_parent'));
   }
 }
 
 /**
- * Helper to add i the checkbox at same place as group ref.
+ * Helper to add the 'Show subspace content' checkbox at same place as group ref.
  */
-function _oa_subspaces_add_element(&$element, $value, $parents = array('og_subspaces_view_all')) {
+function _oa_subspaces_add_element_all(&$element, $value, $parents = array('og_subspaces_view_all')) {
   $element['og_subspaces_view_all'] = array(
     '#title' => t('Show subspace content'),
+    '#type' => 'checkbox',
+    '#default_value' => $value,
+    '#parents' => $parents,
+  );
+}
+
+/**
+ * Helper to add the 'Show parent content' checkbox at same place as group ref.
+ */
+function _oa_subspaces_add_element_parent(&$element, $value, $parents = array('og_subspaces_view_parent')) {
+  $element['og_subspaces_view_parent'] = array(
+    '#title' => t('Show parent content'),
     '#type' => 'checkbox',
     '#default_value' => $value,
     '#parents' => $parents,
@@ -220,7 +246,7 @@ function _oa_subspaces_add_element(&$element, $value, $parents = array('og_subsp
  * Finding the active current configuration for each is a pane in the ***.
  */
 function _oa_subspaces_find_view_settings($view = NULL, $form_state = NULL) {
-  $find = array('og_subspaces_view_all', 'oa_section_ref_target_id', 'og_group_ref_target_id', 'og_group_ref_target_id_mine');
+  $find = array('og_subspaces_view_all', 'og_subspaces_view_parent', 'oa_section_ref_target_id', 'og_group_ref_target_id', 'og_group_ref_target_id_mine');
   $return = array();
   foreach ($find as $key) {
     if (isset($_GET[$key])) {
@@ -251,9 +277,11 @@ function _oa_subspaces_find_view_settings($view = NULL, $form_state = NULL) {
   if (!empty($return['og_group_ref_target_id_mine'])) {
     $return['og_group_ref_target_id'] = FALSE;
     $return['og_subspaces_view_all'] = FALSE;
+    $return['og_subspaces_view_parent'] = FALSE;
   }
   if ($return['oa_section_ref_target_id']) {
     $return['og_subspaces_view_all'] = FALSE;
+    $return['og_subspaces_view_parent'] = FALSE;
   }
 
   return $return;
@@ -263,11 +291,18 @@ function _oa_subspaces_find_view_settings($view = NULL, $form_state = NULL) {
  * Implements hook_views_pre_view().
  */
 function oa_subspaces_views_pre_view(&$view) {
+  // If we are in a View where a specific group is being filtered for in an
+  // exposed filter (as opposed to selecting '- Any -' or '- Active Space -').
   if (!empty($view->display_handler->default_display->options['filters']['og_group_ref_target_id']['exposed'])) {
     $settings = _oa_subspaces_find_view_settings($view);
-    // Add the extra column is group selected but no section.
-    if ($settings['og_subspaces_view_all'] && oa_subspaces_get_children_groups('node', $settings['og_group_ref_target_id'])) {
-       // Adding this field so can see what group the content from other selected groups is from.
+
+    $og_subspaces_view_all = $settings['og_subspaces_view_all'] && oa_subspaces_get_children_groups('node', $settings['og_group_ref_target_id']);
+    $og_subspaces_view_parent = $settings['og_subspaces_view_parent'] && oa_subspaces_get_parent_groups('node', $settings['og_group_ref_target_id']);
+
+    if ($og_subspaces_view_all || $og_subspaces_view_parent) {
+      // If parent or children filtering is turned on (and there are any parents
+      // or children to be found), then we add a field so we can see what group
+      // the content is coming from.
       $view->display_handler->default_display->options['fields'] = array(
         'og_group_ref' => array(
           'id'=> 'og_group_ref',
@@ -287,15 +322,35 @@ function oa_subspaces_views_pre_view(&$view) {
  * Implements hook_views_query_alter().
  */
 function oa_subspaces_views_query_alter(&$view, &$query) {
-  // If selected, add all the children groups content to the space.
   if (!empty($view->exposed_input['og_group_ref_target_id']) && is_numeric($view->exposed_input['og_group_ref_target_id']) && !empty($view->filter['og_group_ref_target_id']->options['exposed'])) {
     $settings = _oa_subspaces_find_view_settings($view);
-    if ($settings['og_subspaces_view_all'] && ($children = oa_subspaces_get_children_groups('node', $view->exposed_input['og_group_ref_target_id']))) {
-      foreach ($query->where[1]['conditions'] as $key => $condition) {
-        // If the field is 'og_membership.gid' or an alias for the same column.
-        if ($condition['field'] === 'og_membership.gid' || substr($condition['field'], -19) === '__og_membership.gid') {
-          $query->where[1]['conditions'][$key]['value'] = array_merge($query->where[1]['conditions'][$key]['value'], $children);
-          break;
+
+    // Get all the parent or child groups if we are filtering for them.
+    $extra_groups = array();
+    if ($settings['og_subspaces_view_all']) {
+      $extra_groups = array_merge($extra_groups, oa_subspaces_get_children_groups('node', $view->exposed_input['og_group_ref_target_id']));
+    }
+    if ($settings['og_subspaces_view_parent']) {
+      $extra_groups = array_merge($extra_groups, oa_subspaces_get_parent_groups('node', $view->exposed_input['og_group_ref_target_id']));
+    }
+
+    // Add the extra groups to query, if there are any.
+    if (!empty($extra_groups)) {
+      $columns = array(
+        'og_membership.gid',
+        'field_data_oa_other_spaces_ref.oa_other_spaces_ref_target_id',
+      );
+
+      // Loop over all conditions in all 'where groups'.
+      foreach (array_keys($query->where) as $where_group) {
+        foreach ($query->where[$where_group]['conditions'] as $key => $condition) {
+          // If it matches the column or an alias.
+          foreach ($columns as $column) {
+            if ($condition['field'] === $column ||
+              (is_string($condition['field']) && substr($condition['field'], -strlen($column)) === "__{$column}")) {
+              $query->where[$where_group]['conditions'][$key]['value'] = array_merge($query->where[$where_group]['conditions'][$key]['value'], $extra_groups);
+            }
+          }
         }
       }
     }

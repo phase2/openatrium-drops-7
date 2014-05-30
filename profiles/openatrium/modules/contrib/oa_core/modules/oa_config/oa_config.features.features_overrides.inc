@@ -46,13 +46,13 @@ function oa_config_features_override_default_overrides() {
     'color' => 'color',
   );
   $overrides["filter.panopoly_wysiwyg_text.filters|wysiwyg|settings|valid_elements"] = 'a[!href|target<_blank|title|style|class],
-  div[style|class|align<center?justify?left?right],
-  br,em,i,strong,cite,code,blockquote,ul,ol,li,dl,dt,dd,
-  span[style],p[style|class],
-  h1[style|class],h2[style|class],h3[style|class],h4[style|class],h5[style|class],h6[style|class],
-  img[!src|title|alt|style|width|height|class|hspace|vspace],
-  @[style|class],
-  table[style|class],th[style|class],tr[style|class],td[style|class],tbody[style|class]';
+      div[style|class|align<center?justify?left?right],
+      br,em,i,strong,cite,code,blockquote,ul,ol,li,dl,dt,dd,
+      span[style],p[style|class],
+      h1[style|class],h2[style|class],h3[style|class],h4[style|class],h5[style|class],h6[style|class],
+      img[!src|title|alt|style|width|height|class|hspace|vspace],
+      @[style|class],
+      table[style|class],th[style|class],tr[style|class],td[style|class],tbody[style|class]';
 
   // Exported overrides for: wysiwyg
   $overrides["wysiwyg.panopoly_wysiwyg_text.settings|buttons|table"] = array(

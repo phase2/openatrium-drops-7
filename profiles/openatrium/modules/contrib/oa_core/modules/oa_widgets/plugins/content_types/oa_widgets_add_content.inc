@@ -46,7 +46,7 @@ function oa_widgets_add_content_render($subtype, $conf, $args, $context = NULL) 
   $output = '<ul>' . implode($links) . '</ul>';
 
   $block = new stdClass();
-  $block->title = 'Create content';
+  $block->title = t('Create content');
   $block->content = $output;
 
   if (!empty($links)) {

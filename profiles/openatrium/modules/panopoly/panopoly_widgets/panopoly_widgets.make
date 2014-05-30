@@ -14,7 +14,7 @@ projects[simple_gmap][subdir] = contrib
 
 ; Panopoly - Contrib - Widgets
 
-projects[menu_block][version] = 2.3
+projects[menu_block][version] = 2.4
 projects[menu_block][subdir] = contrib
 
 ; Panopoly - Contrib - Files & Media

@@ -139,14 +139,25 @@ function oa_worktracker_oa_messages_create_alter(&$wrapper, $context) {
  */
 function _oa_worktracker_check_section_options(&$options) {
   if (module_exists('oa_buttons')) {
+    // TODO: It'd be awesome to cache this somehow for performance!
     foreach (array_keys($options) as $nid) {
       if ($nid === '_none') continue;
 
-      // Make sure this section can take Task nodes
-      // TODO: we need to cache this somehow for performance!
+      // Get all the command buttons for given Section.
       $buttons = array();
       _oa_buttons_get_node_command_buttons(node_load($nid), $buttons);
-      if (!isset($buttons['oa_worktracker_task'])) {
+      
+      // Loop through and make sure this section can take Task nodes.
+      $found = FALSE;
+      foreach ($buttons as $button) {
+        if ($button['value'] == 'oa_worktracker_task') {
+          $found = TRUE;
+          break;
+        }
+      }
+
+      // If not, then we need to remove it from the options.
+      if (!$found) {
         unset($options[$nid]);
       }
     }
@@ -563,12 +574,15 @@ function oa_worktracker_theme_comment_alter_diff(&$variables) {
     }
     $rows[] = $row;
   }
-  drupal_add_css(drupal_get_path('module', 'comment_alter') . '/comment_alter.css');
-  return theme('table', array(
-    '#theme' => 'table__comment_alter__diff',
-    '#rows' => $rows,
-    '#attributes' => array('class' => array('comment-alter-diff')),
-    '#sticky' => FALSE,
-  ));
+
+  if (!empty($rows)) {
+    drupal_add_css(drupal_get_path('module', 'comment_alter') . '/comment_alter.css');
+    return theme('table', array(
+      '#theme' => 'table__comment_alter__diff',
+      '#rows' => $rows,
+      '#attributes' => array('class' => array('comment-alter-diff')),
+      '#sticky' => FALSE,
+    ));
+  }
 }
 

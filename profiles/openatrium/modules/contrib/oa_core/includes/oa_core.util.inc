@@ -579,12 +579,28 @@ function oa_core_get_entity_vocabs($entity_type, $bundle) {
 }
 
 /**
+ * Returns the named vocabulary
+ * Cannot use core taxonomy_vocabulary_machine_name_load because og_vocab
+ * alters the query to only return vocabs associated with the current space
+ * see issue https://drupal.org/node/2270529
+ */
+function oa_core_taxonomy_vocabulary($machine_name) {
+  // EntityFieldQuery is not subject to the
+  // og_vocab_query_taxonomy_vocabulary_load_multiple_alter() function
+  $efq = new EntityFieldQuery();
+  $result = $efq->entityCondition('entity_type', 'taxonomy_vocabulary')
+    ->propertyCondition('machine_name', $machine_name)
+    ->execute();
+  return !empty($result['taxonomy_vocabulary']) ? current($result['taxonomy_vocabulary']) : NULL;
+}
+
+/**
  * Return terms for a list of vocabularies
  */
 function oa_core_get_vocab_terms($vocabs) {
   $options = array();
   foreach ($vocabs as $vocab) {
-    if ($vocabulary = taxonomy_vocabulary_machine_name_load($vocab)) {
+    if ($vocabulary = oa_core_taxonomy_vocabulary($vocab)) {
       if ($terms = taxonomy_get_tree($vocabulary->vid)) {
         foreach ($terms as $term) {
           $options[$term->tid] = str_repeat('-', $term->depth) . $term->name;

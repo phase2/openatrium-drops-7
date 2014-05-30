@@ -32,10 +32,11 @@ features[variable][] = og_subgroups_default_fields_node
 files[] = tests/oa_subspacesPermission.test
 files[] = tests/oa_subspacesSectionAccess.test
 project path = profiles/openatrium/modules/features
+stylesheets[screen][] = oa-subspaces.css
 
-; Information added by Drupal.org packaging script on 2014-05-01
-version = "7.x-2.18"
+; Information added by Drupal.org packaging script on 2014-05-29
+version = "7.x-2.19"
 core = "7.x"
 project = "oa_subspaces"
-datestamp = "1398971343"
+datestamp = "1401394765"
 

@@ -1,3 +1,9 @@
+Panopoly Core 7.x-1.6, 2014-05-22
+---------------------------
+- Update Views to 3.8 for DRUPAL-SA-CONTRIB-2014-054.
+- Update "persist" patch to pathauto.
+- Update 'devel' module to 1.5.
+
 Panopoly Core 7.x-1.5, 2014-04-30
 ---------------------------
 - Update FAPE to version 1.2 for SA-CONTRIB-2014-048.

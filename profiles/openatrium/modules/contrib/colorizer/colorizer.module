@@ -30,8 +30,19 @@ function colorizer_menu() {
  * Add the colorized style sheet to the site
  */
 function colorizer_init() {
-  static $first = TRUE;
   global $theme_key;
+  if (variable_get('install_task') != 'done') {
+    // don't run colorizer during installer
+    return;
+  }
+
+  // check to see if colorizer css file exists on site
+  $source_path = drupal_get_path('theme', $theme_key) . '/';
+  $source_file = $source_path . variable_get('colorizer_cssfile', '');
+  if (!file_exists($source_file)) {
+    return;
+  }
+
   $instance = $theme_key;
   // allow other modules to change the instance we are updating
   // allows for group-specific color instances rather than tying to theme
@@ -44,19 +55,18 @@ function colorizer_init() {
     $palette = colorizer_get_palette($theme_key, $instance);
     if (!empty($palette)) {
       $file = colorizer_update_stylesheet($theme_key, $instance, $palette);
+      // clear file status cache so file_exists will look for file again
       clearstatcache();
-      if (!file_exists($file)) {
-        // could not create the style sheet, so stop trying to recreate it
-        variable_del('colorizer_' . $instance . '_stylesheet');
-      }
     }
   }
-  drupal_add_css(file_create_url($file), array(
-    'type' => 'external',
-    'group' => CSS_THEME,
-    'every_page' => TRUE,
-    'weight' => 999, // want to be last
-  ));
+  if (file_exists($file)) {
+    drupal_add_css(file_create_url($file), array(
+      'type' => 'external',
+      'group' => CSS_THEME,
+      'every_page' => TRUE,
+      'weight' => 999, // want to be last
+    ));
+  }
 }
 
 /**
@@ -128,46 +138,48 @@ function colorizer_fill_defaults($info) {
 /**
  * Create a new stylesheet by replacing color variables
  * Basic filehandling copied from Color module
+ * Returns full path to new css file
  */
 function colorizer_update_stylesheet($theme, $instance, $palette) {
-
   // Delete old files.
-  $file = variable_get('colorizer_' . $instance . '_stylesheet', '');
-  @drupal_unlink($file);
+  $current_file = variable_get('colorizer_' . $instance . '_stylesheet', '');
+  @drupal_unlink($current_file);
 
   // Prepare target locations for generated files.
   $id = $instance . '-' . substr(hash('sha256', serialize($palette) . microtime()), 0, 8);
-  $paths['color'] = 'public://colorizer';
-  foreach ($paths as $path) {
-    file_prepare_directory($path, FILE_CREATE_DIRECTORY);
-    @drupal_chmod($path, 0777);
+  $target_path = 'public://colorizer';
+  if (!is_dir($target_path)) {
+    file_prepare_directory($target_path, FILE_CREATE_DIRECTORY);
+    @drupal_chmod($target_path, 0777);
   }
-  $paths['target'] = $paths['color'] . '/';
-  $paths['source'] = drupal_get_path('theme', $theme) . '/';
+  // ensure directory was created
+  if (!is_dir($target_path)) {
+    watchdog('file', 'The directory %file could not be created.', array('%file' => $target_path), WATCHDOG_ERROR);
+    return '';
+  }
 
-  $stylesheet = variable_get('colorizer_cssfile', '');
-  $file = $paths['source'] . $stylesheet;
-  $saved_path = '';
+  $target_path = $target_path . '/';
+  $target_file = '';
 
-  if (file_exists($file)) {
+  $source_path = drupal_get_path('theme', $theme) . '/';
+  $source_file = $source_path . variable_get('colorizer_cssfile', '');
+
+  if (file_exists($source_file)) {
     // Aggregate @imports recursively for each configured top level CSS file
     // without optimization. Aggregation and optimization will be
     // handled by drupal_build_css_cache() only.
-    $style = drupal_load_stylesheet($file, FALSE);
+    $source_styles = drupal_load_stylesheet($source_file, FALSE);
 
     // Rewrite stylesheet with new colors.
-    $style = _colorizer_rewrite_stylesheet($palette, $style);
-    $base_file = $id . '.css';
-    $css = $paths['target'] . $base_file;
-    _colorizer_save_stylesheet($paths['target'] . $base_file, $style);
+    $target_styles = _colorizer_rewrite_stylesheet($palette, $source_styles);
+    $target_file = $target_path . $id . '.css';
+    _colorizer_save_stylesheet($target_file, $target_styles);
   }
 
-  // Maintain list of files.
-  if (!empty($css)) {
-    variable_set('colorizer_' . $instance . '_stylesheet', $css);
+  if (!empty($target_file)) {
+    variable_set('colorizer_' . $instance . '_stylesheet', $target_file);
   }
-  return $css;
-
+  return $target_file;
 }
 
 /**

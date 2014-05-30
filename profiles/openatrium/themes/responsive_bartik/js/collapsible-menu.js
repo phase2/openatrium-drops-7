@@ -19,9 +19,14 @@
         return;
       }
 
-      // Append toggle link to the main menu.
-      $('nav#main-menu').append('<a href="#" id="menu-toggle">' + Drupal.t('Menu') + '</a>');
-
+      // Append toggle link to the main menu if not already exists.
+      if ($('a#menu-toggle').length == 0) {
+      	$('nav#main-menu').append('<a href="#" id="menu-toggle">' + Drupal.t('Menu') + '</a>');
+      }
+      else {
+      	return;
+      }
+      
       // Collapse/expand menu by click on link.
       $('a#menu-toggle').click(function() {
         $('#main-menu-links').slideToggle('fast');

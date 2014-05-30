@@ -42,6 +42,8 @@
           <div class="oa-reply-body">
             <?php if (strip_tags($body)):?>
               <?php print $body; ?>
+            <?php else: ?>
+              <?php print $title; ?>
             <?php endif; ?>
             <?php print $field_oa_media; ?>
             <div class="links">

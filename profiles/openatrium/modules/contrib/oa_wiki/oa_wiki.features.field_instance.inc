@@ -127,6 +127,78 @@ function oa_wiki_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'node-oa_wiki_page-oa_other_spaces_ref'
+  $field_instances['node-oa_wiki_page-oa_other_spaces_ref'] = array(
+    'bundle' => 'oa_wiki_page',
+    'comment_alter' => 0,
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => 'Select a list of additional Spaces that this piece of content should be visible in. This <em>doesn\'t</em> affect access control - users in the other Spaces must have access to see this content in it\'s main Space for it to be visible to them at all.',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'og_ui',
+        'settings' => array(),
+        'type' => 'og_list_default',
+        'weight' => 8,
+      ),
+      'featured' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'oa_other_spaces_ref',
+    'label' => 'Visible in other Spaces',
+    'options_limit' => 0,
+    'options_limit_empty_behaviour' => 0,
+    'options_limit_fields' => array(
+      'body' => 0,
+    ),
+    'required' => 0,
+    'settings' => array(
+      'behaviors' => array(
+        'og_widget' => array(
+          'admin' => array(
+            'widget_type' => 'entityreference_autocomplete',
+          ),
+          'default' => array(
+            'widget_type' => 'options_select',
+          ),
+          'status' => TRUE,
+        ),
+      ),
+      'user_register_form' => FALSE,
+    ),
+    'view modes' => array(
+      'full' => array(
+        'custom settings' => FALSE,
+        'label' => 'Full',
+        'type' => 'og_list_default',
+      ),
+      'teaser' => array(
+        'custom settings' => FALSE,
+        'label' => 'Teaser',
+        'type' => 'og_list_default',
+      ),
+    ),
+    'widget' => array(
+      'active' => 0,
+      'module' => 'og',
+      'settings' => array(),
+      'type' => 'og_complex',
+      'weight' => 4,
+    ),
+  );
+
   // Exported field_instance: 'node-oa_wiki_page-oa_section_ref'
   $field_instances['node-oa_wiki_page-oa_section_ref'] = array(
     'bundle' => 'oa_wiki_page',
@@ -302,6 +374,8 @@ function oa_wiki_field_default_field_instances() {
   t('Groups audience');
   t('OG vocabulary');
   t('OpenAtrium Section');
+  t('Select a list of additional Spaces that this piece of content should be visible in. This <em>doesn\'t</em> affect access control - users in the other Spaces must have access to see this content in it\'s main Space for it to be visible to them at all.');
+  t('Visible in other Spaces');
 
   return $field_instances;
 }

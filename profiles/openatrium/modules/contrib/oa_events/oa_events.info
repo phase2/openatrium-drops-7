@@ -54,6 +54,7 @@ features[field_instance][] = node-oa_event-field_oa_address
 features[field_instance][] = node-oa_event-field_oa_date
 features[field_instance][] = node-oa_event-field_oa_geo_location
 features[field_instance][] = node-oa_event-field_oa_media
+features[field_instance][] = node-oa_event-oa_other_spaces_ref
 features[field_instance][] = node-oa_event-oa_section_ref
 features[field_instance][] = node-oa_event-og_group_ref
 features[field_instance][] = node-oa_event-og_vocabulary
@@ -84,9 +85,9 @@ features[views_view][] = oa_event_list
 features[views_view][] = oa_fullcalendar
 project path = sites/all/modules/contrib
 
-; Information added by Drupal.org packaging script on 2014-05-01
-version = "7.x-2.18"
+; Information added by Drupal.org packaging script on 2014-05-29
+version = "7.x-2.19"
 core = "7.x"
 project = "oa_events"
-datestamp = "1398971335"
+datestamp = "1401394135"
 

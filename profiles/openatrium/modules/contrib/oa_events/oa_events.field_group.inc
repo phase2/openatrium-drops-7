@@ -25,6 +25,7 @@ function oa_events_field_group_info() {
     'children' => array(
       0 => 'oa_section_ref',
       1 => 'og_group_ref',
+      2 => 'oa_other_spaces_ref',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(

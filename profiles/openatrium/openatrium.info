@@ -3,7 +3,7 @@ distribution_name = Open Atrium 2
 description = A team collaboration platform
 core = 7.x
 exclusive = TRUE
-version = "7.x-2.18"
+version = "7.x-2.19"
 
 base[] = panopoly
 
@@ -51,10 +51,14 @@ dependencies[] = module_filter
 dependencies[] = date_popup_authored
 dependencies[] = views_ui
 
+; advagg no longer enabled by default
+; enable it if you subtheme oa_radix and have
+; selector issues in Internet Explorer
+;;dependencies[] = advagg
+
 ;
 ; Open Atrium required modules
 ;
-dependencies[] = advagg
 dependencies[] = entity
 dependencies[] = panelizer
 dependencies[] = libraries
@@ -121,11 +125,11 @@ dependencies[] = oa_search
 dependencies[] = oa_variables
 dependencies[] = oa_buttons
 dependencies[] = oa_tour
-dependencies[] = oa_tour_defaults
 dependencies[] = oa_contextual_tabs
 dependencies[] = oa_responsive_regions
 dependencies[] = oa_update
 dependencies[] = oa_clone
+dependencies[] = oa_access
 
 ; Open Atrium 2.0 Plugins
 dependencies[] = oa_discussion
@@ -139,14 +143,15 @@ dependencies[] = oa_home
 dependencies[] = oa_appearance
 dependencies[] = oa_htmlmail
 dependencies[] = oa_archive
+dependencies[] = oa_tour_defaults
 
 ; Contrib Optional
 dependencies[] = panels_customerror
 dependencies[] = apps
 
-; Information added by Drupal.org packaging script on 2014-05-02
-version = "7.x-2.18"
+; Information added by Drupal.org packaging script on 2014-05-30
+version = "7.x-2.19"
 core = "7.x"
 project = "openatrium"
-datestamp = "1399051516"
+datestamp = "1401469514"
 

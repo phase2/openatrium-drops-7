@@ -42,17 +42,24 @@ function oa_buttons_add_space_content_render($subtype, $conf, $args, $context) {
     $content = $cache->data;
   }
   else {
-    $node_types = oa_buttons_get_command_buttons($node);
-    if (count($node_types)) {
-      drupal_alter('oa_space_buttons', $node_types);
-      $buttons = command_buttons_machine_name_load(array_keys($node_types));
+    $buttons = oa_buttons_get_command_buttons($node);
+    if (count($buttons)) {
+      drupal_alter('oa_space_buttons', $buttons);
+      $command_buttons = array();
+      $node_types = array_flip(node_type_get_names());
+      // Iterate over each of the buttons.
+      foreach ($buttons as $button) {
+        $entity_type = $button['value'];
+        $command_buttons[$entity_type] = $entity_type;
+      }
+      $entities = command_buttons_machine_name_load(array_keys($command_buttons));
       $item_list = array();
       $classes = array(
         'use_dropdowns' => TRUE,
         'dropdown_label' => t('Create Content'),
         'item_class' => array(
           'oa-button',
-         ),
+        ),
         'wrapper_class' => array(
           'oa-buttons',
           'btn',
@@ -60,7 +67,7 @@ function oa_buttons_add_space_content_render($subtype, $conf, $args, $context) {
         ),
       );
 
-      $content = command_buttons_render_buttons($buttons, $classes, $node_types);
+      $content = command_buttons_render_buttons($entities, $classes, $buttons);
 
       // Cache for 1 hour.
       cache_set($cache_key, $content, 'cache_oa_section_buttons', time() + 6000);

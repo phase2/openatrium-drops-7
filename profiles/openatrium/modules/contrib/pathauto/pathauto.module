@@ -348,6 +348,9 @@ function pathauto_entity_load($entities, $type) {
   $states = pathauto_entity_state_load_multiple($type, array_keys($entities));
   foreach ($states as $id => $state) {
     if (!isset($entities[$id]->path['pathauto'])) {
+      if (!isset($entities[$id]->path) || !is_array($entities[$id]->path)) {
+        $entities[$id]->path = array();
+      }
       $entities[$id]->path['pathauto'] = $state;
     }
   }
@@ -433,8 +436,24 @@ function pathauto_entity_state_load($entity_type, $entity_id) {
  *   An array of entity IDs.
  */
 function pathauto_entity_state_load_multiple($entity_type, $entity_ids) {
-  $pathauto_state = db_query("SELECT entity_id, pathauto FROM {pathauto_state} WHERE entity_type = :entity_type AND entity_id IN (:entity_ids)", array(':entity_type' => $entity_type, ':entity_ids' => $entity_ids))->fetchAllKeyed();
-  return $pathauto_state;
+  try {
+    $pathauto_state = db_query("SELECT entity_id, pathauto FROM {pathauto_state} WHERE entity_type = :entity_type AND entity_id IN (:entity_ids)",
+      array(':entity_type' => $entity_type, ':entity_ids' => $entity_ids))->fetchAllKeyed();
+
+    return $pathauto_state;
+  } catch (Exception $ex) {
+    if (!defined('MAINTENANCE_MODE')) {
+      $message = 'The <code>pathauto_state</code> table does not exist, so a default value was provided. Please make sure to run <code>update.php</code>';
+      drupal_set_message($message, 'warning');
+      watchdog('pathauto', $message, array(), WATCHDOG_WARNING);
+    }
+    $result = array();
+    foreach ($entity_ids as $id) {
+      $result[$id] = FALSE;
+    }
+
+    return $result;
+  }
 }
 
 /**

@@ -28,7 +28,7 @@ projects[fape][subdir] = contrib
 
 ; Views Magic
 
-projects[views][version] = 3.7
+projects[views][version] = 3.8
 projects[views][subdir] = contrib
 projects[views][patch][2037469] = http://drupal.org/files/views-exposed-sorts-2037469-1.patch
 
@@ -42,7 +42,7 @@ projects[views_bulk_operations][subdir] = contrib
 
 projects[pathauto][version] = 1.2
 projects[pathauto][subdir] = contrib
-projects[pathauto][patch][936222] = http://drupal.org/files/pathauto-persist-936222-130-pathauto-state.patch
+projects[pathauto][patch][936222] = http://drupal.org/files/issues/pathauto-persist-936222-195-pathauto-state.patch
 
 projects[token][version] = 1.5
 projects[token][subdir] = contrib
@@ -103,7 +103,7 @@ projects[migrate_extras][type] = "module"
 projects[migrate_extras][subdir] = "contrib"
 
 ; Recommended Modules
-projects[devel][version] = 1.4
+projects[devel][version] = 1.5
 projects[devel][subdir] = contrib
 
 projects[uuid][version] = 1.0-alpha5

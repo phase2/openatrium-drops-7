@@ -27,7 +27,6 @@ body,
 .region-header {
   float: right; /* LTR */
   margin: 1em 5px 1.5em;
-  border: 1px solid #ccc;
 }
 #secondary-menu {
   margin: 0 auto;

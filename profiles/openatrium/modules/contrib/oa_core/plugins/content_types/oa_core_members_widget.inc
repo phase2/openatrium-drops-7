@@ -72,6 +72,7 @@ function oa_core_members_widget_render($subtype, $conf, $args, $context = NULL) 
   $parents = array();
   $parent_spaces = array();
   $parent_groups = array();
+  $parent_no_inherit = array();
   if (module_exists('oa_subspaces') && empty($conf['hide_inherited']) && $is_admin && ($parent_field = field_get_items('node', $space, OA_PARENT_SPACE))) {
     foreach ($parent_field as $parent) {
       if (!empty($parent['target_id'])) {
@@ -80,7 +81,12 @@ function oa_core_members_widget_render($subtype, $conf, $args, $context = NULL) 
     }
     $parents = node_load_multiple(array_keys($parents));
     foreach ($parents as $node) {
-      if ($node->type == OA_SPACE_TYPE) {
+      $wrapper = entity_metadata_wrapper('node', $node);
+      // If inheritance disabled on parent, separate this node from the rest.
+      if (!empty($wrapper->{OG_USER_INHERITANCE_FIELD}) && !$wrapper->{OG_USER_INHERITANCE_FIELD}->value()) {
+        $parent_no_inherit[] = $node;
+      }
+      elseif ($node->type == OA_SPACE_TYPE) {
         $parent_spaces[] = $node;
       }
       else {
@@ -147,6 +153,7 @@ function oa_core_members_widget_render($subtype, $conf, $args, $context = NULL) 
       'items' => array(
         t('Spaces') => $parent_spaces,
         t('Groups') => $parent_groups,
+        t('Inheritance disabled') => $parent_no_inherit,
       ),
       'links' => array(),
     );

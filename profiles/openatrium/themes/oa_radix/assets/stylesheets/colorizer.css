@@ -51,6 +51,11 @@ color: @toolbartext;
 }
 .oa-space-menu .navbar-inner {
   background-image: none;
+  background-color: @menubg;
+  color: @menutext;
+}
+.navbar .oa-space-menu .nav li > a {
+  color: @menutext;
 }
 .navbar-inverse ul#oa_breadcrumb .btn.btn-inverse,
 .navbar-inner ul#oa_breadcrumb .btn,
@@ -124,7 +129,7 @@ body #footer a {
 }
 .oa-banner-text,
 .oa-banner-slogan {
-  color: @toolbartext;
+  color: @titleslogan;
 }
 .oa-pane .pane-title {
 color: @sidebartext;
@@ -146,4 +151,12 @@ border-color: @sidebarborders;
 #oa-navbar .panel-panel .pane-oa-navigation,
 #oa-navbar .panel-panel .pane-oa-space-banner {
 background-color: @headerbg;
+}
+#oa-navbar .panel-panel .pane-oa-navigation .dropdown-menu {
+background-color: @headerbg;
+}
+
+#oa-navbar .panel-panel .pane-oa-navigation li > a,
+#oa-navbar .panel-panel .pane-oa-space-banner li > a{
+color: @titleslogan;
 }

@@ -7,8 +7,8 @@ core = 7.x
 ; ************** PANOPOLY OVERRIDES **************
 
 ; Views
-; Override panopoly_core.make: 3.7
-projects[views][version] = 3.7
+; Override panopoly_core.make: 3.8
+projects[views][version] = 3.8
 projects[views][subdir] = contrib
 projects[views][patch][2037469] = http://drupal.org/files/views-exposed-sorts-2037469-1.patch
 projects[views][patch][1979926] = http://drupal.org/files/1979926-views-reset_fetch_data-2.patch
@@ -136,9 +136,8 @@ projects[realname][version] = 1.1
 projects[realname][subdir] = contrib
 
 ; Advagg
-projects[advagg][version] = 2.5
+projects[advagg][version] = 2.6
 projects[advagg][subdir] = contrib
-projects[advagg][patch][2216825] = http://drupal.org/files/issues/advagg-cron-cache-2216825-5.patch
 
 ; Chosen
 projects[chosen][version] = 2.x-dev
@@ -188,7 +187,7 @@ projects[job_scheduler][version] = 2.0-alpha3
 projects[job_scheduler][subdir] = contrib
 
 ; Command buttons
-projects[command_buttons][version] = 1.0
+projects[command_buttons][version] = 1.1
 projects[command_buttons][subdir] = contrib
 
 ; Contextual Tabs
@@ -233,7 +232,7 @@ projects[jquery_update][download][branch] = 7.x-2.x
 projects[jquery_update][download][revision] = d84d48
 
 ; Colorizer
-projects[colorizer][version] = 1.0
+projects[colorizer][version] = 1.2
 projects[colorizer][subdir] = contrib
 
 ; OA Responsive Regions

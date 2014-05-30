@@ -3,8 +3,6 @@
 // update the list when new cache tables are added.
 $options['structure-tables']['common'] = array(
   'cache',
-  'cache_advagg_aggregates',
-  'cache_advagg_info',
   'cache_block',
   'cache_bootstrap',
   'cache_entity_fieldable_panels_pane',

@@ -725,6 +725,9 @@ function advagg_save_aggregate($filename, $files, $type, $aggregate_settings) {
  *   (optional) Bool, set to TRUE to overwrite a file.
  */
 function advagg_save_data($uri, $data, $overwrite = FALSE) {
+  // Clear the stat cache.
+  module_load_include('inc', 'advagg', 'advagg');
+  advagg_clearstatcache($uri);
   // File already exists.
   if (!$overwrite && file_exists($uri) && filesize($uri) > 0) {
     return;

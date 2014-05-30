@@ -26,9 +26,9 @@ features[features_overrides][] = views_view.trash_flag_bin.display|page_1|displa
 features[features_overrides][] = views_view.trash_flag_bin.display|page|display_options|path
 project path = profiles/openatrium/modules/contrib
 
-; Information added by Drupal.org packaging script on 2014-05-01
-version = "7.x-2.18"
+; Information added by Drupal.org packaging script on 2014-05-30
+version = "7.x-2.19"
 core = "7.x"
 project = "oa_core"
-datestamp = "1398972535"
+datestamp = "1401462830"
 
