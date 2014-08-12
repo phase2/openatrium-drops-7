@@ -10,6 +10,11 @@ include_once 'oa_subspaces.features.inc';
  * Name of default Parent Space field.
  */
 define('OA_PARENT_SPACE', 'oa_parent_space');
+/**
+ * Name of caches.
+ */
+define('OA_SUBSPACES_CACHE_CHILDREN', 'oa_subspaces_children');
+define('OA_SUBSPACES_CACHE_PARENTS', 'oa_subspaces_parents');
 
 /**
  * Implements hook_form_alter().
@@ -119,7 +124,7 @@ function oa_subspaces_form_node_form_validate($form, &$form_state) {
 }
 
 /**
- * Return children of Space, regardless of the inheritence field.
+ * Return children of Space, regardless of the inheritance field.
  *
  * @param $group_type
  *   The group (entity) type.
@@ -130,12 +135,26 @@ function oa_subspaces_form_node_form_validate($form, &$form_state) {
  *   An array of NIDs.
  */
 function oa_subspaces_get_children_groups($group_type, $group_id) {
-  $children_groups = drupal_static(__FUNCTION__, array());
-  if (!isset($children_groups[$group_type . '_' . $group_id])) {
-    $children_groups[$group_type . '_' . $group_id] = array();
-    _oa_subspaces_get_children_groups($group_type, $group_id, $children_groups[$group_type . '_' . $group_id]);
+  $cid = oa_core_get_cache_id(OA_SUBSPACES_CACHE_CHILDREN, $group_id, FALSE, array($group_type));
+
+  $static_cache = &drupal_static(OA_SUBSPACES_CACHE_CHILDREN);
+  if (isset($static_cache[$cid])) {
+    return $static_cache[$cid];
   }
-  return $children_groups[$group_type . '_' . $group_id];
+
+  if ($cache = cache_get($cid)) {
+    $static_cache[$cid] = $cache->data;
+    return $cache->data;
+  }
+
+  $children_groups = array();
+  _oa_subspaces_get_children_groups($group_type, $group_id, $children_groups);
+
+  // Cache the list of children.
+  $static_cache[$cid] = $children_groups;
+  cache_set($cid, $children_groups);
+
+  return $children_groups;
 }
 
 /**
@@ -156,7 +175,7 @@ function _oa_subspaces_get_children_groups($group_type, $group_id, &$children_gr
 }
 
 /**
- * Return parents of a Space, regardless of the inheritence field.
+ * Return parents of a Space, regardless of the inheritance field.
  *
  * @param $group_type
  *   The group (entity) type.
@@ -167,42 +186,101 @@ function _oa_subspaces_get_children_groups($group_type, $group_id, &$children_gr
  *   An array of NIDs.
  */
 function oa_subspaces_get_parent_groups($group_type, $group_id) {
-  $result = og_subgroups_parents_load($group_type, $group_id, FALSE);
-  if (!empty($result[$group_type])) {
-    return array_values($result[$group_type]);
+  $cid = oa_core_get_cache_id(OA_SUBSPACES_CACHE_PARENTS, $group_id, FALSE, array($group_type));
+
+  $static_cache = &drupal_static(OA_SUBSPACES_CACHE_PARENTS);
+  if (isset($static_cache[$cid])) {
+    return $static_cache[$cid];
   }
-  return array();
+
+  if ($cache = cache_get($cid)) {
+    $static_cache[$cid] = $cache->data;
+    return $cache->data;
+  }
+
+  $result = array();
+  $parents = og_subgroups_parents_load($group_type, $group_id, FALSE);
+  if (!empty($parents[$group_type])) {
+    $result = array_values($parents[$group_type]);
+  }
+
+  // Cache the list of parents.
+  $static_cache[$cid] = $result;
+  cache_set($cid, $result);
+
+  return $result;
+}
+
+/**
+ * Implements hook_oa_clear_cache
+ */
+function oa_subspaces_oa_clear_cache($node = NULL, $uid = NULL, $include_archived = FALSE) {
+  $cid = oa_core_get_cache_id(OA_SUBSPACES_CACHE_CHILDREN, NULL, $include_archived);
+  oa_core_clear_cache(OA_SUBSPACES_CACHE_CHILDREN, $cid);
+
+  $cid = oa_core_get_cache_id(OA_SUBSPACES_CACHE_PARENTS, NULL, $include_archived);
+  oa_core_clear_cache(OA_SUBSPACES_CACHE_PARENTS, $cid);
 }
 
 /**
  * Implements hook_form_FORM_ID_alter().
  */
-function oa_subspaces_form_views_exposed_form_alter(&$form, $form_state, $form_id) {
+function oa_subspaces_form_views_exposed_form_alter(&$form, &$form_state, $form_id) {
   if (!empty($form['og_group_ref_target_id']['#options'])) {
-    _oa_subspaces_rearrange_options($form['og_group_ref_target_id']['#options']);
+    $view = $form_state['view'];
+    $exposed_form_overrides = $view->display_handler->get_option('exposed_form_overrides');
+    $pane_conf = $view->display_handler->get_option('pane_conf');
+    if ((!isset($exposed_form_overrides['filters']['og_group_ref_target_id']) ||
+        (!empty($exposed_form_overrides['filters']['og_group_ref_target_id']))) &&
+       (!isset($pane_conf['show_exposed_form']) || !empty($pane_conf['show_exposed_form']))) {
+        // field is exposed to user so rearrange subspaces within spaces
+      _oa_subspaces_rearrange_options($form['og_group_ref_target_id']['#options']);
+    }
     $settings = _oa_subspaces_find_view_settings($form_state['view'], $form_state);
     if ($settings['og_group_ref_target_id'] && is_numeric($settings['og_group_ref_target_id'])) {
-      _oa_subspaces_add_element_all($form, $settings['og_subspaces_view_all']);
-      _oa_subspaces_add_element_parent($form, $settings['og_subspaces_view_parent']);
+      _oa_subspaces_add_element_all($form, $form_state, $settings);
+      _oa_subspaces_add_element_parent($form, $form_state, $settings);
     }
   }
 }
 
+/**
+ * Converts a flat list of spaces into a hierarchical space/subspace list
+ */
 function _oa_subspaces_rearrange_options(&$options) {
-  $parent_and_children = array();
   // Reorganize options for better usability.
   $nid_options = array_keys($options);
+  $indexed = array();
   foreach ($options as $nid => $title) {
-    if (!in_array($nid, $parent_and_children) && ($children = oa_subspaces_get_children_groups('node', $nid)) && array_intersect($children, $nid_options)) {
-      $parent_and_children[$nid] = $title;
-      foreach ($children as $child_nid) {
-        if (!empty($options[$child_nid])) {
-          $parent_and_children[$child_nid] = '-- ' . $options[$child_nid];
-        }
-      }
+    $parents = oa_core_get_parents($nid);
+    $indexed[$nid]['title'] = $title;
+    $indexed[$nid]['parent'] = (empty($parents) || !in_array($parents[0], $nid_options)) ? 0 : $parents[0];
+    $indexed[$nid]['children'] = array();
+  }
+
+  // convert flat list into hierarchy
+  foreach ($indexed as $id => $row) {
+    $indexed[$row['parent']]['children'][$id] =& $indexed[$id];
+  }
+
+  // add the nested -- to titles to convert back to flat
+  if (!empty($indexed[0]['children'])) {
+    $options = _oa_subspaces_build_options($indexed[0]['children']);
+  }
+}
+
+/**
+ * Helper to convert a hierarchical array back to a flat list with -- in titles
+ */
+function _oa_subspaces_build_options($list, $depth = 0) {
+  $result = array();
+  if (!empty($list)) {
+    foreach ($list as $nid => $sublist) {
+      $result[$nid] = str_repeat('--', $depth) . $sublist['title'];
+      $result += _oa_subspaces_build_options($sublist['children'], $depth+1);
     }
   }
-  $options = array_diff_key($options, $parent_and_children) + $parent_and_children;
+  return $result;
 }
 
 /**
@@ -210,36 +288,47 @@ function _oa_subspaces_rearrange_options(&$options) {
  */
 function oa_subspaces_form_views_content_views_panes_content_type_edit_form_alter(&$form, &$form_state, $form_id) {
   // Doing it to the exposed form alone doesn't work :(.
+  // Need to also do it for the pane config form
   if (!empty($form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id'])) {
     $settings = _oa_subspaces_find_view_settings($form_state['view'], $form_state);
     _oa_subspaces_rearrange_options($form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id']['#options']);
-    _oa_subspaces_add_element_all($form['exposed']['filter-og_group_ref_target_id'], $settings['og_subspaces_view_all'], array('exposed', 'og_subspaces_view_all'));
-    _oa_subspaces_add_element_parent($form['exposed']['filter-og_group_ref_target_id'], $settings['og_subspaces_view_parent'], array('exposed', 'og_subspaces_view_parent'));
+    _oa_subspaces_add_element_all($form['exposed']['filter-og_group_ref_target_id'], $form_state, $settings, array('exposed'));
+    _oa_subspaces_add_element_parent($form['exposed']['filter-og_group_ref_target_id'], $form_state, $settings, array('exposed'));
+  }
+}
+
+/**
+ * Helper to add a checkbox to the exposed filter
+ */
+function _oa_subspaces_add_checkbox(&$element, $id, $title, &$form_state, $settings, $parents = array()) {
+  $parents[] = $id;
+  $value = $settings[$id];
+  $element[$id] = array(
+    '#title' => t($title),
+    '#type' => 'checkbox',
+    '#default_value' => $value,
+    '#parents' => $parents,
+  );
+  // Unchecked checkboxes need to have a NULL input or else it is still
+  // considered to be a checked box
+  // see form.inc form_type_checkbox_value
+  if (empty($value) && isset($form_state['input'][$id])) {
+    unset($form_state['input'][$id]);
   }
 }
 
 /**
  * Helper to add the 'Show subspace content' checkbox at same place as group ref.
  */
-function _oa_subspaces_add_element_all(&$element, $value, $parents = array('og_subspaces_view_all')) {
-  $element['og_subspaces_view_all'] = array(
-    '#title' => t('Show subspace content'),
-    '#type' => 'checkbox',
-    '#default_value' => $value,
-    '#parents' => $parents,
-  );
+function _oa_subspaces_add_element_all(&$element, &$form_state, $settings, $parents = array()) {
+  _oa_subspaces_add_checkbox($element, 'og_subspaces_view_all', 'Show subspace content', $form_state, $settings, $parents);
 }
 
 /**
  * Helper to add the 'Show parent content' checkbox at same place as group ref.
  */
-function _oa_subspaces_add_element_parent(&$element, $value, $parents = array('og_subspaces_view_parent')) {
-  $element['og_subspaces_view_parent'] = array(
-    '#title' => t('Show parent content'),
-    '#type' => 'checkbox',
-    '#default_value' => $value,
-    '#parents' => $parents,
-  );
+function _oa_subspaces_add_element_parent(&$element, &$form_state, $settings, $parents = array()) {
+  _oa_subspaces_add_checkbox($element, 'og_subspaces_view_parent', 'Show parent content', $form_state, $settings, $parents);
 }
 
 /**
@@ -249,17 +338,29 @@ function _oa_subspaces_find_view_settings($view = NULL, $form_state = NULL) {
   $find = array('og_subspaces_view_all', 'og_subspaces_view_parent', 'oa_section_ref_target_id', 'og_group_ref_target_id', 'og_group_ref_target_id_mine');
   $return = array();
   foreach ($find as $key) {
-    if (isset($_GET[$key])) {
-      $return[$key] = $_GET[$key];
+    // check for a form key that always returns a value
+    // otherwise checkboxes (like og_subspaces_view_all) cannot be unchecked
+    // because they don't return any result in $_GET from browser
+    if (isset($_GET['og_group_ref_target_id'])) {
+      $return[$key] = isset($_GET[$key]) ? $_GET[$key] : NULL;
     }
     elseif (isset($_POST['exposed'][$key])) {
       $return[$key] = $_POST['exposed'][$key];
     }
     elseif ($form_state && isset($form_state['values']['exposed'][$key])) {
+      $return[$key] = $form_state['values']['exposed'][$key];
+    }
+    elseif ($form_state && isset($form_state['values'][$key])) {
       $return[$key] = $form_state['values'][$key];
+    }
+    elseif ($form_state && isset($form_state['input'][$key])) {
+      $return[$key] = $form_state['input'][$key];
     }
     elseif ($form_state && isset($form_state['conf']['exposed'][$key])) {
       $return[$key] = $form_state['conf']['exposed'][$key];
+    }
+    elseif ($view && isset($view->exposed_raw_input[$key])) {
+      $return[$key] = $view->exposed_raw_input[$key];
     }
     elseif ($view && isset($view->exposed_input[$key])) {
       $return[$key] = $view->exposed_input[$key];
@@ -347,7 +448,7 @@ function oa_subspaces_views_query_alter(&$view, &$query) {
           // If it matches the column or an alias.
           foreach ($columns as $column) {
             if ($condition['field'] === $column ||
-              (is_string($condition['field']) && substr($condition['field'], -strlen($column)) === "__{$column}")) {
+              (is_string($condition['field']) && substr($condition['field'], -strlen($column)-2) === "__{$column}")) {
               $query->where[$where_group]['conditions'][$key]['value'] = array_merge($query->where[$where_group]['conditions'][$key]['value'], $extra_groups);
             }
           }
@@ -364,6 +465,7 @@ function oa_subspaces_field_access($op, $field, $entity_type, $entity, $account)
   if (!empty($field['field_name']) && $field['field_name'] == OG_USER_INHERITANCE_PERMISSION_FIELD && $op == 'edit') {
     return user_access('administer group', $account);
   }
+  return TRUE;
 }
 
 /**

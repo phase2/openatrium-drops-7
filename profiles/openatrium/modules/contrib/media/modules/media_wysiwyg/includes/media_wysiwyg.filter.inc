@@ -127,6 +127,14 @@ function media_wysiwyg_token_to_markup($match, $wysiwyg = FALSE) {
       $settings['attributes'] = array_intersect_key($tag_info['attributes'], array_flip($attribute_whitelist));
       $settings['fields'] = $fields;
 
+      // Decode HTML entities when reading attributes from the token, because
+      // we are going to encode them before outputting as HTML.
+      foreach ($settings['attributes'] as $key => $value) {
+        if (is_string($value)) {
+          $settings['attributes'][$key] = html_entity_decode($value);
+        }
+      }
+
       // Many media formatters will want to apply width and height independently
       // of the style attribute or the corresponding HTML attributes, so pull
       // these two out into top-level settings. Different WYSIWYG editors have
@@ -166,18 +174,18 @@ function media_wysiwyg_token_to_markup($match, $wysiwyg = FALSE) {
   if ($wysiwyg) {
     $settings['wysiwyg'] = $wysiwyg;
     // If sending markup to a WYSIWYG, we need to pass the file infomation so
-    // that a inline macro can be generated when the WYSIWYG is detached.
-    // The WYSIWYG plugin is expecting this information in the format of a
-    // urlencoded JSON string stored in the data-file_info attribute of the
-    // element.
+    // that an inline macro can be generated when the WYSIWYG is detached.
+    // The WYSIWYG plugin is expecting this information in the
+    // Drupal.settings.mediaDataMap variable.
     $element = media_wysiwyg_get_file_without_label($file, $tag_info['view_mode'], $settings);
-    $data = drupal_json_encode(array(
+    $data = array(
       'type' => 'media',
-      'fid' => $file->fid,
+      'fid'  => $file->fid,
       'view_mode' => $tag_info['view_mode'],
       'link_text' => $tag_info['link_text'],
-    ));
-    $element['#attributes']['data-file_info'] = urlencode($data);
+    );
+    drupal_add_js(array('mediaDataMap' => array($file->fid => $data)), 'setting');
+    $element['#attributes']['data-fid'] = $file->fid;
     $element['#attributes']['class'][] = 'media-element';
   }
   else {
@@ -222,6 +230,9 @@ function media_wysiwyg_filter_field_parser($tag_info) {
   $fields = array();
   if (isset($tag_info['fields'])) {
     foreach($tag_info['fields'] as $field_name => $field_value) {
+      // Decode HTML entities in fields because they will be encoded again
+      // when we output the fields for the user to edit.
+      $field_value = html_entity_decode($field_value);
       if (strpos($field_name, 'field_') === 0) {
         $parsed_field = explode('[', str_replace(']', '', $field_name));
         if(isset($parsed_field[2])) {

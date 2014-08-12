@@ -1,3 +1,21 @@
+Panopoly Magic 7.x-1.10, 2014-08-06
+----------------------------
+- No changes since last release.
+
+Panopoly Magic 7.x-1.9, 2014-07-31
+----------------------------
+- No changes since last release.
+
+Panopoly Magic 7.x-1.8, 2014-07-25
+----------------------------
+- Fixed Live preview does not respond to keyboard events.
+
+Panopoly Magic 7.x-1.7, 2014-07-16
+----------------------------
+- Fixed Panopoly Magic only provides node view modes for view mode selection.
+- Fixed "Add" button styling broken on "Add content" dialog.
+- Update styling for Add Content links for accessibility changes.
+
 Panopoly Magic 7.x-1.6, 2014-05-22
 ----------------------------
 - No changes since last release.

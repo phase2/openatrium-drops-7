@@ -218,7 +218,7 @@ function panopoly_admin_form_alter(&$form, &$form_state, $form_id) {
   if (isset($form['menu']) && isset($form['menu']['enabled']) && $form['menu']['#access']) {
     $form['menu']['link']['link_title']['#size'] = '';
     $form['menu']['link']['weight']['#access'] = FALSE;
-    $form['menu']['link']['link_title']['#title'] = 'Title';
+    $form['menu']['link']['link_title']['#title'] = t('Link title');
     $form['menu']['link']['parent']['#title'] = t('Parent');
     $form['menu']['link']['description']['#access'] = variable_get('panopoly_admin_link_description', FALSE); 
     $form['#validate'][] = 'panopoly_admin_menu_validate';

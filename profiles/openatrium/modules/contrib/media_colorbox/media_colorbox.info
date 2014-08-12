@@ -10,9 +10,9 @@ dependencies[] = colorbox
 scripts[] = media_colorbox.js
 
 
-; Information added by drush on 2014-05-30
+; Information added by drush on 2014-08-12
 version = "7.x-1.0-rc4+1-dev"
 core = "7.x"
 project = "media_colorbox"
-datestamp = "1401469527"
+datestamp = "1407848735"
 

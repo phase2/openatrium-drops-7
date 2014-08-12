@@ -59,6 +59,9 @@ function openatrium_rebuild_search() {
   // only rebuild search when not doing a quick install
   if (empty($install_state['parameters']['quickstart']) || ($install_state['parameters']['quickstart'] != 'quick')) {
     require_once(drupal_get_path('module', 'oa_search') . '/oa_search.install');
+    features_revert(array(
+      'oa_search' => array('search_api_index'),
+    ));
     oa_search_rebuild_index();
   }
 }

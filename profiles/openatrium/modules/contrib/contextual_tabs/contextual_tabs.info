@@ -1,13 +1,13 @@
-name = Tabs No More
+name = Contextual Tabs
 description = Converts tabs to contextual links
 package = Administration
 core = 7.x
 
 stylesheets[all][] = contextual_tabs.css
 
-; Information added by drupal.org packaging script on 2013-10-22
-version = "7.x-1.0-beta1"
+; Information added by Drupal.org packaging script on 2014-07-29
+version = "7.x-1.0-beta2"
 core = "7.x"
 project = "contextual_tabs"
-datestamp = "1382471566"
+datestamp = "1406664230"
 

@@ -60,9 +60,9 @@ features[variable][] = panelizer_defaults_node_oa_wiki_page
 features[variable][] = panelizer_node:oa_wiki_page_default
 project path = profiles/openatrium/modules/contrib
 
-; Information added by Drupal.org packaging script on 2014-05-29
-version = "7.x-2.19"
+; Information added by Drupal.org packaging script on 2014-08-01
+version = "7.x-2.20"
 core = "7.x"
 project = "oa_wiki"
-datestamp = "1401393830"
+datestamp = "1406916830"
 

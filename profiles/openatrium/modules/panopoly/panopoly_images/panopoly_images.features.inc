@@ -157,6 +157,27 @@ function panopoly_images_image_default_styles() {
     ),
   );
 
+  // Exported image style: panopoly_image_original.
+  $styles['panopoly_image_original'] = array(
+    'name' => 'panopoly_image_original',
+    'label' => 'panopoly_image_original',
+    'effects' => array(
+      1 => array(
+        'label' => 'Manual Crop: Reuse cropped style',
+        'help' => 'Reuse a crop selection from another Manual Crop enabled image style.',
+        'effect callback' => 'manualcrop_reuse_effect',
+        'form callback' => 'manualcrop_reuse_form',
+        'summary theme' => 'manualcrop_reuse_summary',
+        'module' => 'manualcrop',
+        'name' => 'manualcrop_reuse',
+        'data' => array(
+          'reuse_crop_style' => 'panopoly_image_full',
+        ),
+        'weight' => 0,
+      ),
+    ),
+  );
+
   // Exported image style: panopoly_image_quarter.
   $styles['panopoly_image_quarter'] = array(
     'name' => 'panopoly_image_quarter',

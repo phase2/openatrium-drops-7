@@ -160,7 +160,7 @@ function panopoly_core_defaultconfig_strongarm() {
     'node_form_title-node_form_title' => 'node_form_title-node_form_title',
     'node_attachments-node_attachments' => 'node_attachments-node_attachments',
     'node_author-node_author' => 'node_author-node_author',
-    'node_body-node_body' => 'node_body-node_body',
+    'node_body-node_body' => 0,
     'node_content-node_content' => 'node_content-node_content',
     'node_created-node_created' => 'node_created-node_created',
     'node_links-node_links' => 'node_links-node_links',

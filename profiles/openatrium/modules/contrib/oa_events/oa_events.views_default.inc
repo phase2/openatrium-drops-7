@@ -97,7 +97,7 @@ function oa_events_views_default_views() {
     'show_repeat_rule' => 'show',
   );
   $handler->display->display_options['fields']['field_oa_date_2']['delta_offset'] = '0';
-  /* Field: Content: Description */
+  /* Field: Content: Body */
   $handler->display->display_options['fields']['body']['id'] = 'body';
   $handler->display->display_options['fields']['body']['table'] = 'field_data_body';
   $handler->display->display_options['fields']['body']['field'] = 'body';
@@ -195,6 +195,14 @@ function oa_events_views_default_views() {
   $handler->display->display_options['defaults']['use_ajax'] = FALSE;
   $handler->display->display_options['use_ajax'] = TRUE;
   $handler->display->display_options['defaults']['relationships'] = FALSE;
+  /* Relationship: Flags: trash */
+  $handler->display->display_options['relationships']['flag_content_rel']['id'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['table'] = 'node';
+  $handler->display->display_options['relationships']['flag_content_rel']['field'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['label'] = 'archived';
+  $handler->display->display_options['relationships']['flag_content_rel']['required'] = 0;
+  $handler->display->display_options['relationships']['flag_content_rel']['flag'] = 'trash';
+  $handler->display->display_options['relationships']['flag_content_rel']['user_scope'] = 'any';
   $handler->display->display_options['defaults']['fields'] = FALSE;
   /* Field: Content: Event Date */
   $handler->display->display_options['fields']['field_oa_date_1']['id'] = 'field_oa_date_1';
@@ -229,7 +237,7 @@ function oa_events_views_default_views() {
     'show_repeat_rule' => 'show',
   );
   $handler->display->display_options['fields']['field_oa_date']['delta_offset'] = '0';
-  /* Field: Content: Description */
+  /* Field: Content: Body */
   $handler->display->display_options['fields']['body']['id'] = 'body';
   $handler->display->display_options['fields']['body']['table'] = 'field_data_body';
   $handler->display->display_options['fields']['body']['field'] = 'body';
@@ -314,6 +322,38 @@ function oa_events_views_default_views() {
   $handler->display->display_options['arguments']['oa_section_ref_target_id']['summary']['number_of_records'] = '0';
   $handler->display->display_options['arguments']['oa_section_ref_target_id']['summary']['format'] = 'default_summary';
   $handler->display->display_options['arguments']['oa_section_ref_target_id']['summary_options']['items_per_page'] = '25';
+  $handler->display->display_options['defaults']['filter_groups'] = FALSE;
+  $handler->display->display_options['defaults']['filters'] = FALSE;
+  /* Filter criterion: Content: Published */
+  $handler->display->display_options['filters']['status']['id'] = 'status';
+  $handler->display->display_options['filters']['status']['table'] = 'node';
+  $handler->display->display_options['filters']['status']['field'] = 'status';
+  $handler->display->display_options['filters']['status']['value'] = 1;
+  $handler->display->display_options['filters']['status']['group'] = 1;
+  $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+  /* Filter criterion: Content: Event Date -  start date (field_oa_date) */
+  $handler->display->display_options['filters']['field_oa_date_value']['id'] = 'field_oa_date_value';
+  $handler->display->display_options['filters']['field_oa_date_value']['table'] = 'field_data_field_oa_date';
+  $handler->display->display_options['filters']['field_oa_date_value']['field'] = 'field_oa_date_value';
+  $handler->display->display_options['filters']['field_oa_date_value']['operator'] = '>=';
+  $handler->display->display_options['filters']['field_oa_date_value']['default_date'] = 'now';
+  /* Filter criterion: Flags: Flagged */
+  $handler->display->display_options['filters']['flagged']['id'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['table'] = 'flag_content';
+  $handler->display->display_options['filters']['flagged']['field'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['relationship'] = 'flag_content_rel';
+  $handler->display->display_options['filters']['flagged']['value'] = '0';
+  $handler->display->display_options['filters']['flagged']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['flagged']['expose']['operator_id'] = '';
+  $handler->display->display_options['filters']['flagged']['expose']['label'] = 'Include archived content';
+  $handler->display->display_options['filters']['flagged']['expose']['operator'] = 'flagged_op';
+  $handler->display->display_options['filters']['flagged']['expose']['identifier'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
   $handler->display->display_options['pane_category']['name'] = 'Open Atrium Events';
   $handler->display->display_options['pane_category']['weight'] = '0';
   $handler->display->display_options['argument_input'] = array(
@@ -418,6 +458,14 @@ function oa_events_views_default_views() {
       'empty_column' => 0,
     ),
   );
+  /* Relationship: Flags: trash */
+  $handler->display->display_options['relationships']['flag_content_rel']['id'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['table'] = 'node';
+  $handler->display->display_options['relationships']['flag_content_rel']['field'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['label'] = 'archived';
+  $handler->display->display_options['relationships']['flag_content_rel']['required'] = 0;
+  $handler->display->display_options['relationships']['flag_content_rel']['flag'] = 'trash';
+  $handler->display->display_options['relationships']['flag_content_rel']['user_scope'] = 'any';
   /* Field: Content: Event Date */
   $handler->display->display_options['fields']['field_oa_date']['id'] = 'field_oa_date';
   $handler->display->display_options['fields']['field_oa_date']['table'] = 'field_data_field_oa_date';
@@ -445,7 +493,7 @@ function oa_events_views_default_views() {
   $handler->display->display_options['fields']['timestamp']['field'] = 'timestamp';
   $handler->display->display_options['fields']['timestamp']['label'] = '';
   $handler->display->display_options['fields']['timestamp']['element_label_colon'] = FALSE;
-  /* Field: Content: Description */
+  /* Field: Content: Body */
   $handler->display->display_options['fields']['body']['id'] = 'body';
   $handler->display->display_options['fields']['body']['table'] = 'field_data_body';
   $handler->display->display_options['fields']['body']['field'] = 'body';
@@ -523,6 +571,23 @@ function oa_events_views_default_views() {
   $handler->display->display_options['filters']['oa_section_ref_target_id']['expose']['operator'] = 'oa_section_ref_target_id_op';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['expose']['identifier'] = 'oa_section_ref_target_id';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
+  /* Filter criterion: Flags: Flagged */
+  $handler->display->display_options['filters']['flagged']['id'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['table'] = 'flag_content';
+  $handler->display->display_options['filters']['flagged']['field'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['relationship'] = 'flag_content_rel';
+  $handler->display->display_options['filters']['flagged']['value'] = '0';
+  $handler->display->display_options['filters']['flagged']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['flagged']['expose']['operator_id'] = '';
+  $handler->display->display_options['filters']['flagged']['expose']['label'] = 'Include archived content';
+  $handler->display->display_options['filters']['flagged']['expose']['operator'] = 'flagged_op';
+  $handler->display->display_options['filters']['flagged']['expose']['identifier'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
     3 => 0,
@@ -648,6 +713,23 @@ function oa_events_views_default_views() {
     3 => 0,
     4 => 0,
   );
+  /* Filter criterion: Flags: Flagged */
+  $handler->display->display_options['filters']['flagged']['id'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['table'] = 'flag_content';
+  $handler->display->display_options['filters']['flagged']['field'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['relationship'] = 'flag_content_rel';
+  $handler->display->display_options['filters']['flagged']['value'] = '0';
+  $handler->display->display_options['filters']['flagged']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['flagged']['expose']['operator_id'] = '';
+  $handler->display->display_options['filters']['flagged']['expose']['label'] = 'Include archived content';
+  $handler->display->display_options['filters']['flagged']['expose']['operator'] = 'flagged_op';
+  $handler->display->display_options['filters']['flagged']['expose']['identifier'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
   $handler->display->display_options['pane_category']['name'] = 'Open Atrium Events';
   $handler->display->display_options['pane_category']['weight'] = '0';
   $handler->display->display_options['allow']['use_pager'] = 0;
@@ -664,6 +746,7 @@ function oa_events_views_default_views() {
     'filters' => array(
       'og_group_ref_target_id' => '',
       'oa_section_ref_target_id' => '',
+      'flagged' => '',
     ),
   );
 
@@ -687,6 +770,7 @@ function oa_events_views_default_views() {
     'filters' => array(
       'og_group_ref_target_id' => '',
       'oa_section_ref_target_id' => '',
+      'flagged' => '',
     ),
   );
 
@@ -744,6 +828,23 @@ function oa_events_views_default_views() {
   $handler->display->display_options['filters']['field_oa_date_value']['operator'] = '<';
   $handler->display->display_options['filters']['field_oa_date_value']['granularity'] = 'hour';
   $handler->display->display_options['filters']['field_oa_date_value']['default_date'] = 'today';
+  /* Filter criterion: Flags: Flagged */
+  $handler->display->display_options['filters']['flagged']['id'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['table'] = 'flag_content';
+  $handler->display->display_options['filters']['flagged']['field'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['relationship'] = 'flag_content_rel';
+  $handler->display->display_options['filters']['flagged']['value'] = '0';
+  $handler->display->display_options['filters']['flagged']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['flagged']['expose']['operator_id'] = '';
+  $handler->display->display_options['filters']['flagged']['expose']['label'] = 'Include archived content';
+  $handler->display->display_options['filters']['flagged']['expose']['operator'] = 'flagged_op';
+  $handler->display->display_options['filters']['flagged']['expose']['identifier'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
   $handler->display->display_options['path'] = 'feeds/ical/%/%';
   $handler->display->display_options['displays'] = array(
     'oa_calendar_month' => 'oa_calendar_month',
@@ -872,6 +973,23 @@ function oa_events_views_default_views() {
     3 => 0,
     4 => 0,
   );
+  /* Filter criterion: Flags: Flagged */
+  $handler->display->display_options['filters']['flagged']['id'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['table'] = 'flag_content';
+  $handler->display->display_options['filters']['flagged']['field'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['relationship'] = 'flag_content_rel';
+  $handler->display->display_options['filters']['flagged']['value'] = '0';
+  $handler->display->display_options['filters']['flagged']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['flagged']['expose']['operator_id'] = '';
+  $handler->display->display_options['filters']['flagged']['expose']['label'] = 'Include archived content';
+  $handler->display->display_options['filters']['flagged']['expose']['operator'] = 'flagged_op';
+  $handler->display->display_options['filters']['flagged']['expose']['identifier'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
   $handler->display->display_options['pane_category']['name'] = 'Open Atrium Events';
   $handler->display->display_options['pane_category']['weight'] = '0';
   $handler->display->display_options['allow']['use_pager'] = 0;
@@ -923,6 +1041,14 @@ function oa_events_views_default_views() {
     'field_oa_date' => 'field_oa_date',
   );
   $handler->display->display_options['style_options']['fullcalendar_options']['dayClickView'] = 'agendaDay';
+  /* Relationship: Flags: trash */
+  $handler->display->display_options['relationships']['flag_content_rel']['id'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['table'] = 'node';
+  $handler->display->display_options['relationships']['flag_content_rel']['field'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['label'] = 'archived';
+  $handler->display->display_options['relationships']['flag_content_rel']['required'] = 0;
+  $handler->display->display_options['relationships']['flag_content_rel']['flag'] = 'trash';
+  $handler->display->display_options['relationships']['flag_content_rel']['user_scope'] = 'any';
   /* Field: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
@@ -997,6 +1123,23 @@ function oa_events_views_default_views() {
     3 => 0,
     4 => 0,
   );
+  /* Filter criterion: Flags: Flagged */
+  $handler->display->display_options['filters']['flagged']['id'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['table'] = 'flag_content';
+  $handler->display->display_options['filters']['flagged']['field'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['relationship'] = 'flag_content_rel';
+  $handler->display->display_options['filters']['flagged']['value'] = '0';
+  $handler->display->display_options['filters']['flagged']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['flagged']['expose']['operator_id'] = '';
+  $handler->display->display_options['filters']['flagged']['expose']['label'] = 'Include archived content';
+  $handler->display->display_options['filters']['flagged']['expose']['operator'] = 'flagged_op';
+  $handler->display->display_options['filters']['flagged']['expose']['identifier'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
 
   /* Display: Calendar */
   $handler = $view->new_display('panel_pane', 'Calendar', 'oa_calendar_month');
@@ -1016,6 +1159,7 @@ function oa_events_views_default_views() {
     'filters' => array(
       'og_group_ref_target_id' => '',
       'oa_section_ref_target_id' => '',
+      'flagged' => '',
     ),
   );
   $handler->display->display_options['inherit_panels_path'] = '1';
@@ -1053,6 +1197,7 @@ function oa_events_views_default_views() {
     'filters' => array(
       'og_group_ref_target_id' => '',
       'oa_section_ref_target_id' => '',
+      'flagged' => '',
     ),
   );
   $handler->display->display_options['inherit_panels_path'] = '1';
@@ -1090,6 +1235,7 @@ function oa_events_views_default_views() {
     'filters' => array(
       'og_group_ref_target_id' => '',
       'oa_section_ref_target_id' => '',
+      'flagged' => '',
     ),
   );
   $handler->display->display_options['inherit_panels_path'] = '1';
@@ -1097,18 +1243,21 @@ function oa_events_views_default_views() {
   /* Display: iCal */
   $handler = $view->new_display('feed', 'iCal', 'oa_calendar_ical');
   $handler->display->display_options['pager']['type'] = 'some';
+  $handler->display->display_options['pager']['options']['items_per_page'] = '20';
+  $handler->display->display_options['pager']['options']['offset'] = '0';
   $handler->display->display_options['style_plugin'] = 'date_ical';
   $handler->display->display_options['style_options']['cal_name'] = '';
+  $handler->display->display_options['style_options']['disable_webcal'] = TRUE;
   $handler->display->display_options['row_plugin'] = 'date_ical';
   $handler->display->display_options['row_options']['date_field'] = 'field_data_field_oa_date.field_oa_date_value';
-  $handler->display->display_options['row_options']['summary_field'] = 'default_title';
-  $handler->display->display_options['row_options']['location_field'] = 'none';
-  $handler->display->display_options['path'] = 'feeds/calendar/%/%/%';
+  $handler->display->display_options['row_options']['summary_field'] = 'field_data_body.body';
+  $handler->display->display_options['row_options']['location_field'] = 'field_data_field_oa_address.field_oa_address';
+  $handler->display->display_options['path'] = 'calendar/%/export.ics';
   $handler->display->display_options['displays'] = array(
-    'oa_calendar_pane' => 'oa_calendar_pane',
-    'oa_calendar_daily' => 'oa_calendar_daily',
-    'oa_calendar_weekly' => 'oa_calendar_weekly',
+    'oa_calendar_month' => 'oa_calendar_month',
     'default' => 0,
+    'oa_calendar_day' => 0,
+    'oa_calendar_week' => 0,
   );
   $export['oa_fullcalendar'] = $view;
 

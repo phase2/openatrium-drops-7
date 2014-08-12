@@ -12,15 +12,13 @@ Drupal.media.mediaFormatSelected = {};
 
 Drupal.behaviors.mediaFormatForm = {
   attach: function (context, settings) {
-
-    // Add "Submit" and "Cancel" buttons inside the IFRAME that trigger the
-    // behavior of the hidden "OK" and "Cancel" buttons that are outside the
-    // IFRAME. See Drupal.media.browser.validateButtons() for more details.
+    // Add the "Submit" button inside the IFRAME that trigger the behavior of
+    // the hidden "OK" button that is outside the IFRAME.
+    // @see Drupal.media.browser.validateButtons() for more details.
 
     // @note I think this should be handled in media.browser.js in
-    //       Drupal.media.browser.validateButtons but I'm not sure how crufty
-    //       this particular functionality is. We should evaluate if it is still
-    //       needed.
+    // Drupal.media.browser.validateButtons but I'm not sure how crufty this
+    // particular functionality is. We should evaluate if it is still needed.
 
     // @TODO can these be added to the content being displayed via form_alter?
 
@@ -28,7 +26,6 @@ Drupal.behaviors.mediaFormatForm = {
     // buttons from being added if part of the form is updated via AJAX
     $('#media-wysiwyg-format-form').once('format', function() {
       $('<a class="button fake-ok">' + Drupal.t('Submit') + '</a>').appendTo($('#media-wysiwyg-format-form')).bind('click', Drupal.media.formatForm.submit);
-      $('<a class="button fake-cancel">' + Drupal.t('Cancel') + '</a>').appendTo($('#media-wysiwyg-format-form')).bind('click', Drupal.media.formatForm.submit);
     });
   }
 };
@@ -40,18 +37,14 @@ Drupal.media.formatForm.getOptions = function () {
 };
 
 Drupal.media.formatForm.getFormattedMedia = function () {
-  var formatType = $("select#edit-format option:selected").val();
+  var formatType = $("#edit-format").val();
   return { type: formatType, options: Drupal.media.formatForm.getOptions(), html: Drupal.settings.media.formatFormFormats[formatType] };
 };
 
 Drupal.media.formatForm.submit = function () {
   // @see Drupal.behaviors.mediaFormatForm.attach().
   var buttons = $(parent.window.document.body).find('#mediaStyleSelector').parent('.ui-dialog').find('.ui-dialog-buttonpane button');
-  if ($(this).hasClass('fake-cancel')) {
-    buttons[1].click();
-  } else {
-    buttons[0].click();
-  }
+  buttons[0].click();
 }
 
 })(jQuery);

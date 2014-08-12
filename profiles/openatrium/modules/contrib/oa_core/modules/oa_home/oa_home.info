@@ -16,9 +16,9 @@ features[variable][] = colorizer_previewfile
 features[variable][] = site_frontpage
 project path = tmp/oa_home
 
-; Information added by Drupal.org packaging script on 2014-05-30
-version = "7.x-2.19"
+; Information added by Drupal.org packaging script on 2014-08-11
+version = "7.x-2.21"
 core = "7.x"
 project = "oa_core"
-datestamp = "1401462830"
+datestamp = "1407789231"
 

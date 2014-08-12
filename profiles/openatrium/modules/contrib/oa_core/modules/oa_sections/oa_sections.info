@@ -66,13 +66,13 @@ features[views_view][] = oa_sections_section_types
 features[views_view][] = open_atrium_section_pages
 files[] = tests/oa_sectionsAccess.test
 files[] = tests/oa_sectionsAccessBase.test
-files[] = tests/oa_sectionsNodeAccess.test
+files[] = tests/oa_sectionsNodePrivateAccess.test
+files[] = tests/oa_sectionsNodePublicAccess.test
 files[] = tests/oa_sectionsNodeAccessBase.test
-project path = sites/all/modules/contrib/oa_core/modules
 
-; Information added by Drupal.org packaging script on 2014-05-30
-version = "7.x-2.19"
+; Information added by Drupal.org packaging script on 2014-08-11
+version = "7.x-2.21"
 core = "7.x"
 project = "oa_core"
-datestamp = "1401462830"
+datestamp = "1407789231"
 

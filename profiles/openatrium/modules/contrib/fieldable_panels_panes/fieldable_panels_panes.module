@@ -1032,3 +1032,14 @@ function fieldable_panels_pane_is_page($pane) {
   $page_page = menu_get_object('fieldable_panels_panes', 4);
   return (!empty($page_page) ? $page_page->fpid == $pane->fpid : FALSE);
 }
+
+/**
+ * Implements hook_form_FORM_ID_alter for ctools_export_ui_edit_item_form.
+ *
+ * Minor improvements to the FPP bundle/type form.
+ */
+function fieldable_panels_panes_form_ctools_export_ui_edit_item_form_alter(&$form, &$form_state, $form_id) {
+  if (isset($form_state['plugin']['name']) && $form_state['plugin']['name'] == 'fieldable_panels_pane') {
+    $form['info']['description']['#description'] = t('The administrative description of this type. Also used as the icon tooltip when attempting to add an item of this type via the Panels interface.');
+  }
+}

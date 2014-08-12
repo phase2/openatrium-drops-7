@@ -141,6 +141,14 @@ function oa_admin_views_default_views() {
     'forums' => 0,
     'tags' => 0,
   );
+  /* Relationship: Flags: trash */
+  $handler->display->display_options['relationships']['flag_content_rel']['id'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['table'] = 'node';
+  $handler->display->display_options['relationships']['flag_content_rel']['field'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['label'] = 'archived';
+  $handler->display->display_options['relationships']['flag_content_rel']['required'] = 0;
+  $handler->display->display_options['relationships']['flag_content_rel']['flag'] = 'trash';
+  $handler->display->display_options['relationships']['flag_content_rel']['user_scope'] = 'any';
   /* Field: Bulk operations: Content */
   $handler->display->display_options['fields']['views_bulk_operations']['id'] = 'views_bulk_operations';
   $handler->display->display_options['fields']['views_bulk_operations']['table'] = 'node';
@@ -426,6 +434,23 @@ function oa_admin_views_default_views() {
   $handler->display->display_options['filters']['vid']['expose']['operator'] = 'vid_op';
   $handler->display->display_options['filters']['vid']['expose']['identifier'] = 'vid';
   $handler->display->display_options['filters']['vid']['expose']['remember'] = TRUE;
+  /* Filter criterion: Flags: Flagged */
+  $handler->display->display_options['filters']['flagged']['id'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['table'] = 'flag_content';
+  $handler->display->display_options['filters']['flagged']['field'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['relationship'] = 'flag_content_rel';
+  $handler->display->display_options['filters']['flagged']['value'] = '0';
+  $handler->display->display_options['filters']['flagged']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['flagged']['expose']['operator_id'] = '';
+  $handler->display->display_options['filters']['flagged']['expose']['label'] = 'Include archived content';
+  $handler->display->display_options['filters']['flagged']['expose']['operator'] = 'flagged_op';
+  $handler->display->display_options['filters']['flagged']['expose']['identifier'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
 
   /* Display: System */
   $handler = $view->new_display('system', 'System', 'oa_system');

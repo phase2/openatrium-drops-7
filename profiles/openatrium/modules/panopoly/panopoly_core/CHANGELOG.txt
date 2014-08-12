@@ -1,3 +1,27 @@
+Panopoly Core 7.x-1.10, 2014-08-06
+---------------------------
+- No changes since last release.
+
+Panopoly Core 7.x-1.9, 2014-07-31
+---------------------------
+- Update to Date 2.8 for SA-CONTRIB-2014-073.
+- Fixed Previews for new Views widgets don't show "more link" even when it should be enabled by default.
+
+Panopoly Core 7.x-1.8, 2014-07-25
+---------------------------
+- Added transliteration.
+
+Panopoly Core 7.x-1.7, 2014-07-16
+---------------------------
+- Fixed Autocomplete loses item selected via keyboard in CTools dialog.
+- Fixed views_autocomplete_filter 1.1 is broken on Pantheon.
+- Disable "Nody body" pane in favor of "Field: Body" (which FAPE supports).
+- Add visual indicator of tab focus on to IPE customize page screen.
+- Test if Features are Overridden after install on Travis-CI.
+- Fixed Accessibility issues for link markup on Add Content overlay.
+- Update field_group to version 1.4.
+- Fixed Descriptions of views not accurate.
+
 Panopoly Core 7.x-1.6, 2014-05-22
 ---------------------------
 - Update Views to 3.8 for DRUPAL-SA-CONTRIB-2014-054.

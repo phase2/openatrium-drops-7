@@ -8,13 +8,6 @@
  */
 
 /**
- * Add messages to the page.
- */
-function template_preprocess_media_dialog_page(&$variables) {
-  $variables['messages'] = theme('status_messages');
-}
-
-/**
  * Adds a wrapper around a preview of a media file.
  */
 function theme_media_thumbnail($variables) {
@@ -32,11 +25,18 @@ function theme_media_thumbnail($variables) {
 
   // Arguments for the thumbnail link.
   $thumb = $element['#children'];
-  $target = 'file/' . $element['#file']->fid . '/edit';
+  if (file_entity_access('update', $element['#file'])) {
+    $target = 'file/' . $element['#file']->fid . '/edit';
+    $title = t('Click to edit details');
+  }
+  else {
+    $target = 'file/' . $element['#file']->fid;
+    $title = t('Click to view details');
+  }
   $options = array(
     'query' => drupal_get_destination(),
     'html' => TRUE,
-    'attributes' => array('title' => t('Click to edit details')),
+    'attributes' => array('title' => $title),
   );
 
   // Element should be a field renderable array. This should be improved.
@@ -92,4 +92,11 @@ function theme_media_formatter_large_icon($variables) {
     $output = theme('image', $variables);
   }
   return $output;
+}
+
+/**
+ * Add messages to the page.
+ */
+function template_preprocess_media_dialog_page(&$variables) {
+  $variables['messages'] = theme('status_messages');
 }

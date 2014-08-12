@@ -40,7 +40,7 @@ function hook_media_wysiwyg_wysiwyg_allowed_view_modes_alter(&$view_modes, $file
 function hook_media_wysiwyg_format_form_prepare_alter(&$form, &$form_state, $file) {
   $form['preview']['#access'] = FALSE;
 
-  $file = $form['#media'];
+  $file = $form_state['file'];
   $form['heading']['#markup'] = t('Embedding %filename of type %filetype', array('%filename' => $file->filename, '%filetype' => $file->type));
 }
 

@@ -11,9 +11,9 @@ files[] = includes/views/handlers/fullcalendar_handler_field_gcal.inc
 files[] = includes/views/plugins/fullcalendar_plugin_style_fullcalendar.inc
 
 
-; Information added by drush on 2014-05-30
+; Information added by drush on 2014-08-12
 version = "7.x-2.0+5-dev"
 core = "7.x"
 project = "fullcalendar"
-datestamp = "1401469550"
+datestamp = "1407848752"
 

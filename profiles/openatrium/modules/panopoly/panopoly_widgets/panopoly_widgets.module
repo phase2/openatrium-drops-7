@@ -236,6 +236,7 @@ function panopoly_widgets_entity_info_alter(&$entity_info) {
   // Quick links
   $entity_info['fieldable_panels_pane']['bundles']['quick_links'] = array(
     'label' => t('Add links'),
+    'description' => t('Add links'),
     'pane category' => t('Custom'),
     'pane top level' => TRUE,
     'pane icon' => drupal_get_path('module', 'panopoly_widgets') . '/images/icon_link.png',
@@ -250,6 +251,7 @@ function panopoly_widgets_entity_info_alter(&$entity_info) {
   // Basic file
   $entity_info['fieldable_panels_pane']['bundles']['basic_file'] = array(
     'label' => t('Add file'),
+    'description' => t('Add file'),
     'pane category' => t('Custom'),
     'pane top level' => TRUE,
     'pane icon' => drupal_get_path('module', 'panopoly_widgets') . '/images/icon_file.png',
@@ -264,6 +266,7 @@ function panopoly_widgets_entity_info_alter(&$entity_info) {
   // Basic Image
   $entity_info['fieldable_panels_pane']['bundles']['image'] = array(
     'label' => t('Add image'),
+    'description' => t('Add image'),
     'pane category' => t('Custom'),
     'pane top level' => TRUE,
     'pane icon' => drupal_get_path('module', 'panopoly_widgets') . '/images/icon_image.png',
@@ -278,6 +281,7 @@ function panopoly_widgets_entity_info_alter(&$entity_info) {
   // Basic text
   $entity_info['fieldable_panels_pane']['bundles']['text'] = array(
     'label' => t('Add text'),
+    'description' => t('Add text'),
     'pane category' => t('Custom'),
     'pane top level' => TRUE,
     'pane icon' => drupal_get_path('module', 'panopoly_widgets') . '/images/icon_text.png',
@@ -292,6 +296,7 @@ function panopoly_widgets_entity_info_alter(&$entity_info) {
   // Basic Map
   $entity_info['fieldable_panels_pane']['bundles']['map'] = array(
     'label' => t('Add map'),
+    'description' => t('Add map'),
     'pane category' => t('Custom'),
     'pane top level' => TRUE,
     'pane icon' => drupal_get_path('module', 'panopoly_widgets') . '/images/icon_map.png',
@@ -306,6 +311,7 @@ function panopoly_widgets_entity_info_alter(&$entity_info) {
   // Basic table
   $entity_info['fieldable_panels_pane']['bundles']['table'] = array(
     'label' => t('Add table'),
+    'description' => t('Add table'),
     'pane category' => t('Custom'),
     'pane top level' => TRUE,
     'pane icon' => drupal_get_path('module', 'panopoly_widgets') . '/images/icon_table.png',
@@ -320,6 +326,7 @@ function panopoly_widgets_entity_info_alter(&$entity_info) {
   // Basic video
   $entity_info['fieldable_panels_pane']['bundles']['video'] = array(
     'label' => t('Add video'),
+    'description' => t('Add video'),
     'pane category' => t('Custom'),
     'pane top level' => TRUE,
     'pane icon' => drupal_get_path('module', 'panopoly_widgets') . '/images/icon_video.png',
@@ -334,6 +341,7 @@ function panopoly_widgets_entity_info_alter(&$entity_info) {
   // Spotlight
   $entity_info['fieldable_panels_pane']['bundles']['spotlight'] = array(
     'label' => t('Add spotlight'),
+    'description' => t('Add spotlight'),
     'pane category' => t('Custom'),
     'pane top level' => TRUE,
     'pane icon' => drupal_get_path('module', 'panopoly_widgets') . '/images/icon_spotlight.png',
@@ -380,6 +388,10 @@ function panopoly_widgets_field_display_fieldable_panels_pane_alter(&$display, $
  * Implementation of hook_file_default_displays_alter()
  */
 function panopoly_widgets_file_default_displays_alter(&$default_displays) {
+  // Display the 'Generic file' display on video preview.
+  if (!empty($default_displays['video__preview__file_field_file_default'])) {
+    $default_displays['video__preview__file_field_file_default']->status = FALSE;
+  }
 
   // Set the default video configuration for videos
   if (!empty($default_displays['video__default__media_vimeo_video'])) {
@@ -410,5 +422,19 @@ function panopoly_widgets_file_default_displays_alter(&$default_displays) {
 function panopoly_widgets_file_type_alter(&$types, $file) {
   if ($file->filemime == 'video/youtube' || $file->filemime == 'video/vimeo') {
     $types[] = 'video';
+  }
+}
+
+/**
+ * Implements hook_menu_block_tree_alter().
+ *
+ * Updates menu block settings in case of IPE callback magic. This will only
+ * work in limited cases but will be fixed when the page refreshes.
+ */
+function panopoly_widgets_menu_block_tree_alter($tree, $config) {
+  if (arg(0) == 'panels' && arg(1) == 'ajax') {
+    foreach ($tree as $key => $value) {
+      $tree[$key]['link']['in_active_trail'] = TRUE;
+    }
   }
 }

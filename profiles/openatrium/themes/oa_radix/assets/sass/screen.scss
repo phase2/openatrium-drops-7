@@ -10,29 +10,21 @@
 @import "global/mixin";
 @import "global/font";
 
-// Bootswatch
-// --------------------------------------------------
-@import "bootswatch/_variables";
-
 // Radix
 // --------------------------------------------------
 @import "compass_radix";
 @import "compass_radix_responsive";
 
-// Bootswatch
-// --------------------------------------------------
-@import "bootswatch/bootswatch";
-
 // Theme CSS
 // --------------------------------------------------
-@import "partials/layout";
-@import "partials/structure";
-@import "partials/menu";
-@import "partials/page";
-@import "partials/panel";
-@import "partials/view";
-@import "partials/form";
-@import "partials/comment";
-@import "partials/node";
-@import "partials/user";
-@import "partials/navbar";
+@import "layout/layout";
+@import "components/structure";
+@import "components/menu";
+@import "base/page";
+@import "base/panel";
+@import "base/view";
+@import "components/form";
+@import "components/comment";
+@import "base/node";
+@import "components/user";
+@import "components/navbar";

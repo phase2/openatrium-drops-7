@@ -21,6 +21,19 @@ function oa_media_ctools_plugin_api($module = NULL, $api = NULL) {
  */
 function oa_media_views_default_views_alter(&$data) {
   if (isset($data['media_default'])) {
+    $data['media_default']->display['default']->display_options['filters']['oa_section_ref_target_id'] = array(
+      'id' => 'oa_section_ref_target_id',
+      'table' => 'field_data_oa_section_ref',
+      'field' => 'oa_section_ref_target_id',
+      'relationship' => 'reverse_field_oa_media_node',
+      'exposed' => TRUE,
+      'expose' => array(
+        'operator_id' => 'oa_section_ref_target_id_op',
+        'label' => 'Section',
+        'operator' => 'oa_section_ref_target_id_op',
+        'identifier' => 'oa_section_ref_target_id',
+      ),
+    ); /* WAS: '' */
     $data['media_default']->display['default']->display_options['filters']['og_group_ref_target_id'] = array(
       'id' => 'og_group_ref_target_id',
       'table' => 'og_membership',
@@ -40,7 +53,14 @@ function oa_media_views_default_views_alter(&$data) {
         ),
       ),
     ); /* WAS: '' */
-    $data['media_default']->display['default']->display_options['filters']['oa_section_ref_target_id'] = array(
+    $data['media_default']->display['default']->display_options['relationships'] = array(
+      'reverse_field_oa_media_node' => array(
+        'id' => 'reverse_field_oa_media_node',
+        'table' => 'file_managed',
+        'field' => 'reverse_field_oa_media_node',
+      ),
+    ); /* WAS: '' */
+    $data['media_default']->display['media_browser_my_files']->display_options['filters']['oa_section_ref_target_id'] = array(
       'id' => 'oa_section_ref_target_id',
       'table' => 'field_data_oa_section_ref',
       'field' => 'oa_section_ref_target_id',
@@ -51,13 +71,6 @@ function oa_media_views_default_views_alter(&$data) {
         'label' => 'Section',
         'operator' => 'oa_section_ref_target_id_op',
         'identifier' => 'oa_section_ref_target_id',
-      ),
-    ); /* WAS: '' */
-    $data['media_default']->display['default']->display_options['relationships'] = array(
-      'reverse_field_oa_media_node' => array(
-        'id' => 'reverse_field_oa_media_node',
-        'table' => 'file_managed',
-        'field' => 'reverse_field_oa_media_node',
       ),
     ); /* WAS: '' */
     $data['media_default']->display['media_browser_my_files']->display_options['filters']['og_group_ref_target_id'] = array(
@@ -79,24 +92,12 @@ function oa_media_views_default_views_alter(&$data) {
         ),
       ),
     ); /* WAS: '' */
-    $data['media_default']->display['media_browser_my_files']->display_options['filters']['oa_section_ref_target_id'] = array(
-      'id' => 'oa_section_ref_target_id',
-      'table' => 'field_data_oa_section_ref',
-      'field' => 'oa_section_ref_target_id',
-      'relationship' => 'reverse_field_oa_media_node',
-      'exposed' => TRUE,
-      'expose' => array(
-        'operator_id' => 'oa_section_ref_target_id_op',
-        'label' => 'Section',
-        'operator' => 'oa_section_ref_target_id_op',
-        'identifier' => 'oa_section_ref_target_id',
-      ),
-    ); /* WAS: '' */
     $data['media_default']->display['media_browser_my_files']->display_options['relationships']['reverse_field_oa_media_node'] = array(
       'id' => 'reverse_field_oa_media_node',
       'table' => 'file_managed',
       'field' => 'reverse_field_oa_media_node',
       'label' => 'field_oa_media_1',
     ); /* WAS: '' */
+    unset($data['media_default']->display['default']->display_options['fields']['filename']['link_to_file']);
   }
 }

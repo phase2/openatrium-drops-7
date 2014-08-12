@@ -5,6 +5,7 @@
  */
 
 include_once 'oa_core.features.inc';
+include_once 'includes/oa_core.cache.inc';
 include_once 'includes/oa_core.util.inc';
 include_once 'includes/oa_core.access.inc';
 include_once 'includes/oa_core.login.inc';
@@ -53,10 +54,20 @@ function oa_core_ctools_plugin_directory($owner, $plugin_type) {
   elseif ($owner == 'entityreference') {
     return "plugins/entityreference/$plugin_type";
   }
+  return '';
 }
 
 /**
- * Implementations hook_menu().
+ * Implements hook_init();
+ */
+function oa_core_init() {
+  // prevent og-menu-single from participating in Drupal breadcrumb creation
+  // otherwise it will load every space node on the site
+  menu_tree_set_path('og-menu-single', '');
+}
+
+/**
+ * Implements hook_menu().
  */
 function oa_core_menu() {
   // Add an administration page for Open Atrium
@@ -254,7 +265,6 @@ function oa_core_og_fields_info() {
         'target_type' => 'node',
       ),
       'translatable' => '0',
-      'type' => 'entityreference',
     ),
     'instance' => array(
       'label' => t('Open Atrium Section'),
@@ -473,7 +483,6 @@ function oa_core_add_member($group_type, $gid, $uid, $field_name = NULL, $type =
     return MENU_ACCESS_DENIED;
   }
 
-  $message = '';
   $account = user_load($uid);
 
   $is_user = ($user->uid == $account->uid) && ($user->uid != 1);
@@ -481,14 +490,14 @@ function oa_core_add_member($group_type, $gid, $uid, $field_name = NULL, $type =
   if (module_exists('og_ui') && ($type != 'ajax') && $is_user) {
     module_load_include('inc', 'og_ui', 'og_ui.pages');
     // user is requesting their own membership, so show the confirmation form
-    if (og_user_access('node', $gid, 'subscribe', $account) || og_user_access($entity_type, $gid, 'subscribe without approval', $account)) {
+    if (og_user_access('node', $gid, 'subscribe', $account) || og_user_access('node', $gid, 'subscribe without approval', $account)) {
       // Show the user a subscription confirmation.
       return drupal_get_form('og_ui_confirm_subscribe', 'node', $gid, $account, $field_name);
     }
     drupal_access_denied();
   }
 
-  $message = oa_core_add_member_api($group_type, $gid, $uid, !$is_user);
+  oa_core_add_member_api($group_type, $gid, $uid, !$is_user);
 
   if ($type != 'ajax') {
     drupal_goto();
@@ -499,8 +508,7 @@ function oa_core_add_member($group_type, $gid, $uid, $field_name = NULL, $type =
     $page = array('#type' => 'ajax', '#commands' => $commands);
     ajax_deliver($page);
   }
-
-  return;
+  return NULL;
 }
 
 /**
@@ -541,6 +549,7 @@ function oa_core_remove_member($group_type, $gid, $from_children, $uid, $type = 
     $page = array('#type' => 'ajax', '#commands' => $commands);
     ajax_deliver($page);
   }
+  return NULL;
 }
 
 /**
@@ -556,7 +565,6 @@ function oa_core_block_member($group_type, $gid, $uid, $type = 'nojs') {
   $account = user_load($uid);
   $group = entity_load_single($group_type, $gid);
   $label = entity_label($group_type, $group);
-  $username = format_username($account);
   og_ungroup('node', $group->nid, 'user', $account);
   // add user to group
   og_group('node', $group->nid, array('entity' => $account, 'state' => OG_STATE_BLOCKED));
@@ -572,6 +580,7 @@ function oa_core_block_member($group_type, $gid, $uid, $type = 'nojs') {
     $page = array('#type' => 'ajax', '#commands' => $commands);
     ajax_deliver($page);
   }
+  return NULL;
 }
 
 /**
@@ -605,6 +614,7 @@ function oa_core_add_admin($group_type, $gid, $uid, $type = 'nojs') {
     $page = array('#type' => 'ajax', '#commands' => $commands);
     ajax_deliver($page);
   }
+  return NULL;
 }
 
 /**
@@ -638,7 +648,7 @@ function oa_core_remove_admin($group_type, $gid, $uid, $type = 'nojs') {
     $page = array('#type' => 'ajax', '#commands' => $commands);
     ajax_deliver($page);
   }
-  return;
+  return NULL;
 }
 
 /**
@@ -691,7 +701,6 @@ function oa_core_views_pre_view(&$view) {
   }
 }
 
-
 /**
  * Implements hook_form_FORM_ID_alter().
  */
@@ -701,15 +710,16 @@ function oa_core_form_views_content_views_panes_content_type_edit_form_alter(&$f
   // Add in te Active options
   // @todo be a bit smarter on this, check type of field.
   $group = oa_core_get_space_context();
-  $has_active_space = ($group_node = node_load($group)) && ($group_node->type == OA_SPACE_TYPE);
   if (isset($form['exposed']['filter-oa_parent_space_target_id']['oa_parent_space_target_id'])) {
-    $form['exposed']['filter-oa_parent_space_target_id']['oa_parent_space_target_id']['#options'] = array('' => t('- Active Group -')) + $form['exposed']['filter-oa_parent_space_target_id']['oa_parent_space_target_id']['#options'];
+    $form['exposed']['filter-oa_parent_space_target_id']['oa_parent_space_target_id']['#options'] =
+      array('' => t('- Active Group -')) + $form['exposed']['filter-oa_parent_space_target_id']['oa_parent_space_target_id']['#options'];
     if (!isset($pane->configuration['exposed']['oa_parent_space_target_id'])) {
       $pane->configuration['exposed']['oa_parent_space_target_id'] = '';
     }
   }
   if (isset($form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id'])) {
-    $form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id']['#options'] = array('' => t('- Active Space -')) + $form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id']['#options'];
+    $form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id']['#options'] =
+      array('' => t('- Active Space -')) + $form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id']['#options'];
     if (!isset($pane->configuration['exposed']['og_group_ref_target_id'])) {
       $pane->configuration['exposed']['og_group_ref_target_id'] = '';
     }
@@ -732,12 +742,16 @@ function oa_core_form_views_content_views_panes_content_type_edit_form_alter(&$f
     }
 
     // Refresh the sections with currently selected group if not currently active group but not empty.
-    if (!empty($pane->configuration['exposed']['og_group_ref_target_id']) && !isset($_POST['exposed']['og_group_ref_target_id']) && $pane->configuration['exposed']['og_group_ref_target_id'] != $group && is_numeric($pane->configuration['exposed']['og_group_ref_target_id'])) {
+    if (!empty($pane->configuration['exposed']['og_group_ref_target_id']) &&
+        !isset($_POST['exposed']['og_group_ref_target_id']) &&
+        $pane->configuration['exposed']['og_group_ref_target_id'] != $group &&
+        is_numeric($pane->configuration['exposed']['og_group_ref_target_id'])) {
       _oa_sections_get_current_selected_space(NULL, $pane->configuration['exposed']['og_group_ref_target_id']);
     }
     $form['exposed']['filter-oa_section_ref_target_id']['oa_section_ref_target_id']['#after_build'][] = 'oa_core_refresh_section_values';
 
-    $form['exposed']['filter-oa_section_ref_target_id']['oa_section_ref_target_id']['#options'] = array('' => t('- Active Section -')) + $form['exposed']['filter-oa_section_ref_target_id']['oa_section_ref_target_id']['#options'];
+    $form['exposed']['filter-oa_section_ref_target_id']['oa_section_ref_target_id']['#options'] =
+      array('' => t('- Active Section -')) + $form['exposed']['filter-oa_section_ref_target_id']['oa_section_ref_target_id']['#options'];
     if (!isset($pane->configuration['exposed']['oa_section_ref_target_id'])) {
       $pane->configuration['exposed']['oa_section_ref_target_id'] = '';
     }
@@ -789,6 +803,14 @@ function oa_core_refresh_section_values($element) {
  * module implements alter and puts itself last. Argh!
  */
 function oa_core_form_views_content_views_panes_content_type_edit_process($element, &$form_state) {
+  if (isset($form_state['complete form']['content_settings']['view_mode']['#default_value']) &&
+    !in_array($form_state['complete form']['content_settings']['view_mode']['#default_value'], array_keys($form_state['complete form']['content_settings']['view_mode']['#options']))) {
+    // In Recent Activity view, Message entities do not have a "teaser" view, which is the
+    // default view_mode.  So set the view_mode to the first available option (full)
+    // to avoid "Illegal choice" errors
+    $form_state['complete form']['content_settings']['view_mode']['#default_value'] = current(array_keys($form_state['complete form']['content_settings']['view_mode']['#options']));
+
+  }
   if (isset($element['preview']['#ajax'])) {
     $element['preview']['#ajax']['callback'] = 'oa_core_refresh_oa_section_ref_target_id';
   }
@@ -849,14 +871,32 @@ function oa_core_form_views_exposed_form_alter(&$form, $form_state) {
   // Otherwise you'll get the 'An illegal choice has been detected.' message
   // when selecting a Section in another Space.
   if (!empty($form_state['input']['og_group_ref_target_id']) && !empty($form['oa_section_ref_target_id'])) {
+    $view = $form_state['view'];
+    $exposed_form_overrides = $view->display_handler->get_option('exposed_form_overrides');
+    $pane_conf = $view->display_handler->get_option('pane_conf');
+    $bypass_access = FALSE;
+    if (isset($exposed_form_overrides['filters']['oa_section_ref_target_id'])) {
+      // filter is available on panel pane config form
+      if (empty($exposed_form_overrides['filters']['oa_section_ref_target_id']) ||
+        (isset($pane_conf['show_exposed_form']) && empty($pane_conf['show_exposed_form']))) {
+        // if field is not exposed, then bypass access so pane config
+        // options do not cause "Illegal choice" error on page
+        // when displaying widgets from private sections
+        $bypass_access = TRUE;
+      }
+    }
+
     $sections = array(
       ''    => t('- Active Section -'),
       'All' => t('- Any -')
-    ) + oa_core_space_sections($form_state['input']['og_group_ref_target_id']);
+    ) + oa_core_space_sections($form_state['input']['og_group_ref_target_id'], NULL, $bypass_access);
     $form['oa_section_ref_target_id']['#options'] = $sections;
   }
 }
 
+/**
+ * Helper function to unset fields we do not need
+ */
 function oa_core_views_exposed_form_rearrange($form) {
   if (!empty($form['og_group_ref_target_id_mine']) || !empty($form['og_subspaces_view_all'])) {
     $form['og_group_ref_target_id'] = array(
@@ -914,9 +954,9 @@ function oa_core_get_alias($nid) {
  * Implements hook_tokens().
  */
 function oa_core_tokens($type, $tokens, array $data = array(), array $options = array()) {
+  $replacements = array();
   if ($type == 'node' && !empty($data['node']) && isset($tokens['group-or-section-alias'])) {
     $node = $data['node'];
-    $replacements = array();
     $original = $tokens['group-or-section-alias'];
     $section = field_get_items('node', $node, OA_SECTION_FIELD);
     $space = field_get_items('node', $node, OA_SPACE_FIELD);
@@ -948,8 +988,8 @@ function oa_core_tokens($type, $tokens, array $data = array(), array $options = 
     else {
       $replacements[$original] = 'content';
     }
-    return $replacements;
   }
+  return $replacements;
 }
 
 /**
@@ -1119,7 +1159,7 @@ function oa_core_get_space_type_layout_options($bundle) {
 
     // Ignore view modes that don't have a choice or already have their
     // own custom panel set up.
-    if (!$node_plugin->has_panel_choice($view_bundle) || !empty($entity->panelizer[$view_mode]->did)) {
+    if (!$node_plugin->has_panel_choice($view_bundle)) {
       continue;
     }
 
@@ -1134,21 +1174,6 @@ function oa_core_get_space_type_layout_options($bundle) {
             $options[$name] = ucfirst($thisarray[3]) . ':' . $options[$name];
           }
         }
-      }
-    }
-
-    if (!empty($entity->panelizer[$view_mode]->name)) {
-      $name = $entity->panelizer[$view_mode]->name;
-    }
-    else {
-      if ($node_plugin->has_default_panel($view_bundle)) {
-        $name = implode(':', array($node_plugin->entity_type, $bundle, 'default'));
-        if ($view_mode != 'page_manager') {
-          $name .= ':' . $view_mode;
-        }
-      }
-      else {
-        $name = '';
       }
     }
 
@@ -1248,7 +1273,9 @@ function oa_core_views_query_alter(&$view, &$query) {
       $group = $query->set_where_group('OR');
       foreach ($query->where[1]['conditions'] as $key => $condition) {
         // If the field is 'og_membership.gid' or an alias for the same column.
-        if ($condition['field'] === 'og_membership.gid' || substr($condition['field'], -19) === '__og_membership.gid') {
+        $column = 'og_membership';
+        if (!empty($condition['field']) && ($condition['field'] === $column ||
+            substr($condition['field'], -strlen($column)-2) === "__{$column}")) {
           // Move the condition to our new where group.
           $query->add_where($group, $condition['field'], $condition['value'], $condition['operator']);
           $value = $condition['value'];

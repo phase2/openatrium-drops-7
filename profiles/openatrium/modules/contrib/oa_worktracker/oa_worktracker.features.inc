@@ -60,6 +60,7 @@ function oa_worktracker_panelizer_defaults_override_alter(&$data) {
               'field_oa_worktracker_task_status_value' => array(),
               'field_oa_worktracker_priority_value' => array(),
               'field_oa_worktracker_task_type_value' => array(),
+              'flagged' => 0,
             ),
             'override_title' => '',
             'override_title_text' => '',
@@ -78,6 +79,9 @@ function oa_worktracker_panelizer_defaults_override_alter(&$data) {
             ),
           ),
           'cache' => array(),
+          'style' => array(
+            'settings' => NULL,
+          ),
           'css' => array(),
           'extras' => array(),
           'position' => 3,
@@ -151,5 +155,6 @@ function oa_worktracker_node_info() {
       'help' => '',
     ),
   );
+  drupal_alter('node_info', $items);
   return $items;
 }

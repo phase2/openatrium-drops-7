@@ -127,6 +127,7 @@ function oa_worktracker_panelizer_defaults() {
         'og_group_ref_target_id' => '',
         'og_group_ref_target_id_mine' => 0,
         'og_subspaces_view_all' => 0,
+        'og_subspaces_view_parent' => 0,
         'oa_section_ref_target_id' => '',
         'keys' => '',
         'realname_1' => '',
@@ -134,6 +135,7 @@ function oa_worktracker_panelizer_defaults() {
         'field_oa_worktracker_task_status_value' => array(),
         'field_oa_worktracker_priority_value' => array(),
         'field_oa_worktracker_task_type_value' => array(),
+        'flagged' => '0',
       ),
       'context' => array(
         0 => 'panelizer',

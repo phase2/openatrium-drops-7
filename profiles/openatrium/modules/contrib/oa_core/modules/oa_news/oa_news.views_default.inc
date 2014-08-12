@@ -40,6 +40,14 @@ function oa_news_views_default_views() {
   $handler->display->display_options['relationships']['uid']['id'] = 'uid';
   $handler->display->display_options['relationships']['uid']['table'] = 'node';
   $handler->display->display_options['relationships']['uid']['field'] = 'uid';
+  /* Relationship: Flags: trash */
+  $handler->display->display_options['relationships']['flag_content_rel']['id'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['table'] = 'node';
+  $handler->display->display_options['relationships']['flag_content_rel']['field'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['label'] = 'archived';
+  $handler->display->display_options['relationships']['flag_content_rel']['required'] = 0;
+  $handler->display->display_options['relationships']['flag_content_rel']['flag'] = 'trash';
+  $handler->display->display_options['relationships']['flag_content_rel']['user_scope'] = 'any';
   /* Field: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
@@ -222,6 +230,23 @@ function oa_news_views_default_views() {
     3 => 0,
     4 => 0,
   );
+  /* Filter criterion: Flags: Flagged */
+  $handler->display->display_options['filters']['flagged']['id'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['table'] = 'flag_content';
+  $handler->display->display_options['filters']['flagged']['field'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['relationship'] = 'flag_content_rel';
+  $handler->display->display_options['filters']['flagged']['value'] = '0';
+  $handler->display->display_options['filters']['flagged']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['flagged']['expose']['operator_id'] = '';
+  $handler->display->display_options['filters']['flagged']['expose']['label'] = 'Include archived content';
+  $handler->display->display_options['filters']['flagged']['expose']['operator'] = 'flagged_op';
+  $handler->display->display_options['filters']['flagged']['expose']['identifier'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
 
   /* Display: Recent News */
   $handler = $view->new_display('panel_pane', 'Recent News', 'oa_recent_news');
@@ -244,6 +269,7 @@ function oa_news_views_default_views() {
       'type' => '',
       'og_group_ref_target_id' => '',
       'oa_section_ref_target_id' => '',
+      'flagged' => '',
     ),
   );
   $export['open_atrium_news'] = $view;

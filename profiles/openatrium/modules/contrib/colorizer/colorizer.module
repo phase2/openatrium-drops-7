@@ -162,7 +162,7 @@ function colorizer_update_stylesheet($theme, $instance, $palette) {
   $target_file = '';
 
   $source_path = drupal_get_path('theme', $theme) . '/';
-  $source_file = $source_path . variable_get('colorizer_cssfile', '');
+  $source_file = DRUPAL_ROOT . '/' . $source_path . variable_get('colorizer_cssfile', '');
 
   if (file_exists($source_file)) {
     // Aggregate @imports recursively for each configured top level CSS file

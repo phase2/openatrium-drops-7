@@ -1,0 +1,77 @@
+// Node
+// Styles for Nodes
+// --------------------------------------------------
+
+// General node styles
+// --------------------------------------------------
+.oa-body {
+  padding: 0 10px;
+  clear: both;
+}
+.oa-media {
+  padding: 5px 10px;
+}
+.oa-description {
+  font-size: 12px;
+  color: #555;
+  line-height: 16px;
+}
+.well.current-node {
+  border-left: 6px solid #B0EBA3;
+  margin-left: -6px;
+}
+.field.field-type-image .field-item {
+  border: 0;
+  @include box-shadow(none);
+  margin-bottom: 0;
+}
+.oa-list, 
+.field .field-item, 
+.field-content, 
+.mceContentBody {
+  ul {
+    list-style-type: disc;
+    margin: 0 0 10px 25px;
+  }
+  ol {
+    list-style-type: decimal;
+    margin: 0 0 10px 25px;
+  }
+}
+.oa-list.oa-news {
+  border-bottom: 1px solid #E2E2E2;
+  padding: 0 15px 15px 15px;
+  margin-bottom: 15px;
+}
+.views-row-last .oa-list.oa-news {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+// News
+// --------------------------------------------------
+.oa-news {
+  .oa-news-header {
+    h3 {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+  }
+  .oa-news-posted {
+    color: #A6A6A6;
+    a {
+      color: #333;
+    }
+  }
+  .oa-news-body {
+    margin-top: 10px;
+  }
+  .oa-news-image {
+    margin-right: 10px;
+    margin-bottom: 5px;
+  }
+  .oa-news-tags a {
+    @extend .label;
+  }
+}
+

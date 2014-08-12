@@ -12,7 +12,7 @@ function panopoly_core_views_default_views() {
 
   $view = new view();
   $view->name = 'panopoly_taxonomy';
-  $view->description = 'Administrative view to show news.';
+  $view->description = 'View for taxonomy widgets.';
   $view->tag = 'default';
   $view->base_table = 'node';
   $view->human_name = 'Panopoly Taxonomy';
@@ -140,6 +140,7 @@ function panopoly_core_views_default_views() {
   $handler->display->display_options['pager']['options']['offset'] = '0';
   $handler->display->display_options['pager']['options']['id'] = '0';
   $handler->display->display_options['pane_title'] = 'Categorized Content';
+  $handler->display->display_options['pane_description'] = 'Widget for content matching taxonomy ID.';
   $handler->display->display_options['pane_category']['name'] = 'Taxonomy';
   $handler->display->display_options['pane_category']['weight'] = '-100';
   $handler->display->display_options['allow']['use_pager'] = 0;

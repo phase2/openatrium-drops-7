@@ -84,6 +84,35 @@ function panopoly_images_file_displays_alter(&$displays, &$file, &$view_mode) {
 }
 
 /**
+ * Implements hook_file_default_displays_alter().
+ */
+function panopoly_images_file_default_displays_alter(&$file_displays) {
+  // Disable some displays that are enabled by Media and File Entity by default.
+  $disable_displays = array(
+    'image__default__file_field_file_default',
+    'image__teaser__file_field_file_default',
+    'image__preview__file_field_file_default',
+    'image__preview__file_field_media_large_icon',
+  );
+  foreach ($disable_displays as $name) {
+    if (isset($file_displays[$name])) {
+      $file_displays[$name]->status = FALSE;
+    }
+  }
+
+  // Modify some displays that are configured by Media and File Entity.
+  if (isset($file_displays['image__default__file_field_image'])) {
+    $file_displays['image__default__file_field_image']->settings['image_style'] = 'panopoly_image_original';
+  }
+  if (isset($file_displays['image__preview__file_field_image'])) {
+    $file_displays['image__preview__file_field_image']->settings['image_style'] = 'panopoly_image_thumbnail';
+  }
+  if (isset($file_displays['image__teaser__file_field_image'])) {
+    $file_displays['image__teaser__file_field_image']->settings['image_style'] = 'panopoly_image_quarter';
+  }
+}
+
+/**
  * Implementation of hook_preprocess_image_style()
  */
 function panopoly_images_preprocess_image_style(&$variables) {

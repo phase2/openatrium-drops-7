@@ -12,7 +12,8 @@ include_once 'oa_contextual_tabs.features.inc';
 function oa_contextual_tabs_menu() {
   $items['node/%node/archive-content'] = array(
     'type' => MENU_LOCAL_TASK,
-    'title' => 'Archive This Content',
+    'title callback' => 'oa_contextual_tabs_archive_title',
+    'title arguments' => array(1),
     'page callback' => 'oa_contextual_tabs_confirmation',
     'page arguments' => array(1),
     'access callback' => 'oa_contextual_tabs_access',
@@ -28,7 +29,7 @@ function oa_contextual_tabs_menu() {
  * Add the visibility widget button
  */
 function oa_contextual_tabs_contextual_tabs_alter(&$data) {
-  if (module_exists('oa_widgets')) {
+  if (module_exists('oa_widgets') && variable_get('oa_show_visibility', TRUE)) {
     $node = menu_get_object();
     if (isset($node->type)) {
       $vars = oa_core_visibility_data($node);
@@ -38,6 +39,14 @@ function oa_contextual_tabs_contextual_tabs_alter(&$data) {
       );
     }
   }
+}
+
+/**
+ * Title callback for tab to archive/unarchive current node.
+ */
+function oa_contextual_tabs_archive_title($node) {
+  $flag = flag_load('trash');
+  return $flag->is_flagged($node->nid) ? $flag->get_label('unflag_short') : $flag->get_label('flag_short');
 }
 
 /**
@@ -60,4 +69,24 @@ function oa_contextual_tabs_access($node) {
   $flag = flag_load('trash');
   $op = $flag->is_flagged($node->nid) ? 'unflag' : 'flag';
   return trash_flag_flag_access($flag, $node->nid, $op, $account);
+}
+
+/**
+ * Add plugin-specific configuration to main Open Atrium settings form
+ * @param $form
+ * @param $form_state
+ * @param $form_id
+ */
+function oa_contextual_tabs_form_oa_core_configure_form_alter(&$form, &$form_state, $form_id) {
+  $form['oa_contextual_tabs'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Contextual Tabs'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+  $form['oa_contextual_tabs']['oa_show_visibility'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Show visibility button',
+    '#default_value' => variable_get('oa_show_visibility', TRUE),
+  );
 }

@@ -1,0 +1,279 @@
+// Page
+// Styles for panels
+// --------------------------------------------------
+
+// General pane styles
+// --------------------------------------------------
+.panel-pane {
+  position: relative;
+  .content & {
+    padding-bottom: 15px;
+  }
+}
+.row-fluid [class="span12"] {
+  min-height: 0;
+}
+.content .bryant-flipped-sidebar-inner,
+.content .burr-flipped-sidebar-inner {
+  padding-top: 0;
+}
+
+// IPE
+// --------------------------------------------------
+body.panels-ipe {
+  margin-bottom: 0px !important;
+  #main {
+    margin-top: 20px;
+    position: relative;
+  }
+}
+
+// Move the Panels IPE buttons from bottom to the top
+// script.js moves this element into #main
+div#panels-ipe-control-container {
+  background-color: transparent;
+  position: absolute;
+  top: -25px;
+  right: -12px;
+  bottom: auto;
+  width: auto;
+  // needs to be above most stuff, but below the dropdown
+  // which are at z-index 1000
+  z-index: 999;
+  @include box-shadow(none);
+  a {
+    font-weight: normal;
+  }
+  @include breakpoint('phone') {
+    // We don't need this on phone for now.
+    display: none !important;
+  }
+}
+@media screen and (max-width: $tabletBreakpoint) {
+  div#panels-ipe-control-container {
+    position: absolute;
+  }
+}
+
+// OA pane
+// --------------------------------------------------
+.oa-pane,
+body.page-node-edit #main .burr-flipped-sidebar-inner,
+body.page-node-add #main .burr-flipped-sidebar-inner {
+  border: 1px solid #e3e3e3;
+  border-bottom: 0;
+  @include border-radius(4px);
+  .panel-pane {
+    padding: 0;
+    border: 0;
+    border-bottom: 1px solid #e3e3e3;
+    margin-bottom: 0;
+    padding-bottom: 15px;
+  }
+  &.inner-pane .panel-pane {
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+  .pane-title {
+    font-size: 20px;
+    line-height: 32px;
+    margin: 0;
+    padding: 10px 15px;
+    color: #333;
+    @include ctb-gradient-vertical($navbarBackgroundHighlight, darken($navbarBackground, 5%));
+  }
+  .pane-content {
+    padding: 15px 15px 0 15px;
+    .oa-list {
+      margin-left: -16px;
+      margin-right: -16px;
+    }
+  }
+  .pane-section-sidebar-top {
+    padding: 0;
+    > .pane-content {
+      padding: 0;
+    }
+  }
+  .pane-default-section-sidebar {
+    padding: 0;
+    > .pane-content {
+      padding: 0;
+    }
+  }
+  .oa-list {
+    margin-left: -1px;
+    margin-right: -1px;
+  }
+  .pager {
+    margin-top: 15px;
+  }
+}
+.oa-bottom-right {
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  text-align: right;
+}
+
+// Fix for selby-flipped panopoly layout
+// --------------------------------------------------
+.selby-flipped-column-inner {
+  margin-right: 0;
+  margin-left: 20px;
+}
+
+// Discussion attachments panel
+// --------------------------------------------------
+.attachments {
+  .user-badge {
+    .user-picture img {
+      margin: 0 8px 0 0;
+    }
+    .created {
+      font-size: $fontSizeMini;
+      line-height: 13px;
+      color: $gray;
+    }
+  }
+  .oa-body {
+    padding: 10px;
+    ul {
+      margin: 0;
+      li {
+        margin: 0 0 5px;
+      }
+    }
+  }
+}
+
+// Content visibility
+// --------------------------------------------------
+.pane-oa-widgets-content-visibility {
+  .visibility {
+    text-transform: uppercase;
+  }
+}
+
+// Widgets
+// --------------------------------------------------
+.pane-oa-widgets-add-content {
+  ul {
+    margin-left: 0;
+  }
+  li {
+    a.btn {
+      margin-bottom: 5px;
+    }
+  }
+}
+
+// User profile
+// --------------------------------------------------
+.pane-oa-widgets-user-profile {
+  .user-picture {
+    width: 20%;
+    margin-right: 5%;
+  }
+  .user-info {
+    .user-realname a {
+
+    }
+    text-align: center;
+    width: 75%;
+    .user-name,
+    .user-role {
+      font-size: $fontSizeSmall;
+    }
+  }
+  .links {
+    text-align: right;
+    a {
+      font-size: $fontSizeMini;
+      border-right: 1px solid #555;
+      padding-right: 5px;
+    }
+    a:last-child {
+      border: none;
+      margin: 0;
+      padding: 0;
+    }
+  }
+}
+
+// Space summary
+// --------------------------------------------------
+.pane-oa-core-summary {
+  .space-links {
+    .favorite {
+      float: left;
+    }
+    .edit {
+      float: right;
+    }
+  }
+}
+
+// User spaces
+// --------------------------------------------------
+.pane-oa-core-user-spaces {
+  .pane-content {
+    position: relative;
+  }
+  .spaces-container {
+    float: left;
+    margin-right: 20px;
+  }
+  .space-switcher {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 10px;
+  }
+  .space {
+    border-bottom: 1px solid #D4D4D4;
+    padding-bottom: 15px;
+    margin-bottom: 5px;
+    .pull-left img {
+      margin-right: 15px;
+    }
+  }
+  .member-sidebar {
+    margin-bottom: 15px;
+    .space {
+      padding-bottom: 0;
+      margin-bottom: 0;
+      border-bottom: 0;
+    }
+  }
+}
+
+// Sidebar search
+// --------------------------------------------------
+.pane-oa-sidebar-search {
+  form {
+    margin: 0;
+  }
+  .input-append {
+    @include box-sizing("border-box");
+  }
+  .search-text {
+    height: 32px;
+    width: 80%;
+    @include box-sizing("border-box");
+  }
+  .submit {
+    padding: 5px 0;
+    width: 20%;
+    @include box-sizing("border-box");
+  }
+  .options {
+    margin: 10px 0 0;
+  }
+}
+
+.oa-command-buttons {
+  li {
+    margin-bottom: 3px;
+  }
+}

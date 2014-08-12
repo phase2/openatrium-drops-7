@@ -1,0 +1,5 @@
+source 'https://rubygems.org'
+gem 'sass', '~>3.3.7'
+gem 'compass', '~>1.0.0.alpha.19'
+gem 'compass_radix', '~>2.0.0'
+gem 'bootstrap-sass', '~>3.0.3.0'

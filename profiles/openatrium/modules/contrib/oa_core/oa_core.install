@@ -149,3 +149,14 @@ function oa_core_update_7218() {
   }
 }
 
+/**
+ * Call media update 7226 missed because of past media patches
+ */
+function oa_core_update_7219() {
+  // patch used in OA 2.19: http://drupal.org/files/issues/media_remove_file_display_alter-2104193-23.patch
+  // added a media_update_7226 hook which prevents update.php from seeing the
+  // REAL media_update_7226 hook.
+  module_load_install('media');
+  media_update_7226();
+}
+

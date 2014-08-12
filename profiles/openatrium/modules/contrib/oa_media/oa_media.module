@@ -92,6 +92,10 @@ function oa_media_field_formatter_view($entity_type, $entity, $field, $instance,
   return $element;
 }
 
+/**
+ * Override for theme_media_colorbox.
+ * We need to override the paths to support private file system access
+ */
 function oa_media_media_colorbox($variables) {
   $entity_id = $variables['entity_id'];
   $file_id = $variables['file_id'];
@@ -139,12 +143,21 @@ function oa_media_media_colorbox($variables) {
       $gallery_id = '';
   }
 
+  $class = 'media-colorbox ' . $variables['item_class'];
+
   //load file and render for select view mode
   if ($file_id != NULL) {
     $file = file_load($file_id);
     $fview = file_view($file, $settings['file_view_mode'], $variables['langcode']);
+    // override the path with the proper private file access
     if ($file->type == 'image') {
       $variables['path'] = file_create_url($file->uri);
+    }
+    elseif (($file->type == 'document') &&
+      isset($fview['file']['#theme']) && ($fview['file']['#theme'] == 'file_entity_download_link')) {
+      // don't use colorbox popup for document download links
+      $variables['path'] = file_create_url($file->uri);
+      $class = '';
     }
     $text = drupal_render($fview);
   }
@@ -162,7 +175,7 @@ function oa_media_media_colorbox($variables) {
       'html' => TRUE,
       'attributes' => array(
         'title' => $caption,
-        'class' => 'media-colorbox ' . $variables['item_class'],
+        'class' => $class,
         'style' => $variables['item_style'],
         'rel' => $gallery_id,
         'data-mediaColorboxFixedWidth' => $settings['fixed_width'],

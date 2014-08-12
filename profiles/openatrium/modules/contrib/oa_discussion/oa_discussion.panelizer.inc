@@ -56,7 +56,7 @@ function oa_discussion_panelizer_defaults() {
       'contentmain' => NULL,
     ),
     'sidebar' => array(
-      'style' => '0',
+      'style' => 'oa_styles_oa_pane',
     ),
   );
   $display->cache = array();
@@ -457,6 +457,7 @@ function oa_discussion_panelizer_defaults() {
     $pane->configuration = array(
       'exposed' => array(
         'type' => 'oa_discussion_post',
+        'flagged' => '0',
       ),
       'context' => array(
         1 => 'panelizer',

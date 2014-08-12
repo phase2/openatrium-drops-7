@@ -28,12 +28,21 @@ abstract class oa_sectionsNodeAccessBase extends oa_coreBaseWebTest {
     $this->drupalGet('node/' . $test_space->nid);
     $anon = user_load(0);
     $section_public = $this->createNodeInOaSpace($test_space, array('type' => 'oa_section'));
-    $section_space_member_only = $this->createNodeInOaSpace($test_space, array('type' => 'oa_section', 'field_oa_user_ref' => array(LANGUAGE_NONE => array(array('target_id' => $space_member->uid)))));
+    $section_space_member_only = $this->createNodeInOaSpace($test_space, array(
+      'type' => 'oa_section',
+      'field_oa_user_ref' => array(LANGUAGE_NONE => array(array('target_id' => $space_member->uid))),
+    ));
     if ($group_for_section) {
-      $section_space_group_only = $this->createNodeInOaSpace($test_space, array('type' => 'oa_section', 'field_oa_group_ref' => array(LANGUAGE_NONE => array(array('target_id' => $group_for_section->nid)))));
+      $section_space_group_only = $this->createNodeInOaSpace($test_space, array(
+        'type' => 'oa_section',
+        'field_oa_group_ref' => array(LANGUAGE_NONE => array(array('target_id' => $group_for_section->nid))),
+      ));
     }
     if ($team_for_section) {
-      $section_space_team_only = $this->createNodeInOaSpace($test_space, array('type' => 'oa_section', 'field_oa_team_ref' => array(LANGUAGE_NONE => array(array('target_id' => $team_for_section->nid)))));
+      $section_space_team_only = $this->createNodeInOaSpace($test_space, array(
+        'type' => 'oa_section',
+        'field_oa_team_ref' => array(LANGUAGE_NONE => array(array('target_id' => $team_for_section->nid))),
+      ));
     }
 
     // Test access to public section.
@@ -97,22 +106,28 @@ abstract class oa_sectionsNodeAccessBase extends oa_coreBaseWebTest {
     // Test node_access directly and viewing section page.
     $this->drupalGet('node/' . $section->nid);
     if ($has_access) {
-      $this->assertTrue(node_access('view', $section, $account), t('@member has view access to @section section for @space', array('@space' => $space_text, '@member' => $member_text, '@section' => $section_text)));
-      $this->assertResponse(200, t('@member can view @section section for @space', array('@space' => $space_text, '@member' => $member_text, '@section' => $section_text)));
+      $this->assertTrue(node_access('view', $section, $account), t('@member has view access to @section section for @space',
+        array('@space' => $space_text, '@member' => $member_text, '@section' => $section_text)));
+      $this->assertResponse(200, t('@member can view @section section for @space',
+        array('@space' => $space_text, '@member' => $member_text, '@section' => $section_text)));
 
     }
     else {
-      $this->assertFalse(node_access('view', $section, $account), t('@member does not have view access to @section section for @space', array('@space' => $space_text, '@member' => $member_text, '@section' => $section_text)));
-      $this->assertResponse(403, t('@member cannot view @section section for @space', array('@space' => $space_text, '@member' => $member_text, '@section' => $section_text)));
+      $this->assertFalse(node_access('view', $section, $account), t('@member does not have view access to @section section for @space',
+        array('@space' => $space_text, '@member' => $member_text, '@section' => $section_text)));
+      $this->assertResponse(403, t('@member cannot view @section section for @space',
+        array('@space' => $space_text, '@member' => $member_text, '@section' => $section_text)));
     }
 
     // Test listing of sections (by viewing space homepage)
     $this->drupalGet('node/' . $space->nid);
     if ($has_access) {
-      $this->assertText($section->title,  t('@member can view @section section on @space homepage', array('@space' => $space_text, '@member' => $member_text, '@section' => $section_text)));
+      $this->assertText($section->title,  t('@member can view @section section on @space homepage',
+        array('@space' => $space_text, '@member' => $member_text, '@section' => $section_text)));
     }
     else {
-      $this->assertNoText($section->title,  t('@member cannot view @section section on @space homepage', array('@space' => $space_text, '@member' => $member_text, '@section' => $section_text)));
+      $this->assertNoText($section->title,  t('@member cannot view @section section on @space homepage',
+        array('@space' => $space_text, '@member' => $member_text, '@section' => $section_text)));
     }
   }
 

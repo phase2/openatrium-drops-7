@@ -116,8 +116,15 @@
       // Handle autocomplete fields.
       $('.panopoly-autocomplete-autosubmit', context)
       .once('ctools-auto-submit')
-      .blur(function (e) {
-        triggerSubmit.call(e.target.form);
+      .bind('keyup blur', function (e) {
+        // Detect when a value is selected via TAB or ENTER.
+        if (e.type === 'blur' || e.keyCode === 13) {
+          // We defer the submit call so that it happens after autocomplete has
+          // had a chance to fill the input with the selected value.
+          setTimeout(function () {
+            triggerSubmit.call(e.target.form);
+          }, 0);
+        }
       });
 
       // Prevent ctools auto-submit from firing when changing text formats.

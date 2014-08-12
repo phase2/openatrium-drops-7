@@ -89,6 +89,7 @@ function oa_panopoly_users_features_override_default_overrides() {
         'path' => NULL,
       ),
       'cache' => array(),
+      'style' => '',
       'css' => array(),
       'extras' => array(),
       'position' => 0,
@@ -102,8 +103,23 @@ function oa_panopoly_users_features_override_default_overrides() {
       'subtype' => 'open_atrium_discussions-discussion_user_reply',
       'shown' => TRUE,
       'access' => array(),
-      'configuration' => array(),
+      'configuration' => array(
+        'use_pager' => 1,
+        'pager_id' => 0,
+        'items_per_page' => 20,
+        'exposed' => array(
+          'type' => 'All',
+          'flagged' => 0,
+        ),
+        'view_settings' => 'fields',
+        'header_type' => 'none',
+        'view_mode' => 'teaser',
+      ),
       'cache' => array(),
+      'style' => array(
+        'settings' => array(),
+        'style' => 'oa_styles_oa_pane',
+      ),
       'css' => array(),
       'extras' => array(),
       'position' => 2,
@@ -152,6 +168,7 @@ function oa_panopoly_users_features_override_default_overrides() {
         'items_per_page' => 20,
         'exposed' => array(
           'type' => 'oa_discussion_post',
+          'flagged' => 0,
         ),
         'context' => array(
           0 => 'empty',
@@ -178,14 +195,15 @@ function oa_panopoly_users_features_override_default_overrides() {
   $overrides["panelizer_defaults.user:user:default.display|panel_settings|style_settings|contentheader"] = NULL;
   $overrides["panelizer_defaults.user:user:default.display|panels|column1"]["DELETED"] = TRUE;
   $overrides["panelizer_defaults.user:user:default.display|panels|column2"]["DELETED"] = TRUE;
-  $overrides["panelizer_defaults.user:user:default.display|panels|contentheader"] = array(
-    0 => 'new-d3a2a9fb-f88a-4730-bfab-c36f4e0af395',
-    1 => 'new-faf0ad46-b575-4f96-874d-9a4548cc8da3',
-    2 => 'new-a617e554-6ad7-4d25-9d89-627d130d8be3',
-  );
   $overrides["panelizer_defaults.user:user:default.display|panels|sidebar"] = array(
     0 => 'new-9def882d-91aa-4313-87b2-0ace29b4329c',
     1 => 'new-80a6a21b-20e6-4acf-9772-eb089cc6082b',
+  );
+  $overrides["panelizer_defaults.user:user:default.display|panels|contentheader"] = array(
+    0 => 'new-d3a2a9fb-f88a-4730-bfab-c36f4e0af395',
+    1 => 'new-a617e554-6ad7-4d25-9d89-627d130d8be3',
+    2 => 'new-faf0ad46-b575-4f96-874d-9a4548cc8da3',
+    3 => 'new-7e2787f8-3f6c-4b3b-a1bb-e11225e395d5',
   );
 
  return $overrides;

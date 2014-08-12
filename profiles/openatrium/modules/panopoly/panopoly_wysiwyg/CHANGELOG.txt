@@ -1,3 +1,22 @@
+Panopoly WYSIWYG 7.x-1.10, 2014-08-06
+------------------------------
+- No changes since last release.
+
+Panopoly WYSIWYG 7.x-1.9, 2014-07-31
+------------------------------
+- No changes since last release.
+
+Panopoly WYSIWYG 7.x-1.8, 2014-07-25
+------------------------------
+- Packaging error with Panopoly 1.7 release: Unable to download tinymce. (take two).
+- Revert "Issue #2306225 by dsnopek: Packaging error with Panopoly 1.7 release: Unable to download tinymce.".
+- Packaging error with Panopoly 1.7 release: Unable to download tinymce.
+
+Panopoly WYSIWYG 7.x-1.7, 2014-07-16
+------------------------------
+- Added WYSIWYG should show 'outdent' then 'indent' buttons (rather than reverse) like OpenOffice, LibreOffice, Word, etc.
+- Fixed Switching between TinyMCE text formats causes textarea to disappear.
+
 Panopoly WYSIWYG 7.x-1.6, 2014-05-22
 ------------------------------
 - No changes since last release.

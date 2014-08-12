@@ -38,6 +38,7 @@ function oa_worktracker_features_override_default_overrides() {
           'field_oa_worktracker_task_status_value' => array(),
           'field_oa_worktracker_priority_value' => array(),
           'field_oa_worktracker_task_type_value' => array(),
+          'flagged' => 0,
         ),
         'override_title' => '',
         'override_title_text' => '',
@@ -56,6 +57,9 @@ function oa_worktracker_features_override_default_overrides() {
         ),
       ),
       'cache' => array(),
+      'style' => array(
+        'settings' => NULL,
+      ),
       'css' => array(),
       'extras' => array(),
       'position' => 3,

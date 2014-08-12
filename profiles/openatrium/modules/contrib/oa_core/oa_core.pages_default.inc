@@ -100,12 +100,17 @@ function oa_core_default_page_manager_pages() {
       'show_description' => 1,
       'tabs' => array(
         'Favorite' => 'Favorite',
+        'Archived' => 'Archived',
         'Subscribed' => 'Subscribed',
         'All' => 'All',
       ),
       'link_class' => 'btn',
       'show_links' => 1,
       'num_per_page' => '15',
+      'types' => array(
+        'oa_space' => 'oa_space',
+        'oa_group' => 0,
+      ),
     );
     $pane->cache = array();
     $pane->style = array(

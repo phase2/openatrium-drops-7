@@ -24,6 +24,10 @@ function bootstrap_tour_run_tour($name, $force = FALSE) {
   if (!empty($tour->steps) && !is_array($tour->steps)) {
     $tour->steps = unserialize($tour->steps);
   }
+  if (count($tour->steps) > 1) {
+    // Set this as the current tour in the session.
+    $_SESSION['tour'] = $name;
+  }
   $first_path = $tour->steps[0]['path'];
   if ($first_path == current_path() || $first_path == request_path() || ($first_path == '<front>' && request_path() == '')) {
     if (empty($_GET['step']) || $_GET['step'] == 0) {
@@ -34,12 +38,22 @@ function bootstrap_tour_run_tour($name, $force = FALSE) {
     }
   }
   drupal_alter('bootstrap_tour', $tour);
+  $step_path = '';
   foreach($tour->steps as $key => &$step) {
+    // If a path isn't specified, then use the path from the previous step.
+    if ($step['path']) {
+      $step_path = $step['path'];
+    }
+    else {
+      $step['path'] = $step_path;
+    }
+    // Determine we are on the first step of the tour.
     if ($key == 0 && ($step['path'] == current_path() || $step['path'] == request_path() || ($step['path'] == '<front>' && request_path() == ''))) {
-      if (empty($_GET['step']) || $_GET['step'] == 0) {
+      if (!empty($_GET['tour']) && (empty($_GET['step']) || $_GET['step'] == 0)) {
         $tour->isFirstStep = TRUE;
       }
     }
+    // Filter user supplied content.
     $step['title'] = check_plain($step['title']);
     $step['content'] = check_markup($step['content'], $step['format']);
   }
@@ -64,28 +78,53 @@ function bootstrap_tour_run_tour($name, $force = FALSE) {
 }
 
 /**
+ * Helper function to end the current toure.
+ */
+function bootstrap_tour_end_current_tour() {
+  unset($_SESSION['tour']);
+}
+
+/**
  * Implementation of hook_init().
  * Load all the tours and figure out if any are set to auto-run and start on the current page.
  * If so, go ahead and run that one.
  */
 function bootstrap_tour_page_build(&$page) {
+  // Try and detect if we are in an AJAX request and bail if so.
+  if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+    return;
+  }
+
   $tours = bootstrap_tour_load_all();
-  foreach($tours as $tour) {
-    if (!empty($_GET['tour']) && $_GET['tour'] == $tour->name) {
-      // Force a tour to run if ?tour=tourname is in the query string.
-      bootstrap_tour_run_tour($tour->name, TRUE);
-      return;
+
+  // Force a tour to run if the tour name is in the session vars.
+  $current_name = !empty($_SESSION['tour']) ? $_SESSION['tour'] : NULL;
+  // We can also jump to a new tour by specifying ?tour=tourname in the query
+  // string, but only if it's the first step OR in the tour we were already
+  // on. This is to prevent weird behavior if we switch domains on the same
+  // site - ie. we shouldn't be able to start a new tour mid-stream.
+  if (!empty($_GET['tour']) && ($_GET['tour'] == $current_name || empty($_GET['step']))) {
+    $current_name = $_GET['tour'];
+  }
+  if (!empty($current_name)) {
+    foreach($tours as $tour) {
+      if ($tour->name == $current_name) {
+        bootstrap_tour_run_tour($tour->name, TRUE);
+        return;
+      }
     }
   }
-  foreach($tours as $tour) {
-    if (!empty($_SESSION['nexttour']) && $_SESSION['nexttour'] == $tour->name) {
-      // Force a tour to run if the tour name is in the session vars.
-      bootstrap_tour_run_tour($tour->name, TRUE);
-      return;
+  // Force the next tour to run if the tour name is in the session vars.
+  if (!empty($_SESSION['nexttour'])) {
+    foreach($tours as $tour) {
+      if ($_SESSION['nexttour'] == $tour->name) {
+        bootstrap_tour_run_tour($tour->name, TRUE);
+        return;
+      }
     }
   }
+  // Otherwise, only run the tour if it's set to auto-run and we're on the path of one of the steps.
   foreach($tours as $tour) {
-    // Otherwise, only run the tour if it's set to auto-run and we're on the path of one of the steps.
     if (!empty($tour->steps) && $tour->autorun) {
       if (!is_array($tour->steps)) {
         $tour->steps = unserialize($tour->steps);
@@ -144,6 +183,12 @@ function bootstrap_tour_menu() {
     'page callback' => 'bootstrap_tour_toggle_status',
     'access arguments' => array('administer bootstrap tours'),
     'type' => MENU_LOCAL_TASK,
+  );
+  $items['bootstrap_tour/ajax/end_current_tour'] = array(
+    'title' => 'AJAX callback to end current tour',
+    'page callback' => 'bootstrap_tour_end_current_tour',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
   );
   return $items;
 }
@@ -385,7 +430,7 @@ function bootstrap_tour_list() {
 
   foreach ($names as $name => $tour) {
     $row = array();
-    $row[] = array('data' => $tour->title);
+    $row[] = array('data' => check_plain($tour->title));
     $row[] = array('data' => l(t('edit'), 'admin/structure/tours/manage/' . $name));
     if (!bootstrap_tour_is_default($tour->name)) {
       $row[] = array('data' => l(t('delete'), 'admin/structure/tours/manage/' . $name . '/delete'));

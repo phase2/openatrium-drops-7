@@ -62,30 +62,34 @@
 /* Media item display */
 
 .media-item {
-  background: #FFFFFF;
+  background: #eee;
   border: 1px solid #CCCCCC;
+  box-shadow: inset 0 0 15px rgba(0,0,0,.1), inset 0 0 0 1px rgba(0,0,0,.05);
+  display: inline-block;
   padding: 5px;
-   position: relative;
+  position: relative;
 }
 
 .media-item img {
-  margin-bottom: 10px;
+  display: block;
 }
 
 .media-item .label-wrapper {
-  text-align: center;
-  position: absolute;
+  background: rgba(255,255,255,.8);
   bottom: 0;
-  margin-left: auto;
-  margin-right: auto;
-  width: 90%;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.15);
+  left: 0;
+  max-height: 100%;
+  overflow: hidden;
+  position: absolute;
+  right: 0;
+  text-align: center;
+  word-wrap: break-word;
 }
 
 .media-item .label-wrapper label {
   font-size: 10px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  padding: 5px 10px;
 }
 
 /* Media item lists */
@@ -124,8 +128,8 @@
 }
 
 .media-list-thumbnails .form-type-checkbox {
-  bottom: 135px;
-  left: 8px;
+  bottom: 117px;
+  left: 6px;
   margin: 0;
   padding: 0;
   position: relative;
@@ -135,26 +139,6 @@
 
 .media-widget .preview {
   display: inline-block;
-  vertical-align: middle;
-}
-
-.media-widget .preview a {
-  text-decoration: none;
-}
-
-.media-widget .preview .media-item {
   margin-right: 10px;
-}
-
-.media-widget .preview .media-item:hover {
-  border-color: #058AC5;
-  cursor: pointer;
-}
-
-.media-widget .preview .media-item .label-wrapper label {
-  color: #058AC5;
-}
-
-.media-widget .preview .media-item .label-wrapper label:hover {
-  cursor: pointer;
+  vertical-align: middle;
 }

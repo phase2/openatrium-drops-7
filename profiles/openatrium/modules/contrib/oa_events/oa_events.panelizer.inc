@@ -239,12 +239,16 @@ function oa_events_panelizer_defaults() {
       'exposed' => array(
         'og_group_ref_target_id' => '',
         'og_group_ref_target_id_mine' => 0,
-        'og_subspaces_view_all' => '1',
+        'og_subspaces_view_all' => 1,
+        'og_subspaces_view_parent' => 0,
         'oa_section_ref_target_id' => '',
+        'flagged' => '0',
       ),
       'view_settings' => 'fields',
       'header_type' => 'none',
       'view_mode' => 'teaser',
+      'include_attachments' => 1,
+      'show_exposed_form' => 0,
     );
     $pane->cache = array();
     $pane->style = array(
@@ -324,10 +328,13 @@ function oa_events_panelizer_defaults() {
       'exposed' => array(
         'og_group_ref_target_id' => '',
         'og_group_ref_target_id_mine' => 0,
-        'og_subspaces_view_all' => FALSE,
+        'og_subspaces_view_all' => 0,
+        'og_subspaces_view_parent' => 0,
         'oa_section_ref_target_id' => '',
+        'flagged' => '0',
       ),
       'items_per_page' => '10',
+      'show_exposed_form' => 0,
     );
     $pane->cache = array();
     $pane->style = array(

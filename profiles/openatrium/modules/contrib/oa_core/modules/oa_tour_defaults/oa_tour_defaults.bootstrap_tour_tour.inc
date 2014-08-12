@@ -97,7 +97,7 @@ function oa_tour_defaults_default_bootstrap_tour() {
   $bootstrap_tour->steps = array(
     0 => array(
       'selector' => '#contextual-dropdown',
-      'path' => '<front>',
+      'path' => 'mynode/oa_space:spaces',
       'placement' => 'left',
       'title' => 'Customizing Colors',
       'content' => '<p><span>To change the Colors of a Space, select the Config option from the contextual drop-down menu.</span></p>',
@@ -105,7 +105,7 @@ function oa_tour_defaults_default_bootstrap_tour() {
     ),
     1 => array(
       'selector' => '',
-      'path' => 'node/4/group',
+      'path' => 'mynode/oa_space:spaces/group',
       'placement' => 'right',
       'title' => 'Change Appearance',
       'content' => '<p><span>Click the Appearance link to change the Colors for the Space.</span></p>',
@@ -113,7 +113,7 @@ function oa_tour_defaults_default_bootstrap_tour() {
     ),
     2 => array(
       'selector' => '#edit-scheme',
-      'path' => 'group/node/4/admin/appearance',
+      'path' => 'mynode/oa_space:spaces/group/node/%/admin/appearance',
       'placement' => 'right',
       'title' => 'Colorizer Settings',
       'content' => '<p>Select a pre-defined color scheme for your Space.</p><p>Or, click on a spacific color to change it.</p>',
@@ -121,7 +121,7 @@ function oa_tour_defaults_default_bootstrap_tour() {
     ),
     3 => array(
       'selector' => '.farbtastic',
-      'path' => 'group/node/4/admin/appearance',
+      'path' => '',
       'placement' => 'right',
       'title' => 'Changing Colors',
       'content' => '<p><span>As you change the color using the color picker, the colors on the page will change automatically.</span></p>',
@@ -129,7 +129,7 @@ function oa_tour_defaults_default_bootstrap_tour() {
     ),
     4 => array(
       'selector' => '#edit-colorizer-clearcache',
-      'path' => 'group/node/4/admin/appearance',
+      'path' => '',
       'placement' => 'right',
       'title' => 'Save your Changes',
       'content' => '<p>When you are finished customizing the colors, click Save.</p><p>The Clear Colorizer Cache is used to refresh the colors if the underlying theme files are updated.</p>',
@@ -137,7 +137,7 @@ function oa_tour_defaults_default_bootstrap_tour() {
     ),
     5 => array(
       'selector' => '.form-item-colorizer-reset label',
-      'path' => 'group/node/4/admin/appearance',
+      'path' => '',
       'placement' => 'right',
       'title' => 'Resetting Colors',
       'content' => '<p><span>To reset colors back to the default theme, click this box and then Save.</span></p><p></p>',
@@ -157,7 +157,7 @@ function oa_tour_defaults_default_bootstrap_tour() {
   $bootstrap_tour->steps = array(
     0 => array(
       'selector' => '#ajax-link',
-      'path' => 'firstnode/oa_space/spaces',
+      'path' => 'mynode/oa_space:spaces',
       'placement' => 'bottom',
       'title' => 'Configure Layout',
       'content' => '<p>When you create a space, you have the option of configuring the layout according to a number of built in templates.&nbsp;</p><p>Click "Change this Layout" to choose from 31 built in content layouts.</p>',
@@ -337,7 +337,7 @@ function oa_tour_defaults_default_bootstrap_tour() {
     ),
     3 => array(
       'selector' => '#contextual-dropdown',
-      'path' => '<front>',
+      'path' => 'mynode/oa_space:spaces',
       'placement' => 'left',
       'title' => 'Space Menus',
       'content' => '<p><span>To display the space-specific menu, select Config from the contextual drop-down.</span></p>',
@@ -345,7 +345,7 @@ function oa_tour_defaults_default_bootstrap_tour() {
     ),
     4 => array(
       'selector' => 'dt:nth-child(7) a',
-      'path' => 'node/4/group',
+      'path' => 'mynode/oa_space:spaces/group',
       'placement' => 'right',
       'title' => 'Space Menu',
       'content' => '<p><span>Select the Menu option.</span></p>',
@@ -353,7 +353,7 @@ function oa_tour_defaults_default_bootstrap_tour() {
     ),
     5 => array(
       'selector' => '.form-item-oa-space-menu label',
-      'path' => 'group/node/4/admin/menu',
+      'path' => 'mynode/oa_space:spaces/group/node/%/admin/menu',
       'placement' => 'right',
       'title' => 'Space Menu',
       'content' => '<p><span>Check this box and Save to display the Space-specific menu below the toolbar.</span></p>',
@@ -857,7 +857,7 @@ function oa_tour_defaults_default_bootstrap_tour() {
   $bootstrap_tour->steps = array(
     0 => array(
       'selector' => '#parent-dropdown',
-      'path' => 'firstnode/oa_space/spaces',
+      'path' => 'mynode/oa_space:spaces',
       'placement' => 'bottom',
       'title' => 'Creating a Subspace',
       'content' => '<p>Welcome to your new space!&nbsp;</p><p>Some organizations will require an additional large collection of content nested within their space.&nbsp;We call these subspaces.&nbsp;</p><p>We create a subspace by going to "Create new Space."&nbsp;</p><p>For now, click "next" to get started with your first subspace.</p><p></p>',

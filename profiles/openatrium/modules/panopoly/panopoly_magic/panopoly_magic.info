@@ -14,9 +14,9 @@ stylesheets[all][] = css/panopoly-magic.css
 stylesheets[all][] = css/panopoly-modal.css
 features[features_api][] = api:2
 
-; Information added by Drupal.org packaging script on 2014-05-22
-version = "7.x-1.6"
+; Information added by Drupal.org packaging script on 2014-08-06
+version = "7.x-1.10"
 core = "7.x"
 project = "panopoly_magic"
-datestamp = "1400718245"
+datestamp = "1407362935"
 

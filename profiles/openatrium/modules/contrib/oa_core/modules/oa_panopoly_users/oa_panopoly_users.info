@@ -9,6 +9,8 @@ dependencies[] = oa_core
 dependencies[] = oa_river
 dependencies[] = panelizer
 dependencies[] = panopoly_users
+dependencies[] = strongarm
+features[ctools][] = strongarm:strongarm:1
 features[features_api][] = api:2
 features[features_override_items][] = page_manager_handlers.pm_existing_pages_user_login_panel_context
 features[features_override_items][] = panelizer_defaults.user:user:default
@@ -19,7 +21,6 @@ features[features_overrides][] = page_manager_handlers.pm_existing_pages_user_lo
 features[features_overrides][] = page_manager_handlers.pm_existing_pages_user_login_panel_context.conf|display|layout
 features[features_overrides][] = page_manager_handlers.pm_existing_pages_user_login_panel_context.conf|display|panel_settings|contentmain
 features[features_overrides][] = panelizer_defaults.user:user:default.display|content|new-23b1f4f1-cda8-42ca-880a-afc2ae92f3e9
-features[features_overrides][] = panelizer_defaults.user:user:default.display|content|new-46a70b52-bdf3-45f9-becc-f39d146631be
 features[features_overrides][] = panelizer_defaults.user:user:default.display|content|new-80a6a21b-20e6-4acf-9772-eb089cc6082b
 features[features_overrides][] = panelizer_defaults.user:user:default.display|content|new-9def882d-91aa-4313-87b2-0ace29b4329c
 features[features_overrides][] = panelizer_defaults.user:user:default.display|content|new-a617e554-6ad7-4d25-9d89-627d130d8be3
@@ -35,14 +36,13 @@ features[features_overrides][] = panelizer_defaults.user:user:default.display|pa
 features[features_overrides][] = panelizer_defaults.user:user:default.display|panels|column2
 features[features_overrides][] = panelizer_defaults.user:user:default.display|panels|contentheader
 features[features_overrides][] = panelizer_defaults.user:user:default.display|panels|sidebar
-features[features_overrides][] = panelizer_defaults.user:user:default.display|uuid
+features[variable][] = panelizer_defaults_user_user
 features_exclude[field_base][field_user_about] = field_user_about
 features_exclude[field_base][field_user_picture] = field_user_picture
-project path = sites/all/modules/contrib/oa_core/modules
 
-; Information added by Drupal.org packaging script on 2014-05-30
-version = "7.x-2.19"
+; Information added by Drupal.org packaging script on 2014-08-11
+version = "7.x-2.21"
 core = "7.x"
 project = "oa_core"
-datestamp = "1401462830"
+datestamp = "1407789231"
 

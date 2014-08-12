@@ -49,7 +49,7 @@ class OaWorkTracker_SelectionHandler_Assigned implements EntityReference_Selecti
     switch ($type) {
       case OA_WORKTRACKER_ASSIGN_TO_INHERITED_USERS:
         $uids = og_subgroups_get_users_group('node', $space);
-        $uids = $uids['user'];
+        $uids = !empty($uids['user']) ? $uids['user'] : array();
         $inherited = _og_subgroups_get_inherited_users('node', $gid);
         foreach ($inherited as $inherited_uid => $data) {
           $uids[] = $inherited_uid;

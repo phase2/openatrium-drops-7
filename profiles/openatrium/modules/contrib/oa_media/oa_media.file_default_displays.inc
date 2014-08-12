@@ -287,7 +287,7 @@ function oa_media_file_default_displays() {
   $file_display->api_version = 1;
   $file_display->name = 'document__preview__file_field_file_default';
   $file_display->weight = 0;
-  $file_display->status = TRUE;
+  $file_display->status = FALSE;
   $file_display->settings = '';
   $export['document__preview__file_field_file_default'] = $file_display;
 
@@ -295,9 +295,9 @@ function oa_media_file_default_displays() {
   $file_display->api_version = 1;
   $file_display->name = 'document__preview__file_field_file_download_link';
   $file_display->weight = 0;
-  $file_display->status = FALSE;
+  $file_display->status = TRUE;
   $file_display->settings = array(
-    'text' => 'Download [file:name]',
+    'text' => '[file:name]',
   );
   $export['document__preview__file_field_file_download_link'] = $file_display;
 
@@ -615,7 +615,7 @@ function oa_media_file_default_displays() {
   $file_display->weight = 0;
   $file_display->status = FALSE;
   $file_display->settings = array(
-    'image_style' => '',
+    'image_style' => 'panopoly_image_original',
     'image_link' => '',
   );
   $export['image__default__file_field_image'] = $file_display;
@@ -672,10 +672,10 @@ function oa_media_file_default_displays() {
   $file_display->api_version = 1;
   $file_display->name = 'image__preview__file_field_image';
   $file_display->weight = 0;
-  $file_display->status = FALSE;
+  $file_display->status = TRUE;
   $file_display->settings = array(
-    'image_style' => 'media_thumbnail',
-    'image_link' => '',
+    'image_style' => 'panopoly_image_thumbnail',
+    'image_link' => 'content',
   );
   $export['image__preview__file_field_image'] = $file_display;
 

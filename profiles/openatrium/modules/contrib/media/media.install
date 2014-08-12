@@ -9,36 +9,6 @@
  * Implements hook_install().
  */
 function media_install() {
-  // Create initial display settings.
-  module_load_include('inc', 'file_entity', 'file_entity.file_api');
-  $default_image_styles = array(
-    'preview' => 'media_thumbnail',
-    'teaser' => 'medium',
-    'full' => 'large',
-  );
-  // Only needed by sites that updated from Media 1.x.
-  // @see media_entity_info_alter()
-  if (variable_get('media_show_deprecated_view_modes')) {
-    $default_image_styles['media_original'] = '';
-  }
-
-  foreach ($default_image_styles as $view_mode => $image_style) {
-    $existing_display = file_displays_load('image', $view_mode);
-
-    if (empty($existing_display)) {
-      $display_name = 'image__' . $view_mode . '__file_image';
-      $display = array(
-        'api_version' => 1,
-        'name' => $display_name,
-        'status' => 1,
-        'weight' => 5,
-        'settings' => array('image_style' => $image_style),
-        'export_type' => NULL,
-      );
-      file_display_save((object) $display);
-    }
-  }
-
   // Make sure that we set the icon base directory variable if it is not
   // already set.
   $base = variable_get('media_icon_base_directory', NULL);
@@ -52,9 +22,6 @@ function media_install() {
   catch (Exception $e) {
     watchdog_exception('media', $e);
   }
-
-  // Fix File Entity default displays issue with exports.
-  _media_default_displays();
 }
 
 /**
@@ -81,9 +48,23 @@ function _media_install_copy_icons() {
  */
 function media_uninstall() {
   // Remove variables.
+  variable_del('media_dialog_theme');
   variable_del('media_icon_base_directory');
   variable_del('media_icon_set');
   variable_del('media_show_deprecated_view_modes');
+
+  // Dialog options.
+  variable_del('media_dialogclass');
+  variable_del('media_modal');
+  variable_del('media_draggable');
+  variable_del('media_resizable');
+  variable_del('media_minwidth');
+  variable_del('media_width');
+  variable_del('media_height');
+  variable_del('media_position');
+  variable_del('media_zindex');
+  variable_del('media_backgroundcolor');
+  variable_del('media_opacity');
 }
 
 /**
@@ -908,7 +889,7 @@ function media_update_7209() {
   drupal_load('module', 'media_migrate_file_types');
 
   if (_media_migrate_file_types_get_migratable_file_types()) {
-    module_enable('media_migrate_file_types');
+    module_enable(array('media_migrate_file_types'));
   }
 }
 
@@ -937,9 +918,11 @@ function media_update_7211() {
   foreach ($view_modes as $view_mode => $view_mode_info) {
     $displays = file_displays_load('image', $view_mode);
     foreach ($displays as $display) {
-      if ($display->settings['image_style'] == 'square_thumbnail') {
-        $display->settings['image_style'] = 'media_thumbnail';
-        file_display_save($display);
+      if (isset($display->settings['image_style'])) {
+        if ($display->settings['image_style'] == 'square_thumbnail') {
+          $display->settings['image_style'] = 'media_thumbnail';
+          file_display_save($display);
+        }
       }
     }
   }
@@ -1167,41 +1150,14 @@ function media_update_7225() {
 }
 
 /**
- * Fix overridden issues with File Displays
+ * Accommodate the introduction of a new permission which restricts access to
+ * the media browser by granting it to existing users who were able to access
+ * it.
  */
 function media_update_7226() {
-  _media_default_displays();
-}
+  $roles = user_roles(FALSE, 'create files');
 
-/**
- * Instantiate the File Entity display overrides.
- */
-function _media_default_displays() {
-  // Create initial display settings.
-  module_load_include('inc', 'file_entity', 'file_entity.file_api');
-  $default_image_styles = array(
-    'preview' => 'media_thumbnail',
-  );
-  $default_types = array(
-    'audio' => 'audio',
-    'document' => 'document',
-    'video' => 'video',
-  );
-  foreach ($default_types as $types) {
-    foreach ($default_image_styles as $view_mode => $image_style) {
-      $existing_display = file_displays_load($types, $view_mode);
-      if (empty($existing_display)) {
-        $display_name = $types . '__' . $view_mode . '__file_field_media_large_icon';
-        $display = array(
-          'api_version' => 1,
-          'name' => $display_name,
-          'status' => 1,
-          'weight' => 50,
-          'settings' => array('image_style' => $image_style),
-          'export_type' => NULL,
-        );
-        file_display_save((object) $display);
-      }
-    }
+  foreach ($roles as $rid => $role) {
+    user_role_grant_permissions($rid, array('access media browser'));
   }
 }

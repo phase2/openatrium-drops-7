@@ -17,7 +17,7 @@ files[] = includes/MediaBrowserView.inc
 files[] = includes/MediaEntityTranslationHandler.inc
 files[] = includes/media_views_plugin_display_media_browser.inc
 files[] = includes/media_views_plugin_style_media_browser.inc
-files[] = media.test
+files[] = tests/media.test
 
 configure = admin/config/media/browser
 
@@ -25,9 +25,9 @@ configure = admin/config/media/browser
 version = 7.x-2.x-dev
 
 
-; Information added by drush on 2014-05-30
-version = "7.x-2.0-alpha3+37-dev"
+; Information added by drush on 2014-08-12
+version = "7.x-2.0-alpha3+98-dev"
 core = "7.x"
 project = "media"
-datestamp = "1401469542"
+datestamp = "1407848727"
 

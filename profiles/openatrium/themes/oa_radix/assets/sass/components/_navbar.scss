@@ -1,0 +1,414 @@
+//
+// Styles for OA Navbar
+// --------------------------------------------------
+.navbar-fixed-top, .navbar-fixed-bottom {
+  z-index: 1000;  /* needs to be less than 1001 which is panelizer popup dialog */
+}
+.drupal-navbar .navbar-tray {
+z-index: 1000;
+}
+.navbar-static-top .container,
+.navbar-fixed-top .container,
+.navbar-fixed-bottom .container {
+  width: auto;
+}
+#admin-menu, #admin-menu .dropdown {
+  z-index: 1001;
+}
+#oa-navbar {
+  position: fixed;
+  top: 0;
+  .navbar-inner {
+    border: 0;
+    padding: 0;
+    .btn {
+      margin: 0;
+    }
+  }
+  .panel-panel-inner {
+    min-height: 0;
+  }
+  .panel-panel {
+    @include box-sizing("border-box");
+    padding: 0 20px;
+    margin: 0 0 0 -5px;
+    min-height: 0;
+    .panel-pane {
+      margin: 0 0 0 5px;
+      padding: 5px 0;
+    }
+    .pane-oa-navigation {
+      width: 100%;
+      border-bottom: 1px solid #676767;
+      margin-left: -20px;
+      margin-right: -20px;
+      padding: 5px $gridGutterWidth 0;
+      background-color: #003853;
+      .oa-menu-banner {
+        padding-bottom: 0;
+      }
+      .pane-content {
+        ul.nav {
+          > li {
+            > a {
+              padding: 6px 15px 6px;
+            }
+          }
+        }
+      }
+    }
+    .pane-oa-dashboard-oa-toolbar-menu-button {
+      z-index: 100;
+      #toolbar-menu-button {
+        margin: 0;
+      }
+    }
+    .pane-oa-dashboard-oa-breadcrumb {
+      margin-top: -5px;
+      margin-bottom: -5px;
+      ul.oa_toolbar {
+        margin: 0;
+        padding: 0;
+        li.btn-group {
+          margin: 0;
+          height: 42px;
+          > .btn {
+            font-size: 16px;
+            height: 32px;
+            line-height: 32px;
+            float: left;
+            background: none;
+            border: 0;
+            @include border-radius(0);
+            @include box-shadow(none);
+            &:hover {
+              background: none;
+            }
+            &.btn-home {
+              font-size: 24px;
+            }
+          }
+          > .dropdown-toggle {
+            height: 25px;
+            line-height: 25px;
+            margin: 5px 10px 5px 0;
+            padding: 4px 8px;
+            background: $grayDark;
+            @include border-radius(3px);
+            &:hover {
+              background: $grayDark;
+            }
+            .caret {
+              vertical-align: middle;
+              margin: 0;
+              border-top: 6px solid $white;
+              border-right: 6px solid transparent;
+              border-left: 6px solid transparent;
+            }
+          }
+          &:after {
+            content: url("../images/menu-divider.png");
+            width: 10px;
+            height: 42px;
+            display: inline-block;
+          }
+          ul.dropdown-menu {
+            li {
+              h3 {
+                font-size: 1.2em;
+                margin: 0;
+              }
+              a.more-link {
+                font-style: italic;
+              }
+            }
+          }
+        }
+      }
+    }
+    .pane-oa-favorites-favorites-button {
+      ul#oa_favorites {
+        margin: 0;
+        li {
+          margin: 0;
+        }
+      }
+    }
+    .pane-oa-tour-custom-pane {
+      ul#oa_tours {
+        margin: 0;
+        li {
+          margin: 0;
+        }
+      }
+    }
+    .pane-oa-toolbar-search {
+      form {
+        margin: 0;
+        .input-append {
+          margin: 0;
+        }
+        .search-text {
+          width: 150px;
+        }
+        .btn-group {
+          .btn {
+            float: left;
+            clear: none;
+          }
+        }
+      }
+    }
+    .pane-add-space-content {
+      .btn {
+        position: relative;
+        text-indent: -9999em;
+        line-height: 2px;
+        .caret {
+          background: transparent url("../images/navbar-icons.png") no-repeat 2px -1px;
+          margin: 0;
+          width: 18px;
+          height: 18px;
+          border: 0;
+          display: block;
+        }
+      }
+    }
+    .pane-oa-space-banner {
+      clear: both;
+      padding-bottom: 0;
+      margin-top: -5px;
+      margin-left: -20px;
+      margin-right: -20px;
+      background-color: #003853;
+    }
+    .pane-oa-dashboard-oa-user-badge {
+      .oa-dropdown {
+        margin: 0;
+        #user-badge-dropdown {
+          overflow: hidden;
+          img {
+            width: auto;
+            height: 29px;
+            margin: -5px -12px -5px 5px;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Open Atrium Navbar
+// --------------------------------------------------
+#oa-navbar {
+  @include breakpoint('tablet') {
+    .navbar-inner {
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+    .panel-panel {
+      .pane-oa-dashboard-oa-breadcrumb {
+        float: none;
+        border-bottom: 1px solid #676767;
+        margin-top: 0;
+        margin-bottom: 5px;
+        margin-left: -20px;
+        margin-right: -20px;
+        padding: 0 $gridGutterWidth;
+      }
+      .pane-oa-toolbar-search {
+        float: left;
+      }
+      .pane-add-space-content {
+        .dropdown-menu {
+          right: 0;
+          left: auto;
+        }
+      }
+      .pane-oa-favorites-favorites-button {
+        .dropdown-menu {
+          right: 0;
+          left: auto;
+        }
+      }
+    }
+  }
+  @include breakpoint('mini-tablet') {
+    padding-left: 20px;
+    padding-right: 20px;
+    .navbar-inner {
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+    .panel-panel {
+      .pane-oa-dashboard-oa-breadcrumb {
+        float: none;
+        border-bottom: 1px solid #676767;
+        margin-top: 0;
+        margin-bottom: 5px;
+        margin-left: -20px;
+        margin-right: -20px;
+        padding: 0 $gridGutterWidth;
+      }
+      .pane-oa-toolbar-search {
+        float: left;
+      }
+      .pane-add-space-content {
+        .dropdown-menu {
+          right: 0;
+          left: auto;
+        }
+      }
+      .pane-oa-favorites-favorites-button {
+        .dropdown-menu {
+          right: 0;
+          left: auto;
+        }
+      }
+    }
+  }
+  @include breakpoint('phone') {
+    position: static;
+    margin: 0 -20px;
+    padding-left: 0;
+    padding-right: 0;
+    .oa-space-banner {
+      display: none;
+    }
+    .panel-panel {
+      margin: 0;
+      .panel-pane {
+        margin-left: 5px;
+      }
+      .pane-oa-dashboard-oa-toolbar-menu-button {
+        display: none;
+      }
+      .pane-oa-dashboard-oa-breadcrumb {
+        margin-left: -20px;
+        margin-right: -20px;
+        ul.oa_toolbar {
+          li.btn-group {
+            float: none;
+            display: block;
+            margin: 0 0 1px;
+            position: relative;
+            &:after {
+              display: none;
+            }
+            > .btn {
+              display: block;
+              float: none;
+            }
+            > .dropdown-toggle {
+              position: absolute;
+              right: 0;
+              top: 5px;
+              margin: 0;
+              z-index: 100;
+            }
+            .dropdown-menu {
+              width: 100%;
+            }
+          }
+        }
+      }
+      .pane-oa-dashboard-oa-user-badge {
+        position: absolute;
+        top: 5px;
+        left: 20px;
+        z-index: 100;
+        margin: 0;
+        #oa-user-badge {
+          .dropdown-menu {
+            left: 0;
+            right: auto;
+          }
+        }
+      }
+      .pane-add-space-content {
+        .dropdown-menu {
+          right: 0;
+          left: auto;
+        }
+      }
+      .pane-oa-favorites-favorites-button {
+        .dropdown-menu {
+          right: 0;
+          left: auto;
+        }
+      }
+      .pane-oa-toolbar-search {
+        margin-left: 0;
+        form {
+          .search-text {
+            width: 80px;
+          }
+        }
+      }
+    }
+  }
+  @media (max-width: 979px) {
+    .panel-panel {
+      .pane-oa-navigation {
+        margin-left: -20px;
+        margin-right: -20px;
+        padding-bottom: 5px;
+        .pane-content {
+          nav {
+            float: none;
+            margin-top: 5px;
+          }
+          ul.nav {
+            > li {
+              > a {
+                display: block;
+                text-align: center;
+                font-weight: normal;
+                .caret {
+                  display: none;
+                }
+              }
+              ul.dropdown-menu {
+                display: none;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+body.admin-menu #oa-navbar {
+  top: 25px;
+}
+
+#main-wrapper {
+  @include breakpoint('phone') {
+    .oa-banner {
+      display: none;
+    }
+  }
+}
+
+// OA Space Menu
+.navbar.oa-space-menu {
+  margin-bottom: 0;
+  .navbar-inner {
+    border: 0;
+    @include border-radius(0);
+  }
+}
+
+// OA Responsive Navbar
+// --------------------------------------------------
+#oa-responsive-regions-navbar {
+  .navbar-inner {
+    .btn-top {
+      float: left;
+      &.btn-active {
+        @include transform(none);
+      }
+    }
+  }
+}

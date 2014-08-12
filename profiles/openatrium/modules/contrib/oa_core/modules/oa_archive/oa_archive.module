@@ -16,3 +16,69 @@ function oa_archive_node_access($node, $op, $account) {
     return NODE_ACCESS_DENY;
   }
 }
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function oa_archive_form_views_exposed_form_alter(&$form, &$form_state) {
+  // Alter the 'Archived' exposed filter when shown normally.
+  foreach (_oa_archive_find_archived_exposed_filters($form_state['view']) as $filter_name) {
+    if (isset($form[$filter_name])) {
+      _oa_archive_alter_archived_exposed_filter($form[$filter_name]);
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function oa_archive_form_views_content_views_panes_content_type_edit_form_alter(&$form, &$form_state, $form_id) {
+  // Alter the 'Archived' exposed filter when shown on the pane settings.
+  foreach (_oa_archive_find_archived_exposed_filters($form_state['view']) as $filter_name) {
+    if (isset($form['exposed']['filter-' . $filter_name][$filter_name])) {
+      _oa_archive_alter_archived_exposed_filter($form['exposed']['filter-' . $filter_name][$filter_name]);
+    }
+  }
+}
+
+/**
+ * Helper function to find the 'Archived' exposed filters on a View.
+ *
+ * @return array
+ *   An array of the filter names.
+ */
+function _oa_archive_find_archived_exposed_filters($view) {
+  $result = array();
+
+  // We need to locate an exposed filter on the View which is the 'Archive'
+  // flag. This is a little harder than it could be because the filter needs a
+  // relationship to the right flag.
+  foreach($view->filter as $filter_name => $filter) {
+    if (is_a($filter, 'flag_handler_filter_flagged') && !empty($filter->options['exposed'])) {
+      if ($relationship = $view->relationship[$filter->options['relationship']]) {
+        if ($relationship->options['flag'] == 'trash') {
+          $result[] = $filter_name;
+        }
+      }
+    }
+  }
+
+  return $result;
+}
+
+/**
+ * Helper function to alter the 'Archive' exposed filter to be user friendly.
+ */
+function _oa_archive_alter_archived_exposed_filter(&$element) {
+  // Replace the options with easier to understand ones.
+  $element['#options'] = array(
+    '0'   => t('No'),
+    'All' => t('Yes'),
+    '1'   => t('Only archived content'),
+  );
+
+  // Default to 'No' when there is no previous configuration.
+  if (empty($element['#default_value'])) {
+    $element['#default_value'] = 0;
+  }
+}

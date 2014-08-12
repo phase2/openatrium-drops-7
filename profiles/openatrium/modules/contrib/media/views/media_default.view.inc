@@ -39,7 +39,7 @@ $handler->display->display_options['empty']['area']['id'] = 'area';
 $handler->display->display_options['empty']['area']['table'] = 'views';
 $handler->display->display_options['empty']['area']['field'] = 'area';
 $handler->display->display_options['empty']['area']['content'] = 'No files available.';
-$handler->display->display_options['empty']['area']['format'] = 'plain_text';
+$handler->display->display_options['empty']['area']['format'] = filter_fallback_format();
 /* Field: File: Name */
 $handler->display->display_options['fields']['filename']['id'] = 'filename';
 $handler->display->display_options['fields']['filename']['table'] = 'file_managed';

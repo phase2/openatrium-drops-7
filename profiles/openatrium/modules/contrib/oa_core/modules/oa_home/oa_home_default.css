@@ -4,6 +4,10 @@ body.front {
   padding: 0; margin: 0;
 }
 
+body.front #main-wrapper #main {
+  background: #003853;
+}
+
 body.front #main-wrapper {
   background-color: transparent;
 }

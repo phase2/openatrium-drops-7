@@ -119,6 +119,14 @@ function oa_core_views_default_views() {
   $handler->display->display_options['relationships']['uid']['id'] = 'uid';
   $handler->display->display_options['relationships']['uid']['table'] = 'node';
   $handler->display->display_options['relationships']['uid']['field'] = 'uid';
+  /* Relationship: Flags: trash */
+  $handler->display->display_options['relationships']['flag_content_rel']['id'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['table'] = 'node';
+  $handler->display->display_options['relationships']['flag_content_rel']['field'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['label'] = 'archived';
+  $handler->display->display_options['relationships']['flag_content_rel']['required'] = 0;
+  $handler->display->display_options['relationships']['flag_content_rel']['flag'] = 'trash';
+  $handler->display->display_options['relationships']['flag_content_rel']['user_scope'] = 'any';
   /* Field: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
@@ -246,6 +254,23 @@ function oa_core_views_default_views() {
     3 => 0,
     4 => 0,
   );
+  /* Filter criterion: Flags: Flagged */
+  $handler->display->display_options['filters']['flagged']['id'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['table'] = 'flag_content';
+  $handler->display->display_options['filters']['flagged']['field'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['relationship'] = 'flag_content_rel';
+  $handler->display->display_options['filters']['flagged']['value'] = '0';
+  $handler->display->display_options['filters']['flagged']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['flagged']['expose']['operator_id'] = '';
+  $handler->display->display_options['filters']['flagged']['expose']['label'] = 'Include archived content';
+  $handler->display->display_options['filters']['flagged']['expose']['operator'] = 'flagged_op';
+  $handler->display->display_options['filters']['flagged']['expose']['identifier'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
 
   /* Display: Recent Content */
   $handler = $view->new_display('panel_pane', 'Recent Content', 'panel_pane_2');
@@ -274,6 +299,7 @@ function oa_core_views_default_views() {
       'og_group_ref_target_id' => 'pane_and_exposed',
       'oa_section_ref_target_id' => 'pane_and_exposed',
       'uid' => 'pane_and_exposed',
+      'flagged' => '',
     ),
   );
 
@@ -336,6 +362,14 @@ function oa_core_views_default_views() {
   $handler->display->display_options['relationships']['uid']['id'] = 'uid';
   $handler->display->display_options['relationships']['uid']['table'] = 'node';
   $handler->display->display_options['relationships']['uid']['field'] = 'uid';
+  /* Relationship: Flags: trash */
+  $handler->display->display_options['relationships']['flag_content_rel_1']['id'] = 'flag_content_rel_1';
+  $handler->display->display_options['relationships']['flag_content_rel_1']['table'] = 'node';
+  $handler->display->display_options['relationships']['flag_content_rel_1']['field'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel_1']['label'] = 'archived';
+  $handler->display->display_options['relationships']['flag_content_rel_1']['required'] = 0;
+  $handler->display->display_options['relationships']['flag_content_rel_1']['flag'] = 'trash';
+  $handler->display->display_options['relationships']['flag_content_rel_1']['user_scope'] = 'any';
   /* Relationship: Flags: subscribe_section_content */
   $handler->display->display_options['relationships']['flag_content_rel']['id'] = 'flag_content_rel';
   $handler->display->display_options['relationships']['flag_content_rel']['table'] = 'node';
@@ -423,6 +457,7 @@ function oa_core_views_default_views() {
       'og_group_ref_target_id' => 'pane_and_exposed',
       'oa_section_ref_target_id' => 'pane_and_exposed',
       'uid' => 'pane_and_exposed',
+      'flagged' => '',
     ),
     'sorts' => array(
       'changed' => 'pane_and_exposed',
@@ -467,6 +502,14 @@ function oa_core_views_default_views() {
   $handler->display->display_options['relationships']['flag_content_rel']['field'] = 'flag_content_rel';
   $handler->display->display_options['relationships']['flag_content_rel']['required'] = 0;
   $handler->display->display_options['relationships']['flag_content_rel']['flag'] = 'favorite_space';
+  /* Relationship: Flags: trash */
+  $handler->display->display_options['relationships']['flag_content_rel_1']['id'] = 'flag_content_rel_1';
+  $handler->display->display_options['relationships']['flag_content_rel_1']['table'] = 'node';
+  $handler->display->display_options['relationships']['flag_content_rel_1']['field'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel_1']['label'] = 'archived';
+  $handler->display->display_options['relationships']['flag_content_rel_1']['required'] = 0;
+  $handler->display->display_options['relationships']['flag_content_rel_1']['flag'] = 'trash';
+  $handler->display->display_options['relationships']['flag_content_rel_1']['user_scope'] = 'any';
   /* Field: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
@@ -562,6 +605,23 @@ function oa_core_views_default_views() {
     3 => 0,
     4 => 0,
   );
+  /* Filter criterion: Flags: Flagged */
+  $handler->display->display_options['filters']['flagged_1']['id'] = 'flagged_1';
+  $handler->display->display_options['filters']['flagged_1']['table'] = 'flag_content';
+  $handler->display->display_options['filters']['flagged_1']['field'] = 'flagged';
+  $handler->display->display_options['filters']['flagged_1']['relationship'] = 'flag_content_rel_1';
+  $handler->display->display_options['filters']['flagged_1']['value'] = '0';
+  $handler->display->display_options['filters']['flagged_1']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['flagged_1']['expose']['operator_id'] = '';
+  $handler->display->display_options['filters']['flagged_1']['expose']['label'] = 'Include archived content';
+  $handler->display->display_options['filters']['flagged_1']['expose']['operator'] = 'flagged_1_op';
+  $handler->display->display_options['filters']['flagged_1']['expose']['identifier'] = 'flagged_1';
+  $handler->display->display_options['filters']['flagged_1']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
 
   /* Display: All spaces and groups */
   $handler = $view->new_display('panel_pane', 'All spaces and groups', 'panel_pane_all');
@@ -583,6 +643,7 @@ function oa_core_views_default_views() {
       'type' => '',
       'oa_parent_space_target_id' => '',
       'flagged' => '',
+      'flagged_1' => '',
     ),
     'sorts' => array(
       'created' => '',

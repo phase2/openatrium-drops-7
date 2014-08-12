@@ -98,7 +98,7 @@ features[views_view][] = open_atrium_user_filters
 features_exclude[dependencies][oa_subspaces] = oa_subspaces
 files[] = tests/*.test
 files[] = tests/oa_coreBase.test
-files[] = tests/oa_coreAccessWeb.test
+files[] = tests/oa_coreSmoke.test
 files[] = tests/oa_core_section_accessUnit.test
 files[] = tests/oa_core_section_is_publicUnit.test
 files[] = tests/oa_corePermissionWeb.test
@@ -107,9 +107,9 @@ files[] = plugins/views/oa_views_plugin_exposed_form.inc
 files[] = plugins/views/oa_core_og_group_ref_views_handler_filter_in_operator.inc
 files[] = plugins/views/oa_core_oa_section_ref_views_handler_filter_in_operator.inc
 
-; Information added by Drupal.org packaging script on 2014-05-30
-version = "7.x-2.19"
+; Information added by Drupal.org packaging script on 2014-08-11
+version = "7.x-2.21"
 core = "7.x"
 project = "oa_core"
-datestamp = "1401462830"
+datestamp = "1407789231"
 

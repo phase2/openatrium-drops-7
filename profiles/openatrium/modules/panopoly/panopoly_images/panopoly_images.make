@@ -13,9 +13,6 @@ projects[manualcrop][download][branch] = 7.x-1.x
 projects[manualcrop][patch][1665130] = http://drupal.org/files/issues/manualcrop-file_entity-settings-1665130-13.patch
 projects[manualcrop][patch][2237835] = http://drupal.org/files/issues/manualcrop-two-crop-tools-2237835.patch
 projects[manualcrop][patch][2248587] = http://drupal.org/files/issues/manualcrop-make-file-2248587.patch
-; This is only temporarily necessary until we can update to the latest 2.x-dev
-; version of Media.
-projects[manualcrop][patch][2214687] = http://drupal.org/files/issues/2214687-fix-fatal-with-media-2-dev-5.patch
 
 ; Manualcrop has its own .make file which gets these.
 ;

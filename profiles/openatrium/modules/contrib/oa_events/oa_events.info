@@ -16,6 +16,7 @@ dependencies[] = field_group
 dependencies[] = file
 dependencies[] = fullcalendar
 dependencies[] = fullcalendar_colors
+dependencies[] = fullcalendar_create
 dependencies[] = fullcalendar_legend
 dependencies[] = fullcalendar_options
 dependencies[] = geocoder
@@ -85,9 +86,9 @@ features[views_view][] = oa_event_list
 features[views_view][] = oa_fullcalendar
 project path = sites/all/modules/contrib
 
-; Information added by Drupal.org packaging script on 2014-05-29
-version = "7.x-2.19"
+; Information added by Drupal.org packaging script on 2014-08-11
+version = "7.x-2.21"
 core = "7.x"
 project = "oa_events"
-datestamp = "1401394135"
+datestamp = "1407786840"
 

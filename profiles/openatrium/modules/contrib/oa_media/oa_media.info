@@ -19,6 +19,7 @@ features[ctools][] = file_entity:file_default_displays:1
 features[ctools][] = strongarm:strongarm:1
 features[features_api][] = api:2
 features[features_override_items][] = views_view.media_default
+features[features_overrides][] = views_view.media_default.display|default|display_options|fields|filename|link_to_file
 features[features_overrides][] = views_view.media_default.display|default|display_options|filters|oa_section_ref_target_id
 features[features_overrides][] = views_view.media_default.display|default|display_options|filters|og_group_ref_target_id
 features[features_overrides][] = views_view.media_default.display|default|display_options|relationships
@@ -166,9 +167,9 @@ features[variable][] = colorbox_transition_type
 features[variable][] = colorbox_visibility
 features[variable][] = field_bundle_settings_file__document
 
-; Information added by Drupal.org packaging script on 2014-05-29
-version = "7.x-2.19"
+; Information added by Drupal.org packaging script on 2014-08-01
+version = "7.x-2.20"
 core = "7.x"
 project = "oa_media"
-datestamp = "1401394734"
+datestamp = "1406917730"
 

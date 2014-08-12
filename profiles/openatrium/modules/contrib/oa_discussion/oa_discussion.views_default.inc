@@ -45,6 +45,14 @@ function oa_discussion_views_default_views() {
   $handler->display->display_options['relationships']['uid']['table'] = 'node';
   $handler->display->display_options['relationships']['uid']['field'] = 'uid';
   $handler->display->display_options['relationships']['uid']['required'] = TRUE;
+  /* Relationship: Flags: trash */
+  $handler->display->display_options['relationships']['flag_content_rel']['id'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['table'] = 'node';
+  $handler->display->display_options['relationships']['flag_content_rel']['field'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['label'] = 'archived';
+  $handler->display->display_options['relationships']['flag_content_rel']['required'] = 0;
+  $handler->display->display_options['relationships']['flag_content_rel']['flag'] = 'trash';
+  $handler->display->display_options['relationships']['flag_content_rel']['user_scope'] = 'any';
   /* Field: Content: Nid */
   $handler->display->display_options['fields']['nid']['id'] = 'nid';
   $handler->display->display_options['fields']['nid']['table'] = 'node';
@@ -105,7 +113,7 @@ function oa_discussion_views_default_views() {
   $handler->display->display_options['fields']['title']['element_type'] = '0';
   $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['title']['element_default_classes'] = FALSE;
-  /* Field: Content: Description */
+  /* Field: Content: Body */
   $handler->display->display_options['fields']['body_1']['id'] = 'body_1';
   $handler->display->display_options['fields']['body_1']['table'] = 'field_data_body';
   $handler->display->display_options['fields']['body_1']['field'] = 'body';
@@ -121,7 +129,7 @@ function oa_discussion_views_default_views() {
   $handler->display->display_options['fields']['body_1']['settings'] = array(
     'trim_length' => '80',
   );
-  /* Field: Content: Description */
+  /* Field: Content: Body */
   $handler->display->display_options['fields']['body']['id'] = 'body';
   $handler->display->display_options['fields']['body']['table'] = 'field_data_body';
   $handler->display->display_options['fields']['body']['field'] = 'body';
@@ -217,6 +225,16 @@ function oa_discussion_views_default_views() {
   $handler->display->display_options['header']['area']['format'] = 'full_html';
   $handler->display->display_options['pane_category']['name'] = 'Open Atrium';
   $handler->display->display_options['pane_category']['weight'] = '0';
+  $handler->display->display_options['allow']['use_pager'] = 0;
+  $handler->display->display_options['allow']['items_per_page'] = 0;
+  $handler->display->display_options['allow']['offset'] = 0;
+  $handler->display->display_options['allow']['link_to_view'] = 0;
+  $handler->display->display_options['allow']['more_link'] = 0;
+  $handler->display->display_options['allow']['path_override'] = 0;
+  $handler->display->display_options['allow']['title_override'] = 0;
+  $handler->display->display_options['allow']['exposed_form'] = 0;
+  $handler->display->display_options['allow']['exposed_form_configure'] = 0;
+  $handler->display->display_options['allow']['fields_override'] = 0;
   $handler->display->display_options['argument_input'] = array(
     'entity_id' => array(
       'type' => 'context',
@@ -292,7 +310,7 @@ function oa_discussion_views_default_views() {
     'image_style' => 'oa_small_thumbnail',
     'image_link' => '',
   );
-  /* Field: Content: Description */
+  /* Field: Content: Body */
   $handler->display->display_options['fields']['body']['id'] = 'body';
   $handler->display->display_options['fields']['body']['table'] = 'field_data_body';
   $handler->display->display_options['fields']['body']['field'] = 'body';
@@ -530,6 +548,14 @@ function oa_discussion_views_default_views() {
   $handler->display->display_options['relationships']['og_membership_rel']['id'] = 'og_membership_rel';
   $handler->display->display_options['relationships']['og_membership_rel']['table'] = 'node';
   $handler->display->display_options['relationships']['og_membership_rel']['field'] = 'og_membership_rel';
+  /* Relationship: Flags: trash */
+  $handler->display->display_options['relationships']['flag_content_rel']['id'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['table'] = 'node';
+  $handler->display->display_options['relationships']['flag_content_rel']['field'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['label'] = 'archived';
+  $handler->display->display_options['relationships']['flag_content_rel']['required'] = 0;
+  $handler->display->display_options['relationships']['flag_content_rel']['flag'] = 'trash';
+  $handler->display->display_options['relationships']['flag_content_rel']['user_scope'] = 'any';
   $handler->display->display_options['defaults']['fields'] = FALSE;
   /* Field: Content: Nid */
   $handler->display->display_options['fields']['nid']['id'] = 'nid';
@@ -696,6 +722,23 @@ function oa_discussion_views_default_views() {
     3 => 0,
     4 => 0,
   );
+  /* Filter criterion: Flags: Flagged */
+  $handler->display->display_options['filters']['flagged']['id'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['table'] = 'flag_content';
+  $handler->display->display_options['filters']['flagged']['field'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['relationship'] = 'flag_content_rel';
+  $handler->display->display_options['filters']['flagged']['value'] = '0';
+  $handler->display->display_options['filters']['flagged']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['flagged']['expose']['operator_id'] = '';
+  $handler->display->display_options['filters']['flagged']['expose']['label'] = 'Include archived content';
+  $handler->display->display_options['filters']['flagged']['expose']['operator'] = 'flagged_op';
+  $handler->display->display_options['filters']['flagged']['expose']['identifier'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
   $handler->display->display_options['pane_category']['name'] = 'Open Atrium';
   $handler->display->display_options['pane_category']['weight'] = '0';
   $handler->display->display_options['allow']['use_pager'] = 'use_pager';
@@ -704,12 +747,15 @@ function oa_discussion_views_default_views() {
   $handler->display->display_options['allow']['link_to_view'] = 0;
   $handler->display->display_options['allow']['more_link'] = 0;
   $handler->display->display_options['allow']['path_override'] = 0;
-  $handler->display->display_options['allow']['title_override'] = 0;
+  $handler->display->display_options['allow']['title_override'] = 'title_override';
   $handler->display->display_options['allow']['exposed_form'] = 'exposed_form';
   $handler->display->display_options['allow']['exposed_form_configure'] = 0;
   $handler->display->display_options['allow']['fields_override'] = 0;
   $handler->display->display_options['exposed_form_overrides'] = array(
-    'type' => '',
+    'filters' => array(
+      'type' => '',
+      'flagged' => '',
+    ),
   );
   $handler->display->display_options['argument_input'] = array(
     'gid' => array(
@@ -787,6 +833,14 @@ function oa_discussion_views_default_views() {
   $handler->display->display_options['relationships']['oa_section_ref_target_id']['id'] = 'oa_section_ref_target_id';
   $handler->display->display_options['relationships']['oa_section_ref_target_id']['table'] = 'field_data_oa_section_ref';
   $handler->display->display_options['relationships']['oa_section_ref_target_id']['field'] = 'oa_section_ref_target_id';
+  /* Relationship: Flags: trash */
+  $handler->display->display_options['relationships']['flag_content_rel']['id'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['table'] = 'node';
+  $handler->display->display_options['relationships']['flag_content_rel']['field'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['label'] = 'archived';
+  $handler->display->display_options['relationships']['flag_content_rel']['required'] = 0;
+  $handler->display->display_options['relationships']['flag_content_rel']['flag'] = 'trash';
+  $handler->display->display_options['relationships']['flag_content_rel']['user_scope'] = 'any';
   $handler->display->display_options['defaults']['fields'] = FALSE;
   /* Field: Content: Nid */
   $handler->display->display_options['fields']['nid']['id'] = 'nid';
@@ -966,6 +1020,23 @@ function oa_discussion_views_default_views() {
     3 => 0,
     4 => 0,
   );
+  /* Filter criterion: Flags: Flagged */
+  $handler->display->display_options['filters']['flagged']['id'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['table'] = 'flag_content';
+  $handler->display->display_options['filters']['flagged']['field'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['relationship'] = 'flag_content_rel';
+  $handler->display->display_options['filters']['flagged']['value'] = '0';
+  $handler->display->display_options['filters']['flagged']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['flagged']['expose']['operator_id'] = '';
+  $handler->display->display_options['filters']['flagged']['expose']['label'] = 'Include archived content';
+  $handler->display->display_options['filters']['flagged']['expose']['operator'] = 'flagged_op';
+  $handler->display->display_options['filters']['flagged']['expose']['identifier'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
   $handler->display->display_options['pane_category']['name'] = 'Open Atrium';
   $handler->display->display_options['pane_category']['weight'] = '0';
   $handler->display->display_options['allow']['use_pager'] = 'use_pager';
@@ -974,9 +1045,16 @@ function oa_discussion_views_default_views() {
   $handler->display->display_options['allow']['link_to_view'] = 0;
   $handler->display->display_options['allow']['more_link'] = 0;
   $handler->display->display_options['allow']['path_override'] = 0;
-  $handler->display->display_options['allow']['title_override'] = 0;
+  $handler->display->display_options['allow']['title_override'] = 'title_override';
   $handler->display->display_options['allow']['exposed_form'] = 'exposed_form';
+  $handler->display->display_options['allow']['exposed_form_configure'] = 0;
   $handler->display->display_options['allow']['fields_override'] = 0;
+  $handler->display->display_options['exposed_form_overrides'] = array(
+    'filters' => array(
+      'type' => '',
+      'flagged' => '',
+    ),
+  );
   $handler->display->display_options['argument_input'] = array(
     'uid' => array(
       'type' => 'context',
@@ -1045,6 +1123,14 @@ function oa_discussion_views_default_views() {
   $handler->display->display_options['relationships']['oa_section_ref_target_id']['id'] = 'oa_section_ref_target_id';
   $handler->display->display_options['relationships']['oa_section_ref_target_id']['table'] = 'field_data_oa_section_ref';
   $handler->display->display_options['relationships']['oa_section_ref_target_id']['field'] = 'oa_section_ref_target_id';
+  /* Relationship: Flags: trash */
+  $handler->display->display_options['relationships']['flag_content_rel']['id'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['table'] = 'node';
+  $handler->display->display_options['relationships']['flag_content_rel']['field'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['label'] = 'archived';
+  $handler->display->display_options['relationships']['flag_content_rel']['required'] = 0;
+  $handler->display->display_options['relationships']['flag_content_rel']['flag'] = 'trash';
+  $handler->display->display_options['relationships']['flag_content_rel']['user_scope'] = 'any';
   $handler->display->display_options['defaults']['fields'] = FALSE;
   /* Field: Content: Nid */
   $handler->display->display_options['fields']['nid']['id'] = 'nid';
@@ -1225,6 +1311,23 @@ function oa_discussion_views_default_views() {
     3 => 0,
     4 => 0,
   );
+  /* Filter criterion: Flags: Flagged */
+  $handler->display->display_options['filters']['flagged']['id'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['table'] = 'flag_content';
+  $handler->display->display_options['filters']['flagged']['field'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['relationship'] = 'flag_content_rel';
+  $handler->display->display_options['filters']['flagged']['value'] = '0';
+  $handler->display->display_options['filters']['flagged']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['flagged']['expose']['operator_id'] = '';
+  $handler->display->display_options['filters']['flagged']['expose']['label'] = 'Include archived content';
+  $handler->display->display_options['filters']['flagged']['expose']['operator'] = 'flagged_op';
+  $handler->display->display_options['filters']['flagged']['expose']['identifier'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
   $handler->display->display_options['pane_category']['name'] = 'Open Atrium';
   $handler->display->display_options['pane_category']['weight'] = '0';
   $handler->display->display_options['allow']['use_pager'] = 'use_pager';
@@ -1233,7 +1336,7 @@ function oa_discussion_views_default_views() {
   $handler->display->display_options['allow']['link_to_view'] = 0;
   $handler->display->display_options['allow']['more_link'] = 0;
   $handler->display->display_options['allow']['path_override'] = 0;
-  $handler->display->display_options['allow']['title_override'] = 0;
+  $handler->display->display_options['allow']['title_override'] = 'title_override';
   $handler->display->display_options['allow']['exposed_form'] = 'exposed_form';
   $handler->display->display_options['allow']['exposed_form_configure'] = 0;
   $handler->display->display_options['allow']['fields_override'] = 0;

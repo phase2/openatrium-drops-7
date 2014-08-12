@@ -135,11 +135,11 @@ function command_buttons_field_default_field_bases() {
     'entity_types' => array(),
     'field_name' => 'field_commands',
     'foreign keys' => array(
-      'node' => array(
+      'command_buttons' => array(
         'columns' => array(
-          'target_id' => 'nid',
+          'target_id' => 'bid',
         ),
-        'table' => 'node',
+        'table' => 'command_buttons',
       ),
     ),
     'indexes' => array(

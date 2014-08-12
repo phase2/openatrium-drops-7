@@ -1,10 +1,17 @@
 body,
 body.overlay {
   color: @text;
+  background-color:@bg;
 }
 .comment .comment-arrow {
   border-color: @bg;
 }
+
+#main-wrapper #main {
+  background-color:@contentareabg;
+  padding: 5px;
+}
+
 #page,
 #main-wrapper,
 #main-menu-links li a.active,
@@ -19,7 +26,7 @@ body.overlay {
   border-bottom: 1px solid @bg;
 }
 .form-actions {
-  background-color: @bg;
+  background-color: @contentareabg;
 }
 #header,
 .navbar-inner,
@@ -132,13 +139,13 @@ body #footer a {
   color: @titleslogan;
 }
 .oa-pane .pane-title {
-color: @sidebartext;
+color: @sidebarheadertext;
 background-color: @sidebar;
-background-image: -moz-linear-gradient(top, @sidebar, @sidebarbottom);
-background-image: -webkit-gradient(linear, 0 0, 0 100%, from(@sidebar), to(@sidebarbottom));
-background-image: -webkit-linear-gradient(top, @sidebar, @sidebarbottom);
-background-image: -o-linear-gradient(top, @sidebar, @sidebarbottom);
-background-image: linear-gradient(to bottom, @sidebar, @sidebarbottom);
+background-image: -moz-linear-gradient(top, @sidebartopbg, @sidebarbottombg);
+background-image: -webkit-gradient(linear, 0 0, 0 100%, from(@sidebartopbg), to(@sidebarbottombg));
+background-image: -webkit-linear-gradient(top, @sidebartopbg, @sidebarbottombg);
+background-image: -o-linear-gradient(top, @sidebartopbg, @sidebarbottombg);
+background-image: linear-gradient(to bottom, @sidebartopbg, @sidebarbottombg);
 }
 .oa-pane .panel-pane {
 color: @sidebartext;

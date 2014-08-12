@@ -117,7 +117,7 @@ function oa_discussion_reply_form($form, &$form_state, $node) {
 }
 
 /**
- * Submit handler for the Notifications Pane
+ * Submit handler for the Discussion Reply Form
  */
 function oa_discussion_reply_form_submit($form, &$form_state) {
   $node = $form['#node'];

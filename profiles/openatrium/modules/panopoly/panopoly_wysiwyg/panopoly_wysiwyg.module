@@ -122,157 +122,202 @@ function panopoly_wysiwyg_module_implements_alter(&$implementations, $hook) {
 }
 
 /**
+ * Modify the WYSIWYG editor settings for Panopoly improvements.
+ *
+ * This is meant to be called from hook_wysiwyg_editor_settings_alter().
+ *
+ * Panopoly will call it on all of it's formats (those starting with
+ * 'panopoly_*'), however, you can use it to apply Panopoly's customizations to
+ * your formats as well!
+ *
+ * For TinyMCE: this will change the editor skin, re-arrange the buttons,
+ * configure dialogs, and extend allowed markup for the Media module.
+ *
+ * For Markitup: it'll add additional styles and configure headers and lists.
+ *
+ * @param $settings
+ *   An associative array of JavaScript settings to pass to the editor.
+ * @param $context
+ *   An associative array containing additional context information:
+ *   - editor: The plugin definition array of the editor.
+ *   - profile: The editor profile object, as loaded from the database.
+ *   - theme: The name of the editor theme/skin.
+ *
+ * @see hook_wysiwyg_editor_settings_alter().
+ */
+function panopoly_wysiwyg_alter_wysiwyg_editor_settings(&$settings, $context) {
+  switch ($context['editor']['name']) {
+    case 'tinymce':
+      // Define the skin to use
+      $settings['skin'] = 'cirkuit';
+
+      // Define the spellchecking settings
+      $settings['spellchecker_languages'] = '+English=en';
+
+      // Process a default order for the WYSIWYG
+      $enabled_buttons = preg_split('/,/', $settings['theme_advanced_buttons1']);
+      $default_buttons = array('bold', 'italic', 'strikethrough', '|', 'bullist', 'numlist', 'blockquote', '|', 'justifyleft', 'justifycenter', 'justifyright', '|', 'linkit', 'unlink', 'break', '|', 'fullscreen', 'spellchecker', 'media', 'captionfilter', 'pdw_toggle', 'PAGEBREAK', 'formatselect', '|', 'underline', '|', 'justifyfull', '|', 'forecolor', '|', 'pastetext', 'pasteword', 'removeformat', '|', 'charmap', '|', 'outdent', 'indent', '|', 'undo', 'redo'); 
+      foreach ($default_buttons as $button) {
+        if (in_array($button, $enabled_buttons)) {
+          unset($enabled_buttons[array_search($button, $enabled_buttons)]);
+        }
+        elseif ($button != '|' && $button != 'PAGEBREAK') {
+          unset($default_buttons[array_search($button, $default_buttons)]);
+        }
+      }
+
+      // Define the final button row settings
+      $default_buttons_list = preg_split('/,PAGEBREAK,/', implode(',', $default_buttons));
+      $settings['theme_advanced_buttons1'] = $default_buttons_list[0];
+      $settings['theme_advanced_buttons2'] = $default_buttons_list[1];
+      $settings['theme_advanced_buttons3'] = (count($enabled_buttons) > 0) ? implode(',', $enabled_buttons) : NULL;
+
+      // Define PDW Plugin Settings
+      $settings['pdw_toggle_on'] = '1'; 
+      $settings['pdw_toggle_toolbars'] = (count($enabled_buttons) > 0) ? '2,3' : '2';
+
+      // Enable the inlinepopups and modal settings
+      $settings['plugins'] .= ',inlinepopups';
+      $settings['dialog_type'] = 'modal';
+
+      // Allow extra elements for Media module
+      // See - http://drupal.org/node/1835826
+      if (empty($settings['extended_valid_elements'])) {
+        $settings['extended_valid_elements'] = 'img[!src|title|alt|style|width|height|class|hspace|vspace|view_mode|format|fid]';
+      }
+      else {
+        $settings['extended_valid_elements'] = array_merge(explode(',', $settings['extended_valid_elements']), array('img[!src|title|alt|style|width|height|class|hspace|vspace|view_mode|format|fid]'));
+
+        // When adding new elements to $settings['extended_valid_elements'], make sure
+        // that we're merging, and not overwriting.
+        $settings_array = array();
+        foreach($settings['extended_valid_elements'] as $tag) {
+          list($tag, $allowed_attributes) = explode('[', $tag);
+          $allowed_attributes = explode('|', trim($allowed_attributes, ']'));
+          foreach($allowed_attributes as $key => $attribute) {
+            $settings_array[$tag][$attribute] = $attribute;
+          }
+        }
+        $valid_elements = array();
+        foreach ($settings_array as $tag => $allowed_attributes) {
+          $attributes = in_array('*', $allowed_attributes) ? '*' : implode('|', $allowed_attributes);
+          $valid_elements[] = $tag . '[' . $attributes . ']';
+        }
+        $settings['extended_valid_elements'] = implode(',', $valid_elements);
+      }
+      break;
+
+    case 'markitup':
+      // Load the appropriate CSS and JS
+      drupal_add_css($context['editor']['library path'] . '/markitup/sets/html/style.css'); 
+      drupal_add_js($context['editor']['library path'] . '/markitup/sets/html/set.js');
+
+      // Define the new header buttons
+      $header_buttons = array(
+        'header-begin' => array(
+          'className' => 'markItUpSeparator',
+        ),
+        'h1' => array(
+          'name' => t('Heading 1'),
+          'className' => 'markitup-h1',
+          'key' => '1',
+          'openWith' => '<h1(!( class="[![Class]!]")!)>',
+          'closeWith' => '</h1>',
+          'placeHolder' => 'Your title here...',
+        ),
+        'h2' => array(
+          'name' => t('Heading 2'),
+          'className' => 'markitup-h2',
+          'key' => '2',
+          'openWith' => '<h2(!( class="[![Class]!]")!)>',
+          'closeWith' => '</h2>',
+          'placeHolder' => 'Your title here...',
+        ),
+        'h3' => array(
+          'name' => t('Heading 3'),
+          'className' => 'markitup-h3',
+          'key' => '3',
+          'openWith' => '<h3(!( class="[![Class]!]")!)>',
+          'closeWith' => '</h3>',
+          'placeHolder' => 'Your title here...',
+        ),
+        'h4' => array(
+          'name' => t('Heading 4'),
+          'className' => 'markitup-h4',
+          'key' => '4',
+          'openWith' => '<h4(!( class="[![Class]!]")!)>',
+          'closeWith' => '</h4>',
+          'placeHolder' => 'Your title here...',
+        ),
+        'paragraph' => array(
+          'name' => t('Paragraph'),
+          'className' => 'markitup-paragraph',
+          'key' => 'p',
+          'openWith' => '<p(!( class="[![Class]!]")!)>',
+          'closeWith' => '</p>',
+        ),
+        'header-end' => array(
+          'className' => 'markItUpSeparator',
+        ),
+      );
+
+      // Define the list styles
+      $list_styles = array(
+        'list-bullet' => array(
+          'name' => t('Unordered List'),
+          'className' => 'markitup-list-bullet',
+          'openWith' => "<ul>\n",
+          'closeWith' => '</ul>',
+        ),
+        'list-numeric' => array(
+          'name' => t('Ordered List'),
+          'className' => 'markitup-list-numeric',
+          'openWith' => "<ol>\n",
+          'closeWith' => '</ol>',
+        ),
+      );
+
+      // Add the header buttons to the end
+      foreach ($header_buttons as $tag => $details) {
+        $settings['markupSet'][$tag] = $details;
+        $context['profile']->settings['buttons']['html'][$tag] = 1;
+      }
+
+      // Add the list styles to the end
+      foreach ($list_styles as $tag => $details) {
+        $settings['markupSet'][$tag] = $details;
+        $context['profile']->settings['buttons']['html'][$tag] = 1;
+      }
+      break;
+  }
+}
+
+/**
  * Implementation of hook_wysiwyg_editor_settings_alter()
+ *
+ * @see panopoly_wysiwyg_alter_wysiwyg_editor_settings().
  */
 function panopoly_wysiwyg_wysiwyg_editor_settings_alter(&$settings, $context) {
-
   // Only work the magic on the Panopoly profiles
   if (strpos($context['profile']->format, 'panopoly_') === 0) {
-
-    switch ($context['editor']['name']) {
-      case 'tinymce':
-
-        // Define the skin to use
-        $settings['skin'] = 'cirkuit';
-
-        // Define the spellchecking settings
-        $settings['spellchecker_languages'] = '+English=en';
-
-        // Process a default order for the WYSIWYG
-        $enabled_buttons = preg_split('/,/', $settings['theme_advanced_buttons1']);
-        $default_buttons = array('bold', 'italic', 'strikethrough', '|', 'bullist', 'numlist', 'blockquote', '|', 'justifyleft', 'justifycenter', 'justifyright', '|', 'linkit', 'unlink', 'break', '|', 'fullscreen', 'spellchecker', 'media', 'captionfilter', 'pdw_toggle', 'PAGEBREAK', 'formatselect', '|', 'underline', '|', 'justifyfull', '|', 'forecolor', '|', 'pastetext', 'pasteword', 'removeformat', '|', 'charmap', '|', 'indent', 'outdent', '|', 'undo', 'redo'); 
-        foreach ($default_buttons as $button) {
-          if (in_array($button, $enabled_buttons)) {
-            unset($enabled_buttons[array_search($button, $enabled_buttons)]);
-          }
-          elseif ($button != '|' && $button != 'PAGEBREAK') {
-            unset($default_buttons[array_search($button, $default_buttons)]);
-          }
-        }
-
-        // Define the final button row settings
-        $default_buttons_list = preg_split('/,PAGEBREAK,/', implode(',', $default_buttons));
-        $settings['theme_advanced_buttons1'] = $default_buttons_list[0];
-        $settings['theme_advanced_buttons2'] = $default_buttons_list[1];
-        $settings['theme_advanced_buttons3'] = (count($enabled_buttons) > 0) ? implode(',', $enabled_buttons) : NULL;
-
-        // Define PDW Plugin Settings
-        $settings['pdw_toggle_on'] = '1'; 
-        $settings['pdw_toggle_toolbars'] = (count($enabled_buttons) > 0) ? '2,3' : '2';
-
-        // Enable the inlinepopups and modal settings
-        $settings['plugins'] .= ',inlinepopups';
-        $settings['dialog_type'] = 'modal';
-
-        // Allow extra elements for Media module
-        // See - http://drupal.org/node/1835826
-        if (empty($settings['extended_valid_elements'])) {
-          $settings['extended_valid_elements'] = 'img[!src|title|alt|style|width|height|class|hspace|vspace|view_mode|format|fid]';
-        }
-        else {
-          $settings['extended_valid_elements'] = array_merge(explode(',', $settings['extended_valid_elements']), array('img[!src|title|alt|style|width|height|class|hspace|vspace|view_mode|format|fid]'));
-
-          // When adding new elements to $settings['extended_valid_elements'], make sure
-          // that we're merging, and not overwriting.
-          $settings_array = array();
-          foreach($settings['extended_valid_elements'] as $tag) {
-            list($tag, $allowed_attributes) = explode('[', $tag);
-            $allowed_attributes = explode('|', trim($allowed_attributes, ']'));
-            foreach($allowed_attributes as $key => $attribute) {
-              $settings_array[$tag][$attribute] = $attribute;
-            }
-          }
-          $valid_elements = array();
-          foreach ($settings_array as $tag => $allowed_attributes) {
-            $attributes = in_array('*', $allowed_attributes) ? '*' : implode('|', $allowed_attributes);
-            $valid_elements[] = $tag . '[' . $attributes . ']';
-          }
-          $settings['extended_valid_elements'] = implode(',', $valid_elements);
-        }
-        break;
-      case 'markitup':
-
-        // Load the appropriate CSS and JS
-        drupal_add_css($context['editor']['library path'] . '/markitup/sets/html/style.css'); 
-        drupal_add_js($context['editor']['library path'] . '/markitup/sets/html/set.js');
-
-        // Defin the new header buttons
-        $header_buttons = array(
-          'header-begin' => array(
-            'className' => 'markItUpSeparator',
-          ),
-          'h1' => array(
-            'name' => t('Heading 1'),
-            'className' => 'markitup-h1',
-            'key' => '1',
-            'openWith' => '<h1(!( class="[![Class]!]")!)>',
-            'closeWith' => '</h1>',
-            'placeHolder' => 'Your title here...',
-          ),
-          'h2' => array(
-            'name' => t('Heading 2'),
-            'className' => 'markitup-h2',
-            'key' => '2',
-            'openWith' => '<h2(!( class="[![Class]!]")!)>',
-            'closeWith' => '</h2>',
-            'placeHolder' => 'Your title here...',
-          ),
-          'h3' => array(
-            'name' => t('Heading 3'),
-            'className' => 'markitup-h3',
-            'key' => '3',
-            'openWith' => '<h3(!( class="[![Class]!]")!)>',
-            'closeWith' => '</h3>',
-            'placeHolder' => 'Your title here...',
-          ),
-          'h4' => array(
-            'name' => t('Heading 4'),
-            'className' => 'markitup-h4',
-            'key' => '4',
-            'openWith' => '<h4(!( class="[![Class]!]")!)>',
-            'closeWith' => '</h4>',
-            'placeHolder' => 'Your title here...',
-          ),
-          'paragraph' => array(
-            'name' => t('Paragraph'),
-            'className' => 'markitup-paragraph',
-            'key' => 'p',
-            'openWith' => '<p(!( class="[![Class]!]")!)>',
-            'closeWith' => '</p>',
-          ),
-          'header-end' => array(
-            'className' => 'markItUpSeparator',
-          ),
-          );
-
-        // Define the list styles
-        $list_styles = array(
-          'list-bullet' => array(
-            'name' => t('Unordered List'),
-            'className' => 'markitup-list-bullet',
-            'openWith' => "<ul>\n",
-            'closeWith' => '</ul>',
-          ),
-          'list-numeric' => array(
-            'name' => t('Ordered List'),
-            'className' => 'markitup-list-numeric',
-            'openWith' => "<ol>\n",
-            'closeWith' => '</ol>',
-          ),
-        );
-
-        // Add the header buttons to the end
-        foreach ($header_buttons as $tag => $details) {
-          $settings['markupSet'][$tag] = $details;
-          $context['profile']->settings['buttons']['html'][$tag] = 1;
-        }
-
-        // Add the list styles to the end
-        foreach ($list_styles as $tag => $details) {
-          $settings['markupSet'][$tag] = $details;
-          $context['profile']->settings['buttons']['html'][$tag] = 1;
-        }
-        break;
+    panopoly_wysiwyg_alter_wysiwyg_editor_settings($settings, $context);
+  }
+  else {
+    // However, the 'pdw' or 'Kitchen Sink' plugin (which we've made available)
+    // requires some extra configuration or it'll break. So, we'll set this up
+    // to prevent user text formats from breaking (see issue #1846322).
+    if (!isset($settings['pdw_toggle_on'])) {
+      $settings['pdw_toggle_on'] = '1'; 
+    }
+    if (!isset($settings['pdw_toggle_toolbars'])) {
+      $toolbars = array();
+      if (!empty($settings['theme_advanced_buttons2'])) {
+        $toolbars[] = '2';
+      }
+      if (!empty($settings['theme_advanced_buttons3'])) {
+        $toolbars[] = '3';
+      }
+      $settings['pdw_toggle_toolbars'] = implode(',', $toolbars);
     }
   }
 }

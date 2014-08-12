@@ -1,3 +1,23 @@
+Panopoly Widgets 7.x-1.10, 2014-08-06
+------------------------------
+- No changes since last release.
+
+Panopoly Widgets 7.x-1.9, 2014-07-31
+------------------------------
+- No changes since last release.
+
+Panopoly Widgets 7.x-1.8, 2014-07-25
+------------------------------
+- Fixed Alt and Title double encoded in WYSIWYG.
+- Fixed When inserting Image in WYSIWYG, the second set of alt/title fields is ignored. (take two).
+- Fixed When inserting Image in WYSIWYG, the second set of alt/title fields is ignored.
+
+Panopoly Widgets 7.x-1.7, 2014-07-16
+------------------------------
+- Move panopoly_page's hook_menu_block_tree_alter() to panopoly_widgets.
+- Fixed 'file_display' components are always overridden (update Media / File Entity).
+- Fixed Accessibility issues for link markup on Add Content overlay.
+
 Panopoly Widgets 7.x-1.6, 2014-05-22
 ------------------------------
 - Could not find "Fixed parent item" when adding Menu Block.

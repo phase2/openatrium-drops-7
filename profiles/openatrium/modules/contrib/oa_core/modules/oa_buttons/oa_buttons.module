@@ -6,6 +6,8 @@
 
 include_once 'oa_buttons.features.inc';
 
+define('OA_BUTTONS_CLEAR_CACHE_ALL', 0);
+
 /**
  * Implements hook_ctools_plugin_directory
  */
@@ -35,9 +37,10 @@ function oa_buttons_form_oa_space_node_form_alter(&$form, &$form_state, $form_id
 function oa_buttons_node_overrides(&$form, &$form_state, $form_id) {
   $node_type_options = oa_buttons_get_node_type_options();
   $form['field_oa_node_types'][$form['field_oa_node_types']['#language']]['#options'] = $node_type_options;
-   $node_options = field_get_items('node', $form['#node'], 'field_oa_node_types', LANGUAGE_NONE);
+  $node_options = field_get_items('node', $form['#node'], 'field_oa_node_types', LANGUAGE_NONE);
 
   if (!empty($node_options)) {
+    $node_options_defaults = array();
     foreach ($node_options as $opt) {
       $node_options_defaults[] = $opt['value'];
     }
@@ -98,8 +101,6 @@ function oa_buttons_form_taxonomy_form_term_alter(&$form, &$form_state, $form_id
  * Returns an option list of buttons in the node_add bundle..
  */
 function oa_buttons_get_node_type_options() {
-  $node_type_options = array();
-
   $node_type_options = array();
   $result = db_select('command_buttons', 'b')
     ->fields('b', array('name', 'title'));
@@ -181,7 +182,7 @@ function _oa_buttons_get_parent_command_buttons($node, &$buttons) {
     return;
   }
 
-  $file = module_load_include('inc', 'og_subgroups', 'og_subgroups.common');
+  module_load_include('inc', 'og_subgroups', 'og_subgroups.common');
 
   // Now get options set from parent spaces.
   $parent_nids = og_subgroups_parents_load('node', $node->nid, FALSE);
@@ -309,10 +310,19 @@ function oa_buttons_get_default_terms() {
   return $terms;
 }
 
+/**
+ * Helper to return a permission for oa_button for given vocabulary and term
+ * @param $machine_name
+ * @param $tid
+ * @return string
+ */
 function _oa_buttons_perm_name($machine_name, $tid) {
   return 'use oa button ' . $machine_name . ' for ' . $tid . ' term';
 }
 
+/**
+ * Implements hook_og_permission().
+ */
 function oa_buttons_og_permission() {
   $perms = array();
   if (module_exists('oa_subspaces') && ($vocabulary = oa_core_taxonomy_vocabulary('space_type')) && ($terms = taxonomy_get_tree($vocabulary->vid, 0))) {
@@ -351,6 +361,8 @@ function oa_buttons_og_permission() {
 function oa_buttons_create_term($taxonomy, $name, $description, $node_options, $layout, $update = FALSE) {
 
   $vocab = oa_core_taxonomy_vocabulary($taxonomy);
+  $term = NULL;
+
   // Make sure the Taxonomy is available.
   if (!$vocab) {
     features_revert(array(
@@ -412,8 +424,12 @@ function oa_buttons_create_term($taxonomy, $name, $description, $node_options, $
  * Implements hook_node_insert().
  */
 function oa_buttons_node_insert($node) {
-  if ($node->type == 'oa_space' || $node->type == 'oa_section') {
-    oa_buttons_clear_section_button_cache();
+  if ($node->type == OA_SPACE_TYPE) {
+    oa_buttons_clear_section_button_cache(OA_BUTTONS_CLEAR_CACHE_ALL);
+  }
+  elseif ($node->type == OA_SECTION_TYPE) {
+    $gid = (!empty($node->{OG_AUDIENCE_FIELD}[LANGUAGE_NONE][0]['target_id'])) ? $node->{OG_AUDIENCE_FIELD}[LANGUAGE_NONE][0]['target_id'] : OA_BUTTONS_CLEAR_CACHE_ALL;
+    oa_buttons_clear_section_button_cache($gid);
   }
 }
 
@@ -421,8 +437,12 @@ function oa_buttons_node_insert($node) {
  * Implements hook_node_update().
  */
 function oa_buttons_node_update($node) {
-  if ($node->type == 'oa_space' || $node->type == 'oa_section') {
-    oa_buttons_clear_section_button_cache();
+  if ($node->type == OA_SPACE_TYPE) {
+    oa_buttons_clear_section_button_cache($node->nid);
+  }
+  elseif ($node->type == OA_SECTION_TYPE) {
+    $gid = (!empty($node->{OG_AUDIENCE_FIELD}[LANGUAGE_NONE][0]['target_id'])) ? $node->{OG_AUDIENCE_FIELD}[LANGUAGE_NONE][0]['target_id'] : OA_BUTTONS_CLEAR_CACHE_ALL;
+    oa_buttons_clear_section_button_cache($gid);
   }
 }
 
@@ -453,31 +473,34 @@ function oa_buttons_og_membership_delete($og_membership) {
   }
 }
 
+/**
+ * Clear the button cache for the given group
+ * @param null $gid.  If NULL, use current space context.  If 0, clear all groups
+ */
 function oa_buttons_clear_section_button_cache($gid = NULL) {
-  global $user;
-
-  if (empty($gid)) {
-    $context = og_context();
-
-    if (!empty($context['gid'])) {
-      $gid = $context['gid'];
-    }
+  if (!isset($gid)) {
+    $gid = oa_core_get_space_context();
   }
 
+  $cache_name = 'oa_section_buttons:';
+  $bin = 'cache_oa_section_buttons';
   if (!empty($gid)) {
-    $cache_key = 'oa_section_buttons:' . $context['gid'];
-    cache_clear_all($cache_key, 'cache_oa_section_buttons', TRUE);
+    $cache_key = $cache_name . $gid;
+    cache_clear_all($cache_key, $bin, TRUE);
 
     if (module_exists('og_subgroups')) {
       // Clear button cache for any associated subgroups as well.
       $subgroups = og_subgroups_children_load('node', $gid, TRUE, FALSE);
       if (!empty($subgroups['node'])) {
         foreach ($subgroups['node'] as $nid) {
-          $cache_key = 'oa_section_buttons:' . $nid;
-          cache_clear_all($cache_key, 'cache_oa_section_buttons', TRUE);
+          $cache_key = $cache_name . $nid;
+          cache_clear_all($cache_key, $bin, TRUE);
         }
       }
     }
+  }
+  else {
+    cache_clear_all($cache_name, $bin, TRUE);
   }
 }
 

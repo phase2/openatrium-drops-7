@@ -25,7 +25,9 @@ abstract class oa_coreBaseWebTest extends SimpleTestCloneTestCase {
 
   protected function createNodeInOaSpace($space, $node_info) {
     $node_info['og_group_ref'][LANGUAGE_NONE][0]['target_id'] = $space->nid;
-    return $this->drupalCreateNode($node_info);
+    $node = $this->drupalCreateNode($node_info);
+    og_group('node', $space, array('entity' => $node));
+    return $node;
   }
 
   protected function createOaSpaceAndUsers($space_info = array()) {

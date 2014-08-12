@@ -122,6 +122,14 @@ function oa_sections_views_default_views() {
   $handler->display->display_options['relationships']['og_membership_rel']['id'] = 'og_membership_rel';
   $handler->display->display_options['relationships']['og_membership_rel']['table'] = 'node';
   $handler->display->display_options['relationships']['og_membership_rel']['field'] = 'og_membership_rel';
+  /* Relationship: Flags: trash */
+  $handler->display->display_options['relationships']['flag_content_rel']['id'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['table'] = 'node';
+  $handler->display->display_options['relationships']['flag_content_rel']['field'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['label'] = 'archived';
+  $handler->display->display_options['relationships']['flag_content_rel']['required'] = 0;
+  $handler->display->display_options['relationships']['flag_content_rel']['flag'] = 'trash';
+  $handler->display->display_options['relationships']['flag_content_rel']['user_scope'] = 'any';
   /* Field: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
@@ -161,6 +169,23 @@ function oa_sections_views_default_views() {
   $handler->display->display_options['filters']['type']['value'] = array(
     'oa_section' => 'oa_section',
   );
+  /* Filter criterion: Flags: Flagged */
+  $handler->display->display_options['filters']['flagged']['id'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['table'] = 'flag_content';
+  $handler->display->display_options['filters']['flagged']['field'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['relationship'] = 'flag_content_rel';
+  $handler->display->display_options['filters']['flagged']['value'] = '0';
+  $handler->display->display_options['filters']['flagged']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['flagged']['expose']['operator_id'] = '';
+  $handler->display->display_options['filters']['flagged']['expose']['label'] = 'Include archived content';
+  $handler->display->display_options['filters']['flagged']['expose']['operator'] = 'flagged_op';
+  $handler->display->display_options['filters']['flagged']['expose']['identifier'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
 
   /* Display: Section Pages within Spaces */
   $handler = $view->new_display('panel_pane', 'Section Pages within Spaces', 'section_pages_within_spaces');
@@ -175,8 +200,14 @@ function oa_sections_views_default_views() {
   $handler->display->display_options['allow']['more_link'] = 'more_link';
   $handler->display->display_options['allow']['path_override'] = 0;
   $handler->display->display_options['allow']['title_override'] = 'title_override';
-  $handler->display->display_options['allow']['exposed_form'] = 0;
+  $handler->display->display_options['allow']['exposed_form'] = 'exposed_form';
+  $handler->display->display_options['allow']['exposed_form_configure'] = 0;
   $handler->display->display_options['allow']['fields_override'] = 'fields_override';
+  $handler->display->display_options['exposed_form_overrides'] = array(
+    'filters' => array(
+      'flagged' => '',
+    ),
+  );
   $handler->display->display_options['argument_input'] = array(
     'gid' => array(
       'type' => 'context',

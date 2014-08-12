@@ -119,7 +119,7 @@ function oa_worktracker_comment_insert($comment) {
       }
     }
 
-    $message = oa_messages_create('oa_worktracker_task_update', $comment->nid, 'node', '', array('comment' => $comment));
+    $message = oa_messages_create('oa_worktracker_task_update', $comment->nid, 'node', '', array('comment' => $comment), $comment->uid);
   }
 }
 

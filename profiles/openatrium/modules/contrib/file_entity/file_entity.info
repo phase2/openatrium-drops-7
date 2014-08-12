@@ -10,6 +10,7 @@ files[] = views/views_handler_argument_file_type.inc
 files[] = views/views_handler_field_file_rendered.inc
 files[] = views/views_handler_field_file_type.inc
 files[] = views/views_handler_filter_file_type.inc
+files[] = views/views_handler_filter_schema_type.inc
 files[] = views/views_handler_field_file_filename.inc
 files[] = views/views_handler_field_file_link.inc
 files[] = views/views_handler_field_file_link_edit.inc
@@ -25,9 +26,9 @@ configure = admin/config/media/file-settings
 version = 7.x-2.x-dev
 
 
-; Information added by drush on 2014-05-30
-version = "7.x-2.0-alpha3+14-dev"
+; Information added by drush on 2014-08-12
+version = "7.x-2.0-alpha3+29-dev"
 core = "7.x"
 project = "file_entity"
-datestamp = "1401469541"
+datestamp = "1407848726"
 

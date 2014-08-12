@@ -66,10 +66,25 @@ function oa_tour_bootstrap_tour_presave_alter(&$tour, &$vals) {
 
 /**
  * Implements hook_bootstrap_tour_alter().
- * Dig into steps with "firstnode/<nodetype>/<tourname>" paths and alter them so that they either point to the first
- * node of a specific type if one exists, or the node add form of that type if not.
+ *
+ * Dig into steps with special paths and alter them so that they either point
+ * to the first node of a specific type if one exists, or the node add form of
+ * that type if not.
+ * 
+ * Also, modify steps that need to add an oa_space to go directly to the the
+ * first Space Blueprint, so that it doesn't break the tour.
  */
 function oa_tour_bootstrap_tour_alter(&$tour) {
+  global $user;
+
+  $space_vocab = taxonomy_vocabulary_machine_name_load('space_type');
+  $section_vocab = taxonomy_vocabulary_machine_name_load('section_type');
+  if (empty($space_vocab) || empty($section_vocab)) {
+    return;
+  }
+  $space_blueprints = taxonomy_get_tree($space_vocab->vid, 0, 1);
+  $section_types = taxonomy_get_tree($section_vocab->vid, 0, 1);
+
   if (empty($tour) || empty($tour->steps)) {
     return;
   }
@@ -77,26 +92,80 @@ function oa_tour_bootstrap_tour_alter(&$tour) {
     if (empty($step['path'])) {
       continue;
     }
+
     $path_parts = explode('/', $step['path']);
-    if ($path_parts[0] == 'firstnode' && count($path_parts) > 1) {
-      $node_type = $path_parts[1];
-      $nid = db_select('node', 'n')
-        ->fields('n', array('nid'))
-        ->condition('type', $node_type)
-        ->orderBy('nid', 'DESC')
-        ->range(0,1)
-        ->execute()
-        ->fetchField();
+    if (in_array($path_parts[0], array('firstnode', 'mynode')) && count($path_parts) > 1) {
+      // Special step path: firstnode/<node_type>/<node_add_tour>
+      //
+      // Examples:
+      //   firstnode/oa_space/spaces
+      //   firstnode/oa_space
+      if ($path_parts[0] == 'firstnode') {
+        $node_type = $path_parts[1];
+        $node_add_tour = count($path_parts) > 2 ? $path_parts[2] : NULL;
+        $redirect_path = NULL;
+        $nid = db_select('node', 'n')
+          ->fields('n', array('nid'))
+          ->condition('type', $node_type)
+          ->orderBy('nid', 'DESC')
+          ->range(0,1)
+          ->execute()
+          ->fetchField();
+      }
+      // Special step path: mynode/<node_type>:<node_add_tour>/<path>
+      //
+      // Examples:
+      //   mynode/oa_space/group
+      //   mynode/oa_space/admin/appearance
+      //   mynode/oa_space:spaces
+      //   mynode/oa_space:spaces/group
+      elseif ($path_parts[0] == 'mynode') {
+        // Get the optional path to redirect to.
+        $redirect_path = count($path_parts) > 2 ? implode('/', array_slice($path_parts, 2)) : NULL;
+
+        // The node type can optionally list a tour (after a colon) to use when
+        // adding that node type, if none exists, for example: oa_space:spaces.
+        $node_type_parts = explode(':', $path_parts[1]);
+        $node_type = $node_type_parts[0];
+        $node_add_tour = count($node_type_parts) > 1 ? $node_type_parts[1] : NULL;
+
+        $nid = db_select('node', 'n')
+          ->fields('n', array('nid'))
+          ->condition('type', $node_type)
+          ->condition('uid', $user->uid)
+          ->orderBy('nid', 'DESC')
+          ->range(0,1)
+          ->execute()
+          ->fetchField();
+      }
+
       if (empty($nid)) {
-        // No nodes exist yet so let's send them to the node add form.
-        $tour->steps[$key]['path'] = 'node/add/' . str_replace('_', '-', $node_type) . '?nexttour=' . $tour->name;
-        if (!empty($path_parts[2])) {
-          // If the URL has a 3rd part, that's the name of the tour to run on the node add form.
-          $tour->steps[$key]['path'] .= '&tour=' . $path_parts[2];
+        $node_add_path = 'node/add/' . str_replace('_', '-', $node_type);
+        if ($node_type == 'oa_space') {
+          $node_add_path .= '/' . $space_blueprints[0]->tid;
         }
-      } else {
+        $node_add_path .= '?nexttour=' . $tour->name;
+
+        // No nodes exist yet so let's send them to the node add form.
+        $tour->steps[$key]['path'] = $node_add_path;
+        if (!empty($node_add_tour)) {
+          // If the URL has a 3rd part, that's the name of the tour to run on the node add form.
+          $tour->steps[$key]['path'] .= '&tour=' . $node_add_tour;
+        }
+      }
+      else {
         // A node does exist, so go ahead and make that the next step.
-        $tour->steps[$key]['path'] = drupal_get_path_alias('node/' . $nid);
+        if (!empty($redirect_path) && strpos($redirect_path, '%') !== FALSE) {
+          $node_path = str_replace('%', $nid, $redirect_path);
+        }
+        else {
+          $node_path = 'node/' . $nid;
+          if (!empty($redirect_path)) {
+            $node_path .= '/' . $path_parts[2];
+          }
+        }
+        $tour->steps[$key]['path'] = drupal_get_path_alias($node_path);
+
         if (!empty($_SESSION['nexttour']) && $_SESSION['nexttour'] == $tour->name) {
           for ($i = 0; $i < $key; $i++) {
             unset($tour->steps[$i]);
@@ -104,6 +173,14 @@ function oa_tour_bootstrap_tour_alter(&$tour) {
           $tour->steps = array_values($tour->steps);
         }
       }
+    }
+    elseif ($step['path'] == 'node/add/oa-space') {
+      // Redirect straight to the first Space Blueprint.
+      $tour->steps[$key]['path'] .= '/' . $space_blueprints[0]->tid;
+    }
+    elseif ($step['path'] == 'node/add/oa-section') {
+      // Redirect straight to the first Section Type.
+      $tour->steps[$key]['path'] .= '/' . $section_types[0]->tid;
     }
   }
 }

@@ -269,7 +269,7 @@ function oa_messages_comment_insert($comment) {
     // only create messages for node types we care about
     return;
   }
-  $message = oa_messages_create('oa_comment', $comment->nid, 'node', '', $comment->cid);
+  $message = oa_messages_create('oa_comment', $comment->nid, 'node', '', $comment->cid, $comment->uid);
 }
 
 /**
@@ -400,11 +400,15 @@ function theme_oa_team_update($vars) {
   // convert values of field into a simple array of uids
   $old = array();
   $new = array();
-  foreach ($old_users as $item) {
-    $old[] = $item['target_id'];
+  if (is_array($old_users)) {
+    foreach ($old_users as $item) {
+      $old[] = $item['target_id'];
+    }
   }
-  foreach ($new_users as $item) {
-    $new[] = $item['target_id'];
+  if (is_array($new_users)) {
+    foreach ($new_users as $item) {
+      $new[] = $item['target_id'];
+    }
   }
 
   // grab all user's real names

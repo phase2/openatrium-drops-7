@@ -30,9 +30,9 @@ features[variable][] = field_bundle_settings_message__example_user_register
 features[views_view][] = message_example
 
 
-; Information added by drush on 2014-05-30
-version = "7.x-1.9+1-dev"
+; Information added by drush on 2014-08-12
+version = "7.x-1.9+3-dev"
 core = "7.x"
 project = "message"
-datestamp = "1401469541"
+datestamp = "1407848749"
 

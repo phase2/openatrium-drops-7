@@ -73,6 +73,31 @@ class OgSubspacesSelectionHandler extends EntityReference_SelectionHandler_Gener
   }
 
   /**
+   * Implements EntityReferenceHandler::getReferencableEntities().
+   */
+  public function getReferencableEntities($match = NULL, $match_operator = 'CONTAINS', $limit = 0) {
+    $options = array();
+    $entity_type = $this->field['settings']['target_type'];
+
+    $query = $this->buildEntityFieldQuery($match, $match_operator);
+    if ($limit > 0) {
+      $query->range(0, $limit);
+    }
+    $results = $query->execute();
+
+    if (!empty($results[$entity_type])) {
+      // call the OA helper function to get the title of nodes quickly
+      $titles = oa_core_get_titles(array_keys($results[$entity_type]), '', '', array('id', 'title', 'type'));
+      if (!empty($titles['titles'])) {
+        foreach ($titles['titles'] as $key => $title) {
+          $options[$titles['types'][$key]][$titles['ids'][$key]] = $title;
+        }
+      }
+    }
+    return $options;
+  }
+
+  /**
    * Build an EntityFieldQuery to get referencable entities.
    */
   public function buildEntityFieldQuery($match = NULL, $match_operator = 'CONTAINS') {

@@ -104,15 +104,14 @@ features[field_instance][] = fieldable_panels_pane-video-field_video_file
 features[file_display][] = video__default__media_youtube_image
 features[file_display][] = video__default__media_youtube_video
 features[file_display][] = video__link__file_field_file_default
-features[file_display][] = video__preview__file_field_media_large_icon
 features[file_display][] = video__preview__media_youtube_image
 features[file_display][] = video__teaser__media_youtube_image
 features[file_display][] = video__teaser__media_youtube_video
 features[views_view][] = panopoly_widgets_general_content
 
-; Information added by Drupal.org packaging script on 2014-05-22
-version = "7.x-1.6"
+; Information added by Drupal.org packaging script on 2014-08-06
+version = "7.x-1.10"
 core = "7.x"
 project = "panopoly_widgets"
-datestamp = "1400718538"
+datestamp = "1407362958"
 

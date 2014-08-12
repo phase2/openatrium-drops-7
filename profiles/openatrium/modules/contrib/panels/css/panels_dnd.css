@@ -378,13 +378,18 @@ a.close img {
   border: 2px solid blue;
 }
 
-.content-type-button div {
+.content-type-button div,
+.content-type-button span {
   width: 85%;
   top: -5px;
   left: 2px;
   float: left;
   padding-left: 3px;
   padding-top: 5px;
+}
+
+.content-type-button span {
+  display: block;
 }
 
 #panels-preview .modal-throbber-wrapper {

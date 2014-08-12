@@ -725,11 +725,14 @@ function panopoly_magic_form_views_content_views_panes_content_type_edit_form_al
   // Determine if this is a fielded view. If so, add magic display type changer
   $view_handler = $form_state['view']->display_handler;
   if ($view_handler->options['row_plugin'] == 'fields') {
-
-    // Default to a field view
+    // Set to default view settings if there isn't one.
     if (empty($conf['view_settings'])) {
       $conf['view_settings'] = 'fields';
     }
+
+    // Deal with legacy 'nodes' and others (such as 'files') view settings so
+    // that other entity types can be included.
+    $conf['view_settings'] = panopoly_magic_convert_view_settings($conf['view_settings']);
 
     // Add information about the View Mode
     $form['display_settings']['view_settings'] = array(
@@ -740,7 +743,7 @@ function panopoly_magic_form_views_content_views_panes_content_type_edit_form_al
       '#weight' => 10,
       '#options' => array(
         'fields' => t('Fields'),
-        'nodes' => t('Content'),
+        'rendered_entity' => t('Content'),
         'table' => t('Table'),
       ),
     );
@@ -767,19 +770,27 @@ function panopoly_magic_form_views_content_views_panes_content_type_edit_form_al
       // The inverted logic here isn't optimal, and in the future may be better achieved via OR'd conditions.
       // @link http://drupal.org/node/735528 @endlink
       'invisible' => array(
-        ':input[name="view_settings"]' => array('value' => 'nodes'), 
+        ':input[name="view_settings"]' => array('value' => 'rendered_entity'),
       ),
     );
+  }
+
+  // Get view modes for entity
+  $view_modes = panopoly_magic_view_mode_options(panopoly_magic_get_entity_type($form_state['view']));
+
+  $options_default_view_mode = 'teaser';
+  if(!array_key_exists($options_default_view_mode, $view_modes)){
+    $options_default_view_mode = current(array_keys($view_modes));
   }
 
   // Add specific style options.
   $form['content_settings']['view_mode'] = array(
     '#type' => 'radios',
-    '#options' => panopoly_magic_view_mode_options(),
-    '#default_value' => !empty($conf['view_mode']) ? $conf['view_mode'] : 'teaser',
+    '#options' => $view_modes,
+    '#default_value' => $conf['view_mode'] ? $conf['view_mode'] : $options_default_view_mode,
     '#states' => array(
       'visible' => array(
-        ':input[name="view_settings"]' => array('value' => 'nodes'),
+        ':input[name="view_settings"]' => array('value' => 'rendered_entity'),
       ),
     ),
   );
@@ -1129,11 +1140,20 @@ function panopoly_magic_views_pre_view(&$view) {
       $view->build_info['title'] = $conf['widget_title']; 
     }
 
+    // Set to default view settings if there isn't one.
+    if (empty($conf['view_settings'])) {
+      $conf['view_settings'] = 'fields';
+    }
+
+    // Deal with legacy 'nodes' and others (such as 'files') view settings so
+    // that other entity types can be included.
+    $conf['view_settings'] = panopoly_magic_convert_view_settings($conf['view_settings']);
+
     // Set the style plugin to a table style.
     // Determine that this was previously a field view, which has been overridden to a node view in the pane config.
-    if (!empty($conf['view_settings']) && $conf['view_settings'] == 'nodes' ) {
+    if (!empty($conf['view_settings']) && $conf['view_settings'] == 'rendered_entity') {
       $view->display_handler->options['defaults']['row_plugin'] = FALSE;
-      $view->display_handler->options['row_plugin'] = 'node';
+      $view->display_handler->options['row_plugin'] = 'entity';
     }
     elseif (!empty($conf['view_settings']) && $conf['view_settings'] == 'table') {
       // Find the currently active field defination, else break out as table
@@ -1167,7 +1187,7 @@ function panopoly_magic_views_pre_view(&$view) {
         }
       }
     }
-    if ((empty($conf['view_settings']) || $conf['view_settings'] == 'nodes') && !empty($conf['view_mode'])) {
+    if ((empty($conf['view_settings']) || $conf['view_settings'] == 'rendered_entity') && !empty($conf['view_mode'])) {
       // Transfer over the row options from default if set to use.
       if (!empty($view->display_handler->options['defaults']['row_options'])) {
         $view->display_handler->options['defaults']['row_options'] = FALSE;
@@ -1270,15 +1290,53 @@ function panopoly_magic_process_panels_add_content_modal(&$vars) {
   }
 }
 
+/*
+ * Convert with legacy 'nodes' and others (such as 'files') view settings.
+ */
+function panopoly_magic_convert_view_settings($view_settings) {
+  // The 'fields' and 'table' view settings apply to any entity type.
+  if (in_array($view_settings, array('fields', 'table'))) {
+    return $view_settings;
+  }
+
+  // We convert other view settings to 'rendered_entity' (which could be
+  // 'node' or 'files' or others that are specific to an entity type).
+  return 'rendered_entity';
+}
+
+/**
+ * Helper function to get the entity type retrieved by a view
+ */
+function panopoly_magic_get_entity_type($view) {
+  $result = 'node';
+
+  if (isset($view->base_table) && $view->base_table != 'node') {
+    // Find the entity type with the corresponding base table.
+    $base_table = $view->base_table;
+    $entity_types = entity_get_info();
+    foreach ($entity_types as $entity_type => $entity_type_info) {
+      if ($entity_type_info['base table'] == $base_table) {
+        $result = $entity_type;
+        break;
+      }
+    }
+  }
+
+  return $result;
+}
+
 /**
  * Helper function to get view modes
+ *
+ * @param (optional) string $entity_type
+ *   The type of entity for which to load view modes.
  */
-function panopoly_magic_view_mode_options() {
-  $entity_info = entity_get_info('node');
+function panopoly_magic_view_mode_options($entity_type = 'node') {
+  $entity_info = entity_get_info($entity_type);
   $options = array();
   if (!empty($entity_info['view modes'])) {
     foreach ($entity_info['view modes'] as $mode => $settings) {
-      if (!in_array($mode, array('rss', 'search_index', 'search_result', 'token'))) {
+      if (!in_array($mode, array('rss', 'search_index', 'search_result', 'token', 'preview'))) {
         $options[$mode] = $settings['label'];
       }
     }

@@ -169,9 +169,9 @@ features[user_permission][] = view private files
 features[variable][] = og_group_manager_admin_role
 features[variable][] = og_group_manager_full_access
 
-; Information added by Drupal.org packaging script on 2014-05-30
-version = "7.x-2.19"
+; Information added by Drupal.org packaging script on 2014-08-11
+version = "7.x-2.21"
 core = "7.x"
 project = "oa_core"
-datestamp = "1401462830"
+datestamp = "1407789231"
 

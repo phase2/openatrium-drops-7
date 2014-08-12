@@ -49,10 +49,10 @@ function oa_core_section_access($row, $spaces, $account) {
  * Define node access grant realm for Open Atrium sections
  */
 function oa_core_node_grants($account, $op) {
-  $cache = &drupal_static(__FUNCTION__, array());
+  $cache = &drupal_static('oa_core_node_grants', array());
 
   if ($op != 'view' || !$account->uid) {
-    return;
+    return array();
   }
 
   if (isset($cache[$account->uid])) {
@@ -180,6 +180,7 @@ function oa_core_node_access_records($node) {
  * @param  array $nodes array of nids
  */
 function oa_core_update_access_records($nodes) {
+  drupal_static_reset('oa_core_node_grants');
   foreach ($nodes as $nid) {
     $node = node_load($nid);
     node_access_acquire_grants($node);
@@ -222,7 +223,7 @@ function oa_core_node_access($node, $op, $account) {
  * if saving a section or space node, update access locks on related content
  */
 function oa_core_node_update($node) {
-  if ($node->type == OA_SPACE_TYPE) {
+  if (($node->type == OA_SPACE_TYPE) || ($node->type == OA_GROUP_TYPE)) {
     // check if group access changed and update space content grants
     if (isset($node->group_access[LANGUAGE_NONE][0]['value']) &&
       isset($node->original->group_access[LANGUAGE_NONE][0]['value']) &&
@@ -240,6 +241,7 @@ function oa_core_node_update($node) {
       entity_get_controller('node')->resetCache(array($node->nid));
       oa_core_update_access_records($nodes);
     }
+    oa_core_clear_group_cache($node);
   }
   elseif ($node->type == OA_SECTION_TYPE) {
     // if section node changed from public to private, update content grants
@@ -364,8 +366,20 @@ function oa_core_query_media_browser_alter(QueryAlterableInterface $query) {
  */
 function oa_core_og_membership_insert($og_membership) {
   drupal_static_reset('oa_core_node_grants');
+  if ($og_membership->entity_type == 'user') {
+    oa_core_clear_group_cache(NULL, $og_membership->etid);
+  }
 }
 
+/**
+ * Utility function to return visibility data for a given node
+ * $data['public'] TRUE if node is public, FALSE if private
+ * $data['title'] either "Public" or "Private"
+ * $data['accessors']['group'] list of groups that can access
+ * $data['accessors']['space'] list of spaces that can access
+ * $data['accessors']['teams'] list of teams that can access
+ * $data['accessors']['users'] list of users that can access
+ */
 function oa_core_visibility_data($node) {
   $data = array();
   $data['published'] = !empty($node->status);
@@ -456,7 +470,8 @@ function _oa_core_build_visibility_links($type, $node, $field, $bundle = '') {
       }
       elseif ($type == 'user') {
         $user = user_load($value['target_id']);
-        $links[] = l($user->name, "user/" . $user->uid);
+        $user_name = format_username($user);
+        $links[] = l($user_name, "user/" . $user->uid);
       }
     }
   }

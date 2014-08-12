@@ -17,10 +17,19 @@ class FileEntityTestHelper extends DrupalWebTestCase {
     parent::setUp($modules);
   }
 
-  protected function setUpFiles() {
+  protected function setUpFiles($defaults = array()) {
+    // Populate defaults array.
+    $defaults += array(
+      'uid' => 1,
+      'status' => FILE_STATUS_PERMANENT,
+    );
+
     $types = array('text', 'image');
     foreach ($types as $type) {
       foreach ($this->drupalGetTestFiles($type) as $file) {
+        foreach ($defaults as $key => $value) {
+          $file->$key = $value;
+        }
         $this->files[$type][] = file_save($file);
       }
     }
@@ -261,7 +270,7 @@ class FileEntityUnitTestCase extends FileEntityTestHelper {
 
   function setUp() {
     parent::setUp();
-    parent::setUpFiles();
+    $this->setUpFiles();
   }
 
   /**
@@ -665,7 +674,7 @@ class FileEntityReplaceTestCase extends FileEntityTestHelper {
 
   function setUp() {
     parent::setUp();
-    parent::setUpFiles();
+    $this->setUpFiles();
   }
 
   /**
@@ -705,7 +714,8 @@ class FileEntityReplaceTestCase extends FileEntityTestHelper {
     $this->assertEqual($file->filename, $original->filename, 'Updated file name did not change.');
     $this->assertNotEqual($file->filesize, $original->filesize, 'Updated file size changed from previous file.');
     $this->assertEqual($file->filesize, $replacement->filesize, 'Updated file size matches uploaded file.');
-    $this->assertEqual(file_get_contents($replacement->uri), file_get_contents($file->uri), 'Updated file contents matches uploaded file.');
+    $this->assertEqual(file_get_contents($file->uri), file_get_contents($replacement->uri), 'Updated file contents matches uploaded file.');
+    $this->assertFalse(entity_load('file', FALSE, array('status' => 0)), 'Temporary file used for replacement was deleted.');
 
     // Get an image file.
     $image = reset($this->files['image']);
@@ -746,7 +756,7 @@ class FileEntityTokenTestCase extends FileEntityTestHelper {
 
   function setUp() {
     parent::setUp();
-    parent::setUpFiles();
+    $this->setUpFiles();
   }
 
   function testFileEntityTokens() {
@@ -800,7 +810,7 @@ class FileEntityTypeTestCase extends FileEntityTestHelper {
 
   function setUp() {
     parent::setUp();
-    parent::setUpFiles();
+    $this->setUpFiles();
   }
 
   /**
@@ -1069,13 +1079,22 @@ class FileEntityAccessTestCase extends FileEntityTestHelper {
 
   function setUp() {
     parent::setUp();
-    parent::setUpFiles();
+    $this->setUpFiles(array('uid' => 0));
+
+    // Unset the fact that file_entity_install() adds the 'view files'
+    // permission to all user roles. This messes with being able to fully unit
+    // test the file_entity_access() function.
+    $roles = user_roles();
+    foreach ($roles as $rid => $role) {
+      user_role_revoke_permissions($rid, array('view files'));
+    }
   }
 
   /**
    * Asserts file_entity_access correctly grants or denies access.
    */
   function assertFileEntityAccess($ops, $file, $account) {
+    drupal_static_reset('file_entity_access');
     foreach ($ops as $op => $result) {
       $msg = t("file_entity_access returns @result with operation '@op'.", array('@result' => $result ? 'true' : 'false', '@op' => $op));
       $this->assertEqual($result, file_entity_access($op, $file, $account), $msg);
@@ -1107,32 +1126,24 @@ class FileEntityAccessTestCase extends FileEntityTestHelper {
     $web_user = $this->drupalCreateUser(array('create files', 'view own files'));
     $this->assertFileEntityAccess(array('view' => FALSE), $file, $web_user);
     $file->uid = $web_user->uid;
-    $file->status = FILE_STATUS_PERMANENT;
-    file_save($file);
     $this->assertFileEntityAccess(array('view' => TRUE), $file, $web_user);
 
     // User can download own files but no other files.
     $web_user = $this->drupalCreateUser(array('create files', 'download own image files'));
     $this->assertFileEntityAccess(array('download' => FALSE), $file, $web_user);
     $file->uid = $web_user->uid;
-    $file->status = FILE_STATUS_PERMANENT;
-    file_save($file);
     $this->assertFileEntityAccess(array('download' => TRUE), $file, $web_user);
 
     // User can update own files but no other files.
     $web_user = $this->drupalCreateUser(array('create files', 'view own files', 'edit own image files'));
     $this->assertFileEntityAccess(array('update' => FALSE), $file, $web_user);
     $file->uid = $web_user->uid;
-    $file->status = FILE_STATUS_PERMANENT;
-    file_save($file);
     $this->assertFileEntityAccess(array('update' => TRUE), $file, $web_user);
 
     // User can delete own files but no other files.
     $web_user = $this->drupalCreateUser(array('create files', 'view own files', 'edit own image files', 'delete own image files'));
     $this->assertFileEntityAccess(array('delete' => FALSE), $file, $web_user);
     $file->uid = $web_user->uid;
-    $file->status = FILE_STATUS_PERMANENT;
-    file_save($file);
     $this->assertFileEntityAccess(array('delete' => TRUE), $file, $web_user);
 
     // User can view any file.
@@ -1172,8 +1183,6 @@ class FileEntityAccessTestCase extends FileEntityTestHelper {
     $this->assertResponse(200, 'Users with access can access the file add page');
 
     $file = reset($this->files['text']);
-    $file->status = FILE_STATUS_PERMANENT;
-    file_save($file);
 
     // This fails.. No clue why but, tested manually and works as should.
     //$web_user = $this->drupalCreateUser(array('view own files'));
@@ -1188,16 +1197,19 @@ class FileEntityAccessTestCase extends FileEntityTestHelper {
     $url = "file/{$file->fid}/download";
     $web_user = $this->drupalCreateUser(array());
     $this->drupalLogin($web_user);
-    $this->drupalGet($url, array('query' => array('token' => $this->drupalGetToken($url))));
+    $this->drupalGet($url, array('query' => array('token' => file_entity_get_download_token($file))));
     $this->assertResponse(403, 'Users without access can not download the file');
     $web_user = $this->drupalCreateUser(array('download any document files'));
     $this->drupalLogin($web_user);
-    $this->drupalGet($url, array('query' => array('token' => $this->drupalGetToken($url))));
+    $this->drupalGet($url, array('query' => array('token' => file_entity_get_download_token($file))));
     $this->assertResponse(200, 'Users with access can download the file');
     $this->drupalGet($url, array('query' => array('token' => 'invalid-token')));
     $this->assertResponse(403, 'Cannot download file with in invalid token.');
     $this->drupalGet($url);
     $this->assertResponse(403, 'Cannot download file without a token.');
+    variable_set('file_entity_allow_insecure_download', TRUE);
+    $this->drupalGet($url);
+    $this->assertResponse(200, 'Users with access can download the file without a token when file_entity_allow_insecure_download is set.');
 
     $web_user = $this->drupalCreateUser(array());
     $this->drupalLogin($web_user);
@@ -1233,7 +1245,6 @@ class FileEntityAccessTestCase extends FileEntityTestHelper {
       // Create private, permanent files owned by this user only he's an owner.
       if (!empty($case['owner'])) {
         $file = next($this->files['text']);
-        $file->status = FILE_STATUS_PERMANENT;
         $file->uid = $account->uid;
         file_save($file);
         $file = file_move($file, 'private://');

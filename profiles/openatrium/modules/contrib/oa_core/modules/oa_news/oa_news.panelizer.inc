@@ -122,6 +122,7 @@ function oa_news_panelizer_defaults() {
       'items_per_page' => '10',
       'fields_override' => array(
         'title' => 1,
+        'timestamp' => 1,
         'created' => 1,
         'body' => 1,
         'name' => 1,
@@ -137,7 +138,9 @@ function oa_news_panelizer_defaults() {
         'og_group_ref_target_id' => '',
         'og_group_ref_target_id_mine' => 0,
         'og_subspaces_view_all' => 0,
+        'og_subspaces_view_parent' => 0,
         'oa_section_ref_target_id' => '',
+        'flagged' => '0',
       ),
       'context' => array(
         0 => 'relationship_entity_from_field:og_group_ref-node-node_1',
@@ -155,6 +158,7 @@ function oa_news_panelizer_defaults() {
       'path' => NULL,
       'view_settings' => 'fields',
       'header_type' => 'none',
+      'show_exposed_form' => 0,
     );
     $pane->cache = array();
     $pane->style = array(

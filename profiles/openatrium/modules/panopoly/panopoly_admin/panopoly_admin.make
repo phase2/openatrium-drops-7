@@ -20,7 +20,7 @@ projects[date_popup_authored][download][type] = git
 projects[date_popup_authored][download][revision] = baf315c
 projects[date_popup_authored][download][branch] = 7.x-1.x
 
-projects[admin_views][version] = 1.2
+projects[admin_views][version] = 1.3
 projects[admin_views][subdir] = contrib
 
 projects[save_draft][version] = 1.4
@@ -40,7 +40,7 @@ projects[navbar][download][branch] = 7.x-1.x
 projects[navbar][patch][1757466] = http://drupal.org/files/navbar-conflict-1757466-14.patch
 projects[navbar][patch][2050559] = http://drupal.org/files/z-index-heart-cools-2050559-1.patch
 
-projects[breakpoints][version] = 1.1
+projects[breakpoints][version] = 1.2
 projects[breakpoints][subdir] = contrib
 
 projects[admin_menu][version] = 3.0-rc4

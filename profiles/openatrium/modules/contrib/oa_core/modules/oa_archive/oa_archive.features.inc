@@ -28,10 +28,11 @@ function oa_archive_flag_default_flags_alter(&$data) {
  */
 function oa_archive_views_default_views_alter(&$data) {
   if (isset($data['trash_flag_bin'])) {
+    $data['trash_flag_bin']->display['default']->display_options['empty']['area_text_custom']['content'] = 'No content has been archived.'; /* WAS: 'No content has been sent to the trash.' */
     $data['trash_flag_bin']->display['default']->display_options['title'] = 'Show Archive'; /* WAS: 'Trash Bin' */
+    $data['trash_flag_bin']->display['page_1']->display_options['empty']['area_text_custom']['content'] = 'No content has been archived from this Space.'; /* WAS: 'No content has been sent to the trash from this Group.' */
     $data['trash_flag_bin']->display['page_1']->display_options['menu']['title'] = 'Show Archive'; /* WAS: 'Trash Bin' */
     $data['trash_flag_bin']->display['page_1']->display_options['path'] = 'node/%/archive'; /* WAS: 'node/%/trash-bin' */
     $data['trash_flag_bin']->display['page']->display_options['path'] = 'archive'; /* WAS: 'trash-bin' */
   }
 }
-

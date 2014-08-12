@@ -46,6 +46,12 @@ function trash_flag_views_default_views() {
       'empty_column' => 0,
     ),
   );
+  /* No results behavior: Global: Unfiltered text */
+  $handler->display->display_options['empty']['area_text_custom']['id'] = 'area_text_custom';
+  $handler->display->display_options['empty']['area_text_custom']['table'] = 'views';
+  $handler->display->display_options['empty']['area_text_custom']['field'] = 'area_text_custom';
+  $handler->display->display_options['empty']['area_text_custom']['empty'] = TRUE;
+  $handler->display->display_options['empty']['area_text_custom']['content'] = 'No content has been sent to the trash.';
   /* Relationship: Flags: trash */
   $handler->display->display_options['relationships']['flag_content_rel']['id'] = 'flag_content_rel';
   $handler->display->display_options['relationships']['flag_content_rel']['table'] = 'node';
@@ -107,6 +113,13 @@ function trash_flag_views_default_views() {
   $handler->display->display_options['access']['type'] = 'og_context';
   $handler->display->display_options['access']['perm'] = 'view trash bin';
   $handler->display->display_options['access']['group_id_arg'] = '1';
+  $handler->display->display_options['defaults']['empty'] = FALSE;
+  /* No results behavior: Global: Unfiltered text */
+  $handler->display->display_options['empty']['area_text_custom']['id'] = 'area_text_custom';
+  $handler->display->display_options['empty']['area_text_custom']['table'] = 'views';
+  $handler->display->display_options['empty']['area_text_custom']['field'] = 'area_text_custom';
+  $handler->display->display_options['empty']['area_text_custom']['empty'] = TRUE;
+  $handler->display->display_options['empty']['area_text_custom']['content'] = 'No content has been sent to the trash from this Group.';
   $handler->display->display_options['defaults']['arguments'] = FALSE;
   /* Contextual filter: OG membership: Group ID */
   $handler->display->display_options['arguments']['gid']['id'] = 'gid';

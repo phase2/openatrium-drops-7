@@ -37,8 +37,8 @@ function oa_core_form_alter(&$form, &$form_state, $form_id) {
         // You have to explicitally turn on the option to always redirect from
         // the profile page. This is for constistency.
         $form['#submit'][] = 'oa_core_login_submit';
-        break;
       }
+      break;
     case 'user_login_block':
       $form['links']['#markup'] = '<span class="password-reset">' . t('If you forgot your password') . ', ' .
         l(t('request a new password.'), 'user/password') . '</span>';
@@ -156,7 +156,7 @@ function oa_core_login_get_destination($trigger = '', $current = NULL) {
   $homepage = variable_get('site_frontpage', 'home');
   // Get all the login destination rules from the database.
   if ($trigger == 'login') {
-    $spaces = oa_core_get_user_spaces($user->uid);
+    $spaces = oa_core_get_groups_by_user($user, 'node');
     // if not a member of any spaces, go to default home
     if (count($spaces) <= 0) {
       return $homepage;
@@ -165,10 +165,6 @@ function oa_core_login_get_destination($trigger = '', $current = NULL) {
   }
   elseif ($trigger == 'logout') {
     return $homepage;
-  }
-
-  if ($current == NULL) {
-    $current = $_GET['q'];
   }
 
   // no rule matched

@@ -354,13 +354,15 @@ function oa_layouts_panelizer_defaults() {
         0 => 'panelizer',
         1 => 'empty',
       ),
-      'view_mode' => 'teaser',
+      'view_mode' => 'full',
       'widget_title' => NULL,
       'items_per_page' => '',
       'exposed' => array(
         'type' => array(),
         'realname' => '',
         'og_group_ref_target_id' => '',
+        'og_group_ref_target_id_mine' => 0,
+        'og_subspaces_view_parent' => 0,
         'oa_section_ref_target_id' => '',
       ),
       'use_pager' => NULL,
@@ -371,10 +373,12 @@ function oa_layouts_panelizer_defaults() {
       'path' => NULL,
       'view_settings' => 'fields',
       'header_type' => 'none',
+      'show_exposed_form' => 1,
     );
     $pane->cache = array();
     $pane->style = array(
       'settings' => NULL,
+      'style' => 'oa_styles_oa_pane',
     );
     $pane->css = array();
     $pane->extras = array();
@@ -525,7 +529,7 @@ function oa_layouts_panelizer_defaults() {
       'context' => array(
         0 => 'panelizer',
       ),
-      'view_mode' => 'teaser',
+      'view_mode' => 'full',
       'widget_title' => NULL,
       'items_per_page' => '20',
       'exposed' => array(
@@ -533,8 +537,9 @@ function oa_layouts_panelizer_defaults() {
         'realname' => '',
         'og_group_ref_target_id' => '',
         'og_group_ref_target_id_mine' => 0,
-        'oa_section_ref_target_id' => 0,
         'og_subspaces_view_all' => 1,
+        'og_subspaces_view_parent' => 0,
+        'oa_section_ref_target_id' => 'All',
       ),
       'use_pager' => NULL,
       'pager_id' => NULL,
@@ -544,6 +549,7 @@ function oa_layouts_panelizer_defaults() {
       'path' => NULL,
       'view_settings' => 'fields',
       'header_type' => 'none',
+      'show_exposed_form' => 1,
     );
     $pane->cache = array();
     $pane->style = array(
@@ -653,8 +659,7 @@ function oa_layouts_panelizer_defaults() {
       'view_mode' => 'teaser',
       'widget_title' => '',
       'exposed' => array(
-        'sort_by' => NULL,
-        'sort_order' => NULL,
+        'flagged' => '0',
       ),
       'offset' => NULL,
       'link_to_view' => NULL,

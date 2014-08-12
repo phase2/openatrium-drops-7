@@ -1,0 +1,53 @@
+//
+// Layout
+// Styles for main layout
+// --------------------------------------------------
+html, body {
+  height: 100%;
+}
+body {
+  padding-top: 60px;
+  @include breakpoint('tablet') {
+    padding-top: 90px;
+  }
+  @include breakpoint('mini-tablet') {
+    padding-top: 90px;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  @include breakpoint('phone') {
+    padding-top: 0;
+  }
+  #main-wrapper {
+    min-height: 100%;
+    height: auto !important;
+    margin: 0 20px -100px;
+  }
+  #push {
+    height: 100px;
+  }
+  #footer {
+    font-size: 12px;
+    line-height: 1.5;
+    color: #CCC;
+    background-color: #003853;
+    border-top: 1px solid #e5e5e5;
+    @include breakpoint('mini-tablet') {
+      margin-left: -$gridGutterWidth;
+      margin-right: -$gridGutterWidth;
+      padding-left: $gridGutterWidth;
+      padding-right: $gridGutterWidth;
+    }
+    @include breakpoint('phone') {
+      margin-left: -$gridGutterWidth;
+      margin-right: -$gridGutterWidth;
+      padding-left: $gridGutterWidth;
+      padding-right: $gridGutterWidth;
+    }
+    > .container {
+      height: 100px;
+      padding: 18px 0;
+      @include box-sizing("border-box");
+    }
+  }
+}

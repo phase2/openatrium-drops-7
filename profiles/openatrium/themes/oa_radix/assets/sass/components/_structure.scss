@@ -1,0 +1,165 @@
+//
+// Structure
+// Styles for Tabs, Messages, ..etc
+// --------------------------------------------------
+
+// Site name and logo
+// --------------------------------------------------
+#logo img {
+  vertical-align: middle;
+}
+#site-name {
+  display: inline-block;
+  padding: 10px 0.5em;
+  margin: 0;
+}
+
+// Tabs
+// --------------------------------------------------
+ul.tabs > li > a,
+ul.action-links > li > a {
+  background: none;
+  border: 1px solid transparent;
+}
+div.tabs.main-tabs {
+  padding-left: 0;
+  padding-right: 0;
+  .tabs.primary {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .tabs.secondary {
+    color: #555;
+    text-decoration: none;
+    background-color: #E6E6E6;
+    border-top: 1px solid #BBB;
+    li a {
+      padding: 13px 15px;
+      margin: 0;
+    }
+    li.active {
+      border-bottom: 1px solid #D4D4D4;
+      a {
+        @include box-shadow(none);
+        color: #222;
+      }
+    }
+    li:first-child {
+      margin-left: 20px;
+    }
+  }
+}
+
+// OA list
+// --------------------------------------------------
+.oa-list {
+  &.well {
+    padding: 5px;
+    margin-bottom: -1px;
+    position: relative;
+    @include ctb-gradient-vertical($navbarBackgroundHighlight, lighten($navbarBackground, 2%));
+    @include border-radius(0);
+    @include box-shadow(none);
+  }
+  .links {
+    float: right;
+    margin-right: 5px;
+    a {
+      padding: 0 5px;
+      color: #777;
+      font-size: 0.9em;
+    }
+  }
+  h5 {
+    display: inline;
+  }
+  .pull-left img {
+    padding-right: 10px;
+  }
+  .pull-right img {
+    padding-left: 5px;
+  }
+  .accordion {
+    margin-bottom: 0;
+    position: relative;
+    h5 {
+      padding: 0 5px;
+      margin: 0;
+    }
+  }
+  .accordion-heading .accordion-toggle {
+    padding: 0;
+    &:hover {
+      background-color: #E0EEFF;
+    }
+  }
+  &.unpublished {
+    background-color: #FFF1F1;
+    .status {
+      color: red;
+      font-weight: bold;
+    }
+  }
+  .oa-pullout-left {
+    position: absolute;
+    width: 20px;
+    font-size: 14px;
+    text-align: center;
+    padding: 3px 5px;
+    top: -6px;
+    left: -35px;
+    border: 1px solid #e3e3e3;
+    background-color: #fafafa;
+    border-right: 0;
+    @include border-bottom-left-radius(5px);
+    @include border-top-left-radius(5px);
+    &:hover {
+      background-color: #E0EEFF;
+    }
+  }
+}
+.oa-list-metadata {
+  float: right;
+  text-align: right;
+}
+.oa-list-header {
+  padding: 6px 5px 0 5px;
+  &.oa-description {
+    line-height: 20px;
+    overflow: hidden;
+    padding: 0;
+  }
+}
+.oa-list-category {
+  text-align: right;
+}
+
+// Admin list
+// --------------------------------------------------
+dl.admin-list {
+  dt {
+    margin-top: 5px;
+    padding-top: 5px;
+    border-top: 1px solid #e3e3e3;
+    padding-left: 10px;
+  }
+  dd {
+    padding-left: 20px;
+  }
+}
+
+// Group
+// --------------------------------------------------
+.group-header {
+  margin-top: 20px;
+  h3 {
+    font-size: 20px;
+    line-height: 32px;
+    color: #777;
+    font-weight: normal;
+    text-transform: uppercase;
+  }
+}
+ul.group-content {
+  margin: 0;
+}

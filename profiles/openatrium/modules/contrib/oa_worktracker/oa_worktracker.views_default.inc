@@ -205,6 +205,15 @@ function oa_worktracker_views_default_views() {
   $handler->display->display_options['relationships']['uid']['field'] = 'uid';
   $handler->display->display_options['relationships']['uid']['label'] = 'Author';
   $handler->display->display_options['relationships']['uid']['required'] = TRUE;
+  /* Relationship: Flags: trash */
+  $handler->display->display_options['relationships']['flag_content_rel']['id'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['table'] = 'node';
+  $handler->display->display_options['relationships']['flag_content_rel']['field'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['ui_name'] = 'archived';
+  $handler->display->display_options['relationships']['flag_content_rel']['label'] = 'archived';
+  $handler->display->display_options['relationships']['flag_content_rel']['required'] = 0;
+  $handler->display->display_options['relationships']['flag_content_rel']['flag'] = 'trash';
+  $handler->display->display_options['relationships']['flag_content_rel']['user_scope'] = 'any';
   $handler->display->display_options['defaults']['fields'] = FALSE;
   /* Field: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
@@ -440,6 +449,23 @@ function oa_worktracker_views_default_views() {
     3 => 0,
     4 => 0,
   );
+  /* Filter criterion: Flags: Flagged */
+  $handler->display->display_options['filters']['flagged']['id'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['table'] = 'flag_content';
+  $handler->display->display_options['filters']['flagged']['field'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['relationship'] = 'flag_content_rel';
+  $handler->display->display_options['filters']['flagged']['value'] = '0';
+  $handler->display->display_options['filters']['flagged']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['flagged']['expose']['operator_id'] = '';
+  $handler->display->display_options['filters']['flagged']['expose']['label'] = 'Include archived content';
+  $handler->display->display_options['filters']['flagged']['expose']['operator'] = 'flagged_op';
+  $handler->display->display_options['filters']['flagged']['expose']['identifier'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
   $handler->display->display_options['pane_title'] = 'Task list';
   $handler->display->display_options['pane_category']['name'] = 'Open Atrium';
   $handler->display->display_options['pane_category']['weight'] = '0';
@@ -463,6 +489,7 @@ function oa_worktracker_views_default_views() {
       'field_oa_worktracker_task_status_value' => 'pane_and_exposed',
       'field_oa_worktracker_priority_value' => 'pane_and_exposed',
       'field_oa_worktracker_task_type_value' => 'pane_and_exposed',
+      'flagged' => '',
     ),
   );
   $handler->display->display_options['argument_input'] = array(
@@ -726,6 +753,15 @@ function oa_worktracker_views_default_views() {
   $handler->display->display_options['relationships']['uid']['field'] = 'uid';
   $handler->display->display_options['relationships']['uid']['label'] = 'Author';
   $handler->display->display_options['relationships']['uid']['required'] = TRUE;
+  /* Relationship: Flags: trash */
+  $handler->display->display_options['relationships']['flag_content_rel']['id'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['table'] = 'node';
+  $handler->display->display_options['relationships']['flag_content_rel']['field'] = 'flag_content_rel';
+  $handler->display->display_options['relationships']['flag_content_rel']['ui_name'] = 'archived';
+  $handler->display->display_options['relationships']['flag_content_rel']['label'] = 'archived';
+  $handler->display->display_options['relationships']['flag_content_rel']['required'] = 0;
+  $handler->display->display_options['relationships']['flag_content_rel']['flag'] = 'trash';
+  $handler->display->display_options['relationships']['flag_content_rel']['user_scope'] = 'any';
   $handler->display->display_options['defaults']['fields'] = FALSE;
   /* Field: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
@@ -867,6 +903,24 @@ function oa_worktracker_views_default_views() {
     3 => 0,
     4 => 0,
   );
+  /* Filter criterion: Flags: Flagged */
+  $handler->display->display_options['filters']['flagged']['id'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['table'] = 'flag_content';
+  $handler->display->display_options['filters']['flagged']['field'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['relationship'] = 'flag_content_rel';
+  $handler->display->display_options['filters']['flagged']['value'] = '0';
+  $handler->display->display_options['filters']['flagged']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['flagged']['expose']['operator_id'] = '';
+  $handler->display->display_options['filters']['flagged']['expose']['label'] = 'Include archived content';
+  $handler->display->display_options['filters']['flagged']['expose']['operator'] = 'flagged_op';
+  $handler->display->display_options['filters']['flagged']['expose']['identifier'] = 'flagged';
+  $handler->display->display_options['filters']['flagged']['expose']['required'] = TRUE;
+  $handler->display->display_options['filters']['flagged']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
   $handler->display->display_options['pane_title'] = 'User Tasks';
   $handler->display->display_options['pane_category']['name'] = 'Open Atrium';
   $handler->display->display_options['pane_category']['weight'] = '0';
@@ -882,12 +936,10 @@ function oa_worktracker_views_default_views() {
   $handler->display->display_options['allow']['fields_override'] = 'fields_override';
   $handler->display->display_options['exposed_form_overrides'] = array(
     'filters' => array(
-      'keys' => 'pane_and_exposed',
-      'realname_1' => 'pane_and_exposed',
-      'realname' => 'pane_and_exposed',
-      'field_oa_worktracker_priority_value' => 'pane_and_exposed',
       'field_oa_worktracker_task_status_value' => 'pane_and_exposed',
+      'field_oa_worktracker_priority_value' => 'pane_and_exposed',
       'field_oa_worktracker_task_type_value' => 'pane_and_exposed',
+      'flagged' => '',
     ),
   );
   $handler->display->display_options['argument_input'] = array(

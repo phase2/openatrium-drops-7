@@ -253,7 +253,7 @@ function template_preprocess_oa_toolbar(&$vars) {
     $vars['space_label'] = $title;
     $vars['space_url'] = url('node/' . $space_id);
     if (isset($vars['show_parents'])) {
-      $parents = oa_core_get_parents($space_id, $space_type, NODE_PUBLISHED);
+      $parents = oa_core_get_parents($space_id, $space_type, NODE_PUBLISHED, TRUE);
       if (count($parents)) {
         $items = oa_core_get_titles($parents);
         if (!empty($items['titles'][0])) {
@@ -307,7 +307,7 @@ function template_preprocess_oa_toolbar(&$vars) {
       $remove = array();
       foreach ($spaces as $key => $value) {
         // parents are cached, so this should be fast
-        $parents = oa_core_get_parents($value, $space_type);
+        $parents = oa_core_get_parents($value, $space_type, NODE_PUBLISHED, TRUE);
         foreach ($parents as $parent_id) {
           if (isset($spaces[$parent_id])) {
             // parent is also in spaces list, so remove child from list

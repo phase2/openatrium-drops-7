@@ -222,9 +222,6 @@ function file_entity_install() {
   if ($queue->numberOfItems()) {
     drupal_set_message(t('Existing files must be classified according to the currently defined file types. These files have been queued for processing and will have their file type determined during cron runs.'));
   }
-
-  // Fix File Entity default displays issue with exports.
-  _file_entity_default_displays();
 }
 
 /**
@@ -1073,61 +1070,4 @@ function file_entity_update_7215() {
   ));
   db_add_primary_key('file_metadata', array('fid', 'name'));
   db_drop_index('file_metadata', 'temp');
-}
-
-
-/**
- * Fix overridden issues with File Displays
- */
-function file_entity_update_7216() {
-  _file_entity_default_displays();
-}
-
-/**
- * Instantiate the File Entity Displays.
- */
-function _file_entity_default_displays() {
-  // Create initial display settings.
-  module_load_include('inc', 'file_entity', 'file_entity.file_api');
-  $default_image_styles = array(
-    'default' => '',
-    'preview' => 'thumbnail',
-    'teaser' => 'medium',
-  );
-  $default_types = array(
-    'image' => 'image',
-    'audio' => 'audio',
-    'document' => 'document',
-    'video' => 'video',
-  );
-  foreach ($default_types as $type) {
-    foreach ($default_image_styles as $view_mode => $image_style) {
-      $existing_display = file_displays_load($type, $view_mode);
-      $file_field = '';
-      if ($type == 'audio' && ($view_mode == 'default' || $view_mode == 'teaser')) {
-        $file_field = 'file_field_file_audio';
-      }
-      elseif ($type == 'video' && ($view_mode == 'default' || $view_mode == 'teaser')) {
-        $file_field = 'file_field_file_video';
-      }
-      elseif ($type == 'image') {
-        $file_field = 'file_field_image';
-      }
-      else {
-        $file_field = 'file_field_file_default';
-      }
-      if (empty($existing_display)) {
-        $display_name = $type . '__' . $view_mode . '__' . $file_field;
-        $display = array(
-          'api_version' => 1,
-          'name' => $display_name,
-          'status' => 1,
-          'weight' => 50,
-          'settings' => array('image_style' => $image_style),
-          'export_type' => NULL,
-        );
-        file_display_save((object) $display);
-      }
-    }
-  }
 }

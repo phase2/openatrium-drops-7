@@ -3,7 +3,7 @@ core = 7.x
 
 ; Drupal Core
 projects[drupal][type] = core
-projects[drupal][version] = 7.28
+projects[drupal][version] = 7.31
 ; Patch for handling inherited profiles
 projects[drupal][patch][1356276] = http://drupal.org/files/1356276-make-D7-21.patch
 ; Patch for fixing node_access across non-required Views relationships
@@ -15,3 +15,5 @@ projects[drupal][patch][911354] = http://drupal.org/files/911354-drupal-profile-
 projects[drupal][patch][1093420] = http://drupal.org/files/1093420-22.patch
 ; Patch to prevent empty titles when menu_check_access called more than once
 projects[drupal][patch][1697570] = http://drupal.org/files/drupal-menu_always_load_objects-1697570-5.patch
+; Patch to allow >128 chars for file extensions
+;; projects[drupal][patch][2277281] = http://www.drupal.org/files/issues/drupal7-increase_maxlength_of_extensions-2277281-57.patch
