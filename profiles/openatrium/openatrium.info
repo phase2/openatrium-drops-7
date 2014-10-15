@@ -149,9 +149,9 @@ dependencies[] = oa_tour_defaults
 dependencies[] = panels_customerror
 dependencies[] = apps
 
-; Information added by Drupal.org packaging script on 2014-08-12
-version = "7.x-2.21"
+; Information added by Drupal.org packaging script on 2014-10-15
+version = "7.x-2.22"
 core = "7.x"
 project = "openatrium"
-datestamp = "1407848721"
+datestamp = "1413404011"
 

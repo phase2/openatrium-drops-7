@@ -5,7 +5,7 @@ core = 7.x
 ; ************* Open Atrium Plugins RELEASE ******
 
 projects[oa_core][subdir] = contrib
-projects[oa_core][version] = 2.21
+projects[oa_core][version] = 2.22
 
 projects[oa_discussion][subdir] = contrib
 projects[oa_discussion][version] = 2.20
@@ -14,7 +14,7 @@ projects[oa_wiki][subdir] = contrib
 projects[oa_wiki][version] = 2.20
 
 projects[oa_events][subdir] = contrib
-projects[oa_events][version] = 2.21
+projects[oa_events][version] = 2.22
 
 projects[oa_events_import][subdir] = contrib
 projects[oa_events_import][version] = 2.20
@@ -80,6 +80,7 @@ projects[panopoly_magic][subdir] = panopoly
 
 projects[panopoly_widgets][version] = 1.10
 projects[panopoly_widgets][subdir] = panopoly
+projects[panopoly_widgets][patch][2357405] = https://www.drupal.org/files/issues/panopoly_widget-tablefield-do-not-test.patch
 
 projects[panopoly_admin][version] = 1.10
 projects[panopoly_admin][subdir] = panopoly

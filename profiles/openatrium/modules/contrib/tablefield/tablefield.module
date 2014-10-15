@@ -218,8 +218,10 @@ function tablefield_field_presave($entity_type, $entity, $field, $instance, $lan
   foreach ($items as $delta => $table) {
     if (empty($table['value'])) {
       $tablefield = array();
-      foreach ($table['tablefield'] as $key => $value) {
-        $tablefield[$key] = $value;
+      if (!empty($table['tablefield'])) {
+        foreach ($table['tablefield'] as $key => $value) {
+          $tablefield[$key] = $value;
+        }
       }
       $items[$delta]['value'] = serialize($tablefield);
     }
@@ -438,7 +440,7 @@ function tablefield_field_widget_form(&$form, &$form_state, $field, $instance, $
 
   $element['tablefield'] = array(
     '#title' => $element['#title'],
-    '#description' => $help_text,
+    '#description' => filter_xss_admin($help_text),
     '#attributes' => array('id' => 'form-tablefield-' . $field['field_name'] . '-' . $delta, 'class' => array('form-tablefield')),
     '#type' => 'fieldset',
     '#tree' => TRUE,
@@ -626,6 +628,7 @@ function tablefield_field_widget_form(&$form, &$form_state, $field, $instance, $
       'callback' => 'tablefield_rebuild_form_ajax',
       'wrapper' => 'tablefield-' . $field['field_name'] . '-' . $delta . '-wrapper',
       'effect' => 'fade',
+      'event' => 'click'
     ),
   );
 

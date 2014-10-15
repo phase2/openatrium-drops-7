@@ -274,31 +274,59 @@ function oa_core_file_entity_access($op, $file, $account) {
     $wrapper = file_entity_get_stream_wrapper($scheme);
     if (!empty($wrapper['private'])) {
       $query = db_select('node', 'n');
-      $query->join('field_data_field_oa_media', 'f', "n.nid = f.entity_id AND f.entity_type = 'node'");
-      $nodes = $query
+      if (user_access('view revisions')) {
+        $query->join('field_revision_field_oa_media', 'f', "n.nid = f.entity_id AND f.entity_type = 'node'");
+      }
+      else {
+        $query->join('field_data_field_oa_media', 'f', "n.nid = f.entity_id AND f.entity_type = 'node'");
+      }
+      $nids = $query
         ->fields('n', array('nid'))
         ->condition('f.field_oa_media_fid', $file->fid)
         ->addTag('node_access')
         ->execute()
         ->fetchCol(0);
-      if (!empty($nodes)) {
-        return FILE_ENTITY_ACCESS_ALLOW;
+      if (!empty($nids)) {
+        $nids = array_unique($nids);
+        // Ensure the user *really* has access to the nodes
+        // since addTag('node_access') doesn't call node_access hooks.
+        // Since the number of nodes the file is attached to is small, this
+        // shouldn't be a performance issue.
+        if (user_access('view files', $account)) {
+          foreach ($nids as $nid) {
+            if (($node = node_load($nid)) && node_access($op, $node, $account)) {
+              return FILE_ENTITY_ACCESS_ALLOW;
+            }
+          }
+        }
+        // Otherwise, file is attached to nodes we don't have access to
+        // so deny access.
+        return FILE_ENTITY_ACCESS_DENY;
       }
       else {
-        // if no nodes have access, check to see if ANY nodes reference image
+        // File is not attached to a node we have specific node grants for
+        // so now check if file is attached to ANY other revision.
         $query = db_select('node', 'n');
-        $query->join('field_data_field_oa_media', 'f', "n.nid = f.entity_id AND f.entity_type = 'node'");
-        $nodes = $query
+        $query->join('field_revision_field_oa_media', 'f', "n.nid = f.entity_id AND f.entity_type = 'node'");
+        $nids = $query
           ->fields('n', array('nid'))
           ->condition('f.field_oa_media_fid', $file->fid)
           ->execute()
           ->fetchCol(0);
-        if (empty($nodes)) {
-          // image is not referenced by any node, so allow it
-          return FILE_ENTITY_ACCESS_ALLOW;
+        if (empty($nids)) {
+          // File is not referenced by any node revision, so allow it if they can access content
+          // Open Atrium treats unattached files as public since everything is
+          // stored in the private file system.
+          if (user_access('access content', $account) && user_access('view files', $account) &&
+            !user_access('view private files', $account)) {
+            // Default Open Atrium permissions are set, so allow access.
+            return FILE_ENTITY_ACCESS_ALLOW;
+          }
+          // Otherwise defer to the rest of Drupal for access.
+          else return FILE_ENTITY_ACCESS_IGNORE;
         }
         else {
-          // image is referenced by node that we don't have access to, so deny
+          // File is referenced by node that we don't have access to, so deny.
           return FILE_ENTITY_ACCESS_DENY;
         }
       }

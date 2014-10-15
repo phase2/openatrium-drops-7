@@ -5,9 +5,9 @@ files[] = tablefield.css
 files[] = tablefield.module
 files[] = tablefield.install
 
-; Information added by drupal.org packaging script on 2013-07-26
-version = "7.x-2.2"
+; Information added by Drupal.org packaging script on 2014-08-12
+version = "7.x-2.3"
 core = "7.x"
 project = "tablefield"
-datestamp = "1374858981"
+datestamp = "1407864531"
 
