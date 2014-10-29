@@ -83,26 +83,23 @@ function oa_messages_oa_user_settings_form_submit($form_state, $user) {
  * Helper function to build the message notifications table.
  */
 function oa_messages_build_message_notifications_table(&$form_state, $user, $defaults = array()) {
+  $filter = NULL;
+
   $values = isset($form_state['values']) ? $form_state['values']['oa_messages']['message_notifications'] : NULL;
   if (isset($form_state['triggering_element']) && $form_state['triggering_element']['#value'] === 'Search') {
-    $options = array(
-      'space' => trim($form_state['values']['oa_messages']['message_notifications']['filter']['space_filter']),
-    );
-  }
-  else {
-    $options = array();
+    $filter = trim($form_state['values']['oa_messages']['message_notifications']['filter']['space_filter']);
   }
 
-  $page = NULL;
+  // show pager on results
+  $page = 0;
   if (isset($form_state['complete form'])) {
     if ($pos = strrpos($form_state['complete form']['#action'], '=')) {
       $page = substr($form_state['complete form']['#action'], $pos + 1);
     }
   }
 
-  $spaces = oa_messages_get_entity_groups($user->uid, 'user', $options, $page);
-
   $form = array();
+  $spaces = oa_core_get_groups_by_user_access($user, FALSE, NULL, $page, $filter);
 
   if (!empty($spaces)) {
     $message_types = message_type_load();
@@ -135,7 +132,7 @@ function oa_messages_build_message_notifications_table(&$form_state, $user, $def
       '#attributes' => array(
         'placeholder' => t('Space'),
       ),
-      '#prefix' => '<br /><h4>' . t('Space Preferences') . '</h4><label>' . t('Filter Spaces:') . '</label>',
+      '#prefix' => '<br /><h4>' . t('Space Preferences') . '</h4><label class="display-block">' . t('Filter Spaces:') . '</label>',
     );
 
     $form['filter']['actions']['submit'] = array(
@@ -160,7 +157,7 @@ function oa_messages_build_message_notifications_table(&$form_state, $user, $def
 
     $form['all_notifications'] = array(
       '#type' => 'select',
-      '#prefix' => '<label>' . t('Set Spaces Preferences:') . '</label>',
+      '#prefix' => '<label class="display-block">' . t('Set Spaces Preferences:') . '</label>',
       '#options' => $method_options,
       '#required' => FALSE,
       '#empty_option' => t('Choose a notification method'),
@@ -177,14 +174,14 @@ function oa_messages_build_message_notifications_table(&$form_state, $user, $def
 
     $form['header'] = array(
       '#type' => 'container',
-      '#prefix' => '<div class="row-fluid header">',
+      '#prefix' => '<div class="container-fluid header">',
       '#suffix' => '</div>',
     );
 
     $form['header']['select_all'] = array(
       '#type' => 'checkbox',
       '#title' => t('Spaces'),
-      '#prefix' => '<div class="column1 span3">',
+      '#prefix' => '<div class="column1 col-sm-3">',
       '#suffix' => '</div>',
       '#attributes' => array(
         'class' => array('select-all'),
@@ -193,13 +190,13 @@ function oa_messages_build_message_notifications_table(&$form_state, $user, $def
 
     $form['header']['methods'] = array(
       '#markup' => t('Notification Method'),
-      '#prefix' => '<div class="column2 span3">',
+      '#prefix' => '<div class="column2 col-sm-3">',
       '#suffix' => '</div>',
     );
 
     $form['header']['message'] = array(
       '#markup' => t('Messages'),
-      '#prefix' => '<div class="column3 span6">',
+      '#prefix' => '<div class="column3 col-sm-6">',
       '#suffix' => '</div>',
     );
 
@@ -213,7 +210,6 @@ function oa_messages_build_message_notifications_table(&$form_state, $user, $def
 
     // Build space options.
     foreach ($spaces as $key => $space) {
-
       // Set defaults.
       $method_values = NULL;
       $messages_values = NULL;
@@ -243,14 +239,14 @@ function oa_messages_build_message_notifications_table(&$form_state, $user, $def
         '#title' => $space->title,
         '#title_display' => 'invisible',
         '#collapsible' => FALSE,
-        '#prefix' => '<div class="row-fluid">',
+        '#prefix' => '<div class="container-fluid">',
         '#suffix' => '</div>',
       );
 
       $form['all_spaces'][$space->nid]['checkbox'] = array(
         '#type' => 'checkbox',
         '#title' => $space->title,
-        '#prefix' => '<div class="column1 span3">',
+        '#prefix' => '<div class="column1 col-sm-3">',
         '#suffix' => '</div>',
         '#attributes' => array(
           'class' => array('apply-to'),
@@ -264,7 +260,7 @@ function oa_messages_build_message_notifications_table(&$form_state, $user, $def
         '#multiple' => TRUE,
         '#options' => $method_options,
         '#default_value' => $default_methods,
-        '#prefix' => '<div class="column2 span3">',
+        '#prefix' => '<div class="column2 col-sm-3">',
         '#suffix' => '</div>',
         '#id' => $space->nid,
       );
@@ -274,7 +270,7 @@ function oa_messages_build_message_notifications_table(&$form_state, $user, $def
         '#title' => t('Messages'),
         '#collapsible' => TRUE,
         '#collapsed' => TRUE,
-        '#prefix' => '<div class="column3 span6">',
+        '#prefix' => '<div class="column3 col-sm-6">',
         '#suffix' => '</div>',
         '#id' => 'message-container-' . $space->nid,
       );
@@ -307,48 +303,24 @@ function oa_messages_ajax_load_notification_methods($form, &$form_state) {
 }
 
 /**
- * Add plugin-specific configuration to main Open Atrium settings form.
+ * Add plugin-specific configuration to main Open Atrium settings form
+ * @param $form_state
+ * @param return array - array of subforms render array
  */
-function oa_messages_form_oa_core_configure_form_alter(&$form, &$form_state, $form_id) {
-  $form['oa_messages'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Notifications'),
-    '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
-  );
-  $form['oa_messages']['oa_messages_notifications'] = array(
+function oa_messages_oa_settings_form(&$form_state) {
+  $forms = array();
+
+  $form = array();
+  $form['oa_messages_notifications'] = array(
     '#type' => 'checkbox',
     '#title' => 'Enable notifications',
     '#description' => 'If off, no notifications will be sent.  If on, notifications are controlled by individual user settings.',
     '#default_value' => variable_get('oa_messages_notifications', TRUE),
   );
-}
 
-/**
- * Helper function to get user's spaces.
- */
-function oa_messages_get_entity_groups($entity, $entity_type = 'user', $options = array(), $page = NULL) {
-  $matches = array();
-
-  if (isset($page) && !isset($_GET['page'])) {
-    $_GET['page'] = $page;
-  }
-
-  $query = db_select('og_membership', 'ogm')->extend('PagerDefault');
-  $query->join('node', 'n', 'n.nid = ogm.gid');
-  $query->condition('ogm.entity_type', $entity_type)
-  ->condition('ogm.etid', $entity)
-  ->condition('n.type', 'oa_space')
-  ->fields('n', array('nid', 'title'))
-  ->orderBy('n.title', 'ASC')
-  ->limit(20);
-
-  if (!empty($options['space'])) {
-    $query->condition('n.title', '%' . db_like($options['space']) . '%', 'LIKE');
-  }
-
-  $result = $query->execute();
-  $matches = $result->fetchAll();
-
-  return $matches;
+  $forms[] = array(
+    'caption' => t('Notifications'),
+    'form' => $form,
+  );
+  return $forms;
 }

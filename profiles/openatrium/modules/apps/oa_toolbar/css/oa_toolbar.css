@@ -1,0 +1,152 @@
+/***********/
+/* Toolbar */
+/***********/
+
+ul.oa_toolbar {
+  list-style: none;
+	font-weight: normal;
+	position: relative;
+  padding: 0;
+  margin: 0;
+  padding-top: 5px;
+}
+
+/* Hide Navbar module's navbar */
+#navbar-bar {
+  display: none;
+}
+.drupal-navbar .navbar-tray-vertical .navbar-toggle-orientation,
+.drupal-navbar .navbar-icon-toggle-horizontal,
+.drupal-navbar .navbar-icon-toggle-vertical {
+  display: none;
+}
+.touch .drupal-navbar .navbar-tray-vertical.active {
+  bottom: 0 !important;
+}
+.navbar .oa-navigation .nav {
+  display: inline-block;
+  float: none;
+}
+.oa-menu-banner {
+  display: inline-block;
+}
+#oa-navbar {
+  margin-bottom: 0;
+  border-width: 0;
+}
+
+#oa-navbar .btn-toolbar {
+  float: left;
+  margin: 3px 0 0 10px;
+}
+
+.navbar-inverse #oa-navbar .btn.btn-inverse {
+  color: #BBB;
+}
+
+.navbar-inverse #oa-navbar .caret {
+  border-top-color: #BBB;
+  border-bottom-color: #BBB;
+}
+
+#oa_toolbar .icon-home {
+  color: #333;
+}
+
+.navbar-inverse #oa-navbar .icon-home {
+  color: #BBB;
+}
+
+.oa_toolbar .btn {
+	margin: 0 0;
+}
+#oa-navbar .btn-group {
+	margin: 0;
+}
+
+#oa-navbar ul.dropdown-menu .dropdown-column {
+	float: left;
+	margin: 0.5em;
+	padding: 0;
+}
+
+#oa-navbar .dropdown .dropdown-menu li {
+padding: 0 0;
+margin: 0;
+width: 100%;
+}
+
+#oa-navbar ul.dropdown-menu h3 {
+	color: white;
+	font-size: 1.2em;
+	line-height: 30px;
+	margin: 0;
+	padding: 0 20px;
+	background-color: #333
+}
+
+#oa-navbar li ul li {
+  margin: 0;
+}
+
+#oa-navbar li ul li ul {
+  margin: 0;
+}
+
+#oa-navbar li a.active {
+	font-style: italic;
+}
+
+#oa-navbar .more-link {
+	font-size: 12px;
+}
+#oa-navbar .moscone-flipped-container {
+  margin-bottom: 0;
+}
+/**************/
+/* User badge */
+/**************/
+#oa-user-badge {
+  position: relative;
+}
+.navbar-inverse #oa-user-badge .user-badge {
+  color: #bbb;
+}
+#oa-user-badge .user-badge img {
+  margin: 0;
+}
+#oa-user-badge .dropdown-menu {
+  float: right;
+  width: 100%;
+}
+#oa-user-badge .dropdown-menu ul {
+  margin: 0;
+}
+#oa-user-badge .dropdown-menu ul li {
+  margin: 0;
+}
+
+/***************/
+/* Menu button */
+/***************/
+#toolbar-menu-button {
+  font-size: 12px;
+  text-transform: uppercase;
+  line-height: 20px;
+}
+.navbar-inverse #toolbar-menu-button {
+  color: #999;
+}
+.pull-left #toolbar-menu-button {
+  margin-left: 5px !important;
+}
+/* Space Menu */
+.oa-space-menu ul.nav {
+  display: inline-block;
+  float: none;
+}
+
+.oa-space-menu img {
+  max-height: 36px;
+  width: auto;
+}

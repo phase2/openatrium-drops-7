@@ -21,6 +21,16 @@ function panopoly_widgets_defaultconfig_features() {
 function panopoly_widgets_defaultconfig_user_default_permissions() {
   $permissions = array();
 
+  // Exported permission: 'access media browser'.
+  $permissions['access media browser'] = array(
+    'name' => 'access media browser',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'authenticated user' => 'authenticated user',
+    ),
+    'module' => 'media',
+  );
+
   // Exported permission: 'add media from remote sources'.
   $permissions['add media from remote sources'] = array(
     'name' => 'add media from remote sources',

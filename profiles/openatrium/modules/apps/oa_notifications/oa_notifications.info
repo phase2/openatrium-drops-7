@@ -1,0 +1,25 @@
+name = Open Atrium Notifications
+description = Adds notification functionality to Open Atrium
+core = 7.x
+package = Open Atrium
+dependencies[] = ctools
+dependencies[] = flag
+dependencies[] = oa_core
+dependencies[] = page_manager
+apps[screenshots][] = app/screenshot.png
+apps[logo] = app/logo.png
+apps[author] = Phase2 Technology
+apps[author_url] = http://www.phase2technology.com/
+apps[server] = openatrium
+apps[package] = Core addons
+features[ctools][] = page_manager:pages_default:1
+features[features_api][] = api:2
+features[page_manager_pages][] = user_subscribed_content
+project path = sites/all/modules/contrib
+
+; Information added by Drupal.org packaging script on 2014-10-28
+version = "7.x-2.21"
+core = "7.x"
+project = "oa_notifications"
+datestamp = "1414535659"
+

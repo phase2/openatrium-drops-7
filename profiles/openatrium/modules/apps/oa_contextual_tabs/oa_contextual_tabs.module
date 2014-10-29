@@ -1,0 +1,92 @@
+<?php
+/**
+ * @file
+ * Code for the Open Atrium contextual tabs module.
+ */
+
+include_once 'oa_contextual_tabs.features.inc';
+
+/**
+ * Impliments hook_menu().
+ */
+function oa_contextual_tabs_menu() {
+  $items['node/%node/archive-content'] = array(
+    'type' => MENU_LOCAL_TASK,
+    'title callback' => 'oa_contextual_tabs_archive_title',
+    'title arguments' => array(1),
+    'page callback' => 'oa_contextual_tabs_confirmation',
+    'page arguments' => array(1),
+    'access callback' => 'oa_contextual_tabs_access',
+    'access arguments' => array(1),
+    'weight' => 99,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_contextual_tabs_alter
+ * Add the visibility widget button
+ */
+function oa_contextual_tabs_contextual_tabs_alter(&$data) {
+  if (module_exists('oa_widgets') && variable_get('oa_show_visibility', TRUE)) {
+    $node = menu_get_object();
+    if (isset($node->type)) {
+      $vars = oa_core_visibility_data($node);
+      $vars['oa_toolbar_btn_class'] = 'btn-small btn-sm btn-default';
+      $data['buttons'][] = array(
+        'render' => theme('oa_widgets_visibility_toolbar', $vars),
+      );
+    }
+  }
+}
+
+/**
+ * Title callback for tab to archive/unarchive current node.
+ */
+function oa_contextual_tabs_archive_title($node) {
+  $flag = flag_load('trash');
+  return $flag->is_flagged($node->nid) ? $flag->get_label('unflag_short') : $flag->get_label('flag_short');
+}
+
+/**
+ * Redirect the user to the confirmation page.
+ */
+function oa_contextual_tabs_confirmation($node) {
+  $flag = flag_load('trash');
+  $op = $flag->is_flagged($node->nid) ? 'unflag' : 'flag';
+  $link = flag_flag_link($flag, $op, $node->nid);
+  drupal_goto($link['href'], array('query' => array('destination' => 'node/' . $node->nid)));
+}
+
+/**
+ * Perform access control on the flag. Just piggyback off what
+ * trash_flag_flag_access already does.
+ */
+function oa_contextual_tabs_access($node) {
+  global $user;
+  $account = $user;
+  $flag = flag_load('trash');
+  $op = $flag->is_flagged($node->nid) ? 'unflag' : 'flag';
+  return trash_flag_flag_access($flag, $node->nid, $op, $account);
+}
+
+/**
+ * Implements hook_oa_settings_form().
+ */
+function oa_contextual_tabs_oa_settings_form(&$form_state) {
+  $forms = array();
+
+  $form = array();
+  $form['oa_show_visibility'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Show visibility button',
+    '#default_value' => variable_get('oa_show_visibility', TRUE),
+  );
+
+  $forms[] = array(
+    'caption' => t('Contextual Tabs'),
+    'form' => $form,
+  );
+  return $forms;
+}

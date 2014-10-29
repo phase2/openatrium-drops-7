@@ -1,0 +1,93 @@
+<?php
+
+/**
+ * @file bootstrap_library.install
+ * Installation and update functions for the Bootstrap Library
+ * Module
+ */
+
+/**
+ * Default settings storage.
+ */
+function _bootstrap_library_defaults() {
+  $theme = variable_get('theme_default', NULL);;
+  return array(
+    'visibility' => array(
+      'visibility' => 0,
+      'pages' => 'admin/*',
+    ),
+    'theme' => array(
+      'visibility' => 1,
+      'themes' => array($theme => $theme),
+    ),
+    'minimized' => array(
+      'options' => 1,
+    ),
+    'files' => array(
+      'types' => array(
+        'css' => 'css', 
+        'js' => 'js',
+      ),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_install().
+ * This will create our system variable defaults.
+ * The benefit is that we do not need to pass defaults
+ * to variable_get(), which allows centralization of defaults.
+ */
+function bootstrap_library_install() {
+  variable_set('bootstrap_library_settings', _bootstrap_library_defaults());
+}
+
+/**
+ * Implementation of hook_uninstall().
+ * Only clears our variables, so a fresh installation can repopulate them.
+ */
+function bootstrap_library_uninstall() {
+  // Settings.
+  variable_del('bootstrap_library_settings');
+}
+
+/**
+ * Implementation of hook_update().
+ */
+function bootstrap_library_update_7002() {
+  $theme = variable_get('theme_default', NULL);
+  $settings = variable_get('bootstrap_library_settings');
+  $update = FALSE;
+  if(!isset($settings['theme']['visibility'])) {
+    $settings['theme'] = array(
+      'visibility' => 1,
+      'themes' => array($theme => $theme),
+    );
+    $update = TRUE;
+  }
+  if(!isset($settings['minimized']['options'])) {
+    $settings['minimized'] = array(
+      'options' => 0,
+    );
+    $update = TRUE;
+  }
+  if ($update) variable_set('bootstrap_library_settings', $settings);
+}
+
+/**
+ * Adds file types settings.
+ */
+function bootstrap_library_update_7003() {
+  $settings = variable_get('bootstrap_library_settings');
+  $update = FALSE;
+
+  // Set file types if not set.
+  if (!isset($settings['files']['types'])) {
+    $settings['files']['types'] = array(
+      'css' => 'css', 
+      'js' => 'js',
+    );
+    $update = TRUE;
+  }
+  if ($update) variable_set('bootstrap_library_settings', $settings);
+}

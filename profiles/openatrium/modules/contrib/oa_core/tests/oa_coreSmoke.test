@@ -46,5 +46,8 @@ class oa_coreSmoke extends oa_coreBaseWebTest {
     $this->assertText('Create Discussion Post',  t('Create Discussion visible on space'));
     $this->assertText('Create Document Page',  t('Create Document Page visible on space'));
     $this->assertText('Create Event',  t('Create Event visible on space'));
+
+    $this->drupalGet('node/' . $calendar_section->nid);
+    $this->assertRaw('<div class="view view-oa-fullcalendar',  t('Calendar view visible on calendar space'));
   }
 }

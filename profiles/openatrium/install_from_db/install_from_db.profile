@@ -28,7 +28,7 @@ function install_from_db_install_tasks_alter(&$tasks, $install_state) {
  * Helper function to insert a key/value pair before an existing key
  * Used to re-order the install tasks array
  */
-function _install_from_db_insert_before_key( $originalArray, $originalKey, $insertKey, $insertValue ) {
+function _install_from_db_insert_before_key($originalArray, $originalKey, $insertKey, $insertValue) {
   $newArray = array();
   $inserted = false;
   foreach ($originalArray as $key => $value) {
@@ -198,6 +198,10 @@ function _install_from_db_install_db_import_finished($success, $results, $operat
  */
 function _install_from_db_cc_all() {
   // load the module files as if we just installed them
+  cache_clear_all('lookup_cache', 'cache_bootstrap');
+  cache_clear_all('variables', 'cache_bootstrap');
+  cache_clear_all('module_implements', 'cache_bootstrap');
+  registry_rebuild();
   $module_list = module_list(TRUE);
   foreach ($module_list as $module) {
     drupal_load('module', $module);

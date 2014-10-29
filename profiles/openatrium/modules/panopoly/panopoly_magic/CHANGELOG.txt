@@ -1,3 +1,18 @@
+Panopoly Magic 7.x-1.13, 2014-10-17
+----------------------------
+- No changes since last release.
+
+Panopoly Magic 7.x-1.12, 2014-10-15
+----------------------------
+- Fixed Using deprecated clicked_button, not triggering_element.
+- Added Panopoly Magic should respect a view's configured view mode. (take 2).
+- Added Panopoly Magic should respect a view's configured view mode.
+- Fixed View panes in CTools add modal are missing a[title] values.
+
+Panopoly Magic 7.x-1.11, 2014-08-14
+----------------------------
+- Fixed Descriptive text is not displayed in panopoly magic.
+
 Panopoly Magic 7.x-1.10, 2014-08-06
 ----------------------------
 - No changes since last release.

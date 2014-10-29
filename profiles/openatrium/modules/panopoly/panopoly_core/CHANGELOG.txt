@@ -1,3 +1,30 @@
+Panopoly Core 7.x-1.13, 2014-10-17
+---------------------------
+- No changes since last release.
+
+Panopoly Core 7.x-1.12, 2014-10-15
+---------------------------
+- Fixed Include CTools patch to prevent error in IPE when field doesn't exist.
+- Update 'panels_breadcrumbs' to version 2.2.
+- Update 'uuid' to version 1.0-alpha6.
+- Fixed Old content aliases should be preserved by default.
+- Update Apps to latest beta.
+- Remove Open Sans?.
+- Fixed On Views "Content Panes", exclude hidden fields (on "Field Settings") by default.
+- Patch Panelizer to avoid fatal error in Features.
+- Added features override.
+- Revert "Issue #2208783 by mrfelton | lsolesen: Added features override.".
+- Added features override.
+- Replace default "update" module behavior with something that makes sense for distributions.
+- Fixed Double-encoding of ampersands in page title on node add form.
+- Revert "Issue #2128959 by caschbre | dsnopek: Replace default "update" module behavior with something that makes sense for distributions.".
+- Replace default "update" module behavior with something that makes sense for distributions.
+- Update Features to 2.2.
+
+Panopoly Core 7.x-1.11, 2014-08-14
+---------------------------
+- No changes since last release.
+
 Panopoly Core 7.x-1.10, 2014-08-06
 ---------------------------
 - No changes since last release.

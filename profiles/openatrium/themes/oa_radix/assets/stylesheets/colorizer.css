@@ -28,6 +28,16 @@ body.overlay {
 .form-actions {
   background-color: @contentareabg;
 }
+a {
+  color: @link;
+}
+a:hover,
+a:focus {
+  color: @linkhover;
+}
+a:active {
+  color: @linkactive;
+}
 #header,
 .navbar-inner,
 .navbar-inner .panel-panel,
@@ -96,15 +106,9 @@ border-top: 6px solid @toolbartext;
 border-right: 6px solid transparent;
 border-left: 6px solid transparent;
 }
-a {
-  color: @link;
-}
-a:hover,
-a:focus {
-  color: @linkhover;
-}
-a:active {
-  color: @linkactive;
+#oa-navbar-admin li a {
+  color: @toolbartext;
+  background-color: transparent !important;
 }
 .sidebar .block {
   background-color: @sidebar;
@@ -164,6 +168,10 @@ background-color: @headerbg;
 }
 
 #oa-navbar .panel-panel .pane-oa-navigation li > a,
-#oa-navbar .panel-panel .pane-oa-space-banner li > a{
+#oa-navbar .panel-panel .pane-oa-space-banner li > a {
 color: @titleslogan;
+}
+
+#oa-navbar-spaces ul.dropdown-menu .item-list h3 {
+  color: @titleslogan;
 }

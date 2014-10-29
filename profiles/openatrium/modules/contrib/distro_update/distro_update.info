@@ -1,0 +1,13 @@
+name = Distribution Update Status Manager
+description = Provides an alternative Update Manager interface to limit status updates for modules/themes managed by a distribution's or module's .make file.
+core = 7.x
+dependencies[] = ctools
+dependencies[] = update
+configure = admin/reports/updates/settings
+
+; Information added by Drupal.org packaging script on 2014-08-25
+version = "7.x-1.0-beta3"
+core = "7.x"
+project = "distro_update"
+datestamp = "1408967929"
+

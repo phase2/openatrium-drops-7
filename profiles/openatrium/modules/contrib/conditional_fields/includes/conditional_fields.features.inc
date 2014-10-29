@@ -53,7 +53,7 @@ function conditional_fields_features_export_render($module_name, $data, $export 
       foreach ($info['dependents'] as $dependent_field_name => $dependees) {
         foreach ($dependees as $dependee) {
           $code[] = '';
-          $code[] = '  $items[] = array(';
+          $code[] = '  $items["' . $option . '"] = array(';
           $code[] = "    'entity' => '" . $entity . "',";
           $code[] = "    'bundle' => '" . $bundle . "',";
           $code[] = "    'dependent' => '" . $dependent_field_name . "',";

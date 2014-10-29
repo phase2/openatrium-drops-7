@@ -155,38 +155,6 @@ function panopoly_users_panelizer_defaults() {
   $display->content = array();
   $display->panels = array();
     $pane = new stdClass();
-    $pane->pid = 'new-da014954-335f-4dba-9540-79c1c2ef5b2a';
-    $pane->panel = 'contentmain';
-    $pane->type = 'entity_field';
-    $pane->subtype = 'user:field_user_picture';
-    $pane->shown = TRUE;
-    $pane->access = array();
-    $pane->configuration = array(
-      'label' => 'hidden',
-      'formatter' => 'image',
-      'delta_limit' => 0,
-      'delta_offset' => '0',
-      'delta_reversed' => FALSE,
-      'formatter_settings' => array(
-        'image_style' => 'panopoly_image_half',
-        'image_link' => '',
-      ),
-      'context' => 'panelizer',
-      'override_title' => 1,
-      'override_title_text' => '',
-    );
-    $pane->cache = array();
-    $pane->style = array(
-      'settings' => NULL,
-    );
-    $pane->css = array();
-    $pane->extras = array();
-    $pane->position = 0;
-    $pane->locks = array();
-    $pane->uuid = 'da014954-335f-4dba-9540-79c1c2ef5b2a';
-    $display->content['new-da014954-335f-4dba-9540-79c1c2ef5b2a'] = $pane;
-    $display->panels['contentmain'][0] = 'new-da014954-335f-4dba-9540-79c1c2ef5b2a';
-    $pane = new stdClass();
     $pane->pid = 'new-7b58bea7-aa6f-4daa-9180-9eedc586bde2';
     $pane->panel = 'contentmain';
     $pane->type = 'entity_field';
@@ -210,11 +178,11 @@ function panopoly_users_panelizer_defaults() {
     );
     $pane->css = array();
     $pane->extras = array();
-    $pane->position = 1;
+    $pane->position = 0;
     $pane->locks = array();
     $pane->uuid = '7b58bea7-aa6f-4daa-9180-9eedc586bde2';
     $display->content['new-7b58bea7-aa6f-4daa-9180-9eedc586bde2'] = $pane;
-    $display->panels['contentmain'][1] = 'new-7b58bea7-aa6f-4daa-9180-9eedc586bde2';
+    $display->panels['contentmain'][0] = 'new-7b58bea7-aa6f-4daa-9180-9eedc586bde2';
     $pane = new stdClass();
     $pane->pid = 'new-a48325fb-5137-4640-8fe6-9228d15745b4';
     $pane->panel = 'contentmain';
@@ -234,11 +202,11 @@ function panopoly_users_panelizer_defaults() {
     );
     $pane->css = array();
     $pane->extras = array();
-    $pane->position = 2;
+    $pane->position = 1;
     $pane->locks = array();
     $pane->uuid = 'a48325fb-5137-4640-8fe6-9228d15745b4';
     $display->content['new-a48325fb-5137-4640-8fe6-9228d15745b4'] = $pane;
-    $display->panels['contentmain'][2] = 'new-a48325fb-5137-4640-8fe6-9228d15745b4';
+    $display->panels['contentmain'][1] = 'new-a48325fb-5137-4640-8fe6-9228d15745b4';
   $display->hide_title = PANELS_TITLE_FIXED;
   $display->title_pane = '0';
   $panelizer->display = $display;
@@ -278,38 +246,6 @@ function panopoly_users_panelizer_defaults() {
   $display->uuid = '693a059f-078d-41ef-8c11-053b70a597d2';
   $display->content = array();
   $display->panels = array();
-    $pane = new stdClass();
-    $pane->pid = 'new-d0cac25c-4401-4daf-8bbe-aa66569b1279';
-    $pane->panel = 'column1';
-    $pane->type = 'entity_field';
-    $pane->subtype = 'user:field_user_picture';
-    $pane->shown = TRUE;
-    $pane->access = array();
-    $pane->configuration = array(
-      'label' => 'hidden',
-      'formatter' => 'image',
-      'delta_limit' => 0,
-      'delta_offset' => '0',
-      'delta_reversed' => FALSE,
-      'formatter_settings' => array(
-        'image_style' => 'panopoly_image_half',
-        'image_link' => 'content',
-      ),
-      'context' => 'panelizer',
-      'override_title' => 1,
-      'override_title_text' => '',
-    );
-    $pane->cache = array();
-    $pane->style = array(
-      'settings' => NULL,
-    );
-    $pane->css = array();
-    $pane->extras = array();
-    $pane->position = 0;
-    $pane->locks = array();
-    $pane->uuid = 'd0cac25c-4401-4daf-8bbe-aa66569b1279';
-    $display->content['new-d0cac25c-4401-4daf-8bbe-aa66569b1279'] = $pane;
-    $display->panels['column1'][0] = 'new-d0cac25c-4401-4daf-8bbe-aa66569b1279';
     $pane = new stdClass();
     $pane->pid = 'new-e8b46596-4bed-47f1-a75c-06bc20485822';
     $pane->panel = 'column2';

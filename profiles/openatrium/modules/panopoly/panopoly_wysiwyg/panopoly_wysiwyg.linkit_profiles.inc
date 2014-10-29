@@ -10,32 +10,55 @@
 function panopoly_wysiwyg_default_linkit_profiles() {
   $export = array();
 
-  $linkit_profile = new stdClass();
+  $linkit_profile = new LinkitProfile();
   $linkit_profile->disabled = FALSE; /* Edit this to true to make a default linkit_profile disabled initially */
   $linkit_profile->api_version = 1;
   $linkit_profile->name = 'content_editors';
   $linkit_profile->admin_title = 'Content Editors';
+  $linkit_profile->admin_description = '';
+  $linkit_profile->profile_type = '1';
   $linkit_profile->data = array(
-    'plugins' => array(
-      'entity:taxonomy_term' => array(
-        'weight' => '0',
+    'text_formats' => array(
+      'panopoly_wysiwyg_text' => 'panopoly_wysiwyg_text',
+      'panopoly_html_text' => 0,
+      'plain_text' => 0,
+    ),
+    'search_plugins' => array(
+      'entity:search_api_server' => array(
         'enabled' => 0,
+        'weight' => '-10',
+      ),
+      'entity:search_api_index' => array(
+        'enabled' => 0,
+        'weight' => '-10',
+      ),
+      'entity:taxonomy_term' => array(
+        'enabled' => 0,
+        'weight' => '0',
       ),
       'entity:node' => array(
-        'weight' => '0',
         'enabled' => 1,
+        'weight' => '0',
       ),
       'entity:file' => array(
-        'weight' => '0',
         'enabled' => 0,
+        'weight' => '0',
       ),
       'entity:user' => array(
-        'weight' => '0',
         'enabled' => 0,
+        'weight' => '0',
       ),
     ),
     'entity:node' => array(
       'result_description' => '[node:title]',
+      'include_unpublished' => 0,
+    ),
+    'entity:search_api_server' => array(
+      'result_description' => '',
+      'include_unpublished' => 0,
+    ),
+    'entity:search_api_index' => array(
+      'result_description' => '',
       'include_unpublished' => 0,
     ),
     'entity:file' => array(
@@ -60,40 +83,41 @@ function panopoly_wysiwyg_default_linkit_profiles() {
     'entity:user' => array(
       'result_description' => '',
     ),
-    'autocomplete' => array(
-      'charLimit' => 3,
-      'wait' => 350,
-      'remoteTimeout' => 10000,
+    'insert_plugin' => array(
+      'url_method' => '2',
     ),
-    'attributes' => array(
-      'rel' => array(
-        'weight' => '0',
+    'attribute_plugins' => array(
+      'target' => array(
         'enabled' => 0,
+        'weight' => '-10',
       ),
       'class' => array(
-        'weight' => '0',
         'enabled' => 1,
-      ),
-      'accesskey' => array(
         'weight' => '0',
-        'enabled' => 0,
       ),
       'id' => array(
-        'weight' => '0',
         'enabled' => 0,
+        'weight' => '0',
       ),
       'title' => array(
-        'weight' => '0',
         'enabled' => 1,
+        'weight' => '0',
+      ),
+      'accesskey' => array(
+        'enabled' => 0,
+        'weight' => '0',
+      ),
+      'rel' => array(
+        'enabled' => 0,
+        'weight' => '0',
       ),
     ),
+    'autocomplete' => array(
+      'charLimit' => '3',
+      'wait' => '350',
+      'remoteTimeout' => '10000',
+    ),
   );
-  $linkit_profile->role_rids = array(
-    2 => 1,
-    3 => 1,
-    4 => 1,
-  );
-  $linkit_profile->weight = 0;
   $export['content_editors'] = $linkit_profile;
 
   return $export;

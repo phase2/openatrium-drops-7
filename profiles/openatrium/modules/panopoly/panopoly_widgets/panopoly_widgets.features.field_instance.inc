@@ -301,6 +301,40 @@ function panopoly_widgets_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'fieldable_panels_pane-spotlight-field_basic_spotlight_duration'
+  $field_instances['fieldable_panels_pane-spotlight-field_basic_spotlight_duration'] = array(
+    'bundle' => 'spotlight',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'hidden',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 1,
+      ),
+    ),
+    'entity_type' => 'fieldable_panels_pane',
+    'field_name' => 'field_basic_spotlight_duration',
+    'label' => 'Slide Duration',
+    'required' => 0,
+    'settings' => array(
+      'max' => 60,
+      'min' => 1,
+      'prefix' => '',
+      'suffix' => 'seconds',
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 0,
+      'module' => 'number',
+      'settings' => array(),
+      'type' => 'number',
+      'weight' => 1,
+    ),
+  );
+
   // Exported field_instance: 'fieldable_panels_pane-spotlight-field_basic_spotlight_items'
   $field_instances['fieldable_panels_pane-spotlight-field_basic_spotlight_items'] = array(
     'bundle' => 'spotlight',
@@ -338,7 +372,7 @@ function panopoly_widgets_field_default_field_instances() {
       'module' => 'panopoly_widgets',
       'settings' => array(),
       'type' => 'panopoly_spotlight_form',
-      'weight' => -4,
+      'weight' => 2,
     ),
   );
 
@@ -504,6 +538,7 @@ function panopoly_widgets_field_default_field_instances() {
   t('Information');
   t('Items');
   t('Links');
+  t('Slide Duration');
   t('Table');
   t('Text');
   t('The street address of the location you wish to map. This widget will contact Google and try to do its best to create a map!');

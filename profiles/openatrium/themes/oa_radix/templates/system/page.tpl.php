@@ -12,7 +12,7 @@
 ?>
 <?php if (!empty($oa_toolbar_panel)): ?>
   <div class="responsive-panels-region responsive-panels-region-top">
-    <div id="oa-navbar" class="navbar <?php print $oa_toolbar_class; ?> <?php print $oa_toolbar_sticky; ?>">
+    <div id="oa-navbar" class="navbar <?php print !empty($oa_toolbar_class) ? $oa_toolbar_class : ''; ?> <?php print !empty($oa_toolbar_sticky) ? $oa_toolbar_sticky : ''; ?>">
       <div class="navbar-inner">
         <?php print $oa_toolbar_panel; ?>
       </div>
@@ -28,7 +28,7 @@
   <header id="header" class="header" role="header">
     <div class="container">
       <div class="row">
-        <div class="span12">
+        <div class="col-md-12">
           <div id="navigation" class="navbar">
             <div class="navbar-inner">
               <div class="container clearfix">
@@ -93,7 +93,7 @@
     <?php endif; ?>
     <div id="content">
       <div class="row">
-        <div class="span12 inner">
+        <div class="col-md-12 inner">
           <?php if (!empty($primarytabs)): ?><?php print $primarytabs; ?><?php endif; ?>
           <a id="main-content"></a>
           <?php print render($title_prefix); ?>
@@ -113,7 +113,7 @@
 <footer id="footer" class="footer" role="footer">
   <div class="container">
     <div class="row">
-      <div class="span12">
+      <div class="col-md-12">
         <div class="footer-inner">
           <?php if (!empty($oa_footer_panel)): ?>
             <?php print $oa_footer_panel; ?>

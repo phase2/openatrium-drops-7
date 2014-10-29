@@ -6,6 +6,32 @@
  */
 
 /**
+ * Implements hook_install().
+ */
+function oa_core_install() {
+  oa_core_create_default_terms();
+}
+
+/**
+ * Create the default Space and Section taxonomy terms
+ */
+function oa_core_create_default_terms() {
+  $params = array(
+    'description' => 'This is the default space layout with the Recent Activity stream in the main region.',
+    'node_options' => array(),
+    'layout' => 'node:oa_space:default',
+  );
+  oa_core_create_term('space_type', 'Default', $params);
+
+  $params = array(
+    'description' => 'This is the default section layout with the Recent Activity stream in the main region.',
+    'node_options' => array(),
+    'layout' => 'node:oa_section:default',
+  );
+  oa_core_create_term('section_type', 'Default', $params);
+}
+
+/**
  * Enable oa_search.
  */
 function oa_core_update_7001() {
@@ -160,3 +186,37 @@ function oa_core_update_7219() {
   media_update_7226();
 }
 
+/**
+ * Enable oa_toolbar, radix_layouts, bootstrap_library
+ */
+function oa_core_update_7220() {
+  module_enable(array('oa_toolbar', 'radix_layouts', 'bootstrap_library'));
+}
+
+/**
+ * Enable ultimate_cron
+ */
+function oa_core_update_7221() {
+  module_enable(array('ultimate_cron'));
+}
+
+/**
+ * Rebuild registry to handle modules that have moved
+ */
+function oa_core_update_7222() {
+  // rebuild the registry for other module moves
+  cache_clear_all('ctools_plugin_type_info', 'cache');
+  cache_clear_all('lookup_cache', 'cache_bootstrap');
+  cache_clear_all('variables', 'cache_bootstrap');
+  cache_clear_all('module_implements', 'cache_bootstrap');
+  drupal_static_reset('ctools_plugin_type_info_loaded');
+  drupal_static_reset('ctools_plugin_type_info');
+  registry_rebuild();
+}
+
+/**
+ * Enable sitemap and wizard apps
+ */
+function oa_core_update_7223() {
+  module_enable(array('oa_sitemap', 'oa_wizard'));
+}

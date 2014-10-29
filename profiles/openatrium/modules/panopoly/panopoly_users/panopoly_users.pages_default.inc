@@ -45,6 +45,8 @@ function panopoly_users_default_page_manager_handlers() {
     'panels_breadcrumbs_titles' => 'Log in',
     'panels_breadcrumbs_paths' => '',
     'panels_breadcrumbs_home' => 1,
+    'body_classes_to_add' => '',
+    'body_classes_to_remove' => '',
   );
   $display = new panels_display();
   $display->layout = 'burr_flipped';

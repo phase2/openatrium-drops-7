@@ -1,0 +1,584 @@
+<?php
+
+/**
+ * @file
+ * Provides hook implementations and functionality for oa_toolbar.
+ */
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function oa_toolbar_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'ctools') {
+    return "plugins/$plugin_type";
+  }
+}
+
+/**
+ * Implements hook_oa_settings_form().
+ */
+function oa_toolbar_oa_settings_form(&$form_state) {
+  $forms = array();
+
+  $form = array();
+  $form['oa_toolbar_hometext'] = array(
+    '#title' => t('Caption for space home page'),
+    '#type' => 'textfield',
+    '#default_value' => variable_get('oa_toolbar_hometext', ''),
+    '#description' => t('Caption shown in toolbar when on a space landing page.'),
+  );
+
+  $form['oa_toolbar_spacetext'] = array(
+    '#title' => t('Caption for Spaces'),
+    '#type' => 'textfield',
+    '#default_value' => variable_get('oa_toolbar_spacetext', t("Spaces")),
+    '#description' => t('Caption shown in dropdown for Spaces menu.'),
+  );
+
+  $form['oa_toolbar_toplevel'] = array(
+    '#title' => t('Only show top-level spaces'),
+    '#type' => 'select',
+    '#required' => TRUE,
+    '#options' => array(
+      '1' => 'Yes',
+      '0' => 'No',
+    ),
+    '#default_value' => variable_get('oa_toolbar_toplevel', 1),
+    '#description' => t('Select whether only top-level spaces are shown in list next to home button.'),
+  );
+
+  if (oa_core_get_bootstrap_version() >= 3) {
+    $form['oa_toolbar_mouseover'] = array(
+      '#title' => t('Allow mouse-hover actions in toolbar'),
+      '#type' => 'checkbox',
+      '#default_value' => variable_get('oa_toolbar_mouseover', FALSE),
+      '#description' => t('If enabled, show dropdown menus in toobar on mouse-hover.'),
+    );
+  }
+
+  $forms[] = array(
+    'caption' => t('Toolbar settings'),
+    'form' => $form,
+  );
+  return $forms;
+}
+
+/**
+ * Implements template_preprocess_page().
+ */
+function oa_toolbar_preprocess_page(&$vars) {
+  $vars['oa_toolbar_class'] = 'navbar-inverse';
+  $vars['oa_toolbar_btn_class'] = variable_get('oa_toolbar_style', 0) ? '' : 'btn-inverse';
+  $vars['oa_toolbar_sticky'] = 'navbar-fixed-top';
+}
+
+/**
+ * Implements hook_block_info()
+ */
+function oa_toolbar_block_info() {
+  $blocks['oa_toolbar'] = array(
+    'info' => t('Open Atrium Toolbar'),
+    'cache' => DRUPAL_NO_CACHE,
+  );
+  $blocks['oa_user_badge'] = array(
+    'info' => t('Open Atrium User Badge'),
+    'cache' => DRUPAL_CACHE_PER_USER,
+  );
+  $blocks['oa_toolbar_menu_button'] = array(
+    'info' => t('Open Atrium Toolbar Menu Button'),
+    'cache' => DRUPAL_CACHE_GLOBAL,
+  );
+  $blocks['oa_breadcrumb'] = array(
+    'info' => t('Open Atrium Breadcrumbs'),
+    'cache' => DRUPAL_NO_CACHE,
+  );
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view()
+ */
+function oa_toolbar_block_view($delta = '') {
+  $block = array();
+
+  switch ($delta) {
+    case 'oa_toolbar':
+      $block['subject'] = '';
+      $block['content'] = theme('oa_toolbar');
+      break;
+    case 'oa_user_badge':
+      $block['subject'] = '';
+      $block['content'] = theme('oa_user_badge');
+      break;
+    case 'oa_toolbar_menu_button':
+      $block['subject'] = '';
+      if (module_exists('navbar')) {
+        $tree = navbar_get_menu_tree();
+        if (!empty($tree)) {
+          $block['content'] = theme('oa_toolbar_menu_button');
+        }
+      }
+      break;
+    case 'oa_breadcrumb':
+      $block['subject'] = '';
+      $block['content'] = theme('oa_breadcrumb');
+      break;
+  }
+
+  return $block;
+}
+
+/**
+ * Implements hook_theme()
+ */
+function oa_toolbar_theme() {
+  return array(
+    'oa_toolbar' => array(
+      'template' => 'oa_toolbar',
+    ),
+    'oa_user_badge' => array(
+      'template' => 'oa_user_badge',
+    ),
+    'oa_toolbar_menu_button' => array(
+      'template' => 'oa_toolbar_menu_button',
+    ),
+    'oa_breadcrumb' => array(
+      'template' => 'oa_breadcrumb',
+    ),
+    'oa_navigation' => array(
+      'variables' => array('menu_name' => NULL),
+      'template' => 'oa-navigation',
+    ),
+    'oa_space_menu' => array(
+      'variables' => array('menu' => NULL),
+      'template' => 'oa-space-menu',
+    ),
+  );
+}
+
+/**
+ * Get jump links to create Spaces/Sections of a particular type.
+ *
+ * @param string $base
+ *   Either the string 'space' or 'section'.
+ * @param array $url_query
+ *   Associative array to use as the URL query string.
+ *
+ * @return string|NULL
+ *   Returns a string containing the rendered jump links or NULL if there are
+ *   less than 2 links.
+ */
+function oa_toolbar_get_jump_links($base, $url_query = array()) {
+  $vocab_name = $base . '_type';
+  $node_type = 'oa-' . $base;
+
+  // Get all the type terms.
+  $query = db_select('taxonomy_term_data', 'td');
+  $query->join('taxonomy_vocabulary', 'v', 'v.vid = td.vid');
+  $query
+    ->fields('td', array('tid', 'name'))
+    ->condition('v.machine_name', $vocab_name);
+  $terms = $query->execute()->fetchAllKeyed();
+
+  if (count($terms) > 1) {
+    $links = array();
+    foreach ($terms as $tid => $name) {
+      $links[] = array(
+        'title' => t('Create new @type', array('@type' => $name)),
+        'href' => "node/add/{$node_type}/$tid",
+        'query' => $url_query,
+      );
+    }
+
+    return theme('links', array(
+      'links' => $links,
+      'attributes' => array('class' => array('dropdown-menu')),
+    ));
+  }
+}
+
+/**
+ * Preprocess the OA Navigation.
+ */
+function template_preprocess_oa_navigation(&$vars) {
+  if (!empty($vars['show_menu'])) {
+    $menu = menu_tree_output(menu_tree_all_data($vars['menu_name'], NULL, 2));
+
+    if (!empty($menu)) {
+      // Format and add menu to template.
+      $menu['#theme_wrappers'] = array('menu_tree__oa_navigation');
+      foreach (element_children($menu) as $mlid) {
+        // Render the links as Radix defaults.
+        $menu[$mlid]['#theme'] = 'menu_link__oa_navigation';
+      }
+    }
+    $vars['menu'] = $menu;
+  }
+}
+
+/**
+ * Preprocess function for the oa_toolbar block.
+ */
+function template_preprocess_oa_toolbar(&$vars) {
+  global $user;
+
+  $settings = array(
+    'mouseover' => variable_get('oa_toolbar_mouseover', FALSE),
+  );
+  drupal_add_js(array('oa_toolbar' => $settings), 'setting');
+  drupal_add_js(drupal_get_path('module', 'oa_toolbar') . '/js/oa-toolbar.js');
+
+  // Separators
+  $vars['oa_toolbar_separator'] = t('&gt;');
+  $vars['home_url'] = url('<front>', array('absolute' => TRUE));
+
+  // Spaces
+  $space = NULL;
+  $space_id = oa_core_get_space_context();
+  $node = menu_get_object();
+  $front_panel = drupal_is_front_page() && !(isset($node) && ($node->type == OA_SPACE_TYPE));
+
+  if ($front_panel) {
+    $space_id = 0;  // reset breadcrumbs on home page
+  }
+  $vars['spaces_label'] = '';
+  $vars['spaces_recent'] = '';
+  $vars['spaces_favorite'] = '';
+  $vars['sections_label'] = '';
+  $vars['sections_list'] = '';
+  $vars['parent_label'] = '';
+  $vars['parent_url'] = '';
+
+  // grab list of user's spaces and sections
+  $vars['space_label'] = variable_get('oa_toolbar_spacetext', t("Spaces"));
+  $vars['space_url'] = url('spaces');
+  $parent_id = NULL;
+  $space_type = OA_SPACE_TYPE;
+  $subspace_type_names = '';
+  if (isset($space_id) && ($space = node_load($space_id))) {
+    $title = $space->title;
+    $space_type = $space->type;
+    $subspace_type_names = ($space_type == OA_SPACE_TYPE) ? t('Subspaces') : t('Subgroups');
+    $vars['space_label'] = $title;
+    $vars['space_url'] = url('node/' . $space_id);
+    if (isset($vars['show_parents'])) {
+      $parents = oa_core_get_parents($space_id, $space_type, NODE_PUBLISHED, TRUE);
+      if (count($parents)) {
+        $items = oa_core_get_titles($parents);
+        if (!empty($items['titles'][0])) {
+          $vars['parent_label'] = $items['titles'][0];
+          $parent_id = $parents[0];
+          $vars['parent_url'] = url('node/' . $parent_id);
+        }
+        if (count($parents) > 1) {
+          $list = oa_core_truncate_list($items['links'], 15);
+          $vars['parent_list'] = theme('item_list', array(
+            'items' => $list,
+            'title' => t('Siblings'),
+            'type' => 'ul',
+          ));
+        }
+        $siblings = oa_core_get_groups_by_parent($parent_id, $space_type, NODE_PUBLISHED);
+        if (count($siblings) > 1) {
+          $items = oa_core_get_titles($siblings);
+          $list = oa_core_truncate_list($items['links'], 15);
+          $vars['sibling_list'] = theme('item_list', array(
+            'items' => $list,
+            'title' => $subspace_type_names,
+            'type' => 'ul',
+          ));
+        }
+      }
+    }
+  }
+  $space_type_name = ($space_type == OA_SPACE_TYPE) ? t('Space') : t('Group');
+  $space_type_names = ($space_type == OA_SPACE_TYPE) ? t('Spaces') : t('Groups');
+  $all_spaces = ($space_type == OA_SPACE_TYPE) ? 'spaces' : 'groups';
+
+  $show_all = TRUE;
+  $spaces = NULL;
+  if ($user->uid) {
+    $spaces = oa_core_get_groups_by_user_access($user, FALSE, NULL);
+    $spaces = array_map(
+      function($node) { return $node->nid; },
+      $spaces);
+    $menu_title = ($space_type == OA_SPACE_TYPE) ? t('Subscribed Spaces') : t('Groups');
+  }
+  if (empty($spaces)) {
+    // og_get_entity_groups doesn't return anything for anonymous users
+    // so return list of all public spaces
+    $spaces = oa_core_get_public_spaces(array(OA_SPACE_TYPE => OA_SPACE_TYPE), NODE_PUBLISHED);
+    $menu_title = t('Public Spaces');
+  }
+  if (empty($spaces)) {
+    $list = array();
+  }
+  else {
+    if (isset($vars['show_parents']) && variable_get('oa_toolbar_toplevel', 1) == 1) {
+      // restrict spaces to just top-level (no parents)
+      $remove = array();
+      foreach ($spaces as $key => $value) {
+        // parents are cached, so this should be fast
+        $parents = oa_core_get_parents($value, $space_type, NULL, TRUE);
+        foreach ($parents as $parent_id) {
+          if (in_array($parent_id, $spaces)) {
+            // parent is also in spaces list, so remove child from list
+            $remove[] = $key;
+          }
+        }
+      }
+      foreach ($remove as $id) {
+        unset($spaces[$id]);
+      }
+    }
+
+    $items = oa_core_get_titles($spaces, $space_type);
+    $list = oa_core_truncate_list($items['links'], 25,
+      l(t('All ' . $space_type_names . '...'), $all_spaces,
+        array('attributes' => array('class' => array('more-link')))),
+      $show_all);
+  }
+  if (module_exists('oa_sitemap')) {
+    $list[] = l(t('Site map'), 'sitemap', array('attributes' => array('class' => array('more-link'))));
+  }
+  if (user_access('create ' . $space_type . ' content', $user)) {
+    $jump_links = oa_toolbar_get_jump_links('space');
+    $list[] = array(
+      'data' => l(t('Create new ' . $space_type_name), 'node/add/' . str_replace('_', '-', $space_type),
+        array('attributes' => array('class' => array('more-link')))) . $jump_links,
+      'class' => !empty($jump_links) ? array('dropdown-submenu') : array(),
+    );
+  }
+  if (!empty($list)) {
+    $vars['home_spaces'] = theme('item_list', array(
+      'items' => $list,
+      'title' => $menu_title,
+      'type' => 'ul',
+    ));
+  }
+
+  $subspace_list = NULL;
+  if (!empty($space) && module_exists('oa_subspaces')) {
+    $subspaces = oa_core_get_groups_by_parent($space_id, $space_type, NODE_PUBLISHED);
+    if (!empty($subspaces)) {
+      $items = oa_core_get_titles($subspaces, $space_type);
+      $subspace_list = $items['links'];
+    }
+  }
+
+  if (module_exists('oa_favorites')) {
+    // get list of favorite spaces
+    $items = oa_favorites_get_spaces($user);
+    if (!empty($items['links'])) {
+      $vars['spaces_favorite'] = theme('item_list', array(
+        'items' => $items['links'],
+        'title' => t('Favorite Spaces'),
+        'type' => 'ul',
+      ));
+    }
+  }
+
+  if (!empty($space) && ($space->type == OA_SPACE_TYPE)) {
+    $current_section = oa_core_get_section_context();
+    $home_name = variable_get('oa_toolbar_hometext', '');
+    $section_name = '';
+    $section_url = '';
+    if ($space_id) {
+      $add_section = l('Add Section', 'node/add/oa-section');
+      $section_name = $home_name;
+      $section_url = url('node/' . $space_id);
+      $items = array();
+      // grab the titles of the sections for the current space
+      $sections = oa_core_space_sections($space_id, NODE_PUBLISHED);
+      if (!empty($sections)) {
+        // check for match with current section id
+        foreach ($sections as $sid => $title) {
+          $items[] = l($title, 'node/' . $sid);
+          if ($sid == $current_section) {
+            $section_name = $title;
+            $section_url = url('node/' . $sid);
+          }
+        }
+      }
+      if (module_exists('oa_subspaces') && og_user_access('node', $space_id, 'create ' . OA_SPACE_TYPE . ' content', $user)) {
+        $jump_links = oa_toolbar_get_jump_links('space', array(OA_PARENT_SPACE => $space_id));
+        $add_subspace = array(
+          'data' => l(t('Create new subspace'), 'node/add/' . str_replace('_', '-', OA_SPACE_TYPE),
+            array(
+              'attributes' => array('class' => array('more-link')),
+              'query' => array(OA_PARENT_SPACE => $space_id),
+            )) . $jump_links,
+          'class' => !empty($jump_links) ? array('dropdown-submenu') : array(),
+        );
+        if (!empty($subspace_list)) {
+          $subspace_list[] = $add_subspace;
+        }
+        else {
+          $items[] = $add_subspace;
+        }
+      }
+      if (og_user_access('node', $space_id, "create " . OA_SECTION_TYPE . " content", $user)) {
+        $jump_links = oa_toolbar_get_jump_links('section');
+        $items[] = array(
+          'data' => l(t('Create new section'), 'node/add/' . str_replace('_', '-', OA_SECTION_TYPE),
+            array('attributes' => array('class' => array('more-link')))) . $jump_links,
+          'class' => !empty($jump_links) ? array('dropdown-submenu') : array(),
+        );
+      }
+      if (!empty($items)) {
+        $vars['sections_list'] = theme('item_list', array(
+          'items' => $items,
+          'title' => t('Sections'),
+          'type' => 'ul',
+        ));
+      }
+    }
+    if (!empty($subspace_list)) {
+      $vars['subspaces'] = theme('item_list', array(
+        'items' => $subspace_list,
+        'title' => $subspace_type_names,
+        'type' => 'ul',
+      ));
+    }
+
+    // Current Section Name from current page name
+    if (isset($node->type)) {
+      switch ($node->type) {
+        case OA_SECTION_TYPE:
+          $section_name = $node->title;
+          $section_url = url('node/' . $node->nid);
+          break;
+        case OA_SPACE_TYPE:
+          $section_name = $home_name;
+          $section_url = url('node/' . $node->nid);
+          break;
+        case OA_GROUP_TYPE:
+          $section_name = $home_name;
+          $section_url = url('node/' . $node->nid);
+          break;
+      }
+    }
+    $vars['section_label'] = $section_name;
+    $vars['section_url'] = $section_url;
+  }
+
+  if ($front_panel) {
+    $vars['subspaces'] = (!empty($vars['home_spaces'])) ? $vars['home_spaces'] : '';
+    unset($vars['home_spaces']);
+  }
+
+  $vars['oa_toolbar_btn_class'] = variable_get('oa_toolbar_style', 0) ? '' : 'btn-inverse';
+  if (variable_get('oa_breadcrumb_menu', FALSE)) {
+    $vars['mainmenu'] = theme('oa_navigation', array(
+      'menu_name' => 'main-menu',
+      'show_menu' => TRUE,
+    ));
+  }
+}
+
+/**
+ * Preprocess function for the oa_breadcrumb.
+ */
+function template_preprocess_oa_breadcrumb(&$vars) {
+  $vars['show_parents'] = TRUE;
+  template_preprocess_oa_toolbar($vars);
+}
+
+/**
+ * Preprocess function for the oa_user_badge block.
+ */
+function template_preprocess_oa_user_badge(&$vars) {
+  global $user;
+
+  if ($user->uid) {
+    $user = user_load($user->uid);
+    if (module_exists('oa_users')) {
+      $vars = array_merge($vars, oa_users_build_user_details($user));
+
+      // Turn the links from oa_users_build_user_details() into a proper render
+      // array so that it can be modified.
+      $paths = $vars['links'];
+      $vars['links'] = array(
+        '#theme' => 'links',
+        '#links' => array(
+          'dashboard' => array(
+            'title'  => t('Dashboard'),
+            'href'   => $paths['dashboard'],
+            'weight' => -10,
+          ),
+          'edit_profile' => array(
+            'title'  => t('Edit profile'),
+            'href'   => $paths['edit_profile'],
+            'weight' => -9,
+          ),
+          'logout' => array(
+            'title'  => t('Log out'),
+            'href'   => $paths['logout'],
+            'weight' => 50,
+          ),
+        ),
+      );
+    }
+  }
+  else {
+    $vars['login'] = url('user/login');
+  }
+  $vars['oa_toolbar_btn_class'] = variable_get('oa_toolbar_style', 0) ? '' : 'btn-inverse';
+}
+
+/**
+ * Preprocess function for the oa_toolbar_menu_button block.
+ */
+function template_preprocess_oa_toolbar_menu_button(&$vars) {
+  drupal_add_js(drupal_get_path('module', 'oa_toolbar') . '/js/toolbar-menu-toggle.js');
+
+  $vars['oa_toolbar_btn_class'] = 'btn-inverse';
+}
+
+/**
+ * Implements hook_form_alter
+ * Inject option into og_single_menu settings form
+ */
+function oa_toolbar_form_og_menu_single_menu_edit_form_alter(&$form, &$form_state, $form_id) {
+  $space_id = oa_core_get_space_context();
+
+  $form['oa_space_menu'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Show space menu',
+    '#default_value' => variable_get('oa_space_menu_' . $space_id, TRUE),
+  );
+  $form['#space'] = $space_id;
+  $form['#submit'][] = 'oa_toolbar_space_menu_submit';
+}
+
+/**
+ * Submit handler for oa_space_menu
+ */
+function oa_toolbar_space_menu_submit($form, &$form_state) {
+  $space_id = $form['#space'];
+  if ($space_id && isset($form_state['values']['oa_space_menu'])) {
+    variable_set('oa_space_menu_' . $space_id, $form_state['values']['oa_space_menu']);
+  }
+}
+
+/**
+ * Implements hook_oa_responsive_regions_positions_alter().
+ */
+function oa_toolbar_oa_responsive_regions_positions_alter(&$positions) {
+  // We will keep the top position for the oa navbar so we unset it here.
+  unset($positions['top']);
+}
+
+/**
+ * Implements hook_oa_responsive_regions_alter().
+ */
+function oa_toolbar_oa_responsive_regions_alter(&$regions) {
+  // Manually add our top region here.
+  $regions['top'] = array(
+    'settings' => array(
+      'position' => 'top',
+    ),
+    'icon' => 'icon-list',
+  );
+}

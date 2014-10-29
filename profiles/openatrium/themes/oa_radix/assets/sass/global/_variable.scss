@@ -153,6 +153,8 @@ $zindexModal:             1050 !default;
 $iconSpritePath:          "glyphicons-halflings.png" !default;
 $iconWhiteSpritePath:     "glyphicons-halflings-white.png" !default;
 
+// Icon Font path
+$icon-font-path :         "../fonts/";
 
 // Input placeholder text color
 // -------------------------
@@ -274,7 +276,7 @@ $popoverArrowOuterColor:  rgba(0,0,0,.25) !default;
 
 // GRID
 // --------------------------------------------------
-
+// see _mixin.scss for actual breakpoints
 $desktopBreakpoint:       1200px;
 $tabletBreakpoint:        980px;
 $mobileBreakpoint:        768px;

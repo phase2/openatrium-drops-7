@@ -4,6 +4,8 @@ package = Distribution Management
 version = 7.x-1.0
 core = 7.x
 
+configure = admin/config/system/apps
+
 dependencies[] = update
 
 files[] = apps.module
@@ -11,10 +13,9 @@ files[] = apps.updater.inc
 files[] = apps.installer.inc
 files[] = apps.test
 
-
-; Information added by drush on 2014-10-15
-version = "7.x-1.0-beta7+15-dev"
+; Information added by Drupal.org packaging script on 2014-10-28
+version = "7.x-1.0-beta18"
 core = "7.x"
 project = "apps"
-datestamp = "1413404048"
+datestamp = "1414524830"
 

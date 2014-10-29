@@ -10,17 +10,21 @@ projects[ctools][subdir] = contrib
 projects[ctools][patch][2280875] = http://drupal.org/files/issues/ctools-icon-text-renderer-2280875-5.patch
 projects[ctools][patch][581670] = http://drupal.org/files/fix-autocomplete-581670.patch
 projects[ctools][patch][2312505] = http://drupal.org/files/issues/ctools-views-pane-more-link-2312505-1.patch
+projects[ctools][patch][1978378] = http://www.drupal.org/files/ctools-page-title-check-plained-twice-1978378-1.patch
+projects[ctools][patch][1565782] = http://www.drupal.org/files/1565782-obey-view-display-defaults-5.patch
+projects[ctools][patch][2012188] = http://www.drupal.org/files/issues/2012188-9-ctools_entity_field_content_type_admin_title.patch
 
 projects[panels][version] = 3.4
 projects[panels][subdir] = contrib
 projects[panels][patch][2283719] = http://drupal.org/files/issues/panels-icon-text-renderer-2283719-1.patch
 projects[panels][patch][2280797] = http://drupal.org/files/issues/panels-ipe-keyboard-focus-2280797-2.patch
 
-projects[panels_breadcrumbs][version] = 2.1
+projects[panels_breadcrumbs][version] = 2.2
 projects[panels_breadcrumbs][subdir] = contrib
 
 projects[panelizer][version] = 3.1
 projects[panelizer][subdir] = contrib
+projects[panelizer][patch][1623536] = http://drupal.org/files/issues/array-to-object-on-update-1623536-26.patch
 
 projects[fieldable_panels_panes][version] = 1.5
 projects[fieldable_panels_panes][subdir] = contrib
@@ -79,14 +83,10 @@ projects[link][subdir] = contrib
 
 ; Harness the Power of Features and Apps with Default Content
 
-projects[apps][version] = 1.x-dev
+projects[apps][version] = 1.0-beta18
 projects[apps][subdir] = contrib
-projects[apps][download][type] = git
-projects[apps][download][branch] = 7.x-1.x
-projects[apps][download][revision] = b9d82b7
-projects[apps][patch][1790902] = http://drupal.org/files/1790902.4-check-last-modified-existing.patch
 
-projects[features][version] = 2.0
+projects[features][version] = 2.2
 projects[features][subdir] = contrib
 
 projects[strongarm][version] = 2.0
@@ -116,5 +116,11 @@ projects[migrate_extras][subdir] = "contrib"
 projects[devel][version] = 1.5
 projects[devel][subdir] = contrib
 
-projects[uuid][version] = 1.0-alpha5
+projects[distro_update][version] = 1.0-beta3
+projects[distro_update][subdir] = contrib
+
+projects[features_override][version] = 2.0-rc2
+projects[features_override][subdir] = contrib
+
+projects[uuid][version] = 1.0-alpha6
 projects[uuid][subdir] = contrib

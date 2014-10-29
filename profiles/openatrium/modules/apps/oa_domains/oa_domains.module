@@ -1,0 +1,207 @@
+<?php
+
+/**
+ * @file
+ * Provide support for per-space url domains
+ */
+
+define('OA_DOMAINS_BASE', '<base_domain>');
+
+/**
+ * Implements hook_oa_settings_form().
+ */
+function oa_domains_oa_settings_form(&$form_state) {
+  $forms = array();
+
+  $form = array();
+  $form['oa_domains_base'] = array(
+    '#title' => t('Base domain for site'),
+    '#type' => 'textfield',
+    '#default_value' => variable_get('oa_domains_base', ''),
+    '#description' => t('Base domain for site.  Do not include http://'),
+  );
+
+  $forms[] = array(
+    'caption' => t('Domain settings'),
+    'form' => $form,
+  );
+
+  return $forms;
+}
+
+function oa_domains_get_space_base($space_id = NULL) {
+  global $base_url;
+  $space_id = (isset($space_id)) ? $space_id : oa_core_get_space_context();
+  if ($space_path = oa_domains_get_space_path($space_id)) {
+    $base = parse_url($base_url);
+    return $base['scheme'] . '://' . $space_path;
+  }
+  return $base_url;
+}
+
+/**
+ * Implements hook_url_outbound_alter().
+ */
+function oa_domains_url_outbound_alter(&$path, &$options, $original_path) {
+  static $prevent_loop = FALSE;
+  if ($prevent_loop) {
+    // anything that calls menu_get_item (like og_session_context_get_context)
+    // will end up calling this again
+    return;
+  }
+  $domain = variable_get('oa_domains_base', '');
+  if (empty($domain)) {
+    return;
+  }
+
+  // don't process urls if we have not initialized the theme registry yet
+  $theme_registry = _theme_registry_callback();
+  if (!is_array($theme_registry)) {
+    return;
+  }
+
+  $prevent_loop = TRUE;
+
+  global $base_url;
+
+  $cache = &drupal_static('oa_domains', array());
+  if (empty($cache[OA_DOMAINS_BASE])) {
+    // first time through, figure out base_url of current space
+    $base_url = oa_domains_get_space_base();
+    $cache[OA_DOMAINS_BASE] = $base_url;
+  }
+  else {
+    $base_url = $cache[OA_DOMAINS_BASE];
+  }
+
+  $cache_key = $original_path . serialize($options);
+  if (isset($cache[$cache_key])) {
+    $path = $cache[$cache_key]['path'];
+    $options = $cache[$cache_key]['options'];
+    $prevent_loop = FALSE;
+    return;
+  }
+  else if (preg_match('#^node/(\d+)$#', $path, $matches)) {
+    $base = parse_url($base_url);
+    $nid = $matches[1];
+    $space_id = oa_core_get_group_from_node($nid, array(OA_SPACE_TYPE));
+    $domain = $base['scheme'] . '://' . $domain;
+    if ($space_id == $nid) {
+      // we have a space node
+      if ($space_path = oa_domains_get_space_path($nid)) {
+        // for Space nodes, replace entire alias with custom domain
+        $path = $base['scheme'] . '://' . $space_path;
+        $options['alias'] = $path;
+        $options['external'] = TRUE;
+      }
+      elseif ($base_url != $domain) {
+        // spaces without a specific domain get the default
+        $path = $domain . '/' . drupal_get_path_alias('node/' . $nid);
+        $options['alias'] = $path;
+        $options['external'] = TRUE;
+      }
+    }
+    else {
+      // for other content nodes, check custom domain of space
+      if ($space_path = oa_domains_get_space_path($space_id)) {
+        $space_alias = drupal_get_path_alias('node/' . $space_id) . '/';
+        $node_alias = drupal_get_path_alias('node/' . $nid);
+        // check if node_alias begins with space_alias
+        if (substr($node_alias, 0, strlen($space_alias)) == $space_alias) {
+          // remove the space alias from the beginning of the node alias
+          $node_alias = substr($node_alias, strlen($space_alias) - strlen($node_alias));
+          $path = $base['scheme'] . '://' . $space_path . '/' . $node_alias;
+          $options['alias'] = $path;
+          $options['external'] = TRUE;
+        }
+        elseif ($base_url != $domain) {
+          // nodes without the space alias use default domain
+          $path = $domain . '/' . drupal_get_path_alias('node/' . $nid);
+          $options['alias'] = $path;
+          $options['external'] = TRUE;
+        }
+      }
+      elseif ($base_url != $domain) {
+        // nodes without a group domain use the default domain
+        $path = $domain . '/' . drupal_get_path_alias('node/' . $nid);
+        $options['alias'] = $path;
+        $options['external'] = TRUE;
+      }
+    }
+    $cache[$cache_key]['path'] = $path;
+    $cache[$cache_key]['options'] = $options;
+  }
+  $prevent_loop = FALSE;
+}
+
+/**
+ * Implements hook_url_inbound_alter().
+ */
+function oa_domains_url_inbound_alter(&$path, $original_path, $path_language) {
+  $domain = variable_get('oa_domains_base', '');
+  if (empty($domain)) {
+    return;
+  }
+
+  global $base_url;
+
+  $space_id = oa_domains_space_from_domain($base_url);
+  if ($space_id > 0) {
+    $space_alias = drupal_get_path_alias('node/' . $space_id);
+    $alias = drupal_is_front_page() ? $space_alias : $space_alias . '/' . $original_path;
+    $source = drupal_lookup_path('source', $alias);
+    if (!empty($source)) {
+      $base = parse_url($base_url);
+      $base_url = $base['scheme'] . '://' . $domain;
+      $path = $source;
+    }
+  }
+}
+
+/**
+ * Return the custom domain path of a space
+ * Return FALSE if space does not have a custom domain
+ * Needs to be fast, so don't call node_load
+ */
+function oa_domains_get_space_path($space_id) {
+  $cache = &drupal_static('oa_domains', array());
+  if (isset($cache[$space_id])) {
+    return $cache[$space_id];
+  }
+  $domain = db_select('field_data_field_oa_space_domain', 'f')
+    ->fields('f', array('field_oa_space_domain_value'))
+    ->condition('entity_id', $space_id)
+    ->execute()
+    ->fetchField(0);
+  if (empty($domain)) {
+    $domain = FALSE;
+  }
+  else {
+    $domain = check_plain($domain);
+  }
+  $cache[$space_id] = $domain;
+  return $domain;
+}
+
+/**
+ * Return the space_id matching a custom domain name
+ * Needs to be fast, so don't call node_load
+ */
+function oa_domains_space_from_domain($base_url) {
+  $cache = &drupal_static('oa_domains', array());
+  if (isset($cache[$base_url])) {
+    return $cache[$base_url];
+  }
+  $url = parse_url($base_url);
+  $space_id = db_select('field_data_field_oa_space_domain', 'f')
+    ->fields('f', array('entity_id'))
+    ->condition('field_oa_space_domain_value', $url['host'])
+    ->execute()
+    ->fetchField(0);
+  if (!isset($space_id)) {
+    $space_id = FALSE;
+  }
+  $cache[$base_url] = $space_id;
+  return $space_id;
+}
+

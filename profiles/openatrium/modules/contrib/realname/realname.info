@@ -10,9 +10,9 @@ files[] = realname.test
 files[] = realname.install
 configure = admin/config/people/realname
 
-; Information added by drupal.org packaging script on 2013-02-25
-version = "7.x-1.1"
+; Information added by Drupal.org packaging script on 2014-02-23
+version = "7.x-1.2"
 core = "7.x"
 project = "realname"
-datestamp = "1361820451"
+datestamp = "1393160306"
 

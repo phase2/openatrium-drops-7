@@ -39,12 +39,11 @@ function respondjs_permission() {
 }
 
 /**
- * Implements hook_init().
+ * Implements hook_page_build().
  *
  * This is the function that adds respond.js to the page.
- * Feel free to snatch this code if you're adding it directly into your theme.
  */
-function respondjs_init() {
+function respondjs_page_build() {
   // We need respond.js to load as soon in the HTML as possible, because it can
   // affect the presentation of a page. The options below ensure that it happens.
   drupal_add_js(

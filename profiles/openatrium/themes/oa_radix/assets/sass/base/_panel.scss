@@ -10,21 +10,42 @@
     padding-bottom: 15px;
   }
 }
+
 .row-fluid [class="span12"] {
   min-height: 0;
 }
+
 .content .bryant-flipped-sidebar-inner,
-.content .burr-flipped-sidebar-inner {
+.content .burr-flipped-sidebar-inner,
+.content .bryant-flipped .sidebar .panel-panel-inner,
+.content .burr-flipped .sidebar .panel-panel-inner {
   padding-top: 0;
+}
+
+#main .container {
+  padding: 0 10px 0 0;
+  @include breakpoint('xs') {
+    padding: 0;
+  }
 }
 
 // IPE
 // --------------------------------------------------
 body.panels-ipe {
   margin-bottom: 0px !important;
-  #main {
-    margin-top: 20px;
+  #main-wrapper #main {
+    padding-top: 20px;
     position: relative;
+    @include breakpoint('xs') {
+      // panels ipe buttons not displayed in this breakpoint
+      padding-top: 0;
+    }
+  }
+}
+
+#contextual-tabs {
+  @include breakpoint('xs') {
+    margin-top: 5px;
   }
 }
 
@@ -33,23 +54,31 @@ body.panels-ipe {
 div#panels-ipe-control-container {
   background-color: transparent;
   position: absolute;
-  top: -25px;
-  right: -12px;
+  top: -5px;
+  right: -6px;
   bottom: auto;
   width: auto;
   // needs to be above most stuff, but below the dropdown
   // which are at z-index 1000
   z-index: 999;
   @include box-shadow(none);
-  a {
-    font-weight: normal;
+  .panels-ipe-button-container, .panels-ipe-form-container form > div {
+    text-align: right;
   }
-  @include breakpoint('phone') {
+  a, .btn {
+    font-weight: normal;
+    text-shadow: none;
+  }
+  @include breakpoint('xs') {
     // We don't need this on phone for now.
     display: none !important;
   }
 }
-@media screen and (max-width: $tabletBreakpoint) {
+div.panels-ipe-pseudobutton-container, div.panels-ipe-control .form-submit {
+  font-weight: normal;
+}
+
+@include breakpoint('md') {
   div#panels-ipe-control-container {
     position: absolute;
   }
@@ -59,7 +88,9 @@ div#panels-ipe-control-container {
 // --------------------------------------------------
 .oa-pane,
 body.page-node-edit #main .burr-flipped-sidebar-inner,
-body.page-node-add #main .burr-flipped-sidebar-inner {
+body.page-node-add #main .burr-flipped-sidebar-inner,
+body.page-node-edit #main .burr-flipped .sidebar .panel-panel-inner,
+body.page-node-add #main .burr-flipped .sidebar .panel-panel-inner {
   border: 1px solid #e3e3e3;
   border-bottom: 0;
   @include border-radius(4px);
@@ -82,12 +113,15 @@ body.page-node-add #main .burr-flipped-sidebar-inner {
     color: #333;
     @include ctb-gradient-vertical($navbarBackgroundHighlight, darken($navbarBackground, 5%));
   }
-  .pane-content {
+  .pane-content  {
     padding: 15px 15px 0 15px;
     .oa-list {
-      margin-left: -16px;
-      margin-right: -16px;
+      margin-left: -15px;
+      margin-right: -15px;
     }
+  }
+  .panel-pane.pane-entity-field {
+    padding: 15px;
   }
   .pane-section-sidebar-top {
     padding: 0;
@@ -109,6 +143,7 @@ body.page-node-add #main .burr-flipped-sidebar-inner {
     margin-top: 15px;
   }
 }
+
 .oa-bottom-right {
   position: absolute;
   right: 3px;
@@ -269,11 +304,5 @@ body.page-node-add #main .burr-flipped-sidebar-inner {
   }
   .options {
     margin: 10px 0 0;
-  }
-}
-
-.oa-command-buttons {
-  li {
-    margin-bottom: 3px;
   }
 }

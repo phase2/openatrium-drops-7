@@ -8,19 +8,27 @@
 #logo img {
   vertical-align: middle;
 }
+
 #site-name {
   display: inline-block;
   padding: 10px 0.5em;
   margin: 0;
 }
 
+// Panels
+fieldset.widget-preview .panel-body {
+  max-height: 20em;
+  overflow: auto;
+}
+
 // Tabs
 // --------------------------------------------------
-ul.tabs > li > a,
-ul.action-links > li > a {
-  background: none;
-  border: 1px solid transparent;
-}
+// ul.tabs > li > a,
+// ul.action-links > li > a {
+//   background: none;
+//   border: 1px solid transparent;
+// }
+
 div.tabs.main-tabs {
   padding-left: 0;
   padding-right: 0;
@@ -89,6 +97,7 @@ div.tabs.main-tabs {
   }
   .accordion-heading .accordion-toggle {
     padding: 0;
+    display: block;
     &:hover {
       background-color: #E0EEFF;
     }
@@ -111,6 +120,7 @@ div.tabs.main-tabs {
     border: 1px solid #e3e3e3;
     background-color: #fafafa;
     border-right: 0;
+    @include box-sizing(content-box);
     @include border-bottom-left-radius(5px);
     @include border-top-left-radius(5px);
     &:hover {
@@ -118,10 +128,12 @@ div.tabs.main-tabs {
     }
   }
 }
+
 .oa-list-metadata {
   float: right;
   text-align: right;
 }
+
 .oa-list-header {
   padding: 6px 5px 0 5px;
   &.oa-description {
@@ -130,6 +142,7 @@ div.tabs.main-tabs {
     padding: 0;
   }
 }
+
 .oa-list-category {
   text-align: right;
 }
@@ -152,7 +165,7 @@ dl.admin-list {
 // --------------------------------------------------
 .group-header {
   margin-top: 20px;
-  h3 {
+  h3, h4 {
     font-size: 20px;
     line-height: 32px;
     color: #777;
@@ -160,6 +173,12 @@ dl.admin-list {
     text-transform: uppercase;
   }
 }
+
 ul.group-content {
   margin: 0;
+}
+
+// Inline links
+ul.links.inline li {
+  display: inline-block;
 }

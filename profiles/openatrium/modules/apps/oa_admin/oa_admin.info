@@ -1,0 +1,25 @@
+name = Open Atrium Admin
+description = Adds space and section filters to Admin content view
+core = 7.x
+package = Open Atrium
+dependencies[] = oa_core
+dependencies[] = oa_sections
+dependencies[] = views
+apps[screenshots][] = app/screenshot.png
+apps[logo] = app/logo.png
+apps[author] = Phase2 Technology
+apps[author_url] = http://www.phase2technology.com/
+apps[server] = openatrium
+apps[package] = Core addons
+features[ctools][] = views:views_default:3.0
+features[features_api][] = api:2
+features[views_view][] = oa_admin_views_node
+features_exclude[dependencies][ctools] = ctools
+project path = sites/all/modules/contrib/oa_core/modules
+
+; Information added by Drupal.org packaging script on 2014-10-28
+version = "7.x-2.0-rc1"
+core = "7.x"
+project = "oa_admin"
+datestamp = "1414530831"
+

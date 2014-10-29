@@ -1,3 +1,17 @@
+Panopoly Users 7.x-1.13, 2014-10-17
+----------------------------
+- No changes since last release.
+
+Panopoly Users 7.x-1.12, 2014-10-15
+----------------------------
+- Fixed Panopoly Users - Default body classes not added to feature.
+- Fixed The user profile page shows an uploaded image twice in very large formats.
+- Fixed Table 'field_data_field_user_picture' not found in panopoly_users_update_7001() when updating from very old Panopoly.
+
+Panopoly Users 7.x-1.11, 2014-08-14
+----------------------------
+- No changes since last release.
+
 Panopoly Users 7.x-1.10, 2014-08-06
 ----------------------------
 - No changes since last release.

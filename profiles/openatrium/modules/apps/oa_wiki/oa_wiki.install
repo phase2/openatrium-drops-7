@@ -1,0 +1,34 @@
+<?php
+/**
+ * @file
+ * oa_wiki.install
+ */
+
+/**
+ * Implements hook_install().
+ */
+function oa_wiki_install() {
+  oa_wiki_install_section_type();
+}
+
+/**
+ * Create the Discussion Section taxonomy term.
+ */
+function oa_wiki_install_section_type() {
+  $params = array(
+    'description' => 'Allows users to create <em>Document pages</em> and displays a News article listing.',
+    'node_options' => array(
+      'oa_wiki_page',
+    ),
+    'layout' => 'node:oa_section:oa_section_news',
+    'icon' => 'icon-folder-open',
+  );
+  oa_core_create_term('section_type', 'News Section', $params);
+}
+
+/**
+ * Update the News section term.
+ */
+function oa_wiki_update_7002() {
+  oa_wiki_install_section_type();
+}

@@ -1,0 +1,559 @@
+<?php
+/**
+ * @file
+ * Code for the OpenAtrium Discussion feature.
+ */
+
+include_once 'oa_discussion.features.inc';
+include_once 'oa_discussion.theme.inc';
+
+/**
+ * Implements hook_pre_features_rebuild().
+ *
+ * @see http://drupal.org/node/1549608
+ */
+function oa_discussion_pre_features_rebuild($component) {
+  if ($component == 'user_permission') {
+    drupal_static_reset('panelizer_entity_plugin_get_handler');
+  }
+}
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function oa_discussion_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'ctools' && $plugin_type == 'content_types') {
+    return 'plugins/content_types';
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function oa_discussion_menu() {
+
+  $items['node/%node/remove'] = array(
+    'type' => MENU_CALLBACK,
+    'page callback' => 'oa_discussion_remove',
+    'page arguments' => array(1),
+    'access callback' => 'node_access',
+    'access arguments' => array('update', 1),
+  );
+  $items['node/%node/publish'] = array(
+    'type' => MENU_CALLBACK,
+    'page callback' => 'oa_discussion_publish',
+    'page arguments' => array(1),
+    'access callback' => 'node_access',
+    'access arguments' => array('update', 1),
+  );
+  $items['oa_discussion/ajax/mark-read/%'] = array(
+    'type' => MENU_CALLBACK,
+    'page callback' => 'oa_discussion_mark_as_read',
+    'page arguments' => array(3),
+    'access callback' => TRUE,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_views_data().
+ *
+ * Define a custom views contextual filter for Parent node.
+ */
+function oa_discussion_views_data() {
+  $data = array();
+  $data['field_data_oa_parent'] = array(
+    'table' => array(
+      'group' => t('Open Atrium'),
+      'entity type' => 'node',
+    ),
+  );
+  // Adds our field in the "Contextual Filters" section of Views.
+  $data['field_data_oa_parent']['entity_id']['argument'] = array(
+    'title' => 'Parent ID (Content)',
+    'help' => 'Filter on the parent node id.',
+    'handler' => 'views_handler_argument_oa_parent_id',
+  );
+  $parameters = array('@entity' => t('Content'), '!field_name' => 'parent_id');
+  $data['field_data_oa_parent']['parent_id'] = array(
+    'title' => t('Parent ID'),
+    'real field' => 'oa_parent_target_id',
+    'field' => array(
+      'help' => t('Parent nid, or self nid if no parent'),
+      'handler' => 'views_handler_field_oa_parent_id',
+    ),
+    'relationship' => array(
+      'handler' => 'views_handler_relationship_oa_parent_id',
+      'base' => 'node',
+      'base field' => 'nid',
+      'label' => t('@entity entity referenced from !field_name', $parameters),
+      'group' => t('Entity Reference'),
+      'title' => t('Parent'),
+      'help' => t('A bridge to the @entity entity that is referenced via !field_name', $parameters),
+    ),
+  );
+
+  $data['node']['last_date'] = array(
+    'title' => t('Last updated date (child/parent)'),
+    'help' => t('Child updated date, or parent updated date'),
+    'real field' => 'changed',
+    'field' => array(
+      'handler' => 'views_handler_field_oa_last_date',
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort_date',
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_date',
+    ),
+  );
+
+  $data['history']['timestamp_new'] = array(
+    'title' => t('New Post'),
+    'real field' => 'timestamp',
+    'field' => array(
+      'help' => t('Is this post new? (0/1)'),
+      'handler' => 'views_handler_field_oa_new_post',
+    ),
+  );
+  $data['history']['timestamp_updated'] = array(
+    'title' => t('Updated Post'),
+    'real field' => 'timestamp',
+    'field' => array(
+      'help' => t('Is this post updated? (0/1)'),
+      'handler' => 'views_handler_field_oa_updated_post',
+    ),
+  );
+  return $data;
+}
+
+/**
+ * Remove or unpublish a node.
+ *
+ * @param object $node
+ *   The node to unpublish.
+ */
+function oa_discussion_remove($node) {
+  if (!empty($node)) {
+    // Unpublish node.
+    $node->status = 0;
+    node_save($node);
+  }
+  drupal_set_message(t("Content '@title' removed.", array('@title' => $node->title)));
+  drupal_goto('node/' . $node->nid);
+}
+
+/**
+ * Publish a node.
+ *
+ * @param object $node
+ *   The node object to publish.
+ */
+function oa_discussion_publish($node) {
+  if (!empty($node)) {
+    // Publish node.
+    $node->status = 1;
+    node_save($node);
+  }
+  drupal_set_message(t("Content '@title' published.", array('@title' => $node->title)));
+  drupal_goto('node/' . $node->nid);
+}
+
+/**
+ * Implements hook_og_permission().
+ */
+function oa_discussion_og_permission() {
+  return array(
+    'write oa_discussion_reply to discussion post' => array(
+      'title' => t('Reply to a discussion post'),
+      'description' => t('Allow a group member to reply to a discussion post.'),
+      'roles' => array(OG_AUTHENTICATED_ROLE),
+      'default role' => array(OG_AUTHENTICATED_ROLE, OG_ADMINISTRATOR_ROLE),
+    ),
+    'add attachment to oa_discussion_post' => array(
+      'title' => t('Add attachment to a discussion post reply'),
+      'description' => t('Allow a group member to add an attachment to a discussion post reply.'),
+      'roles' => array(OG_AUTHENTICATED_ROLE),
+      'default role' => array(OG_AUTHENTICATED_ROLE, OG_ADMINISTRATOR_ROLE),
+    ),
+  );
+}
+
+/**
+ * Preprocess the media thumbnail.
+ *
+ * Add any additional File Caption.
+ */
+function oa_discussion_preprocess_media_thumbnail(&$variables) {
+  if (!empty($variables['element']['#file']->field_file_title[LANGUAGE_NONE][0]['value'])) {
+    $variables['element']['#name'] = $variables['element']['#file']->field_file_title[LANGUAGE_NONE][0]['value'];
+  }
+}
+
+/**
+ * Implements hook_preprocess_views_view_fields().
+ *
+ * Perform field-level replacement/processing here.
+ */
+function oa_discussion_preprocess_views_view_fields(&$vars) {
+  if ($vars['view']->name == 'open_atrium_discussions') {
+    // Set variables for all displays.
+    // Determine if the is the specific reply we are looking at.
+    if (isset($vars['fields']['nid'])) {
+      $nid = arg(1);
+      $vars['current'] = ($nid == $vars['fields']['nid']->raw);
+      $vars['current_class'] = ($vars['current']) ? 'current-node' : '';
+      $vars['nid_class'] = 'nid-' . $vars['fields']['nid']->raw;
+
+      if (isset($vars['fields']['status'])) {
+        $status = $vars['fields']['status']->raw;
+        $vars['status_class'] = ($status == 1) ? 'published' : 'unpublished';
+        $vars['unpublished'] = ($status == 1) ? '' : t('Not Published');
+
+        $node = node_load($nid);
+
+        if ($status == 1 && node_access('update', $node)) {
+          $vars['remove_link'] = l(t('unpublish'), 'node/' . $vars['fields']['nid']->raw . '/remove');
+        }
+        elseif (node_access('update', $node)) {
+          $vars['remove_link'] = l(t('publish'), 'node/' . $vars['fields']['nid']->raw . '/publish');
+        }
+        else {
+          unset($vars['remove_link']);
+        }
+      }
+    }
+
+    // Variables for specific displays.
+    switch ($vars['view']->current_display) {
+      case 'replies':
+        // Determine if accordian for this row should be expanded
+        // (add "in" class to bootstrap accordian).
+        $vars['in'] = '';
+        if ((strlen(trim(strip_tags($vars['fields']['timestamp']->content))) > 0) || $vars['current']) {
+          $vars['in'] = 'in';
+        }
+
+        break;
+
+      case 'original_post':
+        break;
+
+      case 'attachments':
+        break;
+    }
+  }
+}
+
+/**
+ * Implements hook_views_pre_render().
+ */
+function oa_discussion_views_pre_render(&$view) {
+  // Hide results that don't contain attachments or media. This is not done
+  // by a views filter because we need to increment per result to get comment #.
+  if ($view->name == 'open_atrium_discussions' && $view->current_display == 'attachments') {
+    $count = count($view->result);
+    for ($i = 0; $i < $count; $i++) {
+      if (empty($view->result[$i]->field_field_oa_media)) {
+        unset($view->result[$i]);
+      }
+    }
+  }
+
+  // Attach JS to replies.
+  if ($view->name == 'open_atrium_discussions' && $view->current_display == 'replies') {
+    drupal_add_js(drupal_get_path('module', 'oa_discussion') . '/js/mark-as-read.js');
+    drupal_add_js(drupal_get_path('module', 'oa_discussion') . '/js/toggle-reply-visibility.js');
+  }
+}
+
+/**
+ * Implements hook_panels_pane_content_alter().
+ */
+function oa_discussion_panels_pane_content_alter(&$content, $pane, $args, $context) {
+  if ($pane->type == 'oa_notifications_pane') {
+    oa_discussion_alter_notifications_pane($content, $pane, $args, $context);
+  }
+}
+
+/**
+ * Implements hook_oa_messages_type_alter().
+ *
+ * Override the oa_create message for discussion replies
+ */
+function oa_discussion_oa_messages_type_alter(&$message_type, $context) {
+  if ($message_type == 'oa_create') {
+    $entity_wrapper = $context['entity_wrapper'];
+    if (isset($entity_wrapper->oa_parent)) {
+      // Just tells us the field exists, not if it points to a node.
+      $parent = $entity_wrapper->oa_parent->value();
+      // Cannot use isset directly on wrapper->parent->value() unfortunately.
+      if (isset($parent)) {
+        $message_type = 'oa_reply';
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_oa_notifications_alter().
+ *
+ * Discussion notifications come from the parent.
+ */
+function oa_discussion_oa_notifications_load_alter(&$notifications, $entity, $entity_type) {
+  if ($entity_type == 'node') {
+    $pid = oa_discussion_get_parent_nid($entity->nid);
+    if ($pid && ($parent = node_load($pid))) {
+      $notifications = oa_notifications_load_multiple($parent);
+    }
+  }
+}
+
+/**
+ * Implements hook_oa_notifications_alter().
+ *
+ * Save all notifications to the parent.
+ */
+function oa_discussion_oa_notifications_save_alter(&$values) {
+  if ($values['source_type'] == 'node') {
+    $pid = oa_discussion_get_parent_nid($values['source_entity']);
+    if ($pid) {
+      $values['source_entity'] = $pid;
+    }
+  }
+}
+
+/**
+ * Get a discussion node's parent ID.
+ */
+function oa_discussion_get_parent_nid($nid) {
+  $node = node_load($nid);
+  if ($node->type == 'oa_discussion_post') {
+    $parent = field_get_items('node', $node, 'oa_parent');
+    if ($parent && $parent[0]['target_id'] != $node->nid) {
+      return $parent[0]['target_id'];
+    }
+  }
+  return 0;
+}
+
+
+/**
+ * Menu callback for ajax/mark-read/%. Marks the node as read by the user.
+ *
+ * @param string $nids
+ *   Node IDs, formatted like 212,143,592 etc.
+ */
+function oa_discussion_mark_as_read($nids) {
+  $nids = explode(',', $nids);
+  foreach ($nids as $nid) {
+    $node = node_load($nid);
+    if ($node) {
+      node_tag_new($node);
+    }
+  }
+}
+
+/**
+ * Change the subscribe flag for the notifications pane to use parent post id.
+ */
+function oa_discussion_alter_notifications_pane(&$content, $pane, $args, $context) {
+  if (isset($context->data)) {
+    $node = $context->data;
+    if ($node->type == 'oa_discussion_post' && isset($content->content['#subscribe'])) {
+      $parent_id = empty($node->oa_parent) ? FALSE : $node->oa_parent[LANGUAGE_NONE][0]['target_id'];
+      if ($parent_id) {
+        $content->content['#subscribe'] = array(
+          '#type' => 'markup',
+          '#markup' => flag_create_link('subscribe_section_content', $parent_id),
+        );
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_notifications_users_alter().
+ */
+function oa_discussion_notifications_users_alter(&$users, $node) {
+  // Add the parent's flagged subscribers, if available.
+  if ($node->type == 'oa_discussion_post' && !empty($node->oa_parent[LANGUAGE_NONE][0]['target_id'])) {
+    $parent_id = $node->oa_parent[LANGUAGE_NONE][0]['target_id'];
+    $subscribers = flag_get_content_flags('node', $parent_id, 'subscribe_section_content');
+    foreach ($subscribers as $subscriber) {
+      $user = user_load($subscriber->uid);
+      $users[$user->uid] = $user;
+    }
+  }
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ */
+function oa_discussion_module_implements_alter(&$implementations, $hook) {
+  if ($hook == 'clone_access_alter') {
+    // Make sure we run last because we need to absolutely revoke access
+    // if the discussion is a reply (ie. no other module should turn give
+    // access back).
+    $group = $implementations['oa_discussion'];
+    unset($implementations['oa_discussion']);
+    $implementations['oa_discussion'] = $group;
+  }
+}
+
+/**
+ * Implements hook_clone_access_alter().
+ */
+function oa_discussion_clone_access_alter(&$access, $node) {
+  // If this is a reply, don't allow it to be cloned!
+  if (!empty($node->oa_parent[LANGUAGE_NONE][0]['target_id'])) {
+    $access = FALSE;
+  }
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function oa_discussion_node_insert($node) {
+  if ($node->type == 'oa_discussion_post' && !empty($node->clone_from_original_nid) && module_exists('oa_clone')) {
+    $original_nid = $node->clone_from_original_nid;
+
+    // Get the replies.
+    $query = new EntityFieldQuery();
+    $query
+      ->entityCondition('entity_type', 'node')
+      ->entityCondition('bundle', 'oa_discussion_post')
+      ->fieldCondition('oa_parent', 'target_id', $original_nid);
+    $result = $query->execute();
+
+    // Get the Space and Section ids from the current discussion. This is
+    // important, because this clone could be creating a whole new Space or
+    // Section which these replies are going into.
+    $space_nid = $node->og_group_ref[LANGUAGE_NONE][0]['target_id'];
+    $section_nid = $node->oa_section_ref[LANGUAGE_NONE][0]['target_id'];
+
+    // Clone all the replies, attaching them to this new discussion.
+    if (!empty($result['node'])) {
+      $original_replies = node_load_multiple(array_keys($result['node']));
+      foreach ($original_replies as $original_reply) {
+        if ($clone = oa_clone_prepare($original_reply, $space_nid, $section_nid, TRUE)) {
+          $clone->oa_parent[LANGUAGE_NONE][0]['target_id'] = $node->nid;
+          oa_clone_save($clone);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function oa_discussion_form_oa_discussion_post_node_form_alter(&$form, &$form_state) {
+  _oa_core_hide_comment_settings($form);
+}
+
+/**
+ * Implements hook_form_node_delete_confirm_alter().
+ */
+function oa_discussion_form_node_delete_confirm_alter(&$form, &$form_state) {
+  $node = $form['#node'];
+
+  switch ($node->type) {
+    case 'oa_discussion_post':
+      $children = oa_discussion_get_children($node);
+      if (!empty($children)) {
+        foreach ($children as $nid) {
+          $child = node_load($nid);
+          $titles[] = $child->title;
+        }
+        $replies = '<ul><li>' . implode('</li><li>', $titles) . '</li></ul>';
+
+        $form['children'] = array(
+          '#prefix' => '<div>',
+          '#markup' => t('Note: This will delete the following replies: !replies', array('!replies' => $replies)),
+          '#suffix' => '</div>',
+        );
+
+        $form['#submit'][] = 'oa_discussion_confirm_delete_form_submit';
+      }
+
+      break;
+  }
+}
+
+/**
+ * Implements hook_node_update().
+ */
+function oa_discussion_node_update($node) {
+  global $conf;
+  switch ($node->type) {
+    case 'oa_discussion_post':
+      $section = isset($node->oa_section_ref[LANGUAGE_NONE][0]['target_id']) ? $node->oa_section_ref[LANGUAGE_NONE][0]['target_id'] : NULL;
+      $group = isset($node->og_group_ref[LANGUAGE_NONE][0]['target_id']) ? $node->og_group_ref[LANGUAGE_NONE][0]['target_id']  : NULL;
+      $original_section = isset($node->original->oa_section_ref[LANGUAGE_NONE][0]['target_id']) ? $node->original->oa_section_ref[LANGUAGE_NONE][0]['target_id'] : NULL;
+      $original_group = isset($node->original->og_group_ref[LANGUAGE_NONE][0]['target_id']) ? $node->original->og_group_ref[LANGUAGE_NONE][0]['target_id'] : NULL;
+      if ($section !== $original_section || $group !== $original_group) {
+        $children = oa_discussion_get_children($node);
+
+        // Update children section/space.
+        if (!empty($children)) {
+          if (function_exists('oa_notification_skip')) {
+            oa_notification_skip(TRUE);
+          }
+          foreach ($children as $nid) {
+            $child = node_load($nid);
+            if ($section) {
+              $child->oa_section_ref[LANGUAGE_NONE][0]['target_id'] = $section;
+            }
+            else {
+              unset($child->oa_section_ref);
+            }
+            if ($group) {
+              $child->og_group_ref[LANGUAGE_NONE][0]['target_id'] = $group;
+            }
+            else {
+              unset($child->og_group_ref);
+            }
+            node_save($child);
+          }
+          if (function_exists('oa_notification_skip')) {
+            oa_notification_skip(FALSE);
+          }
+        }
+      }
+      break;
+  }
+}
+
+/**
+ * Helper function to get children of parent.
+ *
+ * @param object $parent
+ *   The parent node being moved.
+ */
+function oa_discussion_get_children($parent) {
+  $result = db_select('field_data_oa_parent', 'p')
+    ->condition('p.oa_parent_target_id', $parent->nid)
+    ->fields('p', array('entity_id'))
+    ->execute();
+
+  $records = $result->fetchCol();
+
+  return isset($records) ? $records : NULL;
+}
+
+/**
+ * Form submit to delete discussion post children.
+ */
+function oa_discussion_confirm_delete_form_submit($form, &$form_state) {
+  if (function_exists('oa_notification_skip')) {
+    oa_notification_skip(TRUE);
+  }
+  $nids = oa_discussion_get_children($form['#node']);
+  // Turn off notifications for these updates.
+  node_delete_multiple($nids);
+  if (function_exists('oa_notification_skip')) {
+    oa_notification_skip(FALSE);
+  }
+}

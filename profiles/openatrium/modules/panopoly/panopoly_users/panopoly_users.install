@@ -22,12 +22,17 @@ function panopoly_users_update_dependencies() {
 function panopoly_users_update_7001() {
   module_enable(array('user_picture_field'));
 
-  $result = db_query("SELECT entity_id, field_user_picture_fid FROM {field_data_field_user_picture} WHERE entity_type = 'user'");
-  foreach ($result as $record) {
-    db_query("UPDATE {users} SET picture = :picture WHERE uid = :uid", array(
-      ':picture' => $record->field_user_picture_fid,
-      ':uid' => $record->entity_id,
-    ));
+  // When updating from REALLY old versions of Panopoly, the user picture field
+  // may not even exist on the user entity. It'll get created by Features later
+  // but there's no sense in trying to migrate data if it isn't around.
+  if (db_table_exists('field_data_field_user_picture')) {
+    $result = db_query("SELECT entity_id, field_user_picture_fid FROM {field_data_field_user_picture} WHERE entity_type = 'user'");
+    foreach ($result as $record) {
+      db_query("UPDATE {users} SET picture = :picture WHERE uid = :uid", array(
+        ':picture' => $record->field_user_picture_fid,
+        ':uid' => $record->entity_id,
+      ));
+    }
   }
 
   // Set the variables that would be set via defaultconfig.

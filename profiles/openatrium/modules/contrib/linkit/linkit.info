@@ -1,18 +1,31 @@
 name = Linkit
-description = Provides an easy interface for inserting links to internal content, files and external pages by providing autocomplete search for several WYSIWYG-editors.
+description = Provides an easy interface for inserting links.
 core = 7.x
 configure = admin/config/content/linkit
 dependencies[] = ctools
 dependencies[] = entity
 
+; Our classes, interfaces and abstract implementations.
+files[] = includes/profile.class.php
+files[] = includes/search_plugin.class.php
+files[] = plugins/linkit_search/entity.class.php
+files[] = plugins/linkit_search/file.class.php
+files[] = plugins/linkit_search/node.class.php
+files[] = plugins/linkit_search/taxonomy_term.class.php
+files[] = plugins/linkit_search/user.class.php
 
-; Our plugins interfaces and abstract implementations.
-files[] = plugins/plugin.class.php
-files[] = plugins/linkit_plugins/linkit-plugin-entity.class.php
+; Test files
+files[] = test/linkit.test
+files[] = test/linkit_profile.test
+files[] = test/linkit_search_plugin.test
+files[] = test/linkit_search_plugin_node.test
+files[] = test/linkit_search_plugin_user.test
+files[] = test/linkit_search_plugin_taxonomy_term.test
+files[] = test/linkit_field.test
 
-; Information added by drupal.org packaging script on 2013-03-09
-version = "7.x-2.6"
+; Information added by Drupal.org packaging script on 2014-09-30
+version = "7.x-3.2"
 core = "7.x"
 project = "linkit"
-datestamp = "1362862214"
+datestamp = "1412120356"
 

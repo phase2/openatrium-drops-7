@@ -129,3 +129,14 @@ function panopoly_core_update_7100() {
     module_enable(array('transliteration'));
   }
 }
+
+/**
+ * Change the Pathauto "Update action" to match the new default.
+ */
+function panopoly_core_update_7101() {
+  // Only change this setting if the 'redirect' module isn't used OR if it's
+  // used in conjunction with the 'globalredirect' module.
+  if (!module_exists('redirect') || module_exists('globalredirect')) {
+    variable_set('pathauto_update_action', '1');
+  }
+}

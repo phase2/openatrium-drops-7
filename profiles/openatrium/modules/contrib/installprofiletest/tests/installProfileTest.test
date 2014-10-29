@@ -1,0 +1,131 @@
+<?php
+
+/**
+ * @file
+ * Tests the current install versus a fresh install or the install profile.
+ * Run it against an older basic install of the install profile to make sure
+ * all modules/content types/etc. remain the same.
+ *
+ * Current patches needed
+ *  http://drupal.org/files/1979926-views-reset_fetch_data-2.patch
+ *
+ *   W/o means missing view handler warnings.
+ *  http://drupal.org/files/1093420-2.patch
+ *   Needed to install all depdent modules.
+ *  http://drupal.org/files/1572578-features-module-enabled-rebuild-15.patch
+ *   Needed due to timing issues with features.
+ *  http://drupal.org/files/1541888-rules-RulesEventSet-10.patch
+ *   So that rules doesn't fatal error the install.
+ *
+ * If creating your own install profile, extend this test and edit $profile
+ * to your own and add a test like installProfileTest.
+ */
+
+class installProfileTestBase extends DrupalWebTestCase {
+  protected $profile = NULL;
+  // An array of current configuration that the test checks.
+  protected $current_config = array();
+  
+  /**
+   * One using of this function is to enable the module used for testing, any dependencies
+   * or anything else that might be universal for all tests
+   */
+  public function setUp() {
+    // Set the profile to test to current.
+    if (empty($profile)) {
+      if (function_exists('drush_get_option') && ($profile = drush_get_option('profile'))) {
+        $this->profile = $profile;
+      }
+      else {
+        $this->profile = drupal_get_profile();
+      }
+    }
+    // New options can be added if they follow this pattern.
+    $this->current_config += array(
+      'modules' => array(
+        'current' => module_list(),
+        'function' => 'module_list',
+        'ignore' => array('reroute_email', 'simpletest', 'installprofiletest', 'simpletest_clone', 'coder', 'coder_review'),
+      ),
+      'node types' => array(
+        'current' => array_keys(node_type_get_types()),
+        'function' => 'node_type_get_types',
+        'keys' => TRUE,
+      ),
+      'vocabularies' => array(
+        'current' => array_keys(taxonomy_vocabulary_get_names()),
+        'function' => 'taxonomy_vocabulary_get_names',
+        'keys' => TRUE,
+      ),
+      'menus' => array(
+        'current' => array_keys(menu_get_menus()),
+        'function' => 'menu_get_menus',
+        'keys' => TRUE,
+      ),
+    );
+    // Openatrium can take a bit of time to install.
+    set_time_limit(0);
+    parent::setUp();
+  }
+
+  function _test_current_config() {
+    foreach ($this->current_config as $type => $info) {
+      // Get the newly installed items.
+      $function = $info['function'];
+      $new = $function();
+      // Flip them if want keys.
+      if (!empty($info['keys'])) {
+        $new = array_keys($new);
+      }
+      // Some things (simpletest for modules) should be ignored.
+      $ignore = isset($info['ignore']) ? $info['ignore'] : array();
+      // Calculate the differences.
+      $new_current = array_diff($info['current'], $new, $ignore);
+      $new_fresh = array_diff($new, $info['current'], $ignore);
+      $message = t('@type is the same on both current and fresh.', array('@type' => $type));
+      // Might as well say what is different.
+      if ($new_current) {
+        $message .= ' ' . t('The @type only in the existing installation are: @items.', array('@type' => $type, '@items' => implode(', ', $new_current)));
+      }
+      if ($new_fresh) {
+        $message .= ' ' . t('The @type only in a new installation are: @items.', array('@type' => $type, '@items' => implode(', ', $new_fresh)));
+      }
+      $this->assertTrue(!$new_current && !$new_fresh, $message);
+    }
+  }
+
+  /**
+   * Tests that all modules defined in install profile physically exist
+   */
+  function _test_modules_exist() {
+    if ($info = install_profile_info($this->profile)) {
+      $diff = array_diff($info['dependencies'], array_keys(system_rebuild_module_data()));
+      $this->assertTrue(!$diff, t('All dependent modules are physically preset on current install') . ($diff ? t('Missing Modules are @modules', array('@modules' => implode(', ', $diff))) : ''));
+      $this->assertEqual(count(array_filter($info['dependencies'], 'module_exists')), count($info['dependencies']), t('All dependent modules are enabled on current install'));
+    }
+    else {
+      trigger_error(t('Unable to get info on install profile @profile', array('@profile' => $this->profile)));
+    }
+  }
+}
+
+/**
+ * Test the OA install.
+ */
+class installProfileTest extends installProfileTestBase {
+  static function getInfo() {
+    return array(
+      'name' => 'Basic Install Profile test test',
+      'description' => 'Test that current install profile installs correctly.',
+      'group' => 'Install Profile Test',
+    );
+  }
+
+  /**
+   * Test skipping OgBehaviorHandler.
+   */
+  function testInstall() {
+    $this->_test_current_config();
+    $this->_test_modules_exist();
+  }
+}

@@ -4,15 +4,13 @@
 }
 #contextual-tabs #oa_visibility_toolbar {
   margin-top: 0px;
+  padding: 0;
 }
 .pull-right #oa_visibility_toolbar {
   margin-right: 5px;
 }
 .pull-left #oa_visibility_toolbar {
   margin-left: 5px;
-}
-#oa_visibility_toolbar a.dropdown-toggle {
-  font-size: 16px;
 }
 .oa-visibility-private {
   min-width: 150px;

@@ -97,19 +97,43 @@ function panopoly_admin_panels_pane_content_alter($content, $pane, $args, $conte
 }
 
 /**
+ * Implements hook_theme_registry_alter().
+ */
+function panopoly_admin_theme_registry_alter(&$registry) {
+  if (isset($registry['panels_add_content_modal'])) {
+    // Put our preprocess function before the default one from Panels.
+    $index = array_search('template_preprocess_panels_add_content_modal', $registry['panels_add_content_modal']['preprocess functions']);
+    if ($index !== FALSE) {
+      array_splice($registry['panels_add_content_modal']['preprocess functions'], $index, 0, 'panopoly_admin_prepreprocess_panels_add_content_modal');
+    }
+  }
+}
+
+/**
+ * Preprocess the panels_add_content_modal() theme function.
+ */
+function panopoly_admin_prepreprocess_panels_add_content_modal(&$vars) {
+  if (!variable_get('panopoly_admin_advanced_plugins', FALSE)) {
+    // Remove advanced Panes from the 'Add content' modal.
+    foreach ($vars['categories'] as $category_name => $category) {
+      foreach ($category['content'] as $pane_name => $pane) {
+        if (panopoly_admin_is_advanced_plugin($pane['title'], $category['title'])) {
+          unset($vars['categories'][$category_name]['content'][$pane_name]);
+        }
+      }
+      // If an entire category has been emptied, remove it as well.
+      if (empty($vars['categories'][$category_name]['content'])) {
+        unset($vars['categories'][$category_name]);
+      }
+    }
+  }
+}
+
+/**
  * Implementation of hook_ctools_content_subtype_alter()
  */
 function panopoly_admin_ctools_content_subtype_alter(&$subtype, &$plugin) {
-
-  // Figure out some things about each of the substypes
-  $pane_label = $subtype['title'];
   $category_label  = (is_string($subtype['category'])) ? $subtype['category'] : $subtype['category'][0];
-
-  // If we are not using advanced plugins and this is an advanced plugin then disable the pane
-  if (!variable_get('panopoly_admin_advanced_plugins', FALSE) && panopoly_admin_is_advanced_plugin($pane_label, $category_label)) {
-    $subtype['required context'] = new ctools_context_required(t('Panopoly Null'), 'string');
-    $plugin['all contexts'] = FALSE;
-  }
 
   // Switch the labeling of "Miscellaneous" to "Blocks"
   if ($category_label == 'Miscellaneous') {
@@ -132,12 +156,13 @@ function panopoly_admin_form_alter(&$form, &$form_state, $form_id) {
     unset($form['path']['#type']); // remove the fieldset
     unset($form['path']['alias']['#description']); 
     $form['path']['alias']['#title'] = '<strong>' . t('Permalink') . ':</strong> ';
-    $form['path']['alias']['#title'] .= (isset($_SERVER['HTTPS'])) ? 'https://' . $_SERVER['HTTP_HOST'] . '/' : 'http://' . $_SERVER['HTTP_HOST'] . '/';
+    $form['path']['alias']['#field_prefix'] = (isset($_SERVER['HTTPS'])) ? 'https://' . $_SERVER['HTTP_HOST'] . '/' : 'http://' . $_SERVER['HTTP_HOST'] . '/';
+
     if (isset($form['path']['pathauto'])) {
+      $form['path']['pathauto']['#access'] = FALSE;
+      // Alter the place holder text based on the pathauto default value.
+      $form['path']['alias']['#attributes'] = array('placeholder' => '<' . t('magically generated') . '>');
       $form['path']['alias']['#states'] = array();
-      if (!$form['path']['alias']['#default_value']) {
-        $form['path']['alias']['#attributes'] = array('placeholder' => '<' . t('magically generated') . '>');
-      }
       $form['#submit'][] = 'panopoly_admin_pathauto_submit';
     }
   }
@@ -215,7 +240,7 @@ function panopoly_admin_form_alter(&$form, &$form_state, $form_id) {
   }
 
   // Improve the menu adding experience
-  if (isset($form['menu']) && isset($form['menu']['enabled']) && $form['menu']['#access']) {
+  if (isset($form['menu']) && isset($form['menu']['enabled']) && !empty($form['menu']['#access'])) {
     $form['menu']['link']['link_title']['#size'] = '';
     $form['menu']['link']['weight']['#access'] = FALSE;
     $form['menu']['link']['link_title']['#title'] = t('Link title');
@@ -240,16 +265,25 @@ function panopoly_admin_module_implements_alter(&$implementations, $hook) {
  * Submit function for adding pathauto settings
  */
 function panopoly_admin_pathauto_submit($form, &$form_state) {
-  // If the user hasn't specified a path, autogenerate
-  if (empty($form_state['input']['path']['alias'])) {
-    $form_state['values']['path']['pathauto'] = TRUE;
-    $form_state['input']['path']['pathauto'] = TRUE;
+  $values = $form_state['values'];
+  $autogenerate = TRUE;
+
+  // If the submitted 'alias' is NOT empty then we potentially may not want to
+  // auto-generate.
+  if (!empty($values['path']['alias'])) {
+    // If the submitted alias differs than the previous form default value then
+    // the user is attempting to manually set it.
+    if ($values['path']['alias'] != $form['path']['alias']['#default_value']) {
+      $autogenerate = FALSE;
+    }
+    // If the submitted value is equal to the previous value AND the autogenerate (pathauto) setting is FALSE then an alias was previously manually set so leave it.
+    elseif (!empty($form['path']['pathauto']) && !$form['path']['pathauto']['#default_value']) {
+      $autogenerate = FALSE;
+    }
   }
-  // If the user has specified a path, dont autogenerate
-  else {
-    $form_state['values']['path']['pathauto'] = FALSE;
-    $form_state['input']['path']['pathauto'] = FALSE;
-  }
+
+  $form_state['values']['path']['pathauto'] = $autogenerate;
+  $form_state['input']['path']['pathauto'] = $autogenerate;
 }
 
 /**
@@ -552,6 +586,9 @@ function panopoly_admin_is_advanced_plugin($pane_label, $category_label) {
     'File', // support for file items that is just confusing
     'Fieldable_panels_pane', // duplicated fields for custom panes
     'Existing pages', // pages from pm existing pages module that will break the site
+
+    // TODO: this should be added via an alter hook or something!
+    'Panopoly Test Advanced',
   );
 
   // Specifically excluded panes

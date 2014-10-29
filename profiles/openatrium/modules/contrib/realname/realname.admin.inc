@@ -23,6 +23,7 @@ function realname_settings_form($form, &$form_state) {
     '#theme' => 'token_tree',
     '#token_types' => array('user'),
     '#global_types' => FALSE,
+    '#dialog' => TRUE,
   );
 
   $form['#submit'][] = 'realname_settings_form_submit';

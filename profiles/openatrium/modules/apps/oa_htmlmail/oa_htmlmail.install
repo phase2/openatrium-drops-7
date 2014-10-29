@@ -1,0 +1,30 @@
+<?php
+/**
+ * @file
+ * Code for install of the Open Atrium HTML email feature.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function oa_htmlmail_install() {
+  oa_htmlmail_set_default();
+}
+
+/**
+ * Set the default settings for mail system.
+ *
+ * Not using strongarm since it's a multipart variable.
+ */
+function oa_htmlmail_set_default() {
+  $values = mailsystem_get();
+  $values[mailsystem_default_id()] = 'HTMLMailSystem';
+  variable_set('mail_system', $values);
+}
+
+/**
+ * Set the deault variables.
+ */
+function oa_htmlmail_update_7101() {
+  oa_htmlmail_set_default();
+}

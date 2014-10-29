@@ -1,0 +1,251 @@
+<?php
+/**
+ * @file
+ * Code for the Open Atrium Sandbox feature.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function oa_sandbox_menu(){
+  $items = array();
+  $items['admin/openatrium/sandbox'] = array(
+    'title' => 'Sandbox Mode',
+    'description' => 'Toggle Sandbox mode',
+    'access arguments' => array('toggle sandbox mode'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('oa_sandbox_settings_form'),
+    'type' => MENU_NORMAL_ITEM
+  );
+  $items['admin/openatrium/sandbox/toggle'] = array(
+    'title' => 'Configure',
+    'weight' => -1,
+    'type' => MENU_DEFAULT_LOCAL_TASK
+  );
+  $items['admin/openatrium/sandbox/delete'] = array(
+    'title' => 'Delete test content',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('oa_sandbox_delete_confirm'),
+    'access arguments' => array('toggle sandbox mode'),
+    'type' => MENU_LOCAL_TASK,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function oa_sandbox_permission() {
+  return array(
+    'toggle sandbox mode' => array(
+      'title' => t('Toggle Sandbox mode'),
+      'description' => t('Turn Sandbox mode on or off'),
+    ),
+  );
+}
+
+/**
+ * Form builder for the settings form.
+ */
+function oa_sandbox_settings_form($form, &$form_state) {
+  $form = array();
+  $form['help'] = array(
+    '#markup' => '<p>' . t('If sandbox mode is on, any content you add or edit will be reverted/destroyed when you turn sandbox mode back off. It\'s a chance to play with your site and edit things as you wish without worrying about any lasting repercussions.') . '</p>',
+  );
+  $form['toggle'] = array(
+    '#type' => 'checkbox',
+    '#default_value' => variable_get('oa_sandbox_mode', 0),
+    '#title' => t('Activate sandbox mode?'),
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save')
+  );
+  return $form;
+}
+
+/**
+ * Submit handler for the settings form.
+ */
+function oa_sandbox_settings_form_submit($form, &$form_state){
+  $was_active = variable_get('oa_sandbox_mode', 0);
+  $is_active = $form_state['values']['toggle'];
+  if ($was_active && !$is_active) {
+    $form_state['redirect'] = 'admin/openatrium/sandbox/delete';
+  }
+  else {
+    variable_set('oa_sandbox_mode', $is_active);
+    if (!$was_active && $is_active) {
+      drupal_set_message('You are now in sandbox mode. Any content additions or edits you make will be reverted/deleted when you exist sandbox mode.');
+    }
+  }
+}
+
+/**
+ * Callback form builder for the delete confirmation page.
+ */
+function oa_sandbox_delete_confirm($form, &$form_state) {
+  return confirm_form($form,
+    t('Are you sure you want to delete all test content?'),
+    'admin/openatrium/sandbox',
+    t('Disabling sandbox mode will delete all of the test content you worked on while in sandbox mode. This action cannot be undone.'),
+    t('Delete'),
+    t('Cancel')
+  );
+}
+
+/**
+ * Submit callback for the delete confirmation form. Actually performs the delete.
+ */
+function oa_sandbox_delete_confirm_submit($form, &$form_state) {
+  if ($form_state['values']['confirm']) {
+    $revisions = variable_get('oa_sandbox_revisions', array());
+    foreach ($revisions as $nid => $vid) {
+      if ($vid == -1) {
+        // This was a new node created while in sandbox mode, so just delete it completely.
+        node_delete($nid);
+      } else {
+        // This was a node that we edited while in sandbox mode, so just revert back to the pre-test version.
+        $node = node_load($nid, $vid);
+        node_save($node);
+      }
+    }
+    variable_set('oa_sandbox_mode', FALSE);
+    variable_set('oa_sandbox_revisions', array());
+    drupal_set_message('Test content has been deleted. You are no longer in sandbox mode.');
+  }
+  $form_state['redirect'] = 'admin/openatrium/sandbox';
+}
+
+/**
+ * Implements hook_form_alter().
+ * Alter the node add/edit form by adding the new "Test Content" checkbox to it.
+ */
+function oa_sandbox_form_node_form_alter(&$form, &$form_state, $form_id) {
+  $node = $form['#node'];
+  $form['options']['sandbox'] = array(
+    '#type' => 'checkbox',
+    '#weight' => 10,
+    '#title' => t('Test content'),
+    '#description' => t('Should this be considered test content? If checked, this will be deleted/reverted when sandbox mode is turned off.'),
+    '#default_value' => !empty($node->sandbox) ? $node->sandbox : variable_get('oa_sandbox_mode', 0),
+  );
+  $form['#validate'][] = 'oa_sandbox_form_node_form_validate';
+}
+
+/**
+ * Validate callback for the node add/edit form.
+ */
+function oa_sandbox_form_node_form_validate($form, &$form_state) {
+  if ($form_state['values']['sandbox'] && !$form_state['values']['revision']) {
+    $form_state['values']['revision'] = TRUE;
+  }
+}
+
+/**
+ * Implements hook_node_load().
+ */
+function oa_sandbox_node_load($nodes, $types) {
+  $sandbox_revisions = variable_get('oa_sandbox_revisions', array());
+  foreach ($nodes as $nid => $node) {
+    $nodes[$nid]->sandbox = isset($sandbox_revisions[$nid]);
+  }
+}
+
+/**
+ * Implements hook_node_update().
+ *
+ * Examine the saved data to see if we need to save a "pre-sandbox" revision ID to the DB,
+ * for use when we delete all Test Content eventually.
+ *
+ * We only need to worry about two scenarios:
+ *
+ *  1) "Test content" is checked AND we haven't already stored a revision for this node. This
+ *     means we need to go ahead and store the last pre-test-content revision, if one exists.
+ *  2) "Test content is unchecked AND we have already stored a revision for this node. This
+ *     means we need to remove the revision from our list of pre-test-content revisions since
+ *     it's back out of test content.
+ *
+ * The other two possible combinations of those fields don't actually require us to do anything.
+ */
+function oa_sandbox_node_update($node) {
+  $nid = $node->nid;
+  $sandbox_revisions = variable_get('oa_sandbox_revisions', array());
+
+  if (isset($node->sandbox) && !$node->sandbox && array_key_exists($nid, $sandbox_revisions)) {
+    // We had previously marked this as test content but now it's not anymore, so we
+    // remove it from the list of pre-sandbox revisions.
+    unset($sandbox_revisions[$nid]);
+    variable_set('oa_sandbox_revisions', $sandbox_revisions);
+  }
+  else if (!empty($node->sandbox) && !array_key_exists($nid, $sandbox_revisions)) {
+    // We haven't aleady stored this one as a "pre-sandbox" revision, so do that now.
+    // This way, when the time comes to delete test content, we will know this is the latest non-test revision.
+    $sandbox_revisions[$nid] = !empty($node->original) ? $node->original->vid : -1;
+    variable_set('oa_sandbox_revisions', $sandbox_revisions);
+  }
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function oa_sandbox_node_insert($node) {
+  oa_sandbox_node_update($node);
+}
+
+/**
+ * Implements hook_clone_node_alter().
+ */
+function oa_sandbox_clone_node_alter(&$node, $context) {
+  $original = $context['original_node'];
+  $node->sandbox = $original->sandbox ? $original->sandbox : variable_get('oa_sandbox_mode', 0);
+}
+
+/**
+ * Implements hook_page_build().
+ * Show an indicator if sandbox mode is currently on.
+ */
+function oa_sandbox_page_build(&$page) {
+  if (variable_get('oa_sandbox_mode', 0) && user_access('toggle sandbox mode')) {
+    $page['page_top']['oa_sandbox_indicator'] = array(
+      '#markup' => theme('oa_sandbox_indicator', array()),
+    );
+    drupal_add_css(drupal_get_path('module', 'oa_sandbox') . '/oa_sandbox.css');
+  }
+}
+
+/**
+ * Implements hook_preprocess_html().
+ */
+function oa_sandbox_preprocess_html(&$vars) {
+  if (variable_get('oa_sandbox_mode', 0) && user_access('toggle sandbox mode')) {
+    $vars['classes_array'][] = 'oa-sandbox';
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function oa_sandbox_theme($existing, $type, $theme, $path) {
+  return array(
+    'oa_sandbox_indicator' => array(),
+  );
+}
+
+/**
+ * Theme function for the indicator bar.
+ */
+function theme_oa_sandbox_indicator($variables) {
+  $output = array(
+    '#type' => 'container',
+    '#attributes' => array(
+      'id' => 'oa-sandbox-indicator',
+    ),
+    'name' => array(
+      '#theme' => 'html_tag',
+      '#tag' => 'h3',
+      '#value' => l(t('Sandbox Mode'), 'admin/openatrium/sandbox', array('attributes' => array('title' => 'Click this to toggle sandbox mode.'))),
+    ),
+  );
+  return drupal_render($output);
+}

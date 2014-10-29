@@ -1,3 +1,21 @@
+Panopoly Admin 7.x-1.13, 2014-10-17
+----------------------------
+- No changes since last release.
+
+Panopoly Admin 7.x-1.12, 2014-10-15
+----------------------------
+- Fixed Disabling "Advanced Panel Plugins" breaks some Panes (ex. Panels Everywhere).
+- Update Breakpoints to version 1.3.
+- Fixed panopoly_admin should use #field_prefix for path customizations.
+- Fixed Path alias isn't preserved if the user doesn't have "create url alias" permission.
+- Help Region?.
+- Fixed Undefined index error when creating a node with no allowed menus.
+- Added decouple navbar styling from panopoly-admin.css .
+
+Panopoly Admin 7.x-1.11, 2014-08-14
+----------------------------
+- No changes since last release.
+
 Panopoly Admin 7.x-1.10, 2014-08-06
 ----------------------------
 - No changes since last release.

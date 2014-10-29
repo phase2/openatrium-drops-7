@@ -1,0 +1,448 @@
+/* line 5, ../sass/oa_sitemap_app.scss */
+body.oa-sitemap-full {
+  background: #e6f8fd;
+}
+/* line 7, ../sass/oa_sitemap_app.scss */
+body.oa-sitemap-full #main-wrapper {
+  background: #e6f8fd;
+}
+/* line 9, ../sass/oa_sitemap_app.scss */
+body.oa-sitemap-full #main-wrapper #main {
+  background: #e6f8fd;
+}
+/* line 13, ../sass/oa_sitemap_app.scss */
+body.oa-sitemap-full .oa-sitemap {
+  background: #e6f8fd url(../images/clouds.png) no-repeat center top;
+}
+
+/* line 18, ../sass/oa_sitemap_app.scss */
+.oa-sitemap {
+  margin-top: 20px;
+  /***** Add styles for front page design with help test *******/
+}
+/* line 31, ../sass/oa_sitemap_app.scss */
+.oa-sitemap [ng-drag].dragging {
+  opacity: 0.5;
+}
+/* line 36, ../sass/oa_sitemap_app.scss */
+.oa-sitemap [ng-drop].drag-enter {
+  background: #42BB3D;
+  opacity: 0.7;
+}
+/* line 40, ../sass/oa_sitemap_app.scss */
+.oa-sitemap [ng-drop].oa-section-title.drag-enter {
+  background: transparent;
+  opacity: 1;
+}
+/* line 44, ../sass/oa_sitemap_app.scss */
+.oa-sitemap [ng-drop].drag-enter .oa-section-icon {
+  background: #42BB3D;
+  opacity: 0.7;
+}
+/* line 49, ../sass/oa_sitemap_app.scss */
+.oa-sitemap textarea {
+  width: 100%;
+  height: 124px;
+}
+/* line 53, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-section-title textarea {
+  width: 100%;
+  height: 60px;
+}
+/* line 57, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-section-title .oa-rename-actions {
+  font-size: 14px;
+}
+/* line 61, ../sass/oa_sitemap_app.scss */
+.oa-sitemap a, .oa-sitemap a:visited, .oa-sitemap a:active {
+  color: black;
+}
+/* line 64, ../sass/oa_sitemap_app.scss */
+.oa-sitemap a:hover {
+  text-decoration: none;
+  color: #008fe2;
+}
+/* line 70, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-sitemap-title h3 {
+  margin: 3px 20px 0 0;
+}
+/* line 75, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-sitemap-header {
+  margin-bottom: 5px;
+}
+/* line 77, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-sitemap-header a {
+  position: relative;
+  display: block;
+  z-index: 5;
+  margin-right: 10px;
+}
+/* line 85, ../sass/oa_sitemap_app.scss */
+.oa-sitemap a.btn-none {
+  padding: 8px 16px;
+  font-size: 12px;
+  text-decoration: underline;
+  color: #777;
+}
+/* line 92, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-sitemap-search {
+  z-index: 5;
+}
+/* line 94, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-sitemap-search .active {
+  background: #095a8b;
+  color: white;
+}
+/* line 100, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-sitemap-full {
+  margin-top: 10px;
+}
+/* line 104, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-sitemap-breadcrumbs {
+  display: block;
+  text-align: center;
+  margin: 0;
+}
+/* line 110, ../sass/oa_sitemap_app.scss */
+.oa-sitemap #oa-sitemap-top {
+  background: white;
+  position: relative;
+}
+/* line 115, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-sitemap-breadcrumb a {
+  margin-bottom: 20px;
+  position: relative;
+  border: 1px solid #aaa;
+}
+/* line 119, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-sitemap-breadcrumb a:after {
+  content: "";
+  position: absolute;
+  width: 2px;
+  height: 20px;
+  background: #aaa;
+  left: 50%;
+  bottom: -22px;
+}
+/* line 130, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-carousel-container {
+  border: 1px solid #bbb;
+  border-radius: 10px;
+  padding-bottom: 20px;
+}
+/* line 136, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-spaces {
+  position: relative;
+  text-align: center;
+  height: auto;
+  overflow: visible;
+}
+/* line 142, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-space-header {
+  position: relative;
+  margin: 0 0 20px;
+  text-align: center;
+  background: #032941;
+  color: white;
+  border-bottom: 1px solid #aaa;
+  border-radius: 8px;
+  padding: 8px 0;
+}
+/* line 151, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-space-header a, .oa-sitemap .oa-space-header a:visited, .oa-sitemap .oa-space-header a:active {
+  color: white;
+}
+/* line 154, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-space-header button {
+  font-weight: 300;
+  font-size: 18px;
+  position: absolute;
+  border: none;
+  background: none;
+  color: white;
+  line-height: 34px;
+  padding: 0;
+}
+/* line 163, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-space-header button:hover {
+  outline: none;
+  color: yellow;
+}
+/* line 167, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-space-header button:active, .oa-sitemap .oa-space-header button:visited, .oa-sitemap .oa-space-header button:focus {
+  color: white;
+}
+/* line 171, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-space-header a [class^="icon-"] {
+  font-size: 22px;
+  color: #CCC;
+}
+/* line 175, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-space-header .next {
+  right: 30px;
+}
+/* line 177, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-space-header .next:after {
+  content: "";
+  position: absolute;
+  right: -20px;
+  top: 8px;
+  border-left: 12px solid white;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+}
+/* line 187, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-space-header .prev {
+  left: 30px;
+}
+/* line 189, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-space-header .prev:before {
+  content: "";
+  position: absolute;
+  left: -20px;
+  top: 8px;
+  border-right: 12px solid white;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+}
+/* line 200, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .dropdown {
+  display: inline-block;
+}
+/* line 203, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-section-title.dropdown {
+  display: block;
+}
+/* line 206, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .dropdown-menu > li > a {
+  padding: 0 20px;
+  color: #333;
+}
+/* line 209, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .dropdown-menu > li > a:hover {
+  color: white;
+}
+/* line 213, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-space-title {
+  font-size: 24px;
+  font-weight: bold;
+  display: inline-block;
+}
+/* line 217, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-space-title:hover, .oa-sitemap .oa-space-title.open:hover, .oa-sitemap .oa-space-title:active, .oa-sitemap .oa-space-title.open:active, .oa-sitemap .oa-space-title:focus, .oa-sitemap .oa-space-title.open:focus {
+  text-decoration: none;
+}
+/* line 222, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-sections {
+  text-align: center;
+}
+/* line 225, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-section {
+  width: 110px;
+  margin-bottom: 10px;
+  display: inline-block;
+  vertical-align: top;
+  text-align: center;
+}
+/* line 232, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-section-icon {
+  display: block;
+  margin: 0 20px;
+  height: 70px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+}
+/* line 239, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-section-icon img {
+  width: 36.66667px;
+  position: relative;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+  -moz-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  -o-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+/* line 245, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-section-icon i {
+  display: block;
+  position: relative;
+  font-size: 32px;
+  top: 50%;
+  -webkit-transform: translateY(-40%);
+  -moz-transform: translateY(-40%);
+  -ms-transform: translateY(-40%);
+  -o-transform: translateY(-40%);
+  transform: translateY(-40%);
+}
+/* line 253, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .newsection .oa-section-icon {
+  border: 1px dashed #aaa;
+  color: #3b3b3b;
+}
+/* line 256, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .newsection .oa-section-icon:hover {
+  background-color: #ddd;
+}
+/* line 261, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-subspace {
+  position: relative;
+  border: 1px solid #ddd;
+  display: inline-block;
+  vertical-align: top;
+  margin-right: 10px;
+  margin-left: 10px;
+  width: 154px;
+  height: 154px;
+  margin-bottom: 10px;
+}
+/* line 271, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-subspace.oa-new-space {
+  border: 1px dashed #aaa;
+}
+/* line 273, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-subspace.oa-new-space i {
+  margin-bottom: 5px;
+}
+/* line 279, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-subspace-title {
+  margin: 0;
+  text-align: center;
+  position: relative;
+  height: 100%;
+}
+/* line 286, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-subspace-link {
+  display: block;
+  height: 100%;
+  cursor: pointer;
+  background: #f7f7f7;
+  font-size: 24px;
+}
+/* line 292, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-subspace-link:hover {
+  text-decoration: none;
+  background: #ddd;
+}
+/* line 296, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-subspace-link span {
+  display: block;
+  position: relative;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+  -moz-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  -o-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+/* line 302, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-subspace-link i {
+  display: block;
+  color: #3B3B3B;
+}
+/* line 307, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-subspace-icons {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  font-size: 22px;
+  z-index: 4;
+}
+/* line 314, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-subspace-icons a {
+  color: #999;
+}
+/* line 316, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-subspace-icons a:hover {
+  color: #0071B3;
+  text-decoration: none;
+}
+/* line 322, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-subspace-icon-left {
+  float: left;
+  width: 33%;
+}
+/* line 326, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-subspace-icon-center {
+  float: left;
+  width: 33%;
+}
+/* line 330, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-subspace-icon-right {
+  float: right;
+  width: 33%;
+}
+/* line 334, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-icon-green {
+  color: #42BB3D;
+}
+/* line 337, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-icon-red {
+  color: #FB4D53;
+}
+/* line 340, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-border-green {
+  border-color: #42BB3D;
+}
+/* line 343, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-border-red {
+  border-color: #FB4D53;
+}
+/* line 348, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-sitemap-help {
+  position: relative;
+  margin-bottom: 20px;
+  margin-top: 75px;
+}
+/* line 352, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-sitemap-help > div {
+  background: #32c0ec;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-family: Roboto, sans-serif;
+  font-size: 16px;
+  font-weight: 300;
+  padding-right: 240px;
+}
+/* line 362, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-sitemap-help img.oa-sitemap-helpimage {
+  position: absolute;
+  height: 150px;
+  bottom: 15px;
+  right: -10px;
+}
+/* line 368, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-sitemap-help img.oa-sitemap-helpicon {
+  margin-right: 20px;
+  width: 60px;
+}
+/* line 372, ../sass/oa_sitemap_app.scss */
+.oa-sitemap .oa-sitemap-help .oa-sitemap-caret {
+  text-align: center;
+  padding: 0;
+  margin: 0;
+  height: 22px;
+  background: transparent;
+  margin-top: -7px;
+}
+
+/* Mobile settings */
+@media only screen and (max-width: 768px) {
+  /* line 386, ../sass/oa_sitemap_app.scss */
+  .oa-sitemap .oa-sitemap-help {
+    position: relative;
+    margin-bottom: 10px;
+    margin-top: 0px;
+  }
+  /* line 390, ../sass/oa_sitemap_app.scss */
+  .oa-sitemap .oa-sitemap-help img {
+    display: none;
+  }
+  /* line 394, ../sass/oa_sitemap_app.scss */
+  .oa-sitemap .oa-sitemap-help > div {
+    padding-right: 20px;
+  }
+}

@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Quick-start module for Mail Comment.
+ */
+
+include_once 'mailcomment_default.features.inc';

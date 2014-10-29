@@ -15,5 +15,7 @@ projects[drupal][patch][911354] = http://drupal.org/files/911354-drupal-profile-
 projects[drupal][patch][1093420] = http://drupal.org/files/1093420-22.patch
 ; Patch to prevent empty titles when menu_check_access called more than once
 projects[drupal][patch][1697570] = http://drupal.org/files/drupal-menu_always_load_objects-1697570-5.patch
+; Patch to fix sanitization of titles in entity_reference
+projects[drupal][patch][1919338] = http://drupal.org/files/issues/options_drupal7-1919338-58.patch
 ; Patch to allow >128 chars for file extensions
-;; projects[drupal][patch][2277281] = http://www.drupal.org/files/issues/drupal7-increase_maxlength_of_extensions-2277281-57.patch
+ projects[drupal][patch][2277281] = http://drupal.org/files/issues/drupal7-increase_maxlength_of_extensions-2277281-57.patch

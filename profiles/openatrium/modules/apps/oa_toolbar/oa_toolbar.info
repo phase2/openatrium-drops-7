@@ -1,0 +1,24 @@
+name = Open Atrium Toolbar
+description = Generates toolbar widgets for the header region
+package = Open Atrium
+core = 7.x
+php = 5.1
+
+apps[screenshots][] = app/screenshot.png
+apps[logo] = app/logo.png
+apps[author] = Phase2 Technology
+apps[author_url] = http://www.phase2technology.com/
+apps[server] = openatrium
+apps[package] = Core addons
+
+stylesheets[all][] = css/oa_toolbar.css
+
+dependencies[] = block
+dependencies[] = og_session_context
+
+; Information added by Drupal.org packaging script on 2014-10-28
+version = "7.x-2.0-rc1"
+core = "7.x"
+project = "oa_toolbar"
+datestamp = "1414536116"
+

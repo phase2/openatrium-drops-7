@@ -5,6 +5,131 @@
  * Perform actions to set up the site for this profile.
  */
 
+
+/**
+ * Implements hook_install_tasks()
+ */
+function openatrium_install_tasks(&$install_state) {
+  $tasks = array();
+
+  // Add our custom CSS file for the installation process
+  drupal_add_css(drupal_get_path('profile', 'openatrium') . '/openatrium.css');
+
+  require_once(drupal_get_path('module', 'apps') . '/apps.profile.inc');
+  $server = array(
+    'machine name' => 'openatrium',
+    'default apps' => array(
+      // built-in apps
+      'oa_discussion',
+      'oa_events',
+      'oa_wiki',
+      'oa_worktracker',
+      // core addon apps
+      'oa_admin',
+      'oa_appearance',
+      'oa_archive',
+      'oa_clone',
+      'oa_contextual_tabs',
+      'oa_events_import',
+      'oa_favorites',
+      'oa_home',
+      'oa_htmlmail',
+      'oa_media',
+      'oa_messages_digest',
+      'oa_notifications',
+      'oa_sandbox',
+      'oa_search',
+      'oa_sitemap',
+      'oa_styles',
+      'oa_subspaces',
+      'oa_toolbar',
+      'oa_tour',
+      'oa_tour_defaults',
+      'oa_wizard',
+    ),
+  );
+  $tasks = apps_profile_install_tasks($install_state, $server);
+
+  $tasks['openatrium_features_revert_all'] = array(
+    'type' => 'normal',
+  );
+
+  // Need to rebuild search index tables since oa_search changes panopoly_search.
+  $tasks['openatrium_rebuild_search'] = array(
+    'type' => 'normal',
+  );
+
+  // Rebuild node access..
+  $tasks['openatrium_node_access_rebuild'] = array(
+    'type' => 'normal',
+  );
+
+  // Skip tasks if using quickstart.
+  if (!empty($install_state['parameters']['quickstart']) && $install_state['parameters']['quickstart'] == 'quick') {
+    foreach ($tasks as $task_name => $task) {
+      $tasks[$task_name]['run'] = INSTALL_TASK_SKIP;
+    }
+  }
+
+  return $tasks;
+}
+
+/**
+ * Revert all features.
+ */
+function openatrium_features_revert_all() {
+  global $install_state;
+  drupal_set_time_limit(0);
+  features_revert(array(
+    'oa_core' => array('field_base'),
+    'oa_sections' => array('field_base', 'field_instance'),
+    'oa_users' => array('field_instance'),
+  ));
+  features_revert();
+}
+
+/**
+ * Rebuild search index.
+ */
+function openatrium_rebuild_search() {
+  global $install_state;
+  require_once(drupal_get_path('module', 'oa_search') . '/oa_search.install');
+  features_revert(array(
+    'oa_search' => array('search_api_index'),
+  ));
+  oa_search_rebuild_index();
+}
+
+/**
+ * Wrapper around node access rebuild, as didn't work till I wrapped it.
+ */
+function openatrium_node_access_rebuild() {
+  node_access_rebuild();
+}
+
+/**
+ * Implements hook_install_tasks_alter()
+ */
+function openatrium_install_tasks_alter(&$tasks, $install_state) {
+  require_once(drupal_get_path('module', 'oa_core') . '/oa_core.profile.inc');
+  $tasks['install_load_profile']['function'] = 'oa_core_install_load_profile';
+  // Add option for importing from db.
+  install_from_db_install_tasks_alter($tasks, $install_state);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for apps_profile_apps_select.
+ */
+function openatrium_form_apps_profile_apps_select_form_alter(&$form, $form_state) {
+  // Disabling showing of these for now.
+  $form['apps_message']['#access'] = FALSE;
+  unset($form['apps_fieldset']['apps']['#title']);
+
+  // Remove the demo content selection option since this is handled through the Panopoly demo module.
+  $form['default_content_fieldset']['#access'] = FALSE;
+}
+
+
 /**
  * Implements hook_install().
  */
@@ -13,8 +138,8 @@ function openatrium_install() {
   _openatrium_set_up_theme();
   // update admin and member permissions
   oa_adminrole_update_roles();
-  // rebuild content permissions for first time
-  node_access_rebuild();
+  // Put modules into contrib.
+  variable_set('apps_install_path', 'sites/all/modules/contrib');
 }
 
 /**

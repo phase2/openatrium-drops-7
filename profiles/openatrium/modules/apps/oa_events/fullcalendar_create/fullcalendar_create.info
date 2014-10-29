@@ -1,0 +1,11 @@
+name = FullCalendar Create
+core = 7.x
+dependencies[] = fullcalendar
+package = FullCalendar
+
+; Information added by Drupal.org packaging script on 2014-10-28
+version = "7.x-2.23"
+core = "7.x"
+project = "oa_events"
+datestamp = "1414530283"
+

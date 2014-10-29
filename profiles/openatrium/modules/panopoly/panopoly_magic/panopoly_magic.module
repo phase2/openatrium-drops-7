@@ -237,7 +237,7 @@ function panopoly_magic_form_alter(&$form, &$form_state, $form_id) {
     // EXPERIEMENTAL: Handling Saving a Fieldable Panel Pane To Create a Live Preview. The trick
     // here is to make sure we properly save a version to get a vid, but don't make it the real one.
     // NOTE - I doubt this will be very good for performance. Let's call it RC1.
-    $clicked_button = empty($form_state['clicked_button']['#value']) ? '' : $form_state['clicked_button']['#value'];
+    $clicked_button = empty($form_state['triggering_element']['#value']) ? '' : $form_state['triggering_element']['#value'];
     if ($form_id == 'fieldable_panels_panes_fieldable_panels_pane_content_type_edit_form' && ($clicked_button == 'Update Preview' || ($form_state['op'] == 'add' && empty($form_state['input']['form_build_id'])))) {
 
       // Determine the current VID for the element
@@ -535,7 +535,7 @@ function panopoly_magic_form_fieldable_panels_panes_fieldable_panels_pane_conten
   }
 
   // Add custom validation function for the reusable title
-  if (!empty($form_state['clicked_button']) && $form_state['clicked_button']['#value'] != 'Update Preview') {
+  if (!empty($form_state['triggering_element']) && $form_state['triggering_element']['#value'] != 'Update Preview') {
     $form['reusable']['admin_title']['#element_validate'][] = 'panopoly_magic_reusable_entity_validate';
   }
 
@@ -727,7 +727,12 @@ function panopoly_magic_form_views_content_views_panes_content_type_edit_form_al
   if ($view_handler->options['row_plugin'] == 'fields') {
     // Set to default view settings if there isn't one.
     if (empty($conf['view_settings'])) {
-      $conf['view_settings'] = 'fields';
+      if ($form_state['view']->style_plugin->plugin_name == 'table') {
+        $conf['view_settings'] = 'table';
+      }
+      else {
+        $conf['view_settings'] = 'fields';
+      }
     }
 
     // Deal with legacy 'nodes' and others (such as 'files') view settings so
@@ -778,8 +783,12 @@ function panopoly_magic_form_views_content_views_panes_content_type_edit_form_al
   // Get view modes for entity
   $view_modes = panopoly_magic_view_mode_options(panopoly_magic_get_entity_type($form_state['view']));
 
-  $options_default_view_mode = 'teaser';
-  if(!array_key_exists($options_default_view_mode, $view_modes)){
+  // Get the default view mode.
+  $options_default_view_mode = ($view_handler->options['row_plugin'] == 'fields') ? 'teaser' : 'full';
+  if (isset($form_state['view']->style_plugin->display->display_options['row_options']['view_mode'])) {
+    $options_default_view_mode = $form_state['view']->style_plugin->display->display_options['row_options']['view_mode'];
+  }
+  if (!array_key_exists($options_default_view_mode, $view_modes)){
     $options_default_view_mode = current(array_keys($view_modes));
   }
 
@@ -787,7 +796,7 @@ function panopoly_magic_form_views_content_views_panes_content_type_edit_form_al
   $form['content_settings']['view_mode'] = array(
     '#type' => 'radios',
     '#options' => $view_modes,
-    '#default_value' => $conf['view_mode'] ? $conf['view_mode'] : $options_default_view_mode,
+    '#default_value' => !empty($conf['view_mode']) ? $conf['view_mode'] : $options_default_view_mode,
     '#states' => array(
       'visible' => array(
         ':input[name="view_settings"]' => array('value' => 'rendered_entity'),
@@ -893,7 +902,7 @@ function panopoly_magic_form_ctools_entity_field_content_type_formatter_options_
   $form['#pre_render'][] = 'panopoly_magic_panelizer_pre_render';
 
   // When moving backwards through form steps, ensure image widgets properly retain their value.
-  if (!empty($form_state['field_instance']) && $form_state['clicked_button']['#value'] == 'Back') {
+  if (!empty($form_state['field_instance']) && $form_state['triggering_element']['#value'] == 'Back') {
     $field_name = $form_state['field_instance']['field_name'];
     $field_type = $form_state['field_instance']['widget']['module'];
     $entity = $form_state['entity'];
@@ -966,7 +975,7 @@ function panopoly_magic_form_ctools_entity_field_content_type_formatter_styles_a
  */
 function panopoly_magic_fape_submit(&$form, &$form_state) {
   // If there isn't a next step save the entity.
-  if ((empty($form_state['clicked_button']['#next']) || !empty($form_state['field']['body'])) && !empty($form_state['entity'])) {
+  if ((empty($form_state['triggering_element']['#next']) || !empty($form_state['field']['body'])) && !empty($form_state['entity'])) {
     entity_save($form_state['entity_type'], $form_state['entity']);
     $form_state['display_cache']->display->context['panelizer']->data = $form_state['entity'];
   }
@@ -1140,14 +1149,11 @@ function panopoly_magic_views_pre_view(&$view) {
       $view->build_info['title'] = $conf['widget_title']; 
     }
 
-    // Set to default view settings if there isn't one.
-    if (empty($conf['view_settings'])) {
-      $conf['view_settings'] = 'fields';
-    }
-
     // Deal with legacy 'nodes' and others (such as 'files') view settings so
     // that other entity types can be included.
-    $conf['view_settings'] = panopoly_magic_convert_view_settings($conf['view_settings']);
+    if (!empty($conf['view_settings'])) {
+      $conf['view_settings'] = panopoly_magic_convert_view_settings($conf['view_settings']);
+    }
 
     // Set the style plugin to a table style.
     // Determine that this was previously a field view, which has been overridden to a node view in the pane config.
@@ -1284,6 +1290,11 @@ function panopoly_magic_process_panels_add_content_modal(&$vars) {
     $count = 0;
     foreach ($titles as $title) {
       $which = floor($count++ / $col_size) + 1;
+
+      // @todo: Investigate why view_panes are missing description.
+      if (empty($content[$title]['description'])) {
+        $content[$title]['description'] = $title;
+      }
       $content[$title]['title'] = 'Add';
       $vars['columns'][$which] .= '<fieldset class="widget-preview"><legend><div class="widget-preview-title">' . theme('panels_add_content_link', array('renderer' => $vars['renderer'], 'region' => $vars['region'], 'content_type' => $content[$title])) . '</div><span class="fieldset-legend">' . $title . '</span></legend><div class="fieldset-wrapper">' . (!empty($content[$title]['preview']) ? $content[$title]['preview'] : t('No Preview')) . '</div></fieldset>';
     }

@@ -659,7 +659,7 @@ function command_buttons_render_buttons($commands, $classes, $source = array()) 
         }
       }
       $link['attributes']['class'] = !empty($classes['item_class']) ? $classes['item_class'] : array();
-      $link['attributes']['class'] += array(' oa-' . str_replace('-', '_', $command->name));
+      $link['attributes']['class'] += array(' command-' . str_replace('-', '_', $command->name));
 
       $options = array('attributes' => $link['attributes']);
 
@@ -712,25 +712,26 @@ function command_buttons_render_buttons($commands, $classes, $source = array()) 
 
   // Override default field_commands handling with our new item list.
   if (!empty($items)) {
-    // Unfortunate we can't use theme_item_list here because it adds a wrapper div, which causes
-    // issues with bootstrap.
-    $output = implode('', $items);
-    $ul_class = 'oa-command-buttons';
-    if (!empty($classes['use_dropdowns'])) {
-      $ul_class .= ' dropdown-menu';
-      // @todo: this stuff should all be refactored to use drupal_attributes().
-      $output = '<div class="btn-group">
-        <a class="dropdown-toggle '. implode(' ', $classes['wrapper_class']) . '" data-toggle="dropdown" title="' . check_plain($classes['dropdown_label']) .'" href="#">' . check_plain($classes['dropdown_label']) . ' <span class="caret"></span></a>
-        <ul class="' . $ul_class .'">' . $output . '<ul></div>';
-    }
-    else {
-      $output = '<ul class="' . $ul_class .'">' . $output . '<ul>';
-    }
-
-    return $output;
+    $vars['items'] = $items;
+    $vars['use_dropdowns'] = $classes['use_dropdowns'];
+    $vars['wrapper_class'] = implode(' ', $classes['wrapper_class']);
+    $vars['label'] = check_plain($classes['dropdown_label']);
+    return theme('command_buttons', $vars);
   }
 
   return '';
+}
+
+/**
+ * Implements hook_theme()
+ */
+function command_buttons_theme() {
+  return array(
+    'command_buttons' => array(
+      'variables' => array('items' => array()),
+      'template' => 'command-buttons',
+    ),
+  );
 }
 
 

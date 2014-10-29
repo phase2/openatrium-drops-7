@@ -1,4 +1,13 @@
 /**
+ * Region Help (override responsive_bartik)
+ */
+.page-node-add .region-help,
+.page-node-edit .region-help {
+  border: 0;
+  padding: 0;
+}
+
+/**
  * Title and body styling
  */
 #node-edit #edit-title {
@@ -30,9 +39,12 @@
 /**
  * Pathauto styling
  */
+#node-edit .form-item-path-alias * {
+  float:left;
+}
 #node-edit .form-item-path-alias label {
-  float: left;
   font-weight: 400;
+  padding-right: 5px;
 }
 
 #node-edit .form-item-path-alias {
@@ -50,15 +62,11 @@
   padding-bottom: 0;
 }
 
-#node-edit .form-item-path-pathauto {
-  display: none;
-}
-
 /**
  * Publishing styling
  */
-#node-edit .form-item-machine-name label, 
-#node-edit .form-item-date label, 
+#node-edit .form-item-machine-name label,
+#node-edit .form-item-date label,
 #node-edit .form-item-name label {
   float: left;
   font-weight: 400;
@@ -95,7 +103,7 @@
   left top,
   color-stop(0, #E9EAEC),
   color-stop(1, #FAFAFA)
-  ); 
+  );
   -webkit-box-shadow: 0 3px 3px 0 #d2d2d2;
   -moz-box-shadow: 0 3px 3px 0 #d2d2d2;
   box-shadow: 0 3px 3px 0 #d2d2d2;
@@ -137,7 +145,7 @@
   box-shadow: 0 0 0 0 #fff;
 }
 
-#node-edit .image-widget .form-submit, 
+#node-edit .image-widget .form-submit,
 #node-edit .file-widget .form-submit {
   border: 1px solid #CCCCCC;
   margin-bottom: 0;
@@ -220,7 +228,7 @@
   width: 180px;
 }
 
-#node-edit #edit-field-featured-image .form-item-field-featured-image-und-0 > label, 
+#node-edit #edit-field-featured-image .form-item-field-featured-image-und-0 > label,
 #node-edit .form-item-field-featured-image-und-0-alt .description {
   display: none;
 }
@@ -238,32 +246,32 @@
 #node-edit .field-name-field-featured-image .image-widget-data img {
   margin-bottom: 0;
 }
-  
+
 #node-edit .field-name-field-featured-image .image-widget-data span.file {
   width: 65%;
   margin-right: 5%;
   float: left;
   margin-top: 5px;
 }
-  
+
 #node-edit .field-name-field-featured-image .image-widget-data img {
   margin-bottom: 0;
 }
-  
+
 #node-edit .field-name-field-featured-image .image-widget-data span.file-size {
   display: none;
 }
-  
+
 #node-edit .field-name-field-featured-image .image-widget-data input#edit-field-featured-image-und-0-remove-button {
   max-width: 28%
 }
-  
+
 #node-edit .field-name-field-featured-image .image-widget-data div.form-item {
   clear: both;
   margin-top: .75em;
   margin-bottom: .25em;
 }
-  
+
 #node-edit .field-name-field-featured-image .image-preview {
   width: 100%;
 }
@@ -272,7 +280,7 @@
   display: none;
 }
 
-/** 
+/**
  * Date/Time Styling
  */
 #node-edit .container-inline-date > .form-item {
@@ -285,7 +293,7 @@
   padding: 0;
 }
 
-#node-edit .container-inline-date .form-item-date-time, 
+#node-edit .container-inline-date .form-item-date-time,
 #node-edit .container-inline-date .form-item-date-date {
   padding-bottom: 1em;
 }
@@ -294,13 +302,13 @@
   clear: left;
 }
 
-#node-edit .form-item-date-time label, 
-#node-edit .form-item-date-date label, 
+#node-edit .form-item-date-time label,
+#node-edit .form-item-date-date label,
 #node-edit .form-item-name label {
   width: 49px;
 }
 
-#node-edit .container-inline-date .form-item-date-date .description, 
+#node-edit .container-inline-date .form-item-date-date .description,
 #node-edit .container-inline-date .form-item-date-time .description {
   display: none;
 }
@@ -337,7 +345,7 @@ ul#media-browser-library-list {
   margin: .25em 0;
 }
 
-#media-browser-tabset a.button, 
+#media-browser-tabset a.button,
 #media-browser-tabset input.form-submit {
   border: 1px solid #ccc;
   font: bold 12px/32px 'Open Sans', 'Lucida Sans', 'Lucida Grande', verdana sans-serif;
@@ -375,12 +383,12 @@ ul#media-browser-library-list {
   display: inline-block;
 }
 
-#media-browser-tabset .media-browser-tab, 
+#media-browser-tabset .media-browser-tab,
 #media-browser-tabset .ui-tabs-nav {
   border: none;
 }
 
-#media-browser-tabset a.button:hover, 
+#media-browser-tabset a.button:hover,
 #media-browser-tabset input.form-submit:hover {
   background: #E6E6E6;
   background-image: linear-gradient(bottom, #C5C5C5 0%, #FAFAFA 100%);
@@ -397,7 +405,7 @@ ul#media-browser-library-list {
   );
 }
 
-#media-browser-tabset a.button:active, 
+#media-browser-tabset a.button:active,
 #media-browser-tabset input.form-submit:active {
   outline: none;
   background-image: linear-gradient(bottom, #E9EAEC 0%, #FAFAFA 100%);
@@ -435,51 +443,4 @@ ul#media-browser-library-list {
 
 .form-item-uid {
   position: relative; /* fixes positioning for auto complete items in firefox - http://drupal.org/node/1218684 */
-}
-
-/**
- * Navbar Styling
- */
-a#navbar-link-admin-panopoly:before {
-  background-image: url("images/icon-panopoly.png");
-}
-
-a#navbar-link-admin-panopoly.active:before {
-  background-image: url("images/icon-panopoly-active.png");
-}
-
-a#navbar-link-admin-apps:before {
-  background-image: url("images/icon-apps.png");
-}
-
-a#navbar-link-admin-apps.active:before {
-    background-image: url("images/icon-apps-active.png");
-}
-
-#navbar-tray--2 a {
-  padding-left: 2.75em;
-  position: relative;
-}
-
-#navbar-tray--2 a:before {
-  background-attachment: scroll;
-  background-color: transparent;
-  background-position: center center;
-  background-repeat: no-repeat;
-  content: '';
-  display: block;
-  height: 100%;
-  left: 0.6667em; /* LTR */
-  position: absolute;
-  top: 0;
-  width: 20px;
-  background-image: url("images/icon-add.png");
-}
-
-#navbar-tray--2 a.active:before {
-  background-image: url("images/icon-add-active.png");
-}
-
-#navbar-administration .edit-shortcuts {
-  display: none;
 }

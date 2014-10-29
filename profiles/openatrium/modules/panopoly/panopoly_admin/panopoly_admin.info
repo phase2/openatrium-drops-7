@@ -14,6 +14,7 @@ dependencies[] = strongarm
 dependencies[] = views_bulk_operations
 scripts[] = panopoly-admin.js
 stylesheets[all][] = panopoly-admin.css
+stylesheets[all][] = panopoly-admin-navbar.css
 features[ctools][] = page_manager:pages_default:1
 features[ctools][] = strongarm:strongarm:1
 features[ctools][] = views:views_default:3.0
@@ -38,9 +39,9 @@ features[page_manager_pages][] = panopoly_admin_pane_library
 features[variable][] = jquery_update_jquery_version
 features[variable][] = user_admin_role
 
-; Information added by Drupal.org packaging script on 2014-08-06
-version = "7.x-1.10"
+; Information added by Drupal.org packaging script on 2014-10-17
+version = "7.x-1.13"
 core = "7.x"
 project = "panopoly_admin"
-datestamp = "1407362631"
+datestamp = "1413563577"
 

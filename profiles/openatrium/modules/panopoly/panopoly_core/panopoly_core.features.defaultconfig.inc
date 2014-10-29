@@ -482,6 +482,13 @@ function panopoly_core_defaultconfig_strongarm() {
   $strongarm->value = 'categories/[term:name]';
   $export['pathauto_taxonomy_term_panopoly_categories_pattern'] = $strongarm;
 
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'pathauto_update_action';
+  $strongarm->value = '1';
+  $export['pathauto_update_action'] = $strongarm;
+
   return $export;
 }
 

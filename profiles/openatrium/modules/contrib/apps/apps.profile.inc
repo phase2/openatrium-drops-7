@@ -1,12 +1,15 @@
 <?php
 /**
- * This file handles all the functions for downloading, transferring and 
+ * @file
+ * The install functions for the Apps module.
+ *
+ * This file handles all the functions for downloading, transferring and
  * installing apps during the install process.
  */
 
 /**
  * Add install tasks to profile install tasks.
- * 
+ *
  * See apps.api.php for use.
  *
  */
@@ -72,15 +75,25 @@ function apps_profile_apps_select_form($form, $form_state, &$install_state) {
   apps_include('manifest');
 
   // If there is no internet things get in an unfixable state. Use try->catch
-  try {
-    $apps_server = $_SESSION['apps_servers'][$install_state['active_task']];
-
-    $_SESSION['apps_server'] = $apps_server;
-    $_SESSION['apps_manifest'] = apps_apps($apps_server['machine name']);
+  if (empty($_SESSION['apps_manifest']) || empty($_SESSION['apps_server'])) {
+    try {
+      if ($apps_server = $_SESSION['apps_servers'][$install_state['active_task']]) {
+        $_SESSION['apps_server'] = $apps_server;
+        $_SESSION['apps_manifest'] = apps_apps($apps_server['machine name']);
+      }
+    }
+    catch (Exception $e) {
+      // This condition is handled in right below.
+    }
   }
-  catch (Exception $e) {
+
+  // Set a message if no manifest or internet problems.
+  if (empty($_SESSION['apps_manifest'])) {
     $form['info'] = array(
       '#markup' => t('<h2>Error</h2><p>Unable to connect to Apps Server.</p><p>Click "Continue" to finish the installation. You can either fix your internet connection and try the installation again or install apps later from the apps config page.</p>'),
+    );
+    $form['actions'] = array(
+      '#type' => 'actions',
     );
     $form['actions']['submit'] = array(
       '#type' => 'submit',
@@ -89,56 +102,100 @@ function apps_profile_apps_select_form($form, $form_state, &$install_state) {
     return $form;
   }
 
-  // Set a message if no manifest received.
-  if (!isset($_SESSION['apps_manifest'])) {
-    drupal_set_message('<b>Unable to contact Apps Server.</b><br> For some reason we were unable to contact the apps server.', 'error');
-  }
-  else {
-    drupal_set_title(apps_profile_get_server_name($_SESSION['apps_server']));
-    $form['actions'] = array('#type' => 'actions', '#weight' => 3);
-    foreach($_SESSION['apps_manifest'] as $name => $app) {
-      if ($name != '#theme') {
-        $options[$name] = '<strong>' . $app['name'] . '</strong>';
-        if (isset($app['description'])) {
-          $options[$name] .= '<br>' . $app['description'];
+  drupal_set_title(apps_profile_get_server_name($_SESSION['apps_server']));
+  $form['actions'] = array('#type' => 'actions', '#weight' => 3);
+
+  $form['apps_message'] = array(
+    '#markup' => t('<h2>Apps</h2><p>Apps are the next generation in usability for Drupal. They contain bundles of functionality for your website. Select any apps you want to install right now. You can add more later on the apps page.</p></p>In order to install apps, you must be able to FTP or SSH into your server. This uses the same process as the update module.</p>'),
+  );
+  $form['#attached']['css'][] = drupal_get_path('module', 'apps') . '/theme/css/apps-install.css';
+
+  $form['apps_tabs'] = array(
+    '#type' => 'vertical_tabs',
+  );
+  $apps_manifest = $_SESSION['apps_manifest'];
+  unset($apps_manifest['#theme']);
+  $all_packages = array();
+  foreach ($apps_manifest as $name => $app) {
+    $packages = array();
+    if (!empty($app['package'])) {
+      // Only allow the first package on this form for now.
+      // @todo have javascript so can show it for all packages.
+      foreach (explode(',', $app['package']) as $package) {
+        $package = trim($package);
+        $package_key = strtolower(preg_replace('/[^\da-z]/i', '', $package));
+        $packages[$package_key] = $package;
+        break;
+      }
+    }
+    else {
+      $packages['other'] = t('Other');
+    }
+    foreach ($packages as $package_key => $package) {
+      if (empty($form['apps_package_' . $package_key])) {
+        $all_packages[] = $package_key;
+        $form['apps_package_' . $package_key] = array(
+          '#type' => 'fieldset',
+          '#group' => 'apps_tabs',
+          '#title' => $package,
+        );
+      }
+      $form['apps_package_' . $package_key][$name] = array(
+        '#title' => '<strong>' . $app['name'] . '</strong>',
+        '#type' => 'checkbox',
+        '#parents' => array('apps', $name),
+        '#return_value' => $name,
+        '#description' =>
+          (!empty($app['logo']['path']) ? 
+            theme('image', array('path' => $app['logo']['path'], 'height' => '32', 'width' => '32', 'attributes' => array('class' => array('apps-image')))) : '') .
+          (!empty($app['description']) ? $app['description'] : '') . '<span class="clearfix"></span>',
+        '#default_value' => in_array($name,  $_SESSION['apps_server']['default apps']),
+      );
+      // Hide child apps if parent is not being choosen.
+      if (!empty($app['parent_apps'])) {
+        foreach ($app['parent_apps'] as $parent_app) {
+          $form['apps_package_' . $package_key][$name]['#states']['visible'][':input[name="apps[' . $parent_app . ']"]'] = array('checked' => TRUE);
         }
       }
     }
-    $form = array();
-
-    $form['apps_message'] = array(
-      '#markup' => t('<h2>Apps</h2><p>Apps are the next generation in usability for Drupal. They contain bundles of functionality for your website. Select any apps you want to install right now. You can add more later on the apps page.</p></p>In order to install apps, you must be able to FTP or SSH into your server. This uses the same process as the update module.</p>'),
-    );
-
-    $form['apps_fieldset'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Select Apps To Install'),
-      '#collapsible' => FALSE,
-    );
-    $form['apps_fieldset']['apps'] = array(
-      '#type' =>'checkboxes',
-      '#title' => t('Apps'),
-      '#default_value' => $_SESSION['apps_server']['default apps'],
-      '#options' => $options,
-    );
-
-    $form['default_content_fieldset'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Default Content'),
-      '#collapsible' => FALSE,
-    );
-    $form['default_content_fieldset']['default_content'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Install default content'),
-      '#default_value' => TRUE,
-      '#description' => t('By selecting this box default content will be installed for each app. Without default content the site may look empty before you start adding to it. You can remove the default content later by going to the apps config page.'),
-    );
-
-    $form['actions']['submit'] = array(
-      '#type' => 'submit',
-      '#value' => t('Install Apps'),
-    );
   }
+  // If only one package, convert to old method.
+  if (count($all_packages) == 1) {
+    unset($form['apps_tabs']);
+    $form['apps_package_' . reset($all_packages)]['#title'] = t('Select Apps To Install');
+  }
+  else {
+    // Sort the packages by alaphabet.
+    unset($all_packages['other']);
+    sort($all_packages);
+    foreach ($all_packages as $weight => $package_key) {
+      $form['apps_package_' . $package_key]['#weight'] = $weight;
+    }
+    // Other should be last.
+    if (!empty($form['apps_package_other'])) {
+      $form['apps_package_other']['#weight'] = $weight+1;
+    }
+  }
+
+  $form['default_content_fieldset'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Default Content'),
+    '#collapsible' => FALSE,
+  );
+  $form['default_content_fieldset']['default_content'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Install default content'),
+    '#default_value' => TRUE,
+    '#description' => t('By selecting this box default content will be installed for each app. Without default content the site may look empty before you start adding to it. You can remove the default content later by going to the apps config page.'),
+  );
+
+   $form['actions'] = array(
+     '#type' => 'actions',
+   );
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Install Apps'),
+  );
   $form['actions']['skip'] = array(
     '#type' => 'submit',
     '#value' => t('Skip this step'),
@@ -146,6 +203,42 @@ function apps_profile_apps_select_form($form, $form_state, &$install_state) {
   drupal_add_css("#apps-profile-apps-select-form .form-submit { display:inline; }", array('type' => 'inline'));
 
   return $form;
+}
+
+/**
+ * Validate function for apps_profile_apps_select_form.
+ */
+function apps_profile_apps_select_form_validate($form, &$form_state) {
+  if (empty($form_state['values']['op']) || $form_state['values']['op'] == t('Install Apps')) {
+    // See if any the apps conflict with each other and cannot be used togeather.
+    $apps = array_keys(array_filter($form_state['values']['apps']));
+    foreach ($apps as $app_name) {
+      $app = $_SESSION['apps_manifest'][$app_name];
+      if (!empty($app['conflicts'])) {
+        $app_conflicts = array();
+        // Find any apps that would conflict with apps of this server.
+        foreach ($app['conflicts'] as $conflict) {
+          if ($conflict['server'] == $_SESSION['apps_server']['machine name']) {
+            $app_conflicts[] = $conflict['name'];
+          }
+        }
+        // Error out if conflicting apps were selected.
+        if (($conflicts = array_intersect($app_conflicts, $apps))) {
+          $names = array();
+          foreach ($conflicts as $conflict) {
+            $names[] = $_SESSION['apps_manifest'][$conflict]['name'] . ' (' . $conflict . ')';
+          }
+          form_set_error('apps', t('Conflict found with @app (@machine), not compatible with @apps', array('@app' => $app['name'], '@apps' => implode(', ', $names), '@machine' => $app_name)));
+        }
+      }
+      // Don't enable any apps who's parent apps aren't being enabled.
+      if (!empty($app['parent_apps'])) {
+        if (array_diff($app['parent_apps'], $apps)) {
+          unset($form_state['values']['apps'][$app_name]);
+        }
+      }
+    }
+  }
 }
 
 /**
@@ -175,7 +268,7 @@ function apps_profile_download_app_modules(&$install_state) {
     $apps[] = $_SESSION['apps_manifest'][$name];
   }
   $batch = apps_download_apps_batch($apps);
-  
+
   $batch['finished'] = 'apps_profile_download_batch_finished';
   return $batch;
 }
@@ -192,6 +285,7 @@ function apps_profile_download_batch_finished($success, $results) {
       'title' => t('Downloading updates failed:'),
       'items' => $results['errors'],
     );
+    // @ignore security_2
     drupal_set_message(theme('item_list', $error_list), 'error');
   }
   elseif ($success) {
@@ -221,8 +315,8 @@ function apps_profile_authorize_transfer($form, $form_state, &$install_state) {
 }
 
 /**
- * Callback after the authorize_filetransfer_form_submit. 
- * 
+ * Callback after the authorize_filetransfer_form_submit.
+ *
  * Save the file transfer protocol.
  */
 function apps_profile_authorize_transfer_save($filetransfer, $nothing = array()) {
@@ -236,13 +330,13 @@ function apps_profile_install_app_modules(&$install_state) {
   $batch = array();
   if (!empty($_SESSION['update_manager_update_projects'])) {
     apps_include('installer');
-    
+
     // Make sure the Updater registry is loaded.
     drupal_get_updaters();
 
     $updates = array();
     $project_types = $_SESSION['update_manager_update_projects'];
-    foreach($project_types as $type => $projects) {
+    foreach ($project_types as $type => $projects) {
       $directory = apps_extract_directory($type);
       foreach ($projects as $project => $url) {
         $project_location = $directory . '/' . $project;
@@ -255,7 +349,7 @@ function apps_profile_install_app_modules(&$install_state) {
         );
       }
     }
-    
+
     if (isset($_SESSION['filetransfer'])) {
       // We have authenticated a filetransfer so use it.
       $filetransfer = $_SESSION['filetransfer'];
@@ -268,7 +362,7 @@ function apps_profile_install_app_modules(&$install_state) {
     $operations = array();
     foreach ($updates as $update => $update_info) {
       $operations[] = array(
-        'update_authorize_batch_copy_project',
+        'apps_update_authorize_batch_copy_project',
         array(
           $update_info['project'],
           $update_info['updater_name'],
@@ -279,10 +373,11 @@ function apps_profile_install_app_modules(&$install_state) {
     }
 
     $batch = array(
-      'title' => t('Installing updates'),
-      'init_message' => t('Preparing to update your site'),
+      'title' => t('Downloading apps'),
+      'init_message' => t('Preparing to download apps.'),
       'operations' => $operations,
-      'file' => drupal_get_path('module', 'update') . '/update.authorize.inc',
+      'finished' => 'apps_update_authorize_update_batch_finished',
+      'file' => drupal_get_path('module', 'apps') . '/apps.installer.inc',
     );
     unset($_SESSION['update_manager_update_projects']);
   }
@@ -311,15 +406,8 @@ function apps_profile_enable_app_modules(&$install_state) {
 
   $modules = array_keys($_SESSION['apps']);
 
-  // Allow profiles to add default content.
-  if (isset($_SESSION['apps_default_content']) && isset($_SESSION['apps_server']['default content callback'])) {
-    $function = $_SESSION['apps_server']['default content callback'];
-    if (function_exists($function)) {
-      $function($modules);
-    }
-  }
   // Do dependency checking so everything doesn't break from one missing dependency.
-  foreach($modules as $id => $module) {
+  foreach ($modules as $id => $module) {
     if (!apps_profile_check_dependencies(array($module => $module))) {
       // Something went wrong. Remove from queue and add error.
       unset($modules[$id]);
@@ -331,7 +419,7 @@ function apps_profile_enable_app_modules(&$install_state) {
   if (!empty($modules)) {
     // Setup the batch comments
     $enable_commands = array();
-    foreach($modules as $module) {
+    foreach ($modules as $module) {
       $module_info = system_get_info('module', $module);
       $module_name = isset($module_info['name']) ? $module_info['name'] : $module;
       $enable_commands[] = array('app_profile_enable_module', array($module, $module_name));
@@ -349,6 +437,12 @@ function apps_profile_enable_app_modules(&$install_state) {
   }
 }
 
+/**
+ * @TODO: Add function description
+ * @param $module
+ * @param $module_name
+ * @param $context
+ */
 function app_profile_enable_module($module, $module_name, &$context) {
   // This is here to show the user that we are in the process of enabling
   $context['message'] = t('Enabled %module app', array('%module' => $module_name));
@@ -357,12 +451,15 @@ function app_profile_enable_module($module, $module_name, &$context) {
   if (!module_enable(array($module))) {
     $context['results']['errors'][$module] = t('There was an error enabling @module app.', array('@module' => $module_name));
   }
+  else {
+    $context['results']['enabled modules'][] = $module;
+  }
 
   // Successful outcome
   $context['finished'] = TRUE;
 }
 
-/**  
+/**
  * Batch callback invoked when enable batch is completed.
  */
 function apps_profile_enable_app_modules_finished($success, $results) {
@@ -373,14 +470,22 @@ function apps_profile_enable_app_modules_finished($success, $results) {
       'title' => t('Enabling apps failed:'),
       'items' => $results['errors'],
     );
+    // @ignore security_2
     drupal_set_message(theme('item_list', $error_list), 'error');
   }
-  elseif(!$success) {
+  elseif (!$success) {
     // Ideally we're catching all Exceptions, so they should never see this,
     // but just in case, we have to tell them something.
     drupal_set_message(t('Fatal error trying to enable apps.'), 'error');
   }
 
+  // Allow profiles to add default content.
+  if (!empty($_SESSION['apps_default_content']) && isset($_SESSION['apps_server']['default content callback']) && !empty($results['enabled modules'])) {
+    $function = $_SESSION['apps_server']['default content callback'];
+    if (function_exists($function)) {
+      $function($results['enabled modules']);
+    }
+  }
   // Do a little cleanup
   // We cannot unset $_SESSION['apps'] here because it is used in the
   // run check for this task and can cause weird interactions with
@@ -395,7 +500,7 @@ function apps_profile_enable_app_modules_finished($success, $results) {
 /**
  * Function to check and make sure all dependencies are available. This will stop stray apps
  * or broken downloads from stopping the install process for everything.
- * 
+ *
  * Copied from module_enable() in module.inc
  */
 function apps_profile_check_dependencies($module_list) {
@@ -424,7 +529,7 @@ function apps_profile_check_dependencies($module_list) {
       }
     }
   }
-  
+
   // If we make it this far then everything is good.
   return TRUE;
 }
@@ -434,6 +539,7 @@ function apps_profile_check_dependencies($module_list) {
  * for Apps installs.
  */
 function apps_install_verify() {
+  drupal_set_title(t('Verify Apps support'));
   $form = array();
 
   $form['opening'] = array(
@@ -477,7 +583,7 @@ function apps_install_verify() {
 
   // Verify web server write permissions
   $install_permissions = apps_installer_has_write_access();
-  $vars = array('@install_path' => APPS_INSTALL_PATH, '@lib_path' => apps_installer_lib_dir());
+  $vars = array('@install_path' => variable_get('apps_install_path', APPS_INSTALL_PATH), '@lib_path' => apps_installer_lib_dir());
   $form['webserver'] = array(
     '#type' => 'fieldset',
     '#title' => t('Webserver direct install (!status)', array('!status' => $install_permissions ? t('Enabled!') : t('Not enabled'))),
@@ -501,7 +607,11 @@ function apps_install_verify() {
 
   $form['#process'] = array('apps_install_verify_process');
 
-  $form['continue'] = array(
+  $form['actions'] = array(
+    '#type' => 'actions',
+  );
+
+  $form['actions']['continue'] = array(
     '#type' => 'submit',
     '#value' => t('Continue'),
     '#weight' => 20,
@@ -523,6 +633,7 @@ function apps_install_verify_process($form) {
         $form[$key]['#collapsed'] = FALSE;
       }
     }
+    // @ignore security_3
     drupal_set_message(t('No app install methods were found. <a href="!url">Retry verification</a>', array('!url' => check_url(drupal_current_script_url()))), 'warning');
   }
   return $form;
@@ -535,7 +646,7 @@ function apps_install_verify_process($form) {
 function apps_profile_get_server_name($server) {
   $t = get_t();
   return isset($server['title'])
-             ? $t('Install @name Apps', array('@name' => $server['title']))
-             : $t('Install Apps');
+    ? $t('Install @name Apps', array('@name' => $server['title']))
+    : $t('Install Apps');
 
 }

@@ -1,0 +1,36 @@
+name = Open Atrium Wizard
+description = Creates wizards for node add/edit forms
+core = 7.x
+package = Open Atrium
+dependencies[] = ctools
+dependencies[] = entity
+dependencies[] = features
+dependencies[] = list
+dependencies[] = oa_core
+dependencies[] = options
+dependencies[] = text
+apps[screenshots][] = app/screenshot.png
+apps[logo] = app/logo.png
+apps[author] = Phase2 Technology
+apps[author_url] = http://www.phase2technology.com/
+apps[server] = openatrium
+apps[package] = Core addons
+features[features_api][] = api:2
+features[field_base][] = field_wizard_steps
+features[field_base][] = field_wizard_type
+features[field_instance][] = oa_wizard-wizard-field_wizard_steps
+features[field_instance][] = oa_wizard-wizard-field_wizard_type
+features[oa_wizard][] = section_wizard
+features[oa_wizard][] = space_wizard
+files[] = plugins/views/oa_wizard.views.inc
+files[] = plugins/views/oa_wizard.views_default.inc
+files[] = plugins/views/oa_wizard_handler_field_delete_entity.inc
+files[] = plugins/views/oa_wizard_handler_field_edit_entity.inc
+files[] = plugins/views/oa_wizard_handler_field_view_entity.inc
+
+; Information added by Drupal.org packaging script on 2014-10-28
+version = "7.x-2.0-rc1"
+core = "7.x"
+project = "oa_wizard"
+datestamp = "1414536825"
+

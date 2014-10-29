@@ -39,27 +39,30 @@ Drupal.settings.spotlight_settings = Drupal.settings.spotlight_settings || {};
  Drupal.behaviors.panopolySpotlight = {
    attach: function (context, settings) {
      if ($('.field-name-field-basic-spotlight-items').length) {
-       var rotation_time = Drupal.settings.spotlight_settings.rotation_time;
-       $('.field-name-field-basic-spotlight-items').tabs().tabs("rotate", rotation_time, true);
-       // $('.field-name-field-basic-spotlight-items').css('height', $('.field-name-field-basic-spotlight-items').height());
-       // $('.field-name-field-basic-spotlight-items').css('overflow', 'hidden');
+       $('.field-name-field-basic-spotlight-items').each(function() {
+         var rotation_time = $(this).find('.panopoly-spotlight-buttons-wrapper').data('rotation-time');
+         var $slides = $(this);
+         $slides.tabs().tabs("rotate", rotation_time, true);
+         // $('.field-name-field-basic-spotlight-items').css('height', $('.field-name-field-basic-spotlight-items').height());
+         // $('.field-name-field-basic-spotlight-items').css('overflow', 'hidden');
 
-       // Navigation is hidden by default, display it if JavaScript is enabled.
-       $('.panopoly-spotlight-buttons-wrapper').css('display', 'block');
-       
-       $('.panopoly-spotlight-pause-play').bind('click', function(event) {
-         event.preventDefault();
-         if ($(this).hasClass('paused')) {
-           $('.field-name-field-basic-spotlight-items').tabs().tabs("rotate", rotation_time, true);
-           $(this).text(Drupal.t('Pause'));
-           $(this).removeClass('paused');
-         } 
-         else {
-           $('.field-name-field-basic-spotlight-items').tabs().tabs("rotate", 0, false);
-           $('.field-name-field-basic-spotlight-items .ui-tabs-nav li a').attr('tabindex', 0);
-           $(this).text(Drupal.t('Play'));
-           $(this).addClass('paused');
-        }
+         // Navigation is hidden by default, display it if JavaScript is enabled.
+         $slides.find('.panopoly-spotlight-buttons-wrapper').css('display', 'block');
+
+         $slides.find('.panopoly-spotlight-pause-play').bind('click', function(event) {
+           event.preventDefault();
+           if ($(this).hasClass('paused')) {
+             $slides.tabs().tabs("rotate", rotation_time, true);
+             $(this).text(Drupal.t('Pause'));
+             $(this).removeClass('paused');
+           }
+           else {
+             $slides.tabs().tabs("rotate", 0, false);
+             $slides.find('.ui-tabs-nav li a').attr('tabindex', 0);
+             $(this).text(Drupal.t('Play'));
+             $(this).addClass('paused');
+           }
+         });
        });
      }
    }

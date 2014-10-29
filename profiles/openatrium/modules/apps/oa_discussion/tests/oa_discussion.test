@@ -1,0 +1,131 @@
+<?php
+
+/**
+ * @file
+ * Tests permission inheritence for oa_subspaces
+ */
+
+class oa_discussion extends oa_coreBaseWebTest {
+  static function getInfo() {
+    return array(
+      'name' => 'OA Discussions',
+      'description' => 'Test that create discussions correctly',
+      'group' => 'OA',
+    );
+  }
+
+  function test_oa_subspacesSectionAccess() {
+    variable_del('drupal_test_email_collector');
+    $langcode = LANGUAGE_NONE;
+    $section_key = "oa_section_ref[$langcode]";
+    $group_key = "og_group_ref[$langcode][0][default]";
+    $body_key = "body[$langcode][0][value]";
+    $parent_key = "oa_parent[$langcode][0][target_id]";
+    $notifications_key = "oa_notifications[notifications][user][]";
+
+    extract($this->createOaSpaceAndUsers(array(), 
+      array('create oa_space content', 'create oa_section content', 'edit any oa_section content', 'create oa_discussion_post content', 'edit any oa_discussion_post content')));
+    $space2 = $this->createOaSpace(array('uid' => $space_admin->uid));
+    $section = $this->createNodeInOaSpace($space, array('type' => 'oa_section'));
+    $section2 = $this->createNodeInOaSpace($space, array('type' => 'oa_section'));
+    $section_of_space2 = $this->createNodeInOaSpace($space2, array('type' => 'oa_section'));
+    $this->assertTrue(!variable_get('drupal_test_email_collector', array()), 'Email collector is empty');
+    $this->drupalLogin($space_admin);
+    $this->drupalGet('node/' . $space->nid);
+    $edit = array(
+      'title' => $this->randomName(16),
+      $section_key => $section->nid,
+      $group_key => $space->nid,
+      $body_key => $this->randomName(26),
+      $notifications_key => $space_admin->uid,
+    );
+    $this->drupalPost('node/add/oa-discussion-post', $edit, t('Publish'));
+    // Email has only "created" message 
+    $this->assertTrue(count(variable_get('drupal_test_email_collector', array())) == 1, 'Email collector has one email');
+    $discussion = $this->drupalGetNodeByTitle($edit['title']);
+    $this->drupalGet('node/' . $discussion->nid . '/edit');
+    $edit = array(
+      'title' => $this->randomName(16),
+      $section_key => $section->nid,
+      $group_key => $space->nid,
+      $body_key => $this->randomName(26),
+      $parent_key => $discussion->title . ' (' . $discussion->nid . ')',
+      $notifications_key => $space_admin->uid,
+    );
+    $this->drupalPost('node/add/oa-discussion-post', $edit, t('Publish'));
+    // "Replied" to message now added.
+    $this->assertTrue(count(variable_get('drupal_test_email_collector', array())) == 2, 'Email collector has two emails');
+    $child_discussion = $this->drupalGetNodeByTitle($edit['title']);
+
+    // Verify both the parent and child appear on parent.
+    $this->drupalGet('node/' . $discussion->nid);
+    $this->assertText($discussion->body[LANGUAGE_NONE][0]['value'], 'Node body of discussion appears.');
+    $this->assertText($child_discussion->body[LANGUAGE_NONE][0]['value'], 'Child node body of discussion appears.');
+
+    // Update the section then group and section and verify that child is updated.
+    $edit = array();
+    $edit[$section_key] = $section2->nid;
+    $this->drupalPost('node/' . $discussion->nid . '/edit', $edit, t('Save'));
+    // Updated message now added. If email supressions didn't work, there would
+    // be one additional message per email.
+    $this->assertTrue(count(variable_get('drupal_test_email_collector', array())) == 3, 'Email collector has two emails');
+
+    // Check child is updated
+    $this->drupalGet('node/' . $child_discussion->nid . '/edit');
+    $this->assertFieldByName($section_key, $edit[$section_key], 'Section of child updated.');
+
+    // Test for group being updated.
+    $edit = array();
+    $edit[$group_key] = $space2->nid;
+    $this->drupalPost('node/' . $discussion->nid . '/edit', $edit, t('Save'));
+    $edit = array();
+    $edit[$section_key] = $section_of_space2->nid;
+    $this->drupalPost('node/' . $discussion->nid . '/edit', $edit, t('Save'));
+    // Updated emails for the two saves.
+    $this->assertTrue(count(variable_get('drupal_test_email_collector', array())) == 5, 'Email collector has two emails');
+
+    // Check again that child is updated.
+    $this->drupalGet('node/' . $child_discussion->nid . '/edit');
+    $this->assertFieldByName($section_key, $edit[$section_key], 'Section of child updated.');
+    $this->assertFieldByName($group_key, $space2->nid, 'Section of child updated.');
+
+    // Test without any sections.
+    $edit = array(
+      'title' => $this->randomName(16),
+      $group_key => $space->nid,
+      $body_key => $this->randomName(26),
+      $notifications_key => $space_admin->uid,
+    );
+    $this->drupalPost('node/add/oa-discussion-post', $edit, t('Publish'));
+    // Create email.
+    $this->assertTrue(count(variable_get('drupal_test_email_collector', array())) == 6, 'Email collector has two emails');
+
+    $discussion_no_section = $this->drupalGetNodeByTitle($edit['title']);
+    $edit = array(
+      'title' => $this->randomName(16),
+      $group_key => $space->nid,
+      $body_key => $this->randomName(26),
+      $parent_key => $discussion_no_section->title . '(' . $discussion_no_section->nid . ')',
+      $notifications_key => $space_admin->uid,
+    );
+    $this->drupalPost('node/add/oa-discussion-post', $edit, t('Publish'));
+    // Replied to email.
+    $this->assertTrue(count(variable_get('drupal_test_email_collector', array())) == 7, 'Email collector has two emails');
+    $child_discussion_no_section = $this->drupalGetNodeByTitle($edit['title']);
+
+    $this->drupalGet('node/' . $discussion_no_section->nid);
+    $this->assertText($discussion_no_section->body[LANGUAGE_NONE][0]['value'], 'Node body of discussion appears.');
+    $this->assertText($child_discussion_no_section->body[LANGUAGE_NONE][0]['value'], 'Child node body of discussion appears.');
+    $queue = DrupalQueue::get('message_subscribe');
+
+    // Test that group is updated.
+    $edit = array();
+    $edit[$group_key] = $space2->nid;
+    $this->drupalPost('node/' . $discussion_no_section->nid . '/edit', $edit, t('Save'));
+    // Updated discussion email.
+    $this->assertTrue(count(variable_get('drupal_test_email_collector', array())) == 8, 'Email collector has two emails');
+    $this->drupalGet('node/' . $child_discussion_no_section->nid . '/edit');
+    $this->assertFieldByName($group_key, $edit[$group_key], 'Section of child updated.');
+  }
+
+}

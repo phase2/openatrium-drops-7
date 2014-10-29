@@ -1,0 +1,579 @@
+<?php
+
+/**
+ * @file
+ * Code for the Open Atrium Work Tracker feature.
+ */
+
+include_once 'oa_worktracker.features.inc';
+
+/**
+ * Denotes that we want to be able to assign to inherited users.
+ */
+define('OA_WORKTRACKER_ASSIGN_TO_INHERITED_USERS', 'inherited');
+
+/**
+ * Denotes that we want to be able to assign to local users only.
+ */
+define('OA_WORKTRACKER_ASSIGN_TO_ONLY_LOCAL_USERS', 'local');
+
+/**
+ * Denotes that we want to be able to assign to any users.
+ */
+define('OA_WORKTRACKER_ASSIGN_TO_ANY_USERS', 'any');
+
+/**
+ * Implements hook_menu().
+ */
+function oa_worktracker_menu() {
+  $items = array();
+  $items['admin/openatrium/worktracker'] = array(
+    'title' => 'Work Tracker settings',
+    'description' => 'Configure settings for the Open Atrium Work Tracker',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('oa_worktracker_apps_configure_form'),
+    'access arguments' => array('administer oa_worktracker'),
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function oa_worktracker_permission() {
+  return array(
+    'administer oa_worktracker' => array(
+      'title' => t('Administer Open Atrium Work Tracker'),
+      'description' => t('Configure settings for the Open Atrium Work Tracker'),
+    ),
+  );
+}
+
+/**
+ * Implements ctools_plugin_directory().
+ */
+function oa_worktracker_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'entityreference') {
+    return 'plugins/entityreference_' . $plugin_type;
+  }
+}
+
+/**
+ * Implements hook_modules_enabled().
+ */
+function oa_worktracker_modules_enabled($modules) {
+  if (in_array('oa_worktracker', $modules)) {
+    // For some reason these don't revert the first time through
+    // @see https://drupal.org/node/2098475
+    // @todo This doesn't actually revert the 'og_features_permission' stuff!
+    _node_types_build();
+    drupal_static_reset();
+    features_revert(array('oa_worktracker' => array('message_type', 'field_base', 'variable', 'og_features_permission', 'user_permission')));
+  }
+}
+
+/**
+ * Implements hook_oa_messages_type_alter().
+ */
+function oa_worktracker_oa_messages_type_alter(&$message_type, $context) {
+  // TODO: replace the oa_create with something else too...
+  if (in_array($message_type, array('oa_update', 'oa_comment')) && $context['entity']->type == 'oa_worktracker_task') {
+    // tell OpenAtrium not to create a message for this! We'll handle it ourselves..
+    $message_type = NULL;
+  }
+}
+
+/**
+ * Implements hook_comment_insert().
+ */
+function oa_worktracker_comment_insert($comment) {
+  $langcode = $comment->language;
+
+  if ($comment->node_type == 'comment_node_oa_worktracker_task') {
+    // If we changed the 'Assigned to' field we need to add a notification for
+    // that user. It has to be done here, because hook_node_presave() actually
+    // comes AFTER hook_comment_insert().
+    $assigned_to = !empty($comment->field_oa_worktracker_assigned_to[$langcode][0]['target_id']) ?
+      $comment->field_oa_worktracker_assigned_to[$langcode][0]['target_id'] : NULL;
+    if ($assigned_to) {
+      $node = node_load($comment->nid);
+      $notifications = oa_notifications_load_multiple($node, 'node', 'user');
+      if (empty($notifications['user'][$assigned_to])) {
+        // TODO: Use some oa_notifications API for this.
+        $notification = (object)array(
+          'source_type' => 'node',
+          'source_id'   => $node->nid,
+          'target_type' => 'user',
+          'target_id'   => $assigned_to,
+        );
+        drupal_write_record('oa_notifications', $notification);
+      }
+    }
+
+    $message = oa_messages_create('oa_worktracker_task_update', $comment->nid, 'node', '', array('comment' => $comment), $comment->uid);
+  }
+}
+
+/**
+ * Implements hook_oa_messages_create_alter().
+ */
+function oa_worktracker_oa_messages_create_alter(&$wrapper, $context) {
+  if ($context['message_type'] == 'oa_worktracker_task_update' && !empty($context['arguments']['comment'])) {
+    // set the comment reference when there is one!
+    $comment = $context['arguments']['comment'];
+    $wrapper->field_oa_comment_ref = $comment->cid;
+  }
+}
+
+/**
+ * Modifies the options list to only include those sections which allow Tasks.
+ */
+function _oa_worktracker_check_section_options(&$options) {
+  if (module_exists('oa_buttons')) {
+    // TODO: It'd be awesome to cache this somehow for performance!
+    foreach (array_keys($options) as $nid) {
+      if ($nid === '_none') continue;
+
+      // Get all the command buttons for given Section.
+      $buttons = array();
+      _oa_buttons_get_node_command_buttons(node_load($nid), $buttons);
+      
+      // Loop through and make sure this section can take Task nodes.
+      $found = FALSE;
+      foreach ($buttons as $button) {
+        if ($button['value'] == 'oa_worktracker_task') {
+          $found = TRUE;
+          break;
+        }
+      }
+
+      // If not, then we need to remove it from the options.
+      if (!$found) {
+        unset($options[$nid]);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ */
+function oa_worktracker_module_implements_alter(&$implementations, $hook) {
+  // We need our oa_worktracker_form_oa_worktracker_task_node_form_alter() to
+  // run after save_draft_form_node_form_alter().
+  if ($hook == 'form_alter' && isset($implementations['oa_worktracker'])) {
+    $group = $implementations['oa_worktracker'];
+    unset($implementations['oa_worktracker']);
+    $implementations['oa_worktracker'] = $group;
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function oa_worktracker_form_oa_worktracker_task_node_form_alter(&$form, &$form_state, $form_id) {
+  $langcode = $form['language']['#value'];
+
+  // Remove sections that can't take Task nodes.
+  if (!empty($form['oa_section_ref'][$langcode]['#options'])) {
+    _oa_worktracker_check_section_options($form['oa_section_ref'][$langcode]['#options']);
+  }
+
+  if (empty($form['nid']['#value'])) {
+    // Set the default values for 'Priority', 'Status' and 'Type'.
+    foreach (array('priority', 'task_status', 'task_type') as $name) {
+      $field_name = 'field_oa_worktracker_' . $name;
+      $variable_name = 'oa_worktracker_allowed_values_' . $name;
+      $value = variable_get_value($variable_name);
+      $form[$field_name][$langcode]['#default_value'] = $value['default_value'];
+    }
+
+    // Remove the 'Comment settings' for new Tasks since Tasks don't make sense
+    // without comments - it makes no sense to be able to disable them! However,
+    // for old Tasks, it may make sense to disable or hide comments.
+    $form['comment_settings']['#access'] = FALSE;
+
+    // Setup the 'Copy for multiple' functionality.
+    if (variable_get_value('oa_worktracker_assigned_to_multiple')) {
+      // Add the option to the select.
+      $assigned_to_default = $form['field_oa_worktracker_assigned_to'][LANGUAGE_NONE]['#options'];
+      $assigned_to_none = $assigned_to_default['_none'];
+      unset($assigned_to_default['_none']);
+      $form['field_oa_worktracker_assigned_to'][LANGUAGE_NONE]['#options'] = array(
+        '_none' => $assigned_to_none,
+        '_multiple' => t('- Copy for multiple -'),
+      ) + $assigned_to_default;
+
+      // Add a validate function that will run before the default (we need to
+      // clean-up for the '_multiple' value to make sure everything validates).
+      array_unshift($form['field_oa_worktracker_assigned_to'][LANGUAGE_NONE]['#element_validate'],
+        '_oa_worktracker_assigned_to_validate');
+
+      // Add the new multiple field to allow selecting all the users.
+      $form['oa_worktracker_assigned_to_multiple'] = array(
+        '#type' => 'select',
+        '#title' => t('Copy for each assignee'),
+        '#multiple' => TRUE,
+        '#attributes' => array(
+          'class' => array('chosen-widget'),
+        ),
+        '#states' => array(
+          'visible' => array(
+            ':input[name="field_oa_worktracker_assigned_to[und]"]' => array('value' => '_multiple'),
+          ),
+        ),
+        '#options' => $assigned_to_default,
+      );
+
+      // Hide the 'Save as Draft' button because it doesn't do anything sane
+      // in conjunction with the 'Copy for multiple' functionality.
+      $form['actions']['draft']['#access'] = FALSE;
+    }
+  }
+}
+
+/**
+ * Form validation handler for field_oa_worktracker_assigned_to element.
+ *
+ * @see oa_worktracker_form_oa_worktracker_task_node_form_alter()
+ *
+ * @ingroup forms
+ */
+function _oa_worktracker_assigned_to_validate(&$element, &$form_state, $form) {
+  if ($element['#value'] == '_multiple') {
+    $uids = $form_state['values']['oa_worktracker_assigned_to_multiple'];
+
+    if (!empty($uids)) {
+      // Set the 'Assigned to' field to the first of the multiple users.
+      $form_state['values']['field_oa_worktracker_assigned_to'][LANGUAGE_NONE] = $element['#value'] = array_shift($uids);
+
+      // Stash the remaining values for later.
+      $form_state['values']['oa_worktracker_assigned_to_multiple'] = $uids;
+    }
+    else {
+      // If no users were selected, then just clear out the field.
+      $form_state['values']['field_oa_worktracker_assigned_to'][LANGUAGE_NONE] = $element['#value'] = '_none';
+    }
+  }
+}
+
+/**
+ * Implements hook_node_presave().
+ */
+function oa_worktracker_node_presave($node) {
+  $langcode = $node->language;
+
+  if ($node->type == 'oa_worktracker_task' && isset($node->oa_notifications)) {
+    // Set notifications for the author when the Task is first created.
+    if (!empty($node->is_new) && $node->uid) {
+      $node->oa_notifications['notifications']['user'][$node->uid] = $node->uid;
+    }
+
+    // Set notifications for the user the Task is assigned to.
+    $assigned_to = !empty($node->field_oa_worktracker_assigned_to[$langcode][0]['target_id']) ?
+      $node->field_oa_worktracker_assigned_to[$langcode][0]['target_id'] : NULL;
+    if ($assigned_to) {
+      $node->oa_notifications['notifications']['user'][$assigned_to] = $assigned_to;
+    }
+  }
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function oa_worktracker_node_insert($node) {
+  if ($node->type == 'oa_worktracker_task' && !empty($node->oa_worktracker_assigned_to_multiple)) {
+    foreach ($node->oa_worktracker_assigned_to_multiple as $uid) {
+      $clone = oa_clone_prepare($node, NULL, NULL, TRUE);
+      $clone->field_oa_worktracker_assigned_to[LANGUAGE_NONE][0]['target_id'] = $uid;
+      unset($clone->oa_worktracker_assigned_to_multiple);
+      oa_clone_save($clone);
+    }
+
+    drupal_set_message(t('Created @count Tasks in total.',
+      array('@count' => count($node->oa_worktracker_assigned_to_multiple) + 1)));
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function oa_worktracker_form_comment_form_alter(&$form, &$form_state, $form_id) {
+  if ($form['#node']->type == 'oa_worktracker_task') {
+    $langcode = $form['language']['#value'];
+
+    // If the form is for an authenticated user (not anonymous) then hide the 
+    // superfluous 'Your name' field.
+    if (!$form['is_anonymous']['#value']) {
+      $form['author']['#access'] = FALSE;
+    }
+
+    // Rename the attachment field to 'Task attachments' so that users know they
+    // are for the task - not the comment.
+    $form['field_oa_media'][$langcode]['#title'] = t('Task attachments');
+
+    // Remove sections that can't take Task nodes.
+    if (!empty($form['oa_section_ref'][$langcode]['#options'])) {
+      _oa_worktracker_check_section_options($form['oa_section_ref'][$langcode]['#options']);
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function oa_worktracker_form_views_exposed_form_alter(&$form, &$form_state, $form_id) {
+  $view = $form_state['view'];
+  if ($view->name == 'oa_worktracker' && in_array($view->current_display, array('task_list', 'user_tasks'))) {
+    // Set 'open' as the default if we haven't been submitted yet (the request
+    // method is GET) and 'open' is actually a valid option. This is a hack
+    // around Views issue #1835680: https://drupal.org/node/1835680
+    if ($_SERVER['REQUEST_METHOD'] == 'GET' && empty($form_state['input']['field_oa_worktracker_task_status_value'])) {
+      // @todo: It'd be cool to actually take the default from the view
+      // rather than hard-coding 'open' here. Then we could support the other
+      // fields as well!
+      if (!empty($form['field_oa_worktracker_task_status_value']['#options']['open'])) {
+        $form_state['input']['field_oa_worktracker_task_status_value'] = array(
+          'open' => 'open',
+        );
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_node_view().
+ */
+function oa_worktracker_node_view($node, $view_mode, $langcode) {
+  if ($node->type == 'oa_worktracker_task' && $view_mode == 'full') {
+    $name = theme('username', array('account' => $node));
+    $date = format_date($node->created);
+    $node->content['oa_worktracker_submitted'] = array(
+      '#markup' => '<div class="submitted">' . t('Submitted by !username on !datetime', array('!username' => $name, '!datetime' => $date)) . '</div>',
+    );
+  }
+}
+
+/**
+ * Implemets hook_field_extra_fields().
+ */
+function oa_worktracker_field_extra_fields() {
+  $extra = array();
+  $extra['node']['oa_worktracker_task']['form'] = array(
+    'oa_worktracker_assigned_to_multiple' => array(
+      'label' => t('Assigned to (multiple)'),
+      'description' => t('The select widget used when the user wants copy a new Task for multiple assignees.'),
+      'weight' => 0,
+    ),
+  );
+  $extra['node']['oa_worktracker_task']['display'] = array(
+    'oa_worktracker_submitted' => array(
+      'label' => t('Submitted information'),
+      'description' => t('The author and date that this Task was submitted.'),
+      'weight' => 0,
+    ),
+  );
+  return $extra;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function oa_worktracker_theme() {
+  return array(
+    'comment_wrapper__node_oa_worktracker_task' => array(
+      'template' => 'comment-wrapper--node-oa-worktracker-task',
+      'base hook' => 'comment_wrapper',
+      'render element' => 'content',
+      'path' => drupal_get_path('module', 'oa_worktracker') . '/templates',
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme_registry_alter().
+ */
+function oa_worktracker_theme_registry_alter(&$registry) {
+  // Replace the default 'comment_alter_diff' theme function with our custom version.
+  if (!empty($registry['comment_alter_diff']['function'])) {
+    $registry['comment_alter_diff']['function'] = 'oa_worktracker_theme_comment_alter_diff';
+  }
+}
+
+/**
+ * Implements hook_strongarm_alter().
+ */
+function oa_worktracker_strongarm_alter(&$data) {
+  if (isset($data['variable_realm_list_og'])) {
+    // The assigned to settings.
+    if (!in_array('oa_worktracker_assigned_to_users', $data['variable_realm_list_og']->value)) {
+      $data['variable_realm_list_og']->value[] = 'oa_worktracker_assigned_to_users';
+    }
+
+    // The select list values.
+    foreach (array('priority', 'task_status', 'task_type') as $name) {
+      $full_name = 'oa_worktracker_allowed_values_' . $name;
+      if (!in_array($full_name, $data['variable_realm_list_og']->value)) {
+        $data['variable_realm_list_og']->value[] = $full_name;
+      }
+    }
+  }
+}
+
+/**
+ * Form callback for the apps configuration form.
+ */
+function oa_worktracker_apps_configure_form($form, &$form_state) {
+  return variable_group_form($form, $form_state, 'oa_worktracker');
+}
+
+/**
+ * Allowed values callback for 'Priority', 'Status' and 'Type'.
+ */
+function oa_worktracker_allowed_values_callback($field, $instance, $entity_type, $entity, &$cachable) {
+  if (strpos($field['field_name'], 'field_oa_worktracker_') === 0) {
+    $field_name = substr($field['field_name'], 21); 
+    $allowed_values = variable_get_value("oa_worktracker_allowed_values_{$field_name}");
+    return $allowed_values['options'];
+  }
+  return array('_none' => t('- None -'));
+}
+
+/**
+ * Returns the difference between two arrays.
+ *
+ * Unlike PHP's array_diff(), equality is defined by $elem1 == $elem2,
+ * NOT (string)$elem1 === (string)$elem2.
+ *
+ * @param array $array1
+ *   The initial array.
+ * @param array $array2
+ *   The array to subtrack from $array1.
+ *
+ * @return array
+ *   The result of subtracting $array2 from $array1.
+ */
+function _oa_worktracker_array_diff($array1, $array2) {
+  $diff = array();
+  foreach ($array1 as $elem1) {
+    $contained = FALSE;
+    foreach ($array2 as $elem2) {
+      if ($elem1 == $elem2) {
+        $contained = TRUE; 
+        break;
+      }
+    }
+    if (!$contained) {
+      $diff[] = $elem1;
+    }
+  }
+  return $diff;
+}
+
+/**
+ * Renders a list of file removals or additions.
+ *
+ * @todo Should this be it's own theme function?
+ */
+function _oa_worktracker_file_changes($files, $type) {
+  $html = '';
+
+  foreach ($files as $file) {
+    $html .= '<div>';
+    if ($type == 'add') {
+      $html .= '<span class="oa-worktracker-diff-add">+</span> ';
+    }
+    else {
+      $html .= '<span class="oa-worktracker-diff-remove">-</span> ';
+    }
+    // This comes from 'file_entity' which we get via our 'oa_media' dependency
+    //$html .= theme('file_entity_download_link', array('file' => (object)$file, 'text' => '[file:name]'));
+    $html .= theme('file_link', array('file' => (object)$file));
+    $html .= '</div>';
+  }
+
+  return $html;
+}
+
+/**
+ * Returns HTML for changes made by comment_alter.
+ *
+ * This is different from the default theme function provided by
+ * comment_alter, in that it has special support for files. If this is 
+ * successful, maybe we can move it upstream later.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - changed_fields: an array of changed fields, with these indexes:
+ *     - name: field's name being changed.
+ *     - old: array of old field values.
+ *     - new: array of new field values.
+ *   - comment: Full comment object, for context.
+ *   - langcode: The language code used for rendering the fields, for context.
+ *
+ * @ingroup themeable
+ */
+function oa_worktracker_theme_comment_alter_diff(&$variables) {
+  $comment = $variables['comment'];
+  $langcode = $variables['langcode'];
+
+  // Don't attempt to theme the diff if we don't have all the information we
+  // need, for example, in a comment preview.
+  if (empty($comment->comment_alter) || empty($comment->comment_alter['new_vid'])) {
+    return;
+  }
+
+  $old_node = node_load($comment->nid, $comment->comment_alter['old_vid']);
+  $new_node = node_load($comment->nid, $comment->comment_alter['new_vid']);
+  $node_type = $new_node->type;
+
+  $rows = array();
+  foreach ($variables['changed_fields'] as $field_name => $values) {
+    // Support for Comment Alter 1.0-rc3 to ease the transition.
+    $values = !isset($values[0]) ? array($values) : $values;
+
+    $row = array();
+    $row[] = empty($values[0]['name']) ? '' : ($values[0]['name'] . ':');
+
+    $info = field_info_field($field_name);
+    if ($info['type'] == 'file') {
+      $old_items = field_get_items('node', $old_node, $field_name, $langcode);
+      $new_items = field_get_items('node', $new_node, $field_name, $langcode);
+
+      // If there are no values, field_get_items() returns FALSE - but what we
+      // really want is an empty array.
+      if ($old_items === FALSE) {
+        $old_items = array();
+      }
+      if ($new_items === FALSE) {
+        $new_items = array();
+      }
+
+      $removed = !empty($old_items) ? _oa_worktracker_array_diff($old_items, $new_items) : array();
+      $added = !empty($old_items) ? _oa_worktracker_array_diff($new_items, $old_items) : $new_items;
+
+      $row[] = _oa_worktracker_file_changes($removed, 'remove');
+      $row[] = '&raquo;';
+      $row[] = _oa_worktracker_file_changes($added, 'add');
+    }
+    else {
+      foreach ($values as $value) {
+        $row[] = implode(', ', $value['old']);
+        $row[] = '&raquo;';
+        $row[] = implode(', ', $value['new']);
+      }
+    }
+    $rows[] = $row;
+  }
+
+  if (!empty($rows)) {
+    drupal_add_css(drupal_get_path('module', 'comment_alter') . '/comment_alter.css');
+    return theme('table', array(
+      '#theme' => 'table__comment_alter__diff',
+      '#rows' => $rows,
+      '#attributes' => array('class' => array('comment-alter-diff')),
+      '#sticky' => FALSE,
+    ));
+  }
+}
+

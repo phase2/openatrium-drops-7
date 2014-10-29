@@ -3,51 +3,94 @@
  * Linkit field ui functions
  */
 
-// Create the linkit namespaces.
-Drupal.linkit = Drupal.linkit || {};
-Drupal.linkit.field = Drupal.linkit.field || {};
-
 (function ($) {
 
 Drupal.behaviors.linkit_field = {
   attach : function(context, settings) {
     // If there is no fields, just stop here.
-    if (settings.linkit.fields == null) {
+
+    if (settings.linkit == undefined || settings.linkit.fields == null) {
       return false;
     }
-    $.each(settings.linkit.fields, function(field) {
-      $('#' + field, context).once('linkit_field', function() {
-        $('.linkit-field-' + field).click(function() {
-          // We dont have an editor here, but we need to give this instance a
-          // name.
-          Drupal.linkit.setEditorName('field');
-          // Set the name of the editor field, this is just for CKeditor.
-          Drupal.linkit.setEditorField(field);
+
+    $.each(settings.linkit.fields, function(field_name, field) {
+      $('#' + field_name, context).once('linkit_field', function() {
+        $('.linkit-field-' + field_name).click(function() {
+          // Set profile.
+          Drupal.settings.linkit.currentInstance.profile = Drupal.settings.linkit.fields[field_name].profile;
+
+          // Set the name of the source field..
+          Drupal.settings.linkit.currentInstance.source = field_name;
+
+          // Set the source type.
+          Drupal.settings.linkit.currentInstance.helper = 'field';
 
           // Only care about selection if the element is a textarea.
-          if ($('textarea#' + field).length) {
-            var selection = Drupal.behaviors.linkit_field.getSelection($('#' + field).get(0));
+          if ($('textarea#' + field_name).length) {
+            var selection =  Drupal.linkit.getDialogHelper('field').getSelection($('#' + field_name).get(0));
             // Save the selection.
-            Drupal.linkit.setEditorSelection(selection);
+            Drupal.settings.linkit.currentInstance.selection = selection;
           }
 
-          Drupal.linkit.dialog.buildDialog(settings.linkit.url.field);
-          return false;
+          // Suppress profile changer.
+          Drupal.settings.linkit.currentInstance.suppressProfileChanger = true;
+
+          // Create the modal.
+          Drupal.linkit.createModal();
+
+         return false;
         });
       });
     });
+  }
+};
+
+/**
+ * Linkit field dialog helper.
+ */
+Drupal.linkit.registerDialogHelper('field', {
+  init : function() {},
+  afterInit : function () {},
+
+  /**
+   * Insert the link into the field.
+   *
+   * @param {Object} link
+   *   The link object.
+   */
+  insertLink : function(data) {
+    var source = $('#' + Drupal.settings.linkit.currentInstance.source),
+      field_settings = Drupal.settings.linkit.fields[Drupal.settings.linkit.currentInstance.source],
+
+    // Call the insert plugin.
+    link = Drupal.linkit.getInsertPlugin(field_settings.insert_plugin).insert(data, field_settings);
+
+    if (typeof Drupal.settings.linkit.currentInstance.selection != 'undefined') {
+      // Replace the selection and insert the link there.
+      this.replaceSelection(source.get(0), Drupal.settings.linkit.currentInstance.selection, link);
+    }
+    else {
+      // Replace the field value.
+      this.replaceFieldValue(source.get(0), link);
+    }
+
+    // Link field can have a title field. If they have, we populate the title
+    // field with the search result title if any.
+    if (typeof field_settings.title_field != 'undefined' && typeof Drupal.settings.linkit.currentInstance.linkContent != 'undefined') {
+      this.replaceFieldValue($('#' + field_settings.title_field).get(0), Drupal.settings.linkit.currentInstance.linkContent);
+    }
   },
 
   /**
    * Get field selection.
    */
   getSelection : function(e) {
-    // Mozilla and DOM 3.0
+    // Mozilla and DOM 3.0.
     if ('selectionStart' in e) {
         var l = e.selectionEnd - e.selectionStart;
         return { start: e.selectionStart, end: e.selectionEnd, length: l, text: e.value.substr(e.selectionStart, l) };
     }
-    // IE
+    // IE.
     else if(document.selection) {
         e.focus();
         var r = document.selection.createRange(),
@@ -60,13 +103,13 @@ Drupal.behaviors.linkit_field = {
           return { start: e.value.length, end: e.value.length, length: 0, text: '' };
         }
 
-        // For some reason IE doesn't always count the \n and \r in the length
+        // For some reason IE doesn't always count the \n and \r in the length.
         var text_part = r.text.replace(/[\r\n]/g,'.'),
           text_whole = e.value.replace(/[\r\n]/g,'.'),
           the_start = text_whole.indexOf(text_part, tr.text.length);
         return { start: the_start, end: the_start + text_part.length, length: text_part.length, text: r.text };
     }
-    // Browser not supported
+    // Browser not supported.
     else {
       return { start: e.value.length, end: e.value.length, length: 0, text: '' };
     }
@@ -87,6 +130,6 @@ Drupal.behaviors.linkit_field = {
   replaceFieldValue : function (e, text) {
     e.value = text;
   }
-};
+});
 
 })(jQuery);

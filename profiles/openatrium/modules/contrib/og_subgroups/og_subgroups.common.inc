@@ -310,7 +310,7 @@ function og_subgroups_parents_load_multiple($groups, $filter = TRUE, $fetch_all 
       // for them.
       foreach ($process as $group_id) {
         $cid = _og_subgroups_load_multiple_cid('parents', $group_type, $group_id, $filter);
-        $group_cache[$cid][$entity_type] = array();
+        $group_cache[$cid][$group_type] = array();
         cache_set($cid, $group_cache[$cid]);
       }
 

@@ -26,6 +26,7 @@ dependencies[] = views_content
 stylesheets[all][] = panopoly-widgets.css
 features[ctools][] = file_entity:file_default_displays:1
 features[ctools][] = views:views_default:3.0
+features[defaultconfig][] = user_default_permissions:access media browser
 features[defaultconfig][] = user_default_permissions:add media from remote sources
 features[defaultconfig][] = user_default_permissions:create fieldable basic_file
 features[defaultconfig][] = user_default_permissions:create fieldable image
@@ -83,6 +84,7 @@ features[field_base][] = field_basic_file_file
 features[field_base][] = field_basic_file_text
 features[field_base][] = field_basic_image_caption
 features[field_base][] = field_basic_image_image
+features[field_base][] = field_basic_spotlight_duration
 features[field_base][] = field_basic_spotlight_items
 features[field_base][] = field_basic_table_table
 features[field_base][] = field_basic_text_text
@@ -97,6 +99,7 @@ features[field_instance][] = fieldable_panels_pane-image-field_basic_image_image
 features[field_instance][] = fieldable_panels_pane-map-field_map_address
 features[field_instance][] = fieldable_panels_pane-map-field_map_information
 features[field_instance][] = fieldable_panels_pane-quick_links-field_quick_links_links
+features[field_instance][] = fieldable_panels_pane-spotlight-field_basic_spotlight_duration
 features[field_instance][] = fieldable_panels_pane-spotlight-field_basic_spotlight_items
 features[field_instance][] = fieldable_panels_pane-table-field_basic_table_table
 features[field_instance][] = fieldable_panels_pane-text-field_basic_text_text
@@ -109,9 +112,9 @@ features[file_display][] = video__teaser__media_youtube_image
 features[file_display][] = video__teaser__media_youtube_video
 features[views_view][] = panopoly_widgets_general_content
 
-; Information added by Drupal.org packaging script on 2014-08-06
-version = "7.x-1.10"
+; Information added by Drupal.org packaging script on 2014-10-17
+version = "7.x-1.13"
 core = "7.x"
 project = "panopoly_widgets"
-datestamp = "1407362958"
+datestamp = "1413563681"
 

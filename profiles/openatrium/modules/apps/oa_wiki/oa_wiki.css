@@ -1,0 +1,43 @@
+li.dhtml-folder {
+  position: relative;
+}
+
+.dhtml-menu a.dhtml-menu-icon {
+  position: absolute;
+  left: -22px;
+}
+
+.menu li.dhtml-folder.expanded {
+  list-style-image: none !important;
+}
+.menu li.dhtml-folder.collapsed {
+  list-style-image: none !important;
+}
+
+.menu li.dhtml-folder.expanded > ul.menu {
+  overflow: visible !important;
+}
+
+.menu li.dhtml-folder.expanded:before {
+    background:url("images/plus_minus_icons.png") no-repeat 0px 0px;
+    background-size: auto 100%;
+    width:20px;
+    height:20px;
+    display:block;
+    position:absolute;
+    content: " ";
+    left: -26px;
+    top: 0px;
+}
+
+.menu li.dhtml-folder.collapsed:before {
+    background:url("images/plus_minus_icons.png") no-repeat -20px 0px;
+    background-size: auto 100%;
+    width:20px;
+    height:20px;
+    display:block;
+    position:absolute;
+    content: " ";
+    left: -26px;
+    top: 0px;
+}

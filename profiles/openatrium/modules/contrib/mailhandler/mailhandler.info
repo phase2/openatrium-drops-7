@@ -1,0 +1,47 @@
+name = Mailhandler
+description = Accepts submissions via e-mail. Requires at least one retrieval plugin (the Mailhandler PHP IMAP module is recommended).
+core = 7.x
+dependencies[] = ctools
+dependencies[] = feeds
+dependencies[] = system (>=7.8)
+package = Mailhandler
+configure = admin/structure/mailhandler
+
+files[] = mailhandler.install
+files[] = mailhandler.module
+files[] = tests/mailhandler.test
+files[] = plugins/ctools/export_ui/mailhandler.inc
+files[] = plugins/ctools/export_ui/mailhandler_mailbox_ui.class.php
+files[] = plugins/feeds/plugins/MailhandlerFetcher.class.php
+files[] = plugins/feeds/plugins/MailhandlerFetcher.inc
+files[] = plugins/feeds/plugins/MailhandlerParser.class.php
+files[] = plugins/feeds/plugins/MailhandlerParser.inc
+files[] = plugins/mailhandler/authenticate/MailhandlerAuthenticate.class.php
+files[] = plugins/mailhandler/authenticate/MailhandlerAuthenticate.inc
+files[] = plugins/mailhandler/authenticate/MailhandlerAuthenticateDefault.class.php
+files[] = plugins/mailhandler/authenticate/MailhandlerAuthenticateDefault.inc
+files[] = plugins/mailhandler/commands/MailhandlerCommands.class.php
+files[] = plugins/mailhandler/commands/MailhandlerCommands.inc
+files[] = plugins/mailhandler/commands/MailhandlerCommandsDefault.class.php
+files[] = plugins/mailhandler/commands/MailhandlerCommandsDefault.inc
+files[] = plugins/mailhandler/commands/MailhandlerCommandsFiles.class.php
+files[] = plugins/mailhandler/commands/MailhandlerCommandsFiles.inc
+files[] = plugins/mailhandler/commands/MailhandlerCommandsHeaders.class.php
+files[] = plugins/mailhandler/commands/MailhandlerCommandsHeaders.inc
+files[] = plugins/mailhandler/filters/MailhandlerFilters.class.php
+files[] = plugins/mailhandler/filters/MailhandlerFilters.inc
+files[] = plugins/mailhandler/filters/MailhandlerFiltersComments.class.php
+files[] = plugins/mailhandler/filters/MailhandlerFiltersComments.inc
+files[] = plugins/mailhandler/filters/MailhandlerFiltersNodes.class.php
+files[] = plugins/mailhandler/filters/MailhandlerFiltersNodes.inc
+files[] = plugins/mailhandler/retrieve/MailhandlerRetrieve.class.php
+files[] = plugins/mailhandler/retrieve/MailhandlerRetrieve.inc
+files[] = plugins/mailhandler/retrieve/MailhandlerRetrieveDummy.class.php
+files[] = plugins/mailhandler/retrieve/MailhandlerRetrieveDummy.inc
+
+; Information added by drupal.org packaging script on 2013-09-20
+version = "7.x-2.9"
+core = "7.x"
+project = "mailhandler"
+datestamp = "1379695939"
+

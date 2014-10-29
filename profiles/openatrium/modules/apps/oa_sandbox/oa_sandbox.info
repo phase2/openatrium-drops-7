@@ -1,0 +1,17 @@
+name = "Open Atrium Sandbox"
+package = "Open Atrium"
+core = "7.x"
+description = "Adds a Sandbox mode to Open Atrium which makes any content additions/edits to not be saved."
+
+apps[screenshots][] = app/screenshot.png
+apps[logo] = app/logo.png
+apps[author] = Phase2 Technology
+apps[author_url] = http://www.phase2technology.com/
+apps[server] = openatrium
+apps[package] = Core addons
+; Information added by Drupal.org packaging script on 2014-10-28
+version = "7.x-2.0-rc1"
+core = "7.x"
+project = "oa_sandbox"
+datestamp = "1414535661"
+

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Tests permission inheritence for oa_subspaces
+ * Tests permission inheritance for oa_subspaces
  */
 
 class oa_sectionsAccess extends oa_sectionsAccessBase {

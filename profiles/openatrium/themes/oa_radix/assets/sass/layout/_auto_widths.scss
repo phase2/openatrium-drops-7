@@ -1,0 +1,21 @@
+.col-xs-auto{
+  width:auto;
+}
+@media (min-width: $mobileBreakpoint) {
+  .col-sm-auto{
+    width:auto;
+  }
+}
+@media (min-width: $tabletBreakpoint) {
+  .col-md-auto{
+    width:auto;
+  }
+}
+@media (min-width: $desktopBreakpoint) {
+  .col-lg-auto{
+    width:auto;
+  }
+}
+
+
+

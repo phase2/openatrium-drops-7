@@ -1,0 +1,27 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the OA Mailhandler module.
+ */
+
+function oa_mailhandler_install() {
+  oa_mailhandler_update_7002();
+}
+
+/**
+ * Replace the 'mailbox_mail' variable with mailcomment's 'mailcomment_mailbox'.
+ */
+function oa_mailhandler_update_7001() {
+  if (variable_get('mailbox_mail', '')) {
+    variable_set('mailcomment_mailbox', variable_get('mailbox_mail', ''));
+  }
+  variable_del('mailbox_mail');
+}
+
+/**
+ * Enable the feeds_ui module by default, but we don't want it a dependency.
+ */
+function oa_mailhandler_update_7002() {
+  module_enable(array('feeds_ui'));
+}

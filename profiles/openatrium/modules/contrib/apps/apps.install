@@ -1,10 +1,21 @@
 <?php
 /**
- * @file apps.install
+ * @file
+ * Install operation for apps
  */
 
 /**
- * Fix typo in the dev console variable
+ * Implements hook_uninstall().
+ */
+function apps_uninstall() {
+  variable_del('apps_offline_mode');
+  variable_del('apps_enable_dev_console');
+  variable_del('apps_allow_voting');
+  variable_del('apps_install_path');
+}
+
+/**
+ * Fix typo in the dev console variable.
  */
 function apps_update_7001() {
   $dev = variable_get('apps_enable_developement_console', FALSE);

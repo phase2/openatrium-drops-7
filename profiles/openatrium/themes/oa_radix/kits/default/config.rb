@@ -1,10 +1,10 @@
 # Require any additional compass plugins here.
-require "compass_twitter_bootstrap";
+require 'bootstrap-sass';
 require "compass_radix";
 
-# Remember to switch this to :production when deployed to a live site.
 environment = :development
 
+# Set this to the root of your project when deployed:
 http_path = "/"
 css_dir = "assets/stylesheets"
 sass_dir = "assets/sass"
@@ -15,6 +15,7 @@ javascripts_dir = "assets/javascripts"
 # You can select your preferred output style here (can be overridden via the command line):
 # output_style = :expanded or :nested or :compact or :compressed
 output_style = (environment == :development) ? :expanded : :expanded
+output_style = (environment == :production) ? :compressed : output_style
 
 # To enable relative paths to assets via compass helper functions. Uncomment:
 relative_assets = true
@@ -28,8 +29,3 @@ line_comments = (environment == :development) ? true : false
 # preferred_syntax = :sass
 # and then run:
 # sass-convert -R --from scss --to sass sass scss && rm -rf sass && mv scss sass
-
-#Custom paths for parent-child theming
-
-#Relative path to sass files in the oa_radix theme. May need updating on each site implementation
-add_import_path "../../../../profiles/openatrium/themes/oa_radix/assets/sass"

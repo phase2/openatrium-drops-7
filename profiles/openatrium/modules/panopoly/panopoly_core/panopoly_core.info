@@ -33,7 +33,6 @@ dependencies[] = transliteration
 dependencies[] = views
 dependencies[] = views_autocomplete_filters
 dependencies[] = views_content
-stylesheets[all][] = css/panopoly-fonts.css
 stylesheets[all][] = css/panopoly-dropbutton.css
 features[ctools][] = panelizer:panelizer:1
 features[ctools][] = strongarm:strongarm:1
@@ -51,6 +50,7 @@ features[defaultconfig][] = strongarm:panels_page_allowed_layouts
 features[defaultconfig][] = strongarm:panels_page_allowed_types
 features[defaultconfig][] = strongarm:panels_page_default
 features[defaultconfig][] = strongarm:pathauto_taxonomy_term_panopoly_categories_pattern
+features[defaultconfig][] = strongarm:pathauto_update_action
 features[defaultconfig][] = user_default_permissions:administer panels styles
 features[defaultconfig][] = user_default_permissions:change layouts in place editing
 features[defaultconfig][] = user_default_permissions:use page manager
@@ -72,9 +72,9 @@ features[variable][] = panelizer_taxonomy_term:panopoly_categories_allowed_layou
 features[variable][] = panelizer_taxonomy_term:panopoly_categories_allowed_types_default
 features[views_view][] = panopoly_taxonomy
 
-; Information added by Drupal.org packaging script on 2014-08-06
-version = "7.x-1.10"
+; Information added by Drupal.org packaging script on 2014-10-17
+version = "7.x-1.13"
 core = "7.x"
 project = "panopoly_core"
-datestamp = "1407362635"
+datestamp = "1413563587"
 

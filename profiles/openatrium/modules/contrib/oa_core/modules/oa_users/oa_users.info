@@ -9,6 +9,7 @@ dependencies[] = image
 dependencies[] = og
 dependencies[] = og_ui
 dependencies[] = page_manager
+dependencies[] = realname
 dependencies[] = strongarm
 dependencies[] = text
 features[ctools][] = page_manager:pages_default:1
@@ -24,9 +25,9 @@ features[variable][] = user_picture_style
 features_exclude[field_base][field_user_about] = field_user_about
 features_exclude[field_base][field_user_picture] = field_user_picture
 
-; Information added by Drupal.org packaging script on 2014-10-15
-version = "7.x-2.22"
+; Information added by Drupal.org packaging script on 2014-10-29
+version = "7.x-2.25"
 core = "7.x"
 project = "oa_core"
-datestamp = "1413391182"
+datestamp = "1414605533"
 

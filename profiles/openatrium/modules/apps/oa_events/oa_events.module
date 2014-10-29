@@ -1,0 +1,496 @@
+<?php
+/**
+ * @file
+ * Code for the OA Events feature.
+ */
+
+define('OA_EVENTS_SEND_REMINDERS', 1);
+define('OA_EVENTS_REMINDER_INTERVAL', 1800);
+define('OA_EVENTS_DATE_FORMAT', 'MM/DD/YYYY');
+
+include_once 'oa_events.features.inc';
+include_once 'oa_events.theme.inc';
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function oa_events_field_formatter_info() {
+  return array(
+    'oa_events_date_formatter' => array(
+      'label' => t('Open Atrium Date Formatter'),
+      'field types' => array('datestamp'),
+    ),
+    'oa_events_upcoming_date' => array(
+      'label' => t('Next Upcoming Date'),
+      'field types' => array('datestamp'),
+    ),
+    'oa_events_addthis' => array(
+      'label' => t('AddThis Calendar Widget'),
+      'field types' => array('datestamp'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_geocoder_geocode_values_alter().
+ */
+function oa_events_geocoder_geocode_values_alter(&$items, &$field_info, &$handler_settings) {
+
+  $search = array(
+    '@<!--break-->.*@',                 // ignore after the !--break
+    '@<script[^>]*?>.*?</script>@si',   // Strip out javascript
+    '@<[\/\!]*?[^<>]*?>@si',            // Strip out HTML tags
+    '@<style[^>]*?>.*?</style>@siU',    // Strip style tags properly
+    '@<![\s\S]*?--[ \t\n\r]*>@',        // Strip multi-line comments including CDATA
+  );
+
+  if ($field_info['field_name'] == 'field_oa_address') {
+    foreach ($items as $delta => $item) {
+      $items[$delta]['value'] = preg_replace($search, PHP_EOL, $items[$delta]['value']);
+    }
+  }
+}
+
+/**
+ * Create Addthis Event calendar markup.
+ */
+function oa_events_field_add_to_calendar_markup($nid, $items, $title = 'Add to Calendar') {
+  static $date_field_info = FALSE;
+  static $date_field_instance = FALSE;
+  drupal_add_css(drupal_get_path('module', 'oa_events') . '/css/addthisevent.css');
+  drupal_add_js(drupal_get_path('module', 'oa_events') . '/js/atemay.js');
+
+  $node = node_load($nid);
+  if (false === $date_field_info) {
+    $date_field_info = field_info_field('field_event_date');
+    $date_field_instance = field_info_instance('node', 'field_event_date', $node->type);
+  }
+
+  $event_info = oa_events_find_next_event($items);
+  $date = $event_info['event'];
+
+  $date_field_date1 = new DateObject($date['value'], $date['timezone_db'], DATE_FORMAT_UNIX);
+  $date_field_date2 = new DateObject($date['value2'], $date['timezone_db'], DATE_FORMAT_UNIX);
+
+  $link_content = $title;
+  $event_url = url('node/' . $node->nid, array('absolute' => TRUE));
+
+  $description_language = field_language('node', $node, 'body');
+  $description = !empty($node->body[$description_language][0]['safe_value']) ? strip_tags($node->body[$description_language][0]['safe_value']) : '';
+  $location_language = field_language('node', $node, 'body');
+  $location = !empty($node->field_oa_address[$location_language][0]['safe_value']) ? strip_tags($node->field_oa_address[$location_language][0]['safe_value']) : '';
+
+  $alldayevent = date_is_all_day(date(DATE_FORMAT_DATETIME, $date['value']), date(DATE_FORMAT_DATETIME, $date['value2'])) ? 'true' : 'false';
+
+  $spans = array(
+    '_url' => $event_url,
+    '_start' => date_format_date($date_field_date1, 'custom', 'm-d-Y H:i:s'),
+    '_end' => date_format_date($date_field_date2, 'custom', 'm-d-Y H:i:s'),
+    '_zonecode' => '35', // UTC
+    '_summary' => check_plain($node->title),
+    '_description' => $description,
+    '_location' => $location,
+    '_all_day_event' => $alldayevent,
+    '_date_format' => variable_get('oa_events_date_format', OA_EVENTS_DATE_FORMAT),
+  );
+
+  foreach ($spans as $span_class => $span_value) {
+    $link_content .= '<span class="' . $span_class . '">' . $span_value . '</span>';
+  }
+
+  return l(
+    $link_content,
+    $event_url,
+    array(
+      'attributes' => array(
+        'class' => 'addthisevent',
+        'title' => t('Add to Calendar'),
+      ),
+      'html' => TRUE,
+    )
+  );
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function oa_events_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+
+  if ($display['type'] == 'oa_events_media_formatter') {
+    $summary = t('Display first image with style: @style', array(
+      '@style'     => $settings['image_style'],
+    ));
+  }
+
+  return $summary;
+}
+
+/**
+ * Find the next upcoming event or the last event in a series.
+ *
+ * @param  array $items
+ *   An array of dates attached to a field.
+ * @return array
+ *   An array, keyed by delta and event.
+ */
+function oa_events_find_next_event($items) {
+  // Set some base params we'll need.
+  $now = time();
+  $event = NULL;
+  $event_delta = NULL;
+  $next_event = NULL;
+  $last_event = NULL;
+  $next_event_delta = NULL;
+  $last_event_delta = NULL;
+  $diff = 0;
+
+  // Loop through all events.
+  foreach ($items as $delta => $date) {
+    // If event is a future date.
+    if ($date['value'] >= $now) {
+      // That happens before the last found future event
+      if ($diff == 0 || ($date['value'] - $now) < $diff) {
+        // Set it as the currently found next event, and update the difference.
+        $diff = $date['value'] - $now;
+        $next_event = $date;
+        $next_event_delta = 0;
+      }
+    }
+    // Determine if this is the last event in the series.
+    else if (empty($last_event) || ($date['value'] > $last_event['value'])) {
+      $last_event = $date;
+      $last_event_delta = $delta;
+    }
+  }
+
+  // If there is no future event we'll use the last occurrence.
+  if (empty($next_event)) {
+    $event = $last_event;
+    $event_delta = $last_event_delta;
+  }
+  else {
+    $event = $next_event;
+    $event_delta = $next_event_delta;
+  }
+
+  return array(
+    'delta' => $event_delta,
+    'event' => $event,
+  );
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function oa_events_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+  if ($display['type'] == 'oa_events_addthis') {
+    $element[0]['#markup'] = oa_events_field_add_to_calendar_markup($entity->nid, $items, t('Add to Calendar'));
+  }
+  elseif ($display['type'] == 'oa_events_date_formatter') {
+
+    $event_info = oa_events_find_next_event($items);
+    $event = $event_info['event'];
+
+    // Create Date objects from item values.
+    $timezone_object = date_default_timezone_object();
+
+    $start_date = new DateObject($event['value'], $event['timezone_db'], DATE_FORMAT_UNIX);
+    $start_date->setTimezone($timezone_object);
+
+    $end_date = new DateObject($event['value2'], $event['timezone_db'], DATE_FORMAT_UNIX);
+    $end_date->setTimezone($timezone_object);
+
+    // Create an array of month / day information for ease of use.
+    $dates = array(
+      'start' => array(
+        'day' => date_format_date($start_date, 'custom', 'd'),
+        'month' => date_format_date($start_date, 'custom', 'M'),
+      ),
+      'end' => array(
+        'day' => date_format_date($end_date, 'custom', 'd'),
+        'month' => date_format_date($end_date, 'custom', 'M'),
+      ),
+    );
+
+    // For now always use the start date. We may add multi-day event to the
+    // widget at some point in the future.
+    $day = $dates['start']['day'];
+    $month = $dates['start']['month'];
+    $element[0] = array(
+      '#markup' => theme('oa_event_date', array('month' => $month, 'day' => $day)),
+    );
+  }
+  elseif ($display['type'] == 'oa_events_upcoming_date') {
+
+    $event_info = oa_events_find_next_event($items);
+    $event = $event_info['event'];
+
+    // Create Date objects from item values.
+    $timezone_object = date_default_timezone_object();
+
+    $start_date = new DateObject($event['value'], $event['timezone_db'], DATE_FORMAT_UNIX);
+    $start_date->setTimezone($timezone_object);
+
+    $end_date = new DateObject($event['value2'], $event['timezone_db'], DATE_FORMAT_UNIX);
+    $end_date->setTimezone($timezone_object);
+
+    $date_formatted = '';
+    $time_formatted = '';
+    $rrule = '';
+
+    // Create an array of time / date information for ease of use.
+    $dates = array(
+      'start' => array(
+        'time' => date_format_date($start_date, 'custom', 'g:iA'),
+        'date' => date_format_date($start_date, 'custom', 'l, M j, Y'),
+      ),
+      'end' => array(
+        'time' => date_format_date($end_date, 'custom', 'g:iA'),
+        'date' => date_format_date($end_date, 'custom', 'l, M j, Y'),
+      ),
+    );
+
+    // Format date.
+    if ($dates['start']['date'] == $dates['end']['date']) {
+      $date_formatted = $dates['start']['date'];
+    }
+    else {
+      $date_formatted = $dates['start']['date'] . ' - ' . $dates['end']['date'];
+    }
+
+    // Format time.
+    if ($dates['start']['time'] == $dates['end']['time']) {
+      $time_formatted = $dates['start']['time'];
+    }
+    else {
+      $time_formatted = $dates['start']['time'] . ' - ' . $dates['end']['time'];
+    }
+
+    // Format rrule.
+    if (isset($event['rrule'])) {
+      $rrule = date_repeat_rrule_description($event['rrule']);
+    }
+
+    // Theme the result.
+    $element[0] = array(
+      '#markup' => theme('oa_event_next_date', array('date' => $date_formatted, 'time' => $time_formatted, 'rrule' => $rrule)),
+    );
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_cron().
+ */
+function oa_events_cron() {
+  // Only send reminders if they are enabled.
+  if (variable_get('oa_events_send_reminders', OA_EVENTS_SEND_REMINDERS)) {
+    $offset = variable_get('oa_events_reminder_interval', OA_EVENTS_REMINDER_INTERVAL);
+
+    $now = time();
+    $target_date = $now + $offset;
+
+    // Find events which are within our interval.
+    $query = new EntityFieldQuery();
+    $query->entityCondition('entity_type', 'node')
+      ->entityCondition('bundle', 'oa_event')
+      ->propertyCondition('status', 1)
+      ->fieldCondition('field_oa_date', 'value', $now, '>=', 1)
+      ->fieldCondition('field_oa_date', 'value', $target_date, '<=', 1);
+
+
+    $result = $query->execute();
+
+    // Send reminders for events.
+    if (isset($result['node'])) {
+      $nids = array_keys($result['node']);
+      oa_events_send_reminders($nids, $start_date, $target_date);
+    }
+
+
+    // Clean up old log events. Theoretically we could just delete everything
+    // before now, but we'll keep them around for a short period for debugging
+    // purposes.
+    $past_events = time() - $offset;
+    db_delete('oa_events_notifications_log')
+     ->condition('timestamp', $past_events, '<=')
+     ->execute();
+
+  }
+}
+
+/**
+ * Send create message and send reminders for upcoming events.
+ *
+ * @param array $nids
+ *   An array of event nids to send reminders for.
+ * @param int $start_date
+ *   The date to start from. This is used to find the next event in recurring
+ *   series.
+ * @param int $end_date
+ *  The end date, for finding the next event in a recurring series.
+ */
+function oa_events_send_reminders($nids, $start_date, $end_date) {
+  $nodes = entity_load('node', $nids);
+  foreach ($nodes as $node) {
+    $next_event = NULL;
+
+    $dates = field_get_items('node', $node, 'field_oa_date');
+    foreach ($dates as $date) {
+      if ($date['value'] >= $start_date && $date['value'] <= $end_date) {
+        $next_event = $date;
+      }
+    }
+
+    $params = (object) array(
+      'entity_id' => $node->nid,
+      'entity_type' => 'node',
+      'timestamp' => $next_event['value'],
+    );
+
+    // Don't store recurrence rules on the date arg.
+    if (is_array($next_event)) {
+      unset($next_event['rrule']);
+    }
+
+    $record_found = db_select('oa_events_notifications_log', 'n')
+      ->fields('n', array('entity_id'))
+      ->condition('entity_id', $params->entity_id)
+      ->condition('entity_type', $params->entity_type)
+      ->condition('timestamp', $params->timestamp)
+      ->execute()
+      ->fetchField();
+
+    if (empty($record_found) && module_exists('oa_messages')) {
+      $message = oa_messages_create('oa_event_notification', $node, 'node', '', array('date' => $next_event), 1);
+
+      drupal_write_record('oa_events_notifications_log', $params);
+    }
+  }
+}
+
+/**
+ * Implements hook_oa_messages_type_alter().
+ */
+function oa_events_oa_messages_create_alter($wrapper, $context) {
+  if ($context['message_type'] == 'oa_event_notification') {
+    if (isset($context['arguments']['date'])) {
+      if (isset($wrapper->field_oa_date)) {
+        // Map the next upcoming event to the messages oa_date field. This
+        // simplifies handling from a token perspective, as we don't need
+        // to determine the delta.
+        $wrapper->field_oa_date->set(array(0 => $context['arguments']['date']));
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_oa_settings_form().
+ */
+function oa_events_oa_settings_form(&$form_state) {
+  $forms = array();
+
+  $form = array();
+  $form['oa_events_send_reminders'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Send event reminders to subscribed users?'),
+    '#default_value' => variable_get('oa_events_send_reminders', OA_EVENTS_SEND_REMINDERS),
+  );
+
+  $form['oa_events_reminder_interval'] = array(
+    '#type' => 'select',
+    '#title' => t('How long prior to event start should users get a reminder?'),
+    '#default_value' => variable_get('oa_events_reminder_interval', OA_EVENTS_REMINDER_INTERVAL),
+    '#options' => array(
+      900 => t('15 Minutes'),
+      1800 => t('30 Minutes'),
+      3600 => t('1 Hour'),
+      86400 => t('1 Day'),
+      604800 => t('1 Week'),
+    ),
+  );
+
+  $form['oa_events_date_format'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Date format for "Add to Calendar" ?'),
+    '#default_value' => variable_get('oa_events_date_format', OA_EVENTS_DATE_FORMAT),
+  );
+
+  $forms[] = array(
+    'caption' => t('Event settings'),
+    'form' => $form,
+  );
+  return $forms;
+}
+
+/**
+ * Implements hook_views_pre_render()
+ */
+function oa_events_views_pre_render(&$view) {
+  // Determine whether pane configuration dictates that we remove attached views
+  // feed icon.
+  if (isset($view->display_handler->options['pane_conf'])) {
+    $conf = $view->display_handler->options['pane_conf'];
+    if (isset($view->feed_icon) && isset($conf['include_attachments']) && $conf['include_attachments'] != 1) {
+      unset($view->feed_icon);
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function oa_events_form_views_content_views_panes_content_type_edit_form_alter(&$form, &$form_state, $form_id) {
+
+  // Get the configuration
+  $conf = $form_state['conf'];
+  $view_handler = $form_state['view']->display_handler;
+  $view = $form_state['view'];
+  $attached_display = FALSE;
+
+  // If this view accepts attachments.
+  if ($view_handler->accept_attachments()) {
+    foreach ($view->display as $key => $display) {
+      // Check to see if there are any feeds in the view.
+      if (!empty($display->handler->plugin_name) && $display->handler->plugin_name == 'feed') {
+        // And whether or not they are atttached to the current display.
+        if (!empty($display->display_options['displays'][$view->current_display])) {
+            $attached_display = $display;
+        }
+      }
+    }
+  }
+
+  if ($attached_display == TRUE) {
+    // Allow user to disable attachments.
+    $form['include_attachments'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Include attached view: !view?', array('!view' => $attached_display->display_title)),
+      '#default_value' => isset($conf['include_attachments']) ? $conf['include_attachments'] : 1,
+    );
+
+    $form['#submit'][] = 'oa_events_views_content_type_modal_submit';
+  }
+}
+
+/**
+ * Submit handler to save custom panels pane configuration.
+ */
+function oa_events_views_content_type_modal_submit(&$form, &$form_state) {
+   if (isset($form_state['values']['include_attachments'])) {
+    $form_state['conf']['include_attachments'] = $form_state['values']['include_attachments'];
+  }
+}
+
+/**
+ * Implements hook_form_alter for node edit forms
+ */
+function oa_events_form_oa_event_node_form_alter(&$form, &$form_state, $form_id) {
+  drupal_add_js(drupal_get_path('module', 'oa_events') . '/js/oa_events.js');
+  _oa_core_hide_comment_settings($form);
+}

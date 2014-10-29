@@ -455,7 +455,7 @@ function file_entity_upload_destination_uri(array $params, array $data = array()
   $destination = trim($params['file_directory'], '/');
 
   // Replace tokens.
-  $destination = token_replace($destination, $data);
+  $destination = decode_entities(token_replace($destination, $data));
 
   return $params['uri_scheme'] . '://' . $destination;
 }

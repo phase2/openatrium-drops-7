@@ -87,11 +87,17 @@ function oa_core_oa_clear_cache($node = NULL, $uid = NULL, $include_archived = F
   $cid = oa_core_get_cache_id(OA_CACHE_GROUPS_BY_USER, $uid, $include_archived);
   oa_core_clear_cache(OA_CACHE_GROUPS_BY_USER, $cid);
 
+  $cid = oa_core_get_cache_id(OA_CACHE_GROUPS_BY_USER_ACCESS, $uid, $include_archived);
+  oa_core_clear_cache(OA_CACHE_GROUPS_BY_USER_ACCESS, $cid);
+
   $cid = oa_core_get_cache_id(OA_CACHE_GET_PARENTS, NULL, $include_archived);
   oa_core_clear_cache(OA_CACHE_GET_PARENTS, $cid);
 
   $cid = oa_core_get_cache_id(OA_CACHE_GROUPS_BY_PARENT, NULL, $include_archived);
   oa_core_clear_cache(OA_CACHE_GROUPS_BY_PARENT, $cid);
+
+  $cid = oa_core_get_cache_id(OA_CACHE_TOP_PARENTS, NULL, $include_archived);
+  oa_core_clear_cache(OA_CACHE_TOP_PARENTS, $cid);
 }
 
 /**

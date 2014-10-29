@@ -34,6 +34,50 @@ function oa_config_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'apps_grouping_mode';
+  $strongarm->value = 1;
+  $export['apps_grouping_mode'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'apps_grouping_vertical';
+  $strongarm->value = 1;
+  $export['apps_grouping_vertical'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'bootstrap_library_settings';
+  $strongarm->value = array(
+    'bootstrap' => array(
+      'bootstrap_library_settings__bootstrap__active_tab' => '',
+    ),
+    'minimized' => array(
+      'options' => '1',
+    ),
+    'visibility' => array(
+      'visibility' => '0',
+      'pages' => '',
+    ),
+    'theme' => array(
+      'visibility' => '1',
+      'themes' => array(
+        'oa_radix' => 'oa_radix',
+      ),
+    ),
+    'files' => array(
+      'types' => array(
+        'js' => 'js',
+        'css' => 0,
+      ),
+    ),
+  );
+  $export['bootstrap_library_settings'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'chosen_jquery_selector';
   $strongarm->value = 'select[multiple="multiple"]';
   $export['chosen_jquery_selector'] = $strongarm;

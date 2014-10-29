@@ -1,0 +1,24 @@
+name = Open Atrium Favorites
+description = Favorite Space
+core = 7.x
+package = Open Atrium
+dependencies[] = oa_core
+dependencies[] = ctools
+dependencies[] = flag
+apps[screenshots][] = app/screenshot.png
+apps[logo] = app/logo.png
+apps[author] = Phase2 Technology
+apps[author_url] = http://www.phase2technology.com/
+apps[server] = openatrium
+apps[package] = Core addons
+features[features_api][] = api:2
+features[flag][] = favorite_space
+stylesheets[all][] = oa_favorites.css
+project path = sites/all/modules/contrib/oa_core/modules
+
+; Information added by Drupal.org packaging script on 2014-10-28
+version = "7.x-2.0-rc1"
+core = "7.x"
+project = "oa_favorites"
+datestamp = "1414535342"
+

@@ -1,0 +1,28 @@
+name = Open Atrium Contextual Tabs
+description = Moves drupal page "tabs" into buttons and drop-down menu in the upper-right of the page.
+core = 7.x
+package = Open Atrium
+version = 7.x-2.0
+project = oa_contextual_tabs
+dependencies[] = contextual_tabs
+dependencies[] = ctools
+dependencies[] = strongarm
+apps[screenshots][] = app/screenshot.png
+apps[logo] = app/logo.png
+apps[author] = Phase2 Technology
+apps[author_url] = http://www.phase2technology.com/
+apps[server] = openatrium
+apps[package] = Core addons
+features[ctools][] = strongarm:strongarm:1
+features[features_api][] = api:2
+features[variable][] = contextual_tabs_extract
+features[variable][] = contextual_tabs_pages
+features[variable][] = contextual_tabs_visilibity
+project path = sites/all/modules/contrib/oa_core/modules
+
+; Information added by Drupal.org packaging script on 2014-10-28
+version = "7.x-2.22"
+core = "7.x"
+project = "oa_contextual_tabs"
+datestamp = "1414535052"
+

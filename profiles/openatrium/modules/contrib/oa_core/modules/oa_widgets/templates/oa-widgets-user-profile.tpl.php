@@ -13,8 +13,8 @@
  */
 ?>
 
-<div class="well well-small">
-  <div class="details clearfix">
+<div class="well well-sm">
+<div class="details clearfix">
     <div class="pull-left user-picture">
       <?php print $picture ?>
     </div>

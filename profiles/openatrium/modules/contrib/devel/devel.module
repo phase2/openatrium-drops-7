@@ -325,7 +325,7 @@ function devel_menu() {
  */
 function _devel_switch_user_access($name) {
   // Suppress notices when on other pages when menu system still checks access.
-  return user_access('switch users') && drupal_valid_token(@$_GET['token'], "devel/switch/$name|" . @$_GET['destination'], TRUE);
+  return user_access('switch users') && drupal_valid_token(@$_GET['token'], "devel/switch/$name", TRUE);
 }
 
 /**
@@ -602,35 +602,11 @@ function devel_silent() {
 }
 
 /**
- * Enables xhprof.
- */
-function devel_xhprof_enable() {
-  if (devel_xhprof_is_enabled()) {
-    if ($path = variable_get('devel_xhprof_directory', '')) {
-      include_once $path . '/xhprof_lib/utils/xhprof_lib.php';
-      include_once $path . '/xhprof_lib/utils/xhprof_runs.php';
-      // @todo: consider a variable per-flag instead.
-      xhprof_enable(XHPROF_FLAGS_CPU + XHPROF_FLAGS_MEMORY);
-    }
-  }
-}
-
-/**
- * Checks if xhprof is enabled.
- */
-function devel_xhprof_is_enabled() {
-  return extension_loaded('xhprof') && variable_get('devel_xhprof_enabled', FALSE);
-}
-
-/**
  * Implements hook_boot().
  *
  * Runs even for cached pages.
  */
 function devel_boot() {
-  // Initialize XHProf.
-  devel_xhprof_enable();
-
   if (!devel_silent()) {
     if (variable_get('devel_memory', 0)) {
       global $memory_init;
@@ -905,7 +881,7 @@ function devel_switch_user_list() {
       $links[$account->uid] = array(
         'title' => drupal_placeholder(format_username($account)),
         'href' => $path,
-        'query' => $dest + array('token' => drupal_get_token($path . '|' . $dest['destination'])),
+        'query' => $dest + array('token' => drupal_get_token($path)),
         'attributes' => array('title' => t('This user can switch back.')),
         'html' => TRUE,
         'last_access' => $account->access,
@@ -921,7 +897,7 @@ function devel_switch_user_list() {
         $links[$account->uid] = array(
           'title' => format_username($account),
           'href' => $path,
-          'query' => $dest + array('token' => drupal_get_token($path . '|' . $dest['destination'])),
+          'query' => array('token' => drupal_get_token($path)),
           'attributes' => array('title' => t('Caution: this user will be unable to switch back.')),
           'last_access' => $account->access,
         );
@@ -933,7 +909,7 @@ function devel_switch_user_list() {
       $link = array(
         'title' => format_username(drupal_anonymous_user()),
         'href' => $path,
-        'query' => $dest + array('token' => drupal_get_token($path . '/|' . $dest['destination'])),
+        'query' => $dest + array('token' => drupal_get_token($path)),
         'attributes' => array('title' => t('Caution: the anonymous user will be unable to switch back.')),
       );
       if (user_access('switch users', drupal_anonymous_user())) {
@@ -1085,12 +1061,6 @@ function devel_shutdown() {
   // Register the real shutdown function so it runs after other shutdown
   // functions.
   drupal_register_shutdown_function('devel_shutdown_real');
-
-  global $devel_run_id;
-  $devel_run_id = devel_xhprof_is_enabled() ? devel_shutdown_xhprof() : NULL;
-  if ($devel_run_id && function_exists('drush_log')) {
-    drush_log('xhprof link: ' . devel_xhprof_link($devel_run_id, 'url'), 'notice');
-  }
 }
 
 /**
@@ -1176,39 +1146,10 @@ function devel_shutdown_summary($queries) {
     $output .= devel_timer();
   }
 
-  if (devel_xhprof_is_enabled()) {
-    $output .= ' ' . devel_xhprof_link($GLOBALS['devel_run_id']);
-  }
-
   $output .= devel_shutdown_memory();
 
   if ($output) {
     return '<div class="dev-query">' . $output . '</div>';
-  }
-}
-
-/**
- * Returns the XHProf run ID.
- */
-function devel_shutdown_xhprof() {
-  // Namespace for your application.
-  $namespace = variable_get('site_name', '');
-  $xhprof_data = xhprof_disable();
-  $xhprof_runs = new XHProfRuns_Default();
-  return $xhprof_runs->save_run($xhprof_data, $namespace);
-}
-
-/**
- * Returns the XHProf link.
- */
-function devel_xhprof_link($run_id, $type = 'link') {
-  // @todo: render results from within Drupal.
-  $xhprof_url = variable_get('devel_xhprof_url', '');
-  // Namespace for your application.
-  $namespace = variable_get('site_name', '');
-  if ($xhprof_url) {
-    $url = $xhprof_url . '/index.php?run=' . urlencode($run_id) . '&source=' . urlencode($namespace);
-    return $type == 'url' ? $url : t('<a href="@xhprof">XHProf output</a>. ', array('@xhprof' => $url));
   }
 }
 

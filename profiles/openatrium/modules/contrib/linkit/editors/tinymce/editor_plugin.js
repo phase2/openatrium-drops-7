@@ -7,40 +7,40 @@
 
   tinymce.create('tinymce.plugins.linkit', {
     init : function(editor, url) {
+
       // Register commands
       editor.addCommand('mceLinkit', function() {
+        if (typeof Drupal.settings.linkit === 'undefined') {
+          alert(Drupal.t('Could not find the Linkit profile.'));
+          return ;
+        }
+
         // Set the editor object.
-        Drupal.linkit.setEditor(editor);
-        // Set which editor is calling the dialog script.
-        Drupal.linkit.setEditorName('tinymce');
+        Drupal.settings.linkit.currentInstance.editor = editor;
+        // Set profile.
+        Drupal.settings.linkit.currentInstance.profile = Drupal.settings.linkit.fields[editor.id].profile;
+
+        // Set the name of the source field..
+        Drupal.settings.linkit.currentInstance.source = editor.id;
+
+        // Set the source type.
+        Drupal.settings.linkit.currentInstance.helper = 'tinymce';
 
         // Stores the current editor selection for later restoration. This can
         // be useful since some browsers looses it's selection if a control
         // element is selected/focused inside the dialogs.
         editor.windowManager.bookmark = editor.selection.getBookmark(1);
 
-        var path = Drupal.settings.linkit.url.tinymce;
-        Drupal.linkit.dialog.buildDialog(path);
+        // Create the modal.
+        Drupal.linkit.createModal();
       });
 
       // Register buttons
       editor.addButton('linkit', {
-        title : 'Linkit',
+        title : Drupal.t('Link to content'),
         cmd : 'mceLinkit',
         image : url + '/images/linkit.png'
       });
-
-      /*
-      // Uncommented as of #1459832.
-      editor.onNodeChange.add(function(ed, cm, n, co) {
-        var p = tinymce.DOM.getParent(n, 'A'),
-            sel = ed.selection.getContent();
-        // Activate button if caret is in an existing anchor.
-        cm.setActive('linkit', !!p);
-        // If nothing is selected and caret is not in an anchor, disable button.
-        cm.setDisabled('linkit', !sel && !p);
-      });
-      */
 
       // We need the real contextmenu in order to make this work.
       if (editor && editor.plugins.contextmenu) {
@@ -51,7 +51,7 @@
             // Remove all options from standard contextmenu.
             m.removeAll();
             th._menu.add({
-              title : 'Linkit',
+              title : Drupal.t('Link to content'),
               cmd : 'mceLinkit',
               icon : 'linkit'
             });

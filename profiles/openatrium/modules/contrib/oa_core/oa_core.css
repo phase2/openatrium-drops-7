@@ -11,6 +11,20 @@
   max-width: 100%;
 }
 
+#modal-content .widget-preview-title {
+  /* move Add button to left so wide tables doesnt scroll */
+  left: 10px;
+  right: auto;
+}
+
+#modal-content #views-exposed-pane div.form-item.form-type-checkbox,
+.views-widget-filter-og_group_ref_target_id div.form-item.form-type-checkbox {
+  display: inline-block;
+}
+.views-exposed-form .views-exposed-widget.views-widget-filter-og_group_ref_target_id {
+  padding-bottom: 0.5em;
+}
+
 .oa_pending_count {
   display: inline-block;
   background-color: green;

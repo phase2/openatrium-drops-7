@@ -96,13 +96,13 @@ body .path-admin-apps span.icon {
   margin: 0;
 }
 
-#apps-list ul {
+#apps-list .item-list ul {
   clear: both;
   padding: 0;
   margin: 0;
 }
 
-#apps-list ul li {
+#apps-list .item-list ul li {
   float: left;
   display: block;
   height: 110px;
@@ -195,6 +195,7 @@ body.tao #apps-list ul li {
   color: #000;
   text-transform: capitalize;
   font-family: "Lucida Grande", Arial, Helvetica, sans-serif;
+  float: left;
   margin-top: 10px;
 }
 
@@ -317,4 +318,13 @@ body.tao #apps-list ul li {
 
 #apps-voting-error {
   clear:both;
+}
+
+.apps-update-needed {
+  color: #FF0000;
+}
+
+.apps-update-needed-teaser {
+  color:#965;
+  background-color:#ffe4e0;
 }

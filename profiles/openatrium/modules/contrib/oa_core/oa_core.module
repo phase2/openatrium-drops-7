@@ -96,9 +96,9 @@ function oa_core_menu() {
   );
   $items['admin/openatrium/setting'] = array(
     //changing from /settings since Drupal not refreshing parent of existing items
-    'title' => 'Plugin Settings',
-    'description' => 'Configuration related to Open Atrium plugins',
-    'weight' => 0,
+    'title' => 'Config',
+    'description' => 'Configuration settings related to Open Atrium',
+    'weight' => -1,
     'page callback' => 'drupal_get_form',
     'page arguments' => array('oa_core_configure_form'),
     'access arguments' => array('administer site configuration'),
@@ -231,7 +231,87 @@ function oa_core_views_data() {
 function oa_core_configure_form($form, &$form_state) {
   // blank for for now.  Other modules can alter this to add stuff
   $form = array();
+
+  drupal_add_js("misc/collapse.js");
+  drupal_add_js("misc/vertical-tabs.js");
+
+  $form['oa_settings'] = array(
+    '#type' => 'vertical_tabs',
+    '#weight' => 99,
+    '#prefix' => '<div class="oa-vertical-tabs">',
+    '#suffix' => '</div>',
+  );
+
+  $hook = 'oa_settings_form';
+  foreach (module_implements($hook) as $module) {
+    $function = $module . '_' . $hook;
+    if (function_exists($function)) {
+      $child_forms = call_user_func_array($function, array(&$form_state));
+      foreach ($child_forms as $key => $child_form) {
+        $form[$child_form['caption']] = array(
+          '#type' => 'fieldset',
+          '#title' => $child_form['caption'],
+          '#group' => 'oa_settings',
+          '#attributes' => array('class' => array('collapsible')),
+        );
+        $form[$child_form['caption']][] = $child_form['form'];
+        if (!empty($child_form['submit'])) {
+          $form['#submit'][] = $child_form['submit'];
+        }
+      }
+    }
+  }
+
   return system_settings_form($form);
+}
+
+/**
+ * Creates a configure form for the current app.
+ */
+function oa_core_app_configure_form($form, &$form_state) {
+  // blank for for now.  Other modules can alter this to add stuff
+  $form = array();
+
+  if (($app_name = arg(3)) && ($function = $app_name . '_oa_settings_form') && function_exists($function)) {
+    $child_forms = call_user_func_array($function, array(&$form_state));
+
+    // Add child forms as vertical tabs if exist.
+    if (count($child_forms) > 1) {
+      drupal_add_js("misc/collapse.js");
+      drupal_add_js("misc/vertical-tabs.js");
+      $form['oa_settings'] = array(
+        '#type' => 'vertical_tabs',
+        '#weight' => 99,
+        '#prefix' => '<div class="oa-vertical-tabs">',
+        '#suffix' => '</div>',
+      );
+      foreach ($child_forms as $key => $child_form) {
+        $form[$child_form['caption']] = array(
+          '#type' => 'fieldset',
+          '#title' => $child_form['caption'],
+          '#group' => 'oa_settings',
+          '#attributes' => array('class' => array('collapsible')),
+        );
+        $form[$child_form['caption']][] = $child_form['form'];
+        if (!empty($child_form['submit'])) {
+          $form['#submit'][] = $child_form['submit'];
+        }
+      }
+    }
+    // Set up a header and add form if only one child form.
+    elseif (count($child_forms)) {
+      $child_form = reset($child_forms);
+      $form['title']['#markup'] = '<h2>' . $child_form['caption'] . '</h2>';
+      $form += $child_form['form'];
+      if (!empty($child_form['submit'])) {
+        $form['#submit'][] = $child_form['submit'];
+      }
+    }
+  }
+
+  return $form ? system_settings_form($form) : array(
+    '#markup' => t('Unable to generate form'),
+  );
 }
 
 /**
@@ -854,7 +934,7 @@ function _oa_core_set_default_value_for_view($name) {
 /**
  * Implements hook_form_FORM_ID_alter().
  */
-function oa_core_form_views_exposed_form_alter(&$form, $form_state) {
+function oa_core_form_views_exposed_form_alter(&$form, &$form_state) {
   if (_oa_core_set_default_value_for_view($form_state['view']->name) && $form_state['view']->display_handler->get_url() != $_GET['q']) {
     // Change exposed form to submit to given page instead of redirecting to
     // view all.
@@ -886,11 +966,23 @@ function oa_core_form_views_exposed_form_alter(&$form, $form_state) {
       }
     }
 
+    $space_id = $form_state['input']['og_group_ref_target_id'];
+
+    // reload section option list with sections from given space id
     $sections = array(
       ''    => t('- Active Section -'),
       'All' => t('- Any -')
-    ) + oa_core_space_sections($form_state['input']['og_group_ref_target_id'], NULL, $bypass_access);
+    ) + oa_core_space_sections($space_id, NULL, $bypass_access);
     $form['oa_section_ref_target_id']['#options'] = $sections;
+
+    // check if configured space id is in space options
+    if (!in_array($space_id, array_keys($form['og_group_ref_target_id']['#options']))) {
+      // if not, they don't have access to see this space, so change it to prevent
+      // the "Illegal choice" error on the space id filter field.
+      // Filter on space = -1 since that node id will never exist
+      $form_state['input']['og_group_ref_target_id'] = -1;
+      $form['og_group_ref_target_id']['#options'][] = array( -1 => 'None');
+    }
   }
 }
 
@@ -909,6 +1001,10 @@ function oa_core_views_exposed_form_rearrange($form) {
     if (!empty($form['og_subspaces_view_all'])) {
       $form['og_group_ref_target_id']['og_subspaces_view_all'] = $form['og_subspaces_view_all'];
       unset($form['og_subspaces_view_all']);
+    }
+    if (!empty($form['og_subspaces_view_parent'])) {
+      $form['og_group_ref_target_id']['og_subspaces_view_parent'] = $form['og_subspaces_view_parent'];
+      unset($form['og_subspaces_view_parent']);
     }
   }
   return $form;
@@ -1237,7 +1333,7 @@ function oa_core_node_delete_redirect($form, &$form_state) {
       // redirect to parent space when deleting subspace
       $id = $form['#node']->{OA_PARENT_SPACE}[LANGUAGE_NONE][0]['target_id'];
     }
-    else if ($form['#node']->type == OA_SECTION_TYPE) {
+    elseif ($form['#node']->type == OA_SECTION_TYPE) {
       $id = oa_core_get_space_context();
     }
     if ($id == $form['#node']->nid) {
@@ -1256,7 +1352,9 @@ function oa_core_views_query_alter(&$view, &$query) {
   // We only modify views that have 'og_group_ref_target_id' as an exposed
   // filter and only when that filter has a value. We are adding support for
   // the 'Visible in other Spaces' (oa_other_spaces_ref) field.
-  if (!empty($view->exposed_input['og_group_ref_target_id']) && is_numeric($view->exposed_input['og_group_ref_target_id']) && !empty($view->filter['og_group_ref_target_id']->options['exposed'])) {
+  if (!empty($view->exposed_input['og_group_ref_target_id'])
+    && is_numeric($view->exposed_input['og_group_ref_target_id'])
+    && !empty($view->filter['og_group_ref_target_id']->options['exposed'])) {
     // Ensure that we've joined against 'field_data_oa_other_spaces_ref' table.
     $join = new views_join();
     $join->construct('field_data_oa_other_spaces_ref', 'node', 'nid', 'entity_id', array(
@@ -1269,16 +1367,19 @@ function oa_core_views_query_alter(&$view, &$query) {
       //
       // Add a new 'where group' which is an OR and move 'og_group_ref_target_id'
       // to it (and grab it's value).
-      $value = array();
+      $extra_groups = array();
       $group = $query->set_where_group('OR');
       foreach ($query->where[1]['conditions'] as $key => $condition) {
         // If the field is 'og_membership.gid' or an alias for the same column.
         $column = 'og_membership';
-        if (!empty($condition['field']) && ($condition['field'] === $column ||
-            substr($condition['field'], -strlen($column)-2) === "__{$column}")) {
+        if (!empty($condition['field'])
+          && is_string($condition['field'])
+          && ($condition['field'] === $column
+            || $condition['field'] === $column . ".gid"
+            || substr($condition['field'], -strlen($column)-2) === "__{$column}")) {
           // Move the condition to our new where group.
           $query->add_where($group, $condition['field'], $condition['value'], $condition['operator']);
-          $value = $condition['value'];
+          $extra_groups = $condition['value'];
           unset($query->where[1]['conditions'][$key]);
           break;
         }
@@ -1286,8 +1387,26 @@ function oa_core_views_query_alter(&$view, &$query) {
 
       // Finally, we filter against 'field_data_oa_other_spaces_ref' with the
       // same value as was given to 'oa_group_ref_target_id'.
-      if (!empty($value)) {
-        $query->add_where($group, "{$alias}.oa_other_spaces_ref_target_id", $value, 'IN');
+      if (!empty($extra_groups)) {
+        $query->add_where($group, "{$alias}.oa_other_spaces_ref_target_id", $extra_groups, 'IN');
+
+        // Next, check if the section filter condition needs to be updated
+        if (module_exists('oa_subspaces')
+          && !empty($view->exposed_input['oa_section_ref_target_id'])
+          && is_numeric($view->exposed_input['oa_section_ref_target_id'])
+          && !empty($view->filter['oa_section_ref_target_id']->options['exposed'])) {
+          $column = 'field_data_oa_section_ref.oa_section_ref_target_id';
+          // get a list of matching section names in the other spaces
+          $extra_sections = oa_subspaces_matching_sections($view->exposed_input['oa_section_ref_target_id'], array(), $extra_groups);
+          foreach (array_keys($query->where) as $where_group) {
+            foreach ($query->where[$where_group]['conditions'] as $key => $condition) {
+              if ($condition['field'] === $column ||
+                (is_string($condition['field']) && substr($condition['field'], -strlen($column) - 2) === "__{$column}")) {
+                $query->where[$where_group]['conditions'][$key]['value'] = array_merge($query->where[$where_group]['conditions'][$key]['value'], $extra_sections);
+              }
+            }
+          }
+        }
       }
     }
   }

@@ -220,8 +220,9 @@ function wysiwyg_pre_render_text_format($element) {
     }
   }
   // Use a hidden element for a single text format.
-  if (!$format_field['format']['#access']) {
-    $format_field['wysiwyg'] = array(
+  if (!$format_field['format']['#access'] || (isset($format_field['#access']) && !$format_field['#access'])) {
+    $format_id = $format_field['format']['#value'];
+    $element['wysiwyg'] = array(
       '#type' => 'hidden',
       '#name' => $format_field['format']['#name'],
       '#value' => $format_id,
@@ -230,7 +231,7 @@ function wysiwyg_pre_render_text_format($element) {
         'class' => array('wysiwyg'),
       ),
     );
-    $format_field['wysiwyg']['#attached']['js'][] = array(
+    $element['wysiwyg']['#attached']['js'][] = array(
       'data' => array(
         'wysiwyg' => array(
           'triggers' => array(

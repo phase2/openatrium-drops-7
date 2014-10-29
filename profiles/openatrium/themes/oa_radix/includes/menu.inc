@@ -24,7 +24,7 @@ function oa_radix_menu_link(&$variables) {
  * Implements theme_menu_tree__MENU_NAME().
  */
 function oa_radix_menu_tree__oa_navigation(&$variables) {
-  return '<ul class="menu nav">' . $variables['tree'] . '</ul>';
+  return '<ul class="menu nav navbar-nav">' . $variables['tree'] . '</ul>';
 }
 
 /**

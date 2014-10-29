@@ -1,0 +1,26 @@
+name = Open Atrium Site Map
+description = A site map tool for OA2
+core = 7.x
+package = Open Atrium
+dependencies[] = ctools
+dependencies[] = oa_core
+dependencies[] = oa_wizard
+dependencies[] = page_manager
+apps[screenshots][] = app/screenshot.png
+apps[logo] = app/logo.png
+apps[author] = Phase2 Technology
+apps[author_url] = http://www.phase2technology.com/
+apps[server] = openatrium
+apps[package] = Core addons
+features[ctools][] = page_manager:pages_default:1
+features[features_api][] = api:2
+features[page_manager_pages][] = oa_sitemap
+features[page_manager_pages][] = sitemap_old
+features[page_manager_pages][] = space_sitemap
+
+; Information added by Drupal.org packaging script on 2014-10-29
+version = "7.x-2.0-rc2"
+core = "7.x"
+project = "oa_sitemap"
+datestamp = "1414592329"
+

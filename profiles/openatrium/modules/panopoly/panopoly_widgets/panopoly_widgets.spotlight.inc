@@ -151,23 +151,36 @@ function panopoly_widgets_field_formatter_settings_summary($field, $instance, $v
  * Implements hook_field_formatter_view().
  */
 function panopoly_widgets_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+
+  // Include the Spotlight Rotation time setting
+  $duration_field = field_get_items('fieldable_panels_pane', $entity, 'field_basic_spotlight_duration');
+  if ($duration_field) {
+    $duration_field = reset($duration_field);
+    $duration = $duration_field['value'];
+  }
+  if (empty($duration)) {
+    $duration = variable_get('panopoly_widgets_spotlight_rotation_time', 4);
+  }
+
   $element = array();
   $settings = $display['settings'];
   $formatter = $display['type'];
   drupal_add_library('system', 'ui.tabs');
 
   // Assemble the tabs header
-  $header = '<div class="panopoly-spotlight-buttons-wrapper">';
-  $header .= '<ul>';
-  foreach ($items as $delta => $item_data) {
-    $header .= '<li>' . '<a href="#panopoly-spotlight-' . $delta . '">' . ($delta+1) . '</a></li>'; 
-  }
-  $header .= '</ul>';
+  $header = '<div class="panopoly-spotlight-buttons-wrapper" data-rotation-time="' . $duration * 1000 . '">';
+  if (count($items) > 1) {
+    $header .= '<ul>';
+    foreach ($items as $delta => $item_data) {
+      $header .= '<li>' . '<a href="#panopoly-spotlight-' . $delta . '">' . ($delta+1) . '</a></li>';
+    }
+    $header .= '</ul>';
 
-  if (variable_get('panopoly_widgets_spotlight_pause_play_buttons', 1)) {
-    $header .= '<div class="panopoly-spotlight-function-buttons">';
-    $header .= '<a href="#" class="panopoly-spotlight-pause-play">' . t('Pause') . '</a>';
-    $header .= '</div>';
+    if (variable_get('panopoly_widgets_spotlight_pause_play_buttons', 1)) {
+      $header .= '<div class="panopoly-spotlight-function-buttons">';
+      $header .= '<a href="#" class="panopoly-spotlight-pause-play">' . t('Pause') . '</a>';
+      $header .= '</div>';
+    }
   }
   $header .= '</div>';  // class="panopoly-spotlight-buttons-wrapper"
 
@@ -347,8 +360,17 @@ function theme_panopoly_spotlight_view($variables) {
     $image = (object) $variables['items'];
   }
 
+  $image_markup = theme('image_style', array('style_name' => $settings['image_style'], 'path' => $image->uri, 'alt' => $alt));
+
   $output = '<div id="' . 'panopoly-spotlight-' . $variables['delta'] . '" class="' . 'panopoly-spotlight' . '">';
-  $output .= theme('image_style', array('style_name' => $settings['image_style'], 'path' => $image->uri, 'alt' => $alt));
+
+  if ($link) {
+    $output .= l($image_markup, $link, array('html' => TRUE));
+  }
+  else {
+    $output .= $image_markup;
+  }
+
   $output .= '<div class="panopoly-spotlight-wrapper">';
   if (!empty($title) || !empty($link)) {
     if (empty($title)) {

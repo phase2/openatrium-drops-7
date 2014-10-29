@@ -1,0 +1,59 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the feeds_comment_processor module.
+ *
+ */
+
+
+/**
+ * Implements hook_schema().
+ */
+function feeds_comment_processor_schema() {
+  $schema = array();
+  $schema['feeds_comment_item'] = array(
+    'description' => 'Stores additional information about feed item comments. Used by FeedsCommentProcessor.',
+    'fields' => array(
+      'cid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => "Primary Key: The feed item comment's cid.",
+      ),
+      'id' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'The id of the fields object that is the producer of this item.',
+      ),
+      'feed_nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => "Node id of the owner feed, if available.",
+        'default' => 0,
+      ),
+      'imported' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Import date of the feed item, as a Unix timestamp.',
+      ),
+      'guid' => array(
+        'type' => 'text',
+        'not null' => TRUE,
+        'description' => 'Unique identifier for the feed item.',
+      ),
+    ),
+    'primary key' => array('cid'),
+    'indexes' => array(
+      'id' => array('id'),
+      'feed_nid' => array('feed_nid'),
+      'imported' => array('imported'),
+      'guid' => array(array('guid', 255)),
+    ),
+  );
+  return $schema;
+}
+

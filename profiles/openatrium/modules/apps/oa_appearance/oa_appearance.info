@@ -1,0 +1,39 @@
+name = Open Atrium Appearance
+description = Change appearances of Spaces
+core = 7.x
+package = Open Atrium
+dependencies[] = colorizer
+dependencies[] = ctools
+dependencies[] = features
+dependencies[] = field_group
+dependencies[] = image
+dependencies[] = list
+dependencies[] = media
+dependencies[] = oa_core
+dependencies[] = options
+dependencies[] = text
+apps[screenshots][] = app/screenshot.png
+apps[logo] = app/logo.png
+apps[author] = Phase2 Technology
+apps[author_url] = http://www.phase2technology.com/
+apps[server] = openatrium
+apps[package] = Core addons
+stylesheets[all][] = oa_appearance.css
+features[ctools][] = field_group:field_group:1
+features[features_api][] = api:2
+features[field_base][] = field_oa_banner
+features[field_base][] = field_oa_banner_position
+features[field_base][] = field_oa_banner_text
+features[field_group][] = group_oa_banner|node|oa_space|form
+features[field_instance][] = node-oa_space-field_oa_banner
+features[field_instance][] = node-oa_space-field_oa_banner_position
+features[field_instance][] = node-oa_space-field_oa_banner_text
+features[image][] = oa_banner
+project path = profiles/openatrium/modules/contrib/oa_core/modules
+
+; Information added by Drupal.org packaging script on 2014-10-28
+version = "7.x-2.0-rc1"
+core = "7.x"
+project = "oa_appearance"
+datestamp = "1414535047"
+

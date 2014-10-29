@@ -294,7 +294,7 @@ function oa_core_file_entity_access($op, $file, $account) {
         // shouldn't be a performance issue.
         if (user_access('view files', $account)) {
           foreach ($nids as $nid) {
-            if (($node = node_load($nid)) && node_access($op, $node, $account)) {
+            if (($node = node_load($nid)) && node_access('view', $node, $account)) {
               return FILE_ENTITY_ACCESS_ALLOW;
             }
           }

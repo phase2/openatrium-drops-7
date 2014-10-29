@@ -1,0 +1,15 @@
+name = Install Profile Test
+description = "Test to help building install profiles"
+files[] = ahrq_core.module
+package = "Development"
+core = 7.x
+
+
+files[] = tests/installProfileTest.test
+
+; Information added by drupal.org packaging script on 2013-09-30
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "installprofiletest"
+datestamp = "1380583348"
+

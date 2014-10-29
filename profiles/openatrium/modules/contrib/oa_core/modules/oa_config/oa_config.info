@@ -22,6 +22,9 @@ features[features_overrides][] = wysiwyg.panopoly_wysiwyg_text.settings|buttons|
 features[variable][] = advagg_core_groups
 features[variable][] = advagg_ie_css_selector_limiter
 features[variable][] = advagg_ie_css_selector_limiter_value
+features[variable][] = apps_grouping_mode
+features[variable][] = apps_grouping_vertical
+features[variable][] = bootstrap_library_settings
 features[variable][] = chosen_jquery_selector
 features[variable][] = chosen_minimum
 features[variable][] = chosen_minimum_multiple
@@ -33,9 +36,9 @@ features[variable][] = og_context_providers_weight_group_context
 features[variable][] = pathauto_reduce_ascii
 features[variable][] = preprocess_css
 
-; Information added by Drupal.org packaging script on 2014-10-15
-version = "7.x-2.22"
+; Information added by Drupal.org packaging script on 2014-10-29
+version = "7.x-2.25"
 core = "7.x"
 project = "oa_core"
-datestamp = "1413391182"
+datestamp = "1414605533"
 

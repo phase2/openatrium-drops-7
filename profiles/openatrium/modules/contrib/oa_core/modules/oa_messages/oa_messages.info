@@ -8,6 +8,8 @@ dependencies[] = entityreference
 dependencies[] = features
 dependencies[] = list
 dependencies[] = message
+dependencies[] = message_notify
+dependencies[] = message_subscribe
 dependencies[] = number
 dependencies[] = oa_core
 dependencies[] = og
@@ -57,9 +59,9 @@ features[variable][] = field_bundle_settings_message__oa_update
 files[] = plugins/message_notify/notifier/oa_email/OaEmail.class.php
 project path = sites/all/modules/contrib/oa_core/modules
 
-; Information added by Drupal.org packaging script on 2014-10-15
-version = "7.x-2.22"
+; Information added by Drupal.org packaging script on 2014-10-29
+version = "7.x-2.25"
 core = "7.x"
 project = "oa_core"
-datestamp = "1413391182"
+datestamp = "1414605533"
 

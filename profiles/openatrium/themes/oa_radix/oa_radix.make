@@ -3,11 +3,22 @@
 api = 2
 core = 7.x
 
-; Parent Theme
+; Parent Theme Radix
 projects[radix][type] = theme
-projects[radix][version] = 2.x-dev
+projects[radix][version] = 3.x-dev
 projects[radix][download][type] = git
-projects[radix][download][branch] = 7.x-2.x
-projects[radix][download][revision] = 6208a6c
-; remove screen.css missing warning
-projects[radix][patch][2194335] = http://drupal.org/files/issues/radix-screen-css-2194335-13_0.patch
+projects[radix][download][branch] = 7.x-3.x
+projects[radix][download][revision] = 38eb2d99
+projects[radix][patch][2339395] = http://www.drupal.org/files/issues/radix-checkbox-labels-2339395-1.patch
+
+; Radix Layouts
+projects[radix_layouts][version] = 3.0
+projects[radix_layouts][subdir] = contrib
+
+; Bootstrap Library
+projects[bootstrap_library][version] = 1.4
+projects[bootstrap_library][subdir] = contrib
+
+libraries[bootstrap][download][type] = get
+libraries[bootstrap][download][url] = https://github.com/twbs/bootstrap/releases/download/v3.1.1/bootstrap-3.1.1-dist.zip
+libraries[bootstrap][directory_name] = bootstrap

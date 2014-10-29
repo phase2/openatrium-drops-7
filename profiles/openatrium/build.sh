@@ -67,7 +67,9 @@ if [ $DEV_BUILD -eq 1 ]; then
   cd "$TARGET"
   MAKEFILE='drupal-org-dev.make'
   echo "Building the profile -dev version..."
+  # Patch to add github remotes instead of drupal.
   drush make --yes --no-core $DRUSH_OPTS "$ABS_CALLPATH/$MAKEFILE" --contrib-destination=profiles/openatrium
+  # Remove drupal remotes.
   if [ -e "profiles/openatrium" ]; then
     cd "profiles/openatrium"
     echo "Downloading latest profile..."

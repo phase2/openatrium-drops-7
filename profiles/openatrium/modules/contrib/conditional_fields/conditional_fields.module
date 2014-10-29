@@ -778,7 +778,9 @@ function conditional_fields_form_validate($form, &$form_state) {
     // $form_state['values'][ ... $element['#parents'] ... ], while the
     // documentation of hook_field_widget_form() states that field values are
     // $form_state['values'][ ... $element['#field_parents'] ... ].
-    drupal_array_set_nested_value($form_state['values'], $dependent['#field_parents'], $field_values_location);
+    // TODO: Figure out why this is making it so that certain forms can't save 
+    // their conditional values.
+    //drupal_array_set_nested_value($form_state['values'], $dependent['#field_parents'], $field_values_location);
 
     if (!empty($field['errors'])) {
       $untriggered_dependents_errors = array_merge($untriggered_dependents_errors, $field['errors']);
@@ -1356,7 +1358,10 @@ function conditional_fields_dependency_load($id) {
   return $result;
 }
 
-function conditiona_fields_clean_up_options(&$options) {
+/**
+ * Cleanup form cruft from the options, e.g. removing 4 => 0 entries.
+ */
+function conditional_fields_clean_up_options(&$options) {
   foreach (array('element_view', 'element_edit') as $key) {
     $options[$key] = !empty($options[$key]) ? array_filter($options[$key]) : array();
   }
@@ -1379,7 +1384,7 @@ function conditiona_fields_clean_up_options(&$options) {
  */
 function conditional_fields_dependency_insert($dependee_id, $dependent_id, $options = array()) {
   $options += conditional_fields_dependency_default_options();
-  conditiona_fields_clean_up_options($options);
+  conditional_fields_clean_up_options($options);
 
   $dependency = array(
     'dependee'  => $dependee_id,
@@ -1396,7 +1401,7 @@ function conditional_fields_dependency_insert($dependee_id, $dependent_id, $opti
  * Updates a dependency.
  */
 function conditional_fields_dependency_update($dependency) {
-  conditiona_fields_clean_up_options($options);
+  conditional_fields_clean_up_options($options);
   drupal_write_record('conditional_fields', $dependency, 'id');
 }
 

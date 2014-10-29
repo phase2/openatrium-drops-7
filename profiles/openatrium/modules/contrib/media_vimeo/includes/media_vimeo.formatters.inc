@@ -2,6 +2,7 @@
 
 /**
  * @file
+ * File formatters for Vimeo videos.
  */
 
 /**
@@ -11,14 +12,24 @@ function media_vimeo_file_formatter_info() {
   $formatters['media_vimeo_video'] = array(
     'label' => t('Vimeo Video'),
     'file types' => array('video'),
-    'default settings' => array(),
+    'default settings' => array(
+      'width' => 640,
+      'height' => 360,
+      'preview_uri' => 'vimeo://v/21869117',
+      'api' => 0,
+      'autoplay' => 0,
+      'byline' => 1,
+      'color' => NULL,
+      'loop' => 0,
+      'portrait' => 1,
+      'title' => 1,
+      'protocol' => 'https://',
+      'protocol_specify' => FALSE,
+    ),
     'view callback' => 'media_vimeo_file_formatter_video_view',
     'settings callback' => 'media_vimeo_file_formatter_video_settings',
+    'mime types' => array('video/vimeo'),
   );
-
-  foreach (array('width', 'height', 'preview_uri', 'api', 'autoplay', 'byline', 'color', 'loop', 'portrait', 'title', 'protocol') as $setting) {
-    $formatters['media_vimeo_video']['default settings'][$setting] = media_vimeo_variable_get($setting);
-  }
 
   $formatters['media_vimeo_image'] = array(
     'label' => t('Vimeo Preview Image'),
@@ -28,7 +39,9 @@ function media_vimeo_file_formatter_info() {
     ),
     'view callback' => 'media_vimeo_file_formatter_image_view',
     'settings callback' => 'media_vimeo_file_formatter_image_settings',
+    'mime types' => array('video/vimeo'),
   );
+
   return $formatters;
 }
 
@@ -37,16 +50,21 @@ function media_vimeo_file_formatter_info() {
  */
 function media_vimeo_file_formatter_video_view($file, $display, $langcode) {
   $scheme = file_uri_scheme($file->uri);
-  // WYSIWYG does not yet support video inside a running editor instance.
-  if ($scheme == 'vimeo' && empty($file->override['wysiwyg'])) {
+
+  if ($scheme == 'vimeo') {
     $element = array(
       '#theme' => 'media_vimeo_video',
       '#uri' => $file->uri,
       '#options' => array(),
     );
-    foreach (array('width', 'height', 'api' , 'autoplay', 'byline', 'color', 'loop', 'portrait', 'title', 'protocol') as $setting) {
+
+    // Fake a default for attributes so the ternary doesn't choke.
+    $display['settings']['attributes'] = array();
+
+    foreach (array('width', 'height', 'api' , 'autoplay', 'byline', 'color', 'loop', 'portrait', 'title', 'protocol', 'protocol_specify', 'attributes') as $setting) {
       $element['#options'][$setting] = isset($file->override[$setting]) ? $file->override[$setting] : $display['settings'][$setting];
     }
+
     return $element;
   }
 }
@@ -82,16 +100,25 @@ function media_vimeo_file_formatter_video_settings($form, &$form_state, $setting
     '#size' => 7,
     '#element_validate' => array('_vimeo_validate_video_color'),
   );
+  $element['protocol_specify'] = array(
+    '#title' => t('Specify an http protocol'),
+    '#type' => 'checkbox',
+    '#default_value' => $settings['protocol_specify'],
+    '#description' => t('An explicit protocol may be neccesary for videos embedded in RSS feeds and emails. If no protocol is specified, iframes will be protocol relative.'),
+  );
   $element['protocol'] = array(
     '#title' => t('Iframe protocol'),
     '#type' => 'radios',
-    '#options' => array(
-      'http://' => t('http://'),
-      'https://' => t('https://'),
-      '//' => t('Relative protocol (may fail if content is viewed outside of a web browser, e.g., email and RSS)'),
-    ),
     '#default_value' => $settings['protocol'],
-    '#description' => t('There may be issues with the player if the iframe protocol and page protocol do not match.'),
+    '#options' => array(
+      'http://' => 'HTTP',
+      'https://' => 'HTTPS',
+    ),
+    '#states' => array(
+      'invisible' => array(
+        ':input[name="displays[media_vimeo_video][settings][protocol_specify]"]' => array('checked' => FALSE),
+      ),
+    ),
   );
 
   // Single options.
@@ -136,7 +163,6 @@ function media_vimeo_file_formatter_video_settings($form, &$form_state, $setting
  * Validation for width and height.
  */
 function _vimeo_validate_video_width_and_height($element, &$form_state, $form) {
-
   // Check if the value is a number with an optional decimal or percentage sign, or "auto".
   if (!empty($element['#value']) && !preg_match('/^(auto|([0-9]*(\.[0-9]+)?%?))$/', $element['#value'])) {
     form_error($element, t("The value entered for @dimension is invalid. Please insert a unitless integer for pixels, a percent, or \"auto\". Note that percent and auto may not function correctly depending on the browser and doctype.", array('@dimension' => $element['#title'])));
@@ -147,7 +173,6 @@ function _vimeo_validate_video_width_and_height($element, &$form_state, $form) {
  * Validation for color.
  */
 function _vimeo_validate_video_color($element, &$form_state, $form) {
-
   // If the value is set, check if it's a hex color with or without '#'.
  if (!empty($element['#value']) && !preg_match('/^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $element['#value'])) {
     form_error($element, t("The color value is invalid. Please use a 3 or 6 character hex color code.", array('@dimension' => $element['#title'])));
@@ -159,15 +184,17 @@ function _vimeo_validate_video_color($element, &$form_state, $form) {
  */
 function media_vimeo_file_formatter_image_view($file, $display, $langcode) {
   $scheme = file_uri_scheme($file->uri);
+
   if ($scheme == 'vimeo') {
     $wrapper = file_stream_wrapper_get_instance_by_uri($file->uri);
     $image_style = $display['settings']['image_style'];
     $valid_image_styles = image_style_options(FALSE);
+
     if (empty($image_style) || !isset($valid_image_styles[$image_style])) {
       $element = array(
         '#theme' => 'image',
         '#path' => $wrapper->getOriginalThumbnailPath(),
-        '#alt' => $file->filename,
+        '#alt' => isset($file->override['attributes']['alt']) ? $file->override['attributes']['alt'] : $file->filename,
       );
     }
     else {
@@ -175,9 +202,10 @@ function media_vimeo_file_formatter_image_view($file, $display, $langcode) {
         '#theme' => 'image_style',
         '#style_name' => $image_style,
         '#path' => $wrapper->getLocalThumbnailPath(),
-        '#alt' => $file->filename,
+        '#alt' => isset($file->override['attributes']['alt']) ? $file->override['attributes']['alt'] : $file->filename,
       );
     }
+
     return $element;
   }
 }
@@ -187,6 +215,7 @@ function media_vimeo_file_formatter_image_view($file, $display, $langcode) {
  */
 function media_vimeo_file_formatter_image_settings($form, &$form_state, $settings) {
   $element = array();
+
   $element['image_style'] = array(
     '#title' => t('Image style'),
     '#type' => 'select',
@@ -194,77 +223,6 @@ function media_vimeo_file_formatter_image_settings($form, &$form_state, $setting
     '#default_value' => $settings['image_style'],
     '#empty_option' => t('None (original image)'),
   );
+
   return $element;
-}
-
-/**
- * Implements hook_file_default_displays().
- */
-function media_vimeo_file_default_displays() {
-
-  // Default settings for displaying as a video.
-  $default_displays = array();
-
-  $default_video_settings = array(
-    'default' => array(
-      'width' => 640,
-      'height' => 390,
-    ),
-    'teaser' => array(
-      'width' => 560,
-      'height' => 340,
-      'autoplay' => FALSE,
-    ),
-    // Legacy view modes included to support older versions of Media,
-    // before #1051090 went through. They do no harm and can sit here
-    // until there is a Media 2.x stable.
-    // @TODO: Remove when Media 2.0 is released.
-    'media_large' => array(
-      'width' => 560,
-      'height' => 340,
-      'autoplay' => FALSE,
-    ),
-    'media_original' => array(
-      'width' => 640,
-      'height' => 390,
-      'autoplay' => media_vimeo_variable_get('autoplay'),
-    ),
-  );
-  foreach ($default_video_settings as $view_mode => $settings) {
-    $display_name = 'video__' . $view_mode . '__media_vimeo_video';
-    $default_displays[$display_name] = (object) array(
-      'api_version' => 1,
-      'name' => $display_name,
-      'status' => 1,
-      'weight' => 1,
-      'settings' => $settings,
-    );
-  }
-
-  // Default settings for displaying a video preview image.
-  // We enable preview images even for view modes that also play video
-  // for use inside a running WYSIWYG editor. We weight them so video 
-  // formatters come first in the cascade to make sure the video formatter
-  // is used whenever possible.
-  $default_image_styles = array(
-    'default' => 'large',
-    'preview' => 'media_thumbnail',
-    'teaser' => 'large',
-    // Legacy view modes, see note above.
-    'media_preview' => 'media_thumbnail',
-    'media_large' => 'large',
-    'media_original' => '',
-  );
-  foreach ($default_image_styles as $view_mode => $image_style) {
-    $display_name = 'video__' . $view_mode . '__media_vimeo_image';
-    $default_displays[$display_name] = (object) array(
-      'api_version' => 1,
-      'name' => $display_name,
-      'status' => 1,
-      'weight' => 2,
-      'settings' => array('image_style' => $image_style),
-    );
-  }
-
-  return $default_displays;
 }

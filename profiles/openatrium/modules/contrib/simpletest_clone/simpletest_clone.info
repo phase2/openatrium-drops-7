@@ -1,0 +1,14 @@
+name = SimpleTest Clone
+description = "Write SimpleTests against an existing Drupal configuration."
+package ="Development"
+core = 7.x
+dependencies[] = simpletest
+
+files[] = simpletest_clone_test_case.php
+
+; Information added by drupal.org packaging script on 2012-04-23
+version = "7.x-1.0-beta3"
+core = "7.x"
+project = "simpletest_clone"
+datestamp = "1335207684"
+

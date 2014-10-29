@@ -1,0 +1,23 @@
+name = Open Atrium Analytics
+description = Provides per space analytics reporting for Open Atrium
+core = 7.x
+package = Open Atrium
+dependencies[] = defaultconfig
+dependencies[] = og
+dependencies[] = googleanalytics
+apps[screenshots][] = app/screenshot.png
+apps[logo] = app/logo.png
+apps[author] = Phase2 Technology
+apps[author_url] = http://www.phase2technology.com/
+apps[server] = openatrium
+apps[package] = Core addons
+features[defaultconfig][] = strongarm:googleanalytics_custom_var
+features[features_api][] = api:2
+features_exclude[dependencies][defaultconfig] = defaultconfig
+
+; Information added by Drupal.org packaging script on 2014-10-29
+version = "7.x-2.0-rc2"
+core = "7.x"
+project = "oa_analytics"
+datestamp = "1414588438"
+

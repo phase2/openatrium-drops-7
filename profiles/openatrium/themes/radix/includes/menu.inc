@@ -15,7 +15,70 @@ function radix_menu_tree(&$variables) {
  * Implements theme_menu_tree__menu_block().
  */
 function radix_menu_tree__menu_block(&$variables) {
-  return '<ul class="menu nav nav-tabs nav-stacked">' . $variables['tree'] . '</ul>';
+  return '<ul class="menu nav nav-pills nav-stacked">' . $variables['tree'] . '</ul>';
+}
+
+/**
+ * Implements theme_menu_tree__navbar_nav().
+ */
+function radix_menu_tree__navbar_nav(&$variables) {
+  return '<ul class="menu nav navbar-nav">' . $variables['tree'] . '</ul>';
+}
+
+/**
+ * Implements theme_menu_tree__navbar_left().
+ */
+function radix_menu_tree__navbar_left(&$variables) {
+  return '<ul class="menu nav navbar-nav navbar-left">' . $variables['tree'] . '</ul>';
+}
+
+/**
+ * Implements theme_menu_tree__navbar_right().
+ */
+function radix_menu_tree__navbar_right(&$variables) {
+  return '<ul class="menu nav navbar-nav navbar-right">' . $variables['tree'] . '</ul>';
+}
+
+/**
+ * Implements theme_menu_tree__nav_tabs().
+ */
+function radix_menu_tree__nav_tabs(&$variables) {
+  return '<ul class="nav nav-tabs">' . $variables['tree'] . '</ul>';
+}
+
+/**
+ * Implements theme_menu_tree__nav_tabs_justified().
+ */
+function radix_menu_tree__nav_tabs_justified(&$variables) {
+  return '<ul class="nav nav-tabs nav-justified">' . $variables['tree'] . '</ul>';
+}
+
+/**
+ * Implements theme_menu_tree__nav_pills().
+ */
+function radix_menu_tree__nav_pills(&$variables) {
+  return '<ul class="nav nav-pills">' . $variables['tree'] . '</ul>';
+}
+
+/**
+ * Implements theme_menu_tree__nav_pills_stacked().
+ */
+function radix_menu_tree__nav_pills_stacked(&$variables) {
+  return '<ul class="nav nav-pills nav-stacked">' . $variables['tree'] . '</ul>';
+}
+
+/**
+ * Implements theme_menu_tree__nav_pills_justified().
+ */
+function radix_menu_tree__nav_pills_justified(&$variables) {
+  return '<ul class="nav nav-pills nav-justified">' . $variables['tree'] . '</ul>';
+}
+
+/**
+ * Implements theme_menu_tree__nav_expanded().
+ */
+function radix_menu_tree__nav_expanded(&$variables) {
+  return '<ul class="nav nav-expanded nav-justified">' . $variables['tree'] . '</ul>';
 }
 
 /**
@@ -55,6 +118,10 @@ function radix_menu_link($variables) {
     $element['#attributes']['class'][] = 'active';
   }
 
+  // Add a unique class using the title.
+  $title = strip_tags($element['#title']);
+  $element['#attributes']['class'][] = 'menu-link-' . drupal_html_class($title);
+
   $output = l($element['#title'], $element['#href'], $element['#localized_options']);
   return '<li' . drupal_attributes($element['#attributes']) . '>' . $output . $sub_menu . "</li>\n";
 }
@@ -81,6 +148,8 @@ function radix_menu_link__management($variables) {
  */
 function radix_link($variables) {
   $icons = '';
+  $variables['options']['attributes'] = !empty($variables['options']['attributes']) ? $variables['options']['attributes'] : array();
+  $variables['options']['html'] = !empty($variables['options']['html']) ? $variables['options']['html'] : FALSE;
   if (isset($variables['options']['attributes']['class']) && is_array($variables['options']['attributes']['class'])) {
     $css_classes = $variables['options']['attributes']['class'];
     if ($icon_classes = preg_grep('/^icon\-.*/', $css_classes)) {

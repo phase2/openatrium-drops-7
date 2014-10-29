@@ -44,6 +44,22 @@ function oa_core_form_alter(&$form, &$form_state, $form_id) {
         l(t('request a new password.'), 'user/password') . '</span>';
       break;
   }
+  if (preg_match('/_node_form$/', $form_id)) {
+    // make sure node edit forms respect the destination query
+    if (!empty($_GET['destination'])) {
+      $form['actions']['submit']['#submit'][] = 'oa_core_node_edit_submit';
+    }
+  }
+}
+
+/**
+ * Helper submit function.
+ * Redirect back to destination after node edit
+ */
+function oa_core_node_edit_submit($form, &$form_state) {
+  if (!empty($_GET['destination'])) {
+    $form_state['redirect'] = $_GET['destination'];
+  }
 }
 
 /**

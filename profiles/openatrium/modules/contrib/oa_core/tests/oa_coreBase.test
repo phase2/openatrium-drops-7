@@ -17,6 +17,11 @@
  */
 abstract class oa_coreBaseWebTest extends SimpleTestCloneTestCase {
   protected $profile = 'openatrium';
+  protected function setUp() {
+    parent::setUp();
+    // Override the mail system to prevent fatal errors.
+    variable_set('mail_system', array('default-system' => 'oaTestingMailSystem'));
+  }
 
   protected function createOaSpace($node_info = array()) {
     $node_info += array('type' => 'oa_space');
@@ -30,8 +35,8 @@ abstract class oa_coreBaseWebTest extends SimpleTestCloneTestCase {
     return $node;
   }
 
-  protected function createOaSpaceAndUsers($space_info = array()) {
-    $admin = $this->drupalCreateUser(array('create oa_space content', 'create oa_section content', 'edit any oa_section content'));
+  protected function createOaSpaceAndUsers($space_info = array(), $admin_permissions = array()) {
+    $admin = $this->drupalCreateUser($admin_permissions ? $admin_permissions : array('create oa_space content', 'create oa_section content', 'edit any oa_section content'));
     $space = $this->createOaSpace($space_info + array('uid' => $admin->uid));
     return array(
       'space' => $space,

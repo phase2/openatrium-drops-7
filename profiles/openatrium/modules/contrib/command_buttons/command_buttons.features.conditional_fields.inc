@@ -10,7 +10,7 @@
 function command_buttons_conditional_fields_default_fields() {
   $items = array();
 
-  $items[] = array(
+  $items["fieldable_panels_pane:command_buttons"] = array(
     'entity' => 'fieldable_panels_pane',
     'bundle' => 'command_buttons',
     'dependent' => 'field_css_class',
@@ -44,7 +44,7 @@ function command_buttons_conditional_fields_default_fields() {
     ),
   );
 
-  $items[] = array(
+  $items["fieldable_panels_pane:command_buttons"] = array(
     'entity' => 'fieldable_panels_pane',
     'bundle' => 'command_buttons',
     'dependent' => 'field_dropdown_label',

@@ -1,0 +1,481 @@
+<?php
+/**
+ * @file
+ * Code for the Open Atrium Appearance feature.
+ */
+
+include_once 'oa_appearance.features.inc';
+
+/**
+ * @file
+ * Provides integration between Open Atrium and Colorizer module
+ */
+
+define('OA_SPACE_BANNER_POSITION', 'field_oa_banner_position');
+define('OA_SPACE_BANNER_ABOVE', 1);
+define('OA_SPACE_BANNER_BELOW', 2);
+define('OA_SPACE_BANNER_MAIN_MENU', 3);
+define('OA_SPACE_BANNER_SPACE_MENU', 4);
+
+/**
+ * Implements hook_colorizer_instance_alter()
+ * Set the colorizer instance to a space-specific value
+ */
+function oa_appearance_colorizer_instance_alter(&$instance) {
+  $space_id = oa_core_get_space_home_context();
+  $instance = oa_appearance_get_space_colorizer_instance($instance, $space_id);
+}
+
+/**
+ * Implements hook_menu().
+ */
+function oa_appearance_menu() {
+  $items = array();
+  $items['group/%/%/admin/appearance'] = array(
+    'title callback' => 'og_ui_menu_title_callback',
+    'title arguments' => array('Appearance of group @group', 1, 2),
+    'description' => 'Manage appearance of a group.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('oa_appearance_edit_form', 1, 2),
+    'access callback' => 'og_ui_user_access_group',
+    'access arguments' => array('manage appearance', 1, 2),
+  );
+
+  return $items;
+}
+
+/**
+ * Implement hook_og_permission().
+ */
+function oa_appearance_og_permission() {
+  $items = array();
+
+  $items['manage appearance'] = array(
+    'title' => t('Manage appearance'),
+    'description' => t('Manage the appearance for this group.'),
+    'default role' => array(OG_ADMINISTRATOR_ROLE),
+    'restrict access' => TRUE,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_theme()
+ */
+function oa_appearance_theme() {
+  return array(
+    'oa_space_banner' => array(
+      'template'  => 'oa-space-banner',
+      'arguments' => array(
+      ),
+      'path' => drupal_get_path('module', 'oa_appearance') . '/templates',
+    ),
+  );
+}
+
+/*
+ * Implements hook_ctools_plugin_directory
+ */
+function oa_appearance_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'ctools' && $plugin_type == 'content_types') {
+    return 'plugins/content_types';
+  }
+}
+
+/**
+ * Implements hook_og_ui_get_group_admin()
+ */
+function oa_appearance_og_ui_get_group_admin($group_type, $gid) {
+  $items = array();
+
+  if (og_user_access($group_type, $gid, 'manage appearance')) {
+    $items['manage_appearance'] = array(
+      'title' => t('Appearance'),
+      'description' => t('Manage appearance'),
+      'href' => 'admin/appearance',
+    );
+  }
+
+  return $items;
+}
+
+/**
+ * Implements hook_oa_settings_form().
+ */
+function oa_appearance_oa_settings_form(&$form_state) {
+  $forms = array();
+
+  $form = array();
+  $form['oa_mainmenu'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Show main menu (if it has items)',
+    '#default_value' => variable_get('oa_mainmenu', TRUE),
+  );
+  $form['oa_menu_banner'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Show Site banner next to main menu',
+    '#default_value' => variable_get('oa_menu_banner', TRUE),
+  );
+  $form['oa_breadcrumb_menu'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Replace Breadcrumb toolbar with main menu',
+    '#default_value' => variable_get('oa_breadcrumb_menu', FALSE),
+  );
+  $forms[] = array(
+    'caption' =>t('Menus'),
+    'form' => $form,
+  );
+
+  $form = array();
+  $form['oa_site_banner_file'] = array(
+    '#title' => t('Site banner image'),
+    '#type' => 'managed_file',
+    '#description' => t('The uploaded image will be displayed across the full width of the site.'),
+    '#default_value' => variable_get('oa_site_banner', ''),
+    '#upload_location' => 'public://',
+    '#element_validate' => array('oa_appearance_banner_validate'),
+  );
+  $form['oa_site_banner_position'] = array(
+    '#type' => 'select',
+    '#options' => array (
+      0 => 'Hidden',
+      1 => 'Above toolbar',
+      2 => 'Below toolbar',
+    ),
+    '#title' => 'Banner Position',
+    '#empty_option' => '--Banner Position--',
+    '#default_value' => variable_get('oa_site_banner_position', 0),
+  );
+  $form['oa_banner_stretch'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Stretch Banner',
+    '#default_value' => variable_get('oa_banner_stretch', FALSE),
+  );
+  $form['oa_banner_default'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Use Default Banner',
+    '#default_value' => variable_get('oa_banner_default', TRUE),
+  );
+  $form['oa_banner_sitename'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Show site name',
+    '#default_value' => variable_get('oa_banner_sitename', TRUE),
+  );
+  $form['oa_banner_siteslogan'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Show site slogan',
+    '#default_value' => variable_get('oa_banner_siteslogan', FALSE),
+  );
+  $forms[] = array(
+    'caption' => t('Banners'),
+    'form' => $form,
+    'submit' => 'oa_appearance_banner_submit',
+  );
+
+  return $forms;
+}
+
+function oa_appearance_banner_validate($element, &$form_state, $form) {
+  $fid = $form_state['values']['oa_site_banner_file']['fid'];
+  if ($fid && ($file = file_load($fid))) {
+    if (!empty($form_state['values']['oa_site_banner_file_remove_button'])) {
+      file_usage_delete($file, 'oa_core', 'oa_banner', 1);
+      variable_set('oa_site_banner', '');
+    }
+    else {
+      // Change status to permanent.
+      $file->status = FILE_STATUS_PERMANENT;
+      // Save.
+      file_save($file);
+      // Record that the module (in this example, user module) is using the file.
+      file_usage_add($file, 'oa_core', 'oa_banner', 1);
+      variable_set('oa_site_banner', $fid);
+    }
+  }
+}
+
+function oa_appearance_banner_submit($form, &$form_state) {
+  // Clear the banner settings cache for all Spaces.
+  cache_clear_all("oa_appearance:banner:", "cache", TRUE);
+}
+
+/**
+ * Theme colors edit variable form.
+ */
+function oa_appearance_edit_form($form, &$form_state, $entity_type, $entity_id) {
+  module_load_include('admin.inc', 'colorizer');
+
+  $form = colorizer_admin_form(FALSE, FALSE);
+  $form['#entity_type'] = $entity_type;
+  $form['#entity_id'] = $entity_id;
+
+  // We always write to the current Spaces instance, even if we are inheriting
+  // the current colors from the parent. This allows us to switch to our local
+  // settings by saving this form.
+  $form['instance']['#value'] = $GLOBALS['theme'] . '_' . $entity_id;
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save configuration'),
+  );
+  $form['actions']['save_default'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save as default'),
+  );
+  $form['colorizer_clearcache'] = array(
+    '#type' => 'submit',
+    '#value' => t('Clear Colorizer Cache'),
+  );
+
+  return $form;
+}
+
+/**
+ * Form validation handler for oa_appearance_edit_form().
+ */
+function oa_appearance_edit_form_validate($form, &$form_state) {
+  module_load_include('admin.inc', 'colorizer');
+  colorizer_admin_form_validate($form, $form_state);
+}
+
+/**
+ * Form submission handler for oa_appearance_edit_form().
+ */
+function oa_appearance_edit_form_submit($form, &$form_state) {
+  module_load_include('admin.inc', 'colorizer');
+  colorizer_admin_form_submit($form, $form_state);
+
+  // Clear the colorizer instance static cache.
+  drupal_static_reset('oa_appearance_get_space_colorizer_instance');
+
+  // Clear our colorizer instance cache.
+  $nid = $form['#entity_id'];
+  cache_clear_all("oa_appearance:colorizer:{$nid}", "cache");
+
+  // Clear the colorizer instance cache for all child spaces as well.
+  if (module_exists("oa_subspaces")) {
+    foreach (oa_subspaces_get_children_groups("node", $nid) as $child_nid) {
+      cache_clear_all("oa_appearance:colorizer:{$child_nid}", "cache");
+    }
+  }
+}
+
+/**
+ * Implements hook_oa_clone_group_metadata().
+ */
+function oa_appearance_oa_clone_group_metadata($node, $original_nid) {
+  // Clone the colorizer values from the original.
+  foreach (list_themes() as $theme_name => $theme_info) {
+    if ($palette = variable_get('colorizer_' . $theme_name . '_' . $original_nid . '_palette', FALSE)) {
+      variable_set('colorizer_' . $theme_name . '_' . $node->nid . '_palette', $palette);
+      colorizer_update_stylesheet($theme_name, $theme_name . '_' . $node->nid, $palette);
+    }
+  }
+}
+
+/**
+ * Implements hook_node_update().
+ */
+function oa_appearance_node_update($node) {
+  if ($node->type == 'oa_space') {
+    // Clear our banner settings cache.
+    cache_clear_all("oa_appearance:banner:{$node->nid}:", "cache", TRUE);
+
+    // Clear the banner settings cache for all child spaces as well.
+    if (module_exists("oa_subspaces")) {
+      foreach (oa_subspaces_get_children_groups("node", $node->nid) as $child_nid) {
+        cache_clear_all("oa_appearance:banner:{$child_nid}:", "cache", TRUE);
+      }
+    }
+  }
+}
+
+/**
+ * Get the banner settings for a particular Space.
+ *
+ * Takes the parent Spaces and inheritence into account. Resulting values will
+ * be cached until the Space or any of it's parents are updated.
+ *
+ * @param integer $space_id
+ *   The NID of the Space.
+ * @param integer $banner_position
+ *   The banner position to get settings for. Can be either:
+ *   - OA_SPACE_BANNER_ABOVE
+ *   - OA_SPACE_BANNER_BELOW
+ *
+ * @return array
+ *   An associative array of the banner settings:
+ *   - position (string): Constant representing the banner position.
+ *   - image (array): Image field item representing the banner image.
+ *   - text (string): The banner text.
+ */
+function oa_appearance_get_space_banner($space_id, $banner_position) {
+  global $base_url;
+
+  $static_cache =& drupal_static(__FUNCTION__, array());
+  $static_cache_key = $space_id . ':' . $banner_position;
+
+  if (!isset($static_cache[$static_cache_key])) {
+    $cid = 'oa_appearance:banner:' . $static_cache_key;
+    if ($cached_value = cache_get($cid)) {
+      $static_cache[$static_cache_key] = $cached_value->data;
+    }
+
+    if (!isset($static_cache[$static_cache_key])) {
+      $space = node_load($space_id);
+
+      // Default banner settings.
+      $banner = array(
+        'position' => 0,
+        'image' => array(),
+        'text' => '',
+        'slogan' => '',
+        'stretch' => FALSE,
+      );
+
+      // The site-wide banner position.
+      $site_position = variable_get('oa_site_banner_position', 0);
+
+      // Get the Space's 'Banner position'. If it's set to '- None -', then we
+      // set the position to -1 to indicate that we don't want to override the
+      // site default - which is different than 'Hidden', ie. a position of 0.
+      $space_position = !empty($space) ? field_get_items('node', $space, OA_SPACE_BANNER_POSITION) : array();
+      $space_position = isset($space_position[0]['value']) ? $space_position[0]['value'] : -1;
+
+      // Only attempt to figure out the banner settings if the Space's
+      // 'Banner position' isn't set to 'Hidden'.
+      if ($space_position != 0) {
+        // First, check if the Space is overriding the banner image. If so, we
+        // use its banner settings.
+        $space_image = !empty($space) ? field_get_items('node', $space, 'field_oa_banner') : array();
+        $space_image = !empty($space_image) ? $space_image[0] : NULL;
+        if ($space_image && $space_position == $banner_position) {
+          $banner['position'] = $space_position;
+
+          $banner['image'] = array(
+            'path' => $space_image['uri'],
+            'width' => $space_image['width'],
+            'height' => $space_image['height'],
+            'alt' => $space_image['alt'],
+            'attributes' => array(
+              'class' => 'oa-banner-overlay-img',
+            ),
+          );
+
+          // Space image is always stretched.
+          $banner['stretch'] = TRUE;
+
+          $space_text = field_view_field('node', $space, 'field_oa_banner_text', array('label' => 'hidden'));
+          if (!empty($space_text)) {
+            $banner['text'] = drupal_render($space_text);
+          }
+        }
+        // If the Space doesn't override, then pull the parent's settings. If
+        // there is no parent, then these are the site-wide settings.
+        else {
+          $parent_nids = oa_core_get_parents($space_id);
+          $parent = !empty($parent_nids[0]) ? node_load($parent_nids[0]) : NULL;
+          if ($parent && $parent->type == 'oa_space') {
+            $banner = oa_appearance_get_space_banner($parent->nid, $banner_position);
+          }
+          // The site-wide settings only apply if we are doing the same position
+          // as the position of the site-wide banner.
+          elseif ($banner_position == $site_position) {
+            $banner['position'] = $site_position;
+
+            // Get the site-wide image.
+            $site_stretch = variable_get('oa_banner_stretch', FALSE);
+            $site_file = NULL;
+            $site_fid = variable_get('oa_site_banner', '');
+            if ($site_fid && ($site_file = file_load($site_fid))) {
+              // Banner successfully loaded.
+            }
+            elseif (variable_get('oa_banner_default', TRUE)) {
+              // Use the default banner image.
+              $site_file = new stdClass();
+              $site_file->uri = $base_url . '/' . drupal_get_path('module', 'oa_widgets') . '/openatrium-powered.png';
+              $site_file->metadata['height'] = 43;
+              $site_file->metadata['width'] = 161;
+            }
+            if ($site_file) {
+              $banner['image'] = array(
+                'path' => $site_file->uri,
+                'width' => !empty($site_file->metadata['width']) ? $site_file->metadata['width'] : 0,
+                'height' => !empty($site_file->metadata['height']) ? $site_file->metadata['height'] : 0,
+                'alt' => t('Site banner'),
+                'attributes' => array(
+                  'class' => $site_stretch ? 'oa-banner-overlay-img' : 'oa-banner-img',
+                ),
+              );
+              $banner['stretch'] = $site_stretch;
+            }
+
+            // Get the site-wide text.
+            $banner['text'] = variable_get('oa_banner_sitename', TRUE) ? variable_get('site_name', '') : '';
+            $banner['slogan'] = variable_get('oa_banner_siteslogan', FALSE) ? variable_get('site_slogan', '') : '';
+          }
+        }
+      }
+
+      // Store in the cache for later.
+      $static_cache[$static_cache_key] = $banner;
+      cache_set($cid, $banner);
+    }
+  }
+
+  return $static_cache[$static_cache_key];
+}
+
+/**
+ * Get the colorizer instance name.
+ *
+ * Takes the parent Spaces and inheritence into account. Resulting values will
+ * be cached until the Space or any of it's parents are updated.
+ *
+ * @param string $instance_base
+ *   The base name of the colorizer instance.
+ * @param integer $space_id
+ *   The NID of the Space.
+ *
+ * @return string
+ *   The full instance name.
+ */
+function oa_appearance_get_space_colorizer_instance($base_instance, $space_id) {
+  $static_cache =& drupal_static(__FUNCTION__, array());
+
+  if (!isset($static_cache[$space_id])) {
+    $cid = 'oa_appearance:colorizer:' . $space_id;
+    if ($cached_value = cache_get($cid)) {
+      $static_cache[$space_id] = $cached_value->data;
+    }
+
+    if (!isset($static_cache[$space_id])) {
+      $space = node_load($space_id);
+
+      $instance = $base_instance . '_' . $space_id;
+
+      // If there is no instance for the current Space, then try it's parent.
+      if ($space && variable_get("colorizer_{$instance}_palette", FALSE) === FALSE && module_exists('oa_subspaces')) {
+        $parent_nids = oa_core_get_parents($space_id);
+        $parent = !empty($parent_nids[0]) ? node_load($parent_nids[0]) : NULL;
+        if ($parent && $parent->type == 'oa_space') {
+          $instance = oa_appearance_get_space_colorizer_instance($base_instance, $parent->nid);
+        }
+        else {
+          // If we are at the top-level (ie. there is no parent), then we
+          // fallback on the site-wide default.
+          $instance = $base_instance;
+        }
+      }
+      elseif (!$space) {
+        $instance = $base_instance;
+      }
+
+      $static_cache[$space_id] = $instance;
+      cache_set($cid, $instance);
+    }
+  }
+
+  return $static_cache[$space_id];
+}

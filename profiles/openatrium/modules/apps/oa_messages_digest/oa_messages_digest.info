@@ -1,0 +1,22 @@
+name = Open Atrium Messages Digest
+description = Digest message types for Open Atrium
+package = Open Atrium
+core = 7.x
+php = 5.2.4
+
+dependencies[] = oa_messages
+dependencies[] = message_digest
+
+apps[screenshots][] = app/screenshot.png
+apps[logo] = app/logo.png
+apps[author] = Phase2 Technology
+apps[author_url] = http://www.phase2technology.com/
+apps[server] = openatrium
+apps[package] = Core addons
+
+; Information added by Drupal.org packaging script on 2014-10-29
+version = "7.x-2.0-rc2"
+core = "7.x"
+project = "oa_messages_digest"
+datestamp = "1414592636"
+

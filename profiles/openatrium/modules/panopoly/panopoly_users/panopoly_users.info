@@ -54,9 +54,9 @@ features[variable][] = user_picture_field_source_bundle
 features[variable][] = user_picture_field_source_entity
 features[variable][] = user_picture_field_source_field
 
-; Information added by Drupal.org packaging script on 2014-08-06
-version = "7.x-1.10"
+; Information added by Drupal.org packaging script on 2014-10-17
+version = "7.x-1.13"
 core = "7.x"
 project = "panopoly_users"
-datestamp = "1407362955"
+datestamp = "1413563652"
 

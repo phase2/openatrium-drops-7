@@ -1,0 +1,51 @@
+<?php
+
+/**
+ * Implements hook_feeds_plugins().
+ */
+function feeds_comment_processor_feeds_plugins() {
+  $path = drupal_get_path('module', 'feeds_comment_processor');
+
+  $info = array();
+  $info['FeedsCommentProcessor'] = array(
+    'name' => 'Comment processor',
+    'description' => 'Create and update comments.',
+    'help' => 'Create and update comments from parsed content.',
+    'handler' => array(
+      'parent' => 'FeedsProcessor',
+      'class' => 'FeedsCommentProcessor',
+      'file' => 'FeedsCommentProcessor.inc',
+      'path' => $path,
+    ),
+  );
+  return $info;
+}
+
+/**
+ * Implements hook_comment_insert().
+ */
+function feeds_comment_processor_comment_insert($comment) {
+  if (isset($comment->feeds_comment_item)) {
+    $comment->feeds_comment_item->cid = $comment->cid;
+    drupal_write_record('feeds_comment_item', $comment->feeds_comment_item);
+  }
+}
+
+/**
+ * Implements hook_comment_update().
+ */
+function feeds_comment_processor_comment_update($comment) {
+  if (isset($comment->feeds_comment_item)) {
+    $comment->feeds_comment_item->cid = $comment->cid;
+    drupal_write_record('feeds_comment_item', $comment->feeds_comment_item, 'cid');
+  }
+}
+
+/**
+ * Implements hook_comment_delete().
+ */
+function feeds_comment_processor_comment_delete($comment) {
+  db_delete('feeds_comment_item')
+  ->condition('cid', $comment->cid)
+  ->execute();
+}

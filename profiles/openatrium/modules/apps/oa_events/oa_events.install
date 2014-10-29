@@ -1,0 +1,80 @@
+<?php
+/**
+ * @file
+ * oa_events.install
+ */
+
+/**
+ * Implements hook_install().
+ */
+function oa_events_install() {
+  oa_events_install_section_type();
+}
+
+/**
+ * Create the Calendar Section taxonomy term.
+ */
+function oa_events_install_section_type() {
+  $params = array(
+    'description' => 'Allows users to create <em>Events</em> and view them on a calendar.',
+    'node_options' => array(
+      'oa_event',
+    ),
+    'layout' => 'node:oa_section:calendar_section',
+    'icon' => 'icon-calendar',
+  );
+  oa_core_create_term('section_type', 'Calendar Section', $params);
+}
+
+/**
+ * Implements hook_schema().
+ */
+function oa_events_schema() {
+  $schema = array();
+
+  $schema['oa_events_notifications_log'] = array(
+    'description' => 'The database table for OA Notifications',
+    'fields' => array(
+      'entity_id' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'entity_type' => array(
+        'type' => 'varchar',
+        'length' => '128',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'timestamp' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+    ),
+    'indexes' => array(
+      'timestamp' => array('timestamp')
+    ),
+  );
+
+  return $schema;
+}
+
+/**
+ * Install the oa_events schema.
+ */
+function oa_events_update_7001() {
+  drupal_install_schema('oa_events');
+}
+
+/**
+ * Enable fullcalendar_create.
+ */
+function oa_events_update_7002() {
+  module_enable(array('fullcalendar_create'));
+}
+
+/**
+ * Update the Calendar section term.
+ */
+function oa_events_update_7004() {
+  oa_events_install_section_type();
+}

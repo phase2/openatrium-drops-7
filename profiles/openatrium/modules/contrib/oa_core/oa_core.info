@@ -4,15 +4,27 @@ core = 7.x
 package = Open Atrium
 project = oa_core
 dependencies[] = admin_views
+dependencies[] = conditional_styles
+dependencies[] = entity
 dependencies[] = entityreference
 dependencies[] = file_entity
 dependencies[] = image
 dependencies[] = list
 dependencies[] = mimemail
 dependencies[] = number
+dependencies[] = oa_buttons
+dependencies[] = oa_section_context
+dependencies[] = oa_sections
+dependencies[] = oa_teams
+dependencies[] = og
+dependencies[] = og_access
+dependencies[] = og_context
+dependencies[] = og_menu_single
+dependencies[] = og_register
 dependencies[] = og_session_context
 dependencies[] = og_ui
 dependencies[] = og_vocab
+dependencies[] = panelizer
 dependencies[] = panopoly_pages
 dependencies[] = views_content
 dependencies[] = views_load_more
@@ -102,14 +114,15 @@ files[] = tests/oa_coreSmoke.test
 files[] = tests/oa_core_section_accessUnit.test
 files[] = tests/oa_core_section_is_publicUnit.test
 files[] = tests/oa_corePermissionWeb.test
+files[] = tests/oaTestingMailSystem.inc
 files[] = views/views_handler_filter_is_parent.inc
 files[] = plugins/views/oa_views_plugin_exposed_form.inc
 files[] = plugins/views/oa_core_og_group_ref_views_handler_filter_in_operator.inc
 files[] = plugins/views/oa_core_oa_section_ref_views_handler_filter_in_operator.inc
 
-; Information added by Drupal.org packaging script on 2014-10-15
-version = "7.x-2.22"
+; Information added by Drupal.org packaging script on 2014-10-29
+version = "7.x-2.25"
 core = "7.x"
 project = "oa_core"
-datestamp = "1413391182"
+datestamp = "1414605533"
 

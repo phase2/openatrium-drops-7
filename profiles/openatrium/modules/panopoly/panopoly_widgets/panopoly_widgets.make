@@ -39,5 +39,5 @@ projects[media_youtube][download][type] = git
 projects[media_youtube][download][revision] = d0377b3
 projects[media_youtube][download][branch] = 7.x-2.x
 
-projects[media_vimeo][version] = 2.0-rc1
+projects[media_vimeo][version] = 2.0
 projects[media_vimeo][subdir] = contrib

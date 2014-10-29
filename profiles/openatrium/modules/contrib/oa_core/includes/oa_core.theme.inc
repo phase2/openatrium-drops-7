@@ -26,6 +26,10 @@ function oa_core_theme() {
       'template'  => 'oa-core-user-spaces',
       'path' => $path,
     ),
+    'oa_core_node_token' => array(
+      'template'  => 'oa-core-node-token',
+      'path' => $path,
+    ),
     'views_view_fields__oa_user_spaces__full' => array(
       'template'  => 'views-view-fields--oa-user-spaces--full',
       'base hook' => 'views_view_fields',

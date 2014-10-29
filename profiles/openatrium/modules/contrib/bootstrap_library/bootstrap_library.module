@@ -1,0 +1,304 @@
+<?php
+
+/**
+ * @file
+ * Primarily Drupal hooks.
+ */
+
+
+/**
+ * Implements hook_requirements().
+ */
+function bootstrap_library_requirements($phase) {
+  // Create an array to hold Bootstrap requirements
+  $requirements = array();
+
+  // Check requirements during the runtime phase
+  if ($phase == 'runtime') {
+    // Check if the Bootstrap library is installed
+    if (($library = libraries_detect('bootstrap')) && !empty($library['installed'])) {
+      $requirements['boostrap_library_library'] = array(
+        'title' => t('Bootstrap plugin'),
+        'value' => t('Installed'),
+        'severity' => REQUIREMENT_OK,
+      );
+    }
+    else {
+      $requirements['boostrap_library_library'] = array(
+        'title' => t('Bootstrap plugin'),
+        'value' => t('Not installed'),
+        'description' => $library['error message'],
+        'severity' => REQUIREMENT_ERROR,
+      );
+    }
+    // Check if the site is running >= jQuery 1.7
+    $library = drupal_get_library('system', 'jquery');
+    preg_match('/^(\d+)\.(\d+).*$/', $library['version'], $matches);
+    if ( floatval($matches[1] .'.'. $matches[2]) >= 1.7) {
+      $requirements['boostrap_library_jquery'] = array(
+        'title' => t('Bootstrap version'),
+        'value' => t('jQuery @version', array('@version' => $library['version'])),
+        'severity' => REQUIREMENT_OK,
+      );
+    }
+    else {
+      $destination = drupal_get_destination();
+
+      $requirements['boostrap_library_jquery'] = array(
+        'title' => t('Bootstrap version'),
+        'value' => t('jQuery @version', array('@version' => $library['version'])),
+        'description' => t('Bootstrap requires jQuery 1.7 or greater. Configure <a href="@jquery_update">jQuery Update</a>.', array('@jquery_update' => url('admin/config/development/jquery_update', array('query' => $destination)))),
+        'severity' => REQUIREMENT_ERROR,
+      );
+    }
+  }
+
+  return $requirements;
+}
+
+/**
+ * Implements hook_init().
+ */
+
+function bootstrap_library_init() {
+  $settings = variable_get('bootstrap_library_settings');
+  if (bootstrap_library_check_path($settings['visibility']['visibility'], $settings['visibility']['pages']) && bootstrap_library_check_theme()) {
+    $types = array_filter($settings['files']['types']);
+    // Load default if both types are selected.
+    if (isset($types['css']) && isset($types['js'])) {
+      libraries_load('bootstrap');
+    }
+    else {
+      // Load the variant.
+      $type = key($types);
+      libraries_load('bootstrap', $type);
+    }
+  }
+}
+
+/**
+* Implementation of hook_menu().
+*/
+function bootstrap_library_menu() {
+  // Admin settings.
+  $items['admin/config/development/bootstrap_library'] = array(
+    'title' => 'Boostrap Library',
+    'description' => 'Configures Boostrap Library module',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('bootstrap_library_settings'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_LOCAL_TASK,
+  );
+  return $items;
+}
+
+function bootstrap_library_check_path($visibility, $pages) {
+  $pages = drupal_strtolower($pages);
+  // Convert the Drupal path to lowercase
+  $path = drupal_strtolower(drupal_get_path_alias($_GET['q']));
+  // Compare the lowercase internal and lowercase path alias (if any).
+  $page_match = drupal_match_path($path, $pages);
+  if ($path != $_GET['q']) {
+    $page_match = $page_match || drupal_match_path($_GET['q'], $pages);
+  }
+  // When $block->visibility has a value of 0 (BLOCK_VISIBILITY_NOTLISTED),
+  // the block is displayed on all pages except those listed in $block->pages.
+  // When set to 1 (BLOCK_VISIBILITY_LISTED), it is displayed only on those
+  // pages listed in $block->pages.
+  $page_match = !($visibility xor $page_match);
+  return $page_match;
+}
+
+function bootstrap_library_check_theme() {
+  global $theme_key;
+  $settings = variable_get('bootstrap_library_settings');
+  $visibility = $settings['theme']['visibility'];
+  $theme_match = in_array($theme_key, $settings['theme']['themes']);
+  $theme_match = !($visibility xor $theme_match);
+  $visibility = $settings['theme']['visibility'];
+  return $theme_match;
+}
+
+/**
+ * Module settings form.
+ */
+function bootstrap_library_settings($form, &$form_state) {
+  $settings = variable_get('bootstrap_library_settings');
+  $themes = list_themes();
+  $active_themes = array();
+  foreach ($themes as $theme) {
+    if ($theme->status) {
+      $active_themes[$theme->name] = $theme->info['name'];
+    }
+  }
+  $options['bootstrap'] = array(
+    '#type' => 'vertical_tabs',
+  );
+  $options['minimized'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Libraries Options'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#group' => 'bootstrap'
+  );
+  $options['minimized']['options'] = array(
+    '#type' => 'radios',
+    '#title' => t('Choose minimized or not libraries.'),
+    '#options' => array(
+      0 => t('Use non minimized libraries (Development)'),
+      1 => t('Use minimized libraries (Production)'),
+    ),
+    '#default_value' => $settings['minimized']['options'],
+  );
+  // Per-path visibility.
+  $options['visibility'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Pages Visibility'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#group' => 'bootstrap'
+  );
+  $options['visibility']['visibility'] = array(
+    '#type' => 'radios',
+    '#title' => t('Activate on specific pages'),
+    '#options' => array(
+      0 => t('All pages except those listed'),
+      1 => t('Only the listed pages'),
+    ),
+    '#default_value' => $settings['visibility']['visibility'],
+  );
+  $options['visibility']['pages'] = array(
+    '#type' => 'textarea',
+    '#title' => 'List of pages to activate',
+    '#default_value' => $settings['visibility']['pages'],
+    '#description' => t("Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", array('%blog' => 'blog', '%blog-wildcard' => 'blog/*', '%front' => '<front>')),
+  );
+  // Per-path visibility.
+  $options['theme'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Themes Visibility'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#group' => 'bootstrap'
+  );
+  $options['theme']['visibility'] = array(
+    '#type' => 'radios',
+    '#title' => t('Activate on specific themes'),
+    '#options' => array(
+      0 => t('All themes except those listed'),
+      1 => t('Only the listed themes'),
+    ),
+    '#default_value' => $settings['theme']['visibility'],
+  );
+  $options['theme']['themes'] = array(
+    '#type' => 'select',
+    '#title' => 'List of themes where library will be loaded.',
+    '#options' => $active_themes,
+    '#multiple' => TRUE,
+    '#default_value' => $settings['theme']['themes'],
+    '#description' => t("Specify in which themes you wish the library to load."),
+  );
+
+  // Files settings.
+  $options['files'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Files Settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#group' => 'bootstrap'
+  );
+  $options['files']['types'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Select which files to load from the library. By default you should check both, but in some cases you will need to load only CSS or JS Bootstrap files.'),
+    '#options' => array(
+      'css' => t('CSS files'),
+      'js' => t('Javascript files'),
+    ),
+    '#default_value' => $settings['files']['types'],
+  );
+
+  $options['#tree'] = TRUE;
+  $form['bootstrap_library_settings'] = $options;
+
+  // Disable automatic defaults, which don't work with nested values.
+  return system_settings_form($form, FALSE);
+}
+
+/**
+ * Implements hook_libraries_info().
+ */
+function bootstrap_library_libraries_info() {
+  $settings = variable_get('bootstrap_library_settings');
+  $min = ($settings['minimized']['options']) ? '.min' : '';
+  $files = _bootstrap_library_get_files($settings['files']['types']['css'], $settings['files']['types']['js'], $min);
+  $libraries['bootstrap'] = array(
+    'name' => 'Bootstrap',
+    'vendor url' => 'http://getbootstrap.com/',
+    'download url' => 'http://getbootstrap.com/',
+    'version arguments' => array(
+      'file' => 'js/bootstrap.js',
+      // 3.x.x: Botstrap v3.0.3
+      'pattern' => '/Bootstrap\s+v?([0-9\.]+)/',
+      'lines' => 2,
+    ),
+    'files' => $files['files'],
+    'variants' => $files['variants'],
+  );
+
+  return $libraries;
+}
+
+/**
+ * Check if the Bootstrap library is installed.
+ *
+ * @return
+ *   A boolean indicating the installed status.
+ */
+function bootstrap_library_installed() {
+  if (($library = libraries_detect('bootstrap')) && !empty($library['installed'])) {
+    return TRUE;
+  }
+  else {
+    return FALSE;
+  }
+}
+
+/**
+ * Check if the Bootstrap library has been loaded.
+ *
+ * @return
+ *   A boolean indicating the loaded status.
+ */
+function bootstrap_library_loaded() {
+  if (($library = libraries_load('bootstrap')) && !empty($library['loaded'])) {
+    return TRUE;
+  }
+  else {
+    return FALSE;
+  }
+}
+
+/**
+ * Define which files needed to be loaded.
+ *
+ * @return
+ *   An array for variants and an array for files.
+ */
+function _bootstrap_library_get_files($css = 1, $js = 1, $min = '') {
+  $js_array = array(
+    'js/bootstrap' . $min . '.js',
+  );
+  $css_array = array(
+    'css/bootstrap' . $min . '.css',
+    'css/bootstrap-theme' . $min . '.css',
+  );
+  if ($css) {
+    $variants['css'] = array( 'files' => array( 'css' => $css_array, ), );
+    $files['css'] = $css_array;
+  }
+  if ($js) {
+    $variants['js'] = array( 'files' => array( 'js' => $js_array, ), );
+    $files['js'] = $js_array;
+  }
+  return array('variants' => $variants, 'files' => $files);
+}

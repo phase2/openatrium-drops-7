@@ -1,0 +1,32 @@
+name = Open Atrium Clone
+description = Allows cloning of spaces, sections, and content in Open Atrium.
+core = 7.x
+package = Open Atrium
+dependencies[] = clone
+dependencies[] = conditional_fields
+dependencies[] = entityreference
+dependencies[] = features
+dependencies[] = list
+dependencies[] = oa_buttons
+dependencies[] = strongarm
+apps[screenshots][] = app/screenshot.png
+apps[logo] = app/logo.png
+apps[author] = Phase2 Technology
+apps[author_url] = http://www.phase2technology.com/
+apps[server] = openatrium
+apps[package] = Core addons
+features[conditional_fields][] = taxonomy_term:space_type
+features[ctools][] = strongarm:strongarm:1
+features[features_api][] = api:2
+features[field_base][] = field_oa_clone_enabled
+features[field_base][] = field_oa_clone_space
+features[field_instance][] = taxonomy_term-space_type-field_oa_clone_enabled
+features[field_instance][] = taxonomy_term-space_type-field_oa_clone_space
+features[variable][] = clone_use_node_type_name
+
+; Information added by Drupal.org packaging script on 2014-10-28
+version = "7.x-2.0-rc1"
+core = "7.x"
+project = "oa_clone"
+datestamp = "1414535049"
+

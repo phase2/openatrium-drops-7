@@ -872,7 +872,10 @@ function breakpoint_group_features_export($data, &$export, $module_name = '') {
   foreach ($data as $group_name) {
     $group = breakpoints_breakpoint_group_load($group_name);
     foreach ($group->breakpoints as $breakpoint_name) {
-      $pipe['breakpoints'][] = $breakpoint_name;
+      $breakpoint = breakpoints_breakpoint_load_by_fullkey($breakpoint_name);
+      if ($breakpoint->source_type != BREAKPOINTS_SOURCE_TYPE_THEME) {
+        $pipe['breakpoints'][] = $breakpoint_name;
+      }
     }
   }
   return $pipe;

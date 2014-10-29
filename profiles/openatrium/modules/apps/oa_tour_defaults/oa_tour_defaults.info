@@ -1,0 +1,40 @@
+name = Open Atrium Tour Defaults
+core = 7.x
+description = Provides the default set of popup tours
+package = Open Atrium
+dependencies[] = bootstrap_tour
+dependencies[] = ctools
+dependencies[] = oa_tour
+apps[screenshots][] = app/screenshot.png
+apps[logo] = app/logo.png
+apps[author] = Phase2 Technology
+apps[author_url] = http://www.phase2technology.com/
+apps[server] = openatrium
+apps[package] = Core addons
+features[bootstrap_tour][] = banners
+features[bootstrap_tour][] = colorizing_a_space
+features[bootstrap_tour][] = configuring_layout
+features[bootstrap_tour][] = content_visibility
+features[bootstrap_tour][] = groups
+features[bootstrap_tour][] = menus
+features[bootstrap_tour][] = notifications
+features[bootstrap_tour][] = sandbox_mode
+features[bootstrap_tour][] = section_visibility
+features[bootstrap_tour][] = sections_overview
+features[bootstrap_tour][] = setting_your_home
+features[bootstrap_tour][] = site_tours
+features[bootstrap_tour][] = spaces
+features[bootstrap_tour][] = subspaces
+features[bootstrap_tour][] = teams
+features[bootstrap_tour][] = toolbar
+features[bootstrap_tour][] = user_creation
+features[bootstrap_tour][] = welcome_to_oa2_
+features[ctools][] = bootstrap_tour:bootstrap_tour_tour:1
+features[features_api][] = api:2
+
+; Information added by Drupal.org packaging script on 2014-10-28
+version = "7.x-2.0-rc1"
+core = "7.x"
+project = "oa_tour_defaults"
+datestamp = "1414536120"
+

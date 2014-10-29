@@ -1,0 +1,44 @@
+name = Open Atrium Archive
+description = Add archive options for spaces and content in Open Atrium.
+core = 7.x
+package = Open Atrium
+dependencies[] = features
+dependencies[] = features_override
+dependencies[] = oa_core
+dependencies[] = trash_flag
+apps[screenshots][] = app/screenshot.png
+apps[logo] = app/logo.png
+apps[author] = Phase2 Technology
+apps[author_url] = http://www.phase2technology.com/
+apps[server] = openatrium
+apps[package] = Core addons
+features[features_api][] = api:2
+features[features_override_items][] = flag.trash
+features[features_override_items][] = views_view.trash_flag_bin
+features[features_overrides][] = flag.trash.flag_confirmation
+features[features_overrides][] = flag.trash.flag_long
+features[features_overrides][] = flag.trash.flag_message
+features[features_overrides][] = flag.trash.flag_short
+features[features_overrides][] = flag.trash.show_on_page
+features[features_overrides][] = flag.trash.title
+features[features_overrides][] = flag.trash.unflag_confirmation
+features[features_overrides][] = flag.trash.unflag_denied_text
+features[features_overrides][] = flag.trash.unflag_long
+features[features_overrides][] = flag.trash.unflag_message
+features[features_overrides][] = flag.trash.unflag_short
+features[features_overrides][] = views_view.trash_flag_bin.display|default|display_options|empty|area_text_custom|content
+features[features_overrides][] = views_view.trash_flag_bin.display|default|display_options|title
+features[features_overrides][] = views_view.trash_flag_bin.display|page_1|display_options|defaults|empty
+features[features_overrides][] = views_view.trash_flag_bin.display|page_1|display_options|empty|area_text_custom|content
+features[features_overrides][] = views_view.trash_flag_bin.display|page_1|display_options|menu|title
+features[features_overrides][] = views_view.trash_flag_bin.display|page_1|display_options|path
+features[features_overrides][] = views_view.trash_flag_bin.display|page|display_options|empty|area_text_custom|content
+features[features_overrides][] = views_view.trash_flag_bin.display|page|display_options|path
+project path = profiles/openatrium/modules/contrib
+
+; Information added by Drupal.org packaging script on 2014-10-28
+version = "7.x-2.0-rc2"
+core = "7.x"
+project = "oa_archive"
+datestamp = "1414536829"
+

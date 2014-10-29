@@ -1,0 +1,20 @@
+name = Open Atrium HTML Email
+description = Provides HTML Email for messages
+package = Open Atrium
+core = 7.x
+
+dependencies[] = htmlmail
+dependencies[] = oa_messages
+
+apps[screenshots][] = app/screenshot.png
+apps[logo] = app/logo.png
+apps[author] = Phase2 Technology
+apps[author_url] = http://www.phase2technology.com/
+apps[server] = openatrium
+apps[package] = Core addons
+; Information added by Drupal.org packaging script on 2014-10-29
+version = "7.x-2.0-rc2"
+core = "7.x"
+project = "oa_htmlmail"
+datestamp = "1414598332"
+

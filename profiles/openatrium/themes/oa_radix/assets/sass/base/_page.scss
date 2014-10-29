@@ -30,6 +30,7 @@ body.oa-login div.region-content {
     text-align: center;
   }
 }
+
 body.oa-login div.content {
   margin-top: 20px;
   background-image: url('../images/tree-right.png');
@@ -66,20 +67,20 @@ body.oa-login div.content {
       }
     }
   }
-  @include breakpoint('tablet') {
+  @include breakpoint('md') {
     .oa-pane {
       left: 0;
       top: 0;
     }
   }
-  @include breakpoint('mini-tablet') {
+  @include breakpoint('sm') {
     background-image: none;
     .oa-pane {
       left: 0;
       top: 0;
     }
   }
-  @include breakpoint('phone') {
+  @include breakpoint('xs') {
     background-image: none;
     .oa-pane {
       left: 0;
@@ -87,6 +88,8 @@ body.oa-login div.content {
     }
   }
 }
+
 body.oa-login #user-login-panel .oa-pane {
   top: 115px;
 }
+

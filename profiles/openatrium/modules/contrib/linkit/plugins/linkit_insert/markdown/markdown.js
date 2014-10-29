@@ -7,21 +7,21 @@
  */
 (function ($) {
 
-Drupal.linkit.addInsertPlugin('markdown', {
+Drupal.linkit.registerInsertPlugin('markdown', {
   insert : function(data) {
-    var linkitCache = Drupal.linkit.getLinkitCache(),
-    pattern = '[!text](!url!title)',
-    args = {
-      '!url' : data.path,
-      '!title' : data.attributes.title ? ' "' + data.attributes.title + '"' : ''
-    };
+    var pattern = '[!text](!url!title)',
+      args = {
+        '!url' : data.path,
+        '!title' : data.attributes.title ? ' "' + data.attributes.title + '"' : ''
+      },
+      selection = Drupal.settings.linkit.currentInstance.selection;
 
-    if (typeof linkitCache.selection != 'undefined' &&
-      linkitCache.selection.text.length >= 1) {
-      args['!text'] = linkitCache.selection.text;
+    if (typeof selection != 'undefined' &&
+      selection.text.length >= 1) {
+      args['!text'] = selection.text;
     }
     else {
-      args['!text'] = linkitCache.link_tmp_title;
+      args['!text'] = Drupal.settings.linkit.currentInstance.linkContent;
     }
 
     return Drupal.formatString(pattern, args);

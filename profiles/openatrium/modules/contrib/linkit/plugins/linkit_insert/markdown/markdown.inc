@@ -1,6 +1,7 @@
 <?php
 /**
  * @file
+ * Defines the markdown insert plugin.
  */
 $plugin = array(
   'name' => t('Markdown'),

@@ -125,6 +125,22 @@ function panopoly_widgets_field_default_field_bases() {
     'type' => 'image',
   );
 
+  // Exported field_base: 'field_basic_spotlight_duration'
+  $field_bases['field_basic_spotlight_duration'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_basic_spotlight_duration',
+    'foreign keys' => array(),
+    'indexes' => array(),
+    'locked' => 0,
+    'module' => 'number',
+    'settings' => array(),
+    'translatable' => 0,
+    'type' => 'number_integer',
+  );
+
   // Exported field_base: 'field_basic_spotlight_items'
   $field_bases['field_basic_spotlight_items'] = array(
     'active' => 1,

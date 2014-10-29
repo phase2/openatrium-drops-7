@@ -1,0 +1,521 @@
+<?php
+/**
+ * @file
+ * Code for the Open Atrium Wizard feature.
+ */
+
+include_once 'oa_wizard.features.inc';
+/**
+ * @file
+ * Code for the OpenAtrium Wizard.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function oa_wizard_menu() {
+  $items['api/oa_wizard/%'] = array(
+    'page callback' => 'oa_wizard_modal_callback',
+    'page arguments' => array(2),
+    'access arguments' => array('access content'),
+  );
+
+  $base = array(
+    'access arguments' => array('administer site configuration'),
+    'file' => 'oa_wizard.admin.inc',
+  );
+
+  $items['admin/structure/wizards'] = array(
+    'title' => 'Wizards',
+    'description' => 'Manage wizards.',
+    'page callback' => 'oa_wizard_entities_page',
+  ) + $base;
+
+  $items['admin/structure/wizards/list'] = array(
+    'title' => 'List',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  ) + $base;
+
+  $items['admin/structure/wizards/manage/%oa_wizard_type'] = array(
+    'title callback' => 'oa_wizard_entities_title',
+    'title arguments' => array(4),
+    'page callback' => 'oa_wizard_entities_list_page',
+    'page arguments' => array(4),
+  ) + $base;
+
+  $items['admin/structure/wizards/manage/%oa_wizard_type/add'] = array(
+    'title' => 'Add a wizard',
+    'page callback' => 'oa_wizard_entities_add_page',
+    'page arguments' => array(4),
+    'type' => MENU_NORMAL_ITEM,
+  ) + $base;
+
+  $items['admin/structure/wizards/view/%oa_wizard'] = array(
+    'title callback' => 'oa_wizard_entity_title',
+    'title arguments' => array(4),
+    'page callback' => 'oa_wizard_view',
+    'page arguments' => array(4),
+  ) + $base;
+
+  $items['admin/structure/wizards/view/%oa_wizard/view'] = array(
+    'title' => 'View',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'page callback' => 'oa_wizard_view',
+    'page arguments' => array(4),
+    'weight' => -10,
+  ) + $base;
+
+  $items['admin/structure/wizards/view/%oa_wizard/edit'] = array(
+    'title' => 'Edit',
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    'page callback' => 'oa_wizard_entity_edit_page',
+    'page arguments' => array(4),
+    'weight' => -9,
+  ) + $base;
+
+  $items['admin/structure/wizards/view/%oa_wizard/delete'] = array(
+    'title' => 'Delete',
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('oa_wizard_entity_delete_form', 4),
+    'weight' => -8,
+  ) + $base;
+
+  return $items;
+}
+
+/**
+ * Implements hook_ctools_plugin_directory
+ */
+function oa_wizard_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'ctools' && $plugin_type == 'content_types') {
+    return 'plugins/content_types';
+  }
+}
+
+/**
+ * Node add modal callback.
+ */
+function oa_wizard_modal_callback($wizard_name) {
+  global $user;
+
+  // Include your ctools stuff here
+  ctools_include('node.pages', 'node', '');
+  ctools_include('modal');
+  ctools_include('ajax');
+
+  $wizard_name = str_replace('-', '_', $wizard_name);
+  $wizard = oa_wizard_machine_name_load($wizard_name);
+  if (!$wizard || empty($wizard->field_wizard_type[LANGUAGE_NONE][0]['value']) || !node_access('create', $wizard->field_wizard_type[LANGUAGE_NONE][0]['value'])) {
+    drupal_set_message(t('Unable to load wizard'), 'error');
+    return drupal_access_denied();
+  }
+  $node_type = $wizard->field_wizard_type[LANGUAGE_NONE][0]['value'];
+
+  $steps = oa_wizard_get_steps($wizard_name);
+
+  // include the js and css for the wizards
+  $base = drupal_get_path('module', 'oa_wizard');
+  drupal_add_js($base . '/js/oa_wizard.js');
+  drupal_add_js(array('oa_wizard' => array('steps' => $steps)), 'setting');
+  drupal_add_css($base . '/css/oa_wizard.css');
+
+  // Create a blank node object here. You can also set values for your custom fields here as well.
+  $node = (object) array(
+    'uid' => $user->uid,
+    'name' => (isset($user->name) ? $user->name : ''),
+    'type' => $node_type,
+    'language' => LANGUAGE_NONE,
+  );
+
+  $form_state = array(
+    'title' => t('Add New @name', array('@name' => node_type_get_name($node_type))),
+    'ajax' => TRUE,
+  );
+
+  $form_state['build_info']['args'] = array($node);
+  // change this to your type node form
+  $output = ctools_modal_form_wrapper($node_type . '_node_form', $form_state);
+
+  // This means the form has been exectued
+  if (!empty($form_state['executed'])) {
+    $output = array();
+    // Close the modal
+    $output[] = ctools_modal_command_dismiss();
+    $output[] = array(
+      // The command will be used in our JavaScript file (see next section)
+      'command' => 'oaWizardNew',
+      // We pass the value that the user selected in the select element to our
+      // JavaScript function:
+      'node' => $form_state['node'],
+    );
+  }
+  print ajax_render($output);
+  exit;
+}
+
+/**
+ * Retrieve the wizard steps for a wizard.
+ *
+ * Expands a string value of the format:
+ *   Key1:Value1|Key2:Value2|Key3:Value3
+ * for each individual step (separated by newlines)
+ */
+function oa_wizard_get_steps($wizard_name) {
+  $steps = array();
+  $wizard = oa_wizard_machine_name_load($wizard_name);
+  if (isset($wizard->field_wizard_steps[LANGUAGE_NONE][0]['value'])) {
+    $steps_string = $wizard->field_wizard_steps[LANGUAGE_NONE][0]['value'];
+    $step_array = explode("\n", $steps_string);
+    foreach ($step_array as $value) {
+      $values = explode("|", $value);
+      $step = array();
+      foreach ($values as $item) {
+        // check for key:value
+        $items = explode(':', $item);
+        if (count($items) == 1) {
+          // just a value
+          $step[] = trim($item);
+        }
+        else {
+          $key = trim($items[0]);
+          $trim_item =  trim($items[1]);
+          if (strpos($trim_item,'[') === 0) {
+            // check for array syntax [item1,item2...]
+            $trim_item = explode(',', substr($trim_item, 1, strlen($trim_item)-2));
+          }
+          $step[$key] = $trim_item;
+        }
+      }
+    $steps[] = $step;
+    }
+  }
+  return $steps;
+}
+
+/**
+ * Wizard entity loader.
+ *
+ * @see entity_load().
+ */
+function oa_wizard_load($wizard_id) {
+  if (!is_numeric($wizard_id)) {
+    return FALSE;
+  }
+  $conditions = array();
+
+  $entities = oa_wizard_load_multiple(array($wizard_id), $conditions);
+  if ($entities) {
+    return reset($entities);
+  }
+  return FALSE;
+}
+
+/**
+ * Load multiple wizards.
+ *
+ * @see entity_load_multiple().
+ */
+function oa_wizard_load_multiple($ids, $conditions = array(), $reset = FALSE) {
+  return entity_load('oa_wizard', $ids, $conditions, $reset);
+}
+
+/**
+ * Implements hook_crud_hook_entity_info().
+ */
+function oa_wizard_entity_info() {
+  $return = array(
+    'oa_wizard' => array(
+      'label' => t('Wizard'),
+      'entity class' => 'Entity',
+      'controller class' => 'EntityAPIControllerExportable',
+      'module' => 'oa_wizard',
+      'base table' => 'oa_wizard',
+      'fieldable' => TRUE,
+      'exportable' => TRUE,
+      'entity keys' => array(
+        'id' => 'wizard_id',
+        'label' => 'name',
+        'name' => 'name',
+        'bundle' => 'bundle',
+      ),
+      'view callback' => 'entity_metadata_view_single',
+      'creation callback' => 'oa_wizard_create',
+      'access callback' => 'oa_wizard_access',
+      'save callback' => 'oa_wizard_save',
+      'bundles' => array(
+        'wizard' => array(
+          'label' => t('Wizard'),
+          'admin' => array(
+            'path' => 'admin/structure/wizards/manage/%oa_wizard_type',
+            'bundle argument' => 4,
+            'real path' => 'admin/structure/wizards/manage/wizard',
+            'access arguments' => array('administer site configuration'),
+          ),
+        ),
+      ),
+      'view modes' => array(
+        'full' => array(
+          'label'  => t('Full'),
+          'custom settings' => FALSE,
+        ),
+      ),
+    ),
+  );
+
+  return $return;
+}
+
+/**
+ * Properly format the type from the URL version to the internal version.
+ */
+function oa_wizard_type_load($type) {
+  $type = str_replace('-', '_', $type);
+  $entity_info = entity_get_info('oa_wizard');
+
+  if (isset($entity_info['bundles'][$type])) {
+    return $type;
+  }
+}
+
+/**
+ * Determines whether the given user has access to a model.
+ *
+ * @param $op
+ *   The operation being performed. One of 'view', 'update', 'create', 'delete'
+ *   or just 'edit' (being the same as 'create' or 'update').
+ * @param $model
+ *   Optionally a model or a model type to check access for. If nothing is
+ *   given, access for all models is determined.
+ * @param $account
+ *   The user to check for. Leave it to NULL to check for the global user.
+ * @return boolean
+ *   Whether access is allowed or not.
+ */
+function oa_wizard_access($op, $wizard = NULL, $account = NULL) {
+  return user_access('administer site configuration', $account);
+}
+
+/**
+ * Delete a single wizard.
+ */
+function oa_wizard_delete($wizard_id) {
+  oa_wizard_delete_multiple(array($wizard_id));
+}
+
+/**
+ * Delete multiple wizards.
+ *
+ * @param $model_ids
+ *   An array of model IDs.
+ */
+function oa_wizard_delete_multiple(array $wizard_ids) {
+  entity_get_controller('oa_wizard')->delete($wizard_ids);
+}
+
+
+/**
+ * Create a wizard object.
+ */
+function oa_wizard_create($values = array()) {
+  $values += array(
+    'bundle' => 'wizard',
+    'title' => '',
+    'name' => '',
+    'module' => 'oa_wizard',
+    'status' => 1,
+    'language' => LANGUAGE_NONE,
+  );
+  return entity_get_controller('oa_wizard')->create($values);
+}
+
+
+/**
+ * Saves a wizard to the database.
+ *
+ * @param $wizard
+ *   The oa_wizard object.
+ */
+function oa_wizard_save($wizard) {
+  $return = entity_save('oa_wizard', $wizard);
+  cache_clear_all('oa_wizard_wizard_options', 'cache');
+  drupal_static_reset('oa_wizard_wizard_options');
+  return $return;
+}
+
+/**
+ * Implements hook_views_api
+ */
+function oa_wizard_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'oa_wizard') . '/plugins/views',
+  );
+}
+
+/**
+ * List all entities for the given type.
+ */
+function oa_wizard_entities_list_page($type) {
+  return views_embed_view('oa_wizard_entities', 'default');
+}
+
+/**
+ * Entity API callback to view a wizard.
+ *
+ * @see entity_view()
+ */
+function oa_wizard_view($entity, $view_mode = 'full', $langcode = LANGUAGE_NONE) {
+  if (!is_array($entity)) {
+    $entity = array($entity);
+  }
+  return entity_get_controller('oa_wizard')->view($entity, $view_mode, $langcode);
+}
+
+/**
+ * Implements hook_entity_view
+ */
+function oa_wizard_entity_view($entity, $type, $view_mode, $langcode) {
+  if (isset($entity->content['field_wizard_steps'][0]['#markup'])) {
+    // expand newline to html breaks
+    $entity->content['field_wizard_steps'][0]['#markup'] = nl2br($entity->content['field_wizard_steps'][0]['#markup']);
+  }
+  if (isset($entity->title)) {
+    // add the title of the wizard
+    $entity->content['title'] = array(
+      '#markup' => '<h3>' . check_plain($entity->title) . '</h3>',
+      '#weight' => -9,
+    );
+  }
+}
+
+/**
+ * Basic edit form for the wizard entity.
+ *
+ * The entity being edited should be stored in $form_state['entity']
+ * when this form is built.
+ */
+function oa_wizard_entity_edit_form($form, &$form_state) {
+  $entity = $form_state['entity'];
+
+  // Map these properties for entity translations.
+  $form['#entity_type'] = array(
+    '#type' => 'value',
+    '#value' => $entity->bundle,
+  );
+
+  $form_state['oa_wizard'] = $form_state['entity'];
+
+  $form['title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Title'),
+    '#default_value' => $entity->title,
+    '#weight' => -10,
+  );
+  $form['name'] = array(
+    '#type' => 'machine_name',
+    '#default_value' => $entity->name,
+    '#maxlength' => 21,
+    '#machine_name' => array(
+      'source' => array('title'),
+      'exists' => 'oa_wizard_machine_name_exists',
+    ),
+  );
+
+  $form['language'] = array(
+    '#type' => 'value',
+    '#value' => $entity->language,
+  );
+
+  $language = NULL;
+  if (function_exists('entity_language')) {
+    // entity_language() was added in Drupal 7.15.
+    $language = entity_language('oa_wizard', $entity);
+  }
+
+  field_attach_form('oa_wizard', $entity, $form, $form_state, $language);
+
+  if (!empty($form_state['add submit'])) {
+    $form['actions'] = array(
+      '#type' => 'actions',
+    );
+
+    $form['actions']['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Save'),
+    );
+  }
+
+  return $form;
+}
+
+/**
+ * Submit callback for the wizard entity.
+ */
+function oa_wizard_entity_edit_form_submit($form, &$form_state) {
+  $entity = $form_state['entity'];
+
+  // Copy hardcoded fields.
+  $entity->title = $form_state['values']['title'];
+  $entity->name = $form_state['values']['name'];
+
+
+  field_attach_submit('oa_wizard', $entity, $form, $form_state);
+
+  oa_wizard_save($entity);
+
+  $form_state['redirect'] = 'admin/structure/wizards/view/' . $entity->wizard_id;
+  if (!empty($form_state['add submit'])) {
+    drupal_set_message(t('The entity has been saved.'));
+  }
+}
+
+/**
+ * Load a wizard entity based on their machine name.
+ *
+ * @param $name string
+ */
+function oa_wizard_machine_name_load($name) {
+  $wizard_id = db_select('oa_wizard', 'b')
+    ->fields('b', array('wizard_id'))
+    ->condition('name', $name)
+    ->execute()
+    ->fetchField(0);
+
+  return oa_wizard_load($wizard_id);
+}
+
+/**
+ * Callback to determine if an entities machine name already exists.
+ */
+function oa_wizard_machine_name_exists($value) {
+  $name_exists = db_select('oa_wizard', 'b')
+    ->fields('b', array('name'))
+    ->condition('b.name', $value)
+    ->execute()
+    ->fetchField();
+
+  return !empty($name_exists);
+}
+
+/**
+ * Get all options for wizards, name => label.
+ */
+function oa_wizard_wizard_options($reset = FALSE) {
+  $options = &drupal_static(__FUNCTION__);
+  if ($reset || !isset($options)) {
+    if (!$reset && ($cache = cache_get(__FUNCTION__))) {
+      $options = $cache->data;
+    }
+    else {
+      foreach (entity_load('oa_wizard') as $wizard) {
+        $options[$wizard->name] = check_plain($wizard->title);
+      }
+      cache_set(__FUNCTION__, $options);
+    }
+  }
+  return $options;
+}

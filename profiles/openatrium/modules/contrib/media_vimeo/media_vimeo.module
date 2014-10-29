@@ -1,34 +1,21 @@
 <?php
 
 /**
- * @file media_vimeo/media_vimeo.module
- *
- * Media: Vimeo provides a stream wrapper and formatters for videos provided
- * by Vimeo, available at http://vimeo.com/.
- *
- * @TODO:
- * Tie in Vimeo API.
- * Allow editors to search for videos to display on the browser.
- * Allow editors to put in a vimeo username to display on the browser.
- * Allow editors to log in w/ their credentials.
- * Allow editors to upload videos to Vimeo.
+ * @file
+ * Provides a stream wrapper and formatters appropriate for accessing and
+ * displaying Vimeo videos.
  */
 
-// A registry of variable_get defaults.
-include_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'media_vimeo') . '/includes/media_vimeo.variables.inc';
-
-// Hooks and callbacks for integrating with File Entity module for display.
-include_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'media_vimeo') . '/includes/media_vimeo.formatters.inc';
+// Load all Vimeo file formatters.
+require_once dirname(__FILE__) . '/includes/media_vimeo.formatters.inc';
 
 /**
  * Implements hook_media_internet_providers().
  */
 function media_vimeo_media_internet_providers() {
-  $path = drupal_get_path('module', 'media_vimeo');
   return array(
     'MediaInternetVimeoHandler' => array(
       'title' => t('Vimeo'),
-      'image' => $path . '/images/stream-vimeo.png'
     ),
   );
 }
@@ -41,7 +28,7 @@ function media_vimeo_stream_wrappers() {
     'vimeo' => array(
       'name' => t('Vimeo videos'),
       'class' => 'MediaVimeoStreamWrapper',
-      'description' => t('Videos provided by Vimeo.'),
+      'description' => t('Remote videos hosted on the Vimeo video-sharing website.'),
       'type' => STREAM_WRAPPERS_READ_VISIBLE,
     ),
   );
@@ -55,7 +42,7 @@ function media_vimeo_theme($existing, $type, $theme, $path) {
     'media_vimeo_video' => array(
       'variables' => array('uri' => NULL, 'options' => array()),
       'file' => 'media_vimeo.theme.inc',
-      'path' => $path . '/includes/themes',
+      'path' => $path . '/themes',
       'template' => 'media-vimeo-video',
     ),
   );
@@ -73,16 +60,6 @@ function media_vimeo_media_parse($embed_code) {
   return $handler->parse($embed_code);
 }
 
-/**
- * Implements hook_media_format_form_prepare_alter().
- */
-function media_vimeo_media_format_form_prepare_alter(&$form, &$form_state, $media) {
-  if ($form['#media']->filemime == 'video/vimeo') {
-    $settings = array('autosubmit' => TRUE);
-    drupal_add_js(array('media_format_form' => $settings), 'setting');
-  }
-}
-
  /**
  * Implements hook_file_mimetype_mapping_alter().
  */
@@ -93,13 +70,8 @@ function media_vimeo_file_mimetype_mapping_alter(&$mapping) {
 /**
  * Implements hook_ctools_plugin_api().
  */
-function media_vimeo_ctools_plugin_api($owner, $api) {
-  static $api_versions = array(
-    'file_entity' => array(
-      'file_default_displays' => 1,
-    ),
-  );
-  if (isset($api_versions[$owner][$api])) {
-    return array('version' => $api_versions[$owner][$api]);
+function media_vimeo_ctools_plugin_api($module, $api) {
+  if ($module == 'file_entity' && $api == 'file_default_displays') {
+    return array('version' => 1);
   }
 }

@@ -185,7 +185,7 @@ function oa_messages_determine_user_notifiers($user, $entity, $message, $notifie
 function oa_message_notifiers() {
   $notifiers = array(
     array(
-    'title' => 'Email',
+    'title' => t('Email'),
     'id'    => 'oa_email',
     'default' => TRUE,
   ));

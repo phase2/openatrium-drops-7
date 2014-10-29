@@ -659,8 +659,12 @@ function devel_generate_content_pre_node(&$results) {
 /**
  * Create one node. Used by both batch and non-batch code branches.
  *
- * @param $num
- *   array of options obtained from devel_generate_content_form.
+ * @param $results
+ *   array of options obtained from devel_generate_content_form. If call
+ *   this function directly, $results should contain at the very least:
+ *     node_types => an associative array of node type machine names
+ *     users => an array of UIDs
+ *     title_length => max number of words in titles, for example 4.
  */
 function devel_generate_content_add_node(&$results) {
   $node = new stdClass();
@@ -675,7 +679,7 @@ function devel_generate_content_add_node(&$results) {
   $node->revision = mt_rand(0,1);
   $node->promote = mt_rand(0, 1);
 
-  if ($type->has_title) {
+  if (!$type || $type->has_title) {
     // We should not use the random function if the value is not random
     if ($results['title_length'] < 2) {
       $node->title = devel_create_greeking(1, TRUE);

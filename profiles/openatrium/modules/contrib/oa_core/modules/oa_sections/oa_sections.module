@@ -36,6 +36,51 @@ function oa_sections_menu() {
 }
 
 /**
+ * Implements hook_node_update().
+ */
+function oa_sections_node_update($node) {
+  // If the Section has been moved to a new Space, then we need to update all
+  // the content inside the Section to also be in the new Space.
+  $original = $node->original;
+  $space_nid = $node->og_group_ref[LANGUAGE_NONE][0]['target_id'];
+  if ($original->og_group_ref[LANGUAGE_NONE][0]['target_id'] != $space_nid) {
+    $child_nids = oa_core_get_section_content($node->nid);   
+
+    // For 10 nodes or less, we update them inline (per Mike Potter).
+    if (count($child_nids) <= 10) {
+      foreach ($child_nids as $nid) {
+        _oa_sections_batch_change_space_operation($nid, $space_nid);
+      }
+    }
+    else {
+      // Create a batch operation to actually update the child nodes.
+      $batch = array(
+        'title' => t('Moving content to new Space'),
+        'operations' => array(),
+      );
+      foreach ($child_nids as $nid) {
+        $batch['operations'][] = array('_oa_sections_batch_change_space_operation', array($nid, $space_nid));
+      }
+      batch_set($batch);
+    }
+  }
+}
+
+/**
+ * Batch operation that changes a node's Space.
+ *
+ * @param int $nid
+ *   The NID of the node to update.
+ * @param int $space_nid
+ *   The NID of the Space the node will belong to after changed.
+ */
+function _oa_sections_batch_change_space_operation($nid, $space_nid) {
+  $node = node_load($nid);
+  $node->og_group_ref[LANGUAGE_NONE][0]['target_id'] = $space_nid;
+  node_save($node);
+}
+
+/**
  * Implements hook_og_menu_single_menu_parent().
  */
 function oa_sections_og_menu_single_menu_parent($conf) {
@@ -194,4 +239,23 @@ function oa_sections_views_pre_view(&$view) {
   if ($view->name == 'oa_sections_section_types') {
     oa_core_views_copy_get_arguments_to_link($view);
   }
+}
+
+/**
+ * Return array of icon/images keyed by section type tid
+ */
+function oa_sections_get_icons() {
+  $vid = taxonomy_vocabulary_machine_name_load('section_type')->vid;
+  $terms = taxonomy_get_tree($vid);
+  $query = db_select('taxonomy_term_data', 't');
+  $query->leftJoin('field_data_field_oa_icon_class', 'ic', "ic.entity_id = t.tid");
+  $query->leftJoin('field_data_field_oa_icon_image', 'im', "im.entity_id = t.tid");
+  $query
+    ->fields('t', array('tid'))
+    ->fields('ic', array('field_oa_icon_class_value'))
+    ->fields('im', array('field_oa_icon_image_fid'))
+    ->condition('t.vid',$vid);
+
+  $result = $query->execute()->fetchAllAssoc('tid');
+  return $result;
 }

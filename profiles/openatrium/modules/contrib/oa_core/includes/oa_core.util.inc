@@ -10,15 +10,16 @@
  * Name of various caches.
  */
 define('OA_CACHE_GROUPS_BY_USER', 'oa_groups_by_user');
+define('OA_CACHE_GROUPS_BY_USER_ACCESS', 'oa_groups_by_user_access');
 define('OA_CACHE_GET_PARENTS', 'oa_get_parents');
 define('OA_CACHE_GROUPS_BY_PARENT', 'oa_groups_by_parent');
-
+define('OA_CACHE_TOP_PARENTS', 'oa_top_parents');
 
 /**
  * Get the group IDs of all the groups a user is an approved member of.
  *
  * REPLACES og_get_groups_by_user() in OG and returns a list of groups
- * including subspaces
+ * including subspaces including via INHERITED membership
  *
  * @param $account
  *   (optional) The user object to fetch group memberships for. Defaults to the
@@ -34,7 +35,7 @@ define('OA_CACHE_GROUPS_BY_PARENT', 'oa_groups_by_parent');
  *   An array with the group IDs or an empty array, or returns NULL if there was an error
  */
 function oa_core_get_groups_by_user($account = NULL, $group_type = NULL, $include_archived = FALSE) {
-  if (empty($account)) {
+  if (!isset($account)) {
     global $user;
     $account = $user;
   }
@@ -70,6 +71,99 @@ function oa_core_get_groups_by_user($account = NULL, $group_type = NULL, $includ
   oa_core_set_cache(OA_CACHE_GROUPS_BY_USER, $cid, $user_groups);
 
   return $user_groups;
+}
+
+/**
+ * Get the group IDs and Titles of all the groups a user is an approved member of.
+ *
+ * SIMILAR to oa_core_get_groups_by_user above but respects the NODE ACCESS
+ * of the spaces and allows an optional space status (published)
+ * Only returns spaces a user is ACTIVE in (not BLOCKED or PENDING)
+ * Also, returns both nids and titles in result
+ *
+ * DOES NOT return INHERITED subspaces
+ *
+ * @param $account
+ *   (optional) The user object to fetch group memberships for. Defaults to the
+ *   acting user.  Can be a full user node or just a user uid
+ * @param bool $include_archived
+ *   (optional) Whether to include archived nodes or not. By default, archived
+ *   items aren't included.
+ * @param int $status
+ *   (optional) The space node status to include.  If NULL, all spaces are
+ *   included.  If NODE_PUBLISHED, then only include published spaces
+ * @param array $page
+ *   (optional) Adds a pager to the query for the given page number
+ * @param string $filter
+ *   (optional) Filters the space titles that are returned
+ *
+ * @return array
+ *   An array with the group IDs or an empty array, or returns NULL if there was an error
+ */
+function oa_core_get_groups_by_user_access($account = NULL, $include_archived = FALSE, $status = NULL, $page = NULL, $filter = NULL) {
+  if (!isset($account)) {
+    global $user;
+    $uid = $user->uid;
+  }
+  elseif (is_numeric($account)) {
+    $uid = $account;
+  }
+  else {
+    $uid = $account->uid;
+  }
+
+  if (empty($states)) {
+    $states = array(OG_STATE_ACTIVE);
+  }
+
+  $cid = oa_core_get_cache_id(OA_CACHE_GROUPS_BY_USER_ACCESS, $uid, $include_archived, array($status, $page));
+  if (empty($filter) && oa_core_get_cache(OA_CACHE_GROUPS_BY_USER_ACCESS, $cid, $result)) {
+    return $result;
+  }
+
+  $query = db_select('node', 'n');
+  if (isset($page)) {
+    if (!isset($_GET['page'])) {
+      $_GET['page'] = $page;
+    }
+    $query = $query->extend('PagerDefault')->limit(20);
+  }
+
+  $query->join('og_membership', 'ogm', 'ogm.gid = n.nid');
+  $query
+    ->fields('n', array('nid', 'title'))
+    ->condition('ogm.etid', $uid)
+    ->condition('ogm.entity_type', 'user')
+    ->condition('ogm.state', OG_STATE_ACTIVE)
+    ->orderBy('n.title')
+    ->addTag('node_access');
+
+  if (isset($status)) {
+    $query->condition('n.status', $status);
+  }
+
+  if (!empty($filter)) {
+    $query->condition('n.title', '%' . db_like($filter) . '%', 'LIKE');
+  }
+
+  if (module_exists('flag') && !$include_archived) {
+    if ($flag = flag_get_flag('trash')) {
+      $query->leftJoin('flag_content', 'a', "a.fid = :fid AND a.content_id = n.nid", array(':fid' => $flag->fid));
+      // This makes sure that archived content isn't included, because 'uid'
+      // will be NULL if the join didn't connect anything.
+      $query->isNull('a.uid');
+    }
+  }
+
+  $result = $query
+    ->execute()
+    ->fetchAll();
+
+  if (empty($filter)) {
+    oa_core_set_cache(OA_CACHE_GROUPS_BY_USER_ACCESS, $cid, $result);
+  }
+
+  return $result;
 }
 
 /**
@@ -145,9 +239,19 @@ function oa_core_get_section_context() {
  * @return array
  *   Array of parent NIDs.
  */
-function oa_core_get_parents($nid, $bundle = OA_SPACE_TYPE, $status = NULL, $include_archived = FALSE) {
+function oa_core_get_parents($nid, $bundle = OA_SPACE_TYPE, $status = NULL, $include_archived = FALSE, $account = NULL) {
+  if (!isset($account)) {
+    global $user;
+    $uid = $user->uid;
+  }
+  elseif (is_numeric($account)) {
+    $uid = $account;
+  }
+  else {
+    $uid = $account->uid;
+  }
 
-  $cid = oa_core_get_cache_id(OA_CACHE_GET_PARENTS, $nid, $include_archived, array($bundle, $status));
+  $cid = oa_core_get_cache_id(OA_CACHE_GET_PARENTS, $nid . '_' . $uid, $include_archived, array($bundle, $status));
   if (oa_core_get_cache(OA_CACHE_GET_PARENTS, $cid, $result)) {
     return $result;
   }
@@ -202,9 +306,24 @@ function oa_core_get_parents($nid, $bundle = OA_SPACE_TYPE, $status = NULL, $inc
  * @return array
  *   Array of children NIDs.
  */
-function oa_core_get_groups_by_parent($nid, $bundle = OA_SPACE_TYPE, $status = NULL, $include_archived = FALSE) {
+function oa_core_get_groups_by_parent($nid, $bundle = OA_SPACE_TYPE, $status = NULL, $include_archived = FALSE, $account = NULL) {
 
-  $cid = oa_core_get_cache_id(OA_CACHE_GROUPS_BY_PARENT, $nid, $include_archived, array($bundle, $status));
+  if ($nid == 0) {
+    return oa_core_get_top_parents($bundle, $status, $include_archived, $account);
+  }
+
+  if (!isset($account)) {
+    global $user;
+    $uid = $user->uid;
+  }
+  elseif (is_numeric($account)) {
+    $uid = $account;
+  }
+  else {
+    $uid = $account->uid;
+  }
+
+  $cid = oa_core_get_cache_id(OA_CACHE_GROUPS_BY_PARENT, $nid . '_' . $uid, $include_archived, array($bundle, $status));
   if (oa_core_get_cache(OA_CACHE_GROUPS_BY_PARENT, $cid, $result)) {
     return $result;
   }
@@ -213,18 +332,10 @@ function oa_core_get_groups_by_parent($nid, $bundle = OA_SPACE_TYPE, $status = N
   $query->leftJoin('og_membership', 'f', "n.nid = f.etid");
   $query
     ->fields('n', array('nid'))
-    ->condition('n.type', $bundle)
+    ->condition('f.gid', $nid)
+    ->condition('f.entity_type', 'node')
     ->orderBy('n.title')
     ->addTag('node_access');
-
-  if ($nid == 0) {
-    $query->isNull('f.gid');
-  }
-  else {
-    $query
-      ->condition('f.gid', $nid)
-      ->condition('f.entity_type', 'node');
-  }
 
   if (isset($bundle)) {
     $query->condition('n.type', $bundle);
@@ -247,6 +358,98 @@ function oa_core_get_groups_by_parent($nid, $bundle = OA_SPACE_TYPE, $status = N
   oa_core_set_cache(OA_CACHE_GROUPS_BY_PARENT, $cid, $result);
 
   return $result;
+}
+
+/**
+ * Get top-level spaces/groups (no parents of same bundle type)
+ *
+ * @param string $bundle
+ *   The node type (default: OA_SPACE_TYPE).
+ * @param int|NULL $status
+ *   (optional) If specified, the node status (ex. NODE_PUBLISHED or
+ *   NODE_NOT_PUBLISHED) to look for. If not specified, it return
+ *   nodes of either status.
+ * @param bool $include_archived
+ *   (optional) Whether to include archived nodes or not. By default, archived
+ *   items aren't included.
+ *
+ * @return array
+ *   Array of children NIDs.
+ */
+function oa_core_get_top_parents($bundle, $status = NULL, $include_archived = FALSE, $account = NULL) {
+  if (!isset($account)) {
+    global $user;
+    $uid = $user->uid;
+  }
+  elseif (is_numeric($account)) {
+    $uid = $account;
+  }
+  else {
+    $uid = $account->uid;
+  }
+
+  $cid = oa_core_get_cache_id(OA_CACHE_TOP_PARENTS, $uid, $include_archived, array($bundle, $status));
+  if (oa_core_get_cache(OA_CACHE_TOP_PARENTS, $cid, $result)) {
+    return $result;
+  }
+
+  // need to also add the spaces whose parents are not the correct bundle
+  $query_parents = db_select('node', 'n');
+  $query_parents->join('og_membership', 'f', "n.nid = f.etid");
+  $query_parents->join('node', 'n2', "n2.nid = f.gid");
+  $query_parents
+    ->fields('n', array('nid'))
+    ->condition('f.entity_type', 'node')
+    ->condition('n.type', $bundle)
+    ->condition('n2.type', $bundle);
+
+  $query = db_select('node', 'n');
+  $query->fields('n', array('nid'))
+    ->orderBy('n.title')
+    ->addTag('node_access')
+    ->condition('n.type', $bundle)
+    ->condition('n.nid', $query_parents, 'NOT IN');
+
+  if (isset($status)) {
+    $query->condition('n.status', $status);
+  }
+
+  if (module_exists('flag') && !$include_archived) {
+    if ($flag = flag_get_flag('trash')) {
+      $query->leftJoin('flag_content', 'a', "a.fid = :fid AND a.content_id = n.nid", array(':fid' => $flag->fid));
+      // This makes sure that archived content isn't included, because 'uid'
+      // will be NULL if the join didn't connect anything.
+      $query->isNull('a.uid');
+    }
+  }
+
+  $result = $query->execute()->fetchCol(0);
+
+  oa_core_set_cache(OA_CACHE_TOP_PARENTS, $cid, $result);
+
+  return $result;
+}
+
+/**
+ * Get all the content within a particular Section.
+ *
+ * @param int $nid
+ *   The node ID of the Section.
+ *
+ * @return array
+ *   An array of node IDs.
+ */
+function oa_core_get_section_content($nid) {
+  $query = new EntityFieldQuery();
+  $query
+    ->entityCondition('entity_type', 'node')
+    ->propertyCondition('status', 1)
+    ->fieldCondition('oa_section_ref', 'target_id', $nid);
+  $result = $query->execute();
+  if (isset($result['node'])) {
+    return array_keys($result['node']);
+  }
+  return array();
 }
 
 /**
@@ -390,7 +593,7 @@ function oa_core_create_node($bundle, $title = '', $context = NULL) {
  *   'links' is a list of node links
  *   'ids' is a list of the node ids
  */
-function oa_core_get_titles($ids = array(), $type = '', $sort_field = 'title', $fields = array('title', 'link', 'id', 'type')) {
+function oa_core_get_titles($ids = array(), $type = '', $sort_field = 'title', $fields = array('title', 'link', 'id', 'type'), $sanitize = TRUE) {
   $query_fields = array('nid', 'title');
   $return = array();
   foreach ($fields as $field) {
@@ -426,7 +629,7 @@ function oa_core_get_titles($ids = array(), $type = '', $sort_field = 'title', $
       foreach ($fields as $field) {
         $field_name = ($field == 'id') ? 'nid' : $field;
         $value = isset($row[$field_name]) ? $row[$field_name] : NULL;
-        if ($field == 'title') {
+        if (($field == 'title') && $sanitize) {
           $value = check_plain($value);
         }
         if ($field == 'link') {
@@ -507,18 +710,37 @@ function oa_core_get_public_spaces($group_types = array(OA_SPACE_TYPE => OA_SPAC
  * Return a list of sections within a space
  * Uses access control, so only sections with access are returned
  * @param  int $gid space ID
- * @return array of section data: $array[$nid] = $title
+ * @param  int $status NULL for any status, otherwise specify status to return
+ * @param  bool $bypass_access_check, TRUE to bypass access control
+ * @param  array $fields, array of additional fields to return, otherwise just title
+ *   fields array has format fieldname|column.  e.g., field_oa_space|tid
+ * @return array of section data: $array[$nid] = $title.  If $fields is specified
+ *   the return array is the full associative array of nid, title, fields
  */
-function oa_core_space_sections($gid, $status = NULL, $bypass_access_check = FALSE) {
+function oa_core_space_sections($gid, $status = NULL, $bypass_access_check = FALSE, $fields = array()) {
   $query = db_select('node', 'n');
   $query->rightJoin('og_membership', 'og', 'n.nid = og.etid');
   $query->leftJoin('field_data_field_oa_section_weight', 'w',
         "n.nid = w.entity_id AND w.entity_type = 'node'");
+  $extra_fields = array();
+  foreach ($fields as $field) {
+    if ((strpos($field, 'field_') === 0) || (strpos($field, '|') !== FALSE)) {
+      $field_list = explode('|', $field);
+      $field_name = $field_list[0];
+      $column = !empty($field_list[1]) ? $field_list[1] : 'value';
+      $query->leftJoin('field_data_' . $field_name, $field_name,
+        'n.nid = ' . $field_name . '.entity_id');
+      $query->fields($field_name, array($field_name . '_' . $column));
+    }
+    else {
+      $extra_fields[] = $field;
+    }
+  }
   if (isset($status)) {
     $query->condition('n.status', $status);
   }
   $query
-    ->fields('n', array('nid', 'title'))
+    ->fields('n', array('nid', 'title') + $extra_fields)
     ->condition('n.type', OA_SECTION_TYPE)
     ->condition('og.entity_type', 'node')
     ->condition('og.field_name', OA_SPACE_FIELD)
@@ -528,7 +750,12 @@ function oa_core_space_sections($gid, $status = NULL, $bypass_access_check = FAL
     $query->addTag('node_access');
   }
   $result = $query->execute();
-  return $result->fetchAllKeyed(0, 1);
+  if (empty($fields)) {
+    return $result->fetchAllKeyed(0, 1);
+  }
+  else {
+    return $result->fetchAllAssoc('nid');
+  }
 }
 
 /**
@@ -546,13 +773,59 @@ function oa_core_get_all_groups() {
 }
 
 /**
- * Returns the users that are in a space.
+ * Get the users that are in a space (excluding inherited users).
+ *
+ * @param int $space_id
+ *   The NID of the Space.
+ * @param int $state
+ *   (Optional) The state of the OG membership, for example:
+ *   - OG_STATE_ACTIVE (the default)
+ *   - OG_STATE_PENDING
+ *   - OG_STATE_BLOCKED
+ *
+ * @return array
+ *   An associative array of fully loaded user objects, keyed by user id.
  */
 function oa_core_get_users_for_space($space_id, $state = OG_STATE_ACTIVE) {
-  $space = node_load($space_id);
-  $wrapper = entity_metadata_wrapper('node', $space);
-  $members = isset($wrapper->{'members__' . $state}) ? $wrapper->{'members__' . $state}->value() : array();
-  return (!empty($members)) ? $members : array();
+  $query = db_select('og_membership', 'og')
+    ->fields('og', array('etid'))
+    ->condition('og.entity_type', 'user')
+    ->condition('og.state', $state)
+    ->condition('og.group_type', 'node')
+    ->condition('og.gid', $space_id);
+  $uids = $query->execute()->fetchCol();
+  return user_load_multiple($uids);
+}
+
+/**
+ * Get the users that are in a space, including inherited users.
+ *
+ * @param int $space_id
+ *   The NID of the Space.
+ * @param int $state
+ *   (Optional) The state of the OG membership, for example:
+ *   - OG_STATE_ACTIVE (the default)
+ *   - OG_STATE_PENDING
+ *   - OG_STATE_BLOCKED
+ *
+ * @return array
+ *   An associative array of fully loaded user objects, keyed by user id.
+ */
+function oa_core_get_inherited_users_for_space($space_id, $state = OG_STATE_ACTIVE) {
+  $users = oa_core_get_users_for_space($space_id, $state);
+
+  if (module_exists('og_subgroups') && function_exists('_og_subgroups_get_inherited_users')) {
+    $inherited_users = _og_subgroups_get_inherited_users('node', $space_id);
+    foreach ($inherited_users as $uid => $data) {
+      foreach ($data as $item) {
+        if ($item['membership']->state == $state) {
+          $users[$uid] = $item['user'];
+        }
+      }
+    }
+  }
+
+  return $users;
 }
 
 /**
@@ -739,4 +1012,140 @@ function oa_core_get_vocab_terms($vocabs) {
     }
   }
   return $options;
+}
+
+/**
+ * Returns the version of Bootstrap (via Radix) being used
+ * Returns 2 or 3 for Bootstrap, returns 0 if no Bootstrap is used
+ */
+function oa_core_get_bootstrap_version() {
+  static $radix_version = NULL;
+  if (isset($radix_version)) {
+    return $radix_version;
+  }
+
+  // set default to 3 so if using a git clone without version info
+  // we assume it's the latest -dev version
+  $radix_version = 3;
+  // parse the Radix info file to determine version
+  $path = drupal_get_path('theme', 'radix') . '/' . 'radix.info';
+  $info = drupal_parse_info_file($path);
+  if (empty($info)) {
+    // no Radix theme found, so return zero.
+    $radix_version = 0;
+  }
+  elseif (!empty($info['version']) && strpos($info['version'], '7.x-') === 0) {
+    $radix_version = intval(substr($info['version'], 4, 1));
+  }
+  return $radix_version;
+}
+
+/**
+ * Helper function to create a new Section or Space Type taxonomy term
+ * @param string $vocab
+ *   Machine name of vocabulary to add term to
+ * @param string $name
+ *   Human readable label of the term
+ * @param array $params
+ *   expected to have fields for:
+ *   'taxonomy' - vocabulary machine name.
+ *   'name' - The human readable label of the term.
+ *   'description' - The human readable description of the term.
+ *   'node_options' - An array of node types which should be allowed within the section.
+ *   'layout' - The panelizer layout key to use for this section.
+ *   'icon' - The icon class to use in the sitemap.
+ * @param bool $update
+ *   Whether an existing term is allowed to be updated.
+ */
+function oa_core_create_term($vocab_name, $name, $params, $update = TRUE) {
+  $vocab = oa_core_taxonomy_vocabulary($vocab_name);
+  $term = NULL;
+
+  // This function can get called from install hooks.
+  // Make sure the Taxonomy is available.
+  if (!$vocab) {
+    features_revert(array(
+      'oa_core' => array('taxonomy'),
+      'oa_sections' => array('taxonomy'),
+    ));
+    drupal_static('taxonomy_vocabulary_get_names');
+    $vocab = oa_core_taxonomy_vocabulary($vocab_name);
+  }
+
+  if (!empty($vocab)) {
+    $conditions = array(
+      'name' => trim($name),
+      'vid' => $vocab->vid,
+    );
+    $term = current( entity_load('taxonomy_term', array(), $conditions));
+
+    if (!$term || $update) {
+
+      // Make sure the fields are available.
+      $field_info = field_info_instances('taxonomy_term', $vocab_name);
+      $revert = array();
+      if (empty($field_info['field_oa_node_types'])) {
+        $revert['oa_buttons'] = array('field_base', 'field_instance');
+      }
+      if (empty($field_info['field_oa_section_layout'])) {
+        $revert['oa_core'] = array('field_base', 'field_instance');
+      }
+      if (empty($field_info['field_oa_icon_class'])) {
+        $revert['oa_sections'] = array('field_base', 'field_instance');
+      }
+      if (!empty($revert)) {
+        features_revert($revert);
+        field_info_cache_clear();
+      }
+
+      $description = $params['description'];
+      $node_options = $params['node_options'];
+      $layout = $params['layout'];
+      $icon = !empty($params['icon']) ? $params['icon'] : '';
+
+      if ($term && $update) {
+        // Update existing term.
+        if (isset($term->field_oa_icon_class)) {
+          $term->field_oa_icon_class[LANGUAGE_NONE][0]['value'] = $icon;
+        }
+        $term->field_oa_section_layout[LANGUAGE_NONE][0]['value'] = $layout;
+        $term->field_oa_node_types[LANGUAGE_NONE] = array();
+      }
+      else {
+        // Create new term.
+        $term = (object)array(
+          'vid' => $vocab->vid,
+          'name' => $name,
+          'description' => $description,
+          'format' => 'panopoly_wysiwyg_text',
+          'field_oa_icon_class' => array(
+            LANGUAGE_NONE => array(
+              array('value' => $icon),
+            ),
+          ),
+          'field_oa_section_layout' => array(
+            LANGUAGE_NONE => array(
+              array('value' => $layout),
+            ),
+          ),
+          'field_oa_node_types' => array(
+            LANGUAGE_NONE => array(),
+          ),
+          'path' => array(
+            'alias' => '',
+            'pathauto' => '',
+          ),
+          'oa_button' => TRUE,
+        );
+      }
+
+      if (!empty($node_options)) {
+        foreach ($node_options as $type) {
+          $term->field_oa_node_types[LANGUAGE_NONE][] = array('value' => $type);
+        }
+      }
+      taxonomy_term_save($term);
+    }
+  }
+  return $term;
 }

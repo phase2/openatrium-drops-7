@@ -30,7 +30,11 @@ function respondjs_requirements($phase) {
     if (function_exists('libraries_get_path') && strpos($library_path,'libraries/respondjs') === FALSE) {
       $requirements['respondjs']['value'] = t('Respond.js is not correctly using Libraries API');
       $requirements['respondjs']['severity'] = REQUIREMENT_WARNING;
-      $requirements['respondjs']['description'] = t('Please install <a href="https://raw.github.com/scottjehl/Respond/master/respond.min.js">Respond.js</a> in <b>'. libraries_get_path('respondjs') .'</b>. The module is using its included copy at <b>'.drupal_get_path('module','respondjs') .'/lib</b>');
+      $requirements['respondjs']['description'] = t('Please install !respondjs in <b>@libraries</b>. The module is using its included copy at <b>@default</b>.', array(
+        '!respondjs' => l('respond.min.js', 'https://raw.github.com/scottjehl/Respond/master/respond.min.js'),
+        '@libraries' => 'sites/all/libraries/respondjs',
+        '@default' => drupal_get_path('module','respondjs') . '/lib')
+      );
     }
     // If the included copy of respond.js has been removed or renamed report an error.
     // At this point the module cannot function properly.

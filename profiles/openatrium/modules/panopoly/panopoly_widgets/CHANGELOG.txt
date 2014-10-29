@@ -1,3 +1,22 @@
+Panopoly Widgets 7.x-1.13, 2014-10-17
+------------------------------
+- Fixed Patch for tablefield not needed.
+
+Panopoly Widgets 7.x-1.12, 2014-10-15
+------------------------------
+- Added only show number and play on spotlight if pics no >= 2.
+- Added Spotlight image should link to URL.
+- Added per-spotlight setting for slide rotation duration.
+- Fixed Default permissions only allow 'administrator' to add media.
+- Fixed panopoly_widgets_update_7003() fails to properly update 'Video' widgets.
+- Update 'media_vimeo' to version 2.0.
+- Fixed update 7007 fails if field exists.
+
+Panopoly Widgets 7.x-1.11, 2014-08-14
+------------------------------
+- Update TableField to version 2.3 for SA-CONTRIB-2014-077.
+- Added highlighting to Add Table widget to distinguish header row.
+
 Panopoly Widgets 7.x-1.10, 2014-08-06
 ------------------------------
 - No changes since last release.

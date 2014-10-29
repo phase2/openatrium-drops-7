@@ -17,7 +17,7 @@ function oa_buttons_schema() {
  * Create space and section default terms.
  */
 function oa_buttons_update_7005() {
-  oa_buttons_create_default_terms();
+  // no longer needed.  Core add the default taxonomy terms.
 }
 
 /**
@@ -77,59 +77,21 @@ function oa_buttons_update_7007() {
  * Update default section buttons to fix bug with initial creation.
  */
 function oa_buttons_update_7008() {
-  $terms = oa_buttons_get_default_terms();
-  foreach ($terms as $machine_name => $t) {
-    $vocab = oa_core_taxonomy_vocabulary($taxonomy);
-    if ($term = taxonomy_get_term_by_name($t['name'], $t['taxonomy'])) {
-      $term = reset($term);
-      $term->name = $t['name'];
-      $term->field_oa_section_layout = array(
-        LANGUAGE_NONE => array(
-          array('value' => $t['layout']),
-        ),
-      );
-
-      $term->field_oa_node_types = array(
-        LANGUAGE_NONE => array(
-        ),
-      );
-
-      if (!empty($t['node_options'])) {
-        foreach ($t['node_options'] as $type) {
-          $term->field_oa_node_types[LANGUAGE_NONE][] = array('value' => $type);
-        }
-      }
-      taxonomy_term_save($term);
-    }
-  }
+  // no longer needed.  Plugins add their own taxonomy terms.
 }
 
 /**
  * Remove Add Section and Add Team from default space types
  */
 function oa_buttons_update_7009() {
-  $terms = oa_buttons_get_default_terms();
-  foreach ($terms as $term) {
-    // force default terms to be recreated
-    oa_buttons_create_term($term['taxonomy'], $term['name'], $term['node_options'], $term['layout'], TRUE);
-  }
+  // no longer needed.  Plugins add their own taxonomy terms.
 }
 
 /**
  * Update descriptions of space and section types
  */
 function oa_buttons_update_7010() {
-  $terms = oa_buttons_get_default_terms();
-  foreach ($terms as $term) {
-    // force default terms to be recreated
-    if (!empty($term['description']) && ($current_term = current(taxonomy_get_term_by_name($term['name'], $term['taxonomy'])))) {
-//      if (empty($current_term->description)) {
-        $current_term->description = $term['description'];
-        $current_term->format = 'panopoly_wysiwyg_text';
-        taxonomy_term_save($current_term);
-//      }
-    }
-  }
+  // no longer needed.  Plugins add their own taxonomy terms.
 }
 
 

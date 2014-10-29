@@ -1,0 +1,256 @@
+<?php
+/**
+ * @file
+ * Code for the Open Atrium Archive feature.
+ */
+
+include_once 'oa_archive.features.inc';
+
+/**
+ * Implements hook_node_access().
+ *
+ * Deny delete access when trash flag is in use.
+ */
+function oa_archive_node_access($node, $op, $account) {
+  if (($op == 'delete') && variable_get('oa_archive_disable_delete', FALSE) &&  module_exists('trash_flag')) {
+    return NODE_ACCESS_DENY;
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function oa_archive_form_views_exposed_form_alter(&$form, &$form_state) {
+  // Alter the 'Archived' exposed filter when shown normally.
+  foreach (_oa_archive_find_archived_exposed_filters($form_state['view']) as $filter_name) {
+    if (isset($form[$filter_name])) {
+      _oa_archive_alter_archived_exposed_filter($form[$filter_name]);
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function oa_archive_form_views_content_views_panes_content_type_edit_form_alter(&$form, &$form_state, $form_id) {
+  // Alter the 'Archived' exposed filter when shown on the pane settings.
+  foreach (_oa_archive_find_archived_exposed_filters($form_state['view']) as $filter_name) {
+    if (isset($form['exposed']['filter-' . $filter_name][$filter_name])) {
+      _oa_archive_alter_archived_exposed_filter($form['exposed']['filter-' . $filter_name][$filter_name]);
+    }
+  }
+}
+
+/**
+ * Helper function to find the 'Archived' exposed filters on a View.
+ *
+ * @return array
+ *   An array of the filter names.
+ */
+function _oa_archive_find_archived_exposed_filters($view) {
+  $result = array();
+
+  // We need to locate an exposed filter on the View which is the 'Archive'
+  // flag. This is a little harder than it could be because the filter needs a
+  // relationship to the right flag.
+  foreach($view->filter as $filter_name => $filter) {
+    if (is_a($filter, 'flag_handler_filter_flagged') && !empty($filter->options['exposed'])) {
+      if ($relationship = $view->relationship[$filter->options['relationship']]) {
+        if ($relationship->options['flag'] == 'trash') {
+          $result[] = $filter_name;
+        }
+      }
+    }
+  }
+
+  return $result;
+}
+
+/**
+ * Helper function to alter the 'Archive' exposed filter to be user friendly.
+ */
+function _oa_archive_alter_archived_exposed_filter(&$element) {
+  // Replace the options with easier to understand ones.
+  $element['#options'] = array(
+    '0'   => t('No'),
+    'All' => t('Yes'),
+    '1'   => t('Only archived content'),
+  );
+
+  // Default to 'No' when there is no previous configuration.
+  if (empty($element['#default_value'])) {
+    $element['#default_value'] = 0;
+  }
+}
+
+/**
+ * Implements hook_views_query_alter().
+ */
+function oa_archive_views_query_alter(&$view, &$query) {
+  if ($flag = flag_get_flag('trash')) {
+    // If the current Space is archived, then we need to remove any exposed
+    // filters from the View query, so that we see both archived and unarchived
+    // content.
+    if (($space_nid = oa_core_get_space_context()) && $flag->is_flagged($space_nid)) {
+      $archive_filters = _oa_archive_find_archived_exposed_filters($view);
+      foreach ($archive_filters as $filter_name) {
+        $field_name = $view->filter[$filter_name]->relationship . '.uid';
+        // Loop through each of the where groups, and filter out any conditions
+        // that match the $field_name for this exposed filter.
+        foreach ($query->where as $where_group => $where) {
+          $new_where = array();
+          foreach ($where['conditions'] as $condition) {
+            if ($condition['field'] != $field_name) {
+              $new_where[] = $condition;
+            }
+          }
+          $query->where[$where_group] = $new_where;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_flag().
+ *
+ * We need to archive/unarchive child content when archiving a Space or
+ * Section. We handle unarchiving parents who had child content that was
+ * already archived by storing a list of those nodes in a variable.
+ */
+function oa_archive_flag($action, $flag, $content_id, $account) {
+  if ($flag->name == 'trash') {
+    $node = node_load($content_id);
+
+    // We only deal with Spaces or Sections.
+    if (empty($node) || !in_array($node->type, array(OA_SPACE_TYPE, OA_SECTION_TYPE))) {
+      return;
+    }
+
+    // Get all the child NIDs.
+    if ($node->type == OA_SPACE_TYPE) {
+      $child_nids = array_merge(
+        _oa_archive_get_subspaces($node->nid),
+        _oa_archive_get_sections($node->nid));
+    }
+    elseif ($node->type == OA_SECTION_TYPE) {
+      $child_nids = _oa_archive_get_section_content($node->nid);
+    }
+
+    $already_archived_variable = 'oa_archive_node_' . $node->nid . '_already_archived';
+
+    // Since we are recursively flagging child content, we need to record which
+    // child nodes were already archived, so that we can leave them in that
+    // state when unarchiving the parent.
+    if ($action == 'flag') {
+      $already_archived = _oa_archive_find_archived_nodes($child_nids);
+      variable_set($already_archived_variable, $already_archived);
+    }
+    else {
+      // If we're unflagging, so we need to pull this list from storage.
+      $already_archived = variable_get($already_archived_variable, array());
+      variable_delete($already_archived_variable);
+    }
+
+    // We don't need to bother archiving content that's already archived, or
+    // unarchiving content that should remain that way.
+    $child_nids = array_diff($child_nids, $already_archived);
+
+    // Fire off a batch operation to do the flagging/unflagging.
+    $batch = array(
+      'title' => $action == 'flag' ? t('Archiving content') : t('Unarchiving content'),
+      'operations' => array(),
+    );
+    foreach ($child_nids as $nid) {
+      $batch['operations'][] = array('_oa_archive_batch_operation', array($action, $nid));
+    }
+    batch_set($batch);
+  }
+}
+
+/**
+ * Gets all the content within a particular Section.
+ *
+ * @param int $nid
+ *   The node ID of the Section.
+ *
+ * @return array
+ *   An array of node IDs.
+ */
+function _oa_archive_get_section_content($nid) {
+  $query = new EntityFieldQuery();
+  $query
+    ->entityCondition('entity_type', 'node')
+    ->propertyCondition('status', 1)
+    ->fieldCondition('oa_section_ref', 'target_id', $nid);
+  $result = $query->execute();
+  if (isset($result['node'])) {
+    return array_keys($result['node']);
+  }
+  return array();
+}
+
+/**
+ * Gets all the sub-Spaces within a particular Space..
+ *
+ * @param int $nid
+ *   The node ID of the Space.
+ *
+ * @return array
+ *   An array of node IDs.
+ */
+function _oa_archive_get_subspaces($nid) {
+  $associated_entities = og_subgroups_get_associated_entities('node', $nid);
+  if (!empty($associated_entities['node'])) {
+    return array_values($associated_entities['node']);
+  }
+  return array();
+}
+
+/**
+ * Gets all the Sections within a particular Space..
+ *
+ * @param int $nid
+ *   The node ID of the Space.
+ *
+ * @return array
+ *   An array of node IDs.
+ */
+function _oa_archive_get_sections($nid) {
+  return array_keys(oa_core_space_sections($nid, NODE_PUBLISHED));
+}
+
+/**
+ * Get the archived nodes from a list.
+ *
+ * @param array $nids
+ *   Array of NIDs to check.
+ *
+ * @return array
+ *   Array of all the archived NIDs.
+ */
+function _oa_archive_find_archived_nodes($nids) {
+  $result = array();
+  if ($flag = flag_get_flag('trash')) {
+    foreach ($nids as $nid) {
+      if ($flag->is_flagged($nid)) {
+        $result[] = $nid;
+      }
+    }
+  }
+  return $result;
+}
+
+/**
+ * Batch operation that flags or unflags a child node.
+ *
+ * @param string $action
+ *   Either "flag" or "unflag".
+ * @param int $nid
+ *   The NID to flag or unflag.
+ */
+function _oa_archive_batch_operation($action, $nid, &$context) {
+  if ($flag = flag_get_flag('trash')) {
+    $flag->flag($action, $nid);
+  }
+}

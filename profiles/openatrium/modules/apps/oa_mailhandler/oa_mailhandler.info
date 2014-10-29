@@ -1,0 +1,30 @@
+name = Open Atrium Mailhandler
+description = Handle message replies in Open Atrium
+core = 7.x
+package = Open Atrium
+version = 7.x-2.0
+project = oa_mailhandler
+dependencies[] = ctools
+dependencies[] = entity
+dependencies[] = features
+dependencies[] = feeds
+dependencies[] = feeds_comment_processor
+dependencies[] = mailcomment
+dependencies[] = mailhandler
+dependencies[] = mailhandler_php_imap
+dependencies[] = strongarm
+features[ctools][] = feeds:feeds_importer_default:1
+features[ctools][] = strongarm:strongarm:1
+features[features_api][] = api:2
+features[feeds_importer][] = comment_reply_email_importer
+features[feeds_importer][] = discussion_reply_email_importer
+features[variable][] = mailcomment_import_filter_mode
+features[variable][] = mailcomment_insert_reply_text
+project path = profiles/openatrium/modules/features
+
+; Information added by Drupal.org packaging script on 2014-10-28
+version = "7.x-2.15"
+core = "7.x"
+project = "oa_mailhandler"
+datestamp = "1414533229"
+

@@ -33,6 +33,32 @@ function oa_radix_css_alter(&$css) {
 }
 
 /**
+ * Implements hook_js_alter().
+ */
+function oa_radix_js_alter(&$javascript) {
+  // Add oa-radix-modal when required.
+  $ctools_modal = drupal_get_path('module', 'ctools') . '/js/modal.js';
+  $radix_modal = drupal_get_path('theme', 'radix') . '/assets/javascripts/radix-modal.js';
+  $oa_radix_modal = drupal_get_path('theme', 'oa_radix') . '/assets/javascripts/oa-radix-modal.js';
+  if ((!empty($javascript[$ctools_modal]) || !empty($javascript[$radix_modal])) && empty($javascript[$oa_radix_modal])) {
+    unset($javascript[$radix_modal]);
+    $javascript[$oa_radix_modal] = array_merge(
+      drupal_js_defaults(), array('group' => JS_THEME, 'data' => $oa_radix_modal));
+  }
+}
+
+/**
+ * Implements hook_libraries_info_alter(&$libraries)().
+ */
+function oa_radix_libraries_info_alter(&$libraries) {
+  // prevent duplicate bootstrap css since it's already
+  // compiled into our screen.css from compass_bootstrap via radix theme
+  if (isset($libraries['bootstrap'])) {
+    unset($libraries['bootstrap']['files']['css']);
+  }
+}
+
+/**
  * Implements hook_module_implements_alter().
  * Remove panopoly_core which uses this alter to set it's own jquery_ui theme
  * Should be done in a theme layer, not in panopoly_core
@@ -40,6 +66,23 @@ function oa_radix_css_alter(&$css) {
 function oa_radix_module_implements_alter(&$implementations, $hook) {
   if ($hook == 'element_info_alter') {
     unset($implementations['panopoly_core']);
+  }
+}
+
+/**
+ * Implements hook_ctools_plugin_post_alter().
+ *
+ * @param $plugin
+ * @param $info
+ */
+function oa_radix_ctools_plugin_post_alter(&$plugin, &$info) {
+  // Fix Panopoly bryant_flipped_flipped.inc filename
+  if ($info['type'] == 'layouts' && $plugin['module'] == 'panopoly_theme') {
+    if (strpos($plugin['theme'], 'bryant_flipped') !== FALSE) {
+      if (strpos($plugin['file'], 'flipped_flipped') !== FALSE) {
+        $plugin['file'] = str_replace('flipped_flipped', 'flipped', $plugin['file']);
+      }
+    }
   }
 }
 
@@ -63,8 +106,8 @@ function oa_radix_preprocess_page(&$vars) {
 
   // Add user_badge to header.
   $vars['user_badge'] = '';
-  if (module_exists('oa_dashboard')) {
-    $user_badge = module_invoke('oa_dashboard', 'block_view', 'oa_user_badge');
+  if (module_exists('oa_toolbar')) {
+    $user_badge = module_invoke('oa_toolbar', 'block_view', 'oa_user_badge');
     $vars['user_badge'] = $user_badge['content'];
   }
   $toolbar = panels_mini_block_view('oa_toolbar_panel');

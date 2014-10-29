@@ -10,7 +10,7 @@
 function oa_buttons_conditional_fields_default_fields() {
   $items = array();
 
-  $items[] = array(
+  $items["node:oa_section"] = array(
     'entity' => 'node',
     'bundle' => 'oa_section',
     'dependent' => 'field_oa_node_types',
@@ -40,7 +40,7 @@ function oa_buttons_conditional_fields_default_fields() {
     ),
   );
 
-  $items[] = array(
+  $items["node:oa_space"] = array(
     'entity' => 'node',
     'bundle' => 'oa_space',
     'dependent' => 'field_oa_node_types',

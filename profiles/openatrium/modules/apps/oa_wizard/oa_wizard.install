@@ -1,0 +1,99 @@
+<?php
+
+/**
+ * @file
+ * Sets up the base table for our entity and a table to store information about
+ * the entity types.
+ */
+
+
+/**
+ * Implements hook_schema().
+ */
+function oa_wizard_schema() {
+  $schema = array();
+
+  $schema['oa_wizard'] = array(
+    'description' => 'The base table for oa_wizard entities.',
+    'fields' => array(
+      'wizard_id' => array(
+        'description' => 'Primary Key: Identifier for a wizard.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'bundle' => array(
+        'description' => 'The bundle of this wizard.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'language' => array(
+        'description' => 'The language of the wizard.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'name' => array(
+        'description' => 'The name of the wizard - a human-readable identifier.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'title' => array(
+        'description' => 'The title of the wizard.',
+        'type' => 'varchar',
+        'length' => 255,
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the wizard was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+        'description' => 'The Unix timestamp when the wizard was most recently saved.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'module' => array(
+        'description' => 'The module name.',
+        'type' => 'varchar',
+        'length' => 25,
+        'not null' => TRUE,
+      ),
+      'status' => array(
+        'description' => 'The entity status.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'data' => array(
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+        'description' => 'A serialized array of additional data.',
+      ),
+    ),
+    'primary key' => array('wizard_id'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Add the machine name as the content type.
+ */
+function oa_wizard_update_7101() {
+  foreach (entity_load('oa_wizard') as $wizard) {
+    if (empty($wizard-> field_wizard_type)) {
+      $wizard->field_wizard_type[LANGUAGE_NONE][0]['value'] = $wizard->name;
+      oa_wizard_save($wizard);
+    }
+  }
+}

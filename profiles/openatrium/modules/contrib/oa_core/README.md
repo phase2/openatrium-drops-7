@@ -15,32 +15,18 @@ Submodules (alphabetical)
   Provides framework for group-specific and team-specific access permissions,
   similar to Roles.
 
-- [**Open Atrium Admin** (oa_admin)](modules/oa_admin) : OPTIONAL but Recommended.
-  Provides the replacement for the Drupal Content page.
-
 - [**Open Atrium Admin Role** (oa_adminrole)](modules/oa_adminrole) : OPTIONAL but Recommended.
   Provides default Permissions for Admins and Members.
 
 - [**Open Atrium Appearance** (oa_appearance)](modules/oa_appearance) : OPTIONAL.
   Enables site and space-specific banners and colors.
 
-- [**Open Atrium Archive** (oa_archive)](modules/oa_archive) : OPTIONAL.
-  Renames the Trash Flag module options to Archive.
-
 - [**Open Atrium Buttons** (oa_buttons)](modules/oa_buttons) : REQUIRED.
   Manages the Command Buttons for Open Atrium. Also defines the default Space
   and Section type taxonomy terms.
 
-- [**Open Atrium Clone** (oa_clone)](modules/oa_clone) : OPTIONAL.
-  Adds ability to create Blueprints from Spaces, or Clone any space or
-  content node.
-
 - [**Open Atrium Config** (oa_config)](modules/oa_config) : OPTIONAL but Recommended.
   Stores default settings for various contrib modules.
-
-- [**Open Atrium Dashboard** (oa_dashboard)](modules/oa_dashboard) : OPTIONAL but Recommended.
-  Provides the widgets for the Breadcrumb navigation toolbar, Main menu toolbar,
-  Space menu toolbar, and the Drupal Admin menu button.
 
 - [**Open Atrium Date** (oa_date)](modules/oa_date) : REQUIRED.
   Adds the relative date formatter used in the Recent Activity views.

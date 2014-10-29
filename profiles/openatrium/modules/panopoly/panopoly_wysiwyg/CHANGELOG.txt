@@ -1,3 +1,18 @@
+Panopoly WYSIWYG 7.x-1.13, 2014-10-17
+------------------------------
+- No changes since last release.
+
+Panopoly WYSIWYG 7.x-1.12, 2014-10-15
+------------------------------
+- Added Upgrade linkit module 3.1+.
+- Fixed Kitchen Sink WYSIWYG plug-in breaks non-panopoly_wysiwyg input format editors.
+- Fixed Error notice after overriding WYSIWYG feature.
+- Add WYSIWYG Patch #934976 to Panopoly (Allows for hiding input format fields).
+
+Panopoly WYSIWYG 7.x-1.11, 2014-08-14
+------------------------------
+- No changes since last release.
+
 Panopoly WYSIWYG 7.x-1.10, 2014-08-06
 ------------------------------
 - No changes since last release.

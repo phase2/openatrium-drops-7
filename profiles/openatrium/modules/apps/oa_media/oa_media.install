@@ -1,0 +1,34 @@
+<?php
+/**
+ * @file
+ * oa_media.install
+ */
+
+/**
+ * Implements hook_install().
+ */
+function oa_media_install() {
+  // set the colorbox_style variable
+  // using strong arm doesn't work since the path gets hardcoded
+  _oa_media_colorbox_install();
+}
+
+/**
+ * Helper function to set the colorbox style
+ */
+function _oa_media_colorbox_install() {
+  if (($style = variable_get('colorbox_style', 'default')) === 'default') {
+    $library = libraries_detect('colorbox');
+    if (!empty($library)) {
+      variable_set('colorbox_style', $library['library path'] . '/example1');
+    }
+  }
+}
+
+/**
+ * Update colorbox style
+ */
+function oa_media_update_7001() {
+  _oa_media_colorbox_install();
+}
+

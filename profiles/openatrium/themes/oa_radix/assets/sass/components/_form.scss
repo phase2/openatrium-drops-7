@@ -3,16 +3,31 @@
 // Styles for Forms
 // --------------------------------------------------
 
+//Fix Bootstrap 3 checkboxes
+.radio input[type="radio"], .checkbox input[type="checkbox"] {
+  position: relative;
+  padding: 0;
+  margin: 0 5px 0 -20px;
+}
+.radio label, .checkbox label {
+  padding: 0 5px 0 20px;
+  margin: 0;
+}
+
 // General form styles
 // --------------------------------------------------
 form {
   .form-item {
     margin-top: 0.5em;
     margin-bottom: 0.5em;
+    &.checkbox, &.radio {
+      padding-left: 0;
+    }
   }
   .btn {
     width: auto;
     height: inherit;
+    text-shadow: none;
   }
   .button {
     &.fake-ok,
@@ -33,7 +48,26 @@ form {
       margin-bottom: 10px;
     }
   }
+  fieldset.collapsible legend a.fieldset-title {
+    display: inline-block;
+    width: 90%;
+  }
 }
+
+.views-exposed-form .views-exposed-widget .form-submit {
+  margin-top: 1.6em;
+}
+
+a.mceButton {
+  @include box-sizing(content-box);
+}
+
+.media-widget>a {
+  @extend .btn;
+  @extend .btn-default;
+  background-color: #eee;
+}
+
 .label {
   font-weight: normal;
   background-color: #ddd;
@@ -56,8 +90,16 @@ form {
   }
 }
 
+#modalContent .modal-content {
+  // override compass-radix !important for removing modal shadow
+  @include box-shadow(0 5px 15px rgba(0, 0, 0, 0.5) !important);
+}
+
 // Undo media browser button styles from panopoly admin
 // --------------------------------------------------
+.modal-title {
+  font-size: 24px;
+}
 #modal-content .form-submit,
 #media-browser-tabset a.button,
 #media-browser-tabset form a.button,
@@ -74,25 +116,27 @@ form {
     background-image: none;
   }
 }
+
 #modal-content .form-submit,
 #media-browser-tabset input.form-submit,
 #media-browser-tabset form input.form-submit {
   @extend .btn-primary;
 }
+
 #modal-content {
   .form-item {
     clear: both;
   }
   .form-submit {
-    -webkit-box-shadow: none;
-    -moz-box-shadow: none;
-    box-shadow: none;
+    @include box-shadow(none);
     margin-bottom: 0;
   }
 }
+
 #media-tabs-wrapper ul.ui-tabs-nav {
   margin-bottom: 0;
 }
+
 #media-browser-tabset {
   .views-exposed-form {
     .views-submit-button {
@@ -117,7 +161,8 @@ form {
 // Node edit form
 // --------------------------------------------------
 #node-edit {
-  .burr-flipped-sidebar .panel-pane {
+  .burr-flipped-sidebar .panel-pane,
+  .burr-flipped .sidebar .panel-pane {
     border: 0;
     border-bottom: 1px solid #e3e3e3;
     margin-bottom: 0;
@@ -165,9 +210,7 @@ form {
   .form-actions {
     background: transparent;
     input {
-      -webkit-box-shadow: none;
-      -moz-box-shadow: none;
-      box-shadow: none;
+      @include box-shadow(none);
       @extend .btn-primary;
       &:hover {
         color: white;
@@ -186,13 +229,19 @@ form {
   }
   .filter-btn {
     position: absolute;
-    top: 10px;
+    top: 0px;
     right: 10px;
   }
 }
+
+.oa-pane .views-exposed-form .filter-btn {
+  top: 10px;
+}
+
 .view-filters form {
   margin: 0;
 }
+
 .views-exposed-widget.views-submit-button {
   padding-right: 5px;
 }
@@ -232,6 +281,7 @@ form {
     right: 0;
   }
 }
+
 .checkbox-table {
   .center {
     text-align: center;
@@ -239,5 +289,81 @@ form {
   .form-type-checkbox,
   .space-label {
     margin: 0.4em 0;
+  }
+}
+
+.chosen-container {
+  height: auto;
+  border: 0;
+  padding: 0;
+  max-width: 100%;
+}
+
+//OA-messages form
+#oa-users-settings-form{
+  .container-fluid{
+    &.header{
+      background-color: #dedede;
+      clear: both;
+      height: 25px;
+      padding: 3px 0;
+    }
+    border-bottom: 2px solid #dedede;
+    margin: 5px auto;
+    padding-right:0;
+    padding-left:0;
+  }
+  .col-sm-6{
+    .panel-heading{
+      display: block;
+      float: none;
+      line-height: 40px;
+      background: none;
+      padding: 0;
+    }
+  }
+  div.column3 div.form-type-checkboxes {
+    margin-left: -54%;
+  }
+  .collapsible{
+    &.form-wrapper{
+      .fieldset-wrapper{
+        overflow: visible !important;
+        padding:0;
+      }
+      border:none;
+      @include box-shadow(none);
+    }
+  }
+  input[type="text"]{
+    width:auto;
+  }
+  .panel-title > a {
+    color: #0071B3;
+    font-size:18px;
+  }
+  div.column2 div.chosen-container{
+    margin: 8px 0;
+    padding:0;
+  }
+}
+
+// Vertical tabs
+.oa-vertical-tabs {
+  background: #eee;
+  padding: 10px 10px;
+  div.vertical-tabs {
+    margin-top: 0;
+    margin-bottom: 0;
+    background-color: white;
+    .vertical-tabs-panes {
+      padding: 0;
+    }
+    ul.vertical-tabs-list {
+      li {
+        margin-top: -1px;
+      }
+      margin-top: 0;
+    }
   }
 }

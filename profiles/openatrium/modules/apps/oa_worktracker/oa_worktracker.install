@@ -1,0 +1,143 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the Open Atrium Work Tracker module.
+ */
+
+/**
+ * Adds the 'Tasks Section' term to the 'section_type' vocabulary.
+ */
+function oa_worktracker_install_section_type() {
+  $params = array(
+    'description' => 'Allows users to create <em>Tasks</em>.',
+    'node_options' => array(
+      'oa_worktracker_task',
+    ),
+    'layout' => 'node:oa_section:oa_section_worktracker',
+    'icon' => 'icon-check',
+  );
+  oa_core_create_term('section_type', 'Tasks Section', $params);
+
+}
+
+/**
+ * Implements hook_install().
+ */
+function oa_worktracker_install() {
+  oa_worktracker_install_section_type();
+}
+
+/**
+ * Add taxonomy term for 'Tasks Section' that is now required by Open Atrium 2.0-beta3.
+ */
+function oa_worktracker_update_7001() {
+  $vocabularies = taxonomy_vocabulary_get_names();
+  $term = (object)array(
+    'name' => 'Tasks Section',
+    'vid'  => $vocabularies['section_type']->vid,
+  );
+  $term->field_oa_section_layout[LANGUAGE_NONE][0]['value'] = 'node:oa_section:oa_section_worktracker';
+  $term->field_oa_node_types[LANGUAGE_NONE][1]['value'] = 'oa_worktracker_task';
+  taxonomy_term_save($term);
+}
+
+/**
+ * Revert all the components that have changed or failed to rebuild in 1.0-alpha2.
+ */
+function oa_worktracker_update_7002() {
+  features_revert(array('oa_worktracker' => array('og_features_permission', 'user_permission', 'page_manager_handlers', 'message_type', 'field_base', 'variable')));
+}
+
+/**
+ * Revert all the components that have changed between 1.0-alpha5 and 1.0-alpha6.
+ */
+function oa_worktracker_update_7003() {
+  features_revert(array('oa_worktracker' => array('dependencies', 'field_base', 'field_instance', 'user_permission', 'variable', 'views_view')));
+}
+
+/**
+ * Copy all the data from 'field_oa_worktracker_comment_ref' to 'field_oa_comment_ref'.
+ */
+function oa_worktracker_update_7004() {
+  // Make sure that 'field_oa_comment_ref' exists!
+  features_revert(array('oa_messages' => array('field_base', 'field_instance')));
+  features_revert(array('oa_worktracker' => array('field_instance')));
+  field_cache_clear();
+  $instance = field_info_instance('message', 'field_oa_comment_ref', 'oa_worktracker_task_update');
+  if (empty($instance)) {
+    throw new DrupalUpdateException(t("field_oa_comment_ref doesn't exist or isn't attached to oa_worktracker_task_update"));
+  }
+
+  // Copy the data and revision tables.
+  foreach (array('data', 'revision') as $table_type) {
+    db_query("INSERT INTO {field_{$table_type}_field_oa_comment_ref} (entity_type, bundle, deleted, entity_id, revision_id, language, delta, field_oa_comment_ref_target_id) SELECT entity_type, bundle, deleted, entity_id, revision_id, language, delta, field_oa_worktracker_comment_ref_target_id FROM {field_{$table_type}_field_oa_worktracker_comment_ref}");
+  }
+
+  // Remove 'field_oa_wortracker_comment_ref' field.
+  $old_instance = field_info_instance('message', 'field_oa_worktracker_comment_ref', 'oa_worktracker_task_update');
+  field_delete_instance($old_instance);
+}
+
+/**
+ * Revert all the components that have changed between 1.0-beta1 and 1.0-beta2.
+ */
+function oa_worktracker_update_7005() {
+  features_revert(array('oa_worktracker' => array('message_type', 'variable', 'panelizer_defaults', 'views_view')));
+}
+
+/**
+ * Revert panopoly_users so that the 'Your Tasks' widget appears on the user dashboard.
+ */
+function oa_worktracker_update_7201() {
+  features_revert(array('panopoly_users' => array('panelizer_defaults')));
+}
+
+/**
+ * Revert 'field_base' so that our custom 'Assigned to' selection plugin gets set.
+ */
+function oa_worktracker_update_7202() {
+  features_revert(array('oa_worktracker' => array('field_base')));
+}
+
+/**
+ * Add description to the 'Tasks Section' for existing sites.
+ */
+function oa_worktracker_update_7203() {
+  $terms = array(
+    array(
+      'name' => 'Tasks Section',
+      'description' => 'Allows users to create <em>Tasks</em>.',
+      'taxonomy' => 'section_type',
+    ),
+  );
+  // Code borrowed graciously from oa_buttons_update_7010().
+  foreach ($terms as $term) {
+    // force default terms to be recreated
+    if (!empty($term['description']) && ($current_term = current(taxonomy_get_term_by_name($term['name'], $term['taxonomy'])))) {
+      if (empty($current_term->description)) {
+        $current_term->description = $term['description'];
+        $current_term->format = 'panopoly_wysiwyg_text';
+        taxonomy_term_save($current_term);
+      }
+    }
+  }
+}
+
+/**
+ * Set defaults for new 'view comment alterations in oa_worktracker_task' permission from comment_alter.
+ */
+function oa_worktracker_update_7204() {
+  $roles = array(DRUPAL_ANONYMOUS_RID, DRUPAL_AUTHENTICATED_RID);
+  $perms = array('view comment alterations in oa_worktracker_task');
+  foreach ($roles as $rid) {
+    user_role_grant_permissions($rid, $perms);
+  }
+}
+
+/**
+ * Update the Task section taxonomy term.
+ */
+function oa_worktracker_update_7205() {
+  oa_worktracker_install_section_type();
+}

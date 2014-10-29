@@ -1,88 +1,120 @@
 <?php
 
+/**
+ * @file
+ * API documentation for the Apps module.
+ */
+
 /*
- * provide configureation information to the apps about an enabled app
+ * Provides configuration information to the apps about an enabled app.
  *
- * One can register demo content as a sepeate module or as a set of callbacks
- * hook_apps_app_info is a hook that will only be called on
- * app modules
+ * One can register demo content as a separate module or as a set of callbacks.
+ * hook_apps_app_info() is a hook that will only be called on app modules.
  *
- * RETURN: and associtive array
+ * @return array
+ *   An array containing app configuration information.
  */
 function hook_apps_app_info() {
   return array(
-    //Demo Content
+    // Demo Content.
     'demo content description' => 'This tells what add demo content will do it is placed on the configure form',
-    //The perfered way for an app to provide demo content is to have a module 
-    //that when enabled will add demo content, and when disabled will removed 
-    //demo content
-    //this module should be a submodule or part of the manifest dependent modules
+    // The preferred way for an app to provide demo content is to have a module
+    // that when enabled will add demo content, and when disabled will removed
+    // demo content.
+    // This module should be a submodule or part of the manifest dependent
+    // modules.
     'demo content module' => 'appname_demo_content',
 
-    //If the demo content is provide in a differnt way one should provide the
-    //following callbacks
-    'demo content enabled' => 'appname_demo_content_enabled', //should return True if demo content is on
-    'demo content enable' => 'appname_demo_content_enable', //should turn on demo content and return true
-    'demo content disable' => 'appname_demo_content_disable', //should turn off demo content and return true
+    // If the demo content is provided in a different way one should provide the
+    // following callbacks:
+    // - This callback should return TRUE if demo content is on.
+    'demo content enabled' => 'appname_demo_content_enabled',
+    // - This callback should turn on demo content and return TRUE.
+    'demo content enable' => 'appname_demo_content_enable',
+    // - This callback should turn off demo content and return TRUE.
+    'demo content disable' => 'appname_demo_content_disable',
 
-    'configure form' => 'appname_app_configure_form', // This form will be render on the app config page
-    'post install callback' => 'appname_app_post_install', // This will be called after the app is enabled intialy or of the app has been uninstalled
-    'status callback' => 'appname_app_status'
-    /*
-    This call back is used to render a status table on the config page.  it should be an array with two keys (and on optional third) 
-    array(
-      'title' =>'Status'  //title of the table,
-      'items' => array(  //rows in the table with any keys
-        array(
-          'severity' =>    REQUIREMENT_WARNING, //REQUIREMENT_OK REQUIREMENT_INFO, REQUIREMENT_ERROR
-          'title' => 'Example',
-          'description' => t("Instrunctions for Example"),
-          'action' => array(l("Link to do something!", "")),
-        ),
-      ),
-      // headers are optional but these are the default
-      'headers' => array('severity', 'title', 'description', 'action')
-    );
-    serverity and 
-    */
+    // This form will be rendered on the app config page:
+    'configure form' => 'appname_app_configure_form',
+    'post install callback' => 'appname_app_post_install',
+    // This will be called after the app is enabled initially or when the app
+    // has been uninstalled.
+    'status callback' => 'appname_app_status',
+    // This will provide permission configuration on the configre form.
+    // This will also set the permissions on install of the app.
+    'permissions' => array(
+      'access my app' => array('role 1', 'role 2'),
+    ),
+    // Same format as permissions but key includes [entity type]:[bundle] of the
+    // the og group the permission should default for.
+    'og permissions' => array(
+      'node:group:create myapp content' => array('role 1', 'role 2'),
+    ),
+  );
+  /*
+  This callback is used to render a status table on the config page.
+  It should be an array with two keys (and on optional third)
+  array(
+    'title' =>'Status'  // title of the table,
+    'items' => array(  // rows in the table with any keys
+      array(
+        // REQUIREMENT_OK REQUIREMENT_INFO, REQUIREMENT_ERROR
+        'severity' =>    REQUIREMENT_WARNING,
+        'title' => 'Example',
+        'description' => t("Instructions for Example"),
+        'action' => array(l("Link to do something!", "")),
+       ),
+    ),
+    // headers are optional but these are the default
+    'headers' => array('severity', 'title', 'description', 'action')
+  );
+  */
 }
 
 
 /**
- * provides server information to the apps
+ * Provides server information to the apps.
  *
- * this hook is only called on the current profile
- * RETURN: an array of assoctive server arrays
+ * This hook is only called on the current profile.
+ *
+ * @return array
+ *   An array of associative server arrays.
  */
 function hook_apps_servers_info() {
   return array(
     'servername' => array(
-      'title' => t('Store Title'), //the title to be use for the server
-      'description' => t('A description of the server and what apps it might have'),
-      'manifest' => 'http://apps.com/app/query', // the location of the  json manifest
+      // The title to be used for the server.
+      'title' => t('Store Title'),
+      'description' => t('A description of the server and what apps it might have.'),
+      // The location of the json manifest.
+      'manifest' => 'http://apps.com/app/query',
     ),
   );
 }
 
 /**
  * Add an apps install step to an installation profile.
- * 
- * Use this in your hook_install_tasks to add all the needed tasks for installing
- * apps. Set the App Server key and any default selected apps.
+ *
+ * Use this in your hook_install_tasks to add all the needed tasks for
+ * installing apps. Set the App Server key and any default selected apps.
+ *
+ * @param array $install_state
+ *        Install state to be passed to apps_profile_install_tasks().
+ *
+ * @return array
+ *        Containing needed tasks.
  */
 function hook_install_tasks($install_state) {
   $tasks = array();
-  require_once(drupal_get_path('module', 'apps') . '/apps.profile.inc');
+  require_once drupal_get_path('module', 'apps') . '/apps.profile.inc';
   $server = array(
-    'title' => 'App Server Name'
+    'title' => 'App Server Name',
     'machine name' => 'apps_server_machine_name',
     'default apps' => array(
       'app_machine_name_1',
       'app_machine_name_2',
     ),
-    'required apps' => array(
-
-    ),
+    'required apps' => array(),
     'default content callback' => 'distro_default_content',
   );
   $tasks = $tasks + apps_profile_install_tasks($install_state, $server);
@@ -90,7 +122,24 @@ function hook_install_tasks($install_state) {
 }
 
 /**
- * This is the struture of the json manifest
+ * Called each time an app module is enabled.
+ *
+ * This hook is called from hook_modules_enabled when an app is enabled.
+ * Not that the app array may be missing keys/information (due to
+ * performance considerations).
+ */
+function hook_apps_app_modules_enabled($app) {
+  if (!empty($app['something'])) {
+    mymodule_something($app);
+  }
+}
+
+/**
+ * This is the structure of the json manifest.
+ *
+ * A local app can also be defined using the info file in the form:
+ *  apps[name] = App name.
+ * The same keys and information used below can be used for local apps.
  */
 
 $js = <<<JS
@@ -135,6 +184,10 @@ $js = <<<JS
       "libraries": {
         "jquery_ideation": "jquery_ideation 1.0"
       }
+      // Define conflicts that this app has with other apps.
+      "conflicts": {
+        "app_machine": "app_machine"
+      }
       // A hash of resources to be downloaded. The key is used else where in the manifest. The value
       // should be a url to a publicly downloadable archive (tar gz zip)
       "downloadables": {
@@ -144,6 +197,8 @@ $js = <<<JS
         "fivestar 6.x-2.x-dev" : "http://ftp.drupal.org/files/projects/fivestar-7.x-2.x-dev.tar.gz",
         "votingapi 7.x-2.4" : "http://ftp.drupal.org/files/projects/votingapi-7.x-2.4.tar.gz"
       }
+      // Groups app with other apps from same server.
+      "package": "Drupal"
     }
     // This ends a single app manifest
   ]

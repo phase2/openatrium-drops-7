@@ -8,7 +8,7 @@
 /**
  * The URI to the respond.js library.
  */
-define(RESPONDJS_DOWNLOAD_URI, 'https://raw.github.com/scottjehl/Respond/master/respond.min.js');
+define('RESPONDJS_DOWNLOAD_URI', 'https://raw.githubusercontent.com/scottjehl/Respond/master/dest/respond.min.js');
 
 /**
  * Implementation of hook_drush_command().
@@ -68,11 +68,14 @@ function respondjs_drush_help($section) {
  */
 function respondjs_drush_respondjs_download() {
   $args = func_get_args();
-  if ($args[0]) {
+  if (isset($args[0])) {
     $path = $args[0];
   }
   elseif (function_exists('libraries_get_path')) {
     $path = libraries_get_path('respondjs');
+    if ($path === FALSE) {
+      $path = 'sites/all/libraries/respondjs';
+    }
   }
   else {
     $path = drupal_get_path('module', 'respondjs') . '/lib';

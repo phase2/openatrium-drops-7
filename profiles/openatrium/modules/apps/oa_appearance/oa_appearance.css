@@ -1,0 +1,61 @@
+.oa-banner-overlay {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-size: 40px;
+  font-weight: bold;
+}
+.oa-banner-text {
+  display: inline-block;
+  margin: 15px 5px 10px 30px;
+  font-size: 40px;
+  line-height: 40px;
+  font-weight: bold;
+}
+.oa-banner-slogan {
+  margin: 30px 30px 10px 5px;
+  font-size: 25px;
+  font-style: italic;
+  float: right;
+}
+.oa-banner-slogan-overlay {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 25px;
+  font-style: italic;
+}
+.oa-banner {
+  position: relative;
+  overflow: hidden;
+}
+.oa-banner {
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+.oa-banner.oa-menu-banner {
+  vertical-align: bottom;
+}
+.oa-banner-appeared {
+  opacity : 1; filter: alpha(opacity=100);
+}
+.oa-banner-img {
+  vertical-align: top;
+  margin: 5px 10px;
+}
+.oa-banner-overlay-img {
+  vertical-align: bottom;
+  margin: 0;
+}
+.oa-menu-banner img {
+  vertical-align: baseline;
+}
+#oa-navbar .panel-panel .pane-oa-space-banner {
+  padding-top: 0;
+}
+/* Farbtastic tweaks */
+.colorizer-form .farbtastic {
+  position: fixed;
+  left: 40%;
+  top: 50%;
+}
