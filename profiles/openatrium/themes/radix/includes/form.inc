@@ -244,7 +244,7 @@ function radix_form_element_label($variables) {
 
   // Radio and checkboxes goes inside label.
   $output = '';
-  if ($is_radio_or_checkbox && isset($element['#children'])) {
+  if ($is_radio_or_checkbox && isset($element['#children']) && ($element['#title_display'] != 'invisible')) {
     $output .= $element['#children'];
   }
 

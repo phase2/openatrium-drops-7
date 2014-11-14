@@ -20,12 +20,12 @@ function og_menu_single_form_node_type_form_alter(&$form, $form_state) {
     '#collapsible' => TRUE,
     '#collapsed' => !og_menu_single_is_enabled_group_content('node', $type) && !og_menu_single_is_enabled_group('node', $type),
   );
-  $form['menu']['og_menu_single']['og_menu_single_group_content__node__' . $type] = array(
+  $form['menu']['og_menu_single']['og_menu_single_group_content__node_'] = array(
     '#type' => 'checkbox',
     '#title' => t('Content of this type may be placed in a group menu. Must also be a group content type'),
     '#default_value' => og_menu_single_is_enabled_group_content('node', $type),
   );
-  $form['menu']['og_menu_single']['og_menu_single_group__node__' . $type] = array(
+  $form['menu']['og_menu_single']['og_menu_single_group__node_'] = array(
     '#type' => 'checkbox',
     '#title' => t('Groups of this type may have a group menu. Must also be a group type'),
     '#default_value' => og_menu_single_is_enabled_group('node', $type),
@@ -115,18 +115,21 @@ function og_menu_single_form_node_form_alter(&$form, $form_state) {
 
   if (!empty($form['menu'])) {
     $form['menu']['link']['parent']['#options'] += $options;
-    // Restore default
-    $default = ($link['mlid'] ? $link['menu_name'] . ':' . $link['plid'] : variable_get('menu_parent_' . $type, 'main-menu:0'));
-    if (isset($form['menu']['link']['parent']['#options'][$default])) {
-      $form['menu']['link']['parent']['#default_value'] = $default;
+    // Restore default if wasn't in menu parents before our alterations..
+    if (!empty($link['mlid'])) {
+      $default = $link['menu_name'] . ':' . $link['plid'];
+      if (isset($form['menu']['link']['parent']['#options'][$default])) {
+        $form['menu']['link']['parent']['#default_value'] = $default;
+      }
     }
   }
   else {
     // @see menu_form_node_form_alter().
+    $context = og_context();
     $form['menu'] = array(
       '#type' => 'fieldset',
       '#title' => t('Menu settings'),
-      '#access' => user_access('administer menu'),
+      '#access' => user_access('administer menu') || ($context && og_user_access($context['group_type'], $context['gid'], 'manage menu')),
       '#collapsible' => TRUE,
       '#collapsed' => !$link['link_title'],
       '#group' => 'additional_settings',
@@ -353,6 +356,15 @@ function og_menu_single_block_configure($delta = '') {
 }
 
 /**
+ * Implements hook_block_save().
+ */
+function og_menu_single_block_save($delta = '', $edit = array()) {
+  if ($delta == 'menu') {
+    variable_set('og_menu_single_block_menu_depth', $edit['og_menu_single_block_menu_depth']);
+  }
+}
+
+/**
  * Implements hook_block_view().
  */
 function og_menu_single_block_view($delta = '') {
@@ -474,6 +486,9 @@ function _og_menu_single_children_items($plid, $current_depth, $max_depth) {
     $menu_links[$plid] = menu_build_tree(OG_MENU_SINGLE_MENU_NAME, array('expanded' => array($plid), 'min_depth' => $current_depth));
   }
   foreach ($menu_links[$plid] as $key => $item) {
+    if (module_exists('i18n_menu')) {
+      _i18n_menu_link_localize($item['link']);
+    }
     $tree[$key] = $item;
     if ($current_depth < $max_depth) {
       $tree[$key]['below'] = _og_menu_single_children_items($item['link']['mlid'], $current_depth+1, $max_depth);

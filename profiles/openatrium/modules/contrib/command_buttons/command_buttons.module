@@ -661,9 +661,8 @@ function command_buttons_render_buttons($commands, $classes, $source = array()) 
       $link['attributes']['class'] = !empty($classes['item_class']) ? $classes['item_class'] : array();
       $link['attributes']['class'] += array(' command-' . str_replace('-', '_', $command->name));
 
-      $options = array('attributes' => $link['attributes']);
-
       foreach ($source as $command_link) {
+        $options = array('attributes' => $link['attributes']);
         // Make sure we have a command link and that the value matches that of
         // the command we are currently on.
         if (!empty($command_link) && $command_link['value'] === $command->name) {

@@ -32,12 +32,35 @@ function og_session_context_og_context_negotiation_info() {
  * return the current group context
  */
 function og_session_context_get_context() {
-  $menu = menu_get_object();
-  if (!isset($menu->nid)) {
+  $item = menu_get_item();
+  $nid = NULL;
+
+  // Special support for /comment/reply/%.
+  if ($item['path'] == 'comment/reply/%') {
+    if (isset($item['original_map'][2]) && is_numeric($item['original_map'][2])) {
+      $nid = $item['original_map'][2];
+    }
+  }
+  // Special support for /comment/%.
+  elseif ($item['path'] == 'comment/%') {
+    if (isset($item['original_map'][1]) && is_numeric($item['original_map'][1])) {
+      if ($comment = comment_load($item['original_map'][1])) {
+        $nid = $comment->nid;
+      }
+    }
+  }
+  // The default for nodes.
+  else {
+    $menu = menu_get_object();
+    if (isset($menu->nid)) {
+      $nid = $menu->nid;
+    }
+  }
+
+  if (!$nid) {
     return 0;
   }
 
-  $nid = $menu->nid;
   $node = node_load($nid);
   if (empty($node)) {
     return 0;

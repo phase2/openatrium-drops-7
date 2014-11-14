@@ -157,7 +157,15 @@ function radix_preprocess_page(&$variables) {
   if (_radix_current_theme() == 'radix') {
     $stylesheet_path = $theme_path . '/assets/stylesheets/radix-style.css';
   }
-  if (!file_exists($stylesheet_path)) {
+  elseif (_radix_base_theme() == 'radix') {
+    $stylesheet_path = $theme_path . '/assets/stylesheets/screen.css';
+  }
+  else {
+    // If this isn't radix and it isn't a *direct* sub-theme, then we don't
+    // perform this check (ie. if it's a sub-sub-theme).
+    $stylesheet_path = NULL;
+  }
+  if ($stylesheet_path && !file_exists($stylesheet_path)) {
     drupal_set_message(t('It looks like %path has not been created yet. Run <code>@command</code> in your theme directory to create it.', array(
       '%path' => $stylesheet_path,
       '@command' => 'compass watch',

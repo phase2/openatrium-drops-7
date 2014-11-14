@@ -263,10 +263,21 @@ function ctools_entity_field_content_type_formatter_styles_submit($form, &$form_
 }
 
 /**
-* Returns the administrative title for a type.
-*/
+ * Returns the administrative title for a type.
+ */
 function ctools_entity_field_content_type_admin_title($subtype, $conf, $context) {
   list($bundle, $field_name) = explode(':', $subtype);
   ctools_include('fields');
-  return t('"@s" @field', array('@s' => $context->identifier, '@field' => ctools_field_label($field_name)));
+  if (is_object($context) && isset($context->identifier)) {
+    $identifier = $context->identifier;
+  }
+  else {
+    $type = 'ctools_entity_field_content_type_admin_title';
+    $message = t('Context is missing for field: @name', array('@name' => $subtype));
+    $variables = array($subtype, $conf, $context);
+    watchdog($type, $message, $variables, $severity = WATCHDOG_NOTICE);
+    $identifier = t('Unknown');
+  }
+
+  return t('"@s" @field', array('@s' => $identifier, '@field' => ctools_field_label($field_name)));
 }

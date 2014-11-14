@@ -138,3 +138,18 @@ function oa_adminrole_update_og_permissions($type = '') {
     }
   }
 }
+
+
+/**
+ * Implements hook_modules_installed().
+ */
+function oa_adminrole_modules_installed($modules) {
+  foreach ($modules as $module) {
+    if ($info_array = module_invoke($module, 'node_info')) {
+      foreach ($info_array as $type => $info) {
+        oa_adminrole_update_permissions($type);
+        oa_adminrole_update_og_permissions($type);
+      }
+    }
+  }
+}

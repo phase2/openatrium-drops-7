@@ -172,7 +172,7 @@ function apps_apps_add_theme(&$apps) {
     // Add teaser theme,
     $apps[$id]['#theme'] = 'apps_app_teaser';
     // Add style name for image_style theming.
-    if ($apps[$id]['logo']) {
+    if (!empty($apps[$id]['logo'])) {
       $apps[$id]['logo']['style_name'] = 'apps_logo';
     }
   }
@@ -216,10 +216,10 @@ function apps_request_manifest($server) {
   $local_apps = apps_server_local($server);
   $manifest = $server;
   $manifest['apps'] = $local_apps;
-  apps_request_manifest_image_process($manifest);
 
   // If there is no remote server, or we're in offline mode, stop here.
   if (!$server['manifest'] || variable_get('apps_offline_mode', FALSE)) {
+    apps_request_manifest_image_process($manifest);
     return $manifest;
   }
 
@@ -259,15 +259,15 @@ function apps_request_manifest($server) {
       }
       unset($remote_manifest['apps'][$index]);
     }
-    apps_request_manifest_image_process($remote_manifest);
     $manifest['apps'] = array_merge($remote_manifest['apps'], $manifest['apps']);
-    cache_set("apps_manifest_{$server['name']}", $manifest, 'cache', REQUEST_TIME + 60 + 30);
   }
   else {
     $msg = t("Manifest JSON from @server not parsable", array('@server' => $server['title']));
     watchdog("apps", $msg);
     drupal_set_message($msg, 'warning');
   }
+  apps_request_manifest_image_process($manifest);
+  cache_set("apps_manifest_{$server['name']}", $manifest, 'cache', REQUEST_TIME + 60 + 30);
 
   return $manifest;
 }
@@ -322,8 +322,15 @@ function apps_request_manifest_image_process(&$manifest) {
 function apps_retrieve_app_image($app, $url, $title = '', $alt = '') {
   // Allow for local files.
   $check = parse_url($url);
+  $is_local = FALSE;
   if (!$check || !isset($check['host']) || !$check['host']) {
+    $old_url = $url;
+    // Quick check that file exists
+    if (!file_exists($old_url)) {
+      return FALSE;
+    }
     $url = file_create_url($url);
+    $is_local = TRUE;
   }
 
   $url_parts = explode("/", parse_url($url, PHP_URL_PATH));
@@ -346,12 +353,18 @@ function apps_retrieve_app_image($app, $url, $title = '', $alt = '') {
   // Check to see if the remote file is newer than the one that.
   // We have and that the one we have still exists.
   if ($current && file_exists($current->uri)) {
-    // Get the remote headers.
-    $remote = drupal_http_request($url, array('method' => 'HEAD'));
-    $remote = $remote->headers;
-    $use_current = !empty($remote['last-modified']) && strtotime($remote['last-modified']) <= $current->timestamp;
+    if ($is_local) {
+      $use_current = filemtime($old_url) <= $current->timestamp && $current->filesize == filesize($old_url);
+    }
+    else {
+      // Get the remote headers.
+      $remote = drupal_http_request($url, array('method' => 'HEAD'));
+      $remote = $remote->headers;
+      $use_current = !empty($remote['last-modified']) && strtotime($remote['last-modified']) <= $current->timestamp
+        && !empty($remote['content-length']) && $remote['content-length'] == $current->filesize;
+    }
 
-    if ($use_current && !empty($remote['content-length']) && $remote['content-length'] == $current->filesize) {
+    if ($use_current) {
       $current->path = $current->uri;
       $current->title = !empty($title) ? $title : '';
       $current->alt = !empty($alt) ? $alt : $title;
@@ -378,6 +391,7 @@ function apps_retrieve_app_image($app, $url, $title = '', $alt = '') {
     $file->path = $file->uri;
     return (array) $file;
   }
+  return FALSE;
 }
 
 /**
@@ -435,7 +449,7 @@ function apps_manifest($server) {
         }
         $name = $version['name'];
 
-        //check status of modules
+        // Check status of modules
         $current = isset($modules[$name]) ? $modules[$name] : FALSE;
         $incompatible = $current ? (bool) drupal_check_incompatibility($version, str_replace(DRUPAL_CORE_COMPATIBILITY . '-', '', $current->info['version'])) : FALSE;
         $installed = (bool) $current;

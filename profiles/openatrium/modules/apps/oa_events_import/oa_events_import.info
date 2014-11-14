@@ -60,15 +60,15 @@ features[variable][] = menu_parent_oa_ical_importer
 features[variable][] = node_options_oa_ical_importer
 features[variable][] = node_preview_oa_ical_importer
 features[variable][] = node_submitted_oa_ical_importer
-features[variable][] = og_menu_single_group__node__oa_ical_importer_oa_ical_importer
-features[variable][] = og_menu_single_group_content__node__oa_ical_importer_oa_ical_importer
+features[variable][] = og_menu_single_group__node__oa_ical_importer
+features[variable][] = og_menu_single_group_content__node__oa_ical_importer
 features[variable][] = panelizer_defaults_node_oa_ical_importer
 features[views_view][] = open_atrium_ical_importers
 features_exclude[dependencies][panopoly_widgets] = panopoly_widgets
 
-; Information added by Drupal.org packaging script on 2014-10-28
-version = "7.x-2.21"
+; Information added by Drupal.org packaging script on 2014-11-13
+version = "7.x-2.22"
 core = "7.x"
 project = "oa_events_import"
-datestamp = "1414535340"
+datestamp = "1415898259"
 

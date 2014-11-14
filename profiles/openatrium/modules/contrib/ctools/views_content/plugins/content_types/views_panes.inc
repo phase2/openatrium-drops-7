@@ -199,7 +199,7 @@ function views_content_views_panes_add_defaults(&$conf, $view) {
 
   $conf += array(
     'link_to_view' => $view->display_handler->get_option('link_to_view'),
-    'more_link' => $view->display_handler->get_option('more_link'),
+    'more_link' => $view->display_handler->get_option('use_more'),
     'feed_icons' => FALSE,
     'use_pager' => $pager['type'] != 'none' && $pager['type'] != 'some',
     'pager_id' => isset($pager['options']['id']) ? $pager['options']['id'] : 0,
@@ -294,7 +294,7 @@ function views_content_views_panes_content_type_edit_form($form, &$form_state) {
       $form['fields_override'][$field] = array(
         '#type' => 'checkbox',
         '#title' => $title,
-        '#default_value' => isset($conf['fields_override'][$field]) ? $conf['fields_override'][$field] : TRUE,
+        '#default_value' => isset($conf['fields_override'][$field]) ? $conf['fields_override'][$field] : !$handler->options['exclude'],
       );
     }
   }

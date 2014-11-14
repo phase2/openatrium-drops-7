@@ -33,3 +33,20 @@ function _radix_current_theme() {
 
   return $current_theme;
 }
+
+/**
+ * Returns the current base theme.
+ */
+function _radix_base_theme() {
+  $current_theme = _radix_current_theme();
+
+  // Special case to return quickly if theme is radix, since we already
+  // know the answer to this question.
+  if ($current_theme == 'radix') {
+    return NULL;
+  }
+
+  $themes = list_themes();
+  $theme_object = $themes[$current_theme];
+  return !empty($theme_object->info['base theme']) ? $theme_object->info['base theme'] : NULL;
+}

@@ -379,16 +379,18 @@ function oa_wizard_view($entity, $view_mode = 'full', $langcode = LANGUAGE_NONE)
  * Implements hook_entity_view
  */
 function oa_wizard_entity_view($entity, $type, $view_mode, $langcode) {
-  if (isset($entity->content['field_wizard_steps'][0]['#markup'])) {
-    // expand newline to html breaks
-    $entity->content['field_wizard_steps'][0]['#markup'] = nl2br($entity->content['field_wizard_steps'][0]['#markup']);
-  }
-  if (isset($entity->title)) {
-    // add the title of the wizard
-    $entity->content['title'] = array(
-      '#markup' => '<h3>' . check_plain($entity->title) . '</h3>',
-      '#weight' => -9,
-    );
+  if ($type == 'oa_wizard') {
+    if (isset($entity->content['field_wizard_steps'][0]['#markup'])) {
+      // expand newline to html breaks
+      $entity->content['field_wizard_steps'][0]['#markup'] = nl2br($entity->content['field_wizard_steps'][0]['#markup']);
+    }
+    if (isset($entity->title)) {
+      // add the title of the wizard
+      $entity->content['title'] = array(
+        '#markup' => '<h3>' . check_plain($entity->title) . '</h3>',
+        '#weight' => -9,
+      );
+    }
   }
 }
 

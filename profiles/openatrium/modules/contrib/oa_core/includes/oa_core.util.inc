@@ -673,11 +673,13 @@ function oa_core_truncate_list($list, $count, $more_link = '', $always_link = FA
  * @param bool $include_archived
  *   (optional) Whether to include archived nodes or not. By default, archived
  *   items aren't included.
+ * @param bool $check_access
+ *   Check node access, defaults to TRUE.
  *
  * @return array
  *   An array of Space NIDs.
  */
-function oa_core_get_public_spaces($group_types = array(OA_SPACE_TYPE => OA_SPACE_TYPE), $status = NULL, $include_archived = FALSE) {
+function oa_core_get_public_spaces($group_types = array(OA_SPACE_TYPE => OA_SPACE_TYPE), $status = NULL, $include_archived = FALSE, $check_access = TRUE) {
   $cache = &drupal_static(__FUNCTION__);
 
   $group_types_cid = implode(',', $group_types);
@@ -690,6 +692,9 @@ function oa_core_get_public_spaces($group_types = array(OA_SPACE_TYPE => OA_SPAC
       ->condition('g.group_access_value', 0);
     if (isset($status)) {
       $query->condition('n.status', $status);
+    }
+    if ($check_access) {
+      $query->addTag('node_access');
     }
     if (module_exists('flag') && !$include_archived) {
       if ($flag = flag_get_flag('trash')) {

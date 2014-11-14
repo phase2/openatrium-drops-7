@@ -13,6 +13,12 @@ dependencies[] = mailcomment
 dependencies[] = mailhandler
 dependencies[] = mailhandler_php_imap
 dependencies[] = strongarm
+apps[screenshots][] = app/screenshot.png
+apps[logo] = app/logo.png
+apps[author] = Phase2 Technology
+apps[author_url] = http://www.phase2technology.com/
+apps[server] = openatrium
+apps[package] = Core addons
 features[ctools][] = feeds:feeds_importer_default:1
 features[ctools][] = strongarm:strongarm:1
 features[features_api][] = api:2
@@ -22,9 +28,9 @@ features[variable][] = mailcomment_import_filter_mode
 features[variable][] = mailcomment_insert_reply_text
 project path = profiles/openatrium/modules/features
 
-; Information added by Drupal.org packaging script on 2014-10-28
-version = "7.x-2.15"
+; Information added by Drupal.org packaging script on 2014-11-13
+version = "7.x-2.16"
 core = "7.x"
 project = "oa_mailhandler"
-datestamp = "1414533229"
+datestamp = "1415901263"
 

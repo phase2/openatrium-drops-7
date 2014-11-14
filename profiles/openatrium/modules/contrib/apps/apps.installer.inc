@@ -218,7 +218,14 @@ function apps_install_downloads() {
       $directory = apps_extract_directory($type);
       foreach ($projects as $project => $url) {
         $project_location = $directory . '/' . $project;
-        $updater = Updater::factory($project_location);
+        try {
+          $updater = Updater::factory($project_location);
+        }
+        catch (Exception $e) {
+          drupal_set_message(t('Error installing @project: @message', array('@project' => $project, '@message' => $e->getMessage())), 'error');
+          return FALSE;
+        }
+  
         $project_real_location = drupal_realpath($project_location);
         $updates[] = array(
           'project' => $project,

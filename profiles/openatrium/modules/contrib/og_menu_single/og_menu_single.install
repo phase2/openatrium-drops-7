@@ -26,4 +26,28 @@ function og_menu_single_uninstall() {
   if ($menu = menu_load(OG_MENU_SINGLE_MENU_NAME)) {
     menu_delete($menu);
   }
+  $vars = array('og_menu_single_group_content__node_', 'og_menu_single_group__node_');
+  foreach (node_type_get_names() as $type => $name) {
+    foreach ($vars as $var) {
+      variable_del($var . '_' . $type);
+    }
+  }
+}
+
+/**
+ * Fix variable names.
+ */
+function og_menu_single_update_7102() {
+  $vars = array('og_menu_single_group_content__node_', 'og_menu_single_group__node_');
+  foreach (node_type_get_names() as $type => $name) {
+    foreach ($vars as $var) {
+      $old_name = $var . '_' . $type . '_' . $type;
+      $new_name = $var . '_' . $type;
+      if (($value = variable_get($old_name, 'not-set')) !== 'not-set') {
+        variable_set($new_name, $value);
+        variable_del($old_name);
+        drupal_set_message(t('Renamed variable @old_name to @new_name, if you were using it as part of strongarm(features) export or install operation, please update.', array('@old_name' => $old_name, '@new_name' => $new_name)), 'warning');
+      }
+    }
+  }
 }

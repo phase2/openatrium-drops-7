@@ -385,9 +385,9 @@ function oa_clone_prepare($original_node, $space_nid = NULL, $section_nid = NULL
  * @see oa_clone_prepare()
  * @see oa_clone()
  */
-function oa_clone_save($node) {
+function oa_clone_save($node, $original_node = NULL) {
   node_save($node);
-  if (module_exists('rules')) {
+  if (module_exists('rules') && !empty($original_node)) {
     rules_invoke_event('clone_node', $node, $original_node);
   }
 }
@@ -417,7 +417,7 @@ function oa_clone_save($node) {
 function oa_clone($original_node, $space_nid = NULL, $section_nid = NULL, $bypass_access_check = FALSE) {
   $node = oa_clone_prepare($original_node, $space_nid, $section_nid, $bypass_access_check);
   if ($node) {
-    oa_clone_save($node);
+    oa_clone_save($node, $original_node);
   }
   return $node;
 }

@@ -401,7 +401,7 @@ function page_manager_list_pages_form_submit(&$form, &$form_state) {
  * Render the edit page for a a page, custom or system.
  */
 function page_manager_edit_page($page) {
-  drupal_set_title($page->subtask['admin title']);
+  drupal_set_title($page->subtask['admin title'], PASS_THROUGH);
   // Provide and process the save page form before anything else.
   $form_state = array('page' => &$page);
   $built_form = drupal_build_form('page_manager_save_page_form', $form_state);
@@ -464,7 +464,7 @@ function page_manager_edit_page_operation() {
     return;
   }
 
-  drupal_set_title($page->subtask['admin title']);
+  drupal_set_title($page->subtask['admin title'], PASS_THROUGH);
   return $output;
 }
 

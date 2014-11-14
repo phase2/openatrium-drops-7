@@ -1,0 +1,26 @@
+language: php
+php:
+- 5.4
+mysql:
+  database: drupal
+  username: root
+  encoding: utf8
+env:
+- UPGRADE=none
+- UPGRADE=7.x-2.22
+matrix:
+  fast_finish: true
+install:
+- export UPDATE TRAVIS_BUILD_DIR
+- cp scripts/travis-ci.sh $HOME/
+- cd ..
+- $HOME/travis-ci.sh system-install
+before_script:
+- $HOME/travis-ci.sh before-tests
+script:
+- $HOME/travis-ci.sh run-tests
+after_script:
+- $HOME/travis-ci.sh after-tests
+notifications:
+  flowdock:
+    secure: EX07lzUtOsCgSVB3trVyXAhhdsijKUF1ibiRTqd8exPLm59qQROtuwkI8dFuFKUi4yjY7LUHcl8XtcfmlU1k4jxDrzvfEYEzLkAIY/9ZiR6JORs+9gdubNtUkzxXIoVYHw70IXGhUVJDFeJp+RjS4IjQ9NuVuL9vKdWgQwtQR3Y=

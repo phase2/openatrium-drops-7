@@ -65,7 +65,7 @@ if [ $DEV_BUILD -eq 1 ]; then
   # now get the latest profile distro
   # now build the dev version
   cd "$TARGET"
-  MAKEFILE='drupal-org-dev.make'
+  MAKEFILE='scripts/oa-drush5-dev.make'
   echo "Building the profile -dev version..."
   # Patch to add github remotes instead of drupal.
   drush make --yes --no-core $DRUSH_OPTS "$ABS_CALLPATH/$MAKEFILE" --contrib-destination=profiles/openatrium
@@ -117,7 +117,7 @@ if [ -e "$TARGET/profiles/openatrium/modules/contrib/oa_core" ]; then
 
   if [ $DEV_BUILD -eq 1 ]; then
     echo 'Connecting to github -dev repositories.'
-    ./add-remotes.sh $DRUPAL/profiles/openatrium
+    scripts/add-remotes.sh $DRUPAL/profiles/openatrium
   fi
 
   if [ ! -e "$DRUPAL/sites/default/settings.php" ]; then

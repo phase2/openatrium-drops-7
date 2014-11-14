@@ -17,7 +17,7 @@ projects[coder][subdir] = contrib
 
 ; Simpletest clone
 projects[simpletest_clone][type] = module
-projects[simpletest_clone][version] = 2.x-dev
+projects[simpletest_clone][version] = 1.0-beta3
 projects[simpletest_clone][subdir] = contrib
 projects[simpletest_clone][patch][1666560] = https://www.drupal.org/files/vars_refresh.patch
 

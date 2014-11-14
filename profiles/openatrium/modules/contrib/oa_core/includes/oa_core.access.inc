@@ -74,7 +74,7 @@ function oa_core_node_grants($account, $op) {
 
   // Combine the spaces the user is part of with public spaces.
   $member_spaces = oa_core_get_groups_by_user($account, 'node');
-  $spaces = array_merge($member_spaces, oa_core_get_public_spaces());
+  $spaces = array_merge($member_spaces, oa_core_get_public_spaces(array(OA_SPACE_TYPE => OA_SPACE_TYPE), NULL,  FALSE, FALSE));
   if (!empty($spaces)) {
     $query = db_select('node', 'n');
 

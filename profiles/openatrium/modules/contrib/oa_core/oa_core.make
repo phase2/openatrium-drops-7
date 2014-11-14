@@ -16,6 +16,13 @@ projects[views][patch][2037469] = http://drupal.org/files/views-exposed-sorts-20
 projects[views][patch][1979926] = http://drupal.org/files/1979926-views-reset_fetch_data-2.patch
 projects[views][patch][1735096] = http://drupal.org/files/1735096-views-mltiple-instance-exposed-form-8.patch
 
+; Views Bulk Operations
+; Override panopoly_core.make: 3.2
+projects[views_bulk_operations][version] = 3.2
+projects[views_bulk_operations][subdir] = contrib
+; additional patches for OA
+projects[views_bulk_operations][patch][2192775] = http://drupal.org/files/issues/views-bulk-operations-2192775-1_0.patch
+
 ; CTools
 ; Override panopoly_core.make: 1.4
 projects[ctools][version] = 1.4
@@ -23,11 +30,16 @@ projects[ctools][subdir] = contrib
 ; patches from Panopoly
 projects[ctools][patch][2280875] = http://drupal.org/files/issues/ctools-icon-text-renderer-2280875-5.patch
 projects[ctools][patch][581670] = http://drupal.org/files/fix-autocomplete-581670.patch
+projects[ctools][patch][2312505] = http://drupal.org/files/issues/ctools-views-pane-more-link-2312505-1.patch
+projects[ctools][patch][1978378] = http://www.drupal.org/files/ctools-page-title-check-plained-twice-1978378-1.patch
+projects[ctools][patch][1565782] = http://www.drupal.org/files/1565782-obey-view-display-defaults-5.patch
+projects[ctools][patch][2012188] = http://www.drupal.org/files/issues/2012188-9-ctools_entity_field_content_type_admin_title.patch
 ; additional patches for OA
 projects[ctools][patch][1910608] = http://drupal.org/files/issues/1910608-views_content-ajax-13.patch
 projects[ctools][patch][1901106] = http://drupal.org/files/issues/ctools-views_content-exposed_form_override-1901106-24.patch
 projects[ctools][patch][2023705] = http://drupal.org/files/2023705-ctools-autosubmit-2_0.patch
 projects[ctools][patch][2195471] = http://drupal.org/files/issues/ctools-n2195471-1.patch
+projects[ctools][patch][2055785] = http://drupal.org/files/issues/Modal-window-top-and-left-style-values-2055785-3.patch
 
 ; Entity API
 ; Override panopoly_core.make: 1.5
@@ -43,6 +55,8 @@ projects[panelizer][subdir] = contrib
 projects[panelizer][download][type] = git
 projects[panelizer][download][branch] = 7.x-3.x
 projects[panelizer][download][revision] = 66d184
+; patches from Panopoly
+projects[panelizer][patch][1623536] = http://drupal.org/files/issues/array-to-object-on-update-1623536-26.patch
 ; additional patches for OA
 projects[panelizer][patch][1982654] = http://drupal.org/files/1982654-panelizer-dontaskmethatagain-2.patch
 
@@ -94,7 +108,7 @@ projects[colorizer][version] = 1.4
 projects[colorizer][subdir] = contrib
 
 ; Command buttons
-projects[command_buttons][version] = 1.3
+projects[command_buttons][version] = 1.4
 projects[command_buttons][subdir] = contrib
 
 ; Conditional Fields
@@ -162,6 +176,7 @@ projects[job_scheduler][subdir] = contrib
 ; Jquery Update
 projects[jquery_update][version] = 2.4
 projects[jquery_update][subdir] = contrib
+projects[jquery_update][patch][2123973] = http://drupal.org/files/issues/jquery_update-jquery_effects_missing-7.x-2.4-2123973-17.patch
 
 ; Mail System
 projects[mailsystem][version] = 2.34
@@ -205,11 +220,11 @@ projects[og][version] = 2.7
 projects[og][subdir] = contrib
 
 ; Og menu single
-projects[og_menu_single][version] = 1.0-beta1
+projects[og_menu_single][version] = 1.0-beta2
 projects[og_menu_single][subdir] = contrib
 
 ; OG Session Context
-projects[og_session_context][version] = 1.0-beta1
+projects[og_session_context][version] = 1.0-beta2
 projects[og_session_context][subdir] = contrib
 
 ; Og Variables

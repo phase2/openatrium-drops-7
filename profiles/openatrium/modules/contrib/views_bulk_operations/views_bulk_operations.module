@@ -41,21 +41,20 @@ function views_bulk_operations_load_action_includes() {
   // The list of VBO actions is fairly static, so it's hardcoded for better
   // performance (hitting the filesystem with file_scan_directory(), and then
   // caching the result has its cost).
-  $path = drupal_get_path('module', 'views_bulk_operations') . '/actions/';
   $files = array(
-    'archive.action.inc',
-    'argument_selector.action.inc',
-    'book.action.inc',
-    'delete.action.inc',
-    'modify.action.inc',
-    'script.action.inc',
-    'user_roles.action.inc',
-    'user_cancel.action.inc',
+    'archive.action',
+    'argument_selector.action',
+    'book.action',
+    'delete.action',
+    'modify.action',
+    'script.action',
+    'user_roles.action',
+    'user_cancel.action',
   );
 
   if (!$loaded) {
     foreach ($files as $file) {
-      include_once $path . $file;
+      module_load_include('inc', 'views_bulk_operations', 'actions/' . $file);
     }
     $loaded = TRUE;
   }

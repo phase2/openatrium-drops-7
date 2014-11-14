@@ -12597,7 +12597,7 @@ fieldset .panel-body {
 
 /* line 73, ../../../../../../../../../../var/lib/gems/1.9.1/gems/compass_radix-3.0.13/stylesheets/compass_radix/_form.scss */
 html.js input.form-autocomplete {
-  background: url('../images/throbber.gif?1414597212') no-repeat right 8px white !important;
+  background: url('../images/throbber.gif?1414607036') no-repeat right 8px white !important;
 }
 /* line 76, ../../../../../../../../../../var/lib/gems/1.9.1/gems/compass_radix-3.0.13/stylesheets/compass_radix/_form.scss */
 html.js input.throbbing {
@@ -14935,20 +14935,30 @@ body.admin-menu #oa-navbar {
 /* line 252, ../sass/components/_navbar.scss */
 .navbar.oa-space-menu {
   margin-bottom: 0;
+  background: transparent;
+  border: 0;
+  min-height: 40px;
 }
-/* line 254, ../sass/components/_navbar.scss */
+/* line 257, ../sass/components/_navbar.scss */
 .navbar.oa-space-menu .navbar-inner {
   border: 0;
+  padding: 0;
+  min-height: 40px;
   -webkit-border-radius: 0;
   -moz-border-radius: 0;
   border-radius: 0;
 }
+/* line 262, ../sass/components/_navbar.scss */
+.navbar.oa-space-menu .navbar-inner li > a {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
 
-/* line 264, ../sass/components/_navbar.scss */
+/* line 273, ../sass/components/_navbar.scss */
 #oa-responsive-regions-navbar .navbar-inner .btn-top {
   float: left;
 }
-/* line 266, ../sass/components/_navbar.scss */
+/* line 275, ../sass/components/_navbar.scss */
 #oa-responsive-regions-navbar .navbar-inner .btn-top.btn-active {
   -webkit-transform: none;
   -moz-transform: none;
@@ -14958,104 +14968,104 @@ body.admin-menu #oa-navbar {
 }
 
 @media (max-width: 767px) {
-  /* line 277, ../sass/components/_navbar.scss */
+  /* line 286, ../sass/components/_navbar.scss */
   #oa-navbar .dropdown-menu {
     float: left;
     position: static;
   }
-  /* line 282, ../sass/components/_navbar.scss */
+  /* line 291, ../sass/components/_navbar.scss */
   #oa-navbar #oa-user-badge .dropdown {
     width: 262px;
     float: left;
   }
-  /* line 286, ../sass/components/_navbar.scss */
+  /* line 295, ../sass/components/_navbar.scss */
   #oa-navbar #oa-user-badge .dropdown-toggle {
     width: 100%;
   }
-  /* line 290, ../sass/components/_navbar.scss */
+  /* line 299, ../sass/components/_navbar.scss */
   #oa-navbar #oa_breadcrumb {
     vertical-align: top;
   }
-  /* line 293, ../sass/components/_navbar.scss */
+  /* line 302, ../sass/components/_navbar.scss */
   #oa-navbar #oa_breadcrumb .oa-breadcrumb {
     width: 100%;
     height: auto;
   }
-  /* line 300, ../sass/components/_navbar.scss */
+  /* line 309, ../sass/components/_navbar.scss */
   #oa-navbar .oa-navigation .main-menu .navbar-nav {
     width: 100%;
   }
-  /* line 305, ../sass/components/_navbar.scss */
+  /* line 314, ../sass/components/_navbar.scss */
   #oa-navbar .moscone-footer {
     display: none;
   }
-  /* line 308, ../sass/components/_navbar.scss */
+  /* line 317, ../sass/components/_navbar.scss */
   #oa-navbar ul {
     padding: 0;
     margin: 0;
   }
-  /* line 312, ../sass/components/_navbar.scss */
+  /* line 321, ../sass/components/_navbar.scss */
   #oa-navbar li {
     width: 100%;
   }
 
-  /* line 316, ../sass/components/_navbar.scss */
+  /* line 325, ../sass/components/_navbar.scss */
   #oa-responsive-regions-navbar {
     display: none;
   }
 }
 @media (max-width: 480px) {
-  /* line 321, ../sass/components/_navbar.scss */
+  /* line 330, ../sass/components/_navbar.scss */
   .responsive-panels-region.responsive-panels-region-top {
     position: static;
     height: auto;
   }
 }
-/* line 328, ../sass/components/_navbar.scss */
+/* line 337, ../sass/components/_navbar.scss */
 .navbar-toggle.spaces {
   padding-top: 8px;
   padding-bottom: 8px;
 }
-/* line 331, ../sass/components/_navbar.scss */
+/* line 340, ../sass/components/_navbar.scss */
 .navbar-toggle.spaces .fa-square {
   font-size: 8px;
 }
-/* line 333, ../sass/components/_navbar.scss */
+/* line 342, ../sass/components/_navbar.scss */
 .navbar-toggle.spaces .fa-square.odd {
   float: left;
 }
-/* line 336, ../sass/components/_navbar.scss */
+/* line 345, ../sass/components/_navbar.scss */
 .navbar-toggle.spaces .fa-square.even {
   float: right;
 }
-/* line 340, ../sass/components/_navbar.scss */
+/* line 349, ../sass/components/_navbar.scss */
 .navbar-toggle.spaces .fa-square.first, .navbar-toggle.spaces .fa-square.third {
   margin-right: 2px;
 }
-/* line 343, ../sass/components/_navbar.scss */
+/* line 352, ../sass/components/_navbar.scss */
 .navbar-toggle.spaces .fa-square.third {
   clear: both;
 }
-/* line 348, ../sass/components/_navbar.scss */
+/* line 357, ../sass/components/_navbar.scss */
 .navbar-toggle.admin {
   padding-top: 6px;
   padding-bottom: 6px;
   float: left;
 }
-/* line 352, ../sass/components/_navbar.scss */
+/* line 361, ../sass/components/_navbar.scss */
 .navbar-toggle.admin .fa-drupal {
   font-size: 16px;
 }
-/* line 356, ../sass/components/_navbar.scss */
+/* line 365, ../sass/components/_navbar.scss */
 .navbar-toggle.search {
   padding-top: 6px;
   padding-bottom: 6px;
 }
-/* line 359, ../sass/components/_navbar.scss */
+/* line 368, ../sass/components/_navbar.scss */
 .navbar-toggle.search .fa-search {
   font-size: 16px;
 }
-/* line 363, ../sass/components/_navbar.scss */
+/* line 372, ../sass/components/_navbar.scss */
 .navbar-toggle.user {
   padding-top: 1px;
   padding-bottom: 1px;
@@ -15064,7 +15074,7 @@ body.admin-menu #oa-navbar {
 }
 
 @media (max-width: 767px) {
-  /* line 376, ../sass/components/_navbar.scss */
+  /* line 385, ../sass/components/_navbar.scss */
   .navbar-lining,
   .admin-mobile-menu,
   .spaces-mobile-menu,
@@ -15073,37 +15083,37 @@ body.admin-menu #oa-navbar {
     display: none;
   }
 
-  /* line 379, ../sass/components/_navbar.scss */
+  /* line 388, ../sass/components/_navbar.scss */
   #oa-navbar-admin {
     max-height: none;
     padding: 0;
   }
 
-  /* line 385, ../sass/components/_navbar.scss */
+  /* line 394, ../sass/components/_navbar.scss */
   .oa-navigation .expanded ul {
     display: none;
   }
-  /* line 389, ../sass/components/_navbar.scss */
+  /* line 398, ../sass/components/_navbar.scss */
   .oa-navigation .expanded.open > ul {
     display: block;
   }
-  /* line 393, ../sass/components/_navbar.scss */
+  /* line 402, ../sass/components/_navbar.scss */
   .oa-navigation .expanded.open button:before {
     content: "\f0d8";
   }
-  /* line 397, ../sass/components/_navbar.scss */
+  /* line 406, ../sass/components/_navbar.scss */
   .oa-navigation .expanded.open .navbar-box {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   }
-  /* line 401, ../sass/components/_navbar.scss */
+  /* line 410, ../sass/components/_navbar.scss */
   .oa-navigation .expanded.open li a {
     padding-left: 20px;
   }
-  /* line 405, ../sass/components/_navbar.scss */
+  /* line 414, ../sass/components/_navbar.scss */
   .oa-navigation .expanded.open li li a {
     padding-left: 40px;
   }
-  /* line 411, ../sass/components/_navbar.scss */
+  /* line 420, ../sass/components/_navbar.scss */
   .oa-navigation .expanded > div > button {
     border: none;
     background: #003853;
@@ -15112,81 +15122,81 @@ body.admin-menu #oa-navbar {
     right: 0px;
     top: 0;
   }
-  /* line 418, ../sass/components/_navbar.scss */
+  /* line 427, ../sass/components/_navbar.scss */
   .oa-navigation .expanded > div > button:before {
     display: inline-block;
     font: normal normal normal 14px/1 FontAwesome;
     content: "\f0d7";
   }
-  /* line 423, ../sass/components/_navbar.scss */
+  /* line 432, ../sass/components/_navbar.scss */
   .oa-navigation .expanded > div > button:hover {
     background-color: #333333;
   }
-  /* line 426, ../sass/components/_navbar.scss */
+  /* line 435, ../sass/components/_navbar.scss */
   .oa-navigation .expanded > div > button span {
     display: none;
   }
-  /* line 431, ../sass/components/_navbar.scss */
+  /* line 440, ../sass/components/_navbar.scss */
   .oa-navigation li {
     position: relative;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   }
-  /* line 434, ../sass/components/_navbar.scss */
+  /* line 443, ../sass/components/_navbar.scss */
   .oa-navigation li:last-child {
     border: none;
   }
-  /* line 438, ../sass/components/_navbar.scss */
+  /* line 447, ../sass/components/_navbar.scss */
   .oa-navigation li a {
     padding: 5px;
     display: block;
   }
-  /* line 441, ../sass/components/_navbar.scss */
+  /* line 450, ../sass/components/_navbar.scss */
   .oa-navigation li a:hover {
     background-color: #333333;
     text-decoration: none;
   }
 
-  /* line 448, ../sass/components/_navbar.scss */
+  /* line 457, ../sass/components/_navbar.scss */
   #oa-navbar-search {
     padding: 0;
   }
-  /* line 450, ../sass/components/_navbar.scss */
+  /* line 459, ../sass/components/_navbar.scss */
   #oa-navbar-search form {
     float: right;
     clear: none;
   }
-  /* line 455, ../sass/components/_navbar.scss */
+  /* line 464, ../sass/components/_navbar.scss */
   #oa-navbar-search ul,
   #oa-navbar-search button {
     float: left;
     clear: none;
   }
-  /* line 459, ../sass/components/_navbar.scss */
+  /* line 468, ../sass/components/_navbar.scss */
   #oa-navbar-search .search-text {
     vertical-align: top;
   }
 
-  /* line 463, ../sass/components/_navbar.scss */
+  /* line 472, ../sass/components/_navbar.scss */
   #oa-navbar-spaces {
     padding: 0;
   }
-  /* line 465, ../sass/components/_navbar.scss */
+  /* line 474, ../sass/components/_navbar.scss */
   #oa-navbar-spaces ul.dropdown-menu a:hover {
     background-color: #333333 !important;
     background-image: none !important;
   }
 
-  /* line 471, ../sass/components/_navbar.scss */
+  /* line 480, ../sass/components/_navbar.scss */
   #oa_breadcrumb li {
     position: relative;
   }
-  /* line 473, ../sass/components/_navbar.scss */
+  /* line 482, ../sass/components/_navbar.scss */
   #oa_breadcrumb li a {
     width: 100%;
     background: none;
     text-align: left;
   }
-  /* line 477, ../sass/components/_navbar.scss */
+  /* line 486, ../sass/components/_navbar.scss */
   #oa_breadcrumb li a.dropdown-toggle {
     border: none;
     background: #003853 !important;
@@ -15197,45 +15207,45 @@ body.admin-menu #oa-navbar {
     width: auto;
     z-index: 10;
   }
-  /* line 486, ../sass/components/_navbar.scss */
+  /* line 495, ../sass/components/_navbar.scss */
   #oa_breadcrumb li a.dropdown-toggle:hover {
     background-color: #333333;
   }
-  /* line 490, ../sass/components/_navbar.scss */
+  /* line 499, ../sass/components/_navbar.scss */
   #oa_breadcrumb li a:hover {
     background-color: #333333;
   }
-  /* line 494, ../sass/components/_navbar.scss */
+  /* line 503, ../sass/components/_navbar.scss */
   #oa_breadcrumb li .dropdown-menu {
     width: 100%;
     border: none;
     box-shadow: none;
   }
 
-  /* line 501, ../sass/components/_navbar.scss */
+  /* line 510, ../sass/components/_navbar.scss */
   #oa-navbar-header {
     padding: 0;
   }
-  /* line 503, ../sass/components/_navbar.scss */
+  /* line 512, ../sass/components/_navbar.scss */
   #oa-navbar-header .main-menu {
     width: 100%;
   }
-  /* line 506, ../sass/components/_navbar.scss */
+  /* line 515, ../sass/components/_navbar.scss */
   #oa-navbar-header .main-menu a:hover {
     background-color: #333333 !important;
   }
-  /* line 511, ../sass/components/_navbar.scss */
+  /* line 520, ../sass/components/_navbar.scss */
   #oa-navbar-header .main-menu .dropdown-toggle span {
     float: right;
     margin-top: 8px;
   }
-  /* line 516, ../sass/components/_navbar.scss */
+  /* line 525, ../sass/components/_navbar.scss */
   #oa-navbar-header .main-menu .dropdown-menu {
     width: 100%;
     float: none;
   }
 
-  /* line 522, ../sass/components/_navbar.scss */
+  /* line 531, ../sass/components/_navbar.scss */
   #oa-navbar-user {
     padding: 0;
   }

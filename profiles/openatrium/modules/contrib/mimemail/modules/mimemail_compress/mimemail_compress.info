@@ -7,9 +7,9 @@ core = 7.x
 files[] = mimemail_compress.inc
 
 
-; Information added by drush on 2014-10-29
+; Information added by drush on 2014-11-13
 version = "7.x-1.0-alpha2+25-dev"
 core = "7.x"
 project = "mimemail"
-datestamp = "1414612155"
+datestamp = "1415915356"
 

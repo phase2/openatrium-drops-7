@@ -325,7 +325,9 @@ function apps_app_access($app, $action = NULL) {
           }
         }
         if ($action == 'enable') {
-          return $app['status'] === APPS_DISABLED;
+          // We let enable callback most error conditions when it's next step.
+          return (isset($_SESSION['apps_install_next']) && $_SESSION['apps_install_next'] == $_GET['q'])
+            || ($app['status'] === APPS_DISABLED);
         }
         elseif ($action == 'install') {
           return $app['status'] === APPS_INSTALLABLE;
@@ -523,7 +525,12 @@ function apps_hook_info() {
  *   If the directory is writeable
  */
 function apps_installer_has_write_access() {
-  return is_writable(drupal_realpath(apps_installer_lib_dir())) && is_writable(drupal_realpath(variable_get('apps_install_path', APPS_INSTALL_PATH)));
+  $install_location = variable_get('apps_install_path', APPS_INSTALL_PATH);
+  // Create the directory if possible.
+  if (!is_dir($install_location) && !drupal_mkdir($install_location, NULL, TRUE)) {
+    return FALSE;
+  }
+  return is_writable(apps_installer_lib_dir()) && is_writable($install_location);
 }
 
 /**

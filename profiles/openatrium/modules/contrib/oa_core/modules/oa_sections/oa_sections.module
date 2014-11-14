@@ -41,27 +41,28 @@ function oa_sections_menu() {
 function oa_sections_node_update($node) {
   // If the Section has been moved to a new Space, then we need to update all
   // the content inside the Section to also be in the new Space.
-  $original = $node->original;
-  $space_nid = $node->og_group_ref[LANGUAGE_NONE][0]['target_id'];
-  if ($original->og_group_ref[LANGUAGE_NONE][0]['target_id'] != $space_nid) {
-    $child_nids = oa_core_get_section_content($node->nid);   
+  if (!empty($node->{OG_AUDIENCE_FIELD}[LANGUAGE_NONE][0]['target_id'])) {
+    $original = $node->original;
+    $space_nid = $node->{OG_AUDIENCE_FIELD}[LANGUAGE_NONE][0]['target_id'];
+    if ($original->{OG_AUDIENCE_FIELD}[LANGUAGE_NONE][0]['target_id'] != $space_nid) {
+      $child_nids = oa_core_get_section_content($node->nid);
 
-    // For 10 nodes or less, we update them inline (per Mike Potter).
-    if (count($child_nids) <= 10) {
-      foreach ($child_nids as $nid) {
-        _oa_sections_batch_change_space_operation($nid, $space_nid);
+      // For 10 nodes or less, we update them inline (per Mike Potter).
+      if (count($child_nids) <= 10) {
+        foreach ($child_nids as $nid) {
+          _oa_sections_batch_change_space_operation($nid, $space_nid);
+        }
+      } else {
+        // Create a batch operation to actually update the child nodes.
+        $batch = array(
+          'title' => t('Moving content to new Space'),
+          'operations' => array(),
+        );
+        foreach ($child_nids as $nid) {
+          $batch['operations'][] = array('_oa_sections_batch_change_space_operation', array($nid, $space_nid));
+        }
+        batch_set($batch);
       }
-    }
-    else {
-      // Create a batch operation to actually update the child nodes.
-      $batch = array(
-        'title' => t('Moving content to new Space'),
-        'operations' => array(),
-      );
-      foreach ($child_nids as $nid) {
-        $batch['operations'][] = array('_oa_sections_batch_change_space_operation', array($nid, $space_nid));
-      }
-      batch_set($batch);
     }
   }
 }
@@ -204,6 +205,22 @@ function oa_sections_form_oa_section_node_form_alter(&$form, &$form_state, $form
 
   _oa_core_hide_comment_settings($form);
   _oa_core_setup_node_space_type($form, 'section_type', 'field_oa_section');
+
+  if (!empty($form['menu'])) {
+    $form['menu']['link']['hidden'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Disabled'),
+      '#default_value' => $form['#node']->menu['hidden'],
+      '#description' => t('Allow items to be placed under this section, but prevent display in section menu.'),
+      '#weight' => 100,
+    );
+  }
+
+  // Enable menu link and group menu by default
+  if (empty($form['#node']->nid) && !empty($form['#node']->group_plid)) {
+    $form['menu']['enabled']['#default_value'] = 1;
+    $form['menu']['link']['parent']['#default_value'] = OG_MENU_SINGLE_MENU_NAME . ':' . $form['#node']->group_plid;
+  }
 }
 
 /**
