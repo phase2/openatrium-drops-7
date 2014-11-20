@@ -1,11 +1,12 @@
 <?php
 // Plugin definition
 $plugin = array(
-  'title' => t('Moscone'),
-  'icon' => 'moscone.png',
+  'title' => t('Moscone (deprecated)'),
+  'icon' => 'radix-moscone.png',
+  'file' => 'radix_moscone.inc',
+  'path' => drupal_get_path('module', 'radix_layouts') . '/plugins/layouts/radix_moscone',
   'category' => t('Panopoly'),
-  'theme' => 'moscone',
-  'css' => 'moscone.css',
+  'theme' => 'radix_moscone',
   'regions' => array(
     'header' => t('Header'),
     'sidebar' => t('Content Sidebar'),

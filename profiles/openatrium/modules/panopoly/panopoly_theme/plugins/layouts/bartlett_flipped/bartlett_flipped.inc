@@ -1,11 +1,12 @@
 <?php
 // Plugin definition
 $plugin = array(
-  'title' => t('Bartlett Flipped'),
-  'icon' => 'bartlett-flipped.png',
+  'title' => t('Bartlett Flipped (deprecated)'),
+  'icon' => 'radix-bartlett-flipped.png',
+  'file' => 'radix_bartlett_flipped.inc',
+  'path' => drupal_get_path('module', 'radix_layouts') . '/plugins/layouts/radix_bartlett_flipped',
   'category' => t('Panopoly'),
-  'theme' => 'bartlett_flipped',
-  'css' => 'bartlett-flipped.css',
+  'theme' => 'radix_bartlett_flipped',
   'regions' => array(
     'sidebar' => t('Sidebar'),
     'contentheader' => t('Content Header'),

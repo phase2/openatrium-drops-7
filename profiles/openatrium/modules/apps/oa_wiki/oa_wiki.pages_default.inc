@@ -45,7 +45,7 @@ function oa_wiki_default_page_manager_handlers() {
     'body_classes_to_add' => '',
   );
   $display = new panels_display();
-  $display->layout = 'burr_flipped';
+  $display->layout = 'radix_burr_flipped';
   $display->layout_settings = array();
   $display->panel_settings = array(
     'style_settings' => array(

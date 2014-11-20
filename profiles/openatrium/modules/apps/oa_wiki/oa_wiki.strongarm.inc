@@ -130,7 +130,7 @@ function oa_wiki_strongarm() {
           'weight' => '0',
         ),
         'path' => array(
-          'weight' => '2',
+          'weight' => '1',
         ),
       ),
       'display' => array(),

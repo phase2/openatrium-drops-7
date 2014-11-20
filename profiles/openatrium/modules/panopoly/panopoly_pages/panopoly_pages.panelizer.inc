@@ -30,7 +30,7 @@ function panopoly_pages_panelizer_defaults() {
   $panelizer->link_to_entity = TRUE;
   $panelizer->extra = '';
   $display = new panels_display();
-  $display->layout = 'bryant';
+  $display->layout = 'radix_bryant';
   $display->layout_settings = array();
   $display->panel_settings = array(
     'style_settings' => array(

@@ -44,13 +44,14 @@ system_install() {
   pwd
   drush make --yes profiles/openatrium/drupal-org-core.make --prepare-install
   drush make --yes profiles/openatrium/scripts/oa-drush6-dev.make --no-core --contrib-destination=profiles/openatrium
+  drush dl panopoly_demo-7.x-1.x-dev
   mkdir sites/default/files
   mkdir sites/default/files/private
   mkdir sites/default/files/temp
 
   # Build Behat dependencies
   header Installing Behat
-  cd profiles/openatrium/modules/contrib/oa_test/tests
+  cd profiles/openatrium/modules/panopoly/panopoly_test/tests
   composer install --prefer-source --no-interaction
   cd ../../../../../../../
 
@@ -105,12 +106,15 @@ system_install() {
 # Setup Drupal to run the tests.
 #
 before_tests() {
+  UPGRADE_DEMO_VERSION=`echo $UPGRADE | sed -e s/^7.x-//`
+
   # Do the site install (either the current revision or old for the upgrade).
   header Installing Drupal
   if [[ "$UPGRADE" == none ]]; then
     cd drupal
   else
     cd openatrium-$UPGRADE
+    drush dl panopoly_demo-$UPGRADE_DEMO_VERSION
   fi
   drush si openatrium --db-url=mysql://root:@127.0.0.1/drupal --account-name=admin --account-pass=admin --site-mail=admin@example.com --site-name="Open Atrium" --yes
   drush dis -y dblog
@@ -126,6 +130,9 @@ before_tests() {
     cp -a ../openatrium-$UPGRADE/sites/default/* sites/default/ && drush updb --yes
   fi
   drush cc all
+
+  # Our tests depend on panopoly_demo.
+  drush en -y panopoly_demo
 
   # Our tests depend on panopoly_test.
   drush en -y panopoly_test
@@ -146,7 +153,7 @@ before_tests() {
   wait_for_port 4444
 
   # Prime the site to prevent timeouts when the tests run
-  wget -q -O - http://localhost:8888 > /dev/null
+  wget -q -O - http://localhost:8888
   sleep 3
 }
 

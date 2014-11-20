@@ -14,6 +14,10 @@
   margin: 0;
 }
 
+fieldset .chosen-fieldset-wrapper {
+  overflow: visible !important;
+}
+
 // General form styles
 // --------------------------------------------------
 form {

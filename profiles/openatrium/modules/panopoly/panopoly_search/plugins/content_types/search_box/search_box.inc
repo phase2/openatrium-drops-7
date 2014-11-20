@@ -68,6 +68,7 @@ function panopoly_search_search_box_content_type_render($subtype, $conf, $panel_
   module_load_include('inc', 'search', 'search.pages');
 
   $block->content = drupal_build_form('search_form', $form_state);
+  $block->content['basic']['keys']['#title'] = t('Enter your keywords');
   if ($conf['form'] == 'simple' && isset($block->content['advanced'])) {
     $block->content['advanced']['#access'] = FALSE;
   }

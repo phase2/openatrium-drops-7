@@ -34,11 +34,16 @@
     <?php print $title; ?>
     <?php if (!empty($timestamp)): ?>
       <span class='pull-right'>
-        <?php print $timestamp; ?>
+        &nbsp;<?php print $timestamp; ?>
       </span>
     <?php endif; ?>
     <div class='oa-news-posted'>
       <?php print t('Posted by ') . $name . t(' on ') . $created; ?>
+      <?php if (!empty($edit_node)): ?>
+        <span>
+        &nbsp;<?php print $edit_node; ?>
+      </span>
+      <?php endif; ?>
     </div>
   </div>
   <div class='oa-news-body'>

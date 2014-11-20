@@ -140,3 +140,52 @@ function panopoly_core_update_7101() {
     variable_set('pathauto_update_action', '1');
   }
 }
+
+/**
+ * Disable Panopoly layouts and enable Radix ones.
+ */
+function panopoly_core_update_7102() {
+  $panopoly_layouts = array(
+    'bartlett',
+    'bartlett_flipped',
+    'boxton',
+    'brenham',
+    'brenham_flipped',
+    'brown',
+    'bryant',
+    'bryant_flipped',
+    'burr',
+    'burr_flipped',
+    'geary',
+    'harris',
+    'hewston',
+    'hewston_flipped',
+    'mccoppin',
+    'moscone',
+    'moscone_flipped',
+    'phelan',
+    'pond',
+    'rolph',
+    'sanderson',
+    'sanderson_flipped',
+    'selby',
+    'selby_flipped',
+    'sutro',
+    'sutro_double',
+    'taylor',
+    'taylor_flipped',
+    'webb',
+    'webb_flipped',
+    'whelan',
+  );
+  $allowed_layouts = unserialize(variable_get('panels_page_allowed_layouts', serialize((object)array())));
+  foreach ($panopoly_layouts as $layout_name) {
+    $allowed_layouts->allowed_layout_settings['radix_' . $layout_name] = TRUE;
+    // Work around misnamed layout.
+    if ($layout_name == 'bryant_flipped') {
+      $layout_name = 'bryant_flipped_flipped';
+    }
+    $allowed_layouts->allowed_layout_settings[$layout_name] = FALSE;
+  }
+  variable_set('panels_page_allowed_layouts', serialize($allowed_layouts));
+}

@@ -30,9 +30,9 @@ stylesheets-conditional[IE 8][all][] = assets/stylesheets/ie8.css
 ; Javascript
 scripts[] = assets/javascripts/script.js
 
-; Information added by Drupal.org packaging script on 2014-11-13
-version = "7.x-3.3"
+; Information added by Drupal.org packaging script on 2014-11-19
+version = "7.x-3.5"
 core = "7.x"
 project = "oa_radix"
-datestamp = "1415891073"
+datestamp = "1416434120"
 

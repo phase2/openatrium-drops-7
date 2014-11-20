@@ -19,6 +19,15 @@ define('OA_TEAM_FIELD', 'field_oa_team_ref');
  */
 define('OA_USER_FIELD', 'field_oa_user_ref');
 
+// Default sections to enabled but hidden.
+define('OA_SECTION_TYPE_MENU_DEFAULT', 0);
+
+// Default sections to enabled and visible.
+define('OA_SECTION_TYPE_MENU_VISIBLE', 1);
+
+// Default sections to not use menus.
+define('OA_SECTION_TYPE_MENU_NONE', 2);
+
 /**
  * Implements hook_menu().
  */
@@ -196,11 +205,25 @@ function _oa_sections_get_current_selected_space($entity, $set_value = NULL) {
  * Implements hook_form_FORM_ID_alter().
  */
 function oa_sections_form_oa_section_node_form_alter(&$form, &$form_state, $form_id) {
+  $default_hidden = TRUE;
+  $default_enabled = TRUE;
   // If we are on the node add form that is specific to this Section type, we
   // take the 'Section type' from the URL and hide the field.
   if (arg(0) == 'node' && arg(1) == 'add' && arg(2) == 'oa-section' && ($section_tid = arg(3)) && !empty($section_tid)) {
     $form['field_oa_section']['und']['#default_value'] = array($section_tid);
     $form['field_oa_section']['#access'] = FALSE;
+    $section = taxonomy_term_load($section_tid);
+    $values = field_get_items('taxonomy_term', $section, 'field_oa_section_type_menu');
+    if (!empty($values[0]['value'])) {
+      switch ($values[0]['value']) {
+        case OA_SECTION_TYPE_MENU_VISIBLE:
+          $default_hidden = FALSE;
+        break;
+        case OA_SECTION_TYPE_MENU_NONE:
+          $default_enabled = FALSE;
+        break;
+      }
+    }
   }
 
   _oa_core_hide_comment_settings($form);
@@ -210,7 +233,8 @@ function oa_sections_form_oa_section_node_form_alter(&$form, &$form_state, $form
     $form['menu']['link']['hidden'] = array(
       '#type' => 'checkbox',
       '#title' => t('Disabled'),
-      '#default_value' => $form['#node']->menu['hidden'],
+      // Default to hidden so in menu for organization but not showing.
+      '#default_value' => !empty($form['#node']->nid) ? $form['#node']->menu['hidden'] : $default_hidden,
       '#description' => t('Allow items to be placed under this section, but prevent display in section menu.'),
       '#weight' => 100,
     );
@@ -218,7 +242,7 @@ function oa_sections_form_oa_section_node_form_alter(&$form, &$form_state, $form
 
   // Enable menu link and group menu by default
   if (empty($form['#node']->nid) && !empty($form['#node']->group_plid)) {
-    $form['menu']['enabled']['#default_value'] = 1;
+    $form['menu']['enabled']['#default_value'] = $default_enabled;
     $form['menu']['link']['parent']['#default_value'] = OG_MENU_SINGLE_MENU_NAME . ':' . $form['#node']->group_plid;
   }
 }
@@ -275,4 +299,15 @@ function oa_sections_get_icons() {
 
   $result = $query->execute()->fetchAllAssoc('tid');
   return $result;
+}
+
+/**
+ * Allowed values callback for field_oa_section_type_menu.
+ */
+function oa_sections_field_oa_section_type_menu_allowed_values() {
+  return array(
+    OA_SECTION_TYPE_MENU_DEFAULT => t('Added to OG Menu, hidden'),
+    OA_SECTION_TYPE_MENU_VISIBLE => t('Added to OG Menu, visible'),
+    OA_SECTION_TYPE_MENU_NONE => t('Not added to OG Menu'),
+  );
 }

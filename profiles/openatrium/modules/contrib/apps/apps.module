@@ -727,6 +727,7 @@ function apps_app_configure_permissions($app) {
  */
 function apps_app_configure_og_permissions($app) {
   node_types_rebuild();
+  module_load_include('inc', 'og', 'includes/og_features_role.features');
   if (!empty($app['og permissions'])) {
     foreach ($app['og permissions'] as $key => $roles) {
       list($group_type, $bundle, $perm) = explode(':', $key);
@@ -739,8 +740,8 @@ function apps_app_configure_og_permissions($app) {
         }
       }
 
-      $roles = og_roles($group_type, $bundle, 0);
-      foreach ($roles as $rid => $rolename) {
+      $all_roles = og_roles($group_type, $bundle, 0);
+      foreach ($all_roles as $rid => $rolename) {
         if (in_array($rolename, $roles)) {
           $grant[$rid][] = $perm;
         }

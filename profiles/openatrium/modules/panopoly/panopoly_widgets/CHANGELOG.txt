@@ -1,3 +1,9 @@
+Panopoly Widgets 7.x-1.14, 2014-11-19
+------------------------------
+- Fixed "Content Type" filter on the "Add content item" widget is broken.
+- Update 'link' module to version 1.3 (fix overridden Features).
+- Added Too narrow Spotlight headline area.
+
 Panopoly Widgets 7.x-1.13, 2014-10-17
 ------------------------------
 - Fixed Patch for tablefield not needed.

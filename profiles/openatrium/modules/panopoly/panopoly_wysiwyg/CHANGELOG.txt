@@ -1,3 +1,7 @@
+Panopoly WYSIWYG 7.x-1.14, 2014-11-19
+------------------------------
+- Fixed Kitchen Sink WYSIWYG plug-in breaks non-panopoly_wysiwyg input format editors (using CKEditor).
+
 Panopoly WYSIWYG 7.x-1.13, 2014-10-17
 ------------------------------
 - No changes since last release.

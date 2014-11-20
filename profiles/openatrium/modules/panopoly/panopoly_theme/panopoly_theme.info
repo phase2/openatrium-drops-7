@@ -4,14 +4,16 @@ core = 7.x
 package = Panopoly
 project = panopoly_theme
 dependencies[] = panels
+dependencies[] = radix_layouts
 scripts[] = js/panopoly-accordion.js
 stylesheets[all][] = css/panopoly-featured.css
 stylesheets[all][] = css/panopoly-accordian.css
+stylesheets[all][] = css/panopoly-layouts.css
 features[features_api][] = api:2
 
-; Information added by Drupal.org packaging script on 2014-10-17
-version = "7.x-1.13"
+; Information added by Drupal.org packaging script on 2014-11-19
+version = "7.x-1.14"
 core = "7.x"
 project = "panopoly_theme"
-datestamp = "1413563627"
+datestamp = "1416437865"
 

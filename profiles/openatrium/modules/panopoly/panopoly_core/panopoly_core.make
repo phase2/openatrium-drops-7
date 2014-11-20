@@ -13,6 +13,7 @@ projects[ctools][patch][2312505] = http://drupal.org/files/issues/ctools-views-p
 projects[ctools][patch][1978378] = http://www.drupal.org/files/ctools-page-title-check-plained-twice-1978378-1.patch
 projects[ctools][patch][1565782] = http://www.drupal.org/files/1565782-obey-view-display-defaults-5.patch
 projects[ctools][patch][2012188] = http://www.drupal.org/files/issues/2012188-9-ctools_entity_field_content_type_admin_title.patch
+projects[ctools][patch][2055785] = http://drupal.org/files/issues/Modal-window-top-and-left-style-values-2055785-3.patch
 
 projects[panels][version] = 3.4
 projects[panels][subdir] = contrib
@@ -45,9 +46,12 @@ projects[views][patch][2037469] = http://drupal.org/files/views-exposed-sorts-20
 projects[views_autocomplete_filters][version] = 1.1
 projects[views_autocomplete_filters][subdir] = contrib
 projects[views_autocomplete_filters][patch][2277453] = http://drupal.org/files/issues/ViewsAutocompleteFilters-no_results_on_some_environments-2277453-1.patch
+projects[views_autocomplete_filters][patch][2374709] = http://www.drupal.org/files/issues/views_autocomplete_filters-cache-2374709-2.patch
+projects[views_autocomplete_filters][patch][2317351] = http://www.drupal.org/files/issues/views_autocomplete_filters-content-pane-2317351-4.patch
 
 projects[views_bulk_operations][version] = 3.2
 projects[views_bulk_operations][subdir] = contrib
+projects[views_bulk_operations][patch][2192775] = http://drupal.org/files/issues/views-bulk-operations-2192775-1_0.patch
 
 ; The Usual Suspects
 
@@ -78,12 +82,12 @@ projects[entityreference][subdir] = contrib
 projects[field_group][version] = 1.4
 projects[field_group][subdir] = contrib
 
-projects[link][version] = 1.2
+projects[link][version] = 1.3
 projects[link][subdir] = contrib
 
 ; Harness the Power of Features and Apps with Default Content
 
-projects[apps][version] = 1.0-beta19
+projects[apps][version] = 1.0-beta20
 projects[apps][subdir] = contrib
 
 projects[features][version] = 2.2
@@ -116,7 +120,7 @@ projects[migrate_extras][subdir] = "contrib"
 projects[devel][version] = 1.5
 projects[devel][subdir] = contrib
 
-projects[distro_update][version] = 1.0-beta3
+projects[distro_update][version] = 1.0-beta4
 projects[distro_update][subdir] = contrib
 
 projects[features_override][version] = 2.0-rc2

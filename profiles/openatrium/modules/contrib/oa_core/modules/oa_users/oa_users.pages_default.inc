@@ -83,7 +83,7 @@ function oa_users_default_page_manager_pages() {
     'relationships' => array(),
   );
   $display = new panels_display();
-  $display->layout = 'moscone_flipped';
+  $display->layout = 'radix_moscone_flipped';
   $display->layout_settings = array();
   $display->panel_settings = array(
     'style_settings' => array(

@@ -87,7 +87,7 @@ function oa_layouts_default_panels_mini() {
   $mini->contexts = array();
   $mini->relationships = array();
   $display = new panels_display();
-  $display->layout = 'sutro_double';
+  $display->layout = 'radix_sutro_double';
   $display->layout_settings = array();
   $display->panel_settings = array(
     'style_settings' => array(
@@ -183,7 +183,7 @@ function oa_layouts_default_panels_mini() {
   $mini->contexts = array();
   $mini->relationships = array();
   $display = new panels_display();
-  $display->layout = 'moscone_flipped';
+  $display->layout = 'radix_moscone_flipped';
   $display->layout_settings = array();
   $display->panel_settings = array(
     'style_settings' => array(

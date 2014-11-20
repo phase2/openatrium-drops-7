@@ -166,19 +166,8 @@ function distro_update_update_report($variables) {
 
   drupal_add_css(drupal_get_path('module', 'distro_update') . '/distro_update.css');
 
-  $output['#sorted'] = TRUE;
-  $output['header'] = array(
-    '#theme' => 'html_tag',
-    '#tag' => 'h3',
-    '#value' => t('Do not manually update projects within distributions! This includes any project defined in a .make file.'),
-  );
-  $output['help'] = array(
-    '#markup' => '<p>' .
-      t('Drupal Distributions contain a carefully selected set of module
-      versions along with specific patches.  You should never update individual modules
-      within a distribution unless you are an experienced developer.')
-      . '</p>',
-  );
+  // Get the help text to throw at the top of the page/form.
+  $output = distro_update_form_help_text();
 
   // If we're not dealing with a distribution then render the drupal core
   // project, then begin traversing the project make data to render the
@@ -368,6 +357,14 @@ function distro_update_report_with_children($project_name, &$variables, $project
  * updated holistically with the distribution.
  */
 function distro_update_form_update_manager_update_form_alter(&$form, &$form_state) {
+  // If the form doesn't have any projects then we can jump out early and let
+  // the form render normally.
+  if (empty($form['projects'])) {
+    return;
+  }
+
+  array_unshift($form, distro_update_form_help_text());
+
   $project_make_data = distro_update_rebuild_make_data();
 
   // Loop through each project option.
@@ -375,10 +372,38 @@ function distro_update_form_update_manager_update_form_alter(&$form, &$form_stat
     // Remove any parent projects that include the .make file.
     if (variable_get('distro_update_block_parent_update', TRUE) && !empty($project_make_data[$project_name]['projects'])) {
       unset($form['projects']['#options'][$project_name]);
+      continue;
     }
     // Remove any children projects that are defined in the .make files.
     if (variable_get('distro_update_block_child_update', TRUE) && !empty($project_make_data[$project_name]['parents'])) {
       unset($form['projects']['#options'][$project_name]);
+      continue;
+    }
+    // Since disto_update modifies the status of a project based on its
+    // definition in a .make file, it may appear as a project with an update
+    // available. This is not always the case so we attempt to test here to
+    // see if the project's recommended version is the current version and hide
+    // it from this form.
+    if (!empty($option['recommended_version']) && !empty($option['installed_version']) && strpos($option['recommended_version'], $option['installed_version']) === 0) {
+      unset($form['projects']['#options'][$project_name]);
+      continue;
+    }
+    // Any remaining projects add information about what project defines the
+    // .make file.
+    if (!empty($project_make_data[$project_name]['parents'])) {
+      // Add helper note
+      $parent_links = array();
+      $project_make_version = '';
+      foreach ($project_make_data[$project_name]['parents'] as $parent_project_name) {
+        $parent_links[] = l($parent_project_name, 'http://drupal.org/project/' . $parent_project_name, array('external' => TRUE));
+        $project_make_version = $project_make_data[$parent_project_name]['projects'][$project_name];
+      }
+      $make_helper = '<br/>(' . t("Warning: this project bundled by !urls", array('!urls' => implode(',', $parent_links))) . ')';
+      $form['projects']['#options'][$project_name]['title'] .= $make_helper;
+      // Add additional recommended .make version.
+      $make_version_helper = '<div><strong>Distribution Recommendation: ' . t('@version', array('@version' => $project_make_version)) . '</strong></div>';
+      $make_version_helper .= 'Project Recommendation: ';
+      $form['projects']['#options'][$project_name]['recommended_version'] = $make_version_helper . $form['projects']['#options'][$project_name]['recommended_version'];
     }
   }
 
@@ -580,6 +605,14 @@ function distro_update_rebuild_make_data() {
     // Add each child project version to the data array so we know which project
     // "owns" another project. Also add parent project reference.
     foreach ($make_file['projects'] as $child_project_name => $child_project_info) {
+      // In some situations a child distribution may only contain patch
+      // information to a contrib module that is defined in a parent distro make
+      // file. If we cannot find the version or branch information then continue
+      // on.
+      if (empty($child_project_info['version']) && empty($child_project_info['download'])) {
+        continue;
+      }
+
       $version = !empty($child_project_info['version']) ? DRUPAL_CORE_COMPATIBILITY . '-' . $child_project_info['version'] : $child_project_info['download']['branch'] . '-dev';
       // Captures the children project versions.
       $data[$project_name]['projects'][$child_project_name] = $version;
@@ -622,6 +655,7 @@ function distro_update_get_profile($profile_name) {
   }
   $profile = array(
     'name' => $profile_name,
+    'title' => $info['name'],
     'info' => $info,
     'project_type' => 'module',
     'project_status' => TRUE,
@@ -685,6 +719,16 @@ function distro_update_get_make_version($project_name, $projects, $parent_projec
     if (!empty($projects[$parent_project_name])) {
       return $project_make_data[$parent_project_name]['projects'][$project_name];
     }
+    // Several scenarios appear where the parent project is enabled but not
+    // showing up in the $projects list. This could be due to the project being
+    // pulled from a source (e.g. github/bitbucket) outside of drupal.org or
+    // for some unknown reason update manager is not getting the project status
+    // of a module (e.g. panopoly_seo).
+    // So we do check if the parent project is enabled, and if so we grab the
+    // project make version directly.
+    elseif (module_exists($parent_project_name)) {
+      return $project_make_data[$project_name]['version'];
+    }
   }
 
   return 'Unknown';
@@ -734,5 +778,26 @@ function distro_update_get_project_version($project_name, $projects) {
  *   TRUE / FALSE whether the two version strings are considered equivalent.
  */
 function distro_update_same_version($project_current_version, $project_make_version) {
-  return ($project_current_version == $project_make_version || (strpos($project_current_version, '-dev') && strpos($project_make_version, '-dev')));
+  return ($project_current_version == $project_make_version
+    || ((strpos($project_current_version, '-dev') || $project_current_version == 'Unknown')
+      && (strpos($project_make_version, '-dev') || $project_make_version == 'Unknown')));
+}
+
+
+function distro_update_form_help_text() {
+  $output['#sorted'] = TRUE;
+  $output['header'] = array(
+    '#theme' => 'html_tag',
+    '#tag' => 'h3',
+    '#value' => t('Do not manually update projects within distributions! This includes any project defined in a .make file.'),
+  );
+  $output['help'] = array(
+    '#markup' => '<p>' .
+      t('Drupal Distributions contain a carefully selected set of module
+      versions along with specific patches.  You should never update individual modules
+      within a distribution unless you are an experienced developer.')
+      . '</p>',
+  );
+
+  return $output;
 }

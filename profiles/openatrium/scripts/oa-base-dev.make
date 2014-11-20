@@ -108,6 +108,12 @@ projects[oa_favorites][subdir] = apps
 projects[oa_favorites][download][type] = git
 projects[oa_favorites][download][branch] = 7.x-2.x
 
+projects[oa_files][version] = 2.x-dev
+projects[oa_files][subdir] = apps
+projects[oa_files][type] = module
+projects[oa_files][download][type] = git
+projects[oa_files][download][branch] = 7.x-2.x
+
 projects[oa_home][version] = 2.x-dev
 projects[oa_home][subdir] = apps
 projects[oa_home][download][type] = git

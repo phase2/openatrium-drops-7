@@ -1,6 +1,11 @@
 <?php
 include_once('panopoly_magic.features.inc');
 
+define('PANOPOLY_ADD_PREVIEW_MANUAL', 0);
+define('PANOPOLY_ADD_PREVIEW_AUTOMATIC', 1);
+define('PANOPOLY_ADD_PREVIEW_DISABLED', 2);
+define('PANOPOLY_ADD_PREVIEW_DEFAULT', PANOPOLY_ADD_PREVIEW_AUTOMATIC);
+
 /**
  * Implements hook_init()
  */
@@ -134,10 +139,11 @@ function panopoly_magic_configure_form($form, &$form_state) {
     '#type' => 'select',
     '#required' => TRUE,
     '#options' => array(
-      '1' => t('Enabled'),
-      '0' => t('Disabled'),
+      PANOPOLY_ADD_PREVIEW_AUTOMATIC => 'Automatic',
+      PANOPOLY_ADD_PREVIEW_MANUAL => 'Manual',
+      PANOPOLY_ADD_PREVIEW_DISABLED => 'Disabled',
     ),
-    '#default_value' => variable_get('panopoly_magic_pane_add_preview', 1),
+    '#default_value' => variable_get('panopoly_magic_pane_add_preview', PANOPOLY_ADD_PREVIEW_DEFAULT),
     '#description' => t('Do you want to automatically generate previews when adding existing panels panes through the IPE?'),
   );
 
@@ -1229,7 +1235,7 @@ function panopoly_magic_preprocess_panels_add_content_modal(&$vars) {
   // Generate the pane preview
   if (!empty($vars['categories'][$vars['category']]['content'])) {
     foreach ($vars['categories'][$vars['category']]['content'] as &$plugin) {
-      $use_preview = variable_get('panopoly_magic_pane_add_preview', 1);
+      $use_preview = (variable_get('panopoly_magic_pane_add_preview', PANOPOLY_ADD_PREVIEW_DEFAULT) == PANOPOLY_ADD_PREVIEW_AUTOMATIC);
       $strip_js = variable_get('panopoly_magic_strip_js_from_preview', 0);
       $query = drupal_get_query_parameters();
       $preview_panes = (!empty($query['preview_panes'])) ? explode(',', $query['preview_panes']) : array();
@@ -1267,6 +1273,10 @@ function panopoly_magic_preprocess_panels_add_content_modal(&$vars) {
  * Process the panels_add_content_modal() to adjust the markup to present the preview
  */
 function panopoly_magic_process_panels_add_content_modal(&$vars) {
+  if (variable_get('panopoly_magic_pane_add_preview', PANOPOLY_ADD_PREVIEW_DEFAULT) == PANOPOLY_ADD_PREVIEW_DISABLED) {
+    return;
+  }
+
   $content = !empty($vars['categories'][$vars['category']]['content']) ? $vars['categories'][$vars['category']]['content'] : array();
 
   // If no category is selected or the category is empty or our special empty

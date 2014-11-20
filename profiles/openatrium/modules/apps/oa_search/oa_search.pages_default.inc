@@ -30,7 +30,7 @@ function oa_search_default_page_manager_handlers() {
     'relationships' => array(),
   );
   $display = new panels_display();
-  $display->layout = 'brenham_flipped';
+  $display->layout = 'radix_brenham_flipped';
   $display->layout_settings = array();
   $display->panel_settings = array(
     'style_settings' => array(
@@ -259,7 +259,7 @@ function oa_search_default_page_manager_handlers() {
     ),
   );
   $display = new panels_display();
-  $display->layout = 'brenham_flipped';
+  $display->layout = 'radix_brenham_flipped';
   $display->layout_settings = array();
   $display->panel_settings = array(
     'style_settings' => array(
@@ -474,7 +474,7 @@ function oa_search_default_page_manager_handlers() {
     'relationships' => array(),
   );
   $display = new panels_display();
-  $display->layout = 'brenham_flipped';
+  $display->layout = 'radix_brenham_flipped';
   $display->layout_settings = array();
   $display->panel_settings = array(
     'style_settings' => array(
@@ -630,7 +630,7 @@ function oa_search_default_page_manager_handlers() {
     ),
   );
   $display = new panels_display();
-  $display->layout = 'brenham_flipped';
+  $display->layout = 'radix_brenham_flipped';
   $display->layout_settings = array();
   $display->panel_settings = array(
     'style_settings' => array(

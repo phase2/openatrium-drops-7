@@ -1,11 +1,12 @@
 <?php
 // Plugin definition
 $plugin = array(
-  'title' => t('Taylor Flipped'),
-  'icon' => 'taylor-flipped.png',
+  'title' => t('Taylor Flipped (deprecated)'),
+  'icon' => 'radix-taylor-flipped.png',
+  'file' => 'radix_taylor_flipped.inc',
+  'path' => drupal_get_path('module', 'radix_layouts') . '/plugins/layouts/radix_taylor_flipped',
   'category' => t('Panopoly'),
-  'theme' => 'taylor_flipped',
-  'css' => 'taylor-flipped.css',
+  'theme' => 'radix_taylor_flipped',
   'regions' => array(
     'header' => t('Header'),
     'quarter1' => t('Quarter 1 Column'),

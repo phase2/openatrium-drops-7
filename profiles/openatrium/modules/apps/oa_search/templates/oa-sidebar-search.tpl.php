@@ -11,7 +11,7 @@
   <form action="search/site" method="post" role="form">
     <div class="input-append form-group">
       <input type="text" class="search-text">
-      <button type="submit" class="btn submit">
+      <button type="submit" class="btn btn-default btn-primary submit">
         <i class="icon-search"></i><span
           class="element-invisible"><?php print t('Search Button'); ?></span>
       </button>
@@ -26,7 +26,7 @@
       <ul class="options <?php print $extra_classes ?>">
         <?php $checked = TRUE; ?>
         <?php foreach ($options as $option => $label): ?>
-          <li>
+          <li class="radio">
             <label class="radio">
               <input type="radio" name="searchOptions"
                      value="<?php print $option; ?>" <?php print $checked ? 'checked' : ''; ?>>

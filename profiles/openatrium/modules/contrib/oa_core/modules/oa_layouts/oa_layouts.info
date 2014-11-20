@@ -33,11 +33,12 @@ features[panels_renderer_pipeline][] = ipe_node_access
 features[variable][] = panelizer_defaults_node_oa_group
 features[variable][] = panelizer_defaults_node_oa_section
 features[variable][] = panelizer_defaults_node_oa_space
-project path = profiles/openatrium/modules/contrib/oa_core/modules
+features[variable][] = panelizer_node:oa_section_allowed_layouts_default
+features[variable][] = panelizer_node:oa_space_allowed_layouts_default
 
-; Information added by Drupal.org packaging script on 2014-11-13
-version = "7.x-2.27"
+; Information added by Drupal.org packaging script on 2014-11-20
+version = "7.x-2.30"
 core = "7.x"
 project = "oa_core"
-datestamp = "1415905386"
+datestamp = "1416507924"
 

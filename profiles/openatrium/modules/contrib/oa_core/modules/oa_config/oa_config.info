@@ -10,12 +10,9 @@ features[ctools][] = strongarm:strongarm:1
 features[features_api][] = api:2
 features[features_override_items][] = filter.panopoly_wysiwyg_text
 features[features_override_items][] = wysiwyg.panopoly_wysiwyg_text
-features[features_overrides][] = filter.panopoly_wysiwyg_text.filters|wysiwyg|settings|style_border-1
 features[features_overrides][] = filter.panopoly_wysiwyg_text.filters|wysiwyg|settings|style_border-1|border
-features[features_overrides][] = filter.panopoly_wysiwyg_text.filters|wysiwyg|settings|style_border-2
 features[features_overrides][] = filter.panopoly_wysiwyg_text.filters|wysiwyg|settings|style_border-2|border-color
 features[features_overrides][] = filter.panopoly_wysiwyg_text.filters|wysiwyg|settings|style_border-2|border-style
-features[features_overrides][] = filter.panopoly_wysiwyg_text.filters|wysiwyg|settings|style_color
 features[features_overrides][] = filter.panopoly_wysiwyg_text.filters|wysiwyg|settings|style_color|background-color
 features[features_overrides][] = filter.panopoly_wysiwyg_text.filters|wysiwyg|settings|valid_elements
 features[features_overrides][] = wysiwyg.panopoly_wysiwyg_text.settings|buttons|table
@@ -29,6 +26,7 @@ features[variable][] = chosen_jquery_selector
 features[variable][] = chosen_minimum
 features[variable][] = chosen_minimum_multiple
 features[variable][] = chosen_minimum_single
+features[variable][] = features_rebuild_on_flush
 features[variable][] = file_default_scheme
 features[variable][] = file_entity_file_upload_wizard_skip_scheme
 features[variable][] = og_context_negotiation_group_context
@@ -36,9 +34,9 @@ features[variable][] = og_context_providers_weight_group_context
 features[variable][] = pathauto_reduce_ascii
 features[variable][] = preprocess_css
 
-; Information added by Drupal.org packaging script on 2014-11-13
-version = "7.x-2.27"
+; Information added by Drupal.org packaging script on 2014-11-20
+version = "7.x-2.30"
 core = "7.x"
 project = "oa_core"
-datestamp = "1415905386"
+datestamp = "1416507924"
 

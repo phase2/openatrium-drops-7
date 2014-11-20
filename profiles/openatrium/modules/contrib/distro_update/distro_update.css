@@ -30,3 +30,10 @@
 table.update {
   margin-bottom: 0;
 }
+
+body.page-admin-reports-updates .table-striped > tbody > tr:nth-child(2n+1) > td,
+body.page-admin-reports-updates .table-striped > tbody > tr:nth-child(2n+1) > th,
+body.page-admin-reports-updates .table-striped tbody > tr:nth-child(2n+1) > td,
+body.page-admin-reports-updates .table-striped tbody > tr:nth-child(2n+1) > th {
+  background-color: inherit;
+}

@@ -1,11 +1,12 @@
 <?php
 // Plugin definition
 $plugin = array(
-  'title' => t('Hewston'),
-  'icon' => 'hewston.png',
+  'title' => t('Hewston (deprecated)'),
+  'icon' => 'radix-hewston.png',
+  'file' => 'radix_hewston.inc',
+  'path' => drupal_get_path('module', 'radix_layouts') . '/plugins/layouts/radix_hewston',
   'category' => t('Panopoly'),
-  'theme' => 'hewston',
-  'css' => 'hewston.css',
+  'theme' => 'radix_hewston',
   'regions' => array(
     'slider' => t('Slider'),
     'slidergutter' => t('Slider Gutter'),

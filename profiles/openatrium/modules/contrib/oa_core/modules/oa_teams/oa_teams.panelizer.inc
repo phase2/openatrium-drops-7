@@ -30,7 +30,7 @@ function oa_teams_panelizer_defaults() {
   $panelizer->link_to_entity = TRUE;
   $panelizer->extra = array();
   $display = new panels_display();
-  $display->layout = 'bryant_flipped_flipped';
+  $display->layout = 'radix_bryant_flipped';
   $display->layout_settings = array();
   $display->panel_settings = array(
     'style_settings' => array(

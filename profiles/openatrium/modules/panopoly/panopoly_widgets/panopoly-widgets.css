@@ -130,7 +130,7 @@ table.mobile-table {
 .pane-bundle-spotlight .panopoly-spotlight-wrapper h2 { margin: 0; }
 .pane-bundle-spotlight .panopoly-spotlight-wrapper h2 a { text-decoration: none; color: #FFFFFF; }
 .pane-bundle-spotlight .panopoly-spotlight-wrapper p { font-size: .8em; margin: 0; line-height: 1.2em; margin-top: 5px; }
-.pane-bundle-spotlight .panopoly-spotlight-label { background-color: #FFF; width: 200px; max-width: 50%; opacity: .75; }
+.pane-bundle-spotlight .panopoly-spotlight-label { background-color: #FFF; width: 75%; max-width: 85%; opacity: .75; }
 .pane-bundle-spotlight .panopoly-spotlight-label { padding: .3em .7em; margin: 0px; }
 .pane-bundle-spotlight .panopoly-spotlight-info { padding: .7em; background-color: #000000; color: #FFFFFF; opacity: .75; }
 .pane-bundle-spotlight .ui-tabs .ui-tabs-nav li.ui-state-default { background: none; background-color: #000; opacity: .75; border: 1px solid #000000 !important; border-top-left-radius: 0px; border-top-right-radius: 0px; }

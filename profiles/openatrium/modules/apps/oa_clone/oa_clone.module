@@ -283,6 +283,17 @@ function oa_clone_form_oa_space_node_form_alter(&$form, &$form_state) {
       '#value' => !empty($node->oa_clone_bypass_access_check) ? '1' : '0',
     );
   }
+
+  if (!empty($node->clone_from_original_nid) && module_exists('oa_subspaces')) {
+    // when cloning a subspace, clear the Parent field so it can be filled in using URL in oa_subspaces later
+    // oa_subspaces_form_node_form_alter() runs after us
+    if (isset($form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['admin'])) {
+      $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['admin']['#default_value'] = array();
+    }
+    if (isset($form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default'])) {
+      $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default']['#default_value'] = array();
+    }
+  }
 }
 
 /**
@@ -293,8 +304,8 @@ function oa_clone_form_node_form_alter(&$form, &$form_state) {
 
   // Fix a weird bug where the 'Other groups' field is always filled on clone
   // with the same data as the 'Your groups' field. We just clear it out.
-  if (!empty($node->clone_from_original_nid) && isset($form['og_group_ref'][LANGUAGE_NONE][0]['admin'])) {
-    $form['og_group_ref'][LANGUAGE_NONE][0]['admin'][0]['target_id']['#default_value'] = '';
+  if (!empty($node->clone_from_original_nid) && isset($form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['admin'])) {
+    $form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['admin'][0]['target_id']['#default_value'] = '';
   }
 }
 
@@ -304,7 +315,7 @@ function oa_clone_form_node_form_alter(&$form, &$form_state) {
 function oa_clone_clone_node_alter(&$node, $context) {
   // At the moment we don't have much generic that affects all cloning
   // operations. In general, you shouldn't put things here, but rather in the
-  // module that is responible for the thing you are adding support for.
+  // module that is responsible for the thing you are adding support for.
   // For example, sandbox support is done in oa_sandbox.
 
   $original_node = $context['original_node'];
@@ -356,14 +367,16 @@ function oa_clone_prepare($original_node, $space_nid = NULL, $section_nid = NULL
     $node = _clone_node_prepare($original_node, FALSE);
     if ($space_nid) {
       if ($node->type == 'oa_space') {
-        $node->oa_parent_space[LANGUAGE_NONE][0]['target_id'] = $space_nid;
+        if (module_exists('oa_subspaces')) {
+          $node->{OA_PARENT_SPACE}[LANGUAGE_NONE][0]['target_id'] = $space_nid;
+        }
       }
       else {
-        $node->og_group_ref[LANGUAGE_NONE][0]['target_id'] = $space_nid;
+        $node->{OA_SPACE_FIELD}[LANGUAGE_NONE][0]['target_id'] = $space_nid;
       }
     }
     if ($section_nid) {
-      $node->oa_section_ref[LANGUAGE_NONE][0]['target_id'] = $section_nid;
+      $node->{OA_SECTION_FIELD}[LANGUAGE_NONE][0]['target_id'] = $section_nid;
     }
 
     $context = array('method' => 'save-edit', 'original_node' => $original_node);
@@ -572,7 +585,7 @@ function oa_clone_batch_clone_section_content($node, $original_nid, &$context) {
   $original_node->oa_clone_skip = TRUE;
 
   // Clone it, setting to the new Space and Section.
-  $clone = oa_clone($original_node, $node->og_group_ref[LANGUAGE_NONE][0]['target_id'], $node->nid, $bypass_access_check);
+  $clone = oa_clone($original_node, $node->{OA_SPACE_FIELD}[LANGUAGE_NONE][0]['target_id'], $node->nid, $bypass_access_check);
   // Remeber: $clone can be NULL, if the user doesn't have permission to clone this node!
 
   // Bump the progress indicator.

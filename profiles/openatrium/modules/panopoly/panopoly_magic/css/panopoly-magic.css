@@ -63,10 +63,6 @@ div.ctools-modal-content div.form-item-categories label {
   width: auto;
 }
 
-#panels-layout-category-Panopoly {
-  margin: 3% 6%;
-}
-
 div.ctools-modal-content .panels-choose-layout .dependent-options {
   padding-left: 0px;
 }
@@ -74,27 +70,6 @@ div.ctools-modal-content .panels-choose-layout .dependent-options {
 div.modal-content-preview-button {
   padding-top: 100px;
   text-align: center;
-}
-
-#panels-layout-category-Panopoly-wrapper .panels-layouts-category,
-#panels-layout-category-Panopoly-wrapper .layout-link div {
-  display: none;
-}
-
-#panels-layout-category-Panopoly-wrapper .layout-link {
-  float: left;
-  height: 68px;
-  padding: 1.25em;
-  text-align: center;
-  width: 68px;
-}
-
-#panels-layout-category-Panopoly-wrapper .layout-link:hover {
-  background-color: #BBB;
-}
-
-#panels-layout-category-Panopoly-wrapper .current-layout {
-  background-color: #DDD;
 }
 
 /**

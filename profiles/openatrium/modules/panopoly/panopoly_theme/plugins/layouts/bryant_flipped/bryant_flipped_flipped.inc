@@ -1,11 +1,12 @@
 <?php
 // Plugin definition
 $plugin = array(
-  'title' => t('Bryant Flipped'),
-  'icon' => 'bryant-flipped.png',
+  'title' => t('Bryant Flipped (deprecated)'),
+  'icon' => 'radix-bryant-flipped.png',
+  'file' => 'radix_bryant_flipped.inc',
+  'path' => drupal_get_path('module', 'radix_layouts') . '/plugins/layouts/radix_bryant_flipped',
   'category' => t('Panopoly'),
-  'theme' => 'bryant_flipped',
-  'css' => 'bryant-flipped.css',
+  'theme' => 'radix_bryant_flipped',
   'regions' => array(
     'sidebar' => t('Sidebar'),
     'contentmain' => t('Content'),

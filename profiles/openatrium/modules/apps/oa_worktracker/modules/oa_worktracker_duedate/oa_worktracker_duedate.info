@@ -21,9 +21,9 @@ features[features_overrides][] = variable.field_bundle_settings_comment__comment
 features[field_base][] = field_oa_worktracker_duedate
 features[field_instance][] = node-oa_worktracker_task-field_oa_worktracker_duedate
 
-; Information added by Drupal.org packaging script on 2014-10-29
-version = "7.x-2.0-beta16"
+; Information added by Drupal.org packaging script on 2014-11-20
+version = "7.x-2.0-beta17"
 core = "7.x"
 project = "oa_worktracker"
-datestamp = "1414608232"
+datestamp = "1416501922"
 

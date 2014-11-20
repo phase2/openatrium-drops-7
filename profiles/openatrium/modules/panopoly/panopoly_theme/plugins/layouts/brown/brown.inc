@@ -1,11 +1,12 @@
 <?php
 // Plugin definition
 $plugin = array(
-  'title' => t('Brown'),
-  'icon' => 'brown.png',
+  'title' => t('Brown (deprecated)'),
+  'icon' => 'radix-brown.png',
+  'file' => 'radix_brown.inc',
+  'path' => drupal_get_path('module', 'radix_layouts') . '/plugins/layouts/radix_brown',
   'category' => t('Panopoly'),
-  'theme' => 'brown',
-  'css' => 'brown.css',
+  'theme' => 'radix_brown',
   'regions' => array(
     'slider' => t('Slider'),
     'slidergutter' => t('Slider Gutter'),

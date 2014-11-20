@@ -1,3 +1,8 @@
+Panopoly Magic 7.x-1.14, 2014-11-19
+----------------------------
+- Have Panopoly Theme depend on Radix Layouts (rather than providing it's own).
+- Added Can't turn off previews on Panels Add Content modal.
+
 Panopoly Magic 7.x-1.13, 2014-10-17
 ----------------------------
 - No changes since last release.

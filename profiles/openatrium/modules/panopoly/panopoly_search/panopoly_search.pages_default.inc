@@ -83,7 +83,7 @@ function panopoly_search_default_page_manager_pages() {
     'panels_breadcrumbs_home' => 1,
   );
   $display = new panels_display();
-  $display->layout = 'burr_flipped';
+  $display->layout = 'radix_burr_flipped';
   $display->layout_settings = array();
   $display->panel_settings = array(
     'style_settings' => array(
@@ -234,7 +234,7 @@ function panopoly_search_default_page_manager_pages() {
     'body_classes_to_add' => '',
   );
   $display = new panels_display();
-  $display->layout = 'burr_flipped';
+  $display->layout = 'radix_burr_flipped';
   $display->layout_settings = array();
   $display->panel_settings = array(
     'style_settings' => array(

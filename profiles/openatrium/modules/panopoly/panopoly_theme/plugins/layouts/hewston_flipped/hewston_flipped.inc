@@ -1,11 +1,12 @@
 <?php
 // Plugin definition
 $plugin = array(
-  'title' => t('Hewston Flipped'),
-  'icon' => 'hewston-flipped.png',
+  'title' => t('Hewston Flipped (deprecated)'),
+  'icon' => 'radix-hewston-flipped.png',
+  'file' => 'radix_hewston_flipped.inc',
+  'path' => drupal_get_path('module', 'radix_layouts') . '/plugins/layouts/radix_hewston_flipped',
   'category' => t('Panopoly'),
-  'theme' => 'hewston_flipped',
-  'css' => 'hewston-flipped.css',
+  'theme' => 'radix_hewston_flipped',
   'regions' => array(
     'slider' => t('Slider'),
     'slidergutter' => t('Slider Gutter'),

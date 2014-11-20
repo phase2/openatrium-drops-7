@@ -39,7 +39,7 @@ function oa_news_panelizer_defaults() {
   $panelizer->link_to_entity = TRUE;
   $panelizer->extra = array();
   $display = new panels_display();
-  $display->layout = 'burr_flipped';
+  $display->layout = 'radix_burr_flipped';
   $display->layout_settings = array();
   $display->panel_settings = array(
     'style_settings' => array(
@@ -130,6 +130,7 @@ function oa_news_panelizer_defaults() {
         'term_node_tid' => 1,
         'field_featured_image' => 1,
         'field_oa_media' => 1,
+        'edit_node' => 1,
       ),
       'exposed' => array(
         'type' => array(

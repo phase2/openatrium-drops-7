@@ -1,3 +1,9 @@
+Panopoly Search 7.x-1.14, 2014-11-19
+-----------------------------
+- Update automatic configuration of SOLR on Pantheon.
+- Have Panopoly Theme depend on Radix Layouts (rather than providing it's own).
+- Fixed Empty search should yield message "Enter your keywords".
+
 Panopoly Search 7.x-1.13, 2014-10-17
 -----------------------------
 - No changes since last release.

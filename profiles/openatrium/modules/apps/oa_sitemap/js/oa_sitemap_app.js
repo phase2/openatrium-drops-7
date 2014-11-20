@@ -303,11 +303,11 @@
 
     $scope.enableEditor = function(node) {
       $scope.editableTitle[node.nid] = node.title;
-      allSpaces[node.nid].editorEnabled = true;
+      node.editorEnabled = true;
     };
 
     $scope.disableEditor = function(node) {
-      allSpaces[node.nid].editorEnabled = false;
+      node.editorEnabled = false;
     };
 
     $scope.saveTitle = function(node) {

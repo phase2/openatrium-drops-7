@@ -21,11 +21,11 @@ function oa_wiki_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Access',
-    'weight' => '10',
+    'weight' => '6',
     'children' => array(
-      0 => 'oa_section_ref',
-      1 => 'og_group_ref',
-      2 => 'oa_other_spaces_ref',
+      0 => 'oa_other_spaces_ref',
+      1 => 'oa_section_ref',
+      2 => 'og_group_ref',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(

@@ -16,13 +16,6 @@ projects[views][patch][2037469] = http://drupal.org/files/views-exposed-sorts-20
 projects[views][patch][1979926] = http://drupal.org/files/1979926-views-reset_fetch_data-2.patch
 projects[views][patch][1735096] = http://drupal.org/files/1735096-views-mltiple-instance-exposed-form-8.patch
 
-; Views Bulk Operations
-; Override panopoly_core.make: 3.2
-projects[views_bulk_operations][version] = 3.2
-projects[views_bulk_operations][subdir] = contrib
-; additional patches for OA
-projects[views_bulk_operations][patch][2192775] = http://drupal.org/files/issues/views-bulk-operations-2192775-1_0.patch
-
 ; CTools
 ; Override panopoly_core.make: 1.4
 projects[ctools][version] = 1.4
@@ -34,12 +27,12 @@ projects[ctools][patch][2312505] = http://drupal.org/files/issues/ctools-views-p
 projects[ctools][patch][1978378] = http://www.drupal.org/files/ctools-page-title-check-plained-twice-1978378-1.patch
 projects[ctools][patch][1565782] = http://www.drupal.org/files/1565782-obey-view-display-defaults-5.patch
 projects[ctools][patch][2012188] = http://www.drupal.org/files/issues/2012188-9-ctools_entity_field_content_type_admin_title.patch
+projects[ctools][patch][2055785] = http://drupal.org/files/issues/Modal-window-top-and-left-style-values-2055785-3.patch
 ; additional patches for OA
 projects[ctools][patch][1910608] = http://drupal.org/files/issues/1910608-views_content-ajax-13.patch
 projects[ctools][patch][1901106] = http://drupal.org/files/issues/ctools-views_content-exposed_form_override-1901106-24.patch
 projects[ctools][patch][2023705] = http://drupal.org/files/2023705-ctools-autosubmit-2_0.patch
 projects[ctools][patch][2195471] = http://drupal.org/files/issues/ctools-n2195471-1.patch
-projects[ctools][patch][2055785] = http://drupal.org/files/issues/Modal-window-top-and-left-style-values-2055785-3.patch
 
 ; Entity API
 ; Override panopoly_core.make: 1.5
@@ -73,6 +66,13 @@ projects[field_group][version] = 1.4
 projects[field_group][subdir] = contrib
 ;following patch not ready yet
 ;projects[field_group][patch][1278618] = http://drupal.org/files/issues/field_group-panels-integration-1278618-58.patch
+
+; Features
+; Override panopoly_core.make: 2.2
+projects[features][version] = 2.2
+projects[features][subdir] = contrib
+; additional patches for OA
+projects[features][patch][2378343] = http://drupal.org/files/issues/features_improve_features-2378343-1.patch
 
 ; File Entity
 ; Override panopoly_widgets.make: 20f3070
@@ -108,7 +108,7 @@ projects[colorizer][version] = 1.4
 projects[colorizer][subdir] = contrib
 
 ; Command buttons
-projects[command_buttons][version] = 1.4
+projects[command_buttons][version] = 1.5
 projects[command_buttons][subdir] = contrib
 
 ; Conditional Fields

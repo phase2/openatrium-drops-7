@@ -1,11 +1,12 @@
 <?php
 // Plugin definition
 $plugin = array(
-  'title' => t('Webb Flipped'),
-  'icon' => 'webb-flipped.png',
+  'title' => t('Webb Flipped (deprecated)'),
+  'icon' => 'radix-webb-flipped.png',
+  'file' => 'radix_webb_flipped.inc',
+  'path' => drupal_get_path('module', 'radix_layouts') . '/plugins/layouts/radix_webb_flipped',
   'category' => t('Panopoly'),
-  'theme' => 'webb_flipped',
-  'css' => 'webb-flipped.css',
+  'theme' => 'radix_webb_flipped',
   'regions' => array(
     'header' => t('Header'),
     'sidebar' => t('Sidebar'),

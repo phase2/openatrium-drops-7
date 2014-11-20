@@ -44,3 +44,72 @@ function panopoly_theme_update_7001(&$sandbox) {
   // Flush the Theme Data
   system_rebuild_theme_data();
 }
+
+/**
+ * Enable radix_layouts and clear layout/theme caches.
+ */
+function panopoly_theme_update_7002() {
+  module_enable(array('radix_layouts'));
+
+  // Clear caches so that we can find the Radix layouts and make the Panopoly
+  // layouts stubs.
+  cache_clear_all('ctools_plugin_files:panels:layouts', 'cache');
+  system_rebuild_theme_data();
+}
+
+/**
+ * Switch all Panels in the database to use Radix layouts.
+ */
+function panopoly_theme_update_7003() {
+  $panopoly_layouts = array(
+    'bartlett',
+    'bartlett_flipped',
+    'boxton',
+    'brenham',
+    'brenham_flipped',
+    'brown',
+    'bryant',
+    'bryant_flipped_flipped',
+    'burr',
+    'burr_flipped',
+    'geary',
+    'harris',
+    'hewston',
+    'hewston_flipped',
+    'mccoppin',
+    'moscone',
+    'moscone_flipped',
+    'phelan',
+    'pond',
+    'rolph',
+    'sanderson',
+    'sanderson_flipped',
+    'selby',
+    'selby_flipped',
+    'sutro',
+    'sutro_double',
+    'taylor',
+    'taylor_flipped',
+    'webb',
+    'webb_flipped',
+    'whelan',
+  );
+
+  $results = db_select('panels_display', 'pd')
+    ->fields('pd', array('did', 'layout'))
+    ->execute();
+  foreach ($results as $display) {
+    if (in_array($display->layout, $panopoly_layouts)) {
+      // Work around misnamed layout.
+      if ($display->layout == 'bryant_flipped_flipped') {
+        $display->layout = 'bryant_flipped';
+      }
+      db_update('panels_display')
+        ->fields(array(
+          'layout' => 'radix_' . $display->layout,
+        ))
+        ->condition('did', $display->did)
+        ->execute();
+    }
+  }
+}

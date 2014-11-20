@@ -268,7 +268,10 @@ function features_theme() {
  * Implements hook_flush_caches().
  */
 function features_flush_caches() {
-  if (variable_get('features_rebuild_on_flush', TRUE)) {
+  if (($modules_changed = variable_get('features_modules_changed', FALSE)) || variable_get('features_rebuild_on_flush', TRUE)) {
+    if ($modules_changed) {
+      variable_set('features_modules_changed', FALSE);
+    }
     features_rebuild();
     // Don't flush the modules cache during installation, for performance reasons.
     if (variable_get('install_task') == 'done') {
@@ -349,6 +352,9 @@ function features_modules_disabled($modules) {
  * Implements hook_modules_enabled().
  */
 function features_modules_enabled($modules) {
+  // mark modules as being changed for test in features_flush_caches
+  variable_set('features_modules_changed', TRUE);
+
   // Go through all modules and gather features that can be enabled.
   $items = array();
   foreach ($modules as $module) {
@@ -607,6 +613,8 @@ function features_hook($component, $hook, $reset = FALSE) {
  *   Clear the module info cache.
  */
 function features_install_modules($modules) {
+  variable_set('features_modules_changed', TRUE);
+
   module_load_include('inc', 'features', 'features.export');
   $files = system_rebuild_module_data();
 

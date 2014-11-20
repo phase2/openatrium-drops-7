@@ -79,3 +79,47 @@ function oa_wiki_modules_installed($modules) {
 function oa_wiki_form_oa_wiki_page_node_form_alter(&$form, &$form_state) {
   _oa_core_hide_comment_settings($form);
 }
+
+/**
+ * Implements hook_init().
+ */
+function oa_wiki_init() {
+  if (module_exists('oa_files') && arg(0) == 'node' && is_numeric(arg(1)) && !arg(2) && ($node = menu_get_object()) && $node->type == 'oa_wiki_page') {
+    if (($path = oa_wiki_node_uri($node)) && $path['path'] != $_GET['q']) {
+      drupal_goto($path['path']);
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_info_alter().
+ */
+function oa_wiki_entity_info_alter(&$info) {
+  if (!empty($info['node']['bundles']['oa_wiki_page']) && module_exists('oa_files')) {
+    $info['node']['bundles']['oa_wiki_page']['uri callback'] = 'oa_wiki_node_uri';
+  }
+}
+
+/**
+ * Change the URI to the file path for wikis.
+ *
+ * This only effects places that actually use entity_uri, whic is few but will
+ * save a boostrap (no redirect needed) for those places that do.
+ */
+function oa_wiki_node_uri($node) {
+  if (!($items = field_get_items('node', $node, 'field_oa_wiki_page_no_redirect')) || empty($items[0]['value'])) {
+    if (($items = field_get_items('node', $node, 'field_oa_media')) && !empty($items[0]['uri']) && ($url = file_create_url($items[0]['uri']))) {
+      return array('path' => $url);
+    }
+  }
+  return node_uri($node);
+}
+
+/**
+ * Implements hook_field_access().
+ */
+function oa_wiki_field_access($op, $field, $entity_type, $entity, $account) {
+  if ($field['field_name'] == 'field_oa_wiki_page_no_redirect' && !module_exists('oa_files')) {
+    return FALSE;
+  }
+}

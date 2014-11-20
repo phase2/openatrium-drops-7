@@ -1,11 +1,12 @@
 <?php
 // Plugin definition
 $plugin = array(
-  'title' => t('Bartlett'),
-  'icon' => 'bartlett.png',
+  'title' => t('Bartlett (deprecated)'),
+  'icon' => 'radix-bartlett.png',
+  'file' => 'radix_bartlett.inc',
+  'path' => drupal_get_path('module', 'radix_layouts') . '/plugins/layouts/radix_bartlett',
   'category' => t('Panopoly'),
-  'theme' => 'bartlett',
-  'css' => 'bartlett.css',
+  'theme' => 'radix_bartlett',
   'regions' => array(
     'sidebar' => t('Sidebar'),
     'contentheader' => t('Content Header'),

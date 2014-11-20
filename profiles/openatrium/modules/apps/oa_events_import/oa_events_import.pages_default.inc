@@ -92,7 +92,7 @@ function oa_events_import_default_page_manager_pages() {
     ),
   );
   $display = new panels_display();
-  $display->layout = 'bryant_flipped_flipped';
+  $display->layout = 'radix_bryant_flipped';
   $display->layout_settings = array();
   $display->panel_settings = array(
     'style_settings' => array(

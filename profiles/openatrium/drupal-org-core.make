@@ -5,7 +5,7 @@ core = 7.x
 
 ; Drupal Core
 projects[drupal][type] = core
-projects[drupal][version] = 7.32
+projects[drupal][version] = 7.34
 
 ; *********** PATCHES ************
 
@@ -27,6 +27,3 @@ projects[drupal][patch][1697570] = http://drupal.org/files/drupal-menu_always_lo
 
 ; Patch to fix sanitization of titles in entity_reference
 projects[drupal][patch][1919338] = http://drupal.org/files/issues/options_drupal7-1919338-58.patch
-
-; Patch to allow >128 chars for file extensions
- projects[drupal][patch][2277281] = http://drupal.org/files/issues/drupal7-increase_maxlength_of_extensions-2277281-57.patch

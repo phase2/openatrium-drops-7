@@ -304,7 +304,7 @@ function panopoly_wysiwyg_wysiwyg_editor_settings_alter(&$settings, $context) {
   if (strpos($context['profile']->format, 'panopoly_') === 0) {
     panopoly_wysiwyg_alter_wysiwyg_editor_settings($settings, $context);
   }
-  else {
+  elseif ($context['profile']->editor == 'tinymce') {
     // However, the 'pdw' or 'Kitchen Sink' plugin (which we've made available)
     // requires some extra configuration or it'll break. So, we'll set this up
     // to prevent user text formats from breaking (see issue #1846322).

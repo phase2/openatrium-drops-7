@@ -90,9 +90,9 @@ features[views_view][] = oa_event_list
 features[views_view][] = oa_fullcalendar
 features[views_view][] = open_atrium_event_location
 
-; Information added by Drupal.org packaging script on 2014-10-28
-version = "7.x-2.23"
+; Information added by Drupal.org packaging script on 2014-11-20
+version = "7.x-2.25"
 core = "7.x"
 project = "oa_events"
-datestamp = "1414530283"
+datestamp = "1416500958"
 

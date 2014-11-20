@@ -104,7 +104,7 @@
           <div class='clear-both oa-global-links'>
             <?php foreach ($tab['global_links'] as $link): ?>
               <a href="<?php print $link['url'] ?>"
-                 class="btn btn-sm"><?php print $link['title'] ?></a>
+                 class="btn btn-sm btn-default"><?php print $link['title'] ?></a>
             <?php endforeach; ?>
           </div>
         <?php endif; ?>

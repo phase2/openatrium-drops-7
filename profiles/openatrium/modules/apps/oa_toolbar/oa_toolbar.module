@@ -35,6 +35,18 @@ function oa_toolbar_oa_settings_form(&$form_state) {
     '#description' => t('Caption shown in dropdown for Spaces menu.'),
   );
 
+  $form['oa_toolbar_recent'] = array(
+    '#title' => t('Show Recent spaces'),
+    '#type' => 'select',
+    '#required' => TRUE,
+    '#options' => array(
+      '1' => 'Yes',
+      '0' => 'No',
+    ),
+    '#default_value' => variable_get('oa_toolbar_recent', 1),
+    '#description' => t('Determine if Recent spaces are shown instead of full Subscribed spaces list.'),
+  );
+
   $form['oa_toolbar_toplevel'] = array(
     '#title' => t('Only show top-level spaces'),
     '#type' => 'select',
@@ -298,12 +310,34 @@ function template_preprocess_oa_toolbar(&$vars) {
 
   $show_all = TRUE;
   $spaces = NULL;
+  $remove_children = TRUE;
+  $sort_field = 'title';
   if ($user->uid) {
-    $spaces = oa_core_get_groups_by_user_access($user, FALSE, NULL);
-    $spaces = array_map(
-      function($node) { return $node->nid; },
-      $spaces);
-    $menu_title = ($space_type == OA_SPACE_TYPE) ? t('Subscribed Spaces') : t('Groups');
+    if (variable_get('oa_toolbar_recent', 1) == 1) {
+      // First get recent history.  This cannot be cached, so limit to 10
+      $limit = 10;
+      $spaces = array_map(
+        function($node) { return $node->nid; },
+        oa_core_get_groups_by_user_access($user, FALSE, NULL, NULL, NULL, $space_type, 'history', $limit));
+      if (count($spaces) < $limit) {
+        // if not enough recent spaces, then add the rest based on reverse creation timestamp
+        $more_spaces = array_map(
+          function($node) { return $node->nid; },
+          oa_core_get_groups_by_user_access($user, FALSE, NULL, NULL, NULL, $space_type, '-created', $limit));
+        $more_spaces = array_diff($more_spaces, $spaces);
+        $spaces = array_merge($spaces, $more_spaces);
+      }
+      $menu_title = ($space_type == OA_SPACE_TYPE) ? t('Recent Spaces') : t('Recent Groups');
+      $remove_children = FALSE;
+      $sort_field = '';
+    }
+    else {
+      // Otherwise get all subscribed spaces.  This is cached
+      $spaces = array_map(
+        function($node) { return $node->nid; },
+        oa_core_get_groups_by_user_access($user, FALSE, NULL, NULL, NULL, $space_type, NULL, 50));
+      $menu_title = ($space_type == OA_SPACE_TYPE) ? t('Subscribed Spaces') : t('Groups');
+    }
   }
   if (empty($spaces)) {
     // og_get_entity_groups doesn't return anything for anonymous users
@@ -315,8 +349,8 @@ function template_preprocess_oa_toolbar(&$vars) {
     $list = array();
   }
   else {
-    if (isset($vars['show_parents']) && variable_get('oa_toolbar_toplevel', 1) == 1) {
-      // restrict spaces to just top-level (no parents)
+    if ($remove_children && isset($vars['show_parents']) && variable_get('oa_toolbar_toplevel', 1) == 1) {
+      // restrict Public spaces to just top-level (no parents)
       $remove = array();
       foreach ($spaces as $key => $value) {
         // parents are cached, so this should be fast
@@ -333,22 +367,22 @@ function template_preprocess_oa_toolbar(&$vars) {
       }
     }
 
-    $items = oa_core_get_titles($spaces, $space_type);
-    $list = oa_core_truncate_list($items['links'], 25,
+    $items = oa_core_get_titles($spaces, $space_type, $sort_field);
+    $list = oa_core_truncate_list($items['links'], 20,
       l(t('All ' . $space_type_names . '...'), $all_spaces,
         array('attributes' => array('class' => array('more-link')))),
       $show_all);
-  }
-  if (module_exists('oa_sitemap')) {
-    $list[] = l(t('Site map'), 'sitemap', array('attributes' => array('class' => array('more-link'))));
   }
   if (user_access('create ' . $space_type . ' content', $user)) {
     $jump_links = oa_toolbar_get_jump_links('space');
     $list[] = array(
       'data' => l(t('Create new ' . $space_type_name), 'node/add/' . str_replace('_', '-', $space_type),
-        array('attributes' => array('class' => array('more-link')))) . $jump_links,
+          array('attributes' => array('class' => array('more-link')))) . $jump_links,
       'class' => !empty($jump_links) ? array('dropdown-submenu') : array(),
     );
+  }
+  if (module_exists('oa_sitemap')) {
+    $list[] = l(t('Site map'), 'sitemap', array('attributes' => array('class' => array('more-link'))));
   }
   if (!empty($list)) {
     $vars['home_spaces'] = theme('item_list', array(

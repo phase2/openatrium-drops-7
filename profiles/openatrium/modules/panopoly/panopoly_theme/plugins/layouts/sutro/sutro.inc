@@ -1,11 +1,12 @@
 <?php
 // Plugin definition
 $plugin = array(
-  'title' => t('Sutro'),
-  'icon' => 'sutro.png',
+  'title' => t('Sutro (deprecated)'),
+  'icon' => 'radix-sutro.png',
+  'file' => 'radix_sutro.inc',
+  'path' => drupal_get_path('module', 'radix_layouts') . '/plugins/layouts/radix_sutro',
   'category' => t('Panopoly'),
-  'theme' => 'sutro',
-  'css' => 'sutro.css',
+  'theme' => 'radix_sutro',
   'regions' => array(
     'header' => t('Header'),
     'column1' => t('First Column'),

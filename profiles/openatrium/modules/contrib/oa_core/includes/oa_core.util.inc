@@ -96,11 +96,15 @@ function oa_core_get_groups_by_user($account = NULL, $group_type = NULL, $includ
  *   (optional) Adds a pager to the query for the given page number
  * @param string $filter
  *   (optional) Filters the space titles that are returned
+ * @param string $type
+ *   (optional) Type of group.  Defaults to OA_SPACE_TYPE
+ * @param string $sort
+ *   (optional) Field to sort on.  Use 'history' to sort by most recently accessed.  Start with - to reverse sort direction
  *
  * @return array
  *   An array with the group IDs or an empty array, or returns NULL if there was an error
  */
-function oa_core_get_groups_by_user_access($account = NULL, $include_archived = FALSE, $status = NULL, $page = NULL, $filter = NULL) {
+function oa_core_get_groups_by_user_access($account = NULL, $include_archived = FALSE, $status = NULL, $page = NULL, $filter = NULL, $type = NULL, $sort = NULL, $limit = NULL) {
   if (!isset($account)) {
     global $user;
     $uid = $user->uid;
@@ -116,8 +120,8 @@ function oa_core_get_groups_by_user_access($account = NULL, $include_archived = 
     $states = array(OG_STATE_ACTIVE);
   }
 
-  $cid = oa_core_get_cache_id(OA_CACHE_GROUPS_BY_USER_ACCESS, $uid, $include_archived, array($status, $page));
-  if (empty($filter) && oa_core_get_cache(OA_CACHE_GROUPS_BY_USER_ACCESS, $cid, $result)) {
+  $cid = oa_core_get_cache_id(OA_CACHE_GROUPS_BY_USER_ACCESS, $uid, $include_archived, array($status, $page, $type, $sort, $limit));
+  if (empty($filter) && ($sort != 'history') && oa_core_get_cache(OA_CACHE_GROUPS_BY_USER_ACCESS, $cid, $result)) {
     return $result;
   }
 
@@ -129,14 +133,37 @@ function oa_core_get_groups_by_user_access($account = NULL, $include_archived = 
     $query = $query->extend('PagerDefault')->limit(20);
   }
 
+  $sort = isset($sort) ? $sort : 'title';
+  $limit = isset($limit) ? $limit : 0;
+  $type = isset($type) ? $type : OA_SPACE_TYPE;
+
   $query->join('og_membership', 'ogm', 'ogm.gid = n.nid');
+  if ($sort == 'history') {
+    $query->join('history', 'h', 'h.nid = n.nid');
+    $query->condition('h.uid', $uid);
+    $query->orderBy('h.timestamp', 'DESC');
+  }
   $query
     ->fields('n', array('nid', 'title'))
     ->condition('ogm.etid', $uid)
     ->condition('ogm.entity_type', 'user')
     ->condition('ogm.state', OG_STATE_ACTIVE)
-    ->orderBy('n.title')
     ->addTag('node_access');
+
+  if (!empty($sort) && ($sort != 'history')) {
+    $dir = 'ASC';
+    if (substr($sort,0,1) == '-') {
+      $dir = 'DESC';
+      $sort = substr($sort, 1, strlen($sort)-1);
+    }
+    $query->orderBy('n.' . $sort, $dir);
+    // secondary sort on title
+    $query->orderBy('n.title');
+  }
+
+  if (isset($type)) {
+    $query->condition('n.type', $type);
+  }
 
   if (isset($status)) {
     $query->condition('n.status', $status);
@@ -144,6 +171,10 @@ function oa_core_get_groups_by_user_access($account = NULL, $include_archived = 
 
   if (!empty($filter)) {
     $query->condition('n.title', '%' . db_like($filter) . '%', 'LIKE');
+  }
+
+  if ($limit > 0) {
+    $query->range(0, $limit);
   }
 
   if (module_exists('flag') && !$include_archived) {
@@ -625,18 +656,34 @@ function oa_core_get_titles($ids = array(), $type = '', $sort_field = 'title', $
       $query->condition('n.type', $type);
     }
     $result = $query->execute();
+
+    // if $sort_field is empty, maintain the order of the original $ids
+    // so create a lookup table.
+    $nid_row = array();
+    $index = 0;
     while ($row = $result->fetchAssoc()) {
-      foreach ($fields as $field) {
-        $field_name = ($field == 'id') ? 'nid' : $field;
-        $value = isset($row[$field_name]) ? $row[$field_name] : NULL;
-        if (($field == 'title') && $sanitize) {
-          $value = check_plain($value);
+      $id = empty($sort_field) ? $row['nid'] : $index;
+      $nid_row[$id] = $row;
+      $index++;
+    }
+
+    $index = 0;
+    foreach ($ids as $nid) {
+      $id = empty($sort_field) ? $nid : $index;
+      if (!empty($nid_row[$id])) {
+        foreach ($fields as $field) {
+          $field_name = ($field == 'id') ? 'nid' : $field;
+          $value = isset($nid_row[$id][$field_name]) ? $nid_row[$id][$field_name] : NULL;
+          if (($field == 'title') && $sanitize) {
+            $value = check_plain($value);
+          }
+          if ($field == 'link') {
+            $value = l($nid_row[$id]['title'], 'node/' . $nid_row[$id]['nid']);
+          }
+          $return[$field . 's'][] = $value;
         }
-        if ($field == 'link') {
-          $value = l($row['title'], 'node/' . $row['nid']);
-        }
-        $return[$field . 's'][] = $value;
       }
+      $index++;
     }
   }
   return $return;

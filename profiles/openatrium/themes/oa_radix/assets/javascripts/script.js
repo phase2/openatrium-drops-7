@@ -18,6 +18,22 @@
 
   });
 
+  Drupal.behaviors.fieldset_collapse = {
+    attach: function(context, settings) {
+      // allow chosen dropdowns within fieldsets to be visible
+      if ('chosen' in settings) {
+        var selector = settings.chosen.selector;
+        $(selector, context)
+          .not('#field-ui-field-overview-form select, #field-ui-display-overview-form select, .wysiwyg, .draggable select[name$="[weight]"], .draggable select[name$="[position]"]') //disable chosen on field ui
+          .each(function () {
+            $(this).parents('.panel-body.fieldset-wrapper, .form-item.form-type-select').each(function( index, element ) {
+              $(this).addClass('chosen-fieldset-wrapper');
+          });
+        });
+      }
+    }
+  };
+
   Drupal.behaviors.mobile_nav_behavior = {
     attach: function(context) {
       var isMobile = $('button.navbar-toggle').is(':visible');

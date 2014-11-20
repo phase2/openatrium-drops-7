@@ -7,7 +7,6 @@ mysql:
   encoding: utf8
 env:
 - UPGRADE=none
-- UPGRADE=7.x-2.22
 matrix:
   fast_finish: true
 install:

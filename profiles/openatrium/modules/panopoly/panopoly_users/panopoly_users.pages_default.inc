@@ -49,7 +49,7 @@ function panopoly_users_default_page_manager_handlers() {
     'body_classes_to_remove' => '',
   );
   $display = new panels_display();
-  $display->layout = 'burr_flipped';
+  $display->layout = 'radix_burr_flipped';
   $display->layout_settings = array();
   $display->panel_settings = array(
     'style_settings' => array(
@@ -130,7 +130,7 @@ Request Password',
     'panels_breadcrumbs_home' => 1,
   );
   $display = new panels_display();
-  $display->layout = 'burr_flipped';
+  $display->layout = 'radix_burr_flipped';
   $display->layout_settings = array();
   $display->panel_settings = array(
     'style_settings' => array(
@@ -210,7 +210,7 @@ Request Password',
     'panels_breadcrumbs_home' => 1,
   );
   $display = new panels_display();
-  $display->layout = 'burr_flipped';
+  $display->layout = 'radix_burr_flipped';
   $display->layout_settings = array();
   $display->panel_settings = array(
     'style_settings' => array(
@@ -273,7 +273,7 @@ Request Password',
     'relationships' => array(),
   );
   $display = new panels_display();
-  $display->layout = 'burr_flipped';
+  $display->layout = 'radix_burr_flipped';
   $display->layout_settings = array();
   $display->panel_settings = array(
     'style_settings' => array(

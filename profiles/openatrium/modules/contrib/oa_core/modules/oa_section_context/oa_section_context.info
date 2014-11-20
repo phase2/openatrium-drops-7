@@ -6,9 +6,9 @@ php = 5.1
 
 dependencies[] = oa_core
 
-; Information added by Drupal.org packaging script on 2014-11-13
-version = "7.x-2.27"
+; Information added by Drupal.org packaging script on 2014-11-20
+version = "7.x-2.30"
 core = "7.x"
 project = "oa_core"
-datestamp = "1415905386"
+datestamp = "1416507924"
 

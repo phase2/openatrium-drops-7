@@ -1,11 +1,12 @@
 <?php
 // Plugin definition
 $plugin = array(
-  'title' => t('Geary'),
-  'icon' => 'geary.png',
+  'title' => t('Geary (deprecated)'),
+  'icon' => 'radix-geary.png',
+  'file' => 'radix_geary.inc',
+  'path' => drupal_get_path('module', 'radix_layouts') . '/plugins/layouts/radix_geary',
   'category' => t('Panopoly'),
-  'theme' => 'geary',
-  'css' => 'geary.css',
+  'theme' => 'radix_geary',
   'regions' => array(
     'header' => t('Header'),
     'column1' => t('First Column'),

@@ -1,3 +1,7 @@
+Panopoly Images 7.x-1.14, 2014-11-19
+-----------------------------
+- No changes since last release.
+
 Panopoly Images 7.x-1.13, 2014-10-17
 -----------------------------
 - No changes since last release.

@@ -13,27 +13,27 @@ $plugin = array(
   'hook theme' => array(
     'bootstrap_pane_styles_menu_tree' => array(
       'render element' => 'tree',
-      'path' => drupal_get_path('module', 'bootstrap_pane_styles') . '/plugins/styles/menus',
+      'path' => drupal_get_path('module', 'oa_styles') . '/plugins/styles/menus',
     ),
     'bootstrap_pane_styles_btn_toolbar' => array(
       'render element' => 'tree',
-      'path' => drupal_get_path('module', 'bootstrap_pane_styles') . '/plugins/styles/menus',
+      'path' => drupal_get_path('module', 'oa_styles') . '/plugins/styles/menus',
     ),
     'bootstrap_pane_styles_btn_group' => array(
       'render element' => 'tree',
-      'path' => drupal_get_path('module', 'bootstrap_pane_styles') . '/plugins/styles/menus',
+      'path' => drupal_get_path('module', 'oa_styles') . '/plugins/styles/menus',
     ),
     'bootstrap_pane_styles_btn_link' => array(
       'render element' => 'element',
-      'path' => drupal_get_path('module', 'bootstrap_pane_styles') . '/plugins/styles/menus',
+      'path' => drupal_get_path('module', 'oa_styles') . '/plugins/styles/menus',
     ),
     'bootstrap_pane_styles_btn_link_dropdown' => array(
       'render element' => 'element',
-      'path' => drupal_get_path('module', 'bootstrap_pane_styles') . '/plugins/styles/menus',
+      'path' => drupal_get_path('module', 'oa_styles') . '/plugins/styles/menus',
     ),
     'bootstrap_pane_styles_menu_dropdown' => array(
       'render element' => 'tree',
-      'path' => drupal_get_path('module', 'bootstrap_pane_styles') . '/plugins/styles/menus',
+      'path' => drupal_get_path('module', 'oa_styles') . '/plugins/styles/menus',
     ),
   ),
 );

@@ -13,7 +13,7 @@ projects[radix][patch][2339395] = http://www.drupal.org/files/issues/radix-check
 projects[radix][patch][2194335] = http://www.drupal.org/files/issues/radix-screen-css-2194335-13_0.patch
 
 ; Radix Layouts
-projects[radix_layouts][version] = 3.0
+projects[radix_layouts][version] = 3.3
 projects[radix_layouts][subdir] = contrib
 
 ; Bootstrap Library

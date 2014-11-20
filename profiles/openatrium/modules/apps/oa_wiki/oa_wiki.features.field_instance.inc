@@ -57,7 +57,7 @@ function oa_wiki_field_default_field_instances() {
         'summary_rows' => 5,
       ),
       'type' => 'text_textarea_with_summary',
-      'weight' => 3,
+      'weight' => 2,
     ),
   );
 
@@ -136,7 +136,53 @@ function oa_wiki_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'media_generic',
-      'weight' => 6,
+      'weight' => 4,
+    ),
+  );
+
+  // Exported field_instance: 'node-oa_wiki_page-field_oa_wiki_page_no_redirect'
+  $field_instances['node-oa_wiki_page-field_oa_wiki_page_no_redirect'] = array(
+    'bundle' => 'oa_wiki_page',
+    'comment_alter' => 0,
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => 'If checked, show the node detail page (Drupal default behavior).  If unchecked, show the first file attachment.',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'list',
+        'settings' => array(),
+        'type' => 'list_default',
+        'weight' => 9,
+      ),
+      'featured' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_oa_wiki_page_no_redirect',
+    'label' => 'Show node instead of file?',
+    'required' => 0,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'display_label' => 1,
+      ),
+      'type' => 'options_onoff',
+      'weight' => 3,
     ),
   );
 
@@ -375,7 +421,7 @@ function oa_wiki_field_default_field_instances() {
       'module' => 'og_vocab',
       'settings' => array(),
       'type' => 'og_vocab_complex',
-      'weight' => 7,
+      'weight' => 5,
     ),
   );
 
@@ -385,9 +431,11 @@ function oa_wiki_field_default_field_instances() {
   t('Body');
   t('Enter the content of the document or wiki here.');
   t('Groups audience');
+  t('If checked, show the node detail page (Drupal default behavior).  If unchecked, show the first file attachment.');
   t('OG vocabulary');
   t('OpenAtrium Section');
   t('Select a list of additional Spaces that this piece of content should be visible in. This <em>doesn\'t</em> affect access control - users in the other Spaces must have access to see this content in it\'s main Space for it to be visible to them at all.');
+  t('Show node instead of file?');
   t('Visible in other Spaces');
 
   return $field_instances;

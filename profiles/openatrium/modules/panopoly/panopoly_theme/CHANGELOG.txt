@@ -1,3 +1,10 @@
+Panopoly Theme 7.x-1.14, 2014-11-19
+----------------------------
+- Update all Panels in the database to use Radix Layouts.
+- Have Panopoly Theme depend on Radix Layouts (rather than providing it's own).
+- Update responsive_bartik to version 1.0.
+- Fixed Hide hidden themes from Panopoly theme selection.
+
 Panopoly Theme 7.x-1.13, 2014-10-17
 ----------------------------
 - No changes since last release.

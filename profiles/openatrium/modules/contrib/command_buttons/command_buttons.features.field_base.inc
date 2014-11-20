@@ -54,9 +54,9 @@ function command_buttons_field_default_field_bases() {
     'settings' => array(
       'allowed_values' => array(
         'default' => 'Default',
-        'btn-large' => 'Large',
-        'btn-small' => 'Small',
-        'btn-mini' => 'Mini',
+        'btn-lg' => 'Large',
+        'btn-sm' => 'Small',
+        'btn-xs' => 'Mini',
       ),
       'allowed_values_function' => '',
     ),
@@ -81,13 +81,12 @@ function command_buttons_field_default_field_bases() {
     'module' => 'list',
     'settings' => array(
       'allowed_values' => array(
-        'btn' => 'Default',
+        'btn btn-default' => 'Default',
         'btn btn-primary' => 'Primary',
         'btn btn-info' => 'Info',
         'btn btn-success' => 'Success',
         'btn btn-warning' => 'Warning',
         'btn btn-danger' => 'Danger',
-        'btn btn-inverse' => 'Inverse',
         'btn btn-link' => 'Link',
         'other' => 'Other',
       ),

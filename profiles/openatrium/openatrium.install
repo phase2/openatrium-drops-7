@@ -32,6 +32,7 @@ function openatrium_install_tasks(&$install_state) {
       'oa_contextual_tabs',
       'oa_events_import',
       'oa_favorites',
+      'oa_files',
       'oa_home',
       'oa_htmlmail',
       'oa_media',

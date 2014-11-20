@@ -1,3 +1,14 @@
+Panopoly Core 7.x-1.14, 2014-11-19
+---------------------------
+- Update to apps beta20.
+- Have Panopoly Theme depend on Radix Layouts (rather than providing it's own).
+- Fixed views_autocomplete_filters 'dependent' feature doesn't work in Pane settings.
+- Fixed Patch needed to Views Bulk Operations (VBO).
+- Update distro_update to version 1.0-beta4.
+- Update 'link' module to version 1.3.
+- Consider CTools modal resize patch (#2055785) for inclusion in Panopoly?.
+- Fixed Strict warning: Only variables should be passed by reference in apps_retrieve_app_image().
+
 Panopoly Core 7.x-1.13, 2014-10-17
 ---------------------------
 - No changes since last release.

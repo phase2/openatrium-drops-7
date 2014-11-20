@@ -30,7 +30,7 @@ function panopoly_core_panelizer_defaults() {
   $panelizer->link_to_entity = TRUE;
   $panelizer->extra = '';
   $display = new panels_display();
-  $display->layout = 'burr';
+  $display->layout = 'radix_burr';
   $display->layout_settings = array();
   $display->panel_settings = array(
     'style_settings' => array(
@@ -259,7 +259,7 @@ function panopoly_core_panelizer_defaults() {
   $panelizer->link_to_entity = TRUE;
   $panelizer->extra = '';
   $display = new panels_display();
-  $display->layout = 'phelan';
+  $display->layout = 'radix_phelan';
   $display->layout_settings = array();
   $display->panel_settings = array(
     'style_settings' => array(

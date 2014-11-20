@@ -73,7 +73,7 @@ function panopoly_pages_form_alter(&$form, &$form_state, $form_id) {
     // Remove the layout choice. Let's just get them to the mall!
     $form['categories']['#access'] = FALSE;
     $form['layout']['#prefix'] = '<div class="panels-choose-layout panels-layouts-checkboxes clearfix" style="display: none">';
-    $form['layout']['Panopoly']['boxton']['#default_value'] = TRUE;
+    $form['layout']['Radix']['radix_boxton']['#default_value'] = TRUE;
 
     // Set the Button and Redirect State.
     $form['buttons']['next']['#value'] = t('Create Page');

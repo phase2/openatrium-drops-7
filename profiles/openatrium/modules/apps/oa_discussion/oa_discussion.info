@@ -85,9 +85,9 @@ files[] = views/views_handler_field_oa_new_post.inc
 files[] = views/views_handler_field_oa_updated_post.inc
 project path = profiles/openatrium/modules/contrib
 
-; Information added by Drupal.org packaging script on 2014-10-28
-version = "7.x-2.22"
+; Information added by Drupal.org packaging script on 2014-11-20
+version = "7.x-2.23"
 core = "7.x"
 project = "oa_discussion"
-datestamp = "1414533832"
+datestamp = "1416500761"
 

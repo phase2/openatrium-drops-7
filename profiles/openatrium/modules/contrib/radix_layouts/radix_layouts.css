@@ -2,25 +2,26 @@
  * @file
  * Styles for Radix Layouts module
  */
-*,
-*:before,
-*:after {
-  -webkit-box-sizing: border-box;
-     -moz-box-sizing: border-box;
-          box-sizing: border-box;
-}
 
 .container {
   padding-right: 15px;
   padding-left: 15px;
   margin-right: auto;
   margin-left: auto;
+
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
 }
 
 .container:before,
 .container:after {
   display: table;
   content: " ";
+
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
 }
 
 .container:after {
@@ -58,12 +59,20 @@
 .row {
   margin-right: -15px;
   margin-left: -15px;
+
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
 }
 
 .row:before,
 .row:after {
   display: table;
   content: " ";
+
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
 }
 
 .row:after {
@@ -132,6 +141,10 @@
   min-height: 1px;
   padding-right: 15px;
   padding-left: 15px;
+
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
 }
 
 .col-xs-1,
@@ -864,11 +877,25 @@
 }
 
 /**
- * Fix for draggable tables.
+ * Fix for elements not doing well with border-box box-sizing.
  */
-.tabledrag-handle .handle {
+.tabledrag-handle .handle,
+.mceToolbar table td a {
   box-sizing: content-box;
   -moz-box-sizing: content-box;
   -webkit-box-sizing: content-box;
   -o-box-sizing: content-box;
+}
+
+/**
+ * Fixes for Nested Containers.
+ *
+ * @see
+ * https://www.drupal.org/node/2334871
+ * https://github.com/twbs/bootstrap/issues/11436#issuecomment-29580965
+ */
+.container .container {
+  width: auto;
+  margin-left: -15px;
+  margin-right: -15px;
 }

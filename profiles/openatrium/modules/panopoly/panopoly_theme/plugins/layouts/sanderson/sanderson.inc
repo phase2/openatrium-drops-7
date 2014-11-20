@@ -1,11 +1,12 @@
 <?php
 // Plugin definition
 $plugin = array(
-  'title' => t('Sanderson'),
-  'icon' => 'sanderson.png',
+  'title' => t('Sanderson (deprecated)'),
+  'icon' => 'radix-sanderson.png',
+  'file' => 'radix_sanderson.inc',
+  'path' => drupal_get_path('module', 'radix_layouts') . '/plugins/layouts/radix_sanderson',
   'category' => t('Panopoly'),
-  'theme' => 'sanderson',
-  'css' => 'sanderson.css',
+  'theme' => 'radix_sanderson',
   'regions' => array(
     'column1' => t('Row 1: First Column'),
     'column2' => t('Row 1: Second Column'),

@@ -39,9 +39,9 @@ features[page_manager_pages][] = panopoly_admin_pane_library
 features[variable][] = jquery_update_jquery_version
 features[variable][] = user_admin_role
 
-; Information added by Drupal.org packaging script on 2014-10-17
-version = "7.x-1.13"
+; Information added by Drupal.org packaging script on 2014-11-19
+version = "7.x-1.14"
 core = "7.x"
 project = "panopoly_admin"
-datestamp = "1413563577"
+datestamp = "1416437827"
 

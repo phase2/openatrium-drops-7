@@ -1,11 +1,12 @@
 <?php
 // Plugin definition
 $plugin = array(
-  'title' => t('Harris'),
-  'icon' => 'harris.png',
+  'title' => t('Harris (deprecated)'),
+  'icon' => 'radix-harris.png',
+  'file' => 'radix_harris.inc',
+  'path' => drupal_get_path('module', 'radix_layouts') . '/plugins/layouts/radix_harris',
   'category' => t('Panopoly'),
-  'theme' => 'harris',
-  'css' => 'harris.css',
+  'theme' => 'radix_harris',
   'regions' => array(
     'header' => t('Header'),
     'column1' => t('First Column'),
