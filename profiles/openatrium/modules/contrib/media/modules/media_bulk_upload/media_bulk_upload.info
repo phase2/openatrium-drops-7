@@ -10,9 +10,9 @@ dependencies[] = plupload
 files[] = includes/MediaBrowserBulkUpload.inc
 
 
-; Information added by drush on 2014-11-20
+; Information added by drush on 2014-12-17
 version = "7.x-2.0-alpha3+98-dev"
 core = "7.x"
 project = "media"
-datestamp = "1416511311"
+datestamp = "1418846219"
 

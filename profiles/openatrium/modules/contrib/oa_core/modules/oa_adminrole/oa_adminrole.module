@@ -11,20 +11,6 @@
  */
 
 /**
- * Implements hook_menu().
- */
-function oa_adminrole_menu() {
-  $items = array();
-  $items['oa_adminrole/run'] = array(
-    'title' => 'Add admin roles to permissions',
-    'page callback' => 'oa_adminrole_update_roles',
-    'access arguments' => array('administer permissions'),
-    'type' => MENU_CALLBACK,
-  );
-  return $items;
-}
-
-/**
  * Update permissions for all content types
  */
 function oa_adminrole_update_roles() {
@@ -34,7 +20,6 @@ function oa_adminrole_update_roles() {
       oa_adminrole_update_og_permissions($type);
     }
   }
-  return '';
 }
 
 /**

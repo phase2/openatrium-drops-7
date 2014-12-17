@@ -50,6 +50,9 @@ function oa_team_members_render($subtype, $conf, $args, $context = NULL) {
 
   foreach ($members as $id => $entity) {
     $vars['members'][$id] = oa_teams_entity_build_display($entity, $id);
+    $vars['links']['remove_options'][$id] = array(
+      'query' => drupal_get_destination() + array('token' => drupal_get_token('remove-team-membmer-' . $id)),
+    );
   }
   $vars['links']['dashboard'] = 'user/';
   if ($is_admin) {

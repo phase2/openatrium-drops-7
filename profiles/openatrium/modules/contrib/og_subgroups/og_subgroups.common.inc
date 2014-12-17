@@ -172,7 +172,7 @@ function og_subgroups_get_associated_entities($entity_type, $entity, $fields = a
  * Return an array of inherited users from the parent groups that
  * allow for user inheritance.
  *
- * @param $entity_type
+ * @param $group_type
  *   The entity type. Defaults to 'node'.
  * @param $entity
  *   Optional; The entity object or entity ID.
@@ -413,7 +413,7 @@ function og_subgroups_children_load_multiple($groups, $filter = TRUE, $fetch_all
       foreach ($process as $key => $group_id) {
         unset ($process[$key]);
         $cid = _og_subgroups_load_multiple_cid('children', $group_type, $group_id, $filter);
-        $group_cache[$cid][$entity_type] = array();
+        $group_cache[$cid][$group_type] = array();
         cache_set($cid, $group_cache[$cid]);
       }
     }

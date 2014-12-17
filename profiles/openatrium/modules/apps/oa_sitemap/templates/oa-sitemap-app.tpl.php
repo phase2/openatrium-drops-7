@@ -45,7 +45,7 @@
     </div>
   </div>
   <ul class="oa-sitemap-breadcrumbs">
-    <li class="oa-sitemap-breadcrumb" ng-repeat="breadcrumb in breadcrumbs.slice().reverse()"">
+    <li class="oa-sitemap-breadcrumb" ng-repeat="breadcrumb in breadcrumbs.slice().reverse()">
       <a class="btn btn-default" ng-click='exploreSpace(breadcrumb.nid, -1)' ng-drop="true" ng-drop-success="onDropOnSpace($data,breadcrumb.nid,$event)">{{breadcrumb.title}}</a>
     </li>
   </ul>
@@ -111,7 +111,7 @@
               <ul class="dropdown-menu" role="menu">
                 <li><a ng-href="{{editURL(allSpaces[index])}}">Edit</a></li>
                 <li><a ng-click="deleteSubspace(space, index)">Delete</a></li>
-                <li><a ng-click="enableEditor(allSpaces[index])"">Rename</a></li>
+                <li><a ng-click="enableEditor(allSpaces[index])">Rename</a></li>
               </ul>
             </div>
             <div class="oa-subspace-icon-right">

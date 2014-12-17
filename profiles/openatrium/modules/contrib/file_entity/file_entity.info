@@ -26,9 +26,9 @@ configure = admin/config/media/file-settings
 version = 7.x-2.x-dev
 
 
-; Information added by drush on 2014-11-20
+; Information added by drush on 2014-12-17
 version = "7.x-2.0-alpha3+29-dev"
 core = "7.x"
 project = "file_entity"
-datestamp = "1416511429"
+datestamp = "1418846338"
 

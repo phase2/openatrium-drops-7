@@ -271,11 +271,11 @@ function _options_prepare_options(&$options, $properties) {
       _options_prepare_options($options[$value], $properties);
     }
     else {
-      if ($properties['strip_tags']) {
-        $options[$value] = strip_tags($label);
-      }
-      if ($properties['filter_xss']) {
+      if ($properties['filter_xss'] || !$properties['strip_tags']) {
         $options[$value] = field_filter_xss($label);
+      }
+      else {
+        $options[$value] = decode_entities(strip_tags($label));
       }
     }
   }

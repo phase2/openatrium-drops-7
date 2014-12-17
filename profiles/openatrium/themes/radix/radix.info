@@ -31,9 +31,9 @@ project = "radix"
 datestamp = "1393170697"
 
 
-; Information added by drush on 2014-11-20
+; Information added by drush on 2014-12-17
 version = "7.x-3.0-beta1+29-dev"
 core = "7.x"
 project = "radix"
-datestamp = "1416511339"
+datestamp = "1418846246"
 

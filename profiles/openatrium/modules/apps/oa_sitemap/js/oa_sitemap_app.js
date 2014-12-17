@@ -197,14 +197,14 @@
       $scope.helpStatus = value;
       var arg = getOptions(value, $scope.dragDrop);
       // ajax callback to set drupal user session value
-      $.get(Drupal.settings.basePath + 'api/oa/sitemap-option/' + arg, {});
+      $.get(Drupal.settings.basePath + 'api/oa/sitemap-option/' + arg, {token: Drupal.settings.oa_sitemap.option_token});
     };
 
     $scope.toggleDrag = function(value) {
       $scope.dragDrop = value;
       var arg = getOptions($scope.helpStatus, value);
       // ajax callback to set drupal user session value
-      $.get(Drupal.settings.basePath + 'api/oa/sitemap-option/' + arg, {});
+      $.get(Drupal.settings.basePath + 'api/oa/sitemap-option/' + arg, {token: Drupal.settings.oa_sitemap.option_token});
     };
 
     $scope.spaceClass = function(spaceID) {
@@ -263,7 +263,7 @@
         $.post(
           // Callback URL.
           Drupal.settings.basePath + 'api/oa/sitemap-delete/' + nid,
-          {},
+          {token: Drupal.settings.oa_sitemap.node_tokens['node_' + nid]},
           function( result ) {
             if ((result.length > 0) && (result[1].command == 'alert')) {
               alert(result[1].text);
@@ -286,7 +286,7 @@
         $.post(
           // Callback URL.
           Drupal.settings.basePath + 'api/oa/sitemap-delete/' + section.nid,
-          {},
+          {token: Drupal.settings.oa_sitemap.node_tokens['node_' + nid]},
           function( result ) {
             if ((result.length > 0) && (result[1].command == 'alert')) {
               alert(result[1].text);
@@ -317,7 +317,7 @@
       $.post(
         // Callback URL.
         Drupal.settings.basePath + 'api/oa/sitemap-update/' + node.nid,
-        {'node': node},
+        {'node': node, token: Drupal.settings.oa_sitemap.node_tokens['node_' + node.nid]},
       function( result ) {
         if ((result.length > 0) && (result[1].command == 'alert')) {
           // undo local change and report error
@@ -340,7 +340,7 @@
         $.post(
           // Callback URL.
           Drupal.settings.basePath + 'api/oa/sitemap-update/' + data.nid,
-          {'node': data},
+          {'node': data, token: Drupal.settings.oa_sitemap.node_tokens['node_' + data.nid]},
           function( result ) {
             if ((result.length > 0) && (result[0].command == 'redirect')) {
               window.location.href = result[0].url;

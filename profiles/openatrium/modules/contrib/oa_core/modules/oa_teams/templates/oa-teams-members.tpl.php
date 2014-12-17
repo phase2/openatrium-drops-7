@@ -15,7 +15,7 @@
 ?>
 <?php if (!empty($members)): ?>
   <div class='clearfix members'>
-    <?php foreach ($members as $member): ?>
+    <?php foreach ($members as $id => $member): ?>
       <?php if (empty($links['remove'])): ?>
         <div class='oa-pull-left user-badge'>
         <?php print $member['picture']; ?>
@@ -32,7 +32,7 @@
           <div class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
             <ul>
               <li><?php print l(t('Dashboard'), $links['dashboard'] . $member['uid']); ?></li>
-              <li><?php print l(t('Remove from team'), $links['remove'] . $member['uid']); ?></li>
+              <li><?php print l(t('Remove from team'), $links['remove'] . $member['uid'], $links['remove_options'][$id]); ?></li>
             </ul>
           </div>
         </div>

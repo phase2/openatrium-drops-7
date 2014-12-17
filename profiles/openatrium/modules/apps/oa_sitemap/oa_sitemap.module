@@ -104,9 +104,11 @@ function _oa_sitemap_batch_goto($url = NULL, $options = array()) {
  * @param $node
  */
 function oa_sitemap_update_callback($node) {
-  if (!node_access('update', $node)) {
+  if (!node_access('update', $node) || empty($_REQUEST['token']) || !drupal_valid_token($_REQUEST['token'], 'sitemap-node-' . $node->nid)) {
     ajax_deliver(MENU_ACCESS_DENIED);
+    return;
   }
+
   $new_node = $_POST['node'];
   $updated = FALSE;
   _oa_sitemap_update_field($node, 'title', $new_node['title'], $updated);
@@ -183,8 +185,9 @@ function _oa_sitemap_update_field($node, $field, $value, &$updated) {
  * @param $node
  */
 function oa_sitemap_delete_callback($node) {
-  if (!node_access('delete', $node)) {
+  if (!node_access('delete', $node) || empty($_REQUEST['token']) || !drupal_valid_token($_REQUEST['token'], 'sitemap-node-' . $node->nid)) {
     ajax_deliver(MENU_ACCESS_DENIED);
+    return;
   }
   node_delete($node->nid);
   return TRUE;
@@ -196,6 +199,10 @@ function oa_sitemap_delete_callback($node) {
  */
 function oa_sitemap_option_callback($value) {
   global $user;
+  if (empty($_REQUEST['token']) || !drupal_valid_token($_REQUEST['token'], 'sitemap-option')) {
+    ajax_deliver(MENU_ACCESS_DENIED);
+    return;
+  }
 
   if (($user->uid == 0) && !drupal_session_started()) {
     return;
@@ -267,6 +274,7 @@ function oa_sitemap_spaces($node, &$spaces, $parent_id = 0, $depth = 0) {
         empty($section->field_oa_user_ref_target_id),
       'icon_id' => $id,
     );
+    drupal_add_js(array('oa_sitemap' => array('node_tokens' => array('node_' . $section->nid => drupal_get_token('sitemap-node-' . $section->nid)))), 'setting');
   }
 
   $spaces[$nid] = array(
@@ -284,6 +292,9 @@ function oa_sitemap_spaces($node, &$spaces, $parent_id = 0, $depth = 0) {
     'sections' => $section_links,
     'subspaces' => array(),
   );
+  drupal_add_js(array('oa_sitemap' => array('node_tokens' => array('node_' . $nid => drupal_get_token('sitemap-node-' . $nid)))), 'setting');
+  drupal_add_js(array('oa_sitemap' => array('option_token' => drupal_get_token('sitemap-option'))), 'setting');
+
 
   $children = oa_core_get_groups_by_parent($nid);
   foreach ($children as $child) {

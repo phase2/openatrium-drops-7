@@ -127,6 +127,9 @@ function oa_teams_remove_member($team, $uid) {
  * Menu callback to remove user from team
  */
 function oa_teams_remove_member_menu($tid, $uid) {
+  if (empty($_REQUEST['token']) || !drupal_valid_token($_REQUEST['token'], 'remove-team-membmer-' . $uid)) {
+    return MENU_ACCESS_DENIED;
+  }
   $account = user_load($uid);
   $team = current(entity_load('node', array($tid)));
   oa_teams_remove_member($team, $uid);

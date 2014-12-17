@@ -32,28 +32,49 @@ function oa_discussion_ctools_plugin_directory($owner, $plugin_type) {
  */
 function oa_discussion_menu() {
 
-  $items['node/%node/remove'] = array(
+  $items['node/%node/unpublish'] = array(
     'type' => MENU_CALLBACK,
-    'page callback' => 'oa_discussion_remove',
+    'page callback' => 'oa_discussion_unpublish',
     'page arguments' => array(1),
-    'access callback' => 'node_access',
-    'access arguments' => array('update', 1),
+    'access callback' => 'oa_discussion_change_status_access',
+    'access arguments' => array('unpublish', 1),
   );
   $items['node/%node/publish'] = array(
     'type' => MENU_CALLBACK,
     'page callback' => 'oa_discussion_publish',
     'page arguments' => array(1),
-    'access callback' => 'node_access',
-    'access arguments' => array('update', 1),
+    'access callback' => 'oa_discussion_change_status_access',
+    'access arguments' => array('publish', 1),
   );
   $items['oa_discussion/ajax/mark-read/%'] = array(
     'type' => MENU_CALLBACK,
     'page callback' => 'oa_discussion_mark_as_read',
     'page arguments' => array(3),
-    'access callback' => TRUE,
+    'access arguments' => array('access content'),
   );
 
   return $items;
+}
+
+/**
+ * Checks access for publishing/unpublishing content.
+ */
+function oa_discussion_change_status_access($op, $node) {
+  // If neither of these are true, don't allow this.
+  if ($node->type != 'oa_discussion_post' || !node_access('update', $node)) {
+    return FALSE;
+  }
+  if (in_array(TRUE, module_invoke_all('oa_discussion_change_status_access', $op, $node), TRUE)) {
+    return TRUE;
+  }
+  return user_access('administer nodes');
+}
+
+/**
+ * Implements hook_oa_discussion_change_status_access() on behalf of save_draft.
+ */
+function save_draft_oa_discussion_change_status_access($op, $node) {
+  return user_access('save draft');
 }
 
 /**
@@ -129,12 +150,43 @@ function oa_discussion_views_data() {
 }
 
 /**
+ * Determines whether to display a confirm form or if token is correct.
+ */
+function oa_discussion_display_confirm_form($question, $unique, $node) {
+  if (!empty($_REQUEST['token']) && drupal_valid_token($_REQUEST['token'], $unique)) {
+    return FALSE;
+  }
+  else {
+    $path = array($_GET['q'], array('query' => array('token' => drupal_get_token($unique))));
+    return drupal_get_form('oa_discussion_confirm_form', $question, $path, $node);
+  }
+}
+
+/**
+ * Confirms the user wants to do the action.
+ */
+function oa_discussion_confirm_form($form, $form_state, $question, $path, $node) {
+  $form['#redirect_path'] = $path;
+  return confirm_form($form, $question, 'node/' . $node->nid, t('This action can be undone.'));
+}
+/**
+ * Redirects user to same path but with token.
+ */
+function oa_discussion_confirm_form_submit($form, &$form_state) {
+  $form_state['redirect'] = $form['#redirect_path'];
+}
+
+/**
  * Remove or unpublish a node.
  *
  * @param object $node
  *   The node to unpublish.
  */
-function oa_discussion_remove($node) {
+function oa_discussion_unpublish($node) {
+  $token_name = 'unpublish-' . $node->nid;
+  if ($confirm_form = oa_discussion_display_confirm_form(t('Are you sure you want to unpublish @name?', array('@name' => $node->title)), $token_name, $node)) {
+    return $confirm_form;
+  }
   if (!empty($node)) {
     // Unpublish node.
     $node->status = 0;
@@ -151,6 +203,10 @@ function oa_discussion_remove($node) {
  *   The node object to publish.
  */
 function oa_discussion_publish($node) {
+  $token_name = 'publish-' . $node->nid;
+  if ($confirm_form = oa_discussion_display_confirm_form(t('Are you sure you want to publish @name?', array('@name' => $node->title)), $token_name, $node)) {
+    return $confirm_form;
+  }
   if (!empty($node)) {
     // Publish node.
     $node->status = 1;
@@ -207,17 +263,19 @@ function oa_discussion_preprocess_views_view_fields(&$vars) {
       $vars['nid_class'] = 'nid-' . $vars['fields']['nid']->raw;
 
       if (isset($vars['fields']['status'])) {
-        $status = $vars['fields']['status']->raw;
-        $vars['status_class'] = ($status == 1) ? 'published' : 'unpublished';
-        $vars['unpublished'] = ($status == 1) ? '' : t('Not Published');
+        $reply = node_load($vars['fields']['nid']->raw);
+        $vars['status_class'] = ($reply->status == 1) ? 'published' : 'unpublished';
+        $vars['unpublished'] = ($reply->status == 1) ? '' : t('Not Published');
 
         $node = node_load($nid);
+        $op = $reply->status == NODE_PUBLISHED ? 'unpublish' : 'publish';
 
-        if ($status == 1 && node_access('update', $node)) {
-          $vars['remove_link'] = l(t('unpublish'), 'node/' . $vars['fields']['nid']->raw . '/remove');
-        }
-        elseif (node_access('update', $node)) {
-          $vars['remove_link'] = l(t('publish'), 'node/' . $vars['fields']['nid']->raw . '/publish');
+        if (oa_discussion_change_status_access($op, $reply)) {
+          $options = array(
+            'query' => array('token' => drupal_get_token($op . '-' . $reply->nid)),
+          );
+          $title = $op == 'unpublish' ? t('unpublish') : t('publish');
+          $vars['remove_link'] = l($title, 'node/' . $reply->nid . '/' . $op, $options);
         }
         else {
           unset($vars['remove_link']);
@@ -265,6 +323,11 @@ function oa_discussion_views_pre_render(&$view) {
   if ($view->name == 'open_atrium_discussions' && $view->current_display == 'replies') {
     drupal_add_js(drupal_get_path('module', 'oa_discussion') . '/js/mark-as-read.js');
     drupal_add_js(drupal_get_path('module', 'oa_discussion') . '/js/toggle-reply-visibility.js');
+    $tokens = array();
+    foreach ($view->result as $result) {
+      $tokens[$result->nid] = drupal_get_token('mark-as-read-' . $result->nid);
+    }
+    drupal_add_js(array('oa_discussion_mark_read_tokens' => $tokens), 'setting'); 
   }
 }
 
@@ -349,7 +412,7 @@ function oa_discussion_mark_as_read($nids) {
   $nids = explode(',', $nids);
   foreach ($nids as $nid) {
     $node = node_load($nid);
-    if ($node) {
+    if ($node && node_access('view', $node) && !empty($_GET['tokens'][$nid]) && drupal_valid_token($_GET['tokens'][$nid], 'mark-as-read-' . $nid)) {
       node_tag_new($node);
     }
   }

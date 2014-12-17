@@ -543,3 +543,13 @@ function oa_subspaces_og_permission_alter(&$permissions) {
     }
   }
 }
+
+/**
+ * Implements hook_oa_core_og_content_needs_rebuild().
+ */
+function oa_subspaces_oa_core_og_content_needs_rebuild($node) {
+  return isset($node->{OG_USER_INHERITANCE_FIELD}[LANGUAGE_NONE][0]['value']) &&
+    isset($node->original->{OG_USER_INHERITANCE_FIELD}[LANGUAGE_NONE][0]['value']) &&
+    ($node->{OG_USER_INHERITANCE_FIELD}[LANGUAGE_NONE][0]['value'] !=
+     $node->original->{OG_USER_INHERITANCE_FIELD}[LANGUAGE_NONE][0]['value']);
+}

@@ -120,9 +120,9 @@ files[] = plugins/views/oa_views_plugin_exposed_form.inc
 files[] = plugins/views/oa_core_og_group_ref_views_handler_filter_in_operator.inc
 files[] = plugins/views/oa_core_oa_section_ref_views_handler_filter_in_operator.inc
 
-; Information added by Drupal.org packaging script on 2014-11-20
-version = "7.x-2.30"
+; Information added by Drupal.org packaging script on 2014-12-17
+version = "7.x-2.31"
 core = "7.x"
 project = "oa_core"
-datestamp = "1416507924"
+datestamp = "1418842982"
 

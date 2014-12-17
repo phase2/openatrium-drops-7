@@ -89,8 +89,8 @@ function og_subgroups_og_fields_info() {
 
 function og_subgroups_og_user_inhertiance_permission_allowed_values() {
   return array(
-    OG_USER_INHERITANCE_PERMISSION_INHERIT => t('Inherit Permissions - inherited users will also same permissions as this group'),
-    OG_USER_INHERITANCE_PERMISSION_CHILD => t("Child's permissions - inherited users will have child group's default member permission."),
+    OG_USER_INHERITANCE_PERMISSION_INHERIT => t("Inherit Permissions - inherited users in this group's subgroups will have the permissions as they do in this group and not the permissions of generic members of that subgroup."),
+    OG_USER_INHERITANCE_PERMISSION_CHILD => t("Child's permissions - inherited users in this group's subgroups will have the permissions of a generic member of that subgroup."),
   );
 }
 
@@ -107,7 +107,7 @@ function og_subgroups_views_api() {
  * Implements hook_node_grants().
  */
 function og_subgroups_node_grants($account, $op) {
-  if ($op != 'view') {
+  if ($op != 'view' || !module_exists('og_access')) {
     return;
   }
   $grants = array();
@@ -118,6 +118,34 @@ function og_subgroups_node_grants($account, $op) {
     }
   }
   return $grants;
+}
+
+/**
+ * Implements hook_node_access_records_alter().
+ */
+function og_subgroups_node_access_records_alter(&$grants, $node) {
+  if (!empty($node->status) && og_is_group_type('node', $node->type) && module_exists('og_access')) {
+    // Since subgroups are technically group content, they inherit group access.
+    // Removes parents groups that should not inherit view permission from.
+    $all_parent = og_subgroups_parents_load('node', $node->nid, FALSE, FALSE, FALSE, TRUE);
+    if (!empty($all_parent['node'])) {
+      $parents_with_inheritance = og_subgroups_parents_load('node', $node->nid, TRUE, FALSE, FALSE, TRUE);
+      $no_inherit = empty($parents_with_inheritance['node']) ? $all_parent['node'] : array_diff($all_parent['node'], $parents_with_inheritance['node']);
+      if ($no_inherit) {
+        $changed = FALSE;
+        foreach ($grants as $key => $grant) {
+          if ($grant['realm'] == OG_ACCESS_REALM . ':node' && in_array($grant['gid'], $no_inherit)) {
+            unset($grants[$key]);
+            $changed = TRUE;
+          }
+        }
+        // Make sure the caches are cleared just to be sure.
+        if ($changed) {
+          og_subgroups_clear_caches_for_group('node', $node->nid);
+        }
+      }
+    }
+  }
 }
 
 /**
