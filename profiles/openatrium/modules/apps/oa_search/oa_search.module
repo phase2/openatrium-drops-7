@@ -7,7 +7,7 @@
 include_once 'oa_search.features.inc';
 
 /**
- * Implementation of hook_ctools_plugin_directory()
+ * Implements hook_ctools_plugin_directory()
  */
 function oa_search_ctools_plugin_directory($module, $plugin) {
   return 'plugins/' . $plugin;
@@ -102,38 +102,6 @@ function oa_search_default_search_api_index_alter(&$data) {
     ); /* WAS: '' */
     $data['node_index']->options['fields']['oa_section_ref:title'] = array(
       'type' => 'string',
-    ); /* WAS: '' */
-  }
-}
-
-/**
- * Implements hook_default_search_api_server_alter().
- */
-function oa_search_default_search_api_server_alter(&$data) {
-  if (isset($data['database_server']) && $data['database_server']->enabled) {
-    $data['database_server']->options['indexes']['database_node_index']['created']['type'] = 'date'; /* WAS: 'integer' */
-    $data['database_server']->options['indexes']['database_node_index']['oa_section_ref:title'] = array(
-      'table' => 'search_api_db_database_node_index_oa_section_ref_title',
-      'type' => 'string',
-      'boost' => "1.0",
-    ); /* WAS: '' */
-    $data['database_server']->options['indexes']['database_node_index']['og_group_ref:title'] = array(
-      'table' => 'search_api_db_database_node_index_og_group_ref_title',
-      'type' => 'string',
-      'boost' => "1.0",
-    ); /* WAS: '' */
-  }
-  if (isset($data['solr_server']) && $data['solr_server']->enabled) {
-    $data['solr_server']->options['indexes']['node_index']['created']['type'] = 'date'; /* WAS: 'integer' */
-    $data['solr_server']->options['indexes']['node_index']['oa_section_ref:title'] = array(
-      'table' => 'search_api_db_node_index_oa_section_ref_title',
-      'type' => 'string',
-      'boost' => "1.0",
-    ); /* WAS: '' */
-    $data['solr_server']->options['indexes']['node_index']['og_group_ref:title'] = array(
-      'table' => 'search_api_db_node_index_og_group_ref_title',
-      'type' => 'string',
-      'boost' => "1.0",
     ); /* WAS: '' */
   }
 }

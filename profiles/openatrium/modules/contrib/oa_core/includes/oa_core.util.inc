@@ -536,7 +536,7 @@ function oa_core_section_is_public($node) {
  *
  * @return array of strings denoting content types marked for omission
  */
-function oa_core_list_content_types($space_content = FALSE) {
+function oa_core_list_content_types($space_content = FALSE, $include_core = TRUE) {
   $nodes = node_type_get_types();
   if ($space_content) {
     // remove types that are not space content
@@ -550,6 +550,9 @@ function oa_core_list_content_types($space_content = FALSE) {
   // Queries hook_oa_omit_content_types to determine what content types
   //   modules wants to hide.
   $deny = module_invoke_all('oa_omit_content_types');
+  if (!$include_core) {
+    $deny = array_merge($deny, array(OA_SPACE_TYPE, OA_GROUP_TYPE, OA_SECTION_TYPE, OA_TEAM_TYPE));
+  }
   if (!empty($deny)) {
     foreach ($deny as $remove) {
       unset($nodes[$remove]);
@@ -619,12 +622,13 @@ function oa_core_create_node($bundle, $title = '', $context = NULL) {
  * @param  array  $ids array of node ids to fetch
  * @param  string $type optional node type to filter
  * @param  array $fields a list of fields to fetch (link is a special fieldname)
+ * @param  integer $limit max number of return results
  * @return array      associative array:
  *   'titles' is a list of node titles (clean)
  *   'links' is a list of node links
  *   'ids' is a list of the node ids
  */
-function oa_core_get_titles($ids = array(), $type = '', $sort_field = 'title', $fields = array('title', 'link', 'id', 'type'), $sanitize = TRUE) {
+function oa_core_get_titles($ids = array(), $type = '', $sort_field = 'title', $fields = array('title', 'link', 'id', 'type'), $sanitize = TRUE, $limit = 100) {
   $query_fields = array('nid', 'title');
   $return = array();
   foreach ($fields as $field) {
@@ -655,6 +659,7 @@ function oa_core_get_titles($ids = array(), $type = '', $sort_field = 'title', $
     if (!empty($type)) {
       $query->condition('n.type', $type);
     }
+    $query->range(0, $limit);
     $result = $query->execute();
 
     // if $sort_field is empty, maintain the order of the original $ids
@@ -680,7 +685,7 @@ function oa_core_get_titles($ids = array(), $type = '', $sort_field = 'title', $
           if ($field == 'link') {
             $value = l($nid_row[$id]['title'], 'node/' . $nid_row[$id]['nid']);
           }
-          $return[$field . 's'][] = $value;
+          $return[$field . 's'][$nid_row[$id]['nid']] = $value;
         }
       }
       $index++;
@@ -722,19 +727,31 @@ function oa_core_truncate_list($list, $count, $more_link = '', $always_link = FA
  *   items aren't included.
  * @param bool $check_access
  *   Check node access, defaults to TRUE.
+ * @param bool $only_top restrict to top-level spaces
  *
  * @return array
  *   An array of Space NIDs.
  */
-function oa_core_get_public_spaces($group_types = array(OA_SPACE_TYPE => OA_SPACE_TYPE), $status = NULL, $include_archived = FALSE, $check_access = TRUE) {
+function oa_core_get_public_spaces($group_types = array(OA_SPACE_TYPE => OA_SPACE_TYPE), $status = NULL, $include_archived = FALSE, $check_access = TRUE, $only_top = FALSE) {
   $cache = &drupal_static(__FUNCTION__);
 
   $group_types_cid = implode(',', $group_types);
   if (!isset($cache[$group_types_cid][$status][$include_archived])) {
     $query = db_select('node', 'n');
-    $query->rightJoin('field_data_group_access', 'g', "n.nid = g.entity_id AND g.entity_type = 'node'");
+    $query->join('field_data_group_access', 'g', "n.nid = g.entity_id AND g.entity_type = 'node'");
+    $query->fields('n', array('nid'));
+    if ($only_top) {
+      // need to restrict to space with either no parent, or just oa_group parents
+      $query->leftJoin('og_membership', 'og', "og.etid = n.nid AND og.entity_type = 'node'");
+      $query->leftJoin('node', 'pn', 'og.gid = pn.nid');
+      $query->fields('pn', array('type'));
+      // trick is to group the results and count the number of different parent types
+      $query->addExpression('COUNT(DISTINCT pn.type)', 'num');
+      $query->groupBy('n.nid');
+      // so we either return spaces with 0 parents, or 1 parent type that is a group
+      $query->having("num = 0 OR (num = 1 AND pn.type = '" . OA_GROUP_TYPE . "')");
+    }
     $query
-      ->fields('n', array('nid'))
       ->condition('n.type', $group_types, 'IN')
       ->condition('g.group_access_value', 0);
     if (isset($status)) {
@@ -797,7 +814,8 @@ function oa_core_space_sections($gid, $status = NULL, $bypass_access_check = FAL
     ->condition('og.entity_type', 'node')
     ->condition('og.field_name', OA_SPACE_FIELD)
     ->condition('og.gid', $gid)
-    ->orderBy('w.field_oa_section_weight_value');
+    ->orderBy('w.field_oa_section_weight_value')
+    ->orderBy('n.title');
   if (!$bypass_access_check) {
     $query->addTag('node_access');
   }
@@ -845,6 +863,8 @@ function oa_core_get_users_for_space($space_id, $state = OG_STATE_ACTIVE) {
     ->condition('og.state', $state)
     ->condition('og.group_type', 'node')
     ->condition('og.gid', $space_id);
+  $query->join('users', 'u', 'u.uid = og.etid');
+  $query->condition('u.status', 1);
   $uids = $query->execute()->fetchCol();
   return user_load_multiple($uids);
 }
@@ -1200,4 +1220,75 @@ function oa_core_create_term($vocab_name, $name, $params, $update = TRUE) {
     }
   }
   return $term;
+}
+
+/**
+ * Helper function to replace HTML tags in $str.
+ * @param $str - string to process
+ * @param $tags - array of oldtag=>newtag items
+ * @return string
+ */
+function oa_core_replace_tags($str, $tags) {
+  foreach ($tags as $old => $new) {
+    $str = preg_replace("~<(/)?$old>~", "<\\1$new>", $str);
+  }
+  return $str;
+}
+
+/**
+ * Trim text to a specified length
+ * Similar to views_trim_text or the Smart Trim module
+ * but includes consistent options for removing tags needed by OA2
+ */
+function oa_core_trim_text($value, $more_link = '', $max_length = NULL) {
+  // Remove and replace some HTML tags
+  $value = oa_core_replace_tags($value, array(
+    'h1' => 'h4',
+    'h2' => 'h4',
+    'h3' => 'h4',
+  ));
+  $value = strip_tags($value, '<br><p><h1><h2><h3><h4><h5><h6><ol><ul><li><dl><dd><dt><a><b><i><strong><em><table><tbody><th><tr><td>');
+
+  $max_length = isset($max_length) ? $max_length : variable_get('teaser_length', 600);
+  if (drupal_strlen($value) > $max_length) {
+    $value = drupal_substr($value, 0, $max_length);
+
+    // only trim on word boundries
+    $regex = "(.*)\b.+";
+    if (function_exists('mb_ereg')) {
+      mb_regex_encoding('UTF-8');
+      $found = mb_ereg($regex, $value, $matches);
+    }
+    else {
+      $found = preg_match("/$regex/us", $value, $matches);
+    }
+    if ($found) {
+      $value = $matches[1];
+    }
+
+    // Remove scraps of HTML entities from the end of a strings
+    $value = rtrim(preg_replace('/(?:<(?!.+>)|&(?!.+;)).*$/us', '', $value));
+
+    if (!empty($more_link)) {
+      $value .= ' <span class="more-link">' .
+        '(' . l(t('more…'), $more_link) . ')' . '</span> ';
+    }
+    else {
+      $value .= '…';
+    }
+  }
+  $value = _filter_htmlcorrector($value);
+
+  return $value;
+}
+
+/**
+ * Helper function to return the summary of a node or the trimmed body text
+ * @param $node
+ */
+function oa_core_get_summary($node) {
+  $body_field = field_view_field('node', $node, 'body');
+  $body = !empty($body_field['#items'][0]['summary']) ? $body_field['#items'][0]['summary'] :
+    (!empty($body_field[0]['#markup']) ? oa_core_trim_text($body_field[0]['#markup'], 'node/' . $node->nid . '/view') : '');
+  return $body;
 }

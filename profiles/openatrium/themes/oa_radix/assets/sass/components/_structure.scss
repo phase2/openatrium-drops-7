@@ -81,10 +81,12 @@ div.tabs.main-tabs {
   h5 {
     display: inline;
   }
-  .pull-left img {
+  .pull-left img,
+  .oa-pull-left img {
     padding-right: 10px;
   }
-  .pull-right img {
+  .pull-right img,
+  .oa-pull-right img {
     padding-left: 5px;
   }
   .accordion {

@@ -840,7 +840,7 @@ function oa_tour_defaults_default_bootstrap_tour() {
       'path' => '',
       'placement' => 'left',
       'title' => 'Authoring & Save',
-      'content' => '<p>Lastly, you can save your brand new space.&nbsp;</p><p>If you so choose, you can override the author, date, and time.&nbsp;</p><p>You also have the option to publish it, save as a draft, or preview what it will look like.&nbsp;</p><p>Make sure to hit "publish" and you\'ll have created your first space!</p><p>To continue, check out the <a href="/temp-space?tour=subspaces" target="_blank">Subspaces Tour</a>.</p>',
+      'content' => '<p>Lastly, you can save your brand new space.&nbsp;</p><p>If you so choose, you can override the author, date, and time.&nbsp;</p><p>You also have the option to publish it, save as a draft, or preview what it will look like.&nbsp;</p><p>Make sure to hit "publish" and you\'ll have created your first space!</p><p>Check out the Subspaces Tour once published (via the ? by the search bar).</p>',
       'format' => 'panopoly_wysiwyg_text',
     ),
   );

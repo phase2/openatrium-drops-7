@@ -25,9 +25,10 @@ function oa_wiki_field_default_field_instances() {
         'weight' => 0,
       ),
       'featured' => array(
-        'label' => 'above',
+        'label' => 'hidden',
+        'module' => 'text',
         'settings' => array(),
-        'type' => 'hidden',
+        'type' => 'text_default',
         'weight' => 0,
       ),
       'teaser' => array(
@@ -73,13 +74,16 @@ function oa_wiki_field_default_field_instances() {
         'module' => 'file',
         'settings' => array(),
         'type' => 'file_default',
-        'weight' => 6,
+        'weight' => 4,
       ),
       'featured' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
+        'label' => 'hidden',
+        'module' => 'file_entity',
+        'settings' => array(
+          'file_view_mode' => 'teaser',
+        ),
+        'type' => 'file_rendered',
+        'weight' => 1,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -136,7 +140,7 @@ function oa_wiki_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'media_generic',
-      'weight' => 4,
+      'weight' => 5,
     ),
   );
 
@@ -144,7 +148,11 @@ function oa_wiki_field_default_field_instances() {
   $field_instances['node-oa_wiki_page-field_oa_wiki_page_no_redirect'] = array(
     'bundle' => 'oa_wiki_page',
     'comment_alter' => 0,
-    'default_value' => NULL,
+    'default_value' => array(
+      0 => array(
+        'value' => 0,
+      ),
+    ),
     'deleted' => 0,
     'description' => 'If checked, show the node detail page (Drupal default behavior).  If unchecked, show the first file attachment.',
     'display' => array(
@@ -153,13 +161,13 @@ function oa_wiki_field_default_field_instances() {
         'module' => 'list',
         'settings' => array(),
         'type' => 'list_default',
-        'weight' => 9,
+        'weight' => 7,
       ),
       'featured' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 0,
+        'weight' => 4,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -170,7 +178,7 @@ function oa_wiki_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'field_oa_wiki_page_no_redirect',
-    'label' => 'Show node instead of file?',
+    'label' => 'Show page instead of file?',
     'required' => 0,
     'settings' => array(
       'user_register_form' => FALSE,
@@ -199,13 +207,13 @@ function oa_wiki_field_default_field_instances() {
         'module' => 'og_ui',
         'settings' => array(),
         'type' => 'og_list_default',
-        'weight' => 8,
+        'weight' => 6,
       ),
       'featured' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 0,
+        'weight' => 2,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -226,11 +234,24 @@ function oa_wiki_field_default_field_instances() {
     'settings' => array(
       'behaviors' => array(
         'og_widget' => array(
+          'access_override' => 0,
           'admin' => array(
+            'widget_settings' => array(
+              'match_operator' => 'CONTAINS',
+              'size' => 60,
+            ),
             'widget_type' => 'entityreference_autocomplete',
           ),
           'default' => array(
-            'widget_type' => 'options_select',
+            'widget_settings' => array(
+              'select2widgetajax' => array(
+                'match_operator' => 'CONTAINS',
+                'min_char' => 0,
+                'view_mode' => 'teaser',
+                'width' => '100%',
+              ),
+            ),
+            'widget_type' => 'select2widgetajax',
           ),
           'status' => TRUE,
         ),
@@ -272,13 +293,13 @@ function oa_wiki_field_default_field_instances() {
           'link' => 1,
         ),
         'type' => 'entityreference_label',
-        'weight' => 5,
+        'weight' => 3,
       ),
       'featured' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 0,
+        'weight' => 6,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -325,13 +346,13 @@ function oa_wiki_field_default_field_instances() {
         'module' => 'og_ui',
         'settings' => array(),
         'type' => 'og_list_default',
-        'weight' => 4,
+        'weight' => 2,
       ),
       'featured' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 0,
+        'weight' => 7,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -347,11 +368,28 @@ function oa_wiki_field_default_field_instances() {
     'settings' => array(
       'behaviors' => array(
         'og_widget' => array(
+          'access_override' => 1,
           'admin' => array(
-            'widget_type' => 'entityreference_autocomplete',
+            'widget_settings' => array(
+              'select2widgetajax' => array(
+                'match_operator' => 'CONTAINS',
+                'min_char' => 1,
+                'view_mode' => 'teaser',
+                'width' => '100%',
+              ),
+            ),
+            'widget_type' => 'select2widgetajax',
           ),
           'default' => array(
-            'widget_type' => 'options_select',
+            'widget_settings' => array(
+              'select2widgetajax' => array(
+                'match_operator' => 'CONTAINS',
+                'min_char' => 1,
+                'view_mode' => 'teaser',
+                'width' => '100%',
+              ),
+            ),
+            'widget_type' => 'select2widgetajax',
           ),
           'status' => TRUE,
         ),
@@ -392,13 +430,13 @@ function oa_wiki_field_default_field_instances() {
           'concatenate' => FALSE,
         ),
         'type' => 'og_vocab',
-        'weight' => 7,
+        'weight' => 5,
       ),
       'featured' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 0,
+        'weight' => 5,
       ),
       'teaser' => array(
         'label' => 'hidden',
@@ -421,7 +459,7 @@ function oa_wiki_field_default_field_instances() {
       'module' => 'og_vocab',
       'settings' => array(),
       'type' => 'og_vocab_complex',
-      'weight' => 5,
+      'weight' => 6,
     ),
   );
 
@@ -435,7 +473,7 @@ function oa_wiki_field_default_field_instances() {
   t('OG vocabulary');
   t('OpenAtrium Section');
   t('Select a list of additional Spaces that this piece of content should be visible in. This <em>doesn\'t</em> affect access control - users in the other Spaces must have access to see this content in it\'s main Space for it to be visible to them at all.');
-  t('Show node instead of file?');
+  t('Show page instead of file?');
   t('Visible in other Spaces');
 
   return $field_instances;

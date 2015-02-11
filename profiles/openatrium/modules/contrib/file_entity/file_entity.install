@@ -375,6 +375,8 @@ function file_entity_update_7104() {
             'permission' => 'view file',
             'module' => 'file_entity',
           ))
+          ->condition('rid', $rid)
+          ->condition('permission', 'view file')
           ->execute();
       }
     }
@@ -900,16 +902,13 @@ function file_entity_update_7210() {
 
   // Migrate any existing MIME type information into {file_type}.
   if (db_table_exists('file_type_mimetypes')) {
-    foreach (file_type_load_all(TRUE) as $type) {
-      $mimetypes = array();
-      $result = db_select('file_type_mimetypes', 'ftm')
+    module_load_include('inc', 'file_entity', 'file_entity.file_api');
+    $types = file_type_load_all(TRUE);
+    foreach ($types as $type) {
+      $mimetypes = db_select('file_type_mimetypes', 'ftm')
         ->fields('ftm', array('mimetype'))
-        ->condition('type', $type->type, '=')
-        ->execute();
-
-      foreach ($result as $record) {
-        $mimetypes[] = $record->mimetype;
-      }
+        ->condition('type', $type->type)
+        ->execute()->fetchCol();
 
       if (!empty($mimetypes)) {
         $type->mimetypes = $mimetypes;

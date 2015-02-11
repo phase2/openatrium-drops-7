@@ -349,6 +349,129 @@ function oa_discussion_panelizer_defaults() {
   $panelizer = new stdClass();
   $panelizer->disabled = FALSE; /* Edit this to true to make a default panelizer disabled initially */
   $panelizer->api_version = 1;
+  $panelizer->name = 'node:oa_discussion_post:default:featured';
+  $panelizer->title = 'Default';
+  $panelizer->panelizer_type = 'node';
+  $panelizer->panelizer_key = 'oa_discussion_post';
+  $panelizer->no_blocks = FALSE;
+  $panelizer->css_id = '';
+  $panelizer->css = '';
+  $panelizer->pipeline = 'standard';
+  $panelizer->contexts = array();
+  $panelizer->relationships = array();
+  $panelizer->access = array();
+  $panelizer->view_mode = 'featured';
+  $panelizer->css_class = '';
+  $panelizer->title_element = 'H2';
+  $panelizer->link_to_entity = TRUE;
+  $panelizer->extra = array();
+  $display = new panels_display();
+  $display->layout = 'onecol';
+  $display->layout_settings = array();
+  $display->panel_settings = array(
+    'style_settings' => array(
+      'default' => NULL,
+      'middle' => NULL,
+    ),
+  );
+  $display->cache = array();
+  $display->title = '%node:title';
+  $display->uuid = '62e61500-65e2-4fd0-a240-8b4ddfe527c5';
+  $display->content = array();
+  $display->panels = array();
+    $pane = new stdClass();
+    $pane->pid = 'new-fac2eb24-d5a8-4cbe-94ae-66f603309764';
+    $pane->panel = 'middle';
+    $pane->type = 'views_panes';
+    $pane->subtype = 'open_atrium_discussions-original_post';
+    $pane->shown = TRUE;
+    $pane->access = array();
+    $pane->configuration = array(
+      'context' => array(
+        0 => 'panelizer',
+      ),
+      'override_title' => '',
+      'override_title_text' => '',
+      'view_settings' => 'fields',
+      'header_type' => 'none',
+      'view_mode' => 'teaser',
+      'widget_title' => '',
+    );
+    $pane->cache = array();
+    $pane->style = array(
+      'settings' => NULL,
+    );
+    $pane->css = array();
+    $pane->extras = array();
+    $pane->position = 0;
+    $pane->locks = array();
+    $pane->uuid = 'fac2eb24-d5a8-4cbe-94ae-66f603309764';
+    $display->content['new-fac2eb24-d5a8-4cbe-94ae-66f603309764'] = $pane;
+    $display->panels['middle'][0] = 'new-fac2eb24-d5a8-4cbe-94ae-66f603309764';
+    $pane = new stdClass();
+    $pane->pid = 'new-cd6c37a0-bbf2-49fc-9763-d3e8d2c42797';
+    $pane->panel = 'middle';
+    $pane->type = 'views_panes';
+    $pane->subtype = 'open_atrium_discussions-replies';
+    $pane->shown = TRUE;
+    $pane->access = array();
+    $pane->configuration = array(
+      'context' => array(
+        0 => 'panelizer',
+      ),
+      'view_settings' => 'fields',
+      'header_type' => 'none',
+      'view_mode' => 'teaser',
+    );
+    $pane->cache = array();
+    $pane->style = array(
+      'settings' => NULL,
+    );
+    $pane->css = array();
+    $pane->extras = array();
+    $pane->position = 1;
+    $pane->locks = array();
+    $pane->uuid = 'cd6c37a0-bbf2-49fc-9763-d3e8d2c42797';
+    $display->content['new-cd6c37a0-bbf2-49fc-9763-d3e8d2c42797'] = $pane;
+    $display->panels['middle'][1] = 'new-cd6c37a0-bbf2-49fc-9763-d3e8d2c42797';
+    $pane = new stdClass();
+    $pane->pid = 'new-4e1976a1-f65b-4fb1-b62b-cd9ce9ac658f';
+    $pane->panel = 'middle';
+    $pane->type = 'oa_discussion_reply';
+    $pane->subtype = 'oa_discussion_reply';
+    $pane->shown = TRUE;
+    $pane->access = array();
+    $pane->configuration = array(
+      'return' => 'Finish',
+      'cancel' => 'Cancel',
+      'context' => 'panelizer',
+      'override_title' => 0,
+      'override_title_text' => '',
+      'form_build_id' => 'form-IZiYR51pI-94dO-eAKYn8AN8whoIqkRQX1Lh-epbbIA',
+      'form_token' => 'GyBs2weT2cnuK35fw35wpHel2t1jj0C3mEtHj6PkmnU',
+      'form_id' => 'oa_discussion_reply_settings_form',
+      'op' => 'Finish',
+      'oa_discussion_show_attach' => 0,
+    );
+    $pane->cache = array();
+    $pane->style = array(
+      'settings' => NULL,
+    );
+    $pane->css = array();
+    $pane->extras = array();
+    $pane->position = 2;
+    $pane->locks = array();
+    $pane->uuid = '4e1976a1-f65b-4fb1-b62b-cd9ce9ac658f';
+    $display->content['new-4e1976a1-f65b-4fb1-b62b-cd9ce9ac658f'] = $pane;
+    $display->panels['middle'][2] = 'new-4e1976a1-f65b-4fb1-b62b-cd9ce9ac658f';
+  $display->hide_title = PANELS_TITLE_NONE;
+  $display->title_pane = '0';
+  $panelizer->display = $display;
+  $export['node:oa_discussion_post:default:featured'] = $panelizer;
+
+  $panelizer = new stdClass();
+  $panelizer->disabled = FALSE; /* Edit this to true to make a default panelizer disabled initially */
+  $panelizer->api_version = 1;
   $panelizer->name = 'node:oa_section:oa_section_discussion';
   $panelizer->title = 'Discussion Section';
   $panelizer->panelizer_type = 'node';
@@ -456,7 +579,11 @@ function oa_discussion_panelizer_defaults() {
     $pane->access = array();
     $pane->configuration = array(
       'exposed' => array(
-        'type' => 'oa_discussion_post',
+        'og_group_ref_target_id' => '',
+        'og_group_ref_target_id_mine' => 0,
+        'og_subspaces_view_all' => 1,
+        'og_subspaces_view_parent' => 0,
+        'oa_section_ref_target_id' => '',
         'flagged' => '0',
       ),
       'context' => array(

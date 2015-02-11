@@ -263,7 +263,7 @@ function oa_discussion_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'node_preview_oa_discussion_post';
-  $strongarm->value = '1';
+  $strongarm->value = '0';
   $export['node_preview_oa_discussion_post'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -296,13 +296,47 @@ function oa_discussion_strongarm() {
         'choice' => 0,
       ),
       'featured' => array(
-        'status' => 0,
-        'default' => 0,
+        'status' => 1,
+        'default' => 1,
         'choice' => 0,
       ),
     ),
   );
   $export['panelizer_defaults_node_oa_discussion_post'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'panelizer_node:oa_discussion_post_allowed_layouts_default';
+  $strongarm->value = 1;
+  $export['panelizer_node:oa_discussion_post_allowed_layouts_default'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'panelizer_node:oa_discussion_post_allowed_types_default';
+  $strongarm->value = 1;
+  $export['panelizer_node:oa_discussion_post_allowed_types_default'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'panelizer_node:oa_discussion_post_default';
+  $strongarm->value = array(
+    'entity_field' => 'entity_field',
+    'custom' => 'custom',
+    'entity_form_field' => 'entity_form_field',
+    'entity_field_extra' => 'entity_field_extra',
+    'token' => 'token',
+    'block' => 'block',
+    'entity_view' => 'entity_view',
+    'fieldable_panels_pane' => 'fieldable_panels_pane',
+    'menu_tree' => 'menu_tree',
+    'panels_mini' => 'panels_mini',
+    'views_panes' => 'views_panes',
+    'other' => 'other',
+  );
+  $export['panelizer_node:oa_discussion_post_default'] = $strongarm;
 
   return $export;
 }

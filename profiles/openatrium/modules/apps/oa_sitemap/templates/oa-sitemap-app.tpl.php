@@ -21,10 +21,10 @@
       </ul>
     </div>
     <a class="btn-none pull-right" ng-if="showHelp && helpStatus" ng-click="toggleHelp(false)" href="#">
-      Hide Help
+      <?php print t('Hide Help'); ?>
     </a>
     <a class="btn btn-default pull-right" ng-if="showHelp && !helpStatus" ng-click="toggleHelp(true)" href="#">
-      <i class="icon-question-sign"></i> Help
+      <i class="icon-question-sign"></i> <?php print t('Help'); ?>
     </a>
     <div class="oa-sitemap-full pull-left">
       <?php print $link; ?>
@@ -59,7 +59,7 @@
             <a ng-click="slide($index)" ng-drop="true" ng-drop-success="onDropOnSpace($data,space.nid,$event)">{{space.title}}</a>
           </li>
         </ul>
-        <a ng-href="{{spaces[currentSlide].url}}">
+        <a ng-href="{{spaces[currentSlide].url}}" title="<?php print t('Visit Space'); ?>">
           &nbsp;&nbsp;<i class="icon-eye-open"></i>
         </a>
       </div>
@@ -74,17 +74,17 @@
             <div class="oa-section-icon {{sectionClass(section)}}" ng-bind-html="icons[section.icon_id]"></div>
             <a ng-hide="section.editorEnabled" class="oa-section-link {{section.class}}" data-toggle="dropdown" href="#">{{section.title}}</a>
             <ul class="dropdown-menu" role="menu">
-              <li ng-show="section.admin"><a ng-href="{{editURL(section)}}">Edit</a></li>
-              <li ng-show="section.admin"><a ng-click="deleteSection(space, section)">Delete</a></li>
-              <li ng-show="section.admin"><a ng-click="enableEditor(section)">Rename</a></li>
-              <li><a href="{{section.url}}">View</a></li>
+              <li ng-show="section.admin"><a ng-href="{{editURL(section)}}"><?php print t('Edit'); ?></a></li>
+              <li ng-show="section.admin"><a ng-click="deleteSection(space, section)"><?php print t('Delete'); ?></a></li>
+              <li ng-show="section.admin"><a ng-click="enableEditor(section)"><?php print t('Rename'); ?></a></li>
+              <li><a href="{{section.url}}"><?php print t('View'); ?></a></li>
             </ul>
             <div ng-show="section.editorEnabled">
               <textarea ng-model="editableTitle[section.nid]"></textarea>
               <div class="oa-rename-actions">
-                <a href="#" ng-click="saveTitle(section)">Save</a>
-                or
-                <a href="#" ng-click="disableEditor(section)">Cancel</a>.
+                <a href="#" ng-click="saveTitle(section)"><?php print t('Save'); ?></a>
+                <?php print t('or'); ?>
+                <a href="#" ng-click="disableEditor(section)"><?php print t('Cancel'); ?></a>.
               </div>
             </div>
           </h4>
@@ -107,15 +107,15 @@
               </a>
             </div>
             <div ng-show="allSpaces[index].admin" class="dropdown oa-subspace-icon-center">
-              <a class="" data-toggle="dropdown" href="#"><i class="icon-cog"></i></a>
+              <a class="" data-toggle="dropdown" href="#" title="<?php print t('Settings'); ?>"><i class="icon-cog"></i></a>
               <ul class="dropdown-menu" role="menu">
-                <li><a ng-href="{{editURL(allSpaces[index])}}">Edit</a></li>
-                <li><a ng-click="deleteSubspace(space, index)">Delete</a></li>
-                <li><a ng-click="enableEditor(allSpaces[index])">Rename</a></li>
+                <li><a ng-href="{{editURL(allSpaces[index])}}"><?php print t('Edit'); ?></a></li>
+                <li><a ng-click="deleteSubspace(space, index)"><?php print t('Delete'); ?></a></li>
+                <li><a ng-click="enableEditor(allSpaces[index])"><?php print t('Rename'); ?></a></li>
               </ul>
             </div>
             <div class="oa-subspace-icon-right">
-              <a ng-href="{{allSpaces[index].url}}">
+              <a ng-href="{{allSpaces[index].url}}" title="<?php print t('Visit Space'); ?>">
                 <i class="icon-eye-open"></i>
               </a>
             </div>
@@ -128,9 +128,9 @@
             <div ng-show="allSpaces[index].editorEnabled">
               <textarea ng-model="editableTitle[index]"></textarea>
               <div class="oa-rename-actions">
-                <a href="#" ng-click="saveTitle(allSpaces[index])">Save</a>
+                <a href="#" ng-click="saveTitle(allSpaces[index])"><?php print t('Save'); ?></a>
                 or
-                <a href="#" ng-click="disableEditor(allSpaces[index])">Cancel</a>.
+                <a href="#" ng-click="disableEditor(allSpaces[index])"><?php print t('Cancel'); ?></a>.
               </div>
             </div>
           </h4>
@@ -149,10 +149,10 @@
   </div>
   <div id="oa-sitemap-footer">
     <a class="btn-none pull-right" ng-if="space.new_space && dragDrop" ng-click="toggleDrag(false)" href="#">
-      Disable Drag/drop
+      <?php print t('Disable Drag/drop'); ?>
     </a>
     <a class="btn-none pull-right" ng-if="space.new_space && !dragDrop" ng-click="toggleDrag(true)" href="#">
-      Enable Drag/drop
+      <?php print t('Enable Drag/drop'); ?>
     </a>
   </div>
 </div>

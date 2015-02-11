@@ -63,7 +63,7 @@ to be familiar with the "git" and "drush" tools:
    "./build.sh path-to-web-server". For example, if the root of your webserver 
    is in /htdocs/drupal, then you would use "./build.sh /htdocs/drupal". 
    This will build OA2 using the latest -dev files from drupal.org. For the 
-   *absolute* latest code, you can get the development code from github by 
+   *absolute* latest code, you can get the development code from drupal by 
    running "./build-dev.sh path-to-web-server" instead. This script requires 
    the "drush" command and uses "drush make" to download and build all of the 
    dependencies for Open Atrium 2. You should be using at least Drush 5.x.

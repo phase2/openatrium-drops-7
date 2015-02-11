@@ -918,8 +918,6 @@ var defaultCallbacks = {
     $results.width($input.outerWidth() - 2) // Subtract border width.
       .css({
         position: 'absolute',
-        left: $input.position().left,
-        top: $input.position().top + $input.outerHeight(),
         zIndex: 10,
         maxHeight: '330px',
         // Visually indicate that results are in the topmost layer

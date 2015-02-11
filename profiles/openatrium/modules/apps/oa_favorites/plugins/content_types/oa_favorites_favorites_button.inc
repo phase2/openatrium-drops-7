@@ -9,7 +9,7 @@ $plugin = array(
   'title' => t('OpenAtrium Favorites'),
   'description' => t('A single button that contains a dropdown menu exposing a user\'s favorite spaces.'),
   'single' => TRUE,
-  'category' => array(t('Open Atrium'), -9),
+  'category' => array(t('OA Admin'), -9),
   'edit form' => 'oa_favorites_favorites_button_edit_form',
   'render callback' => 'oa_favorites_favorites_button_render',
 );

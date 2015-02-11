@@ -17,7 +17,6 @@ function oa_buttons_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_oa_node_types',
-    'foreign keys' => array(),
     'indexes' => array(
       'value' => array(
         0 => 'value',
@@ -27,7 +26,7 @@ function oa_buttons_field_default_field_bases() {
     'module' => 'list',
     'settings' => array(
       'allowed_values' => array(),
-      'allowed_values_function' => '',
+      'allowed_values_function' => 'oa_buttons_get_command_buttons_options',
     ),
     'translatable' => 0,
     'type' => 'list_text',

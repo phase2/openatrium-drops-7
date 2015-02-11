@@ -565,7 +565,36 @@ function feeds_feeds_plugins() {
  *   feed.
  */
 function feeds_get_feed_nid($entity_id, $entity_type) {
-  return db_query("SELECT feed_nid FROM {feeds_item} WHERE entity_type = :type AND entity_id = :id", array(':type' => $entity_type, ':id' => $entity_id))->fetchField();
+  $entity_types = _feeds_get_feed_entity_types();
+  if (in_array($entity_type, $entity_types)) {
+    $feed_nids = &drupal_static(__FUNCTION__, array());
+    if (!isset($feed_nids[$entity_type][$entity_id])) {
+      $feed_nids[$entity_type][$entity_id] = db_query("SELECT feed_nid FROM {feeds_item} WHERE entity_type = :type AND entity_id = :id", array(':type' => $entity_type, ':id' => $entity_id))->fetchField();
+    }
+    return $feed_nids[$entity_type][$entity_id];
+  }
+  return NULL;
+}
+
+/**
+ * Grab a cache of entity_types that exist in the feeds_item table.
+ *
+ * @todo see if there is a way to find these without querying the table.
+ */
+function _feeds_get_feed_entity_types($reset = FALSE) {
+  $entity_types = &drupal_static(__FUNCTION__);
+  if (!$reset && !isset($entity_types) && ($cache = cache_get(__FUNCTION__))) {
+    $entity_types = $cache->data;
+  }
+  elseif ($reset || !isset($entity_types)) {
+    $entity_types = db_select('feeds_item')
+      ->fields('feeds_item', array('entity_type'))
+      ->distinct()
+      ->execute()
+      ->fetchCol();
+    cache_set(__FUNCTION__, $entity_types);
+  }
+  return $entity_types;
 }
 
 /**
@@ -918,6 +947,9 @@ function feeds_item_info_save($entity, $entity_id) {
     }
     else {
       feeds_item_info_insert($entity, $entity_id);
+    }
+    if (!in_array($entity->feeds_item->entity_type, _feeds_get_feed_entity_types())) {
+      _feeds_get_feed_entity_types(TRUE);
     }
   }
 }

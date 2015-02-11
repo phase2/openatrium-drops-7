@@ -17,9 +17,9 @@ features[views_view][] = oa_admin_views_node
 features_exclude[dependencies][ctools] = ctools
 project path = sites/all/modules/contrib/oa_core/modules
 
-; Information added by Drupal.org packaging script on 2014-10-28
-version = "7.x-2.0-rc1"
+; Information added by Drupal.org packaging script on 2015-01-22
+version = "7.x-2.0-rc2"
 core = "7.x"
 project = "oa_admin"
-datestamp = "1414530831"
+datestamp = "1421935902"
 

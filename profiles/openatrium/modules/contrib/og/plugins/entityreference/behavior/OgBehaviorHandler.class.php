@@ -20,12 +20,7 @@ class OgBehaviorHandler extends EntityReference_BehaviorHandler_Abstract {
     $field_name = $field['field_name'];
     $target_type = $field['settings']['target_type'];
     foreach ($entities as $entity) {
-      $wrapper = entity_metadata_wrapper($entity_type, $entity);
-      if (empty($wrapper->{$field_name})) {
-        // If the entity belongs to a bundle that was deleted, return early.
-        continue;
-      }
-      $id = $wrapper->getIdentifier();
+      list($id) = entity_extract_ids($entity_type, $entity);
       $items[$id] = array();
       $gids = og_get_entity_groups($entity_type, $entity, array(), $field_name);
 

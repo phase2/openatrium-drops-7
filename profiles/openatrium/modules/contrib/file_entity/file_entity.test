@@ -1267,3 +1267,47 @@ class FileEntityAccessTestCase extends FileEntityTestHelper {
     }
   }
 }
+
+class FileEntityAttributeOverrideTestCase extends FileEntityTestHelper {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'File entity attribute override',
+      'description' => 'Test overriding file entity attributes.',
+      'group' => 'File entity',
+    );
+  }
+
+  function setUp() {
+    parent::setUp();
+    $this->setUpFiles();
+  }
+
+  /**
+   * Test to see if file attributes can be overridden.
+   */
+  function testFileEntityFileAttributeOverrides() {
+    $overrides = array(
+      'width' => 40,
+      'height' => 20,
+      'alt' => $this->randomName(),
+      'title' => $this->randomName(),
+
+    );
+
+    // Retrieve an image file entity for testing.
+    $file = reset($this->files['image']);
+
+    // Override a variety of attributes.
+    foreach ($overrides as $override => $value) {
+      $file->override['attributes'][$override] = $value;
+    }
+
+    // Test that the attributes have been overridden.
+    $build = file_view_file($file, 'full');
+
+    foreach ($overrides as $attribute => $expected_value) {
+      $this->assertEqual($build['#item'][$attribute], $expected_value, format_string('The %attribute was overridden correctly.', array('%attribute' => $attribute)));
+    }
+  }
+}

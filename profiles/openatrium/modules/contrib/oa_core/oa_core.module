@@ -10,6 +10,7 @@ include_once 'includes/oa_core.util.inc';
 include_once 'includes/oa_core.access.inc';
 include_once 'includes/oa_core.login.inc';
 include_once 'includes/oa_core.theme.inc';
+include_once 'includes/oa_core.fields.inc';
 
 /**
  * Name of default OpenAtrium Space content type.
@@ -43,13 +44,17 @@ define('OA_ACCESS_REALM', 'oa_access');
  * The access realm of unpublished content.
  */
 define('OA_UNPUBLISHED_REALM', 'oa_unpublished');
+/**
+ * The access realm of unpublished content.
+ */
+define('OA_SPACE_CURRENT', 'CURRENT');
 
 /**
  * Implements hook_ctools_plugin_directory().
  */
 function oa_core_ctools_plugin_directory($owner, $plugin_type) {
-  if ($owner == 'ctools' && $plugin_type == 'content_types') {
-    return 'plugins/content_types';
+  if ($owner == 'ctools') {
+    return 'plugins/' . $plugin_type;
   }
   elseif ($owner == 'entityreference') {
     return "plugins/entityreference/$plugin_type";
@@ -157,7 +162,103 @@ function oa_core_menu() {
     'access arguments' => array('create', OA_SPACE_TYPE),
     'type' => MENU_CALLBACK,
   );
+
+  if (module_exists('devel')) {
+    $items['oa-core/system-elements'] = array(
+      'access arguments' => array('access devel information'),
+      'page callback' => 'oa_core_element_test_page',
+      'type' => MENU_CALLBACK,
+      'file' => 'oa_core.fields.inc',
+      'file path' => drupal_get_path('module', 'oa_core') . '/includes',
+    );
+  }
+  // Two ajax path to return group options for select2widget.
+  // One for pane (with Current Group) option and one for just exposed.
+  $items['oacoreselect2widget/ajax/%/%/%/%'] = array(
+    'title' => 'Ajax callback',
+    'page callback' => 'oa_core_select2widget_ajax_callback',
+    'page arguments' => array(FALSE, 2, 3, 4, 5),
+    'access callback' => 'select2widget_autocomplete_access',
+    'access arguments' => array(2, 3, 4, 5),
+    'type' => MENU_CALLBACK,
+  );
+  $items['oacoreselect2widgetpanes/ajax/%/%/%/%'] = array(
+    'title' => 'Ajax callback',
+    'page callback' => 'oa_core_select2widget_ajax_callback',
+    'page arguments' => array(TRUE, 2, 3, 4, 5),
+    'access callback' => 'select2widget_autocomplete_access',
+    'access arguments' => array(2, 3, 4, 5),
+    'type' => MENU_CALLBACK,
+  );
   return $items;
+}
+
+/**
+ * Copy of select2widget_ajax_callback to add in All/current space.
+ */
+function oa_core_select2widget_ajax_callback($add_current_option, $field_name, $entity_type, $bundle_name, $entity_id = '') {
+  $string = '';
+
+  if (isset($_GET['search_string']) && !empty($_GET['search_string'])) {
+    $string = $_GET['search_string'];
+  }
+
+  $field = field_info_field('og_group_ref');
+  $instance = field_info_instance($entity_type, $field_name, $bundle_name);
+
+  $matches = array();
+  $options = array();
+
+  $entity = NULL;
+  if ($entity_id !== 'NULL') {
+    $entity = entity_load_single($entity_type, $entity_id);
+    if (!$entity || !entity_access('view', $entity_type, $entity)) {
+      return MENU_ACCESS_DENIED;
+    }
+  }
+  // We pass in "all", which doesn't mean anything to og but skips the "default"
+  // and "admin" functionality that restricts based on user or not user groups.
+  $instance['field_mode'] = 'all';
+  // Just use default settings for selection criteria.
+  $settings = $instance['settings']['behaviors']['og_widget']['default']['widget_settings']['select2widgetajax'];
+
+  $handler = entityreference_get_selection_handler($field, $instance, $entity_type, $entity);
+  $entity_labels = $handler->getReferencableEntities($string, $settings['match_operator'], 20);
+  $matches = array();
+
+  // Current for the pane config so current isn't hard coded (for cloning).
+  if ($add_current_option) {
+    $matches[] = array(
+      'id' => 'CURRENT',
+      'title' => _oa_core_select2widget_current_label(),
+      'data' => '<div class="reference-select2widget">' . _oa_core_select2widget_current_label() . '</div>',
+    );
+  }
+
+  // Add in an all option so users can see all content.
+  $matches[] = array(
+    'id' => 'All',
+    'title' => _oa_core_select2widget_all_label(),
+    'data' => '<div class="reference-select2widget">' . _oa_core_select2widget_all_label() . '</div>',
+  );
+
+  $matches = array_merge($matches, select2widget_render_modes($entity_labels, $settings['view_mode'], $field['settings']['target_type']));
+
+  drupal_json_output($matches);
+}
+
+/**
+ * Return translated Any option.
+ */
+function _oa_core_select2widget_all_label() {
+  return t('- Any -');
+}
+
+/**
+ * Return translated Active option.
+ */
+function _oa_core_select2widget_current_label() {
+  return t('- Active Space -');
 }
 
 /**
@@ -185,11 +286,23 @@ function oa_core_create_space_page_callback($type, $space_tid) {
       'language' => LANGUAGE_NONE,
     );
 
-    $types = node_type_get_types();
-    drupal_set_title(t('Create @name @type', array(
-      '@name' => $space_type->name,
-      '@type' => $types[$type]->name,
-    )));
+    $title = t('Create @name', array('@name' => $space_type->name));
+    $pattern = '';
+    if ($type == OA_SPACE_TYPE) {
+      $pattern = '/space/i';
+    }
+    elseif ($type == OA_SECTION_TYPE) {
+      $pattern = '/section/i';
+    }
+    // if Taxonomy term name doesn't contain the type of page, then add it
+    if (!empty($pattern) && (preg_match($pattern, $title) == 0)) {
+      $types = node_type_get_types();
+      $title = t('Create @name @type', array(
+        '@name' => $space_type->name,
+        '@type' => $types[$type]->name,
+      ));
+    }
+    drupal_set_title($title);
 
     // Load the file with page_manager_node_edit().
     module_load_include('inc', 'ctools', 'page_manager/plugins/tasks/node_edit');
@@ -206,23 +319,6 @@ function oa_core_menu_alter(&$items) {
   if (!empty($items['node/%/group'])) {
     $items['node/%/group']['title'] = 'Config';
   }
-}
-
-/**
- * Implements hook_views_data().
- */
-function oa_core_views_data() {
-  $data = array();
-
-  $data['field_data_oa_parent']['is_parent'] = array(
-    'title' => t('Is Parent'),
-    'help' => t('Content is a parent'),
-    'filter' => array(
-      'handler' => 'views_handler_filter_is_parent',
-    ),
-  );
-
-  return $data;
 }
 
 /**
@@ -248,12 +344,14 @@ function oa_core_configure_form($form, &$form_state) {
     if (function_exists($function)) {
       $child_forms = call_user_func_array($function, array(&$form_state));
       foreach ($child_forms as $key => $child_form) {
-        $form[$child_form['caption']] = array(
-          '#type' => 'fieldset',
-          '#title' => $child_form['caption'],
-          '#group' => 'oa_settings',
-          '#attributes' => array('class' => array('collapsible')),
-        );
+        if (!isset($form[$child_form['caption']])) {
+          $form[$child_form['caption']] = array(
+            '#type' => 'fieldset',
+            '#title' => $child_form['caption'],
+            '#group' => 'oa_settings',
+            '#attributes' => array('class' => array('collapsible')),
+          );
+        }
         $form[$child_form['caption']][] = $child_form['form'];
         if (!empty($child_form['submit'])) {
           $form['#submit'][] = $child_form['submit'];
@@ -348,6 +446,14 @@ function oa_core_og_fields_info() {
     ),
     'instance' => array(
       'label' => t('Open Atrium Section'),
+      'options_limit' => 1,
+      'options_limit_empty_behaviour' => 1,
+      'options_limit_fields' => array(
+        'body' => 0,
+        'oa_section_ref' => 0,
+        'og_group_ref' => 'og_group_ref',
+      ),
+      'options_optomize_entityreferences' => 1,
       'widget' => array(
         'active' => 0,
         'module' => 'options',
@@ -369,20 +475,46 @@ function oa_core_og_fields_info() {
  * Implements hook_form_alter for node edit forms
  */
 function oa_core_form_node_form_alter(&$form, &$form_state, $form_id) {
-  // we are in an edit form
-  // autofill empty group audience field
-  if (isset($form[OA_SPACE_FIELD]) && empty($form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['default']['#default_value'])) {
-    if (!empty($_GET['og_group_ref'])) {
-      $form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['default']['#default_value'] = check_plain($_GET['og_group_ref']);
-    }
-    elseif (!empty($_SESSION['og_context']['gid'])) {
-      $form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['default']['#default_value'] = $_SESSION['og_context']['gid'];
-    }
-  }
-
-  // modify label on Panelizer layout field
+  // Modify label on Panelizer layout field.
   if (isset($form['panelizer'])) {
     $form['panelizer']['page_manager']['name']['#title'] = t('Select Layout');
+  }
+  // @todo this is a workaround for og not defaulting based on subgroups,
+  // only user direct groups.
+  // handling this for both normal users and admin users
+  if (empty($form['#node']->nid)
+    && !empty($form['#node']->{OA_SPACE_FIELD}[LANGUAGE_NONE][0]['target_id'])
+    && isset($form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['default'])
+    && empty($form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['default']['#default_value'])
+    && ($group = node_load($form['#node']->{OA_SPACE_FIELD}[LANGUAGE_NONE][0]['target_id']))
+    && (!isset($form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['admin'])
+      || ($form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['admin']['#default_value'] == $group->title . ' (' . $group->nid . ')'))
+    ) {
+    $form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['default']['#default_value'] = $group->title . ' (' . $group->nid . ')';
+    $form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['default']['#init'][$group->nid] = $form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['default']['#default_value'];
+    if (isset($form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['admin'])) {
+      $form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['admin']['#default_value'] = '';
+      $form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['admin']['#init'] = array();
+    }
+  }
+}
+
+/**
+ * Implements hook_node_prepare().
+ *
+ * Default the GId to current GID 
+ */
+function oa_core_node_prepare($node) {
+  if (empty($node->nid) && field_info_instance('node', OA_SPACE_FIELD, $node->type)) {
+    if (!empty($_GET['og_group_ref'])) {
+      $gid = $_GET['og_group_ref'];
+    }
+    else {
+      $gid = oa_core_get_space_context();
+    }
+    if ($gid && og_user_access('node', $gid, "create {$node->type} content")) {
+      $node->{OA_SPACE_FIELD}[LANGUAGE_NONE][0]['target_id'] = $gid;
+    }
   }
 }
 
@@ -787,7 +919,7 @@ function oa_core_views_pre_view(&$view) {
 function oa_core_form_views_content_views_panes_content_type_edit_form_alter(&$form, &$form_state, $form_id) {
   $conf = $form_state['conf'];
   $pane = $form_state['pane'];
-  // Add in te Active options
+  // Add in the Active options
   // @todo be a bit smarter on this, check type of field.
   $group = oa_core_get_space_context();
   if (isset($form['exposed']['filter-oa_parent_space_target_id']['oa_parent_space_target_id'])) {
@@ -798,8 +930,6 @@ function oa_core_form_views_content_views_panes_content_type_edit_form_alter(&$f
     }
   }
   if (isset($form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id'])) {
-    $form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id']['#options'] =
-      array('' => t('- Active Space -')) + $form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id']['#options'];
     if (!isset($pane->configuration['exposed']['og_group_ref_target_id'])) {
       $pane->configuration['exposed']['og_group_ref_target_id'] = '';
     }
@@ -809,11 +939,16 @@ function oa_core_form_views_content_views_panes_content_type_edit_form_alter(&$f
       '#default_value' => !empty($conf['exposed']['og_group_ref_target_id_mine']),
       '#parents' => array('exposed', 'og_group_ref_target_id_mine'),
     );
+    // Replace autocomplete path to one that returns Current Space as an option.
+    if (isset($form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id']['#autocomplete_path'])) {
+      $form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id']['#autocomplete_path'] = str_replace('oacoreselect2widget', 'oacoreselect2widgetpanes', $form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id']['#autocomplete_path']);
+    }
     $form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id']['#states'] = array(
       'visible' => array(
         ':input[name="exposed[og_group_ref_target_id_mine]"]' => array('checked' => FALSE),
       ),
     );
+    $form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id']['#after_build'][] = 'oa_core_adjust_og_group_ref_for_select2';
   }
   if (isset($form['exposed']['filter-oa_section_ref_target_id']['oa_section_ref_target_id'])) {
     // Add a process that change ajax path so can return multiple changes.
@@ -860,6 +995,22 @@ function oa_core_form_views_content_views_panes_content_type_edit_form_alter(&$f
       $pane->configuration['show_exposed_form'] = FALSE;
     }
   }
+}
+
+/**
+ * Adjust element so select2 works.
+ */
+function oa_core_adjust_og_group_ref_for_select2($element) {
+  $form_state = array();
+  // Because how panes extract fields from exposed forms, this is not correct.
+  oa_core_select2widget_entity_validate_field($element, $form_state, array());
+  // Remove the autosubmit exclude that panopoly adds cause field is autocomplete.
+  if (isset($element['#attributes']['class'])) {
+    foreach ($element['#attributes']['class'] as $key => $value) {
+      $element['#attributes']['class'][$key] = str_replace($value, 'ctools-auto-submit-exclude', '');
+    }
+  }
+  return $element;
 }
 
 /**
@@ -912,13 +1063,6 @@ function oa_core_refresh_oa_section_ref_target_id($form, $form_state) {
     $form['exposed']['filter-oa_section_ref_target_id']['oa_section_ref_target_id']['#theme_wrappers'] = array();
     $form['exposed']['filter-oa_section_ref_target_id']['oa_section_ref_target_id']['#attributes']['id'] = 'edit-exposed-oa-section-ref-target-id';
     $return['#commands'][] = ajax_command_replace('#edit-exposed-oa-section-ref-target-id', drupal_render($form['exposed']['filter-oa_section_ref_target_id']['oa_section_ref_target_id']));
-  }
-  // The "my spaces" may have changed this, so update it.
-  if (isset($form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id'])) {
-    $form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id']['#theme_wrappers'] = array();
-    $form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id']['#attributes']['id'] = 'edit-exposed-og-group-ref-target-id';
-    $return['#commands'][] = ajax_command_replace('#edit-exposed-og-group-ref-target-id', drupal_render($form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id']));
-
   }
 
   return $return;
@@ -974,15 +1118,6 @@ function oa_core_form_views_exposed_form_alter(&$form, &$form_state) {
       'All' => t('- Any -')
     ) + oa_core_space_sections($space_id, NULL, $bypass_access);
     $form['oa_section_ref_target_id']['#options'] = $sections;
-
-    // check if configured space id is in space options
-    if (!in_array($space_id, array_keys($form['og_group_ref_target_id']['#options']))) {
-      // if not, they don't have access to see this space, so change it to prevent
-      // the "Illegal choice" error on the space id filter field.
-      // Filter on space = -1 since that node id will never exist
-      $form_state['input']['og_group_ref_target_id'] = -1;
-      $form['og_group_ref_target_id']['#options'][] = array( -1 => 'None');
-    }
   }
 }
 
@@ -1033,16 +1168,20 @@ function oa_core_get_alias($nid) {
     return $cache[$nid];
   }
 
-  $node = node_load($nid);
-  $uri = entity_uri('node', $node);
-  $path = drupal_get_path_alias($uri['path']);
-  if (!isset($node->path['pathauto'])) {
-    module_load_include('inc', 'pathauto');
-    // return what the proper alias for this node will eventually be
-    // don't use 'update' yet since the drupal_get_path_alias() will still be cached
-    $path = pathauto_create_alias('node', 'return', $uri['path'], array('node' => $node), $node->type, $node->language);
+  if ($node = node_load($nid)) {
+    $uri = entity_uri('node', $node);
+    $path = drupal_get_path_alias($uri['path']);
+    if (!isset($node->path['pathauto'])) {
+      module_load_include('inc', 'pathauto');
+      // return what the proper alias for this node will eventually be
+      // don't use 'update' yet since the drupal_get_path_alias() will still be cached
+      $path = pathauto_create_alias('node', 'return', $uri['path'], array('node' => $node), $node->type, $node->language);
+    }
+    $cache[$nid] = $path;
   }
-  $cache[$nid] = $path;
+  else {
+    $cache[$nid] = FALSE;
+  }
   return $path;
 }
 
@@ -1058,7 +1197,7 @@ function oa_core_tokens($type, $tokens, array $data = array(), array $options = 
     $space = field_get_items('node', $node, OA_SPACE_FIELD);
     $section_id = !empty($section[0]['target_id']) ? $section[0]['target_id'] : 0;
     $space_id = !empty($space[0]['target_id']) ? $space[0]['target_id'] : 0;
-    if ($section_id > 0) {
+    if ($section_id && node_load($section_id)) {
       $path = drupal_get_path_alias('node/' . $section_id);
       if (module_exists('pathauto') && preg_match('#^node/(\d+)#', $path)) {
         // section alias not defined yet, so define it
@@ -1068,7 +1207,7 @@ function oa_core_tokens($type, $tokens, array $data = array(), array $options = 
         $replacements[$original] = $path;
       }
     }
-    elseif ($space_id > 0) {
+    elseif ($space_id && node_load($space_id)) {
       $path = drupal_get_path_alias('node/' . $space_id);
       if (module_exists('pathauto') && preg_match('#^node/(\d+)#', $path)) {
         // space alias not defined yet, so define it
@@ -1346,6 +1485,38 @@ function oa_core_node_delete_redirect($form, &$form_state) {
 }
 
 /**
+ * Modify the views query where condition for the specified columns to include the $ids
+ * @param $query
+ * @param $columns
+ * @param $ids
+ */
+function oa_core_view_query_modify_condition(&$query, $columns, $ids) {
+  if (empty($ids)) {
+    return;
+  }
+  if (!is_array($columns)) {
+    $columns = array($columns);
+  }
+  // Loop over all conditions in all 'where groups'.
+  foreach (array_keys($query->where) as $where_group) {
+    foreach ($query->where[$where_group]['conditions'] as $key => $condition) {
+      // If it matches the column or an alias.
+      foreach ($columns as $column) {
+        if ($condition['field'] === $column ||
+          (is_string($condition['field']) && substr($condition['field'], -strlen($column)-2) === "__{$column}")) {
+          $value = $query->where[$where_group]['conditions'][$key]['value'];
+          if (!is_array($value)) {
+            $value = array($value);
+            $query->where[$where_group]['conditions'][$key]['operator'] = 'IN';
+          }
+          $query->where[$where_group]['conditions'][$key]['value'] = array_merge($value, $ids);
+        }
+      }
+    }
+  }
+}
+
+/**
  * Implements hook_views_query_alter().
  */
 function oa_core_views_query_alter(&$view, &$query) {
@@ -1379,7 +1550,7 @@ function oa_core_views_query_alter(&$view, &$query) {
             || substr($condition['field'], -strlen($column)-2) === "__{$column}")) {
           // Move the condition to our new where group.
           $query->add_where($group, $condition['field'], $condition['value'], $condition['operator']);
-          $extra_groups = $condition['value'];
+          $extra_groups[] = $condition['value'];
           unset($query->where[1]['conditions'][$key]);
           break;
         }
@@ -1395,19 +1566,20 @@ function oa_core_views_query_alter(&$view, &$query) {
           && !empty($view->exposed_input['oa_section_ref_target_id'])
           && is_numeric($view->exposed_input['oa_section_ref_target_id'])
           && !empty($view->filter['oa_section_ref_target_id']->options['exposed'])) {
-          $column = 'field_data_oa_section_ref.oa_section_ref_target_id';
+          $columns = array('field_data_oa_section_ref.oa_section_ref_target_id');
           // get a list of matching section names in the other spaces
           $extra_sections = oa_subspaces_matching_sections($view->exposed_input['oa_section_ref_target_id'], array(), $extra_groups);
-          foreach (array_keys($query->where) as $where_group) {
-            foreach ($query->where[$where_group]['conditions'] as $key => $condition) {
-              if ($condition['field'] === $column ||
-                (is_string($condition['field']) && substr($condition['field'], -strlen($column) - 2) === "__{$column}")) {
-                $query->where[$where_group]['conditions'][$key]['value'] = array_merge($query->where[$where_group]['conditions'][$key]['value'], $extra_sections);
-              }
-            }
-          }
+          oa_core_view_query_modify_condition($query, $columns, $extra_sections);
         }
       }
     }
   }
 }
+
+/**
+ * Implements hook_oa_related_allowed_default().
+ */
+function oa_core_oa_related_allowed_default() {
+  return array(OA_SECTION_TYPE, OA_SPACE_TYPE);
+}
+

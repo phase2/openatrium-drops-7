@@ -3,6 +3,7 @@ description = A site map tool for OA2
 core = 7.x
 package = Open Atrium
 dependencies[] = ctools
+dependencies[] = oa_angular
 dependencies[] = oa_core
 dependencies[] = oa_wizard
 dependencies[] = page_manager
@@ -18,9 +19,9 @@ features[page_manager_pages][] = oa_sitemap
 features[page_manager_pages][] = sitemap_old
 features[page_manager_pages][] = space_sitemap
 
-; Information added by Drupal.org packaging script on 2014-12-17
-version = "7.x-2.1"
+; Information added by Drupal.org packaging script on 2015-02-11
+version = "7.x-2.3"
 core = "7.x"
 project = "oa_sitemap"
-datestamp = "1418843285"
+datestamp = "1423680493"
 

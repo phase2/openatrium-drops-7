@@ -1,0 +1,315 @@
+.oa-files-treeview {
+  overflow: visible;
+}
+
+.oa-files-treeview.oa-files-sidebar  {
+  margin-top: -15px;
+}
+
+.oa-files-header {
+  margin: 0 3px 3px 0;
+  position: relative;
+  min-height: 20px;
+}
+
+.oa-files-wide .oa-files-header {
+  min-height: 25px;
+}
+
+.oa-files-treeview .alert {
+  overflow: hidden;
+}
+
+.oa-files-treeview .alert .btn {
+  margin-left: 5px;
+  position: relative;
+}
+
+.oa-files-treeview.oa-files-wide .alert .btn {
+}
+
+.oa-files-treeview .alert span {
+  display: inline-block;
+  padding: 5px 10px;
+}
+
+.oa-files-filter {
+  display: inline-block;
+}
+
+.oa-files-topbuttons {
+  display: inline-block;
+}
+
+.oa-files-sidebar .oa-files-topbuttons {
+  display: none;
+}
+
+.oa-files-topbuttons > div {
+  display: inline-block;
+}
+
+[treecontrol] ul {
+  overflow: visible;
+}
+
+[treecontrol] li .tree-label {
+  display: inline-block;
+  overflow: visible;
+}
+
+.oa-files-wide li .tree-label {
+  margin-left: -60px;
+  padding-left: 60px;
+}
+
+.oa-files-wide .oa-files-leaf .tree-label {
+  margin-left: 0;
+  padding-left: 0;
+  padding-right: 90px;
+}
+
+.oa-files-treeview .dropdown-menu {
+  display: block;
+  position: absolute;
+  top: 90%;
+  left: auto;
+  right: 0;
+  z-index: 1000;
+  float: left;
+  min-width: 160px;
+  padding: 5px 0;
+  margin: 2px 0 0;
+  list-style: none;
+  font-size: 14px;
+  text-align: left;
+  background-color: white;
+  border: 1px solid #cccccc;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+  background-clip: padding-box;
+}
+
+.oa-files-treeview .dropdown-menu li {
+  padding: 0;
+}
+
+[treecontrol] li.tree-expanded i.tree-branch-head,
+[treecontrol] li.tree-collapsed i.tree-branch-head {
+  display: inline-block;
+  height: 15px;
+  width: 15px;
+}
+
+[treecontrol] li.tree-expanded i.tree-leaf-head,
+[treecontrol] li.tree-collapsed i.tree-leaf-head {
+  display: none;
+}
+
+[treecontrol].tree-classic li .tree-selected {
+  font-weight: normal;
+  background: transparent;
+}
+
+[treecontrol] > ul > li {
+  padding: 0;
+}
+
+.oa-files-treeview li i,
+.oa-files-treeview .oa-file i,
+[treecontrol] li i {
+  padding-right: 15px;
+  width: 1.1em;
+}
+
+[treecontrol] li .tree-node {
+  font-size: 14px;
+  position: relative;
+}
+
+[treecontrol] li .tree-node:hover,
+[treecontrol] li .tree-node:focus {
+  background-color: #0081c2;
+  color: white;
+}
+
+[treecontrol] li .oa-file {
+  color: white;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.oa-files-treeview .oa-file a {
+  text-decoration: none;
+  color: #777;
+}
+
+.oa-files-treeview .oa-file > a {
+  display: inline-block;
+  height: 20px;
+}
+
+.oa-files-treeview a.oa-file-action {
+  padding-left: 5px;
+}
+
+.oa-files-treeview .dropdown-menu li a.oa-file-action {
+  padding-left: 20px;
+}
+
+.oa-files-sidebar .oa-file-hidden,
+.oa-files-sidebar [treecontrol] li .oa-file-hidden {
+  display: none;
+}
+
+.oa-files-sidebar .oa-files-header:hover .oa-file-hidden,
+.oa-files-sidebar [treecontrol] li .tree-node:hover .oa-file-hidden {
+  display: inline;
+}
+
+.oa-files-sidebar [treecontrol] li .oa-file-hidden a {
+  text-decoration: none;
+}
+
+.oa-files-sidebar [treecontrol] li .oa-file-hidden a i {
+  color: white;
+}
+
+[treecontrol].tree-classic li .oa-file i {
+  background: transparent;
+}
+
+.oa-files-left {
+  float: left;
+  width: 30%;
+  background: #eee;
+  border: 1px solid #ccc;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.oa-files-right {
+  float: left;
+  width: 68%;
+  margin-left: 2%;
+  background: #eee;
+  border: 1px solid #ccc;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.oa-files-header .oa-file,
+.oa-files-wide .oa-file {
+  text-align: right;
+  width: 100px;
+  position: absolute;
+  right: 2px;
+  top: 0;
+}
+
+.oa-files-wide .oa-file {
+  top: 7px;
+}
+
+.oa-files-wide .oa-files-leaf {
+  border-bottom: 1px solid #e0e0e0;
+  background: #f7f7f7;
+  padding: 0.5em 0;
+  cursor: pointer;
+}
+
+.oa-files-wide .oa-files-folder {
+  border-bottom: 1px solid #ccc;
+  background: #ddd;
+  padding: 0.5em 0;
+  cursor: pointer;
+}
+
+.oa-files-wide .oa-files-leaf .oa-file {
+  float: right;
+}
+
+.oa-files-wide .tree-label {
+  display: inline-block;
+  width: 100%;
+}
+
+.oa-file-count {
+  display: inline;
+  font-size: 12px;
+}
+
+.oa-files-wide .oa-file-info {
+  display: inline-block;
+  font-size: 12px;
+  width: 10em;
+  position: relative;
+  right: -25px;
+}
+
+.oa-file-info.oa-column-lg {
+  width: 20em;
+}
+
+.oa-file-info.oa-column-med {
+  width: 14em;
+}
+
+.oa-file-info.oa-column-sm {
+  width: 7em;
+}
+
+.oa-file-info.oa-column-full {
+  width: 100%;
+  clear: both;
+}
+
+.oa-file-info.oa-column-sm.pull-right {
+  text-align: right;
+}
+
+.oa-file-info.oa-column-med.pull-right {
+  padding-left: 20px;
+}
+
+.oa-files-wide .tree-label span {
+  display: inline-block;
+  margin-right: 5px;
+}
+
+.oa-files-wide .oa-files-leaf .tree-label span {
+  width: auto;
+  margin-right: 5px;
+}
+
+.oa-files-wide .oa-file i {
+  font-size: 18px;
+  padding-right: 0;
+  padding-left: 0;
+  cursor: pointer;
+}
+
+[treecontrol] .oa-file-icon {
+  display: inline-block;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+[treecontrol].tree-classic li.tree-leaf i.tree-leaf-head,
+[treecontrol].tree-classic li.tree-leaf i.tree-branch-head {
+  display: none;
+}
+
+/* Mobile settings */
+@media only screen and (max-width: 768px) {
+  .oa-files-wide .oa-files-leaf .tree-label span {
+    width: 100%;
+    margin-right: -95px;
+  }
+  .oa-files-wide .oa-file-info {
+    display: none;
+  }
+}
+

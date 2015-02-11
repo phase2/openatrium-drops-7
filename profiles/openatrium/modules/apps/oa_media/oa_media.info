@@ -14,13 +14,13 @@ dependencies[] = media_youtube
 dependencies[] = panelizer
 dependencies[] = strongarm
 dependencies[] = text
+stylesheets[all][] = oa_media.css
 apps[screenshots][] = app/screenshot.png
 apps[logo] = app/logo.png
 apps[author] = Phase2 Technology
 apps[author_url] = http://www.phase2technology.com/
 apps[server] = openatrium
 apps[package] = Core addons
-stylesheets[all][] = oa_media.css
 features[ctools][] = file_entity:file_default_displays:1
 features[ctools][] = strongarm:strongarm:1
 features[features_api][] = api:2
@@ -161,7 +161,6 @@ features[variable][] = colorbox_scrolling
 features[variable][] = colorbox_slideshow
 features[variable][] = colorbox_slideshowauto
 features[variable][] = colorbox_slideshowspeed
-features[variable][] = colorbox_style
 features[variable][] = colorbox_text_close
 features[variable][] = colorbox_text_current
 features[variable][] = colorbox_text_next
@@ -172,10 +171,11 @@ features[variable][] = colorbox_transition_speed
 features[variable][] = colorbox_transition_type
 features[variable][] = colorbox_visibility
 features[variable][] = field_bundle_settings_file__document
+mtime = 1416507754
 
-; Information added by Drupal.org packaging script on 2014-10-28
-version = "7.x-2.21"
+; Information added by Drupal.org packaging script on 2015-02-11
+version = "7.x-2.23"
 core = "7.x"
 project = "oa_media"
-datestamp = "1414535347"
+datestamp = "1423681087"
 

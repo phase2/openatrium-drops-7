@@ -186,7 +186,7 @@ function oa_tour_bootstrap_tour_alter(&$tour) {
 }
 
 /**
- * Implementation of hook_form_FORM_BASE_ID_alter().
+ * Implements hook_form_FORM_BASE_ID_alter().
  * Add the nexttour parameter as a hidden form field so that we can use it in the submit
  * callback to resume the previous tour on the newly created node's page.
  */
@@ -200,7 +200,7 @@ function oa_tour_form_node_form_alter(&$form, &$form_state, $form_id) {
 }
 
 /**
- * Implementation of hook_node_insert().
+ * Implements hook_node_insert().
  * Fetch the next tour to run from the form fields and then run it.
  */
 function oa_tour_node_insert($node) {

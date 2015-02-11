@@ -359,7 +359,7 @@ function oa_appearance_get_space_banner($space_id, $banner_position) {
             'height' => $space_image['height'],
             'alt' => $space_image['alt'],
             'attributes' => array(
-              'class' => 'oa-banner-overlay-img',
+              'class' => array('oa-banner-overlay-img'),
             ),
           );
 
@@ -405,7 +405,7 @@ function oa_appearance_get_space_banner($space_id, $banner_position) {
                 'height' => !empty($site_file->metadata['height']) ? $site_file->metadata['height'] : 0,
                 'alt' => t('Site banner'),
                 'attributes' => array(
-                  'class' => $site_stretch ? 'oa-banner-overlay-img' : 'oa-banner-img',
+                  'class' => $site_stretch ? array('oa-banner-overlay-img') : array('oa-banner-img'),
                 ),
               );
               $banner['stretch'] = $site_stretch;
@@ -478,4 +478,12 @@ function oa_appearance_get_space_colorizer_instance($base_instance, $space_id) {
   }
 
   return $static_cache[$space_id];
+}
+
+/**
+ * Implements hook_preprocess_page
+ */
+function oa_appearance_preprocess_page(&$vars) {
+  // add the js for controlling the header height
+  drupal_add_js(drupal_get_path('module', 'oa_appearance') . '/oa_appearance.js');
 }

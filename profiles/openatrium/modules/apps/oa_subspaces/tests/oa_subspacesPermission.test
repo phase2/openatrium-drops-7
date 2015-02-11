@@ -15,6 +15,9 @@ class oa_subspacesPermission extends oa_coreBaseWebTest {
   }
 
   function test_oa_subspacesPermission() {
+    $langcode = LANGUAGE_NONE;
+    $group_key = "og_group_ref[$langcode][0][default]";
+    $body_key = "body[$langcode][0][value]";
     extract($this->createOaSpaceAndUsers(array('og_user_inheritance' => array(LANGUAGE_NONE => array(0 => array('value' => 1))))));
     // Create another space that is a child of this one.
     $child = $this->createOaSpace(array('oa_parent_space' => array(LANGUAGE_NONE => array(0 => array('target_id' => $space->nid)))));
@@ -30,10 +33,48 @@ class oa_subspacesPermission extends oa_coreBaseWebTest {
     $this->assertFalse(og_user_access('node', $not_child->nid, 'create oa_discussion_post content', $space_member), t('Member does not have access to do permissions in not-child space.'));
 
     $this->drupalLogin($space_member);
-    $this->drupalGet('node/add/oa-discussion-post');
-    $this->assertOptionExists('edit-og-group-ref-und-0-default', $space->nid, t('Parent appears in entityreference options'));
-    $this->assertOptionExists('edit-og-group-ref-und-0-default', $child->nid, t('Child appears in entityreference options'));
-    $this->assertOptionNoExists('edit-og-group-ref-und-0-default', $not_child->nid, t('Not Child does not appear in entityreference options'));
+    $edit = array(
+      'title' => $this->randomName(16),
+      $group_key => $space->title . ' (' . $space->nid . ')',
+      $body_key => $this->randomName(26),
+    );
+    $this->drupalGet('node/' . $space->nid);
+    $this->drupalPost('node/add/oa-discussion-post', $edit, t('Publish'));
+    $discussion = $this->drupalGetNodeByTitle($edit['title']);
+    $this->assertTrue(!empty($discussion), t('Able to post discussion to parent.'));
+
+    $edit = array(
+      'title' => $this->randomName(16),
+      $group_key => $child->title . ' (' . $child->nid . ')',
+      $body_key => $this->randomName(26),
+    );
+    $this->drupalPost('node/add/oa-discussion-post', $edit, t('Publish'));
+    $discussion = $this->drupalGetNodeByTitle($edit['title']);
+    $this->assertTrue(!empty($discussion), t('Able to post discussion to child.'));
+
+    $edit = array(
+      'title' => $this->randomName(16),
+      $group_key => $not_child->title . ' (' . $not_child->nid . ')',
+      $body_key => $this->randomName(26),
+    );
+    $this->drupalPost('node/add/oa-discussion-post', $edit, t('Publish'));
+    $discussion = $this->drupalGetNodeByTitle($edit['title']);
+    $this->assertTrue(empty($discussion), t('Not able to post discussion to not child.'));
+
+    $options  = array(
+      'query' => array(
+        'field_mode' => 'default',
+        'search_string' => $space->title,
+      ),
+    );
+    $this->drupalGet('select2widget/ajax/og_group_ref/node/oa_discussion_post/NULL', $options);
+    $this->assertText('"id":"' . $space->nid . '"',  t('Parent ID returned from json.'));
+    $options['query']['search_string'] = $child->title;
+    $this->drupalGet('select2widget/ajax/og_group_ref/node/oa_discussion_post/NULL', $options);
+    $this->assertText('"id":"' . $child->nid . '"',  t('Child ID returned from json.'));
+    $options['query']['search_string'] = $not_child->title;
+    $this->drupalGet('select2widget/ajax/og_group_ref/node/oa_discussion_post/NULL', $options);
+    $this->assertNoText('"id":"' . $not_child->nid . '"',  t('Non-sibling ID not returned from json.'));
     
   }
 }

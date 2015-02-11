@@ -68,6 +68,10 @@ function oa_diff_tokens($type, $tokens, array $data = array(), array $options = 
             unset($build['diff_preview']);
 
             $output = drupal_render_children($build);
+            // prevent overflow of messages
+            if (strlen($output) > 2048) {
+              $output = t('Too many differences to list.  See Revisions for details.');
+            }
             $replacements[$original] = $output;
           }
           else {

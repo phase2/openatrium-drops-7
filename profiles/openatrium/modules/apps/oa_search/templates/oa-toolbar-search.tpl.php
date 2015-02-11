@@ -10,7 +10,7 @@
 <div class="toolbar-search">
   <form action="search/site" method="post">
     <div class="input-append">
-      <input type="text" class="search-text">
+      <input type="text" class="search-text form-control" name="search_text">
       <div class="btn-group">
         <button type="submit" class="btn submit <?php print $oa_toolbar_btn_class; ?>">
           <i class="icon-search"></i><span class="element-invisible"><?php print t('Search Button');?></span>
@@ -18,7 +18,7 @@
         <button class="btn dropdown-toggle <?php print $oa_toolbar_btn_class; ?>" data-toggle="dropdown">
           <i class="caret"></i><span class="element-invisible"><?php print t('Search Options');?></span>
         </button>
-        <ul class="dropdown-menu options">
+        <ul class="dropdown-menu options radio">
         <?php $checked = TRUE; ?>
         <?php foreach ($options as $option => $label): ?>
           <li>

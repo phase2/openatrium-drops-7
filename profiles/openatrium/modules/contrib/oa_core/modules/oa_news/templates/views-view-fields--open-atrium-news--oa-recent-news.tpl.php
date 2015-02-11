@@ -56,9 +56,9 @@
         <?php print $field_featured_image; ?>
       </div>
     <?php endif; ?>
-    <?php if (!empty($body)): ?>
+    <?php if (!empty($body_summary)): ?>
     <div class='oa-news-body'>
-      <?php print $body; ?>
+      <?php print $body_summary; ?>
     </div>
     <?php endif; ?>
     <?php if (!empty($term_node_tid)): ?>

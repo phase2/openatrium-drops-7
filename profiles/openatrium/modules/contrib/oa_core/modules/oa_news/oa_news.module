@@ -33,3 +33,20 @@ function oa_news_theme() {
   }
   return $theme;
 }
+
+/**
+ * Implements hook_preprocess_views_view_fields().
+ * Perform field-level replacement/processing here
+ */
+function oa_news_preprocess_views_view_fields(&$vars) {
+  $view = $vars['view'];
+  $vars['display'] = $vars['view']->current_display;
+  if ($view->name == 'open_atrium_news') {
+    foreach ($vars['fields'] as $id => $field) {
+      if ($id == 'body') {
+        $vars['body_summary'] = oa_core_trim_text($field->content, 'node/' . $vars['row']->nid . '/view');
+      }
+    }
+
+  }
+}

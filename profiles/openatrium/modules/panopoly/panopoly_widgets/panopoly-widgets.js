@@ -43,6 +43,7 @@ Drupal.settings.spotlight_settings = Drupal.settings.spotlight_settings || {};
          var rotation_time = $(this).find('.panopoly-spotlight-buttons-wrapper').data('rotation-time');
          var $slides = $(this);
          $slides.tabs().tabs("rotate", rotation_time, true);
+         var $controls = $slides.find('.ui-tabs-nav li');
          // $('.field-name-field-basic-spotlight-items').css('height', $('.field-name-field-basic-spotlight-items').height());
          // $('.field-name-field-basic-spotlight-items').css('overflow', 'hidden');
 
@@ -63,10 +64,36 @@ Drupal.settings.spotlight_settings = Drupal.settings.spotlight_settings || {};
              $(this).addClass('paused');
            }
          });
+         if ($slides.find('.panopoly-spotlight-previous').length && $slides.find('.panopoly-spotlight-next').length) {
+           $slides.find('.panopoly-spotlight-previous').bind('click', function (event) {
+             event.preventDefault();
+             $slides.find('.panopoly-spotlight-pause-play:not(.paused').trigger('click');
+             var activeControl = $($controls.filter('.ui-state-active'));
+
+             if (activeControl.prev().length != 0) {
+               activeControl.prev().children('a').trigger('click');
+             }
+             else {
+               $controls.last().children('a').trigger('click');
+             }
+           });
+           $slides.find('.panopoly-spotlight-next').bind('click', function (event) {
+             event.preventDefault();
+             $slides.find('.panopoly-spotlight-pause-play:not(.paused').trigger('click');
+             var activeControl = $($controls.filter('.ui-state-active'));
+
+             if (activeControl.next().length != 0) {
+               activeControl.next().children('a').trigger('click');
+             }
+             else {
+               $controls.first().children('a').trigger('click');
+             }
+           });
+         }
        });
      }
    }
- }
+ };
 
  /**
   * Create responsive magic for Table Widget

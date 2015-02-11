@@ -13,13 +13,10 @@ dependencies[] = media
 dependencies[] = media_internet
 dependencies[] = message
 dependencies[] = node
-dependencies[] = oa_appearance
 dependencies[] = oa_buttons
 dependencies[] = oa_core
-dependencies[] = oa_discussion
 dependencies[] = oa_layouts
 dependencies[] = oa_sections
-dependencies[] = oa_wiki
 dependencies[] = og
 dependencies[] = og_menu_single
 dependencies[] = og_ui
@@ -169,9 +166,9 @@ features[user_permission][] = view private files
 features[variable][] = og_group_manager_admin_role
 features[variable][] = og_group_manager_full_access
 
-; Information added by Drupal.org packaging script on 2014-12-17
-version = "7.x-2.31"
+; Information added by Drupal.org packaging script on 2015-02-11
+version = "7.x-2.39"
 core = "7.x"
 project = "oa_core"
-datestamp = "1418842982"
+datestamp = "1423688275"
 

@@ -205,8 +205,6 @@ Drupal.behaviors.linkitSearch = {
 
           $results.width($input.outerWidth()).css({
             position: 'absolute',
-            left: $input.position().left,
-            top: top,
             // High value because of other overlays like
             // wysiwyg fullscreen (TinyMCE) mode.
             zIndex: 211000,

@@ -30,6 +30,7 @@ function command_buttons_field_default_field_instances() {
     'label' => 'Command Link',
     'required' => 0,
     'settings' => array(
+      'absolute_url' => 1,
       'attributes' => array(
         'class' => 'btn btn-primary',
         'configurable_title' => 0,
@@ -114,6 +115,7 @@ function command_buttons_field_default_field_instances() {
     'label' => 'Command Link',
     'required' => 0,
     'settings' => array(
+      'absolute_url' => 1,
       'attributes' => array(
         'class' => 'btn btn-primary',
         'configurable_title' => 0,

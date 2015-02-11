@@ -26,6 +26,7 @@ dependencies[] = og_ui
 dependencies[] = og_vocab
 dependencies[] = panelizer
 dependencies[] = panopoly_pages
+dependencies[] = paragraphs
 dependencies[] = views_content
 dependencies[] = views_load_more
 stylesheets[all][] = oa_core.css
@@ -66,6 +67,7 @@ features[node][] = oa_space
 features[page_manager_pages][] = oa_spaces
 features[page_manager_pages][] = page_oa_groups
 features[page_manager_pages][] = page_user_groups
+features[page_manager_pages][] = space_content
 features[page_manager_pages][] = space_members
 features[page_manager_pages][] = user_spaces
 features[taxonomy][] = space_type
@@ -115,14 +117,15 @@ files[] = tests/oa_core_section_accessUnit.test
 files[] = tests/oa_core_section_is_publicUnit.test
 files[] = tests/oa_corePermissionWeb.test
 files[] = tests/oaTestingMailSystem.inc
-files[] = views/views_handler_filter_is_parent.inc
+files[] = plugins/views/views_handler_filter_is_parent.inc
 files[] = plugins/views/oa_views_plugin_exposed_form.inc
 files[] = plugins/views/oa_core_og_group_ref_views_handler_filter_in_operator.inc
 files[] = plugins/views/oa_core_oa_section_ref_views_handler_filter_in_operator.inc
+files[] = plugins/views/oa_core_og_group_ref_views_handler_filter_entityreference_autocomplete.inc
 
-; Information added by Drupal.org packaging script on 2014-12-17
-version = "7.x-2.31"
+; Information added by Drupal.org packaging script on 2015-02-11
+version = "7.x-2.39"
 core = "7.x"
 project = "oa_core"
-datestamp = "1418842982"
+datestamp = "1423688275"
 

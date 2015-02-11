@@ -11,7 +11,7 @@ $plugin = array(
   'title' => t('Default Home Panel'),
   'description' => t('A panel displays the default Open Atrium home page.'),
   'single' => TRUE,
-  'category' => array(t('Open Atrium'), -9),
+  'category' => array(t('OA Admin'), -9),
   'edit form' => 'oa_home_default_edit_form',
   'render callback' => 'oa_home_default_render',
 );

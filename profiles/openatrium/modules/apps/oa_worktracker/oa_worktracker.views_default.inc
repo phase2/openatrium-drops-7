@@ -294,7 +294,7 @@ function oa_worktracker_views_default_views() {
     'oa_worktracker_task' => 'oa_worktracker_task',
   );
   $handler->display->display_options['filters']['type']['group'] = 1;
-  /* Filter criterion: Content: Groups audience (og_group_ref) */
+  /* Filter criterion: Content: Groups audience (og_group_ref:target_id) */
   $handler->display->display_options['filters']['og_group_ref_target_id']['id'] = 'og_group_ref_target_id';
   $handler->display->display_options['filters']['og_group_ref_target_id']['table'] = 'og_membership';
   $handler->display->display_options['filters']['og_group_ref_target_id']['field'] = 'og_group_ref_target_id';
@@ -318,7 +318,7 @@ function oa_worktracker_views_default_views() {
     2 => array(),
     3 => array(),
   );
-  /* Filter criterion: Content: Open Atrium Section (oa_section_ref) */
+  /* Filter criterion: Content: Open Atrium Section (oa_section_ref:target_id) */
   $handler->display->display_options['filters']['oa_section_ref_target_id']['id'] = 'oa_section_ref_target_id';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['table'] = 'field_data_oa_section_ref';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['field'] = 'oa_section_ref_target_id';
@@ -529,7 +529,7 @@ function oa_worktracker_views_default_views() {
   $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
   $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
   $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
-  /* Field: Content: Description */
+  /* Field: Content: Body */
   $handler->display->display_options['fields']['body']['id'] = 'body';
   $handler->display->display_options['fields']['body']['table'] = 'field_data_body';
   $handler->display->display_options['fields']['body']['field'] = 'body';
@@ -582,7 +582,7 @@ function oa_worktracker_views_default_views() {
   $handler->display->display_options['row_plugin'] = 'fields';
   $handler->display->display_options['defaults']['row_options'] = FALSE;
   $handler->display->display_options['defaults']['relationships'] = FALSE;
-  /* Relationship: Content: Attachments (field_oa_media:fid) */
+  /* Relationship: Field: Attachments (field_oa_media:fid) */
   $handler->display->display_options['relationships']['field_oa_media_fid']['id'] = 'field_oa_media_fid';
   $handler->display->display_options['relationships']['field_oa_media_fid']['table'] = 'field_data_field_oa_media';
   $handler->display->display_options['relationships']['field_oa_media_fid']['field'] = 'field_oa_media_fid';

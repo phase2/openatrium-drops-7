@@ -9,7 +9,7 @@ $plugin = array(
   'title' => t('Visibility toolbar'),
   'description' => t('Show content visibility.'),
   'single' => TRUE,
-  'category' => array(t('Open Atrium'), -9),
+  'category' => array(t('OA Admin'), -9),
   'edit form' => 'oa_widgets_visibility_toolbar_edit_form',
   'render callback' => 'oa_widgets_visibility_toolbar_render',
 );

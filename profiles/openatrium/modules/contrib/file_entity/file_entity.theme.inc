@@ -58,9 +58,9 @@ function theme_file_entity_download_link($variables) {
     $variables['text'] = t('Download [file:name]');
   }
 
-  // Peform unsanitized token replacement if $uri['options']['html'] is empty
+  // Perform unsanitized token replacement if $uri['options']['html'] is empty
   // since then l() will escape the link text.
-  $variables['text'] = token_replace($variables['text'], array('file' => $file), array('clear' => TRUE, 'sanitize' => empty($uri['options']['html'])));
+  $variables['text'] = token_replace($variables['text'], array('file' => $file), array('clear' => TRUE, 'sanitize' => !empty($uri['options']['html'])));
 
   $output = '<span class="file">' . $icon . ' ' . l($variables['text'], $uri['path'], $uri['options']);
   $output .= ' ' . '<span class="file-size">(' . format_size($file->filesize) . ')</span>';
@@ -142,8 +142,10 @@ function theme_file_entity_file_video($variables) {
   if ($variables['muted']) {
     $video_attributes['muted'] = 'muted';
   }
-  if ($variables['width'] && $variables['height']) {
+  if ($variables['width']) {
     $video_attributes['width'] = $variables['width'];
+  }
+  if ($variables['height']) {
     $video_attributes['height'] = $variables['height'];
   }
 

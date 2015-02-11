@@ -41,6 +41,7 @@
   <div class='oa-list-header'>
     <div class='oa-body'>
       <?php print $body; ?>
+      <?php if (!empty($field_oa_related)) {print $field_oa_related;} ?>
       <?php print $field_oa_media; ?>
       <div class="links">
         <?php print $edit_node; ?>

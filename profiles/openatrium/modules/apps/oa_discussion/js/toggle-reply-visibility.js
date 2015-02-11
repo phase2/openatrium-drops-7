@@ -34,7 +34,7 @@
         $toggle.html(expand ? expandText : collapseText);
       });
 
-      $('.accordion-toggle .oa-list-header').click(function() {
+      $('.accordion-toggle .oa-list-header:not(.oa-list-header-processed)', context).addClass('oa-list-header-processed').click(function() {
         $(this).toggleClass('oa-discussion-hide');
       });
     }

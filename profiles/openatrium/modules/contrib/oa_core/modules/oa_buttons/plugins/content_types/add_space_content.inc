@@ -7,7 +7,7 @@ $plugin = array(
   'title' => t('Add Space Content'),
   'description' => t('Provides a dropdown menu for adding content within a space'),
   'single' => TRUE,
-  'category' => array(t('Open Atrium'), -9),
+  'category' => array(t('OA Admin'), -9),
   'edit form' => 'oa_buttons_add_space_content_settings_form',
   'render callback' => 'oa_buttons_add_space_content_render',
 );

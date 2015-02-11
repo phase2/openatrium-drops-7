@@ -9,7 +9,7 @@ $plugin = array(
   'title' => t('Space Members'),
   'description' => t("Show the owners, teams, and members of a Space"),
   'single' => TRUE,
-  'category' => t('Open Atrium'),
+  'category' => t('OA Admin'),
   'edit form' => 'oa_core_members_widget_edit_form',
   'render callback' => 'oa_core_members_widget_render',
   'required context' => new ctools_context_required(t('Node'), 'node'),
@@ -39,9 +39,13 @@ function oa_core_members_widget_render($subtype, $conf, $args, $context = NULL) 
   $block = new stdClass();
   $block->title = t('Members');
 
-  $teams = array();
-  if (empty($conf['hide_teams']) && module_exists('oa_teams') && ($teams = oa_teams_get_teams_for_space($space->nid))) {
-    $teams = node_load_multiple(array_keys($teams));
+  $local_teams = array();
+  $inherited_teams = array();
+  if (empty($conf['hide_teams']) && module_exists('oa_teams')) {
+    $local_teams_nids = array_keys(oa_teams_get_teams_for_space($space->nid, FALSE));
+    $inherited_teams_nids = array_diff(array_keys(oa_teams_get_teams_for_space($space->nid, TRUE)), $local_teams_nids);
+    $local_teams = node_load_multiple($local_teams_nids);
+    $inherited_teams = node_load_multiple($inherited_teams_nids);
   }
 
   $pending = array();
@@ -172,9 +176,15 @@ function oa_core_members_widget_render($subtype, $conf, $args, $context = NULL) 
     $tabs['teams'] = array(
       'caption' => t('Teams'),
       'title' => t('Teams'),
-      'items' => array($teams),
+      'items' => array($local_teams),
       'links' => array(),
     );
+    if (count($inherited_teams) > 0) {
+      $tabs['teams']['items'] = array(
+        t('Local teams') => $tabs['teams']['items'][0],
+        t('Inherited teams') => $inherited_teams,
+      );
+    }
     if (user_access('create ' . OA_TEAM_TYPE . ' content', $user)) {
       $tabs['teams']['global_links'][] = array(
         'title' => t('Create New Team'),

@@ -35,17 +35,6 @@ function oa_buttons_form_oa_space_node_form_alter(&$form, &$form_state, $form_id
  * Provides override for node pages which implement sections and spaces.
  */
 function oa_buttons_node_overrides(&$form, &$form_state, $form_id) {
-  $node_type_options = oa_buttons_get_node_type_options();
-  $form['field_oa_node_types'][$form['field_oa_node_types']['#language']]['#options'] = $node_type_options;
-  $node_options = field_get_items('node', $form['#node'], 'field_oa_node_types', LANGUAGE_NONE);
-
-  if (!empty($node_options)) {
-    $node_options_defaults = array();
-    foreach ($node_options as $opt) {
-      $node_options_defaults[] = $opt['value'];
-    }
-    $form['field_oa_node_types'][$form['field_oa_node_types']['#language']]['#default_value'] = $node_options_defaults;
-  }
 
   $form['#attached']['js'][] = array(
     'data' => drupal_get_path('module', 'oa_buttons') . '/oa_buttons.js',
@@ -72,43 +61,19 @@ function oa_buttons_oa_core_space_type_options($term, $vocab_name) {
 }
 
 /**
- * Implements hook_form_FORM_ID_alter().
- */
-function oa_buttons_form_taxonomy_form_term_alter(&$form, &$form_state, $form_id) {
-  $term = (object) $form['#term'];
-  $vocab_name = $form['#vocabulary']->machine_name;
-
-  if (in_array($vocab_name, array('space_type', 'section_type'))) {
-    $node_options = field_get_items('taxonomy_term', $term, 'field_oa_node_types', LANGUAGE_NONE);
-
-    $node_options_defaults = array();
-    if (!empty($node_options)) {
-      foreach ($node_options as $opt) {
-        $node_options_defaults[] = $opt['value'];
-      }
-    }
-
-    // Provide default node creation options.
-    $node_type_options = oa_buttons_get_node_type_options();
-    if (isset($form['field_oa_node_types'])) {
-      $form['field_oa_node_types'][$form['field_oa_node_types']['#language']]['#options'] = $node_type_options;
-      $form['field_oa_node_types'][$form['field_oa_node_types']['#language']]['#default_value'] = $node_options_defaults;
-    }
-  }
-}
-
-/**
  * Returns an option list of buttons in the node_add bundle..
  */
-function oa_buttons_get_node_type_options() {
-  $node_type_options = array();
-  $result = db_select('command_buttons', 'b')
-    ->fields('b', array('name', 'title'));
-
-  $result = $result->execute();
-
-  while ($button = $result->fetchAssoc()) {
-    $node_type_options[$button['name']] = $button['title'];
+function oa_buttons_get_command_buttons_options() {
+  $node_type_options = &drupal_static(__FUNCTION__, array());
+  if (!$node_type_options) {
+    $result = db_select('command_buttons', 'b')
+      ->fields('b', array('name', 'title'));
+  
+    $result = $result->execute();
+  
+    while ($button = $result->fetchAssoc()) {
+      $node_type_options[$button['name']] = $button['title'];
+    }
   }
 
   return $node_type_options;
@@ -116,11 +81,13 @@ function oa_buttons_get_node_type_options() {
 
 /**
  * Determines which command buttons should be shown within the current context.
+ * @param $all if FALSE and within a section, only return commands for that section
+ *   if TRUE, return commands for all sections regardless of current context
  */
-function oa_buttons_get_command_buttons($node) {
+function oa_buttons_get_command_buttons($node, $all = FALSE) {
   $buttons = array();
   $node_types = array_flip(node_type_get_names());
-  _oa_buttons_get_space_command_buttons($node, $buttons);
+  _oa_buttons_get_space_command_buttons($node, $buttons, $all);
   _oa_buttons_get_parent_command_buttons($node, $buttons);
   // look for node_add command buttons and check the 'create X content'
   // node_access dynamically so we don't show command buttons the user
@@ -216,24 +183,24 @@ function _oa_buttons_get_parent_command_buttons($node, &$buttons) {
  * Get the command buttons allowed by a single space, as well as any sections
  * within it.
  */
-function _oa_buttons_get_space_command_buttons($node, &$buttons) {
+function _oa_buttons_get_space_command_buttons($node, &$buttons, $all = FALSE) {
   _oa_buttons_get_node_command_buttons($node, $buttons);
 
   if ($node->type == 'oa_space') {
     $sections = oa_core_space_sections($node->nid);
     if (count($sections)) {
       // If we are within a section only show the buttons for this specific section.
-      if ($section = oa_core_get_section_context()) {
+      if (!$all && ($section = oa_core_get_section_context())) {
         if (isset($sections[$section])) {
           $section_node = node_load($section);
-          _oa_buttons_get_space_command_buttons($section_node, $buttons);
+          _oa_buttons_get_space_command_buttons($section_node, $buttons, $all);
         }
       }
       else {
         // Otherwise show the buttons for all sections.
         foreach ($sections as $nid => $section) {
           $section_node = node_load($nid);
-          _oa_buttons_get_space_command_buttons($section_node, $buttons);
+          _oa_buttons_get_space_command_buttons($section_node, $buttons, $all);
         }
       }
     }

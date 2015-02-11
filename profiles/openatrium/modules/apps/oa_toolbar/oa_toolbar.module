@@ -79,6 +79,7 @@ function oa_toolbar_oa_settings_form(&$form_state) {
  * Implements template_preprocess_page().
  */
 function oa_toolbar_preprocess_page(&$vars) {
+  drupal_add_js(drupal_get_path('module', 'oa_toolbar') . '/js/oa-toolbar.js');
   $vars['oa_toolbar_class'] = 'navbar-inverse';
   $vars['oa_toolbar_btn_class'] = variable_get('oa_toolbar_style', 0) ? '' : 'btn-inverse';
   $vars['oa_toolbar_sticky'] = 'navbar-fixed-top';
@@ -145,26 +146,37 @@ function oa_toolbar_block_view($delta = '') {
  * Implements hook_theme()
  */
 function oa_toolbar_theme() {
+  $path = drupal_get_path('module', 'oa_toolbar') . '/templates';
   return array(
     'oa_toolbar' => array(
-      'template' => 'oa_toolbar',
+      'template' => 'oa-toolbar',
+      'path' => $path,
+    ),
+    'oa_toolbar_mobile' => array(
+      'template' => 'oa-toolbar-mobile',
+      'path' => $path,
     ),
     'oa_user_badge' => array(
-      'template' => 'oa_user_badge',
+      'template' => 'oa-user-badge',
+      'path' => $path,
     ),
     'oa_toolbar_menu_button' => array(
-      'template' => 'oa_toolbar_menu_button',
+      'template' => 'oa-toolbar-menu-button',
+      'path' => $path,
     ),
     'oa_breadcrumb' => array(
-      'template' => 'oa_breadcrumb',
+      'template' => 'oa-breadcrumb',
+      'path' => $path,
     ),
     'oa_navigation' => array(
       'variables' => array('menu_name' => NULL),
       'template' => 'oa-navigation',
+      'path' => $path,
     ),
     'oa_space_menu' => array(
       'variables' => array('menu' => NULL),
       'template' => 'oa-space-menu',
+      'path' => $path,
     ),
   );
 }
@@ -239,7 +251,6 @@ function template_preprocess_oa_toolbar(&$vars) {
     'mouseover' => variable_get('oa_toolbar_mouseover', FALSE),
   );
   drupal_add_js(array('oa_toolbar' => $settings), 'setting');
-  drupal_add_js(drupal_get_path('module', 'oa_toolbar') . '/js/oa-toolbar.js');
 
   // Separators
   $vars['oa_toolbar_separator'] = t('&gt;');
@@ -268,18 +279,19 @@ function template_preprocess_oa_toolbar(&$vars) {
   $parent_id = NULL;
   $space_type = OA_SPACE_TYPE;
   $subspace_type_names = '';
-  if (isset($space_id) && ($space = node_load($space_id))) {
+  if (isset($space_id) && ($space = node_load($space_id)) && node_access('view', $space)) {
     $title = $space->title;
     $space_type = $space->type;
     $subspace_type_names = ($space_type == OA_SPACE_TYPE) ? t('Subspaces') : t('Subgroups');
-    $vars['space_label'] = $title;
+    $vars['space_label'] = check_plain($title);
     $vars['space_url'] = url('node/' . $space_id);
     if (isset($vars['show_parents'])) {
       $parents = oa_core_get_parents($space_id, $space_type, NODE_PUBLISHED, TRUE);
       if (count($parents)) {
         $items = oa_core_get_titles($parents);
-        if (!empty($items['titles'][0])) {
-          $vars['parent_label'] = $items['titles'][0];
+        if (!empty($items['titles'])) {
+          // only show first parent
+          $vars['parent_label'] = current($items['titles']);
           $parent_id = $parents[0];
           $vars['parent_url'] = url('node/' . $parent_id);
         }
@@ -304,13 +316,15 @@ function template_preprocess_oa_toolbar(&$vars) {
       }
     }
   }
+  else {
+    $space = NULL;
+  }
   $space_type_name = ($space_type == OA_SPACE_TYPE) ? t('Space') : t('Group');
   $space_type_names = ($space_type == OA_SPACE_TYPE) ? t('Spaces') : t('Groups');
   $all_spaces = ($space_type == OA_SPACE_TYPE) ? 'spaces' : 'groups';
 
   $show_all = TRUE;
   $spaces = NULL;
-  $remove_children = TRUE;
   $sort_field = 'title';
   if ($user->uid) {
     if (variable_get('oa_toolbar_recent', 1) == 1) {
@@ -328,11 +342,11 @@ function template_preprocess_oa_toolbar(&$vars) {
         $spaces = array_merge($spaces, $more_spaces);
       }
       $menu_title = ($space_type == OA_SPACE_TYPE) ? t('Recent Spaces') : t('Recent Groups');
-      $remove_children = FALSE;
       $sort_field = '';
     }
     else {
-      // Otherwise get all subscribed spaces.  This is cached
+      // Otherwise get all subscribed spaces.  This is cached.
+      // This only returns spaces with Direct membership.  No inherited subspaces
       $spaces = array_map(
         function($node) { return $node->nid; },
         oa_core_get_groups_by_user_access($user, FALSE, NULL, NULL, NULL, $space_type, NULL, 50));
@@ -342,31 +356,14 @@ function template_preprocess_oa_toolbar(&$vars) {
   if (empty($spaces)) {
     // og_get_entity_groups doesn't return anything for anonymous users
     // so return list of all public spaces
-    $spaces = oa_core_get_public_spaces(array(OA_SPACE_TYPE => OA_SPACE_TYPE), NODE_PUBLISHED);
+    $only_top = (variable_get('oa_toolbar_toplevel', 1) == 1);
+    $spaces = oa_core_get_public_spaces(array(OA_SPACE_TYPE => OA_SPACE_TYPE), NODE_PUBLISHED, FALSE, TRUE, $only_top);
     $menu_title = t('Public Spaces');
   }
   if (empty($spaces)) {
     $list = array();
   }
   else {
-    if ($remove_children && isset($vars['show_parents']) && variable_get('oa_toolbar_toplevel', 1) == 1) {
-      // restrict Public spaces to just top-level (no parents)
-      $remove = array();
-      foreach ($spaces as $key => $value) {
-        // parents are cached, so this should be fast
-        $parents = oa_core_get_parents($value, $space_type, NULL, TRUE);
-        foreach ($parents as $parent_id) {
-          if (in_array($parent_id, $spaces)) {
-            // parent is also in spaces list, so remove child from list
-            $remove[] = $key;
-          }
-        }
-      }
-      foreach ($remove as $id) {
-        unset($spaces[$id]);
-      }
-    }
-
     $items = oa_core_get_titles($spaces, $space_type, $sort_field);
     $list = oa_core_truncate_list($items['links'], 20,
       l(t('All ' . $space_type_names . '...'), $all_spaces,
@@ -397,7 +394,7 @@ function template_preprocess_oa_toolbar(&$vars) {
     $subspaces = oa_core_get_groups_by_parent($space_id, $space_type, NODE_PUBLISHED);
     if (!empty($subspaces)) {
       $items = oa_core_get_titles($subspaces, $space_type);
-      $subspace_list = $items['links'];
+      $subspace_list = oa_core_truncate_list($items['links'], 15);
     }
   }
 
@@ -419,7 +416,7 @@ function template_preprocess_oa_toolbar(&$vars) {
     $section_name = '';
     $section_url = '';
     if ($space_id) {
-      $add_section = l('Add Section', 'node/add/oa-section');
+      $add_section = l(t('Add Section'), 'node/add/oa-section');
       $section_name = $home_name;
       $section_url = url('node/' . $space_id);
       $items = array();

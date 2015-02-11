@@ -4,6 +4,7 @@ core = 7.x
 package = Open Atrium
 dependencies[] = ctools
 dependencies[] = oa_core
+dependencies[] = oa_sections
 dependencies[] = panelizer
 dependencies[] = strongarm
 dependencies[] = views
@@ -18,9 +19,9 @@ features[views_view][] = open_atrium_news
 features_exclude[dependencies][oa_layouts] = oa_layouts
 project path = sites/all/modules/contrib/oa_core/modules
 
-; Information added by Drupal.org packaging script on 2014-12-17
-version = "7.x-2.31"
+; Information added by Drupal.org packaging script on 2015-02-11
+version = "7.x-2.39"
 core = "7.x"
 project = "oa_core"
-datestamp = "1418842982"
+datestamp = "1423688275"
 

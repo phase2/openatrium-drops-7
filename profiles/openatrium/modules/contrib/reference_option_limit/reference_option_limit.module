@@ -380,6 +380,14 @@ function reference_option_limit_form_alter(&$form, &$form_state, $form_id) {
           $match_values[$field_name_matching][] = $element['#default_value'];
         }
       }
+      // Some post processing.
+      // select2widget on form load has "title (nid)" for default value.
+      foreach ($match_values[$field_name_matching] as $key => $value) {
+        $matches = array();
+        if (!is_numeric($value) && preg_match('/.*\(([0-9]*)\)/', $value, $matches) && !empty($matches[1])) {
+          $match_values[$field_name_matching][$key] = $matches[1];
+        }
+      }
     }
     //dsm($match_values, 'mv');
     // @todo: figure out if there is a way to distinguish between these cases:

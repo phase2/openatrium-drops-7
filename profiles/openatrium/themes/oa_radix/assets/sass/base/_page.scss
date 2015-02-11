@@ -29,6 +29,11 @@ body.oa-login div.region-content {
     height: 250px;
     text-align: center;
   }
+  @include breakpoint('sm') {
+  }
+  @include breakpoint('xs') {
+    background-image: none;
+  }
 }
 
 body.oa-login div.content {
@@ -68,23 +73,34 @@ body.oa-login div.content {
     }
   }
   @include breakpoint('md') {
+    margin-right: 0;
     .oa-pane {
       left: 0;
       top: 0;
+      margin-left: auto;
+      margin-right: auto;
+      position: relative;
     }
   }
   @include breakpoint('sm') {
-    background-image: none;
+    margin-right: 0;
     .oa-pane {
       left: 0;
       top: 0;
+      margin-left: auto;
+      margin-right: auto;
+      position: relative;
     }
   }
   @include breakpoint('xs') {
     background-image: none;
+    margin-right: 0;
     .oa-pane {
       left: 0;
       top: 0;
+      margin-left: auto;
+      margin-right: auto;
+      position: relative;
     }
   }
 }

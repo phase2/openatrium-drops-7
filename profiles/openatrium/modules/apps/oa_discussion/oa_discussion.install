@@ -32,3 +32,26 @@ function oa_discussion_install_section_type() {
 function oa_discussion_update_7002() {
   oa_discussion_install_section_type();
 }
+
+/**
+ * Update discussion widgets for new pane settings.
+ */
+function oa_discussion_update_7103() {
+  $result = db_query("SELECT pid, configuration FROM {panels_pane} where subtype = 'open_atrium_discussions-discussion_topics' and configuration not like '%og_group_ref_target_id%'");
+  
+  foreach ($result as $row) {
+    $config = unserialize($row->configuration);
+    $config['exposed']['og_group_ref_target_id'] = '';
+    $config['exposed']['og_group_ref_target_id_mine'] = 0;
+    $config['exposed']['og_subspaces_view_all'] = 1;
+    $config['exposed']['og_subspaces_view_parent'] = 0;
+    $config['exposed']['oa_section_ref_target_id'] = '';
+    $config = serialize($config);
+    db_update('panels_pane')
+      ->fields(array(
+          'configuration' => $config,
+        ))
+      ->condition('pid', $row->pid)
+      ->execute();
+  }
+}

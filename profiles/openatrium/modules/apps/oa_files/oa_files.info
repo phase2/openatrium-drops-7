@@ -1,0 +1,33 @@
+name = Open Atrium Files
+description = Allows OA Documents to be viewed in a Files Section
+core = 7.x
+package = Open Atrium
+project = oa_core
+dependencies[] = command_buttons
+dependencies[] = ctools
+dependencies[] = oa_angular
+dependencies[] = oa_core
+dependencies[] = oa_layouts
+dependencies[] = oa_sections
+dependencies[] = oa_wiki
+dependencies[] = panelizer
+dependencies[] = strongarm
+apps[screenshots][] = app/screenshot.png
+apps[logo] = app/logo.png
+apps[author] = Phase2 Technology
+apps[author_url] = http://www.phase2technology.com/
+apps[server] = openatrium
+apps[package] = Core addons
+features[command_button][] = add_file
+features[ctools][] = panelizer:panelizer:1
+features[ctools][] = strongarm:strongarm:1
+features[features_api][] = api:2
+features[panelizer_defaults][] = node:oa_section:oa_section_files
+features_exclude[variable][panelizer_node:oa_section_allowed_layouts] = panelizer_node:oa_section_allowed_layouts
+
+; Information added by Drupal.org packaging script on 2015-02-11
+version = "7.x-2.0-rc6"
+core = "7.x"
+project = "oa_files"
+datestamp = "1423685605"
+

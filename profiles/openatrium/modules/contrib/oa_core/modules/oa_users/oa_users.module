@@ -110,17 +110,22 @@ function oa_users_picture($user = NULL, $image_style = 'oa_small_thumbnail', $ur
     }
   }
   else {
+    $width = ($image_style == 'panopoly_image_thumbnail') ? 90 : 30;
+    $path = variable_get('user_picture_default', '');
+    if (empty($path)) {
+      $path = drupal_get_path('module', 'oa_users') . '/oa-user.png';
+    }
     $image = array(
       'style_name' => $image_style,
-      'path' => drupal_get_path('module', 'oa_users') . '/oa-user.png',
-      'width' => 30,
-      'height' => 30,
+      'path' => $path,
+      'width' => $width,
+      'height' => $width,
       'alt' => t('Your profile picture'),
     );
     // Image styles only supported for images in /files dir so for now, ignore
     // the image style.
     if ($url) {
-      return drupal_get_path('module', 'oa_users') . '/oa-user.png';
+      return $path;
     }
     else {
       return theme('image', $image);

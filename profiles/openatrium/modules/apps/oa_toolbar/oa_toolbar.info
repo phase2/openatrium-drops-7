@@ -16,9 +16,9 @@ stylesheets[all][] = css/oa_toolbar.css
 dependencies[] = block
 dependencies[] = og_session_context
 
-; Information added by Drupal.org packaging script on 2014-11-19
-version = "7.x-2.0-rc2"
+; Information added by Drupal.org packaging script on 2015-02-11
+version = "7.x-2.0-rc5"
 core = "7.x"
 project = "oa_toolbar"
-datestamp = "1416405783"
+datestamp = "1423680195"
 

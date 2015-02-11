@@ -56,6 +56,11 @@ function oa_wiki_module_implements_alter(&$implementations, $hook) {
     unset($implementations['oa_wiki']);
     $implementations = array_merge(array('oa_wiki' => $group), $implementations);
   }
+  elseif (($hook == 'form_alter') && (isset($implementations['oa_wiki']))) {
+    $group = $implementations['oa_wiki'];
+    unset($implementations['oa_wiki']);
+    $implementations['oa_wiki'] = $group;
+  }
 }
 
 /**
@@ -74,10 +79,40 @@ function oa_wiki_modules_installed($modules) {
 }
 
 /**
- * Implements hook_form_FORM_ID_alter().
+ * Implements hook_form_FORM_ID_alter() for oa_wiki_page_node_form.
  */
 function oa_wiki_form_oa_wiki_page_node_form_alter(&$form, &$form_state) {
   _oa_core_hide_comment_settings($form);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function oa_wiki_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'oa_wiki_page_node_form' && module_exists('oa_files')) {
+    $submit_handlers = array(
+      'node_form_submit',
+      'save_draft_submit',
+    );
+    foreach (element_children($form['actions']) as $key) {
+      if (!empty($form['actions'][$key]['#submit']) && array_intersect($submit_handlers, $form['actions'][$key]['#submit'])) {
+        $form['actions'][$key]['#submit'][] = 'oa_wiki_redirect_to_view_submit';
+      }
+    }
+  }
+}
+
+/**
+ * Submission handlers that changes the submit destination to be the view page.
+ *
+ * With the redirect logic, submitting the form could result in user downloading
+ * the file they just uploaded, so this forces them onto the view page instead.
+ * Normal destination redirect logic applies still.
+ */
+function oa_wiki_redirect_to_view_submit($form, &$form_state) {
+  if (!empty($form_state['nid']) && !empty($form_state['redirect']) && 'node/' .  $form_state['nid'] == $form_state['redirect']) {
+    $form_state['redirect'] .= '/view';
+  }
 }
 
 /**
@@ -108,7 +143,7 @@ function oa_wiki_entity_info_alter(&$info) {
  */
 function oa_wiki_node_uri($node) {
   if (!($items = field_get_items('node', $node, 'field_oa_wiki_page_no_redirect')) || empty($items[0]['value'])) {
-    if (($items = field_get_items('node', $node, 'field_oa_media')) && !empty($items[0]['uri']) && ($url = file_create_url($items[0]['uri']))) {
+    if (($items = field_get_items('node', $node, 'field_oa_media')) && count($items) == 1 && !empty($items[0]['uri']) && ($url = file_create_url($items[0]['uri']))) {
       return array('path' => $url);
     }
   }
@@ -122,4 +157,11 @@ function oa_wiki_field_access($op, $field, $entity_type, $entity, $account) {
   if ($field['field_name'] == 'field_oa_wiki_page_no_redirect' && !module_exists('oa_files')) {
     return FALSE;
   }
+}
+
+/**
+ * Implements hook_oa_related_allowed_default().
+ */
+function oa_wiki_oa_related_allowed_default() {
+  return array('oa_wiki_page');
 }

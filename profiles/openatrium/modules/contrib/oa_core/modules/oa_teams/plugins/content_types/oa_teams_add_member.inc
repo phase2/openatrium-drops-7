@@ -9,7 +9,7 @@ $plugin = array(
   'title' => t('Add Team Member'),
   'description' => t('Allows members to be added to the team.'),
   'single' => TRUE,
-  'category' => t('Open Atrium'),
+  'category' => t('OA Admin'),
   'render callback' => 'oa_teams_add_team_member_render',
   'required context' => new ctools_context_required(t('Node'), 'node'),
 );

@@ -1,0 +1,175 @@
+<?php
+
+/**
+ * Tests referencing of entity revisions.
+ */
+class EntityReferenceRevisionsTestCase extends DrupalWebTestCase {
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $profile = 'testing';
+
+  /**
+   * The entityreference field.
+   *
+   * @var array
+   */
+  protected $field;
+
+  /**
+   * The entityreference field instance.
+   *
+   * @var array
+   */
+  protected $instance;
+
+  /**
+   * The node that is referenced.
+   *
+   * @var object
+   */
+  protected $referenced_node;
+
+  /**
+   * The node that is referencing the other node.
+   *
+   * @var object
+   */
+  protected $referencing_node;
+
+  /**
+   * Returns test case metadata.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Entity Reference Revisions',
+      'description' => 'Tests referencing of revisions.',
+      'group' => 'Entity Reference',
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp('entityreference');
+
+    // Create an entity reference field.
+    $field = array(
+      'entity_types' => array('node'),
+      'settings' => array(
+        'handler' => 'base',
+        'target_type' => 'node',
+        'handler_settings' => array(
+          'target_bundles' => array(),
+        ),
+      ),
+      'field_name' => 'field_entityreference',
+      'type' => 'entityreference',
+    );
+    $this->field = field_create_field($field);
+
+    // Create a field instance.
+    $instance = array(
+      'field_name' => 'field_entityreference',
+      'bundle' => 'article',
+      'entity_type' => 'node',
+    );
+    $this->instance = field_create_instance($instance);
+
+    // Create two nodes. The first will be referenced in the second.
+    $node = array(
+      'type' => 'article',
+      'status' => 1,
+      'title' => $this->randomString(),
+      'uid' => 1,
+    );
+    $this->referenced_node = (object) $node;
+    node_save($this->referenced_node);
+
+    $node['field_entityreference'][LANGUAGE_NONE][]['target_id'] = $this->referenced_node->nid;
+    $this->referencing_node = (object) $node;
+    node_save($this->referencing_node);
+  }
+
+  /**
+   * Test referencing a revision of an entity.
+   */
+  public function testReferencingRevisions() {
+    // Check that the referencing of specific revisions is disabled by default.
+    $this->assertFalse($this->isReferencingRevision(), 'Referencing of a specific revision is disabled by default.');
+
+    // Check that it is still disabled after updating the referencing node.
+    node_save($this->referencing_node);
+    $this->assertFalse($this->isReferencingRevision(), 'Referencing of a specific revision is still disabled after the referencing node is updated.');
+
+    // Enable revision referencing and update the referencing node so it picks
+    // up the change.
+    $this->field['settings']['handler_settings']['reference_revisions'] = TRUE;
+    field_update_field($this->field);
+    node_save($this->referencing_node);
+
+    // Check that the field is now referencing revisions. Retrieve the revision
+    // ID for comparison.
+    $this->assertTrue($this->isReferencingRevision(), 'The field is referencing revisions after this has been enabled.');
+    $vid = $this->getReferencedRevisionId();
+
+    // When we create a new revision this should be picked up if we update the
+    // refencing node since the revision is not locked at the moment.
+    $this->createNewRevision();
+    node_save($this->referencing_node);
+    $this->assertNotEqual($vid, $vid = $this->getReferencedRevisionId(), 'When revision referencing is enabled and the revision is not locked, the current revision is referenced when the referencing entity is updated.');
+
+    // Enable revision locking and update the referencing node so it picks up
+    // the change.
+    $this->field['settings']['handler_settings']['lock_revision'] = TRUE;
+    field_update_field($this->field);
+    node_save($this->referencing_node);
+
+    // When a new revision is created the referencing node should now remain
+    // locked on the original revision.
+    $this->createNewRevision();
+    $this->assertEqual($vid, $this->getReferencedRevisionId(), 'When revision locking is enabled the original revision is still referenced after a new revision is created.');
+
+    // Update the referencing node. The revision should remain locked.
+    node_save($this->referencing_node);
+    $this->assertEqual($vid, $this->getReferencedRevisionId(), 'When revision locking is enabled the original revision is still referenced after the referencing entity is updated.');
+  }
+
+  /**
+   * Creates a new revision of the referenced node.
+   */
+  protected function createNewRevision() {
+    $this->referenced_node->revision = TRUE;
+    node_save($this->referenced_node);
+  }
+
+  /**
+   * Returns the revision of the referenced node.
+   *
+   * @return int
+   *   The referenced revision.
+   *
+   * @throws Exception
+   *   Thrown if the referencing node is not referencing a revision.
+   */
+  protected function getReferencedRevisionId() {
+    $items = field_get_items('node', $this->referencing_node, 'field_entityreference');
+    if (empty($items[0]['revision_id'])) {
+      throw new Exception('The field is not referencing a revision.');
+    }
+    return $items[0]['revision_id'];
+  }
+
+  /**
+   * Returns whether or not the field is referencing a revision.
+   *
+   * @return bool
+   *   TRUE if the field is referencing a revision, FALSE otherwise.
+   */
+  protected function isReferencingRevision() {
+    $items = field_get_items('node', $this->referencing_node, 'field_entityreference');
+    return !empty($items[0]['revision_id']);
+  }
+}

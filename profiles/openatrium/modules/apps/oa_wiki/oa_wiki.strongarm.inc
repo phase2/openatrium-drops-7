@@ -123,6 +123,12 @@ function oa_wiki_strongarm() {
       'token' => array(
         'custom_settings' => FALSE,
       ),
+      'ical' => array(
+        'custom_settings' => FALSE,
+      ),
+      'print' => array(
+        'custom_settings' => FALSE,
+      ),
     ),
     'extra_fields' => array(
       'form' => array(
@@ -173,7 +179,7 @@ function oa_wiki_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'node_preview_oa_wiki_page';
-  $strongarm->value = '1';
+  $strongarm->value = '0';
   $export['node_preview_oa_wiki_page'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -213,8 +219,8 @@ function oa_wiki_strongarm() {
         'choice' => 0,
       ),
       'featured' => array(
-        'status' => 0,
-        'default' => 0,
+        'status' => 1,
+        'default' => 1,
         'choice' => 0,
       ),
     ),

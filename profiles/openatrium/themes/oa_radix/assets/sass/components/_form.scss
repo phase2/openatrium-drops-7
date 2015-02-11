@@ -18,6 +18,15 @@ fieldset .chosen-fieldset-wrapper {
   overflow: visible !important;
 }
 
+//Fix Rewrite Content fields in Views
+#views-ui-config-item-form fieldset .form-control {
+  height: auto;
+}
+
+#views-ui-config-item-form fieldset .collapsible {
+  float: none;
+}
+
 // General form styles
 // --------------------------------------------------
 form {
@@ -79,6 +88,16 @@ a.mceButton {
   a {
     font-weight: normal;
   }
+}
+
+input[type="text"],
+input[type="password"],
+.ui-autocomplete-input,
+textarea,
+.uneditable-input {
+  padding: 0 6px;
+  color: #555555;
+  font-size: 14px;
 }
 
 // Media Browser
@@ -229,7 +248,7 @@ a.mceButton {
 // --------------------------------------------------
 .views-exposed-form {
   .well {
-    padding: 0 1em;
+    padding: 0 1em 1em 1em;
   }
   .filter-btn {
     position: absolute;

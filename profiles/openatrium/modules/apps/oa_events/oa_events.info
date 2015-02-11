@@ -33,6 +33,8 @@ dependencies[] = og_ui
 dependencies[] = options
 dependencies[] = page_manager
 dependencies[] = panelizer
+dependencies[] = paragraphs
+dependencies[] = select2widget
 dependencies[] = strongarm
 dependencies[] = text
 dependencies[] = views
@@ -69,6 +71,7 @@ features[message_type][] = oa_event_notification
 features[node][] = oa_event
 features[page_manager_handlers][] = node_edit_panel_context_7
 features[panelizer_defaults][] = node:oa_event:default
+features[panelizer_defaults][] = node:oa_event:default:featured
 features[panelizer_defaults][] = node:oa_section:calendar_section
 features[variable][] = comment_anonymous_oa_event
 features[variable][] = comment_default_mode_oa_event
@@ -85,14 +88,21 @@ features[variable][] = node_options_oa_event
 features[variable][] = node_preview_oa_event
 features[variable][] = node_submitted_oa_event
 features[variable][] = panelizer_defaults_node_oa_event
+features[variable][] = panelizer_node:oa_event_allowed_layouts_default
+features[variable][] = panelizer_node:oa_event_allowed_types_default
+features[variable][] = panelizer_node:oa_event_default
 features[views_view][] = oa_event_detail
 features[views_view][] = oa_event_list
 features[views_view][] = oa_fullcalendar
 features[views_view][] = open_atrium_event_location
+features_exclude[dependencies][oa_events] = oa_events
+features_exclude[dependencies][og_vocab] = og_vocab
+features_exclude[variable][panelizer_node:oa_event_allowed_layouts] = panelizer_node:oa_event_allowed_layouts
+features_exclude[variable][panelizer_node:oa_section_allowed_layouts] = panelizer_node:oa_section_allowed_layouts
 
-; Information added by Drupal.org packaging script on 2014-11-20
-version = "7.x-2.25"
+; Information added by Drupal.org packaging script on 2015-02-11
+version = "7.x-2.27"
 core = "7.x"
 project = "oa_events"
-datestamp = "1416500958"
+datestamp = "1423683788"
 

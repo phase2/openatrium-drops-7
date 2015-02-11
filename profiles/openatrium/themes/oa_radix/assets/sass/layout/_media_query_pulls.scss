@@ -6,7 +6,7 @@
 }
 
 
-@media (min-width: $mobileBreakpoint) {
+@media (min-width: $mobileMin) {
   .pull-sm-left {
     float: left;
   }
@@ -15,7 +15,7 @@
   }
 }
 
-@media (min-width: $tabletBreakpoint) {
+@media (min-width: $tabletMin) {
   .pull-md-left {
     float: left;
   }
@@ -24,7 +24,7 @@
   }
 }
 
-@media (min-width: $desktopBreakpoint) {
+@media (min-width: $desktopMin) {
   .pull-lg-left {
     float: left;
   }

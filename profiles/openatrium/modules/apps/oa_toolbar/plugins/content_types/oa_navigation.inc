@@ -6,9 +6,9 @@
 
 $plugin = array(
   'title' => t('Open Atrium Navigation'),
-  'description' => t('The Open Atrium navigation.'),
+  'description' => t('The Open Atrium main menu navigation.'),
   'single' => TRUE,
-  'category' => array(t('Open Atrium'), -9),
+  'category' => array(t('OA Admin'), -9),
 );
 
 /**
@@ -23,38 +23,19 @@ function oa_toolbar_oa_navigation_content_type_render($subtype, $conf, $panel_ar
   $vars['menu_name'] = $conf['menu_name'];
 
   // first check for space banner next to main menu
-  $show_space = FALSE;
   if (module_exists('oa_appearance')) {
     drupal_add_js(drupal_get_path('module', 'oa_appearance') . '/oa_appearance.js');
     $space_id = oa_core_get_space_home_context();
-    if (($space = node_load(oa_core_get_group_from_node($space_id))) && node_access('view', $space)) {
-      $field = field_get_items('node', $space, OA_SPACE_BANNER_POSITION);
-    }
-    $show_space = (!empty($field[0]['value']) && ($field[0]['value'] == OA_SPACE_BANNER_MAIN_MENU));
-    if ($show_space) {
-      $space_picture = field_get_items('node', $space, 'field_oa_banner');
-      if (!empty($space_picture)) {
-        $space_picture = array_shift($space_picture);
-        $vars['height'] = $space_picture['height'];
-        $vars['width'] = 0; // prevents stretching
-        $vars['banner'] = theme('image_style', array(
-          'style_name' => 'oa_banner',
-          'path' => $space_picture['uri'],
-          'width' => $space_picture['width'],
-          'height' => $space_picture['height'],
-          'alt' => $space_picture['alt'],
-          'attributes' => array(
-            'class' => array('oa-banner-img')
-          ),
-        ));
-      }
-      else {
-        $show_space = FALSE;
-      }
+    $banner = oa_appearance_get_space_banner($space_id, OA_SPACE_BANNER_MAIN_MENU);
+    if ($banner['image']) {
+      $vars['height'] = $banner['image']['height'];
+      $vars['width'] = 0; // prevents stretching
+      $vars['banner'] = theme('image_style',
+        $banner['image'] + array('style_name' => 'oa_banner'));
     }
   }
   // next check for site banner
-  if (!$show_space && variable_get('oa_menu_banner', TRUE) && !variable_get('oa_banner_stretch', FALSE)) {
+  if (empty($banner['image']) && variable_get('oa_menu_banner', TRUE) && !variable_get('oa_banner_stretch', FALSE)) {
     $fid = variable_get('oa_site_banner', '');
     if ($fid && ($site_file = file_load($fid))) {
       // banner found

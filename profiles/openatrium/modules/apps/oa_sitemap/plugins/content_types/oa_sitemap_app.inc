@@ -7,7 +7,7 @@ $plugin = array(
   'title' => t('Site Map (App)'),
   'description' => t('Displays the site map of a space.'),
   'single' => TRUE,
-  'category' => array(t('Open Atrium'), -9),
+  'category' => array(t('OA Admin'), -9),
   'edit form' => 'oa_sitemap_app_settings_form',
   'render callback' => 'oa_sitemap_app_render',
   'required context' => new ctools_context_optional(t('Node'), 'node'),
@@ -37,7 +37,9 @@ function oa_sitemap_app_render($subtype, $conf, $args, $context) {
   $space_id = isset($node) ? $node->nid : 0;
 
   $title = (empty($node) || !empty($conf['oa_sitemap_parent'])) ? variable_get('site_name', '') : $node->title;
-  $page_title = !empty($title) ? t('Site Map for @space', array('@space' => $title)) : t('Site Map');
+  // Don't sanitize title yet, it will get handled by drupal_set_title and by
+  // {{}} sanitization in angular
+  $page_title = !empty($title) ? t('Site Map for !space', array('!space' => $title)) : t('Site Map');
 
   $base = drupal_get_path('module', 'oa_sitemap');
 
@@ -118,10 +120,8 @@ function oa_sitemap_app_render($subtype, $conf, $args, $context) {
     ),
   ), 'setting');
 
-  drupal_add_js('https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-rc.1/angular.min.js');
-  drupal_add_js('https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0-rc.1/angular-sanitize.js');
+  oa_angular_add(array('sanitize', 'ngDraggable'));
 
-  drupal_add_js($base . '/js/ngDraggable.js');
   drupal_add_js($base . '/js/oa_sitemap_app.js');
   drupal_add_css($base . '/css/oa_sitemap_app.css');
 

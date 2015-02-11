@@ -148,7 +148,7 @@ function contextual_tabs_preprocess_page(&$variables) {
 
     // remove links with empty data
     foreach ($data['links'] as $key => $value) {
-      if (isset($value['data']) && empty($value['data'])) {
+      if (!isset($value['data']) || empty($value['data'])) {
         unset($data['links'][$key]);
       }
     }

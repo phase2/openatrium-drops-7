@@ -1,0 +1,753 @@
+<?php
+/**
+ * @file
+ * Code for the Open Atrium Files feature.
+ */
+
+include_once 'oa_files.features.inc';
+/**
+ * @files
+ * Module code for oa_files.
+ */
+
+include_once 'oa_files.features.inc';
+
+/**
+ * Implements hook_menu().
+ */
+function oa_files_menu() {
+  $items = array();
+
+  $items['oa-files/upload'] = array(
+    'access callback' => 'node_access',
+    'access arguments' => array('create', 'oa_wiki_page'),
+    'page callback' => 'oa_files_upload_page',
+    'page title' => 'Upload',
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['oa-files/upload/%ctools_js'] = array(
+    'access callback' => 'node_access',
+    'access arguments' => array('create', 'oa_wiki_page'),
+    'page callback' => 'oa_files_upload_page',
+    'page title' => 'Upload',
+    'page arguments' => array(1),
+    'type' => MENU_CALLBACK,
+  );
+
+  if (module_exists('devel')) {
+    $items['oa-files/ctools-test'] = array(
+      'access arguments' => array('access devel information'),
+      'page callback' => 'oa_files_ctools_test',
+      'page title' => 'Test Ctools Modal',
+      'type' => MENU_CALLBACK,
+    );
+  }
+
+  $items['oa-files/upload/multi/%oa_files_upload_multi/%ctools_js'] = array(
+    'title' => 'Create & Update Documents',
+    'page callback' => 'oa_files_upload_create_documents_form_page',
+    'page arguments' => array(3, 4),
+    'access callback' => 'node_access',
+    'access arguments' => array('create', 'oa_wiki_page'),
+  );
+
+  $items['api/oa/files-addterm'] = array(
+    'page callback' => 'oa_files_addterm_callback',
+    'access arguments' => array('access content'),
+  );
+
+  $items['api/oa/files-addmenu'] = array(
+    'page callback' => 'oa_files_addmenu_callback',
+    'access arguments' => array('access content'),
+  );
+
+  $items['api/oa/files-addmenu/%node'] = array(
+    'page callback' => 'oa_files_addmenu_callback',
+    'page arguments' => array(3),
+    'access arguments' => array('access content'),
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function oa_files_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'ctools' && $plugin_type == 'content_types') {
+    return 'plugins/content_types';
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function oa_files_theme() {
+  $path = drupal_get_path('module', 'oa_files') . '/templates';
+  return array(
+    'oa_files' => array(
+      'template' => 'oa-files',
+      'variables' => array(
+      ),
+      'path' => $path,
+    ),
+  );
+}
+
+/**
+ * Load callback for %media_multi placeholder in menu paths.
+ *
+ * @param string $fids
+ *   Separated by space (e.g., "3 6 12 99"). This often appears as "+" within
+ *   URLs (e.g., "3+6+12+99"), but Drupal automatically decodes paths when
+ *   intializing $_GET['q'].
+ *
+ * @return array
+ *   An array of corresponding file entities.
+ */
+function oa_files_upload_multi_load($fids) {
+  return file_load_multiple(explode(' ', $fids));
+}
+
+/**
+ * Media upload.
+ */
+function oa_files_upload_page($js = FALSE) {
+  ctools_include('modal');
+  ctools_include('ajax');
+  $form_state = array(
+    'title' => t('Add files'),
+    'ajax' => $js,
+    'build_info' => array(
+      'args' => array(
+        array('wiki' => TRUE)
+      ),
+    ),
+  );
+  module_load_include('pages.inc', 'file_entity');
+
+  // This is a workaround due to redirect not working in modals.
+  // file_entity_add_upload is already a multistep form so making it a multistep
+  // form for our extra steps would have been complex.
+  if ($js && !empty($_POST['form_id']) &&  $_POST['form_id'] == 'oa_files_upload_create_documents_form' && !empty($_POST['documents'])) {
+    return oa_files_upload_create_documents_form_page(file_load_multiple(array_keys($_POST['documents'])), TRUE);
+  }
+  else {
+    if (module_exists('plupload') && module_exists('multiform')) {
+      $output = ctools_modal_form_wrapper('file_entity_add_upload_multiple', $form_state);
+    }
+    else {
+      $output = ctools_modal_form_wrapper('file_entity_add_upload', $form_state);
+    }
+  }
+  if ($js) {
+    $commands = array();
+    // Part two of workaround.
+    if (!empty($form_state['file']->fid)) {
+      return oa_files_upload_create_documents_form_page(array($form_state['file']->fid => $form_state['file']), TRUE);
+    }
+    elseif (!empty($form_state['files'])) {
+      return oa_files_upload_create_documents_form_page($form_state['files'], TRUE);
+    }
+    if ($form_state['executed']) {
+      $commands[] = ctools_modal_command_dismiss();
+    }
+    print ajax_render($commands ? $commands : $output);
+    exit;
+  }
+  return $output;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for file_entity_add_upload_multiple.
+ */
+function oa_files_form_file_entity_add_upload_multiple_alter(&$form, &$form_state) {
+  if (!empty($form_state['build_info']['args'][0]['wiki'])) {
+    $form['#submit'][] = 'oa_files_file_entity_add_upload_multiple_submit';
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for file_entity_add_upload_multiple.
+ */
+function oa_files_form_file_entity_add_upload_alter(&$form, &$form_state) {
+  if (!empty($form_state['build_info']['args'][0]['wiki'])) {
+    $form['#submit'][] = 'oa_files_file_entity_add_upload_submit';
+    array_unshift($form['#submit'], 'oa_files_file_entity_add_upload_submit_first');
+  }
+}
+
+/**
+ * Force skipping the fields step to confirm with multi upload..
+ */
+function oa_files_file_entity_add_upload_submit_first($form, &$form_state) {
+  global $conf;
+  $conf['file_entity_file_upload_wizard_skip_fields'] = TRUE;
+}
+
+/**
+ * Redirect to our form instead of edit files page.
+ */
+function oa_files_file_entity_add_upload_submit($form, &$form_state) {
+  if (empty($form_state['rebuild']) && !empty($form_state['file'])) {
+    $form_state['redirect'] = array('oa-files/upload/multi/' . $form_state['file']->fid . '/' . ($form_state['ajax'] ? 'ajax' : 'nojs'), _oa_files_get_redirect_options());
+  }
+}
+
+/**
+ * Redirect to our form instead of edit files page.
+ */
+function oa_files_file_entity_add_upload_multiple_submit($form, &$form_state) {
+  $form_state['redirect'] = array('oa-files/upload/multi/' . implode(' ', array_keys($form_state['files'])) . '/' . ($form_state['ajax'] ? 'ajax' : 'nojs'), _oa_files_get_redirect_options());
+}
+
+/**
+ * Helper function to get options for redirect.
+ */
+function _oa_files_get_redirect_options() {
+  $options = array();
+  if (isset($_GET['destination'])) {
+    $destination = drupal_get_destination();
+    unset($_GET['destination']);
+    if ($destination) {
+      $options['query']['destinations'] = $destination;
+    }
+  }
+  $keep = array(
+    'oa_section_ref',
+    'menu_parent',
+    'term_parent',
+  );
+  foreach ($keep as $query_param) {
+    if (isset($_GET[$query_param])) {
+      $options['query'][$query_param] = $_GET[$query_param];
+    }
+  }
+  return $options;
+}
+
+/**
+ * Page callback to return the create documents.
+ */
+function oa_files_upload_create_documents_form_page($files, $js) {
+  ctools_include('modal');
+  ctools_include('ajax');
+  $form_state = array(
+    'title' => t('Add files'),
+    'ajax' => $js,
+    'build_info' => array(
+      'args' => array(
+        $files,
+      ),
+    ),
+  );
+  $output = ctools_modal_form_wrapper('oa_files_upload_create_documents_form', $form_state);
+  if ($js) {
+    $commands = array();
+    if ($form_state['executed']) {
+      $commands[] = ctools_modal_command_dismiss(t('Addition Success'));
+      $commands[] = array(
+        // The command will be used in our JavaScript file (see next section)
+        'command' => 'oaFilesAdded',
+        // We pass the value that the user selected in the select element to our
+        // JavaScript function:
+        'files' => oa_files_prepare_files_from_files($form_state['build_info']['args'][0]), // return $files created
+      );
+    }
+    print ajax_render(!empty($commands) ? $commands : $output);
+    exit;
+  }
+  return $output;
+}
+
+/**
+ * Form callback; Create multiple documents.
+ */
+function oa_files_upload_create_documents_form($form, &$form_state, $files) {
+  $form = array();
+  $form['documents']['#tree'] = TRUE;
+  $form['#files'] = $files;
+  // Get the group/section to look for the file in.
+  $gid = $sid = NULL;
+  if (($context = og_context()) && og_user_access($context['group_type'], $context['gid'], "create oa_wiki_page content")) {
+    $gid = $context['gid'];
+    $section_id = !empty($_GET['oa_section_ref']) ? $_GET['oa_section_ref'] : oa_section_get_section_context();
+    if ($section_id && node_access('view', node_load($section_id))) {
+      $sid = $section_id;
+    }
+  }
+  $form['#gid'] = $gid;
+  $form['#sid'] = $sid;
+  foreach ($files as $fid => $file) {
+    // Just be sure they have access in case URL manipulation.
+    if (!file_entity_access('view', $file)) {
+      continue;
+    }
+    $form['documents'][$file->fid] = array(
+      '#type' => 'fieldset',
+      '#group' => 'files',
+      '#title' => check_plain($file->filename),
+    );
+    $form['documents'][$file->fid]['title'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Title'),
+      '#default_value' => $file->filename,
+      '#weight' => $fid,
+    );
+
+    if ($node = oa_files_find_document($file, $gid)) {
+      $form['#files'][$file->fid]->node = $node;
+      $form['documents'][$file->fid]['update'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Update Document <a href="@url">@title</a> to file @filename?', array('@url' => url('node/' . $node->nid), '@title' => $node->title, '@filename' => $file->filename)),
+        '#default_value' => 1,
+        '#weight' => $fid - .5,
+      );
+      $form['documents'][$file->fid]['title']['#states'] = array(
+        'invisible' => array(
+          ':input[name="documents[' . $file->fid . '][update]"]' => array('checked' => TRUE),
+        ),
+      );
+      //oa_files_update_document($node, $node->oa_files_row, $file);
+    }
+  }
+  $form['create'] = array(
+    '#value' => t('Process'),
+    '#type' => 'submit',
+  );
+  return $form;
+}
+
+
+/**
+ * Submit callback that creates or updates documents.
+ */
+function oa_files_upload_create_documents_form_submit($form, &$form_state) {
+  foreach ($form_state['values']['documents'] as $fid => $values) {
+    if (!empty($form['#files'][$fid])) {
+      $file = $form['#files'][$fid];
+      if (!empty($file->node->nid) && !empty($values['update'])) {
+        oa_files_update_document(node_load($file->node->nid), $file->node->oa_files_row, $file);
+      }
+      else {
+        $node = oa_files_create_document($file, $values['title'], $form['#gid'], $form['#sid']);
+        $form['#files'][$fid]->node = $node;
+      }
+    }
+  }
+  $form_state['redirect'] = array('oa-files/upload', _oa_files_get_redirect_options());
+}
+
+/**
+ * Creates a document from a file.
+ *
+ * @param $file
+ *   A file object.
+ * @param $title
+ *   The title of document.
+ * Returns the created document node
+ */
+function oa_files_create_document($file, $title, $gid = NULL, $sid = NULL) {
+  global $user;
+  $node = (object) array(
+    // Create oa_files.
+    'type' => 'oa_wiki_page',
+    'uid' => $user->uid,
+    'name' => $user->name,
+    // Add the file to the oa_media attachment field.
+    'field_oa_media' => array(
+      LANGUAGE_NONE => array(
+        0 => array(
+          'fid' => $file->fid,
+          'display' => 1,
+          'description' => $title,
+        ),
+      ),
+    ),
+    'language' => LANGUAGE_NONE,
+    // Set the Title of the Document node to the same title.
+    'title' => $title,
+  );
+
+  // Set the Space (og_group_ref) to the current Space Context.
+  // Set the Section (oa_section_ref) to the current Section Context.
+  if ($gid) {
+    $node->og_group_ref = array(
+      LANGUAGE_NONE => array(
+        0 => array(
+          'target_id' => $gid,
+        ),
+      ),
+    );
+    if ($sid) {
+      $node->oa_section_ref = array(
+        LANGUAGE_NONE => array(
+          0 => array(
+            'target_id' => $sid,
+          ),
+        ),
+      );
+    }
+
+    if (isset($_GET['menu_parent'])) {
+      $pid = !empty($_GET['menu_parent']) ? $_GET['menu_parent'] : $section_id;
+      if (($parent = node_load($pid)) && node_access('view', $parent) && ($mlid = og_menu_single_get_link_mlid('node', $pid))) {
+        $is_in_group = FALSE;
+        foreach (field_get_items('node', $parent, 'og_group_ref') as $value) {
+          if ($value['target_id'] == $gid) {
+            $is_in_group = TRUE;
+            break;
+          }
+        }
+        if ($is_in_group) {
+          $node->menu = array(
+            'plid' => $mlid,
+            'link_title' => $title,
+            'enabled' => TRUE,
+            'description' => '',
+          );
+          if ($parent->type == 'oa_section') {
+            $node->oa_section_ref = array(
+              LANGUAGE_NONE => array(
+                0 => array(
+                  'target_id' => $parent->nid,
+                ),
+              ),
+            );
+          }
+        }
+      }
+    }
+
+    if (!empty($_GET['term_parent']) && ($term = taxonomy_term_load($_GET['term_parent']))) {
+      // if using og_vocab, grab the valid vocab ids.
+      $fieldname = '';
+      $propname = '';
+      if (module_exists('og_vocab')) {
+        $vids = og_vocab_get_accessible_vocabs('node', $node->type, OG_VOCAB_FIELD);
+        if (in_array($term->vid, $vids)) {
+          $fieldname = 'og_vocabulary';
+          $propname = 'target_id';
+        }
+      }
+      if (empty($fieldname)) {
+        // did not find og vocab, so check for global taxonomy reference fields
+        $vocab = taxonomy_vocabulary_load($term->vid);
+        $field_info = field_info_fields();
+        $fields = field_info_instances('node', $node->type);
+        foreach ($fields as $key => $field) {
+          $info = $field_info[$key];
+          if ($info['module'] == 'taxonomy') {
+            foreach ($info['settings']['allowed_values'] as $index => $item) {
+              if ($item['vocabulary'] == $vocab->machine_name) {
+                $fieldname = $info['field_name'];
+                $propname = 'tid';
+                break;
+              }
+            }
+          }
+        }
+      }
+
+      if (!empty($fieldname)) {
+        $node->{$fieldname}[LANGUAGE_NONE][] = array($propname => $term->tid);
+      }
+    }
+
+    node_save($node);
+    drupal_set_message(t('Document <a href="@url">@title</a> created.', array('@title' => $node->title, '@url' => url('node/' . $node->nid))));
+  }
+
+  return $node;
+}
+
+/**
+ * Update a document to a new file.
+ *
+ * @param $mode
+ *   The node to update
+ * @param $row
+ *   The row in the database to update (with delta and language).
+ * @param $file
+ *   The file object
+ */
+function oa_files_update_document($node, $row, $file) {
+  $node->field_oa_media[$row->language][$row->delta]['fid'] = $file->fid;
+  $node->revision = 1;
+  $node->log = 'Update file via upload.';
+  node_save($node);
+  if (module_exists('oa_workbench')) {
+    drupal_set_message(t('New draft of <a href="@url">@title</a> created.', array('@title' => $node->title, '@url' => url('node/' . $node->nid))));
+  }
+  else {
+    drupal_set_message(t('Document <a href="@url">@title</a> updated.', array('@title' => $node->title, '@url' => url('node/' . $node->nid))));
+  }
+}
+
+/**
+ * Find the document that may correspond to a given file.
+ *
+ * @param $file
+ *   The file object to find.
+ */
+function oa_files_find_document($file, $gid = NULL, $sid = NULL) {
+  $uri = strtolower($file->uri);
+  $uri_ext = substr($uri, strrpos($uri, '.'));
+  $uri_sans_ext = substr($uri, 0, strrpos($uri, '.'));
+  $uri_after_underscore = substr($uri_sans_ext, strrpos($uri_sans_ext, '_') + 1);
+  $uri_before_underscore = substr($uri_sans_ext, 0, strrpos($uri_sans_ext, '_'));
+  $test_alt = $uri_before_underscore && strlen($uri_after_underscore) && is_numeric($uri_after_underscore);
+  // This is not a renamed file, no existing document matches.
+  if (!$test_alt) {
+    return FALSE;
+  }
+
+  // We want to find all files on document with the same uri or prefix.
+  $query = db_select('file_managed', 'f');
+  $query->innerJoin('field_data_field_oa_media', 'm', 'm.field_oa_media_fid = f.fid AND m.entity_type = :type', array(':type' => 'node'));
+  $query->fields('m', array('delta', 'language'));
+  $query->addField('f','uri');
+  $query->addField('m', 'entity_id', 'nid');
+  $query->condition(
+    db_or()
+      ->condition('f.uri', db_like($uri),  'LIKE') // Use like for caseless effect.
+      ->condition('f.uri', db_like($uri_before_underscore) . '%', 'LIKE')
+    );
+  $query->orderBy('f.fid', 'ASC');
+  if ($gid) {
+    $query->innerJoin('og_membership', 'om', 'm.entity_id = om.etid AND om.entity_type = :type AND om.group_type = :type AND om.gid = :id', array(':type' => 'node', ':id' => $gid));
+    if ($sid) {
+      $query->innerJoin('field_data_oa_section_ref', 'sf', 'm.entity_id = sf.entity_id AND sf.entity_type = :type AND sf.oa_section_ref_target_id = :id', array(':type' => 'node', ':id' => $sid));
+    }
+  }
+
+  if ($rows = $query->execute()->fetchAll()) {
+    foreach ($rows as $row) {
+      // Test if the db one is [uri].[ext] or [uri]_[numeric].[ext].
+      $row_uri = strtolower($row->uri);
+      $db_uri_ext = substr($row_uri, strrpos($row_uri, '.'));
+      $db_uri_sans_ext = substr($row_uri, 0, strrpos($row_uri, '.'));
+      $db_uri_after_underscore = NULL;
+      if ($pos = strrpos($db_uri_sans_ext, '_')) {
+        $db_uri_before_underscore = substr($db_uri_sans_ext, 0, $pos);
+        $db_uri_after_underscore = substr($db_uri_sans_ext, strrpos($db_uri_sans_ext, '_') + 1);
+      }
+      if (!$db_uri_after_underscore || !is_numeric($db_uri_after_underscore)) {
+        $db_uri_before_underscore = $db_uri_sans_ext;
+        $db_uri_after_underscore = FALSE;
+      }
+      if ($db_uri_before_underscore == $uri_before_underscore && $db_uri_ext == $uri_ext
+        && (!$db_uri_after_underscore || is_numeric($db_uri_after_underscore))) {
+        if (($node = node_load($row->nid)) && $node->type == 'oa_wiki_page' && node_access('update', $node)) {
+          $node->oa_files_row = $row;
+          return $node;
+        }
+      }
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Test page callback to display add files ctools link.
+ */
+function oa_files_ctools_test() {
+  ctools_include('modal');
+  ctools_include('ajax');
+  ctools_modal_add_js();
+  $output = ctools_modal_text_button(t('Add files'), 'oa-files/upload/ajax', t('Create Files'));
+  return $output;
+}
+
+/**
+ * Return a file download link with token
+ * Copied from file_entity but we don't want to load a full file node
+ * @param $fid
+ * @param $uri
+ */
+function oa_files_download_uri($fid, $file_uri) {
+  $uri = array('path' => "file/{$fid}/download", 'options' => array());
+  if (!variable_get('file_entity_allow_insecure_download', FALSE)) {
+//    $uri['options']['query']['token'] = file_entity_get_download_token($file);
+    $uri['options']['query']['token'] = substr(drupal_hmac_base64("file/$fid/download:" . $file_uri, drupal_get_private_key() . drupal_get_hash_salt()), 0, 8);
+  }
+  return url($uri['path'], $uri['options']);
+}
+
+/**
+ * Helper function to create files array needed by angular app from an array of Drupal files
+ * @param $files
+ */
+function oa_files_prepare_files_from_files($files) {
+  $result = array();
+  foreach ($files as $fid => $file) {
+    if (isset($file->node->nid)) {
+      $node = $file->node;
+      $nid = $node->nid;
+      $icon = file_icon_url($file);
+      $parent = isset($_GET['menu_parent']) ? $_GET['menu_parent'] : (!empty($_GET['term_parent']) ? 'tid' . $_GET['term_parent'] : 0);
+      $result[$nid] = array(
+        'id' => $nid,
+        'nid' => $nid,
+        "name" => $node->title,
+        "parent" => array($parent),
+        "date" => format_date($node->created, 'short'),
+        "modified" => format_date($node->changed, 'short'),
+        "editor" => node_access("update", $node),
+        "url" => 'node/' . $nid,
+        'filesize' => format_size($file->filesize),
+        'downloadurl' => oa_files_download_uri($fid, $file->uri),
+        'filename' => $file->filename,
+        'icon' => $icon,
+        'mimetype' => $file->filemime,
+      );
+    }
+  }
+  return $result;
+}
+
+/**
+ * Ajax Callback for adding a new taxonomy term (folder)
+ * @param $node
+ */
+function oa_files_addterm_callback($parent_tid = 0, $parent_vid = 0) {
+  $new_term = $_POST['node'];
+  $parent_term = null;
+  $vid = $parent_vid;
+  if ($parent_tid) {
+    $parent_term = taxonomy_term_load($parent_term);
+    if ($parent_term) {
+      $vid = $parent_term->vid;
+    }
+  }
+
+  if (!$vocab = taxonomy_vocabulary_load($vid)) {
+    ajax_deliver(MENU_ACCESS_DENIED);
+    return FALSE;
+  }
+  if (empty($_REQUEST['token']) || !drupal_valid_token($_REQUEST['token'], 'add-term-' . $vid)) {
+    return MENU_ACCESS_DENIED;
+  }
+
+  $space_id = oa_core_get_space_context();
+
+  $allownew = FALSE;
+  if (module_exists('og_vocab')) {
+    $vids = og_vocab_get_accessible_vocabs('node', 'oa_wiki_page', OG_VOCAB_FIELD);
+    if (in_array($vid, $vids)) {
+      // check OG access for editing vocab terms
+      $allownew = og_user_access('node', $space_id, "edit terms");
+    }
+  }
+  if (!$allownew) {
+    // otherwise check global permission for vocab
+    $allownew = user_access('edit terms in ' . $vid);
+  }
+
+  if (!$allownew) {
+    ajax_deliver(MENU_ACCESS_DENIED);
+    return FALSE;
+  }
+
+  $term = new stdClass();
+  $term->name = $new_term['name'];
+  $term->vid = $vid;
+  if (!empty($new_term['parent'])) {
+    $term->parent = $new_term['parent'][0];
+  }
+  taxonomy_term_save($term);
+
+  $return = array(
+    'id' => 'tid' . $term->tid,
+    'tid' => $term->tid,
+  );
+  print drupal_json_output($return);
+}
+
+/**
+ * Ajax Callback for adding a new document within a menu (folder)
+ * @param $node
+ */
+function oa_files_addmenu_callback($parent = NULL) {
+  global $user;
+  if (empty($_REQUEST['token']) || !drupal_valid_token($_REQUEST['token'], 'add-node-' . ($parent ? $parent->nid : 'undefined'))) {
+    return MENU_ACCESS_DENIED;
+  }
+
+  $new_node = $_POST['node'];
+
+  $title = $new_node['name'];
+  $node = (object) array(
+    // Create oa_files.
+    'type' => 'oa_wiki_page',
+    'uid' => $user->uid,
+    'name' => $user->name,
+    'language' => LANGUAGE_NONE,
+    // Set the Title of the Document node to the same title.
+    'title' => $title,
+  );
+  if (($context = og_context()) && og_user_access($context['group_type'], $context['gid'], "create oa_wiki_page content")) {
+    // @todo check access, e.g. can add to group/section.
+    $node->og_group_ref = array(
+      LANGUAGE_NONE => array(
+        0 => array(
+          'target_id' => $context['gid'],
+        ),
+      ),
+    );
+    if (($section_id = oa_section_get_section_context()) && node_access('view', node_load($section_id))) {
+      $node->oa_section_ref = array(
+        LANGUAGE_NONE => array(
+          0 => array(
+            'target_id' => $section_id,
+          ),
+        ),
+      );
+    }
+
+    if (empty($parent)) {
+      $parent = node_load($section_id);
+    }
+
+    if ($parent && node_access('view', $parent) && ($mlid = og_menu_single_get_link_mlid('node', $parent->nid))) {
+
+      $is_in_group = FALSE;
+      foreach (field_get_items('node', $parent, 'og_group_ref') as $value) {
+        if ($value['target_id'] == $context['gid']) {
+          $is_in_group = TRUE;
+          break;
+        }
+      }
+      if ($is_in_group) {
+        $node->menu = array(
+          'plid' => $mlid,
+          'link_title' => $title,
+          'enabled' => TRUE,
+          'description' => '',
+        );
+        if ($parent->type == 'oa_section') {
+          $node->oa_section_ref = array(
+            LANGUAGE_NONE => array(
+              0 => array(
+                'target_id' => $parent->nid,
+              ),
+            ),
+          );
+        }
+      }
+    }
+
+    node_save($node);
+    $return = array(
+      'oa_files' => array('node_token' => array('node:' . $node->nid => drupal_get_token('add-node-' . $node->nid))),
+      'id' => $node->nid,
+    );
+    print drupal_json_output($return);
+  }
+  else {
+    ajax_deliver(MENU_ACCESS_DENIED);
+    return FALSE;
+  }
+}
+

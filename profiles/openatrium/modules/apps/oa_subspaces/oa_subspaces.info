@@ -2,7 +2,6 @@ name = Open Atrium Subspaces
 description = Provides ability to add subspaces to spaces and inherit membership.
 core = 7.x
 package = Open Atrium
-version = 7.x-2.0
 project = oa_subspaces
 dependencies[] = ctools
 dependencies[] = entityreference
@@ -15,6 +14,7 @@ dependencies[] = og_subgroups
 dependencies[] = og_ui
 dependencies[] = options
 dependencies[] = strongarm
+stylesheets[screen][] = oa-subspaces.css
 apps[screenshots][] = app/screenshot.png
 apps[logo] = app/logo.png
 apps[author] = Phase2 Technology
@@ -38,11 +38,10 @@ features[variable][] = og_subgroups_default_fields_node
 files[] = tests/oa_subspacesPermission.test
 files[] = tests/oa_subspacesSectionAccess.test
 project path = profiles/openatrium/modules/features
-stylesheets[screen][] = oa-subspaces.css
 
-; Information added by Drupal.org packaging script on 2014-12-17
-version = "7.x-2.24"
+; Information added by Drupal.org packaging script on 2015-02-11
+version = "7.x-2.27"
 core = "7.x"
 project = "oa_subspaces"
-datestamp = "1418843582"
+datestamp = "1423680485"
 

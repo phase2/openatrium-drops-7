@@ -9,7 +9,7 @@ $plugin = array(
   'title' => t('Space summary'),
   'description' => t('Provides a summary of a space, including the picture, description, and useful links.'),
   'single' => TRUE,
-  'category' => array(t('Open Atrium'), -9),
+  'category' => array(t('OA Admin'), -9),
   'edit form' => 'oa_core_summary_edit_form',
   'render callback' => 'oa_core_summary_render',
   'required context' => new ctools_context_required(t('Node'), 'node'),
@@ -55,6 +55,12 @@ function oa_core_summary_render($subtype, $conf, $args, $context = NULL) {
         'height' => $picture['height'],
         'alt' => $picture['alt'],
       ));
+    }
+
+    if (isset($space->field_oa_related)) {
+      $paragraphs = field_view_field('node', $space, 'field_oa_related');
+      $paragraphs['#label_display'] = 'hidden';
+      $vars['related'] = drupal_render($paragraphs);
     }
   }
 

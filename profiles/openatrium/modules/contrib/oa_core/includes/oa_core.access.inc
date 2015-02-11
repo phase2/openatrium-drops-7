@@ -7,6 +7,7 @@
 /**
  * Determine access to a Open Atrium Section
  * do NOT use node_load here as it gets called from hook_node_grants()
+ * TODO: No longer called from node_grants, but called from tests.  Is this still needed?
  */
 function oa_core_section_access($row, $spaces, $account) {
 
@@ -60,16 +61,8 @@ function oa_core_node_grants($account, $op) {
   }
 
   // Handle unpublished content permissions
-  if (user_access('bypass node access') || user_access('view own unpublished content')) {
-    // get a list of unpublished nodes owned by this user
-    $query = db_select('node', 'n');
-    $query->fields('n', array('nid'))
-      ->condition('n.status', 0);
-    if (!user_access('bypass node access')) {
-      // user with bypass access can access all unpublished content
-      $query->condition('n.uid', $account->uid);
-    }
-    $grants[OA_UNPUBLISHED_REALM] = $query->execute()->fetchCol(0);
+  if (user_access('view own unpublished content') && $account->uid) {
+    $grants[OA_UNPUBLISHED_REALM] = array($account->uid);
   }
 
   // Combine the spaces the user is part of with public spaces.
@@ -128,18 +121,20 @@ function oa_core_node_grants($account, $op) {
  * Implements hook_node_access_records().
  */
 function oa_core_node_access_records($node) {
+  $grants = array();
   $sids = array();
   if ($node->status == 0) {
-    // Drupal doesn't handle grants for unpublished nodes
-    // Grants are needed for Views to work
-    $grants[] = array(
-      'realm' => OA_UNPUBLISHED_REALM,
-      'gid' => $node->nid,
-      'grant_view' => 1,
-      'grant_update' => 0,
-      'grant_delete' => 0,
-      'priority' => 0,
-    );
+    // Grant author access to unpublished content.
+    if ($node->uid) {
+      $grants[] = array(
+        'realm' => OA_UNPUBLISHED_REALM,
+        'gid' => $node->uid,
+        'grant_view' => 1,
+        'grant_update' => 0,
+        'grant_delete' => 0,
+        'priority' => 0,
+      );
+    }
     return $grants;
   }
   elseif ($node->type == OA_SECTION_TYPE) {
@@ -225,10 +220,8 @@ function oa_core_node_access($node, $op, $account) {
 function oa_core_node_update($node) {
   if (($node->type == OA_SPACE_TYPE) || ($node->type == OA_GROUP_TYPE)) {
     // check if group access changed and update space content grants
-    if (isset($node->group_access[LANGUAGE_NONE][0]['value']) &&
-      isset($node->original->group_access[LANGUAGE_NONE][0]['value']) &&
-      ($node->group_access[LANGUAGE_NONE][0]['value'] !=
-       $node->original->group_access[LANGUAGE_NONE][0]['value'])) {
+    $rebuild = module_invoke_all('oa_core_og_content_needs_rebuild', $node);
+    if (in_array(TRUE, $rebuild, TRUE)) {
       // rebuild space content nodes
       $nodes = db_select('og_membership', 'og')
         ->fields('og', array('etid'))
@@ -264,6 +257,16 @@ function oa_core_node_update($node) {
 }
 
 /**
+ * Implements hook_oa_core_og_content_needs_rebuild().
+ */
+function oa_core_oa_core_og_content_needs_rebuild($node) {
+  return isset($node->group_access[LANGUAGE_NONE][0]['value']) &&
+    isset($node->original->group_access[LANGUAGE_NONE][0]['value']) &&
+    ($node->group_access[LANGUAGE_NONE][0]['value'] !=
+     $node->original->group_access[LANGUAGE_NONE][0]['value']);
+}
+
+/**
  * Implements hook_file_entity_access().
  *
  * Check permissions of private files based upon the node they are attached to
@@ -286,6 +289,25 @@ function oa_core_file_entity_access($op, $file, $account) {
         ->addTag('node_access')
         ->execute()
         ->fetchCol(0);
+      // add paragraph references
+      if (module_exists('paragraphs')) {
+        $query = db_select('node', 'n');
+        if (user_access('view revisions')) {
+          $query->join('field_revision_field_oa_related', 'r', "n.nid = r.entity_id AND r.entity_type = 'node'");
+          $query->join('field_revision_field_oa_media', 'f', "r.field_oa_related_value = f.entity_id AND f.entity_type = 'paragraphs_item'");
+        }
+        else {
+          $query->join('field_data_field_oa_related', 'r', "n.nid = r.entity_id AND r.entity_type = 'node'");
+          $query->join('field_data_field_oa_media', 'f', "r.field_oa_related_value = f.entity_id AND f.entity_type = 'paragraphs_item'");
+        }
+        $related_nids = $query
+          ->fields('n', array('nid'))
+          ->condition('f.field_oa_media_fid', $file->fid)
+          ->addTag('node_access')
+          ->execute()
+          ->fetchCol(0);
+        $nids = array_merge($nids, $related_nids);
+      }
       if (!empty($nids)) {
         $nids = array_unique($nids);
         // Ensure the user *really* has access to the nodes
@@ -313,6 +335,18 @@ function oa_core_file_entity_access($op, $file, $account) {
           ->condition('f.field_oa_media_fid', $file->fid)
           ->execute()
           ->fetchCol(0);
+        // add paragraph references
+        if (module_exists('paragraphs')) {
+          $query = db_select('node', 'n');
+          $query->join('field_data_field_oa_related', 'r', "n.nid = r.entity_id AND r.entity_type = 'node'");
+          $query->join('field_data_field_oa_media', 'f', "r.field_oa_related_value = f.entity_id AND f.entity_type = 'paragraphs_item'");
+          $related_nids = $query
+            ->fields('n', array('nid'))
+            ->condition('f.field_oa_media_fid', $file->fid)
+            ->execute()
+            ->fetchCol(0);
+          $nids = array_merge($nids, $related_nids);
+        }
         if (empty($nids)) {
           // File is not referenced by any node revision, so allow it if they can access content
           // Open Atrium treats unattached files as public since everything is
@@ -456,14 +490,15 @@ function oa_core_visibility_data($node) {
 
       if (!$data['public']) {
 
-        if (!empty($visibility[0]['value'])) {
+        $spaces = _oa_core_build_visibility_links('node', $section_node, OA_GROUP_FIELD, OA_SPACE_TYPE);
+        if (!empty($visibility[0]['value']) || !empty($spaces)) {
           $data['accessors']['space'] = array(
-            'links' => _oa_core_build_visibility_links('node', $section_node, OA_SPACE_FIELD, OA_SPACE_TYPE),
+            'links' => $spaces + _oa_core_build_visibility_links('node', $section_node, OA_SPACE_FIELD, OA_SPACE_TYPE),
             'label' => t('Spaces'),
           );
         }
         $data['accessors']['group'] = array(
-          'links' => _oa_core_build_visibility_links('node', $section_node, OA_GROUP_FIELD),
+          'links' => _oa_core_build_visibility_links('node', $section_node, OA_GROUP_FIELD, OA_GROUP_TYPE),
           'label' => t('Groups'),
         );
         $data['accessors']['teams'] = array(
@@ -492,7 +527,7 @@ function _oa_core_build_visibility_links($type, $node, $field, $bundle = '') {
     foreach ($values as $value) {
       if ($type == 'node') {
         $value_node = node_load($value['target_id']);
-        if (empty($bundle) || ($bundle == $value_node->type)) {
+        if (!empty($value_node) && ((empty($bundle) || ($bundle == $value_node->type)))) {
           $links[] = l($value_node->title, "node/" . $value_node->nid);
         }
       }

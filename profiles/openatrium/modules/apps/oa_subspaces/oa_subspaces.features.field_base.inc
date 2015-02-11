@@ -17,14 +17,6 @@ function oa_subspaces_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'oa_parent_space',
-    'foreign keys' => array(
-      'node' => array(
-        'columns' => array(
-          'target_id' => 'nid',
-        ),
-        'table' => 'node',
-      ),
-    ),
     'indexes' => array(
       'target_id' => array(
         0 => 'target_id',
@@ -39,11 +31,16 @@ function oa_subspaces_field_default_field_bases() {
           'og_behavior' => array(
             'status' => TRUE,
           ),
+          'views-autocomplete' => array(
+            'status' => 0,
+          ),
           'views-select-list' => array(
             'status' => 1,
           ),
         ),
+        'lock_revision' => 0,
         'membership_type' => 'og_membership_type_default',
+        'reference_revisions' => 0,
         'sort' => array(
           'type' => 'none',
         ),
@@ -65,7 +62,6 @@ function oa_subspaces_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'og_user_inheritance',
-    'foreign keys' => array(),
     'indexes' => array(
       'value' => array(
         0 => 'value',
@@ -92,7 +88,6 @@ function oa_subspaces_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'og_user_permission_inheritance',
-    'foreign keys' => array(),
     'indexes' => array(
       'value' => array(
         0 => 'value',

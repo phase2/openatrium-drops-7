@@ -23,9 +23,9 @@ files[] = test/linkit_search_plugin_user.test
 files[] = test/linkit_search_plugin_taxonomy_term.test
 files[] = test/linkit_field.test
 
-; Information added by Drupal.org packaging script on 2014-09-30
-version = "7.x-3.2"
+; Information added by Drupal.org packaging script on 2015-01-06
+version = "7.x-3.3"
 core = "7.x"
 project = "linkit"
-datestamp = "1412120356"
+datestamp = "1420580858"
 

@@ -38,6 +38,7 @@ function openatrium_install_tasks(&$install_state) {
       'oa_media',
       'oa_messages_digest',
       'oa_notifications',
+      'oa_related',
       'oa_sandbox',
       'oa_search',
       'oa_sitemap',
@@ -52,6 +53,11 @@ function openatrium_install_tasks(&$install_state) {
   $tasks = apps_profile_install_tasks($install_state, $server);
 
   $tasks['openatrium_features_revert_all'] = array(
+    'type' => 'normal',
+  );
+
+  // set default permissions
+  $tasks['openatrium_set_permissions'] = array(
     'type' => 'normal',
   );
 
@@ -90,6 +96,14 @@ function openatrium_features_revert_all() {
 }
 
 /**
+ * Revert all features.
+ */
+function openatrium_set_permissions() {
+  // update admin and member permissions
+  oa_adminrole_update_roles();
+}
+
+/**
  * Rebuild search index.
  */
 function openatrium_rebuild_search() {
@@ -106,6 +120,7 @@ function openatrium_rebuild_search() {
  */
 function openatrium_node_access_rebuild() {
   node_access_rebuild();
+  openatrium_remove_message('Content permissions have been rebuilt');
 }
 
 /**
@@ -137,8 +152,6 @@ function openatrium_form_apps_profile_apps_select_form_alter(&$form, $form_state
 function openatrium_install() {
   // set the default theme
   _openatrium_set_up_theme();
-  // update admin and member permissions
-  oa_adminrole_update_roles();
   // Put modules into contrib.
   variable_set('apps_install_path', 'sites/all/modules/contrib');
 }

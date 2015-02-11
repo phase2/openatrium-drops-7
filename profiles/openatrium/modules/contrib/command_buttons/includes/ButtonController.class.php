@@ -172,11 +172,15 @@ class ButtonController extends EntityAPIControllerExportable {
     $entity->content += array('#view_mode' => $view_mode);
   }
 
+  /**
+   * Deletes the entities then rebuilds defaults if needed.
+   *
+   * @param $bids
+   *  Can be an array of numeric BIDS, names, or combo as sutiable for load().
+   */
   public function delete($bids) {
     $transaction = db_transaction();
-    if (!empty($bids)) {
-      $entities = command_buttons_load_multiple($bids, array());
-
+    if (!empty($bids) && ($entities = command_buttons_load_multiple($bids, array()))) {
       try {
         foreach ($entities as $bid => $entity) {
           // Call the entity-specific callback (if any):
@@ -186,18 +190,22 @@ class ButtonController extends EntityAPIControllerExportable {
 
         // Delete after calling hooks so that they can query entity tables as needed.
         db_delete('command_buttons')
-          ->condition('bid', $bids, 'IN')
+          ->condition('bid', array_keys($entities), 'IN')
           ->execute();
-
+        // Clear the page and block and entity_load_multiple caches.
+        entity_get_controller('command_button')->resetCache();
+        foreach ($entities as $id => $entity) {
+          if (entity_has_status($this->entityType, $entity, ENTITY_IN_CODE)) {
+            entity_defaults_rebuild(array($this->entityType));
+            break;
+          }
+        }
       }
       catch (Exception $e) {
         $transaction->rollback();
         watchdog_exception('command_button', $e);
         throw $e;
       }
-
-      // Clear the page and block and entity_load_multiple caches.
-      entity_get_controller('command_button')->resetCache();
     }
   }
 
@@ -223,5 +231,19 @@ class ButtonController extends EntityAPIControllerExportable {
     }
 
     return $entity;
+  }
+
+  /**
+   * Overridden to remove create/changed.
+   */
+  public function export($entity, $prefix = '') {
+    $vars = get_object_vars($entity);
+    unset($vars[$this->statusKey], $vars[$this->moduleKey], $vars['is_new']);
+    if ($this->nameKey != $this->idKey) {
+      unset($vars[$this->idKey]);
+    }
+    unset($vars['created']);
+    unset($vars['changed']);
+    return entity_var_json_export($vars, $prefix);
   }
 }

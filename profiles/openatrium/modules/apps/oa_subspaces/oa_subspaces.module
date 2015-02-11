@@ -31,40 +31,36 @@ function oa_subspaces_form_node_form_alter(&$form, $form_state, $form_id) {
     $parent_admin   = &$form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['admin'];
 
     // clean up the edit form
-    if (!empty($parent_admin['#options'])) {
-      $all = array();
-      foreach ($parent_default['#options'] + $parent_admin['#options'] as $op => $value) {
-        if (is_array($value)) {
-          foreach($value as $id => $title) {
-            $all[$id] = $title . ' ' . '[' . drupal_strtolower($op) . ']';
-          }
-        }
-        else {
-          $all[$op] = $value;
-        }
-      }
-      $parent_default['#options'] = $all;
-//    don't unset the 'admin' field, just hide it for simplicity.
-//    need value to persist in form
+    if (!empty($parent_admin)) {
+      // Hide admin field but allow any values to persist.
       $parent_admin['#access'] = FALSE;
     }
     $parent_default['#title'] = t('Parents');
     $parent_default['#description'] = t('Inherit membership from the selected parents.');
-    $type = $form['#node']->type;
+    $type = $node->type;
     $gid = oa_core_get_space_context();
-    $admin_access = user_access('administer group') || ($gid == 0 ? node_access('create', $type) : og_user_access('node', $gid, "create $type content"));
-    if (empty($form['#node']->nid)) {
+    $set_parent = FALSE;
+    if (!empty($_GET[OA_PARENT_SPACE]) && is_numeric($_GET[OA_PARENT_SPACE])) {
+      $gid = $_GET[OA_PARENT_SPACE];
+      $set_parent = TRUE;
+    }
+    // Make sure user can create in this group.
+    $gid = og_user_access('node', $gid, "create {$node->type} content") ? $gid : NULL;
+    // See if the user could create this type without parent set.
+    $admin_access = user_access('administer group') || node_access('create', $type);
+    if (empty($node->nid)) {
       // If they are being granted create permission based on group permission
       // restrict the parent field to current group so don't have to deal with
       // changing values in form based on changed parent field.
       if (!$admin_access) {
-        if (!$gid || !in_array($gid, array_keys($parent_default['#options']))) {
+        if (!$gid) {
           drupal_access_denied();
           die();
         }
         else {
-          $parent_default['#default_value'] = array($gid => $gid);
+          $set_parent = TRUE;
           $parent_default['#access'] = FALSE;
+          $parent_default = $gid;
           drupal_set_title(t('Create @type in @title', array('@type' => node_type_get_name($type), '@title' => $parent_default['#options'][$gid])));
         }
       }
@@ -74,17 +70,6 @@ function oa_subspaces_form_node_form_alter(&$form, $form_state, $form_id) {
     elseif (!$admin_access && !empty($form['field_oa_space_type'])) {
       $form['field_oa_space_type']['#access'] = FALSE;
       $form[OA_PARENT_SPACE]['#access'] = FALSE;
-    }
-
-    // remove any children of this space from the selection list
-    if (!empty($node->nid)) {
-      $children = array();
-      _oa_subspaces_get_children_groups('node', $node->nid, $children);
-      foreach ($parent_default['#options'] as $key => $option) {
-        if (($key == $node->nid) || (in_array($key, $children))) {
-          unset($parent_default['#options'][$key]);
-        }
-      }
     }
     if (isset($form[OG_USER_INHERITANCE_FIELD][LANGUAGE_NONE]) && isset($form[OG_USER_INHERITANCE_PERMISSION_FIELD][LANGUAGE_NONE])) {
       $form[OG_USER_INHERITANCE_PERMISSION_FIELD][LANGUAGE_NONE]['#states'] = array(
@@ -96,15 +81,11 @@ function oa_subspaces_form_node_form_alter(&$form, $form_state, $form_id) {
       // a required warning when 0 is valid and works fine otherwise
       $form[OG_USER_INHERITANCE_PERMISSION_FIELD][LANGUAGE_NONE]['#required'] = FALSE;
     }
-  }
-
-  // fill in any value specified in URL
-  $parent = NULL;
-  if (!empty($_GET[OA_PARENT_SPACE]) && is_numeric($_GET[OA_PARENT_SPACE])) {
-    $parent = $_GET[OA_PARENT_SPACE];
-  }
-  if (!empty($parent_default['#options']) && empty($parent_default['#default_value']) && !empty($parent) && array_key_exists($parent, $parent_default['#options'])) {
-    $parent_default['#default_value'] = $parent;
+    // Fill in default value.
+    if (empty($node->nid) && $set_parent && $gid && ($group = node_load($gid))) {
+      $parent_default['#default_value'] = $group->title . ' (' . $group->nid . ')';
+      $parent_default['#init'][$group->nid] = $parent_default['#default_value'];
+    }
   }
 }
 
@@ -226,16 +207,10 @@ function oa_subspaces_oa_clear_cache($node = NULL, $uid = NULL, $include_archive
  * Implements hook_form_FORM_ID_alter().
  */
 function oa_subspaces_form_views_exposed_form_alter(&$form, &$form_state, $form_id) {
-  if (!empty($form['og_group_ref_target_id']['#options'])) {
+  if (!empty($form['og_group_ref_target_id'])) {
     $view = $form_state['view'];
     $exposed_form_overrides = $view->display_handler->get_option('exposed_form_overrides');
     $pane_conf = $view->display_handler->get_option('pane_conf');
-    if ((!isset($exposed_form_overrides['filters']['og_group_ref_target_id']) ||
-        (!empty($exposed_form_overrides['filters']['og_group_ref_target_id']))) &&
-       (!isset($pane_conf['show_exposed_form']) || !empty($pane_conf['show_exposed_form']))) {
-        // field is exposed to user so rearrange subspaces within spaces
-      _oa_subspaces_rearrange_options($form['og_group_ref_target_id']['#options']);
-    }
     $settings = _oa_subspaces_find_view_settings($form_state['view'], $form_state);
     if ($settings['og_group_ref_target_id'] && is_numeric($settings['og_group_ref_target_id'])) {
       _oa_subspaces_add_element_all($form, $form_state, $settings);
@@ -260,7 +235,9 @@ function _oa_subspaces_rearrange_options(&$options) {
 
   // convert flat list into hierarchy
   foreach ($indexed as $id => $row) {
-    $indexed[$row['parent']]['children'][$id] =& $indexed[$id];
+    if ($row['parent'] != $id) {
+      $indexed[$row['parent']]['children'][$id] =& $indexed[$id];
+    }
   }
 
   // add the nested -- to titles to convert back to flat
@@ -291,7 +268,6 @@ function oa_subspaces_form_views_content_views_panes_content_type_edit_form_alte
   // Need to also do it for the pane config form
   if (!empty($form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id'])) {
     $settings = _oa_subspaces_find_view_settings($form_state['view'], $form_state);
-    _oa_subspaces_rearrange_options($form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id']['#options']);
     _oa_subspaces_add_element_all($form['exposed']['filter-og_group_ref_target_id'], $form_state, $settings, array('exposed'));
     _oa_subspaces_add_element_parent($form['exposed']['filter-og_group_ref_target_id'], $form_state, $settings, array('exposed'));
   }
@@ -380,6 +356,11 @@ function _oa_subspaces_find_view_settings($view = NULL, $form_state = NULL) {
     $return['og_subspaces_view_all'] = FALSE;
     $return['og_subspaces_view_parent'] = FALSE;
   }
+  elseif (isset($return['og_group_ref_target_id']) && (empty($return['og_group_ref_target_id']) || $return['og_group_ref_target_id'] == OA_SPACE_CURRENT)) {
+    if ($group = oa_core_get_space_context()) {
+      $return['og_group_ref_target_id'] = $group;
+    }
+  }
 
   return $return;
 }
@@ -390,7 +371,10 @@ function _oa_subspaces_find_view_settings($view = NULL, $form_state = NULL) {
 function oa_subspaces_views_pre_view(&$view) {
   // If we are in a View where a specific group is being filtered for in an
   // exposed filter (as opposed to selecting '- Any -' or '- Active Space -').
-  if (!empty($view->display_handler->default_display->options['filters']['og_group_ref_target_id']['exposed'])) {
+  $style_setting = !empty($view->display_handler->options['pane_conf']['view_settings']) ? $view->display_handler->options['pane_conf']['view_settings']
+    : (!empty($view->display_handler->options['style_plugin']) ? $view->display_handler->options['style_plugin'] : NULL);
+  $allowed_styles = variable_get('oa_subspaces_view_og_group_ref_styles', array('table'));
+  if ($allowed_styles && $style_setting && in_array($style_setting, $allowed_styles) && !empty($view->display_handler->default_display->options['filters']['og_group_ref_target_id']['exposed'])) {
     $settings = _oa_subspaces_find_view_settings($view);
 
     $og_subspaces_view_all = $settings['og_subspaces_view_all'] && $settings['og_group_ref_target_id'] && oa_subspaces_get_children_groups('node', $settings['og_group_ref_target_id']);
@@ -438,19 +422,7 @@ function oa_subspaces_views_query_alter(&$view, &$query) {
         'og_membership.gid',
         'field_data_oa_other_spaces_ref.oa_other_spaces_ref_target_id',
       );
-
-      // Loop over all conditions in all 'where groups'.
-      foreach (array_keys($query->where) as $where_group) {
-        foreach ($query->where[$where_group]['conditions'] as $key => $condition) {
-          // If it matches the column or an alias.
-          foreach ($columns as $column) {
-            if ($condition['field'] === $column ||
-              (is_string($condition['field']) && substr($condition['field'], -strlen($column)-2) === "__{$column}")) {
-              $query->where[$where_group]['conditions'][$key]['value'] = array_merge($query->where[$where_group]['conditions'][$key]['value'], $extra_groups);
-            }
-          }
-        }
-      }
+      oa_core_view_query_modify_condition($query, $columns, $extra_groups);
     }
 
     if (!empty($view->exposed_input['oa_section_ref_target_id']) && is_numeric($view->exposed_input['oa_section_ref_target_id']) && !empty($view->filter['oa_section_ref_target_id']->options['exposed'])) {
@@ -459,16 +431,7 @@ function oa_subspaces_views_query_alter(&$view, &$query) {
           'field_data_oa_section_ref.oa_section_ref_target_id',
         );
         $extra_sections = oa_subspaces_matching_sections($view->exposed_input['oa_section_ref_target_id'], $extra_groups, array($current_group));
-        foreach (array_keys($query->where) as $where_group) {
-          foreach ($query->where[$where_group]['conditions'] as $key => $condition) {
-            foreach ($columns as $column) {
-              if ($condition['field'] === $column ||
-                (is_string($condition['field']) && substr($condition['field'], -strlen($column)-2) === "__{$column}")) {
-                $query->where[$where_group]['conditions'][$key]['value'] = array_merge($query->where[$where_group]['conditions'][$key]['value'], $extra_sections);
-              }
-            }
-          }
-        }
+        oa_core_view_query_modify_condition($query, $columns, $extra_sections);
       }
     }
   }

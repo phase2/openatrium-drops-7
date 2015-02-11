@@ -51,10 +51,11 @@ function linkit_entity_ctools_linkit_get_children($plugin, $parent) {
       continue;
     }
 
-    $plugin['ui_title'] = $entity['label'];
-    $plugin['ui_description'] = t('Extend Linkit with @entity support.', array('@entity' => $entity_type));
-    $plugin['name'] = $parent . ':' . $entity_type;
-    $plugin['entity_type'] = $entity_type;
+    $plugin_child = $plugin;
+    $plugin_child['ui_title'] = $entity['label'];
+    $plugin_child['ui_description'] = t('Extend Linkit with @entity support.', array('@entity' => $entity_type));
+    $plugin_child['name'] = $parent . ':' . $entity_type;
+    $plugin_child['entity_type'] = $entity_type;
 
     // If there is an alternative search class for this entity, change the handler.
     if (in_array('entity:' . $entity_type, $alternative_plugins)) {
@@ -62,10 +63,10 @@ function linkit_entity_ctools_linkit_get_children($plugin, $parent) {
         'class' => 'LinkitSearchPlugin' . drupal_ucfirst($entity_type),
         'file' => $entity_type . '.class.php',
       );
-      $plugin['handler'] = $handler;
+      $plugin_child['handler'] = $handler;
     }
-    drupal_alter('linkit_search_plugin_entity', $plugin, $entity);
-    $plugins[$parent . ':' . $entity_type] = $plugin;
+    drupal_alter('linkit_search_plugin_entity', $plugin_child, $entity);
+    $plugins[$parent . ':' . $entity_type] = $plugin_child;
   }
 
   drupal_alter('linkit_search_plugin_entities', $plugins);

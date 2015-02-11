@@ -275,6 +275,7 @@ http://www.whitehouse.gov/',
   // Exported field_instance: 'node-oa_event-field_oa_media'
   $field_instances['node-oa_event-field_oa_media'] = array(
     'bundle' => 'oa_event',
+    'default_value' => array(),
     'deleted' => 0,
     'description' => '',
     'display' => array(
@@ -411,11 +412,24 @@ http://www.whitehouse.gov/',
     'settings' => array(
       'behaviors' => array(
         'og_widget' => array(
+          'access_override' => 0,
           'admin' => array(
+            'widget_settings' => array(
+              'match_operator' => 'CONTAINS',
+              'size' => 60,
+            ),
             'widget_type' => 'entityreference_autocomplete',
           ),
           'default' => array(
-            'widget_type' => 'options_select',
+            'widget_settings' => array(
+              'select2widgetajax' => array(
+                'match_operator' => 'CONTAINS',
+                'min_char' => 0,
+                'view_mode' => 'teaser',
+                'width' => '100%',
+              ),
+            ),
+            'widget_type' => 'select2widgetajax',
           ),
           'status' => TRUE,
         ),
@@ -550,11 +564,28 @@ http://www.whitehouse.gov/',
     'settings' => array(
       'behaviors' => array(
         'og_widget' => array(
+          'access_override' => 1,
           'admin' => array(
-            'widget_type' => 'entityreference_autocomplete',
+            'widget_settings' => array(
+              'select2widgetajax' => array(
+                'match_operator' => 'CONTAINS',
+                'min_char' => 1,
+                'view_mode' => 'teaser',
+                'width' => '100%',
+              ),
+            ),
+            'widget_type' => 'select2widgetajax',
           ),
           'default' => array(
-            'widget_type' => 'options_select',
+            'widget_settings' => array(
+              'select2widgetajax' => array(
+                'match_operator' => 'CONTAINS',
+                'min_char' => 1,
+                'view_mode' => 'teaser',
+                'width' => '100%',
+              ),
+            ),
+            'widget_type' => 'select2widgetajax',
           ),
           'status' => TRUE,
         ),

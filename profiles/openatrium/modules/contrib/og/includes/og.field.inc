@@ -258,12 +258,13 @@ function og_property_info_alter($wrapper, $info) {
 function og_get_mocked_instance($instance, $field_mode) {
   $mocked_instance = $instance;
   $widget_type = $instance['settings']['behaviors']['og_widget'][$field_mode]['widget_type'];
+  $widget_settings = isset($instance['settings']['behaviors']['og_widget'][$field_mode]['widget_settings']) ? $instance['settings']['behaviors']['og_widget'][$field_mode]['widget_settings'] : array();
   $mocked_instance['widget']['type'] = $widget_type;
 
   // Set the widget's module.
   $widget_info = field_info_widget_types($widget_type);
   $mocked_instance['widget']['module'] = $widget_info['module'];
-  $mocked_instance['widget']['settings'] = drupal_array_merge_deep($mocked_instance['widget']['settings'], $widget_info['settings']);
+  $mocked_instance['widget']['settings'] = drupal_array_merge_deep($widget_settings + $mocked_instance['widget']['settings'], $widget_info['settings']);
 
   // See OgSelectionHandler::buildEntityFieldQuery().
   $mocked_instance['field_mode'] = $field_mode;

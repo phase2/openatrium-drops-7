@@ -162,16 +162,19 @@ function oa_messages_determine_user_notifiers($user, $entity, $message, $notifie
     $space_id = $entity->{OA_SPACE_FIELD}[LANGUAGE_NONE][0]['target_id'];
 
     // If no settings have been saved, set defaults.
-    if (empty($settings)) {
+    if (empty($settings[$space_id])) {
       foreach ($notifiers as $notifier) {
         if (!empty($notifier['default'])) {
           $allowed_notifiers[] = $notifier['id'];
         }
       }
     }
-    else {
-      if (isset($settings[$space_id]['messages'][$message->type])) {
-        $allowed_notifiers = $settings[$space_id]['methods'];
+    // Otherwise, check if the specific message type is enabled for the space
+    elseif (isset($settings[$space_id]['messages'][$message->type])) {
+      if (!empty($settings[$space_id]['methods'])) {
+        foreach ($settings[$space_id]['methods'] as $method) {
+          $allowed_notifiers[] = $method;
+        }
       }
     }
   }

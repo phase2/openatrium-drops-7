@@ -1,3 +1,7 @@
+Panopoly Magic 7.x-1.15, 2015-01-12
+----------------------------
+- No changes since last release.
+
 Panopoly Magic 7.x-1.14, 2014-11-19
 ----------------------------
 - Have Panopoly Theme depend on Radix Layouts (rather than providing it's own).

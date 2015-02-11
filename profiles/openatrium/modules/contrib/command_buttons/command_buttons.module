@@ -664,60 +664,62 @@ function command_buttons_render_buttons($commands, $classes, $source = array()) 
     $links = field_get_items('command_button', $command, 'field_command_link');
 
     // Add the correct css class to each link, do token replacement, and render the link.
-    foreach ($links as $link) {
-      $path = filter_xss(token_replace($link['url']));
-      if (!url_is_external($path)) {
-        $item = menu_get_item($path);
-        if (!$item || empty($item['access'])) {
-          continue;
+    if (!empty($links)) {
+      foreach ($links as $link) {
+        $path = filter_xss(token_replace($link['url']));
+        if (!url_is_external($path)) {
+          $item = menu_get_item($path);
+          if (!$item || empty($item['access'])) {
+            continue;
+          }
         }
-      }
-      $link['attributes']['class'] = !empty($classes['item_class']) ? $classes['item_class'] : array();
-      $link['attributes']['class'] += array(' command-' . str_replace('-', '_', $command->name));
+        $link['attributes']['class'] = !empty($classes['item_class']) ? $classes['item_class'] : array();
+        $link['attributes']['class'] += array(' command-' . str_replace('-', '_', $command->name));
 
-      foreach ($source as $command_link) {
-        $options = array('attributes' => $link['attributes']);
-        // Make sure we have a command link and that the value matches that of
-        // the command we are currently on.
-        if (!empty($command_link) && $command_link['value'] === $command->name) {
-          if ($command_link['provider_type'] == 'oa_section') {
-            $options['query'] = array('oa_section_ref' => $command_link['id']);
-          }
-          else if ($command_link['provider_type'] == 'oa_space') {
-            $options['query'] = array('og_group_ref' => $command_link['id']);
-          }
-
-          if (drupal_valid_path($path)) {
-
-            // If we don't have duplicate sections just display the default title.
-            if (!$duplicates[$command_link['value']]) {
-              $title = token_replace($link['title']);
+        foreach ($source as $command_link) {
+          $options = array('attributes' => $link['attributes']);
+          // Make sure we have a command link and that the value matches that of
+          // the command we are currently on.
+          if (!empty($command_link) && $command_link['value'] === $command->name) {
+            if ($command_link['provider_type'] == 'oa_section') {
+              $options['query'] = array('oa_section_ref' => $command_link['id']);
             }
-            // If we have duplicate sections then we will add the title of the
-            // section node to distinguish the difference between them.
-            else {
-              $title = db_select('node', 'n')
-                ->fields('n', array('title'))
-                ->condition('n.nid', $command_link['id'])
-                ->execute()
-                ->fetchField();
-              $title = token_replace($link['title'] . ' ' . t('in') . ' ' . $title);
+            else if ($command_link['provider_type'] == 'oa_space') {
+              $options['query'] = array('og_group_ref' => $command_link['id']);
             }
 
-            $icon = field_get_items('command_button', $command, 'field_link_icon');
-            if (!empty($icon[0]['value'])) {
-              $title = '<i class="' . $icon[0]['value'] . '"></i> ' . $title;
-              $options['html'] = TRUE;
-            }
+            if (drupal_valid_path($path)) {
 
-            // handle query argument in the command button path
-            $options = array_merge_recursive($options, drupal_parse_url($path));
-            $path = $options['path'];
-            // can't leave 'path' in url $options or the outbound url alter
-            // in oa_domains gets messed up
-            unset($options['path']);
+              // If we don't have duplicate sections just display the default title.
+              if (!$duplicates[$command_link['value']]) {
+                $title = token_replace($link['title']);
+              }
+              // If we have duplicate sections then we will add the title of the
+              // section node to distinguish the difference between them.
+              else {
+                $title = db_select('node', 'n')
+                  ->fields('n', array('title'))
+                  ->condition('n.nid', $command_link['id'])
+                  ->execute()
+                  ->fetchField();
+                $title = token_replace($link['title'] . ' ' . t('in') . ' ' . $title);
+              }
 
-            $items[] = '<li>' . l($title, $path, $options) .'</li>';
+              $icon = field_get_items('command_button', $command, 'field_link_icon');
+              if (!empty($icon[0]['value'])) {
+                $title = '<i class="' . $icon[0]['value'] . '"></i> ' . $title;
+                $options['html'] = TRUE;
+              }
+
+              // handle query argument in the command button path
+              $options = array_merge_recursive($options, drupal_parse_url($path));
+              $path = $options['path'];
+              // can't leave 'path' in url $options or the outbound url alter
+              // in oa_domains gets messed up
+              unset($options['path']);
+
+	      $items[] = '<li>' . l($title, $path, $options) .'</li>';
+	    }
           }
         }
       }

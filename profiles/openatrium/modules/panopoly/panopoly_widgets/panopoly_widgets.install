@@ -267,3 +267,10 @@ function panopoly_widgets_update_7008() {
 function panopoly_widgets_update_7009() {
   features_revert(array('panopoly_widgets' => array('field_base', 'field_instance')));
 }
+
+/**
+ * Make sure the new 'field_basic_spotlight_pager' field gets created.
+ */
+function panopoly_widgets_update_7010() {
+  features_revert(array('panopoly_widgets' => array('field_base', 'field_instance')));
+}

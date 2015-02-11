@@ -1,0 +1,445 @@
+<?php
+/**
+ * @file
+ * Code for the Open Atrium Related Content.
+ */
+
+include_once 'oa_related.features.inc';
+include_once 'oa_related.paragraphs.inc';
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function oa_related_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'ctools' && $plugin_type == 'content_types') {
+    return 'plugins/content_types';
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function oa_related_theme() {
+  $path = drupal_get_path('module', 'oa_related') . '/templates';
+  return array(
+    'oa_related_files' => array(
+      'template' => 'oa-related-files',
+      'variables' => array(
+      ),
+      'path' => $path,
+    ),
+    'oa_related_ref' => array(
+      'template' => 'oa-related-ref',
+      'variables' => array(
+      ),
+      'path' => $path,
+    ),
+  );
+}
+
+
+/**
+ * Implements hook_form_FORMID_alter().
+ */
+function oa_related_form_field_ui_display_overview_form_alter(&$form, &$form_state) {
+  // add Heading option to paragraph field labels
+  if (isset($form['#entity_type']) && ($form['#entity_type'] == 'paragraphs_item')) {
+    foreach ($form['#fields'] as $fieldname) {
+      if (isset($form['fields'][$fieldname]['label'])) {
+        if (isset($form['fields'][$fieldname]['label']['#options'])) {
+          $form['fields'][$fieldname]['label']['#options']['heading'] = t('Heading');
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Helper function to create a new panels pane for a given fieldname
+ * @param $node
+ */
+function oa_related_default_pane($node, $field_name) {
+  $fields = field_info_instances('node', $node->type);
+  $instance = $fields[$field_name];
+  $field_display = $instance['display']['default'];
+
+  $pane = panels_new_pane('entity_field', 'node:' . $field_name, TRUE);
+  $pane->configuration['formatter'] = $field_display['type'];
+  $pane->configuration['formatter_settings'] = $field_display['settings'];
+  $pane->configuration['label'] = $field_display['label'];
+  $pane->configuration['context'] = 'panelizer';
+  return $pane;
+}
+
+/**
+ * Implements hook_panelizer_pre_render_alter
+ * Adds the oa_related field panels pane right after the body field
+ * @param $panelizer
+ * @param $display
+ * @param $entity
+ */
+function oa_related_panelizer_pre_render_alter(&$panelizer, $display, $entity) {
+  if (!empty($entity->field_oa_related)) {
+    $found = FALSE;
+    foreach ($display->content as $index => $panel) {
+      if (($panel->type == 'entity_field') && ($panel->subtype == 'node:field_oa_related')) {
+        $found = TRUE;
+        break;
+      }
+    }
+    if (!$found) {
+      foreach ($display->content as $index => $panel) {
+        if (($panel->type == 'entity_field') && ($panel->subtype == 'node:body')) {
+          // found the body field so add a field_oa_related pane right after it
+          $pane = oa_related_default_pane($entity, 'field_oa_related');
+          $pid = uniqid();
+          $pane->pid = $pid;
+          $pane->uuid = $pid;
+          // set the display panel to the same region as the body field
+          $pane->panel = $panel->panel;
+          // add new pane to list of available panes
+          $panelizer->display->content[$pid] = $pane;
+          // finally, insert the pid reference of the new pane into the correct spot
+          // within the region right after the body position
+          $i = array_search($index, $panelizer->display->panels[$panel->panel]);
+          array_splice($panelizer->display->panels[$panel->panel], $i + 1, 0, array($pid));
+          break;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Return the best section id to create $node in
+ * @param $options array is optional to restrict return values
+ */
+function oa_related_get_best_section($node, $options = array()) {
+  $section = oa_core_get_section_context();
+
+  // Get all possible sections in the current space that can contain this content.
+  $space_id = oa_core_get_space_context();
+  $space = node_load($space_id);
+  $commands = oa_buttons_get_command_buttons($space, TRUE);
+
+  $nids = array();
+  // Remove any commands that do not match the content type we are creating.
+  foreach ($commands as $key => $command) {
+    if ($command['value'] != $node->type) {
+      unset($commands[$key]);
+    }
+    else {
+      $nids[] = $command['id'];
+    }
+  }
+  // Restrict possible sections to $options list if given
+  if (!empty($options) && !empty($nids)) {
+    $nids = array_intersect($nids, array_keys($options));
+  }
+
+  if (!empty($nids) && in_array($section, $nids)) {
+    // First choice: Use the current section since it allows the content type.
+  }
+  elseif (count($nids) > 1) {
+    // If there is more than one match, find the one without access restrictions.
+    // Query the visibilities of our possible section nids.
+    $query = db_select('node', 'n');
+    $query->condition('n.nid', $nids, 'IN');
+    $query->leftJoin('field_data_field_oa_user_ref', 'u', "n.nid = u.entity_id AND u.entity_type = 'node'");
+    $query->leftJoin('field_data_field_oa_group_ref', 'o', "n.nid = o.entity_id AND o.entity_type = 'node'");
+    $query->leftJoin('field_data_field_oa_team_ref', 't', "n.nid = t.entity_id AND t.entity_type = 'node'");
+    $query->fields('n', array('nid'));
+    $query->fields('u', array('field_oa_user_ref_target_id'));
+    $query->fields('o', array('field_oa_group_ref_target_id'));
+    $query->fields('t', array('field_oa_team_ref_target_id'));
+    $result = $query->execute()->fetchAllAssoc('nid');
+
+    // loop through visibility and find sections with most visibility
+    $no_user = NULL;
+    $no_team = NULL;
+    $no_group = NULL;
+    foreach ($result as $row) {
+      if (!isset($row->field_oa_user_ref_target_id)) {
+        $no_user = $row->nid;
+        if (!isset($row->field_oa_team_ref_target_id)) {
+          $no_team = $row->nid;
+          if (!isset($row->field_oa_group_ref_target_id)) {
+            $no_group = $row->nid;
+          }
+        }
+      }
+    }
+    $section = isset($no_group) ? $no_group : (isset($no_team) ? $no_team : $no_user);
+  }
+  elseif (!empty($nids)) {
+    // Last resort is to use the first (or only) section allowing this content type.
+    $section = $nids[0];
+  }
+
+  return $section;
+}
+
+/**
+ * Implements hook_form_alter
+ * For node/add and node/edit pages
+ */
+function oa_related_form_node_form_alter(&$form, &$form_state) {
+  if (isset($form[OA_SECTION_FIELD])) {
+    if (!empty($_GET['render']) && ($_GET['render'] == 'references-dialog')) {
+      // we are in a References Dialog popup form
+      $node = $form['#node'];
+      $section = oa_related_get_best_section($node, $form[OA_SECTION_FIELD][LANGUAGE_NONE]['#options']);
+      if (!empty($section)) {
+        $form[OA_SECTION_FIELD][LANGUAGE_NONE]['#default_value'] = $section;
+      }
+
+      // move Section selection to top of node form so user can confirm it
+      $form[OA_SECTION_FIELD]['#weight'] = $form['body']['#weight'] - 0.5;
+      // and move the field out of any field group
+      if (isset($form['#group_children'])) {
+        unset($form['#group_children'][OA_SECTION_FIELD]);
+      }
+    }
+  }
+
+  // Put the Related Content field right after the Body field on edit forms.
+  if (isset($form['field_oa_related']) && isset($form['body'])) {
+    $form['field_oa_related']['#weight'] = $form['body']['#weight']+0.5;
+  }
+}
+
+/**
+ * Implements hook_features_template_info().
+ */
+function oa_related_features_template_info() {
+  $content_types = oa_related_get_content_types();
+  $data = array();
+  foreach ($content_types as $content_type => $present) {
+    // Only have an entry if this will exist or needs to be deleted.
+    if ($present || field_info_instance('node', 'field_oa_related', $content_type) && node_type_get_type($content_type)) {
+      $data[] = array(
+        'plugin' => 'field_instance',
+        'template' => 'oa_related_field_default_field_instances_template',
+        'deleted' => empty($present),
+        'entity_type' => 'node',
+        'bundle_type' => $content_type,
+        'field' => 'field_oa_related',
+      );
+    }
+  }
+  return $data;
+}
+
+/**
+ * Determine list of content types to add the oa_related field to
+ */
+function oa_related_get_content_types() {
+  $allowed_default = module_invoke_all('oa_related_allowed_default');
+  $allowed_default = drupal_map_assoc($allowed_default);
+  return array_intersect_key(variable_get('oa_related_allowed_types', $allowed_default), node_type_get_names());
+}
+
+/**
+ * Template callback for field_topic.
+ * Used as a template for other bundles.
+ * References to oa_wiki_page will be replaced by features_template.
+ */
+function oa_related_field_default_field_instances_template() {
+  $field_instances = array();
+
+  // Exported field_instance: 'node-oa_wiki_page-field_oa_related'
+  $field_instances['node-oa_wiki_page-field_oa_related'] = array(
+    'bundle' => 'oa_wiki_page',
+    'comment_alter' => 0,
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'hidden',
+        'module' => 'paragraphs',
+        'settings' => array(
+          'view_mode' => 'full',
+        ),
+        'type' => 'paragraphs_view',
+        'weight' => 1,
+      ),
+      'featured' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'ical' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_oa_related',
+    'label' => t('Paragraphs'),
+    'required' => 0,
+    'settings' => array(
+      'add_mode' => 'select',
+      'allowed_bundles' => array(),
+      'default_edit_mode' => 'open',
+      'title' => 'Paragraph',
+      'title_multiple' => 'Paragraphs',
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 0,
+      'module' => 'paragraphs',
+      'settings' => array(),
+      'type' => 'paragraphs_embed',
+      'weight' => 4,
+    ),
+  );
+
+  return $field_instances;
+}
+
+/**
+ * Implements hook_oa_settings_form().
+ */
+function oa_related_oa_settings_form(&$form_state) {
+  $forms = array();
+  $form = array();
+
+  $allowed_default = module_invoke_all('oa_related_allowed_default');
+  drupal_map_assoc($allowed_default);
+
+  $types = oa_core_list_content_types(TRUE, TRUE);
+  $options = array();
+  foreach ($types as $key => $type) {
+    $options[$key] = $type->name;
+  }
+  $default = variable_get('oa_related_allowed_types', $allowed_default);
+
+  $form['oa_related_allowed_types'] = array(
+    '#type' => 'checkboxes',
+    '#title' => 'Content that can reference other content',
+    '#description' => 'Enable which content types should have a Related Content field.',
+    '#options' => $options,
+    '#default_value' => $default,
+  );
+  $form_state['build_info']['oa_related_allowed_types'] = $default;
+
+  $forms[] = array(
+    'caption' => t('Related Content'),
+    'form' => $form,
+    'submit' => 'oa_related_settings_submit',
+  );
+
+  return $forms;
+}
+
+/**
+ * Submit handler for oa_related_oa_settings_form
+ */
+function oa_related_settings_submit($form, &$form_state) {
+  // only revert features template if content types have changed
+  if (!empty($form_state['build_info']['oa_related_allowed_types']) &&
+    md5(serialize($form_state['build_info']['oa_related_allowed_types'])) != md5(serialize($form_state['values']['oa_related_allowed_types']))) {
+    variable_set('oa_related_allowed_types', $form_state['values']['oa_related_allowed_types']);
+    features_template_revert();
+  }
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ * Preprocess theme variables for various paragraph item types
+ */
+function oa_related_preprocess_entity(&$vars) {
+  if ($vars['entity_type'] == 'paragraphs_item') {
+    drupal_alter('oa_' . $vars['paragraphs_item']->bundle, $vars);
+  }
+}
+
+/**
+ * Implements hook_field_attach_presave().
+ */
+function oa_related_field_attach_presave($entity_type, $entity) {
+  // check paragraph entities that use entityreferences with revisions
+  if ($entity_type == 'paragraphs_item') {
+    if (isset($entity->field_paragraph_lock_revision)) {
+      $lock = field_get_items('paragraphs_item', $entity, 'field_paragraph_lock_revision');
+      // only process entities that have the Lock Revision option field
+      if (isset($lock)) {
+        foreach ($entity as $field_name => $field) {
+          // loop through entity looking for fields that have revision info
+          if (is_array($field) && isset($field[LANGUAGE_NONE][0]['revision_id'])) {
+            if (!empty($lock[0]['value'])) {
+              // to lock the revision, get the previously saved revision value
+              $original_items = isset($entity->original) ? (array)field_get_items($entity_type, $entity->original, $field_name) : array();
+              $revision_id = !empty($field[LANGUAGE_NONE][0]['revision_id']) ? $field[LANGUAGE_NONE][0]['revision_id'] : NULL;
+              $revision_id = !empty($original_items[0]['revision_id']) ? $original_items[0]['revision_id'] : $revision_id;
+
+              if ($revision_id) {
+                $entity->{$field_name}[LANGUAGE_NONE][0]['revision_id'] = $revision_id;
+              }
+            } else {
+              // to unlock the revision, just remove it
+              unset($entity->{$field_name}[LANGUAGE_NONE][0]['revision_id']);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_default_search_api_index_alter().
+ */
+function oa_related_default_search_api_index_alter(&$data) {
+  // Generated via Features Override but moved into normal code
+  // Adds various paragraph fields to the oa_search index automatically if available
+  if (isset($data['database_node_index'])) {
+    $data['database_node_index']->options['fields']['field_oa_related'] = array(
+      'type' => 'list<integer>',
+      'entity_type' => 'paragraphs_item',
+    ); /* WAS: '' */
+    $data['database_node_index']->options['fields']['field_oa_related:field_paragraph_text:value'] = array(
+      'type' => 'list<text>',
+    ); /* WAS: '' */
+    $data['database_node_index']->options['fields']['field_oa_related:snippet_body'] = array(
+      'type' => 'list<text>',
+    ); /* WAS: '' */
+  }
+  if (isset($data['node_index'])) {
+    $data['node_index']->options['fields']['field_oa_related'] = array(
+      'type' => 'list<integer>',
+      'entity_type' => 'paragraphs_item',
+    ); /* WAS: '' */
+    $data['node_index']->options['fields']['field_oa_related:field_paragraph_text:value'] = array(
+      'type' => 'list<text>',
+    ); /* WAS: '' */
+    $data['node_index']->options['fields']['field_oa_related:snippet_body'] = array(
+      'type' => 'list<text>',
+    ); /* WAS: '' */
+  }
+}
+
+/**
+ * Implements hook_modules_enabled().
+ */
+function oa_related_template_modules_enabled($modules) {
+  foreach ($modules as $module_name) {
+    $node_infos = module_invoke($module_name, 'node_info');
+    if (array_intersect_key(oa_related_get_content_types(), $node_infos)) {
+      $cache = &drupal_static('features_get_default', array());
+      $cache = array();
+      features_template_revert('rebuild');
+      break;
+    }
+  }
+}

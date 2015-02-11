@@ -141,3 +141,10 @@ function oa_worktracker_update_7204() {
 function oa_worktracker_update_7205() {
   oa_worktracker_install_section_type();
 }
+
+/**
+ * Disable node preview for Tasks.
+ */
+function oa_worktracker_update_7206() {
+  variable_set('node_preview_oa_worktracker_task', '0');
+}

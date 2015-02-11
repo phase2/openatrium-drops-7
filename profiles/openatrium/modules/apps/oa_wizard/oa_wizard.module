@@ -134,9 +134,11 @@ function oa_wizard_modal_callback($wizard_name) {
   $form_state = array(
     'title' => t('Add New @name', array('@name' => node_type_get_name($node_type))),
     'ajax' => TRUE,
+    'no_redirect' => TRUE,
   );
 
   $form_state['build_info']['args'] = array($node);
+  $form_state['build_info']['oa_wizard'] = $wizard_name;
   // change this to your type node form
   $output = ctools_modal_form_wrapper($node_type . '_node_form', $form_state);
 
@@ -145,16 +147,39 @@ function oa_wizard_modal_callback($wizard_name) {
     $output = array();
     // Close the modal
     $output[] = ctools_modal_command_dismiss();
-    $output[] = array(
-      // The command will be used in our JavaScript file (see next section)
-      'command' => 'oaWizardNew',
-      // We pass the value that the user selected in the select element to our
-      // JavaScript function:
-      'node' => $form_state['node'],
-    );
+    if ($url = &drupal_static('oa_wizard_redirect')) {
+      $output[] = array(
+        // The command will be used in our JavaScript file (see next section)
+        'command' => 'oaWizardRedirect',
+        'url' => $url,
+      );
+    }
+    else {
+      $form_state['node']->node_token = drupal_get_token('sitemap-node-' . $form_state['node']->nid);
+      $output[] = array(
+        // The command will be used in our JavaScript file (see next section)
+        'command' => 'oaWizardNew',
+        // We pass the value that the user selected in the select element to our
+        // JavaScript function:
+        'node' => $form_state['node'],
+      );
+    }
   }
   print ajax_render($output);
   exit;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for node_form.
+ */
+function oa_wizard_form_node_form_alter(&$form, $form_state) {
+  // Add in wizard name to be available during node_save.
+  if (isset($form_state['build_info']['oa_wizard'])) {
+    $form['oa_wizard_name'] = array(
+      '#type' => 'value',
+      '#value' => $form_state['build_info']['oa_wizard'],
+    );
+  }
 }
 
 /**

@@ -408,11 +408,28 @@ function oa_sections_field_default_field_instances() {
     'settings' => array(
       'behaviors' => array(
         'og_widget' => array(
+          'access_override' => 1,
           'admin' => array(
-            'widget_type' => 'entityreference_autocomplete',
+            'widget_settings' => array(
+              'select2widgetajax' => array(
+                'match_operator' => 'CONTAINS',
+                'min_char' => 1,
+                'view_mode' => 'teaser',
+                'width' => '100%',
+              ),
+            ),
+            'widget_type' => 'select2widgetajax',
           ),
           'default' => array(
-            'widget_type' => 'options_select',
+            'widget_settings' => array(
+              'select2widgetajax' => array(
+                'match_operator' => 'CONTAINS',
+                'min_char' => 1,
+                'view_mode' => 'teaser',
+                'width' => '100%',
+              ),
+            ),
+            'widget_type' => 'select2widgetajax',
           ),
           'status' => TRUE,
         ),

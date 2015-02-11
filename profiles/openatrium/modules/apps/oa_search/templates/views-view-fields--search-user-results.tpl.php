@@ -31,9 +31,12 @@
  * @ingroup views_templates
  */
 ?>
+<?php
+  $link = url('user/' . $row->_entity_properties['entity object']->uid);
+?>
 <div class='oa-list well oa_search_row clearfix oa-list-header'>
-  <div class="oa-pull-left"><?php print $field_user_picture; ?></div>
-  <h3><?php print $field_user_display_name; ?></h3>
+  <div class="oa-pull-left"><a href="<?php print $link; ?>"><?php print $field_user_picture; ?></a></div>
+  <h3><a href="<?php print $link; ?>"><?php print $field_user_display_name; ?></a></h3>
 
   <div><?php print $mail; ?></div>
 </div>

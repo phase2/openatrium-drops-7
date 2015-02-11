@@ -11,6 +11,19 @@
   max-width: 100%;
 }
 
+.help-block {
+  white-space: normal;
+}
+
+.node-teaser .user-picture {
+  float: left;
+  margin-right: 5px;
+}
+
+.node-teaser .submitted {
+  font-style: italic;
+}
+
 #modal-content .widget-preview-title {
   /* move Add button to left so wide tables doesnt scroll */
   left: 10px;
@@ -21,8 +34,9 @@
 .views-widget-filter-og_group_ref_target_id div.form-item.form-type-checkbox {
   display: inline-block;
 }
-.views-exposed-form .views-exposed-widget.views-widget-filter-og_group_ref_target_id {
-  padding-bottom: 0.5em;
+
+.views-exposed-widget .help-block {
+  display: none;
 }
 
 .oa_pending_count {
@@ -64,4 +78,8 @@
 
 #modal-content .panels-section-column fieldset legend {
   max-width: 100%;
+}
+
+.pane-node-field-oa-media .field-item {
+  margin-bottom: 5px;
 }

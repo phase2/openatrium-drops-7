@@ -9,7 +9,7 @@ $plugin = array(
   'title' => t('Team Members'),
   'description' => t("Show the members of a Team"),
   'single' => TRUE,
-  'category' => t('Open Atrium'),
+  'category' => t('OA Admin'),
   'render callback' => 'oa_team_members_render',
   'required context' => new ctools_context_required(t('Node'), 'node'),
 );

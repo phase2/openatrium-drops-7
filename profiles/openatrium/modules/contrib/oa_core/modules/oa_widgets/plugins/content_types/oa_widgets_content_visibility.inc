@@ -9,7 +9,7 @@ $plugin = array(
   'title' => t('Content Visibility'),
   'description' => t('Show content visibility.'),
   'single' => TRUE,
-  'category' => array(t('Open Atrium'), -9),
+  'category' => array(t('OA Admin'), -9),
   'edit form' => 'oa_widgets_content_visibility_edit_form',
   'render callback' => 'oa_widgets_content_visibility_render',
   'required context' => new ctools_context_required(t('Node'), 'node'),
@@ -20,6 +20,9 @@ $plugin = array(
  */
 function oa_widgets_content_visibility_render($subtype, $conf, $args, $context = NULL) {
   if (!isset($context->data)) {
+    return;
+  }
+  if (!variable_get('oa_show_visibility_panel', TRUE)) {
     return;
   }
   $block = new stdClass();

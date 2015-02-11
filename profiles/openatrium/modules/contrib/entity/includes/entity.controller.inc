@@ -612,7 +612,8 @@ class EntityAPIController extends DrupalDefaultEntityController implements Entit
       // An internal flag prevents the operation from running twice.
       $key = isset($entity->{$this->idKey}) ? $entity->{$this->idKey} : NULL;
       field_attach_prepare_view($this->entityType, array($key => $entity), $view_mode);
-      $entity->content += field_attach_view($this->entityType, $entity, $view_mode, $langcode);
+      $new_content = field_attach_view($this->entityType, $entity, $view_mode, $langcode);
+      $entity->content = (!empty($entity->content)) ? $entity->content + $new_content : $new_content;
     }
     // Invoke hook_ENTITY_view() to allow modules to add their additions.
     if (module_exists('rules')) {

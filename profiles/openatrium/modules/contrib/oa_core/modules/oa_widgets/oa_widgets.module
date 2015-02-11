@@ -16,4 +16,23 @@ function oa_widgets_ctools_plugin_directory($owner, $plugin_type) {
   }
 }
 
+/**
+ * Implements hook_oa_settings_form().
+ */
+function oa_widgets_oa_settings_form(&$form_state) {
+  $forms = array();
+
+  $form = array();
+  $form['oa_show_visibility_panel'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Show visibility panel widget',
+    '#default_value' => variable_get('oa_show_visibility_panel', TRUE),
+  );
+
+  $forms[] = array(
+    'caption' => t('Privacy'),
+    'form' => $form,
+  );
+  return $forms;
+}
 

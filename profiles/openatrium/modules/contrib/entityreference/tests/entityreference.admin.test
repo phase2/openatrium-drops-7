@@ -74,12 +74,16 @@ class EntityReferenceAdminTestCase extends DrupalWebTestCase {
     // The base handler should be selected by default.
     $this->assertFieldByName('field[settings][handler]', 'base');
 
-    // The base handler settings should be diplayed.
+    // The base handler settings should be displayed.
     $entity_type = 'node';
     $entity_info = entity_get_info($entity_type);
     foreach ($entity_info['bundles'] as $bundle_name => $bundle_info) {
       $this->assertFieldByName('field[settings][handler_settings][target_bundles][' . $bundle_name . ']');
     }
+
+    // The revision settings should be displayed since nodes support revisions.
+    $this->assertFieldByName('field[settings][handler_settings][reference_revisions]', 1);
+    $this->assertFieldByName('field[settings][handler_settings][lock_revision]', 1);
 
     // Test the sort settings.
     $options = array('none', 'property', 'field');
@@ -109,6 +113,19 @@ class EntityReferenceAdminTestCase extends DrupalWebTestCase {
     $this->drupalPost(NULL, array(), t('Save settings'));
 
     // Check that the field appears in the overview form.
-    $this->assertFieldByXPath('//table[@id="field-overview"]//td[1]', 'Test label', t('Field was created and appears in the overview page.'));
+    $elements = $this->xpath('//table[@id="field-overview"]//td[text()="Test label"]');
+    $this->assertTrue($elements, 'Field was created and appears in the overview page.');
+
+    // Test that the revision options are not shown for an entity type that does
+    // not support revisions.
+    $this->drupalPost($bundle_path . '/fields', array(
+      'fields[_add_new_field][label]' => 'User',
+      'fields[_add_new_field][field_name]' => 'test_user',
+      'fields[_add_new_field][type]' => 'entityreference',
+      'fields[_add_new_field][widget_type]' => 'entityreference_autocomplete',
+    ), t('Save'));
+    $this->drupalPostAJAX(NULL, array('field[settings][target_type]' => 'user'), 'field[settings][target_type]');
+    $this->assertNoFieldByName('field[settings][handler_settings][reference_revisions]', 1);
+    $this->assertNoFieldByName('field[settings][handler_settings][lock_revision]', 1);
   }
 }

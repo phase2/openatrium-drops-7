@@ -1632,7 +1632,7 @@ function og_vocab_entity_delete($entity, $entity_type) {
  */
 function og_vocab_is_group_admin_context() {
   if (strpos($_GET['q'], 'group/') === 0 && ($item = menu_get_item()) && !empty($item['map'][2])) {
-    return array('group_type' => $item['map'][1], 'gid' => $item['map'][2]);
+    return array('group_type' => arg(1), 'gid' => arg(2));
   }
 
   // Iterate over modules implementing context, and return early once

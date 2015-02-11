@@ -1,0 +1,231 @@
+/* Edit form styling for paragraphs field */
+
+.form-item-field-oa-related-add-more-type {
+  display: inline-block;
+  width: 70%;
+}
+
+.form-item-field-oa-related-add-more-type select {
+  width: 100%;
+  display: inline-block;
+  height: 34px;
+}
+
+#edit-field-oa-related-und-add-more .field-add-more-submit {
+  display: inline-block;
+  margin: 0;
+}
+
+.field-type-paragraphs .field-widget-options-select {
+  margin-bottom: 10px;
+}
+
+/* CSS for various paragraph item styles */
+.paragraphs-item-paragraph-media .file-image .content {
+  padding-bottom: 10px;
+}
+
+td.oa-image-quarter {
+  max-width: 256px;
+}
+
+.oa-table-actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.oa-table-actions a {
+  font-size: 18px;
+  color: #777;
+}
+
+.oa-table-actions a:hover,
+.oa-table-actions a:focus{
+  text-decoration: none;
+}
+
+h4.oa-table-title {
+  margin-top: 0;
+}
+
+.table-bordered td.oa-table-noborder {
+  border: 0;
+}
+
+.pull-center .file-image .content {
+  clear: both;
+  text-align: center;
+}
+
+.pull-left .file-image .content {
+  padding-right: 10px;
+}
+
+.pull-right .file-image .content {
+  padding-left: 10px;
+}
+
+.pull-full .field-type-file .field-item {
+  display: inline-block;
+  width: 100%;
+  padding-right: 0;
+  text-align: center;
+}
+
+.pull-grid2 .field-type-file .field-item {
+  display: inline-block;
+  width: 49%;
+  padding-right: 1%;
+}
+
+.pull-grid3 .field-type-file .field-item {
+  display: inline-block;
+  width: 32%;
+  padding-right: 1%;
+}
+
+.pull-grid4 .field-type-file .field-item {
+  display: inline-block;
+  width: 24%;
+  padding-right: 1%;
+}
+
+.pull-grid5 .field-type-file .field-item {
+  display: inline-block;
+  width: 19%;
+  padding-right: 1%;
+}
+
+h3.oa_snippet_title {
+  margin-top: 5px;
+}
+
+.entity-paragraphs-item.oa-columns-2 {
+  -webkit-column-count: 2;
+  -moz-column-count: 2;
+  column-count: 2;
+  -webkit-column-width: 200px;
+  -moz-column-width: 200px;
+  column-width: 200px;
+}
+
+.entity-paragraphs-item.oa-columns-3 {
+  -webkit-column-count: 3;
+  -moz-column-count: 3;
+  column-count: 3;
+  -webkit-column-width: 200px;
+  -moz-column-width: 200px;
+  column-width: 200px;
+}
+
+.entity-paragraphs-item.oa-columns-4 {
+  -webkit-column-count: 4;
+  -moz-column-count: 4;
+  column-count: 4;
+  -webkit-column-width: 200px;
+  -moz-column-width: 200px;
+  column-width: 200px;
+}
+
+.entity-paragraphs-item.oa-callout-left {
+  float: left;
+  width: 32%;
+  margin-right: 20px;
+}
+
+.entity-paragraphs-item.oa-callout-right {
+  float: right;
+  width: 32%;
+  margin-left: 20px;
+}
+
+.oa-callout {
+  padding: 10px 15px;
+  border-style: solid;
+  border-width: 1px;
+  margin-bottom: 10px;
+}
+
+.field-type-paragraphs input.form-autocomplete,
+.field-type-paragraphs input.form-text {
+  max-width: 80%;
+}
+
+.entity-paragraphs-item .field-label-heading .field-label {
+  font-size: 16px;
+  font-weight: 200;
+  border-top: 1px solid #ccc;
+  margin-top: 20px;
+  text-align: right;
+  text-transform: uppercase;
+  clear: both;
+}
+
+.field-label-heading .field-label .field-colon {
+  display: none;
+}
+
+.paragraphs-item-paragraph-content h2:nth-child(1) {
+  margin-top: 0;
+}
+
+.paragraphs-item-paragraph-content .oa-discussion-parent {
+  margin-top: 0;
+}
+
+.paragraphs-item-paragraph-content .node-oa-discussion-post {
+  padding-right: 20px;
+}
+
+.paragraphs-item-paragraph-content hr {
+  margin-top: 0;
+}
+
+.oa-related-file {
+  clear: both;
+  margin-bottom: 10px;
+  padding: 0 0 10px 0;
+  border-bottom: 1px solid #ccc;
+}
+
+.oa-related-file .oa-related-image {
+  display: inline-block;
+  width: 32%;
+}
+
+.oa-related-file .oa-related-image img {
+  vertical-align: middle;
+}
+
+.oa-related-file .oa-related-title {
+  display: inline-block;
+  word-wrap: break-word;
+  width: 42%;
+}
+
+.oa-related-file .oa-related-size {
+  display: inline-block;
+  width: 22%;
+  font-size: 12px;
+  text-align: right;
+}
+
+.oa-related-refitem {
+  clear: both;
+  padding: 0 0 5px 0;
+}
+
+.oa-related-refitem .oa-related-title {
+}
+
+.oa-related-refitem .oa-related-type {
+  display: inline;
+  text-transform: uppercase;
+  font-size: 12px;
+  padding-left: 10px;
+  text-align: right;
+  float: right;
+}
+tr .field-type-entityreference .form-item {
+  white-space: normal;
+}

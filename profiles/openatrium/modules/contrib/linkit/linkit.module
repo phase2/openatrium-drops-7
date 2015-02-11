@@ -1049,7 +1049,12 @@ function linkit_pre_render_editor_element($element) {
       return $element;
     }
     // Set the field ID.
-    $field_id = $element['#id'] . '-value';
+    if (isset($element['value']['#id'])) {
+      $field_id = $element['value']['#id'];
+    }
+    else {
+      $field_id = $element['#id'] . '-value';
+    }
 
     $field_js = array(
       'data' => array(

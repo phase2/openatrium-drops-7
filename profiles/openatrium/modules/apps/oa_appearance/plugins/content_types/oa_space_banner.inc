@@ -9,7 +9,7 @@ $plugin = array(
   'title' => t('Space Banner'),
   'description' => t('A panel for the space banner image.'),
   'single' => TRUE,
-  'category' => array(t('Open Atrium'), -9),
+  'category' => array(t('OA Admin'), -9),
   'edit form' => 'oa_space_banner_edit_form',
   'render callback' => 'oa_space_banner_render',
   'defaults' => array(
@@ -32,13 +32,11 @@ function oa_space_banner_render($subtype, $conf, $args, $context = NULL) {
     return;
   }
 
-  drupal_add_js(drupal_get_path('module', 'oa_appearance') . '/oa_appearance.js');
-
   $vars = array();
 
   $vars['banner_class'] = ($position == 1) ? 'oa-banner-before' : 'oa-banner-after';
   $vars['banner'] = !empty($banner['image']) ? theme('image', $banner['image']) : '';
-  $vars['width'] = isset($banner['image']['width']) ? $banner['image']['width'] : 0;
+  $vars['width'] = isset($banner['image']['width']) && !empty($banner['stretch']) ? $banner['image']['width'] : 0;
   $vars['height'] = isset($banner['image']['height']) ? $banner['image']['height'] : 0;
   $vars['text'] = $banner['text'];
   $vars['slogan'] = $banner['slogan'];

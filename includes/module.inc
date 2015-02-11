@@ -448,8 +448,6 @@ function module_enable($module_list, $enable_dependencies = TRUE) {
       module_list(TRUE);
       module_implements('', FALSE, TRUE);
       _system_update_bootstrap_status();
-      // Update the registry to include it.
-      registry_update();
       // Refresh the schema to include it.
       drupal_get_schema(NULL, TRUE);
       // Update the theme registry to include it.
@@ -479,6 +477,8 @@ function module_enable($module_list, $enable_dependencies = TRUE) {
         $modules_installed[] = $module;
         watchdog('system', '%module module installed.', array('%module' => $module), WATCHDOG_INFO);
       }
+      // Update the registry to include it.
+      registry_update();
 
       // Enable the module.
       module_invoke($module, 'enable');

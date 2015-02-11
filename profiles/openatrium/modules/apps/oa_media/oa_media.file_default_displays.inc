@@ -468,10 +468,11 @@ function oa_media_file_default_displays() {
   $file_display = new stdClass();
   $file_display->api_version = 1;
   $file_display->name = 'image__colorbox__file_field_colorbox';
-  $file_display->weight = 0;
-  $file_display->status = FALSE;
+  $file_display->weight = -48;
+  $file_display->status = TRUE;
   $file_display->settings = array(
-    'colorbox_node_style' => '',
+    'colorbox_node_style' => 'panopoly_image_thumbnail',
+    'colorbox_node_style_first' => '',
     'colorbox_image_style' => '',
     'colorbox_gallery' => 'page',
     'colorbox_gallery_custom' => '',
@@ -483,7 +484,7 @@ function oa_media_file_default_displays() {
   $file_display = new stdClass();
   $file_display->api_version = 1;
   $file_display->name = 'image__colorbox__file_field_colorbox_link';
-  $file_display->weight = 0;
+  $file_display->weight = -42;
   $file_display->status = FALSE;
   $file_display->settings = array(
     'colorbox_view_mode' => 'default',
@@ -499,8 +500,8 @@ function oa_media_file_default_displays() {
   $file_display = new stdClass();
   $file_display->api_version = 1;
   $file_display->name = 'image__colorbox__file_field_file_default';
-  $file_display->weight = 0;
-  $file_display->status = FALSE;
+  $file_display->weight = -43;
+  $file_display->status = TRUE;
   $file_display->settings = '';
   $export['image__colorbox__file_field_file_default'] = $file_display;
 
@@ -517,7 +518,7 @@ function oa_media_file_default_displays() {
   $file_display = new stdClass();
   $file_display->api_version = 1;
   $file_display->name = 'image__colorbox__file_field_file_table';
-  $file_display->weight = 0;
+  $file_display->weight = -46;
   $file_display->status = FALSE;
   $file_display->settings = '';
   $export['image__colorbox__file_field_file_table'] = $file_display;
@@ -525,7 +526,7 @@ function oa_media_file_default_displays() {
   $file_display = new stdClass();
   $file_display->api_version = 1;
   $file_display->name = 'image__colorbox__file_field_file_url_plain';
-  $file_display->weight = 0;
+  $file_display->weight = -45;
   $file_display->status = FALSE;
   $file_display->settings = '';
   $export['image__colorbox__file_field_file_url_plain'] = $file_display;
@@ -533,22 +534,22 @@ function oa_media_file_default_displays() {
   $file_display = new stdClass();
   $file_display->api_version = 1;
   $file_display->name = 'image__colorbox__file_field_image';
-  $file_display->weight = 0;
+  $file_display->weight = -41;
   $file_display->status = FALSE;
   $file_display->settings = array(
-    'image_style' => '',
-    'image_link' => '',
+    'image_style' => 'panopoly_image_thumbnail',
+    'image_link' => 'file',
   );
   $export['image__colorbox__file_field_image'] = $file_display;
 
   $file_display = new stdClass();
   $file_display->api_version = 1;
   $file_display->name = 'image__colorbox__file_field_media_colorbox';
-  $file_display->weight = 0;
+  $file_display->weight = -47;
   $file_display->status = FALSE;
   $file_display->settings = array(
     'file_view_mode' => 'default',
-    'colorbox_view_mode' => 'default',
+    'colorbox_view_mode' => 'preview',
     'fixed_width' => '',
     'fixed_height' => '',
     'colorbox_gallery' => 'post',
@@ -561,7 +562,7 @@ function oa_media_file_default_displays() {
   $file_display = new stdClass();
   $file_display->api_version = 1;
   $file_display->name = 'image__colorbox__file_field_media_large_icon';
-  $file_display->weight = 0;
+  $file_display->weight = -44;
   $file_display->status = FALSE;
   $file_display->settings = '';
   $export['image__colorbox__file_field_media_large_icon'] = $file_display;

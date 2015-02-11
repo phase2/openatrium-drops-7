@@ -1,0 +1,35 @@
+<?php
+/**
+ * @file
+ * oa_files.install
+ */
+
+/**
+ * Implements hook_install().
+ */
+function oa_files_install() {
+  oa_files_install_section_type();
+}
+
+/**
+ * Create the Calendar Section taxonomy term.
+ */
+function oa_files_install_section_type() {
+  $params = array(
+    'description' => 'Allows users to create <em>Files</em> and view them in folders.',
+    'node_options' => array(
+      'add_file',
+      'oa_wiki_page',
+    ),
+    'layout' => 'node:oa_section:oa_section_files',
+    'icon' => 'icon-folder-open',
+  );
+  oa_core_create_term('section_type', 'Files Section', $params);
+}
+
+/**
+ * Create Files Section type
+ */
+function oa_files_update_7001() {
+  oa_files_install_section_type();
+}

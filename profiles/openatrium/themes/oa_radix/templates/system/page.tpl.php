@@ -14,6 +14,9 @@
   <div class="responsive-panels-region responsive-panels-region-top">
     <div id="oa-navbar" class="navbar <?php print !empty($oa_toolbar_class) ? $oa_toolbar_class : ''; ?> <?php print !empty($oa_toolbar_sticky) ? $oa_toolbar_sticky : ''; ?>">
       <div class="navbar-inner">
+        <?php if (!empty($mobile_buttons)): ?>
+          <?php print $mobile_buttons; ?>
+        <?php endif; ?>
         <?php print $oa_toolbar_panel; ?>
       </div>
     </div>

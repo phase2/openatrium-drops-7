@@ -41,6 +41,7 @@
 #oa-navbar {
   position: fixed;
   top: 0;
+  min-height: 44px;
   .navbar-inner {
     border: 0;
     padding: 0;
@@ -65,6 +66,23 @@
       width: 100%;
       border-bottom: 1px solid #676767;
       padding: 5px $gridGutterWidth 0;
+      background-color: #003853;
+      .oa-menu-banner {
+        padding-bottom: 0;
+      }
+      .pane-content {
+        ul.nav {
+          > li {
+            > a {
+              padding: 6px 15px 6px;
+            }
+          }
+        }
+      }
+    }
+    .pane-oa-mobile {
+      width: 100%;
+      padding: 0 $gridGutterWidth 0;
       background-color: #003853;
       .oa-menu-banner {
         padding-bottom: 0;
@@ -151,9 +169,9 @@
         border-bottom: none;
       }
       @include breakpoint('lg') {
-    float: left !important;
-      border-bottom: none;
-    }
+        float: left !important;
+        border-bottom: none;
+      }
     }
     .pane-oa-favorites-favorites-button {
       ul#oa_favorites {
@@ -185,6 +203,7 @@
         }
         .search-text {
           width: 150px;
+          height: 31px;
         }
         .btn-group {
           .btn {
@@ -200,7 +219,12 @@
         float: right !important;
       }
     }
-    .pane-add-space-content {
+    ul.command-button-wrapper {
+      margin: 0;
+      padding: 0;
+      li {
+        margin: 0;
+      }
       .btn {
         position: relative;
         text-indent: -9999em;
@@ -219,6 +243,7 @@
       clear: both;
       padding-bottom: 0;
       margin-top: -5px;
+      margin-right: -5px;
       background-color: #003853;
     }
     .pane-oa-toolbar-oa-user-badge {
@@ -286,50 +311,50 @@ body.admin-menu #oa-navbar {
 //OA Mobile Menu Makeover
 // --------------------------------------------------
 @media (max-width: 767px) {
-  #oa-navbar{
-    .dropdown-menu{
+  #oa-navbar {
+    .dropdown-menu {
       float: left;
       position: static;
     }
-    #oa-user-badge{
-      .dropdown{
-        width:262px;
-        float:left;
+    #oa-user-badge {
+      .dropdown {
+        width: 262px;
+        float: left;
       }
-      .dropdown-toggle{
-        width:100%;
+      .dropdown-toggle {
+        width: 100%;
       }
     }
-    #oa_breadcrumb{
-
+    #oa_breadcrumb {
       vertical-align: top;
-      .oa-breadcrumb{
-        width:100%;
-        height:auto;
+      .oa-breadcrumb {
+        width: 100%;
+        height: auto;
       }
     }
-    .oa-navigation{
-      .main-menu{
-        .navbar-nav{
-          width:100%;
+    .oa-navigation {
+      .main-menu {
+        .navbar-nav {
+          width: 100%;
         }
       }
     }
-    .moscone-footer{
+    .moscone-footer {
       display: none;
     }
-    ul{
-      padding:0;
-      margin:0;
+    ul {
+      padding: 0;
+      margin: 0;
     }
-    li{
-      width:100%;
+    li {
+      width: 100%;
     }
   }
-  #oa-responsive-regions-navbar{
+  #oa-responsive-regions-navbar {
     display: none;
   }
 }
+
 @media (max-width: 480px) {
   .responsive-panels-region.responsive-panels-region-top {
     position: static;
@@ -337,47 +362,46 @@ body.admin-menu #oa-navbar {
   }
 }
 
-.navbar-toggle{
-  &.spaces{
+.navbar-toggle {
+  margin-right: 8px;
+  &.spaces {
     padding-top: 8px;
     padding-bottom: 8px;
-    .fa-square{
+    .fa-square {
       font-size: 8px;
-      &.odd{
+      &.odd {
         float: left;
       }
-      &.even{
+      &.even {
         float: right;
       }
       &.first,
-      &.third{
+      &.third {
         margin-right: 2px;
       }
-      &.third{
-        clear:both;
+      &.third {
+        clear: both;
       }
     }
   }
-  &.admin{
+  &.admin {
     padding-top: 6px;
     padding-bottom: 6px;
-    float:left;
-    .fa-drupal{
+    margin-left: 8px;
+    float: left;
+    .fa-drupal {
       font-size: 16px;
     }
   }
-  &.search{
+  &.search {
     padding-top: 6px;
     padding-bottom: 6px;
-    .fa-search{
+    .fa-search {
       font-size: 16px;
     }
   }
-  &.user{
-    padding-top: 1px;
-    padding-bottom: 1px;
-    padding-left: 6px;
-    padding-right: 6px;
+  &.user {
+    padding: 1px 6px;
   }
 }
 
@@ -386,153 +410,156 @@ body.admin-menu #oa-navbar {
   .admin-mobile-menu,
   .spaces-mobile-menu,
   .search-mobile-menu,
-  .user-mobile-menu{
+  .user-mobile-menu {
     display: none;
   }
-  #oa-navbar-admin{
+  #oa-navbar-admin {
     max-height: none;
-    padding:0;
-  }
-  .oa-navigation{
-    .expanded{
-      ul{
-        display:none;
+    padding: 0;
+    .expanded {
+      ul {
+        display: none;
       }
-      &.open{
-        >ul{
+      &.open {
+        > ul {
           display: block;
         }
-        button{
-          &:before{
+        button {
+          &:before {
             content: "\f0d8";
           }
         }
-        .navbar-box{
-          border-bottom:1px solid rgba(#fff, .1);
+        .navbar-box {
+          border-bottom: 1px solid rgba(#fff, .1);
         }
-        li{
-          a{
-            padding-left:20px;
+        li {
+          a {
+            padding-left: 20px;
           }
-          li{
-            a{
-              padding-left:40px;
+          li {
+            a {
+              padding-left: 40px;
             }
           }
         }
       }
-      >div>button{
+      > div > button {
         border: none;
         background: #003853;
         padding: 5px 11px;
         position: absolute;
-        right: 0px;
+        right: 0;
         top: 0;
-        &:before{
+        &:before {
           display: inline-block;
           font: normal normal normal 14px/1 FontAwesome;
           content: "\f0d7";
         }
-        &:hover{
+        &:hover {
           background-color: #333333;
         }
-        span{
-           display: none;
-         }
+        span {
+          display: none;
+        }
       }
     }
-    li{
+    li {
       position: relative;
-      border-bottom:1px solid rgba(#fff, .1);
-      &:last-child{
-        border:none;
+      border-bottom: 1px solid rgba(#fff, .1);
+      &:last-child {
+        border: none;
       }
 
-      a{
-        padding:5px;
+      a {
+        padding: 5px;
         display: block;
-        &:hover{
+        &:hover {
           background-color: #333333;
           text-decoration: none;
         }
       }
     }
   }
-  #oa-navbar-search{
-    padding:0;
-    form{
-      float:right;
-      clear:none;
+  #oa-navbar-search {
+    padding: 0;
+    form {
+      float: right;
+      clear: none;
+      width: 100%;
+      margin-left: -130px;
+      padding-left: 130px;
     }
     ul,
     button {
       float: left;
+      margin-right: 3px;
       clear: none;
     }
-    .search-text{
+    .search-text {
+      margin-right: -73px;
       vertical-align: top;
     }
   }
-  #oa-navbar-spaces{
-    padding:0;
-    ul.dropdown-menu a:hover{
+  #oa-navbar-spaces {
+    padding: 0;
+    ul.dropdown-menu a:hover {
       background-color: #333333 !important;
       background-image: none !important;
     }
   }
-  #oa_breadcrumb{
-    li{
+  #oa_breadcrumb {
+    li {
       position: relative;
-      a{
-        width:100%;
-        background:none;
+      a {
+        width: 100%;
+        background: none;
         text-align: left;
-        &.dropdown-toggle{
+        &.dropdown-toggle {
           border: none;
           background: #003853 !important;
           padding: 5px 11px;
           position: absolute;
-          right: 0px;
+          right: 0;
           top: 0;
-          width:auto;
+          width: auto;
           z-index: 10;
-          &:hover{
+          &:hover {
             background-color: #333333;
           }
         }
-        &:hover{
+        &:hover {
           background-color: #333333;
         }
       }
-      .dropdown-menu{
-        width:100%;
+      .dropdown-menu {
+        width: 100%;
         border: none;
         box-shadow: none;
       }
     }
   }
-  #oa-navbar-header{
-    padding:0;
-    .main-menu{
-      width:100%;
-      a{
-        &:hover{
+  #oa-navbar-header {
+    padding: 0;
+    .main-menu {
+      width: 100%;
+      a {
+        &:hover {
           background-color: #333333 !important;
         }
       }
-      .dropdown-toggle{
-        span{
-          float:right;
+      .dropdown-toggle {
+        span {
+          float: right;
           margin-top: 8px;
         }
       }
-      .dropdown-menu{
-        width:100%;
-        float:none;
+      .dropdown-menu {
+        width: 100%;
+        float: none;
       }
     }
   }
-  #oa-navbar-user{
-    padding:0;
+  #oa-navbar-user {
+    padding: 0;
   }
 }

@@ -11,11 +11,13 @@ dependencies[] = file
 dependencies[] = file_entity
 dependencies[] = image
 dependencies[] = link
+dependencies[] = list
 dependencies[] = media
 dependencies[] = media_vimeo
 dependencies[] = media_youtube
 dependencies[] = menu_block
 dependencies[] = number
+dependencies[] = options
 dependencies[] = page_manager
 dependencies[] = simple_gmap
 dependencies[] = tablefield
@@ -86,6 +88,7 @@ features[field_base][] = field_basic_image_caption
 features[field_base][] = field_basic_image_image
 features[field_base][] = field_basic_spotlight_duration
 features[field_base][] = field_basic_spotlight_items
+features[field_base][] = field_basic_spotlight_pager
 features[field_base][] = field_basic_table_table
 features[field_base][] = field_basic_text_text
 features[field_base][] = field_map_address
@@ -101,6 +104,7 @@ features[field_instance][] = fieldable_panels_pane-map-field_map_information
 features[field_instance][] = fieldable_panels_pane-quick_links-field_quick_links_links
 features[field_instance][] = fieldable_panels_pane-spotlight-field_basic_spotlight_duration
 features[field_instance][] = fieldable_panels_pane-spotlight-field_basic_spotlight_items
+features[field_instance][] = fieldable_panels_pane-spotlight-field_basic_spotlight_pager
 features[field_instance][] = fieldable_panels_pane-table-field_basic_table_table
 features[field_instance][] = fieldable_panels_pane-text-field_basic_text_text
 features[field_instance][] = fieldable_panels_pane-video-field_video_file
@@ -112,9 +116,9 @@ features[file_display][] = video__teaser__media_youtube_image
 features[file_display][] = video__teaser__media_youtube_video
 features[views_view][] = panopoly_widgets_general_content
 
-; Information added by Drupal.org packaging script on 2014-11-19
-version = "7.x-1.14"
+; Information added by Drupal.org packaging script on 2015-01-12
+version = "7.x-1.15"
 core = "7.x"
 project = "panopoly_widgets"
-datestamp = "1416437873"
+datestamp = "1421104689"
 

@@ -22,7 +22,7 @@
       if ($tray.length && $button.length) {
         $button.unbind('click');
         $tray.removeClass('active'); // start closed
-        $('body').removeClass('navbar-tray-open');
+        $('body').removeClass('navbar-tray-open navbar-vertical navbar-horizontal');
         $tray.addClass('navbar-tray-vertical'); // use vertical admin menu
         $tray.removeClass('navbar-tray-horizontal');
         $button.click(function(e) {
@@ -40,6 +40,10 @@
         });
       }
     }
+  };
+
+  if (localStorage){
+    localStorage.setItem('Drupal.navbar.trayVerticalLocked', true);
   }
 
 }(jQuery));

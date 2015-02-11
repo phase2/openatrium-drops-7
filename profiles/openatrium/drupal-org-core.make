@@ -27,3 +27,6 @@ projects[drupal][patch][1697570] = http://drupal.org/files/drupal-menu_always_lo
 
 ; Patch to fix sanitization of titles in entity_reference
 projects[drupal][patch][1919338] = http://drupal.org/files/issues/options_drupal7-1919338-58.patch
+
+; Patch to move registry build so entity_get_info can be called during install.
+projects[drupal][patch][1311820] = https://www.drupal.org/files/issues/1311820-drupal-registry_update-13.patch

@@ -1,0 +1,46 @@
+<?php
+/**
+ * @file
+ * Provides helper functions for using AngularJS in Open Atrium
+ */
+
+const ANGULAR_VERSION = '1.3.7';
+
+/**
+ * Add AngularJS libraries to the page.
+ * Use this instead of drupal_add_js to make Angular life easier
+ * @param $modules - array of angular module names to load
+ */
+function oa_angular_add($modules = array()) {
+  $files =& drupal_static(__FUNCTION__, array());
+
+  $base = drupal_get_path('module', 'oa_angular');
+  $version = variable_get('angular_version', ANGULAR_VERSION);
+
+  // ensure main angular is added first
+  if (!in_array('angular', $files)) {
+    drupal_add_js($base . '/js/' . $version . '/angular.min.js', array('weight' => -99));
+    $files[] = 'angular';
+  }
+
+  foreach ($modules as $module) {
+    if (($full_path = $module) && file_exists($full_path)) {}
+    elseif (($full_path = $base . '/js/' . $module . '.js') && file_exists($full_path)) {}
+    elseif (($full_path = $base . '/js/' . $version . '/angular-' . $module . '.min.js') && file_exists($full_path)) {}
+    elseif (($full_path = $base . '/js/' . $version . '/' . $module) && file_exists($full_path)) {}
+    else {
+      $full_path = 'https://ajax.googleapis.com/ajax/libs/angularjs/' . $version . '/angular-' . $module . '.min.js';
+    }
+    if (!in_array($full_path, $files)) {
+      drupal_add_js($full_path);
+      $files[] = $full_path;
+
+      $css = str_replace('/js/', '/css/', $full_path);
+      $css = str_replace('.js', '.css', $css);
+      if (file_exists($css)) {
+        // look for corresponding css file and ensure it's added before others
+        drupal_add_css($css, array('weight' => -99));
+      }
+    }
+  }
+}

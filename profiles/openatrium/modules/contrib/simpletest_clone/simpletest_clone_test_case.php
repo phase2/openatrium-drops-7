@@ -63,19 +63,19 @@ class SimpleTestCloneTestCase extends DrupalWebTestCase {
     // Create test directory ahead of installation so fatal errors and debug
     // information can be logged during installation process.
     // Use temporary files directory with the same prefix as the database.
-    $public_files_directory  = $this->originalFileDirectory . '/simpletest/' . substr($this->databasePrefix, 10);
-    $private_files_directory = $public_files_directory . '/private';
-    $temp_files_directory    = $private_files_directory . '/temp';
+    $this->public_files_directory  = $this->originalFileDirectory . '/simpletest/' . substr($this->databasePrefix, 10);
+    $this->private_files_directory = $this->public_files_directory . '/private';
+    $this->temp_files_directory    = $this->private_files_directory . '/temp';
 
     // Create the directories
-    file_prepare_directory($public_files_directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS);
-    file_prepare_directory($private_files_directory, FILE_CREATE_DIRECTORY);
-    file_prepare_directory($temp_files_directory, FILE_CREATE_DIRECTORY);
+    file_prepare_directory($this->public_files_directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS);
+    file_prepare_directory($this->private_files_directory, FILE_CREATE_DIRECTORY);
+    file_prepare_directory($this->temp_files_directory, FILE_CREATE_DIRECTORY);
     $this->generatedTestFiles = FALSE;
 
     // Log fatal errors.
     ini_set('log_errors', 1);
-    ini_set('error_log', $public_files_directory . '/error.log');
+    ini_set('error_log', $this->public_files_directory . '/error.log');
 
     // Set the test information for use in other parts of Drupal.
     $test_info = &$GLOBALS['drupal_test_info'];

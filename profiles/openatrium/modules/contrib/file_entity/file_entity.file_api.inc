@@ -485,6 +485,31 @@ function file_type_is_disabled($type) {
 }
 
 /**
+ * Returns an array of valid file extensions.
+ */
+function file_type_get_valid_extensions($type) {
+  include_once DRUPAL_ROOT . '/includes/file.mimetypes.inc';
+  $mapping = file_mimetype_mapping();
+
+  $type_extensions = array();
+  $type_ext_keys = array();
+  if (!empty($type->mimetypes)) {
+    foreach ($mapping['mimetypes'] as $ext_key => $mimetype) {
+      if (file_entity_match_mimetypes($mimetype, $type->mimetypes)) {
+        $type_ext_keys[] = $ext_key;
+      }
+    }
+
+    if ($type_ext_keys) {
+      $type_extensions = array_intersect($mapping['extensions'], $type_ext_keys);
+      $type_extensions = array_keys($type_extensions);
+    }
+  }
+
+  return $type_extensions;
+}
+
+/**
  * Updates an existing file type or creates a new one.
  *
  * This function can be called on its own, or via the CTools exportables

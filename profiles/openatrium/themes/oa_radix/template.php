@@ -104,11 +104,13 @@ function oa_radix_preprocess_page(&$vars) {
     $vars['search_form'] = (user_access('search content')) ? $search_box : NULL;
   }
 
-  // Add user_badge to header.
   $vars['user_badge'] = '';
+  $vars['mobile_buttons'] = '';
   if (module_exists('oa_toolbar')) {
+    // Add user_badge to header.
     $user_badge = module_invoke('oa_toolbar', 'block_view', 'oa_user_badge');
     $vars['user_badge'] = $user_badge['content'];
+    $vars['mobile_buttons'] = theme('oa_toolbar_mobile');
   }
   $toolbar = panels_mini_block_view('oa_toolbar_panel');
   $vars['oa_toolbar_panel'] = isset($toolbar) ? $toolbar['content'] : '';

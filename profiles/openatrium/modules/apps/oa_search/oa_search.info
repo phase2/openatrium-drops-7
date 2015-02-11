@@ -31,7 +31,15 @@ features[facetapi][] = search_api@node_index:block:og_group_ref:title
 features[facetapi][] = search_api@solr_user_index:block:og_user_node
 features[facetapi][] = search_api@user_index:block:og_user_node
 features[features_api][] = api:2
+features[features_override_items][] = search_api_server.database_server
 features[features_override_items][] = variable.search_active_modules
+features[features_overrides][] = search_api_server.database_server.options|indexes|database_node_index|created|type
+features[features_overrides][] = search_api_server.database_server.options|indexes|database_node_index|field_oa_related
+features[features_overrides][] = search_api_server.database_server.options|indexes|database_node_index|field_oa_related:field_paragraph_text:value
+features[features_overrides][] = search_api_server.database_server.options|indexes|database_node_index|field_oa_related:snippet_body
+features[features_overrides][] = search_api_server.database_server.options|indexes|database_node_index|oa_section_ref:title
+features[features_overrides][] = search_api_server.database_server.options|indexes|database_node_index|og_group_ref:title
+features[features_overrides][] = search_api_server.database_server.options|indexes|user_index
 features[features_overrides][] = variable.search_active_modules.value|file_entity
 features[features_overrides][] = variable.search_active_modules.value|user
 features[page_manager_handlers][] = search_node_panel_context
@@ -47,9 +55,9 @@ features[views_view][] = oa_user_solr_search
 features_exclude[dependencies][entity] = entity
 files[] = oa_search.facetapi.inc
 
-; Information added by Drupal.org packaging script on 2014-11-20
-version = "7.x-2.0"
+; Information added by Drupal.org packaging script on 2015-02-11
+version = "7.x-2.3"
 core = "7.x"
 project = "oa_search"
-datestamp = "1416501926"
+datestamp = "1423680786"
 

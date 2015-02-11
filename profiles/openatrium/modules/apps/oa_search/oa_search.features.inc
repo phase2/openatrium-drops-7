@@ -27,6 +27,72 @@ function oa_search_views_api($module = NULL, $api = NULL) {
 }
 
 /**
+ * Implements hook_default_search_api_server_alter().
+ */
+function oa_search_default_search_api_server_alter(&$data) {
+  if (isset($data['database_server'])) {
+    $data['database_server']->options['indexes']['database_node_index']['created']['type'] = 'date'; /* WAS: 'integer' */
+    $data['database_server']->options['indexes']['database_node_index']['field_oa_related'] = array(
+      'table' => 'search_api_db_database_node_index_field_oa_related_1',
+      'type' => 'list<integer>',
+      'boost' => '1.0',
+    ); /* WAS: '' */
+    $data['database_server']->options['indexes']['database_node_index']['field_oa_related:field_paragraph_text:value'] = array(
+      'table' => 'search_api_db_database_node_index_field_oa_related_field_par_1',
+      'type' => 'list<text>',
+      'boost' => '1.0',
+    ); /* WAS: '' */
+    $data['database_server']->options['indexes']['database_node_index']['field_oa_related:snippet_body'] = array(
+      'table' => 'search_api_db_database_node_index_field_oa_related_snippet_b_1',
+      'type' => 'list<text>',
+      'boost' => '1.0',
+    ); /* WAS: '' */
+    $data['database_server']->options['indexes']['database_node_index']['oa_section_ref:title'] = array(
+      'table' => 'search_api_db_database_node_index_oa_section_ref_title',
+      'type' => 'string',
+      'boost' => '1.0',
+    ); /* WAS: '' */
+    $data['database_server']->options['indexes']['database_node_index']['og_group_ref:title'] = array(
+      'table' => 'search_api_db_database_node_index_og_group_ref_title',
+      'type' => 'string',
+      'boost' => '1.0',
+    ); /* WAS: '' */
+    $data['database_server']->options['indexes']['user_index'] = array(
+      'name' => array(
+        'table' => 'search_api_db_user_index_name_1',
+        'type' => 'text',
+        'boost' => '1.0',
+      ),
+      'mail' => array(
+        'table' => 'search_api_db_user_index_mail_1',
+        'type' => 'text',
+        'boost' => '1.0',
+      ),
+      'og_user_node' => array(
+        'table' => 'search_api_db_user_index_og_user_node_1',
+        'type' => 'list<integer>',
+        'boost' => '1.0',
+      ),
+      'field_user_display_name' => array(
+        'table' => 'search_api_db_user_index_field_user_display_name_1',
+        'type' => 'text',
+        'boost' => '5.0',
+      ),
+      'search_api_language' => array(
+        'table' => 'search_api_db_user_index_search_api_language_1',
+        'type' => 'string',
+        'boost' => '1.0',
+      ),
+      'search_api_url' => array(
+        'table' => 'search_api_db_user_index_search_api_url_1',
+        'type' => 'uri',
+        'boost' => '1.0',
+      ),
+    ); /* WAS: '' */
+  }
+}
+
+/**
  * Implements hook_strongarm_alter().
  */
 function oa_search_strongarm_alter(&$data) {
@@ -121,7 +187,59 @@ function oa_search_default_search_api_index() {
         "mail" : { "type" : "text" },
         "og_user_node" : { "type" : "list\\u003Cinteger\\u003E", "entity_type" : "node" },
         "field_user_display_name" : { "type" : "text", "boost" : "5.0" },
-        "search_api_language" : { "type" : "string" }
+        "search_api_language" : { "type" : "string" },
+        "search_api_url" : { "type" : "uri" }
+      },
+      "data_alter_callbacks" : {
+        "search_api_alter_role_filter" : {
+          "status" : 0,
+          "weight" : "-10",
+          "settings" : { "default" : "1", "roles" : [] }
+        },
+        "search_api_alter_add_hierarchy" : { "status" : 0, "weight" : "0", "settings" : { "fields" : [] } },
+        "search_api_alter_add_viewed_entity" : { "status" : 0, "weight" : "0", "settings" : { "mode" : "full" } },
+        "search_api_alter_add_aggregation" : { "status" : 0, "weight" : "0", "settings" : [] },
+        "search_api_alter_add_url" : { "status" : 1, "weight" : "0", "settings" : [] }
+      },
+      "processors" : {
+        "search_api_case_ignore" : {
+          "status" : 1,
+          "weight" : "0",
+          "settings" : { "fields" : { "name" : true, "mail" : true, "field_user_display_name" : true } }
+        },
+        "search_api_html_filter" : {
+          "status" : 1,
+          "weight" : "10",
+          "settings" : {
+            "fields" : [],
+            "title" : 0,
+            "alt" : 0,
+            "tags" : "h1 = 5\\r\\nh2 = 3\\r\\nh3 = 2\\r\\nstrong = 2\\r\\nb = 2\\r\\nem = 1.5\\r\\nu = 1.5"
+          }
+        },
+        "search_api_transliteration" : {
+          "status" : 0,
+          "weight" : "15",
+          "settings" : { "fields" : { "name" : true, "mail" : true, "field_user_display_name" : true } }
+        },
+        "search_api_tokenizer" : {
+          "status" : 1,
+          "weight" : "20",
+          "settings" : {
+            "fields" : { "name" : true, "mail" : true, "field_user_display_name" : true },
+            "spaces" : "[^[:alnum:]]",
+            "ignorable" : "[\\u0027]"
+          }
+        },
+        "search_api_stopwords" : {
+          "status" : 0,
+          "weight" : "30",
+          "settings" : {
+            "fields" : { "name" : true, "mail" : true, "field_user_display_name" : true },
+            "file" : "",
+            "stopwords" : "but\\r\\ndid\\r\\nthe this that those\\r\\netc"
+          }
+        }
       }
     },
     "enabled" : "1",

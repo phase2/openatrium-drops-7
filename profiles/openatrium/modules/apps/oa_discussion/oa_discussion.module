@@ -365,7 +365,7 @@ function oa_discussion_oa_messages_type_alter(&$message_type, $context) {
  * Discussion notifications come from the parent.
  */
 function oa_discussion_oa_notifications_load_alter(&$notifications, $entity, $entity_type) {
-  if ($entity_type == 'node') {
+  if (($entity_type == 'node') && (isset($entity->nid))) {
     $pid = oa_discussion_get_parent_nid($entity->nid);
     if ($pid && ($parent = node_load($pid))) {
       $notifications = oa_notifications_load_multiple($parent);
@@ -619,4 +619,11 @@ function oa_discussion_confirm_delete_form_submit($form, &$form_state) {
   if (function_exists('oa_notification_skip')) {
     oa_notification_skip(FALSE);
   }
+}
+
+/**
+ * Implements hook_oa_related_allowed_default().
+ */
+function oa_discussion_oa_related_allowed_default() {
+  return array('oa_discussion_post');
 }

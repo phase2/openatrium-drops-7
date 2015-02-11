@@ -126,23 +126,77 @@ function og_subgroups_node_grants($account, $op) {
 function og_subgroups_node_access_records_alter(&$grants, $node) {
   if (!empty($node->status) && og_is_group_type('node', $node->type) && module_exists('og_access')) {
     // Since subgroups are technically group content, they inherit group access.
-    // Removes parents groups that should not inherit view permission from.
-    $all_parent = og_subgroups_parents_load('node', $node->nid, FALSE, FALSE, FALSE, TRUE);
+    // However, that access is only one level deep so we need to redo it.
+    $all_parent = og_subgroups_parents_load('node', $node->nid, FALSE, TRUE, FALSE, TRUE);
     if (!empty($all_parent['node'])) {
-      $parents_with_inheritance = og_subgroups_parents_load('node', $node->nid, TRUE, FALSE, FALSE, TRUE);
-      $no_inherit = empty($parents_with_inheritance['node']) ? $all_parent['node'] : array_diff($all_parent['node'], $parents_with_inheritance['node']);
-      if ($no_inherit) {
-        $changed = FALSE;
-        foreach ($grants as $key => $grant) {
-          if ($grant['realm'] == OG_ACCESS_REALM . ':node' && in_array($grant['gid'], $no_inherit)) {
-            unset($grants[$key]);
-            $changed = TRUE;
+      $gids = array();
+      $parents_with_inheritance = og_subgroups_parents_load('node', $node->nid, TRUE, TRUE, FALSE, TRUE);
+
+      // This is almost completly copied form og_access_node_access_records.
+      // only differnce is using $parents_with_inheritance vs og_get_entity_groups
+      $wrapper = entity_metadata_wrapper('node', $node);
+      $content_access = !empty($wrapper->{OG_CONTENT_ACCESS_FIELD}) ? $wrapper->{OG_CONTENT_ACCESS_FIELD}->value() : OG_CONTENT_ACCESS_DEFAULT;
+      switch ($content_access) {
+        case OG_CONTENT_ACCESS_DEFAULT:
+          if (!$parents_with_inheritance) {
+            break;
           }
+          $has_private = FALSE;
+          foreach ($parents_with_inheritance as $group_type => $values) {
+            entity_load($group_type, $values);
+            foreach ($values as $gid) {
+              $list_gids[$group_type][] = $gid;
+              if ($has_private) {
+                // We already know we have a private group, so we can avoid
+                // re-checking it.
+                continue;
+              }
+              $group_wrapper = entity_metadata_wrapper($group_type, $gid);
+              if (!empty($group_wrapper->{OG_ACCESS_FIELD}) && $group_wrapper->{OG_ACCESS_FIELD}->value()) {
+                $has_private = TRUE;
+              }
+            }
+          }
+          if ($has_private) {
+            $gids = array_merge_recursive($gids, $list_gids);
+          }
+          break;
+        case OG_CONTENT_ACCESS_PUBLIC:
+          // Do nothing.
+          break;
+        case OG_CONTENT_ACCESS_PRIVATE:
+          $gids = array_merge_recursive($gids, $parents_with_inheritance);
+          break;
+      }
+
+      // This is our new logic.
+      // Remove any OG_ACCESS_REALM . ':node' grants (which may contain parents
+      // that don't inherit) and re-add ones based on new gids.
+      $old_grants = $grants;
+      foreach ($grants as $key => $grant) {
+        if ($grant['realm'] == OG_ACCESS_REALM . ':node') {
+          unset($grants[$key]);
         }
-        // Make sure the caches are cleared just to be sure.
-        if ($changed) {
-          og_subgroups_clear_caches_for_group('node', $node->nid);
+      }
+      if (!empty($gids['node'])) {
+        // Make sure the group has access to itself if it's been restricted.
+        if (!in_array($gids['node'], $gids['node'])) {
+          $gids['node'][] = $node->nid;
         }
+        foreach ($gids['node'] as $gid) {
+          $grants[] = array (
+            'realm' => OG_ACCESS_REALM . ':node',
+            'gid' => $gid,
+            'grant_view' => 1,
+            'grant_update' => 0,
+            'grant_delete' => 0,
+            'priority' => 0,
+          );
+        }
+      }
+      // Make sure the caches are cleared just to be sure.
+      if ($old_grants != $grants) {
+        og_subgroups_clear_caches_for_group('node', $node->nid);
       }
     }
   }

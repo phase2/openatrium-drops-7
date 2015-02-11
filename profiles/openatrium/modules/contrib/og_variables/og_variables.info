@@ -7,13 +7,14 @@ php = 5.1
 dependencies[] = variable_store (7.x-2.x)
 dependencies[] = variable_realm (7.x-2.x)
 dependencies[] = og_ui
+dependencies[] = og_context
 dependencies[] = entity
 
 files[] = og_variables.class.inc
 
-; Information added by drupal.org packaging script on 2013-08-29
-version = "7.x-1.0-beta1"
+; Information added by Drupal.org packaging script on 2014-12-31
+version = "7.x-1.0-beta2"
 core = "7.x"
 project = "og_variables"
-datestamp = "1377800193"
+datestamp = "1420006381"
 

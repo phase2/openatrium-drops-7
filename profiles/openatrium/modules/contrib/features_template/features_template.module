@@ -1,0 +1,183 @@
+<?php
+/**
+ * @file
+ * Main file for the features template module
+ */
+
+include_once 'features_template.features.inc';
+
+/**
+ * Implements hook_ctools_plugin_type()
+ */
+function features_template_ctools_plugin_type() {
+  $plugins['template'] = array(
+    'cache' => FALSE,
+  );
+  return $plugins;
+}
+
+/**
+ * Retrieve a templete plugin.
+ *
+ * PARAM plugin: a name of a template plugin
+ * RETURN: a plugin array or an array of plugin arrays if no plugin is set
+ */
+function features_template_get_template($plugin = NULL) {
+  ctools_include('plugins');
+  if ($plugin) {
+    $p = ctools_get_plugins('features_template', 'template', $plugin);
+    return $p;
+  }
+  else {
+    return ctools_get_plugins('features_template', 'template');
+  }
+}
+
+/**
+ * Create a default plugin from a instance data array.
+ *
+ * PARAM data: an array of instance arrays to use to create a feature default. Each 
+ *   instance array should have a plugin as well as a template.
+ * RETURN: an features array
+ */
+function features_template_implement($plugin, $data) {
+  $template_plugin = features_template_get_template($plugin);
+  $features = array();
+  foreach ($data as $datum) {
+    $template = $datum['template']();
+    if (($cb =  $template_plugin['implement callback']) && function_exists($cb)) {
+      $features = $features + $cb($template, $datum);
+    }
+  }
+  return $features;
+}
+
+/**
+ * Implements hook_field_default_field_instances().
+ */
+function features_template_field_default_field_instances() {
+  $data = features_template_infos('field_instance');
+  foreach ($data as $key => $info) {
+    if (!field_info_field($info['field'])) {
+      unset($data[$key]);
+    }
+  }
+  return features_template_implement('field_instance', $data);
+}
+
+/**
+ * Implements hook_strongarm().
+ */
+function features_template_strongarm() {
+  $data = features_template_infos('strongarm');
+  if ($data) {
+    return features_template_implement('strongarm', $data);
+  }
+}
+/**
+ * Implements hook_layout_panelizer_defaults().
+ */
+function features_template_panelizer_defaults() {
+  $data = features_template_infos('panelizer_defaults');
+  return features_template_implement('panelizer_defaults', $data);
+}
+/**
+ * Invoke hook_feature_templete_info()
+ */
+function features_template_infos($plugin = FALSE) {
+  $raw_data = module_invoke_all("features_template_info");
+  $data = array();
+  if ($plugin) {
+    foreach ($raw_data as $datum) {
+      if ($datum['plugin'] == $plugin) {
+        $data[] = $datum;
+      }
+    }
+  }
+  else { 
+    $data = $raw_data;
+  }
+  return $data;
+}
+
+/**
+ * Implements hook_system_info_alter().
+ *
+ * Injects feature items into the info file. This will allow features to know
+ * that the module is the one defining these components.
+ */
+function features_template_system_info_alter(&$info, $file, $type) {
+  $data = features_template_infos();
+  foreach ($data as $datum) {
+    if (empty($datum['deleted'])) {
+      $plugin = features_template_get_template($datum['plugin']);
+      if ($file->name == $plugin['module']) {
+        $plugin['features info callback']($info, $datum);
+      }
+    }
+  }
+}
+
+/**
+ * Implements ctools_plugin_directory
+ */
+function features_template_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'features_template' && $plugin == 'template') {
+    return 'plugins';
+  }
+}
+
+/** 
+ * Have feature template implement it's feature items.
+ */
+function features_template_revert($mode = 'revert') {
+  system_list_reset();
+  $data = features_template_infos();
+  $reverts = array();
+  $deletes = array();
+  foreach ($data as $datum) {
+    if (empty($datum['deleted'])) {
+      $plugin = features_template_get_template($datum['plugin']);
+      $reverts[] = $plugin['component'];
+    }
+  }
+  // Make sure we are not duplicating the componen
+  $reverts = array_unique($reverts);
+  $function = 'features_' . $mode;
+  $function(array('features_template' => $reverts));
+  foreach ($data as $datum) {
+    if (!empty($datum['deleted'])) {
+      $plugin = features_template_get_template($datum['plugin']);
+      $plugin['deleted callback']($datum);
+      $deletes[] = $datum;
+    }
+  }
+
+}
+
+/**
+ * Implements hook_modules_enabled().
+ */
+function features_template_modules_enabled($modules) {
+  foreach ($modules as $module_name) {
+    if (in_array($module_name, module_implements('features_template_info'))) {
+      $cache = &drupal_static('features_get_default', array());
+      $cache = array();
+      features_template_revert('rebuild');
+      break;
+    }
+  }
+}
+
+/**
+ * Implements hook_modules_enabled().
+ */
+function features_template_module_implements_alter(&$implementations, $hook) {
+  if ($hook == 'modules_enabled') {
+    // Need to run after features so field_bases are created for modules enabled
+    // at same time.
+    $group = $implementations['features_template'];
+    unset($implementations['features_template']);
+    $implementations['features_template'] = $group;
+  }
+}

@@ -115,11 +115,6 @@ if [ -e "$TARGET/profiles/openatrium/modules/contrib/oa_core" ]; then
   echo "Copying library files."
   rsync -r $DRUPAL/profiles/openatrium/libraries/ $DRUPAL/sites/all/libraries/
 
-  if [ $DEV_BUILD -eq 1 ]; then
-    echo 'Connecting to github -dev repositories.'
-    scripts/add-remotes.sh $DRUPAL/profiles/openatrium
-  fi
-
   if [ ! -e "$DRUPAL/sites/default/settings.php" ]; then
     echo "No settings.php file found"
     echo "Please run the install.php script to install Drupal and Open Atrium"

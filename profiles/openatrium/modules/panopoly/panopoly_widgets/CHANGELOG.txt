@@ -1,3 +1,8 @@
+Panopoly Widgets 7.x-1.15, 2015-01-12
+------------------------------
+- Spotlight: Allow hiding of pager, replace with previous/next controls
+- Spotlight should allow an empty title field
+
 Panopoly Widgets 7.x-1.14, 2014-11-19
 ------------------------------
 - Fixed "Content Type" filter on the "Add content item" widget is broken.

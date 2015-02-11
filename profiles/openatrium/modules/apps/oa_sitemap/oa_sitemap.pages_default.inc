@@ -16,7 +16,10 @@ function oa_sitemap_default_page_manager_pages() {
   $page->admin_title = 'Site Map';
   $page->admin_description = '';
   $page->path = 'sitemap/!node';
-  $page->access = array();
+  $page->access = array(
+    'type' => 'none',
+    'settings' => NULL,
+  );
   $page->menu = array();
   $page->arguments = array(
     'node' => array(
@@ -117,7 +120,10 @@ function oa_sitemap_default_page_manager_pages() {
   $page->admin_title = 'SItemap (old)';
   $page->admin_description = '';
   $page->path = 'sitemap_old/!node';
-  $page->access = array();
+  $page->access = array(
+    'type' => 'none',
+    'settings' => NULL,
+  );
   $page->menu = array();
   $page->arguments = array(
     'node' => array(
@@ -233,6 +239,8 @@ function oa_sitemap_default_page_manager_pages() {
       ),
     ),
     'logic' => 'and',
+    'type' => 'none',
+    'settings' => NULL,
   );
   $page->menu = array(
     'type' => 'tab',

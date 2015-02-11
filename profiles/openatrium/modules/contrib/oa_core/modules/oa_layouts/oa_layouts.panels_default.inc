@@ -43,6 +43,35 @@ function oa_layouts_default_panels_mini() {
   $display->content = array();
   $display->panels = array();
     $pane = new stdClass();
+    $pane->pid = 'new-f2ec5f94-339a-49f9-b2da-a7ef498420dc';
+    $pane->panel = 'middle';
+    $pane->type = 'oa_related_ref';
+    $pane->subtype = 'oa_related_ref';
+    $pane->shown = TRUE;
+    $pane->access = array();
+    $pane->configuration = array(
+      'return' => 'Finish',
+      'cancel' => 'Cancel',
+      'context' => 'requiredcontext_entity:node_1',
+      'override_title' => 0,
+      'override_title_text' => '',
+      'form_build_id' => 'form-uc-eBXCbIBlj8aVe3u_YgXJRlYvn3wwXcD943s6g5hw',
+      'form_token' => '6gDe-0oKLid466aveG1Pz21kCxrr0ZEkp8corDP0Mzs',
+      'form_id' => 'oa_related_ref_edit_form',
+      'op' => 'Finish',
+    );
+    $pane->cache = array();
+    $pane->style = array(
+      'settings' => NULL,
+    );
+    $pane->css = array();
+    $pane->extras = array();
+    $pane->position = 0;
+    $pane->locks = array();
+    $pane->uuid = 'f2ec5f94-339a-49f9-b2da-a7ef498420dc';
+    $display->content['new-f2ec5f94-339a-49f9-b2da-a7ef498420dc'] = $pane;
+    $display->panels['middle'][0] = 'new-f2ec5f94-339a-49f9-b2da-a7ef498420dc';
+    $pane = new stdClass();
     $pane->pid = 'new-e88f722e-09b5-451c-b694-f6b79c2d8554';
     $pane->panel = 'middle';
     $pane->type = 'oa_notifications_pane';
@@ -66,11 +95,11 @@ function oa_layouts_default_panels_mini() {
     );
     $pane->css = array();
     $pane->extras = array();
-    $pane->position = 0;
+    $pane->position = 1;
     $pane->locks = array();
     $pane->uuid = 'e88f722e-09b5-451c-b694-f6b79c2d8554';
     $display->content['new-e88f722e-09b5-451c-b694-f6b79c2d8554'] = $pane;
-    $display->panels['middle'][0] = 'new-e88f722e-09b5-451c-b694-f6b79c2d8554';
+    $display->panels['middle'][1] = 'new-e88f722e-09b5-451c-b694-f6b79c2d8554';
   $display->hide_title = PANELS_TITLE_FIXED;
   $display->title_pane = '0';
   $mini->display = $display;
@@ -371,7 +400,7 @@ function oa_layouts_default_panels_mini() {
     );
     $pane->css = array(
       'css_id' => '',
-      'css_class' => 'spaces-mobile-menu pull-right',
+      'css_class' => 'search-mobile-menu pull-right',
     );
     $pane->extras = array();
     $pane->position = 6;

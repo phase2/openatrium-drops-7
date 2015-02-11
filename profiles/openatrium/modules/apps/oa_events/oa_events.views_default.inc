@@ -97,7 +97,7 @@ function oa_events_views_default_views() {
     'show_repeat_rule' => 'show',
   );
   $handler->display->display_options['fields']['field_oa_date_2']['delta_offset'] = '0';
-  /* Field: Content: Body */
+  /* Field: Content: Description */
   $handler->display->display_options['fields']['body']['id'] = 'body';
   $handler->display->display_options['fields']['body']['table'] = 'field_data_body';
   $handler->display->display_options['fields']['body']['field'] = 'body';
@@ -105,7 +105,7 @@ function oa_events_views_default_views() {
   $handler->display->display_options['fields']['body']['settings'] = array(
     'trim_length' => '600',
   );
-  /* Field: Content: Attachments */
+  /* Field: Field: Attachments */
   $handler->display->display_options['fields']['field_oa_media']['id'] = 'field_oa_media';
   $handler->display->display_options['fields']['field_oa_media']['table'] = 'field_data_field_oa_media';
   $handler->display->display_options['fields']['field_oa_media']['field'] = 'field_oa_media';
@@ -125,7 +125,7 @@ function oa_events_views_default_views() {
   $handler->display->display_options['fields']['ops']['relationship'] = 'flag_content_rel';
   $handler->display->display_options['fields']['ops']['label'] = '';
   $handler->display->display_options['fields']['ops']['element_label_colon'] = FALSE;
-  /* Field: Content: Attachments */
+  /* Field: Field: Attachments */
   $handler->display->display_options['fields']['field_oa_media_1']['id'] = 'field_oa_media_1';
   $handler->display->display_options['fields']['field_oa_media_1']['table'] = 'field_data_field_oa_media';
   $handler->display->display_options['fields']['field_oa_media_1']['field'] = 'field_oa_media';
@@ -178,6 +178,130 @@ function oa_events_views_default_views() {
 
   /* Display: Event Details */
   $handler = $view->new_display('panel_pane', 'Event Details', 'event_details');
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* Field: Content: Event Date */
+  $handler->display->display_options['fields']['field_oa_date_1']['id'] = 'field_oa_date_1';
+  $handler->display->display_options['fields']['field_oa_date_1']['table'] = 'field_data_field_oa_date';
+  $handler->display->display_options['fields']['field_oa_date_1']['field'] = 'field_oa_date';
+  $handler->display->display_options['fields']['field_oa_date_1']['label'] = '';
+  $handler->display->display_options['fields']['field_oa_date_1']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_oa_date_1']['type'] = 'oa_events_date_formatter';
+  $handler->display->display_options['fields']['field_oa_date_1']['settings'] = array(
+    'format_type' => 'long',
+    'fromto' => 'both',
+    'multiple_number' => '',
+    'multiple_from' => '',
+    'multiple_to' => '',
+    'show_repeat_rule' => 'show',
+  );
+  $handler->display->display_options['fields']['field_oa_date_1']['delta_offset'] = '0';
+  /* Field: Content: Event Date */
+  $handler->display->display_options['fields']['field_oa_date']['id'] = 'field_oa_date';
+  $handler->display->display_options['fields']['field_oa_date']['table'] = 'field_data_field_oa_date';
+  $handler->display->display_options['fields']['field_oa_date']['field'] = 'field_oa_date';
+  $handler->display->display_options['fields']['field_oa_date']['label'] = 'Date';
+  $handler->display->display_options['fields']['field_oa_date']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_oa_date']['type'] = 'oa_events_upcoming_date';
+  $handler->display->display_options['fields']['field_oa_date']['settings'] = array(
+    'format_type' => 'long',
+    'fromto' => 'both',
+    'multiple_number' => '',
+    'multiple_from' => '',
+    'multiple_to' => '',
+    'show_repeat_rule' => 'show',
+  );
+  $handler->display->display_options['fields']['field_oa_date']['delta_offset'] = '0';
+  /* Field: Content: Location */
+  $handler->display->display_options['fields']['field_oa_address']['id'] = 'field_oa_address';
+  $handler->display->display_options['fields']['field_oa_address']['table'] = 'field_data_field_oa_address';
+  $handler->display->display_options['fields']['field_oa_address']['field'] = 'field_oa_address';
+  $handler->display->display_options['fields']['field_oa_address']['label'] = '';
+  $handler->display->display_options['fields']['field_oa_address']['alter']['text'] = '[field_oa_address]
+[field_oa_event_link]';
+  $handler->display->display_options['fields']['field_oa_address']['element_label_colon'] = FALSE;
+  /* Field: Content: Event Date */
+  $handler->display->display_options['fields']['field_oa_date_2']['id'] = 'field_oa_date_2';
+  $handler->display->display_options['fields']['field_oa_date_2']['table'] = 'field_data_field_oa_date';
+  $handler->display->display_options['fields']['field_oa_date_2']['field'] = 'field_oa_date';
+  $handler->display->display_options['fields']['field_oa_date_2']['label'] = '';
+  $handler->display->display_options['fields']['field_oa_date_2']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_oa_date_2']['type'] = 'oa_events_addthis';
+  $handler->display->display_options['fields']['field_oa_date_2']['settings'] = array(
+    'format_type' => 'long',
+    'fromto' => 'both',
+    'multiple_number' => '',
+    'multiple_from' => '',
+    'multiple_to' => '',
+    'show_repeat_rule' => 'show',
+  );
+  $handler->display->display_options['fields']['field_oa_date_2']['delta_offset'] = '0';
+  /* Field: Content: Description */
+  $handler->display->display_options['fields']['body']['id'] = 'body';
+  $handler->display->display_options['fields']['body']['table'] = 'field_data_body';
+  $handler->display->display_options['fields']['body']['field'] = 'body';
+  $handler->display->display_options['fields']['body']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['body']['settings'] = array(
+    'trim_length' => '600',
+  );
+  /* Field: Content: Paragraphs */
+  $handler->display->display_options['fields']['field_oa_related']['id'] = 'field_oa_related';
+  $handler->display->display_options['fields']['field_oa_related']['table'] = 'field_data_field_oa_related';
+  $handler->display->display_options['fields']['field_oa_related']['field'] = 'field_oa_related';
+  $handler->display->display_options['fields']['field_oa_related']['label'] = '';
+  $handler->display->display_options['fields']['field_oa_related']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_oa_related']['settings'] = array(
+    'view_mode' => 'full',
+  );
+  $handler->display->display_options['fields']['field_oa_related']['delta_offset'] = '0';
+  $handler->display->display_options['fields']['field_oa_related']['separator'] = '';
+  /* Field: Field: Attachments */
+  $handler->display->display_options['fields']['field_oa_media']['id'] = 'field_oa_media';
+  $handler->display->display_options['fields']['field_oa_media']['table'] = 'field_data_field_oa_media';
+  $handler->display->display_options['fields']['field_oa_media']['field'] = 'field_oa_media';
+  $handler->display->display_options['fields']['field_oa_media']['label'] = '';
+  $handler->display->display_options['fields']['field_oa_media']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['field_oa_media']['hide_empty'] = TRUE;
+  $handler->display->display_options['fields']['field_oa_media']['click_sort_column'] = 'fid';
+  $handler->display->display_options['fields']['field_oa_media']['type'] = 'oa_media_formatter';
+  $handler->display->display_options['fields']['field_oa_media']['settings'] = array(
+    'image_style' => 'thumbnail',
+  );
+  $handler->display->display_options['fields']['field_oa_media']['delta_offset'] = '0';
+  /* Field: Flags: Flag link */
+  $handler->display->display_options['fields']['ops']['id'] = 'ops';
+  $handler->display->display_options['fields']['ops']['table'] = 'flag_content';
+  $handler->display->display_options['fields']['ops']['field'] = 'ops';
+  $handler->display->display_options['fields']['ops']['relationship'] = 'flag_content_rel';
+  $handler->display->display_options['fields']['ops']['label'] = '';
+  $handler->display->display_options['fields']['ops']['element_label_colon'] = FALSE;
+  /* Field: Field: Attachments */
+  $handler->display->display_options['fields']['field_oa_media_1']['id'] = 'field_oa_media_1';
+  $handler->display->display_options['fields']['field_oa_media_1']['table'] = 'field_data_field_oa_media';
+  $handler->display->display_options['fields']['field_oa_media_1']['field'] = 'field_oa_media';
+  $handler->display->display_options['fields']['field_oa_media_1']['click_sort_column'] = 'fid';
+  $handler->display->display_options['fields']['field_oa_media_1']['type'] = 'file_table';
+  $handler->display->display_options['fields']['field_oa_media_1']['delta_offset'] = '0';
+  /* Field: Content: All taxonomy terms */
+  $handler->display->display_options['fields']['term_node_tid']['id'] = 'term_node_tid';
+  $handler->display->display_options['fields']['term_node_tid']['table'] = 'node';
+  $handler->display->display_options['fields']['term_node_tid']['field'] = 'term_node_tid';
+  $handler->display->display_options['fields']['term_node_tid']['label'] = '';
+  $handler->display->display_options['fields']['term_node_tid']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['term_node_tid']['type'] = 'ul';
+  $handler->display->display_options['fields']['term_node_tid']['vocabularies'] = array(
+    'announcementtype' => 0,
+    'barrier' => 0,
+    'bicompendium' => 0,
+    'panopoly_categories' => 0,
+    'eventtype' => 0,
+    'focusarea' => 0,
+    'keywords' => 0,
+    'meaningfuluse' => 0,
+    'publicationtype' => 0,
+    'settings' => 0,
+    'targetaudience' => 0,
+    'tooltype' => 0,
+  );
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
   $handler->display->display_options['defaults']['filters'] = FALSE;
   /* Filter criterion: Content: Published */
@@ -189,6 +313,16 @@ function oa_events_views_default_views() {
   $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
   $handler->display->display_options['pane_category']['name'] = 'Open Atrium Events';
   $handler->display->display_options['pane_category']['weight'] = '0';
+  $handler->display->display_options['argument_input'] = array(
+    'nid' => array(
+      'type' => 'context',
+      'context' => 'entity:node.nid',
+      'context_optional' => 0,
+      'panel' => '0',
+      'fixed' => '',
+      'label' => 'Content: Nid',
+    ),
+  );
 
   /* Display: Event Detail List */
   $handler = $view->new_display('panel_pane', 'Event Detail List', 'event_details_list');
@@ -237,7 +371,7 @@ function oa_events_views_default_views() {
     'show_repeat_rule' => 'show',
   );
   $handler->display->display_options['fields']['field_oa_date']['delta_offset'] = '0';
-  /* Field: Content: Body */
+  /* Field: Content: Description */
   $handler->display->display_options['fields']['body']['id'] = 'body';
   $handler->display->display_options['fields']['body']['table'] = 'field_data_body';
   $handler->display->display_options['fields']['body']['field'] = 'body';
@@ -305,7 +439,7 @@ function oa_events_views_default_views() {
   $handler->display->display_options['sorts']['field_oa_date_value']['table'] = 'field_data_field_oa_date';
   $handler->display->display_options['sorts']['field_oa_date_value']['field'] = 'field_oa_date_value';
   $handler->display->display_options['defaults']['arguments'] = FALSE;
-  /* Contextual filter: Content: Groups audience (og_group_ref) */
+  /* Contextual filter: Content: Groups audience (og_group_ref:target_id) */
   $handler->display->display_options['arguments']['og_group_ref_target_id']['id'] = 'og_group_ref_target_id';
   $handler->display->display_options['arguments']['og_group_ref_target_id']['table'] = 'og_membership';
   $handler->display->display_options['arguments']['og_group_ref_target_id']['field'] = 'og_group_ref_target_id';
@@ -314,7 +448,7 @@ function oa_events_views_default_views() {
   $handler->display->display_options['arguments']['og_group_ref_target_id']['summary']['number_of_records'] = '0';
   $handler->display->display_options['arguments']['og_group_ref_target_id']['summary']['format'] = 'default_summary';
   $handler->display->display_options['arguments']['og_group_ref_target_id']['summary_options']['items_per_page'] = '25';
-  /* Contextual filter: Content: Open Atrium Section (oa_section_ref) */
+  /* Contextual filter: Content: Open Atrium Section (oa_section_ref:target_id) */
   $handler->display->display_options['arguments']['oa_section_ref_target_id']['id'] = 'oa_section_ref_target_id';
   $handler->display->display_options['arguments']['oa_section_ref_target_id']['table'] = 'field_data_oa_section_ref';
   $handler->display->display_options['arguments']['oa_section_ref_target_id']['field'] = 'oa_section_ref_target_id';
@@ -493,7 +627,7 @@ function oa_events_views_default_views() {
   $handler->display->display_options['fields']['timestamp']['field'] = 'timestamp';
   $handler->display->display_options['fields']['timestamp']['label'] = '';
   $handler->display->display_options['fields']['timestamp']['element_label_colon'] = FALSE;
-  /* Field: Content: Body */
+  /* Field: Content: Description */
   $handler->display->display_options['fields']['body']['id'] = 'body';
   $handler->display->display_options['fields']['body']['table'] = 'field_data_body';
   $handler->display->display_options['fields']['body']['field'] = 'body';
@@ -546,7 +680,7 @@ function oa_events_views_default_views() {
   $handler->display->display_options['filters']['field_oa_date_value']['operator'] = '<';
   $handler->display->display_options['filters']['field_oa_date_value']['granularity'] = 'hour';
   $handler->display->display_options['filters']['field_oa_date_value']['default_date'] = 'today';
-  /* Filter criterion: Content: Groups audience (og_group_ref) */
+  /* Filter criterion: Content: Groups audience (og_group_ref:target_id) */
   $handler->display->display_options['filters']['og_group_ref_target_id']['id'] = 'og_group_ref_target_id';
   $handler->display->display_options['filters']['og_group_ref_target_id']['table'] = 'og_membership';
   $handler->display->display_options['filters']['og_group_ref_target_id']['field'] = 'og_group_ref_target_id';
@@ -561,7 +695,7 @@ function oa_events_views_default_views() {
     3 => 0,
     4 => 0,
   );
-  /* Filter criterion: Content: Open Atrium Section (oa_section_ref) */
+  /* Filter criterion: Content: Open Atrium Section (oa_section_ref:target_id) */
   $handler->display->display_options['filters']['oa_section_ref_target_id']['id'] = 'oa_section_ref_target_id';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['table'] = 'field_data_oa_section_ref';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['field'] = 'oa_section_ref_target_id';
@@ -683,7 +817,7 @@ function oa_events_views_default_views() {
   $handler->display->display_options['filters']['field_oa_date_value2']['operator'] = '>=';
   $handler->display->display_options['filters']['field_oa_date_value2']['form_type'] = 'date_text';
   $handler->display->display_options['filters']['field_oa_date_value2']['default_date'] = 'today';
-  /* Filter criterion: Content: Groups audience (og_group_ref) */
+  /* Filter criterion: Content: Groups audience (og_group_ref:target_id) */
   $handler->display->display_options['filters']['og_group_ref_target_id']['id'] = 'og_group_ref_target_id';
   $handler->display->display_options['filters']['og_group_ref_target_id']['table'] = 'og_membership';
   $handler->display->display_options['filters']['og_group_ref_target_id']['field'] = 'og_group_ref_target_id';
@@ -698,7 +832,7 @@ function oa_events_views_default_views() {
     3 => 0,
     4 => 0,
   );
-  /* Filter criterion: Content: Open Atrium Section (oa_section_ref) */
+  /* Filter criterion: Content: Open Atrium Section (oa_section_ref:target_id) */
   $handler->display->display_options['filters']['oa_section_ref_target_id']['id'] = 'oa_section_ref_target_id';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['table'] = 'field_data_oa_section_ref';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['field'] = 'oa_section_ref_target_id';
@@ -795,7 +929,7 @@ function oa_events_views_default_views() {
   $handler->display->display_options['arguments']['gid']['summary_options']['items_per_page'] = '25';
   $handler->display->display_options['arguments']['gid']['specify_validation'] = TRUE;
   $handler->display->display_options['arguments']['gid']['validate']['type'] = 'og';
-  /* Contextual filter: Content: Open Atrium Section (oa_section_ref) */
+  /* Contextual filter: Content: Open Atrium Section (oa_section_ref:target_id) */
   $handler->display->display_options['arguments']['oa_section_ref_target_id']['id'] = 'oa_section_ref_target_id';
   $handler->display->display_options['arguments']['oa_section_ref_target_id']['table'] = 'field_data_oa_section_ref';
   $handler->display->display_options['arguments']['oa_section_ref_target_id']['field'] = 'oa_section_ref_target_id';
@@ -943,7 +1077,7 @@ function oa_events_views_default_views() {
   $handler->display->display_options['filters']['field_oa_date_value2']['operator'] = '>=';
   $handler->display->display_options['filters']['field_oa_date_value2']['form_type'] = 'date_text';
   $handler->display->display_options['filters']['field_oa_date_value2']['default_date'] = 'today';
-  /* Filter criterion: Content: Groups audience (og_group_ref) */
+  /* Filter criterion: Content: Groups audience (og_group_ref:target_id) */
   $handler->display->display_options['filters']['og_group_ref_target_id']['id'] = 'og_group_ref_target_id';
   $handler->display->display_options['filters']['og_group_ref_target_id']['table'] = 'og_membership';
   $handler->display->display_options['filters']['og_group_ref_target_id']['field'] = 'og_group_ref_target_id';
@@ -958,7 +1092,7 @@ function oa_events_views_default_views() {
     3 => 0,
     4 => 0,
   );
-  /* Filter criterion: Content: Open Atrium Section (oa_section_ref) */
+  /* Filter criterion: Content: Open Atrium Section (oa_section_ref:target_id) */
   $handler->display->display_options['filters']['oa_section_ref_target_id']['id'] = 'oa_section_ref_target_id';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['table'] = 'field_data_oa_section_ref';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['field'] = 'oa_section_ref_target_id';
@@ -1093,7 +1227,7 @@ function oa_events_views_default_views() {
   $handler->display->display_options['filters']['type']['value'] = array(
     'oa_event' => 'oa_event',
   );
-  /* Filter criterion: Content: Groups audience (og_group_ref) */
+  /* Filter criterion: Content: Groups audience (og_group_ref:target_id) */
   $handler->display->display_options['filters']['og_group_ref_target_id']['id'] = 'og_group_ref_target_id';
   $handler->display->display_options['filters']['og_group_ref_target_id']['table'] = 'og_membership';
   $handler->display->display_options['filters']['og_group_ref_target_id']['field'] = 'og_group_ref_target_id';
@@ -1108,7 +1242,7 @@ function oa_events_views_default_views() {
     3 => 0,
     4 => 0,
   );
-  /* Filter criterion: Content: Open Atrium Section (oa_section_ref) */
+  /* Filter criterion: Content: Open Atrium Section (oa_section_ref:target_id) */
   $handler->display->display_options['filters']['oa_section_ref_target_id']['id'] = 'oa_section_ref_target_id';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['table'] = 'field_data_oa_section_ref';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['field'] = 'oa_section_ref_target_id';
@@ -1359,7 +1493,7 @@ function oa_events_views_default_views() {
   $handler->display->display_options['filters']['type']['value'] = array(
     'oa_event' => 'oa_event',
   );
-  /* Filter criterion: Content: Groups audience (og_group_ref) */
+  /* Filter criterion: Content: Groups audience (og_group_ref:target_id) */
   $handler->display->display_options['filters']['og_group_ref_target_id']['id'] = 'og_group_ref_target_id';
   $handler->display->display_options['filters']['og_group_ref_target_id']['table'] = 'og_membership';
   $handler->display->display_options['filters']['og_group_ref_target_id']['field'] = 'og_group_ref_target_id';
@@ -1374,7 +1508,7 @@ function oa_events_views_default_views() {
     3 => 0,
     4 => 0,
   );
-  /* Filter criterion: Content: Open Atrium Section (oa_section_ref) */
+  /* Filter criterion: Content: Open Atrium Section (oa_section_ref:target_id) */
   $handler->display->display_options['filters']['oa_section_ref_target_id']['id'] = 'oa_section_ref_target_id';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['table'] = 'field_data_oa_section_ref';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['field'] = 'oa_section_ref_target_id';

@@ -10,7 +10,7 @@
 <div class="toolbar-search">
   <form action="search/site" method="post" role="form">
     <div class="input-append form-group">
-      <input type="text" class="search-text">
+      <input type="text" class="search-text form-control" name="search_text">
       <button type="submit" class="btn btn-default btn-primary submit">
         <i class="icon-search"></i><span
           class="element-invisible"><?php print t('Search Button'); ?></span>

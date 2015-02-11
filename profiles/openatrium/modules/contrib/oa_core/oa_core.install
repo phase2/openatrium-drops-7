@@ -13,6 +13,16 @@ function oa_core_install() {
 }
 
 /**
+ * Implements hook_update_dependencies().
+ */
+function oa_core_update_dependencies() {
+  $dependencies['oa_core'][7224] = array(
+    'entityreference' => 7003,
+  );
+  return $dependencies;
+}
+
+/**
  * Create the default Space and Section taxonomy terms
  */
 function oa_core_create_default_terms() {
@@ -219,4 +229,43 @@ function oa_core_update_7222() {
  */
 function oa_core_update_7223() {
   module_enable(array('oa_sitemap', 'oa_wizard'));
+}
+
+/**
+ * Enable paragraphs module
+ */
+function oa_core_update_7224() {
+  module_enable(array('paragraphs'));
+}
+
+/**
+ * Enable oa_angular module
+ */
+function oa_core_update_7225() {
+  module_enable(array('oa_angular'));
+}
+
+/**
+ * Enable features_template, references_dialog, oa_files and oa_related, select2widget modules
+ */
+function oa_core_update_7226() {
+  module_enable(array('features_template', 'references_dialog', 'oa_files', 'oa_related', 'select2widget'));
+}
+
+/**
+ * Fix accidentatly given roles.
+ */
+function oa_core_update_7227() {
+  db_query("DELETE FROM {og_users_roles} where gid in (SELECT gid from {og_role} where gid > 0) and rid in (SELECT rid from {og_role} where gid = 0)");
+}
+
+/**
+ * Change the oa_unpublished gids from nid to uid.
+ *
+ * Since the access change is rather simple, we're just scripting it for so big
+ * sites do not have a super long update.
+ */
+function oa_core_update_7228() {
+  db_query('DELETE from {node_access} WHERE realm = :realm', array(':realm' => OA_UNPUBLISHED_REALM));
+  db_query('INSERT into {node_access} SELECT nid, uid, :realm, 1, 0, 0 from {node} WHERE status = 0 AND uid > 1', array(':realm' => OA_UNPUBLISHED_REALM));
 }

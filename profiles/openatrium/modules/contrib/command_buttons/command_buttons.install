@@ -80,3 +80,23 @@ function command_buttons_update_7002() {
     command_buttons_create_node_button($type, $definition['label']);
   }
 }
+
+/**
+ * Update comman button field values.
+ */
+function command_buttons_update_7104() {
+  foreach (array('lg' => 'large', 'sm' => 'small', 'xs' => 'mini') as $new => $old) {
+    db_update('field_data_field_button_size')
+      ->fields(array(
+        'field_button_size_value' => 'btn-' . $new,
+      ))
+      ->condition('field_button_size_value', 'btn-' . $old)
+      ->execute();
+    db_update('field_revision_field_button_size')
+      ->fields(array(
+        'field_button_size_value' => 'btn-' . $new,
+      ))
+      ->condition('field_button_size_value', 'btn-' . $old)
+      ->execute();
+  }
+}

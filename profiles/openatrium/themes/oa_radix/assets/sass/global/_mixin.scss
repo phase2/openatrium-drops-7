@@ -6,16 +6,16 @@
 // --------------------------------------------------
 @mixin breakpoint($point) {
   @if $point == lg {
-    @media (min-width: $desktopBreakpoint) { @content; }
+    @media (min-width: $desktopMin) { @content; }
   }
   @else if $point == md {
-    @media (min-width: $tabletBreakpoint) and (max-width: $desktopBreakpoint -1) { @content; }
+    @media (min-width: $tabletMin) and (max-width: $tabletMax) { @content; }
   }
   @else if $point == sm {
-    @media (max-width: $tabletBreakpoint -1) { @content; }
+    @media (min-width: $mobileMin) and (max-width: $mobileMax) { @content; }
   }
   @else if $point == xs {
-    @media (max-width: $mobileBreakpoint -1)  { @content; }
+    @media (max-width: $mobileMin)  { @content; }
   }
 }
 

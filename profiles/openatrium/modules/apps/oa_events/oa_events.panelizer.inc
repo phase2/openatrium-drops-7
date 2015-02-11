@@ -67,6 +67,9 @@ function oa_events_panelizer_defaults() {
       'path' => NULL,
       'view_settings' => 'fields',
       'header_type' => 'none',
+      'context' => array(
+        0 => 'panelizer',
+      ),
     );
     $pane->cache = array();
     $pane->style = array(
@@ -193,6 +196,118 @@ function oa_events_panelizer_defaults() {
   $display->title_pane = '0';
   $panelizer->display = $display;
   $export['node:oa_event:default'] = $panelizer;
+
+  $panelizer = new stdClass();
+  $panelizer->disabled = FALSE; /* Edit this to true to make a default panelizer disabled initially */
+  $panelizer->api_version = 1;
+  $panelizer->name = 'node:oa_event:default:featured';
+  $panelizer->title = 'Default';
+  $panelizer->panelizer_type = 'node';
+  $panelizer->panelizer_key = 'oa_event';
+  $panelizer->no_blocks = FALSE;
+  $panelizer->css_id = '';
+  $panelizer->css = '';
+  $panelizer->pipeline = 'standard';
+  $panelizer->contexts = array();
+  $panelizer->relationships = array();
+  $panelizer->access = array();
+  $panelizer->view_mode = 'featured';
+  $panelizer->css_class = '';
+  $panelizer->title_element = 'H2';
+  $panelizer->link_to_entity = TRUE;
+  $panelizer->extra = array();
+  $display = new panels_display();
+  $display->layout = 'radix_burr_flipped';
+  $display->layout_settings = array();
+  $display->panel_settings = array(
+    'style_settings' => array(
+      'default' => NULL,
+      'sidebar' => NULL,
+      'contentmain' => NULL,
+    ),
+  );
+  $display->cache = array();
+  $display->title = '%node:title';
+  $display->uuid = '2ec643ae-9898-4285-a48f-2f0072f43a91';
+  $display->content = array();
+  $display->panels = array();
+    $pane = new stdClass();
+    $pane->pid = 'new-99142a7b-ac66-473a-bbb7-4b9c1cdb9b48';
+    $pane->panel = 'contentmain';
+    $pane->type = 'views_panes';
+    $pane->subtype = 'oa_event_detail-event_details';
+    $pane->shown = TRUE;
+    $pane->access = array();
+    $pane->configuration = array(
+      'view_settings' => 'fields',
+      'header_type' => 'none',
+      'view_mode' => 'teaser',
+      'context' => array(
+        0 => 'panelizer',
+      ),
+    );
+    $pane->cache = array();
+    $pane->style = array(
+      'settings' => NULL,
+    );
+    $pane->css = array();
+    $pane->extras = array();
+    $pane->position = 0;
+    $pane->locks = array();
+    $pane->uuid = '99142a7b-ac66-473a-bbb7-4b9c1cdb9b48';
+    $display->content['new-99142a7b-ac66-473a-bbb7-4b9c1cdb9b48'] = $pane;
+    $display->panels['contentmain'][0] = 'new-99142a7b-ac66-473a-bbb7-4b9c1cdb9b48';
+    $pane = new stdClass();
+    $pane->pid = 'new-deb8ee77-36fe-4317-b20d-5e95f9c3f85b';
+    $pane->panel = 'sidebar';
+    $pane->type = 'entity_field';
+    $pane->subtype = 'node:field_oa_geo_location';
+    $pane->shown = TRUE;
+    $pane->access = array();
+    $pane->configuration = array(
+      'label' => 'title',
+      'formatter' => 'geofield_map_map',
+      'delta_limit' => 0,
+      'delta_offset' => '0',
+      'delta_reversed' => FALSE,
+      'formatter_settings' => array(
+        'geofield_map_width' => '100%',
+        'geofield_map_height' => '300px',
+        'geofield_map_zoom' => '8',
+        'geofield_map_controltype' => 'default',
+        'geofield_map_mtc' => 'standard',
+        'geofield_map_pancontrol' => 1,
+        'geofield_map_maptype' => 'map',
+        'geofield_map_baselayers_map' => 1,
+        'geofield_map_baselayers_satellite' => 1,
+        'geofield_map_baselayers_hybrid' => 1,
+        'geofield_map_baselayers_physical' => 0,
+        'geofield_map_scale' => 0,
+        'geofield_map_overview' => 0,
+        'geofield_map_overview_opened' => 0,
+        'geofield_map_scrollwheel' => 0,
+        'geofield_map_draggable' => 0,
+        'geofield_map_streetview_show' => 0,
+      ),
+      'context' => array(),
+      'override_title' => 0,
+      'override_title_text' => '',
+    );
+    $pane->cache = array();
+    $pane->style = array(
+      'settings' => NULL,
+    );
+    $pane->css = array();
+    $pane->extras = array();
+    $pane->position = 0;
+    $pane->locks = array();
+    $pane->uuid = 'deb8ee77-36fe-4317-b20d-5e95f9c3f85b';
+    $display->content['new-deb8ee77-36fe-4317-b20d-5e95f9c3f85b'] = $pane;
+    $display->panels['sidebar'][0] = 'new-deb8ee77-36fe-4317-b20d-5e95f9c3f85b';
+  $display->hide_title = PANELS_TITLE_FIXED;
+  $display->title_pane = '0';
+  $panelizer->display = $display;
+  $export['node:oa_event:default:featured'] = $panelizer;
 
   $panelizer = new stdClass();
   $panelizer->disabled = FALSE; /* Edit this to true to make a default panelizer disabled initially */

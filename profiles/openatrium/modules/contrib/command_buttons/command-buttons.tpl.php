@@ -9,7 +9,8 @@
  */
 ?>
 <?php if ($use_dropdowns): ?>
-  <div class="btn-group dropdown">
+<ul class="command-button-wrapper">
+  <li class="dropdown btn-group">
     <a class="dropdown-toggle <?php print $wrapper_class; ?>" data-toggle="dropdown" title="<?php print $label; ?>" href="#"><?php print $label; ?>
       <span class="caret"></span>
     </a>
@@ -18,7 +19,8 @@
         <?php print implode('', $items); ?>
       </ul>
     <?php endif; ?>
-  </div>
+  </li>
+</ul>
 <?php elseif (!empty($items)): ?>
   <div class="btn-group">
     <ul class="command-buttons"><?php print implode('', $items); ?></ul>

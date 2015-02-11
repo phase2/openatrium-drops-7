@@ -203,7 +203,7 @@ function oa_core_views_default_views() {
     'oa_space' => 'oa_space',
     'oa_team' => 'oa_team',
   );
-  /* Filter criterion: Content: Groups audience (og_group_ref) */
+  /* Filter criterion: Content: Groups audience (og_group_ref:target_id) */
   $handler->display->display_options['filters']['og_group_ref_target_id']['id'] = 'og_group_ref_target_id';
   $handler->display->display_options['filters']['og_group_ref_target_id']['table'] = 'og_membership';
   $handler->display->display_options['filters']['og_group_ref_target_id']['field'] = 'og_group_ref_target_id';
@@ -220,7 +220,7 @@ function oa_core_views_default_views() {
     4 => 0,
     6 => 0,
   );
-  /* Filter criterion: Content: Open Atrium Section (oa_section_ref) */
+  /* Filter criterion: Content: Open Atrium Section (oa_section_ref:target_id) */
   $handler->display->display_options['filters']['oa_section_ref_target_id']['id'] = 'oa_section_ref_target_id';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['table'] = 'field_data_oa_section_ref';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['field'] = 'oa_section_ref_target_id';
@@ -479,7 +479,7 @@ function oa_core_views_default_views() {
     'oa_space' => 'oa_space',
     'oa_team' => 'oa_team',
   );
-  /* Filter criterion: Content: Groups audience (og_group_ref) */
+  /* Filter criterion: Content: Groups audience (og_group_ref:target_id) */
   $handler->display->display_options['filters']['og_group_ref_target_id']['id'] = 'og_group_ref_target_id';
   $handler->display->display_options['filters']['og_group_ref_target_id']['table'] = 'og_membership';
   $handler->display->display_options['filters']['og_group_ref_target_id']['field'] = 'og_group_ref_target_id';
@@ -496,7 +496,7 @@ function oa_core_views_default_views() {
     4 => 0,
     6 => 0,
   );
-  /* Filter criterion: Content: Open Atrium Section (oa_section_ref) */
+  /* Filter criterion: Content: Open Atrium Section (oa_section_ref:target_id) */
   $handler->display->display_options['filters']['oa_section_ref_target_id']['id'] = 'oa_section_ref_target_id';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['table'] = 'field_data_oa_section_ref';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['field'] = 'oa_section_ref_target_id';
@@ -664,7 +664,7 @@ function oa_core_views_default_views() {
     'oa_group' => 'oa_group',
     'oa_space' => 'oa_space',
   );
-  /* Filter criterion: Content: Parents (oa_parent_space) */
+  /* Filter criterion: Content: Parents (oa_parent_space:target_id) */
   $handler->display->display_options['filters']['oa_parent_space_target_id']['id'] = 'oa_parent_space_target_id';
   $handler->display->display_options['filters']['oa_parent_space_target_id']['table'] = 'og_membership';
   $handler->display->display_options['filters']['oa_parent_space_target_id']['field'] = 'oa_parent_space_target_id';

@@ -12,16 +12,19 @@ include_once 'oa_teams.features.inc';
 define('OA_TEAM_USERS_FIELD', 'field_oa_team_users');
 
 /**
- * Implements hook_ctools_plugin_directory
+ * Implements hook_ctools_plugin_directory().
  */
 function oa_teams_ctools_plugin_directory($owner, $plugin_type) {
   if ($owner == 'ctools' && $plugin_type == 'content_types') {
     return 'plugins/content_types';
   }
+  elseif ($owner == 'entityreference') {
+    return 'plugins/entityreference_' . $plugin_type;
+  }
 }
 
 /**
- * Implementation of hook_menu
+ * Implements hook_menu().
  */
 function oa_teams_menu() {
   $items['group/%/%/remove-team/%/%'] = array(
@@ -36,7 +39,7 @@ function oa_teams_menu() {
 }
 
 /**
- * Implements hook_theme()
+ * Implements hook_theme().
  */
 function oa_teams_theme() {
   $path = drupal_get_path('module', 'oa_teams') . '/templates';
@@ -53,12 +56,25 @@ function oa_teams_theme() {
  * space is no space is specified.
  *
  * @param int $gid
- *    The space ID
+ *   (Optional) The space ID. Defaults to the current Space.
+ * @param bool $include_inherited
+ *   (Optional) If set to TRUE (the default), teams from Spaces that this Space
+ *   inherits members from will be included as well.
+ *
+ * @return array
+ *   An associative array with the nid of each team as the key, and an object
+ *   as the value with the following properties:
+ *   - nid
+ *   - title
  */
-function oa_teams_get_teams_for_space($gid = NULL) {
+function oa_teams_get_teams_for_space($gid = NULL, $include_inherited = TRUE) {
   if (!isset($gid)) {
     $gid = oa_core_get_space_context();
   }
+  if (!$gid) {
+    return array();
+  }
+
   $query = db_select('node', 'n');
   $query->rightJoin('og_membership', 'og', 'n.nid = og.etid');
   $query->fields('n', array('nid', 'title'))
@@ -67,24 +83,52 @@ function oa_teams_get_teams_for_space($gid = NULL) {
       ->condition('og.field_name', OA_SPACE_FIELD)
       ->condition('og.gid', $gid)
       ->addTag('node_access');
-  return $query->execute()->fetchAllAssoc('nid');
+  $result = $query->execute()->fetchAllAssoc('nid');
+
+  if ($include_inherited) {
+    // Gets all parents, not just direct ones, so we need to pass FALSE for
+    // $include_inherited to prevent it from checking the same parents multiple
+    // times.
+    $parents = og_subgroups_parents_load('node', $gid);
+    foreach ($parents as $parent_type => $parent_id) {
+      $result = $result + oa_teams_get_teams_for_space($parent_id, FALSE);
+    }
+  }
+
+  return $result;
 }
 
 /**
+ * Get the members of the team.
+ *
  * @param $team_id
- * @return mixed
+ *  The NID of the team.
+ *
+ * @return
+ *  An array of uids that are in the team.
  */
 function oa_teams_get_team_members($team_id) {
+  $groups = og_get_entity_groups('node', node_load($team_id)); 
+  $uid = OA_TEAM_USERS_FIELD . '_target_id';
   $query = db_select('field_data_' . OA_TEAM_USERS_FIELD, 'f')
-      ->fields('f', array(OA_TEAM_USERS_FIELD . '_target_id'))
-      ->condition('entity_type', 'node')
-      ->condition('entity_id', $team_id)
-      ->condition('deleted', 0);
+      ->fields('f', array($uid))
+      ->condition('f.entity_type', 'node')
+      ->condition('f.entity_id', $team_id)
+      ->condition('f.deleted', 0);
+
+  // Make sure team member is member of group.
+  if (!empty($groups['node'])) {
+    if (module_exists('og_subgroups')) {
+      $groups = og_subgroups_parents_load_multiple(array('node' => $groups['node']));
+    }
+    $query->innerJoin('og_membership', 'og', "f." . $uid . " = og.etid AND og.entity_type = 'user' AND og.group_type = 'node'");
+    $query->condition('og.gid', $groups['node']);
+  }
   return $query->execute()->fetchAllAssoc(OA_TEAM_USERS_FIELD . '_target_id');
 }
 
 /**
- * Implements hook_form_alter
+ * Implements hook_form_FORM_ID_alter() for node_form.
  */
 function oa_teams_form_node_form_alter(&$form, &$form_state, $form_id) {
   global $user;

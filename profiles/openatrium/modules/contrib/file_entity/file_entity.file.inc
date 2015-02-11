@@ -59,17 +59,15 @@ function file_entity_file_insert($file) {
 
   // Save file metadata.
   if (!empty($file->metadata)) {
+    $query = db_insert('file_metadata')->fields(array('fid', 'name', 'value'));
     foreach ($file->metadata as $name => $value) {
-      db_merge('file_metadata')
-        ->fields(array(
-          'value' => serialize($value),
-        ))
-        ->key(array(
-          'fid' => $file->fid,
-          'name' => $name,
-        ))
-        ->execute();
+      $query->values(array(
+        'fid' => $file->fid,
+        'name' => $name,
+        'value' => serialize($value),
+      ));
     }
+    $query->execute();
   }
 
   // Clear any related field caches.
@@ -84,40 +82,26 @@ function file_entity_file_update($file) {
   field_attach_update('file', $file);
 
   // Save file metadata.
+  db_delete('file_metadata')->condition('fid', $file->fid)->execute();
   if (!empty($file->metadata)) {
+    $query = db_insert('file_metadata')->fields(array('fid', 'name', 'value'));
     foreach ($file->metadata as $name => $value) {
-      db_merge('file_metadata')
-        ->fields(array(
-          'value' => serialize($value),
-        ))
-        ->key(array(
-          'fid' => $file->fid,
-          'name' => $name,
-        ))
-        ->execute();
+      $query->values(array(
+        'fid' => $file->fid,
+        'name' => $name,
+        'value' => serialize($value),
+      ));
     }
-  }
-
-  // Save file metadata.
-  db_delete('file_metadata')->condition('fid', $file->fid);
-  if (!empty($file->metadata)) {
-    foreach ($file->metadata as $name => $value) {
-      db_merge('file_metadata')
-        ->fields(array(
-          'value' => serialize($value),
-        ))
-        ->key(array(
-          'fid' => $file->fid,
-          'name' => $name,
-        ))
-        ->execute();
-    }
+    $query->execute();
   }
 
   if (module_exists('image') && file_entity_file_get_mimetype_type($file) == 'image' && $file->filesize) {
-    // If the image dimensions have changed, update any image field references
-    // to this file and flush image style derivatives.
-    if ($file->metadata['width'] != $file->metadata['width'] || $file->metadata['height'] != $file->metadata['height']) {
+    // If the file has changed dimensions or a new file has been uploaded,
+    // update any image field reference to this file and flush image style
+    // derivatives.
+    $file->metadata += array('width' => NULL, 'height' => NULL);
+    $file->original->metadata += array('width' => NULL, 'height' => NULL);
+    if ($file->filesize != $file->original->filesize || $file->metadata['width'] != $file->original->metadata['width'] || $file->metadata['height'] != $file->original->metadata['height']) {
       _file_entity_update_image_field_dimensions($file);
     }
 

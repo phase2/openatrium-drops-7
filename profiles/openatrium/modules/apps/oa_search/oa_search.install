@@ -53,23 +53,15 @@ function oa_search_enable_pages() {
  * Re-build the panopoly search index.
  */
 function oa_search_rebuild_index() {
-  $server_row = db_select('search_api_server', 'sas')
-    ->fields('sas')
-    ->condition('machine_name', 'database_server')
-    ->execute()
-    ->fetch();
-  $server = entity_load('search_api_server', array($server_row->id));
-
-  $index_row = db_select('search_api_index', 'sai')
-    ->fields('sai')
-    ->condition('machine_name', 'database_node_index')
-    ->execute()
-    ->fetch();
-  $index = entity_load('search_api_index', array($index_row->id));
-  if ($index && $server) {
-    $server = array_shift($server);
-    $index = array_shift($index);
-    $server->addIndex($index);
+  if (module_exists('search_api')) {
+    $server = search_api_server_load('database_server');
+    if ($server) {
+      foreach (array('database_node_index', 'user_index') as $database_index) {
+        if ($index = search_api_index_load($database_index)) {
+          $server->addIndex($index);
+        }
+      }
+    }
   }
 }
 
@@ -87,3 +79,9 @@ function oa_search_update_7003() {
   oa_search_enable_pages();
 }
 
+/**
+ * Re-build the panopoly search index.
+ */
+function oa_search_update_7201() {
+  oa_search_rebuild_index();
+}

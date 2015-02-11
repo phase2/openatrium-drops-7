@@ -54,7 +54,7 @@ class oa_discussion extends oa_coreBaseWebTest {
     );
     $this->drupalPost('node/add/oa-discussion-post', $edit, t('Publish'));
     // "Replied" to message now added.
-    $this->assertTrue(count(variable_get('drupal_test_email_collector', array())) == 2, 'Email collector has two emails');
+    $this->assertTrue(count(variable_get('drupal_test_email_collector', array())) == 2, 'Email collector has two emails. ' . count(variable_get('drupal_test_email_collector', array())));
     $child_discussion = $this->drupalGetNodeByTitle($edit['title']);
 
     // Verify both the parent and child appear on parent.
@@ -68,7 +68,7 @@ class oa_discussion extends oa_coreBaseWebTest {
     $this->drupalPost('node/' . $discussion->nid . '/edit', $edit, t('Save'));
     // Updated message now added. If email supressions didn't work, there would
     // be one additional message per email.
-    $this->assertTrue(count(variable_get('drupal_test_email_collector', array())) == 3, 'Email collector has two emails');
+    $this->assertTrue(count(variable_get('drupal_test_email_collector', array())) == 3, 'Email collector has three emails. ' . count(variable_get('drupal_test_email_collector', array())));
 
     // Check child is updated
     $this->drupalGet('node/' . $child_discussion->nid . '/edit');
@@ -82,12 +82,12 @@ class oa_discussion extends oa_coreBaseWebTest {
     $edit[$section_key] = $section_of_space2->nid;
     $this->drupalPost('node/' . $discussion->nid . '/edit', $edit, t('Save'));
     // Updated emails for the two saves.
-    $this->assertTrue(count(variable_get('drupal_test_email_collector', array())) == 5, 'Email collector has two emails');
+    $this->assertTrue(count(variable_get('drupal_test_email_collector', array())) == 5, 'Email collector has fove emails. ' . count(variable_get('drupal_test_email_collector', array())));
 
     // Check again that child is updated.
     $this->drupalGet('node/' . $child_discussion->nid . '/edit');
     $this->assertFieldByName($section_key, $edit[$section_key], 'Section of child updated.');
-    $this->assertFieldByName($group_key, $space2->nid, 'Section of child updated.');
+    $this->assertFieldByName($group_key, $space2->title . ' (' . $space2->nid . ')', 'Section of child updated.');
 
     // Test without any sections.
     $edit = array(
@@ -98,7 +98,7 @@ class oa_discussion extends oa_coreBaseWebTest {
     );
     $this->drupalPost('node/add/oa-discussion-post', $edit, t('Publish'));
     // Create email.
-    $this->assertTrue(count(variable_get('drupal_test_email_collector', array())) == 6, 'Email collector has two emails');
+    $this->assertTrue(count(variable_get('drupal_test_email_collector', array())) == 6, 'Email collector has six emails. ' . count(variable_get('drupal_test_email_collector', array())));
 
     $discussion_no_section = $this->drupalGetNodeByTitle($edit['title']);
     $edit = array(
@@ -110,7 +110,7 @@ class oa_discussion extends oa_coreBaseWebTest {
     );
     $this->drupalPost('node/add/oa-discussion-post', $edit, t('Publish'));
     // Replied to email.
-    $this->assertTrue(count(variable_get('drupal_test_email_collector', array())) == 7, 'Email collector has two emails');
+    $this->assertTrue(count(variable_get('drupal_test_email_collector', array())) == 7, 'Email collector has seven emails. ' . count(variable_get('drupal_test_email_collector', array())));
     $child_discussion_no_section = $this->drupalGetNodeByTitle($edit['title']);
 
     $this->drupalGet('node/' . $discussion_no_section->nid);
@@ -123,9 +123,9 @@ class oa_discussion extends oa_coreBaseWebTest {
     $edit[$group_key] = $space2->nid;
     $this->drupalPost('node/' . $discussion_no_section->nid . '/edit', $edit, t('Save'));
     // Updated discussion email.
-    $this->assertTrue(count(variable_get('drupal_test_email_collector', array())) == 8, 'Email collector has two emails');
+    $this->assertTrue(count(variable_get('drupal_test_email_collector', array())) == 8, 'Email collector has eight emails. ' . count(variable_get('drupal_test_email_collector', array())));
     $this->drupalGet('node/' . $child_discussion_no_section->nid . '/edit');
-    $this->assertFieldByName($group_key, $edit[$group_key], 'Section of child updated.');
+    $this->assertFieldByName($group_key, $space2->title . ' (' . $space2->nid . ')', 'Section of child updated.');
   }
 
 }

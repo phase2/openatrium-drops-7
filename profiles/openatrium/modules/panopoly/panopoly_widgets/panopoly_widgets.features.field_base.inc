@@ -171,6 +171,33 @@ function panopoly_widgets_field_default_field_bases() {
     'type' => 'panopoly_spotlight',
   );
 
+  // Exported field_base: 'field_basic_spotlight_pager'
+  $field_bases['field_basic_spotlight_pager'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_basic_spotlight_pager',
+    'foreign keys' => array(),
+    'indexes' => array(
+      'value' => array(
+        0 => 'value',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'list',
+    'settings' => array(
+      'allowed_values' => array(
+        'full' => 'Full pager (slide numbers)',
+        'mini' => 'Mini pager (previous/next buttons)',
+        'hide' => 'Hidden (no way to manually change the slide)',
+      ),
+      'allowed_values_function' => '',
+    ),
+    'translatable' => 0,
+    'type' => 'list_text',
+  );
+
   // Exported field_base: 'field_basic_table_table'
   $field_bases['field_basic_table_table'] = array(
     'active' => 1,

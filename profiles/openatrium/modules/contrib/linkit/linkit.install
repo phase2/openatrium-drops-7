@@ -81,9 +81,13 @@ function linkit_schema() {
 }
 
 /**
- * Migrate settings from v2 to v3
+ * Migrate settings from v2 to v3 if needed.
  */
-function linkit_update_7301() {
+function linkit_update_7300() {
+  if (!db_field_exists('linkit_profiles', 'role_rids')) {
+    // Already 3.x, no need for migration from 2.x.
+    return;
+  }
 
   // Get old profiles.
   $old_profiles = db_query("SELECT * FROM {linkit_profiles} ORDER BY weight DESC");
@@ -195,4 +199,25 @@ function linkit_update_7301() {
 
   // Rebuild code registry so the LinkitProfile class is found.
   registry_rebuild();
+}
+
+/**
+ * Do nothing. Update the schema version.
+ */
+function linkit_update_7301() {
+  // Do nothing.
+}
+
+/**
+ * Set URL type to "Entity view page" to preserve current behavior.
+ */
+function linkit_update_7302() {
+  require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'linkit') . '/plugins/linkit_search/file.class.php';
+  $profiles = linkit_profile_load_all();
+  foreach ($profiles as $profile) {
+    if (isset($profile->data['entity:file'])) {
+      $profile->data['entity:file'] = LINKIT_FILE_URL_TYPE_ENTITY;
+      ctools_export_crud_save('linkit_profiles', $profile);
+    }
+  }
 }

@@ -18,6 +18,7 @@
   <?php endif ?>
   <div class="description">
     <?php print $description; ?>
+    <?php if (!empty($related)) { print $related; } ?>
   </div>
 </div>
 <?php if (!empty($links)): ?>

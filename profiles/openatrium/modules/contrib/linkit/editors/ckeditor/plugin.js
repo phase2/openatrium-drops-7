@@ -23,6 +23,12 @@
         command: 'linkit'
       });
 
+      // Ckeditor version lower then 4 needs to have a icon path.
+      if (version < 4) {
+        editor.ui._.items.linkit.icon = this.path + 'icons/linkit.png';
+        editor.ui._.items.linkit.args[0].icon = this.path + 'icons/linkit.png';
+      }
+
       // Add Command.
       editor.addCommand( 'linkit', {
         // FOR ACF in ckeditor 4.1+, allow everything.

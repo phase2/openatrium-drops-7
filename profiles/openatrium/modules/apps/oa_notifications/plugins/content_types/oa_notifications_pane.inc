@@ -7,7 +7,7 @@ $plugin = array(
   'title' => t('Notifications'),
   'description' => t('Displays the list of Groups, Teams and Users that will be notified of a change to an Entity.'),
   'single' => TRUE,
-  'category' => array(t('Open Atrium'), -9),
+  'category' => array(t('OA Admin'), -9),
   'edit form' => 'oa_notifications_settings_form',
   'render callback' => 'oa_notifications_pane_render',
   'required context' => new ctools_context_required(t('Node'), 'node'),
@@ -22,6 +22,10 @@ function oa_notifications_pane_render($subtype, $conf, $args, $context) {
   if (!isset($context->data)) {
     return;
   }
+  if (!variable_get('oa_messages_notifications', TRUE)) {
+    return;
+  }
+
   $node = $context->data;
 
   $has_edit = node_access('update', $node);

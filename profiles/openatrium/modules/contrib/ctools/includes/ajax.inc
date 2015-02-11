@@ -49,8 +49,6 @@ function ctools_ajax_text_button($text, $dest, $alt, $class = '', $type = 'use-a
   return l($text, $dest, array('html' => TRUE, 'attributes' => array('class' => array($type, $class), 'title' => $alt)));
 }
 
-###
-
 /**
  * Render an icon and related text as a link. This will automatically apply an AJAX class
  * to the link and add the appropriate javascript to make this happen.
@@ -78,8 +76,6 @@ function ctools_ajax_icon_text_button($text, $image, $dest, $alt, $class = '', $
   $link_content = $rendered_image . "<span>" . $text . "</span>";
   return l($link_content, $dest, array('html' => TRUE, 'attributes' => array('class' => array($type, $class), 'title' => $alt)));
 }
-
-###
 
 /**
  * Set a single property to a value, on all matched elements.

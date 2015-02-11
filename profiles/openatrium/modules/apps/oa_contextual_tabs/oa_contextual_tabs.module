@@ -7,7 +7,7 @@
 include_once 'oa_contextual_tabs.features.inc';
 
 /**
- * Impliments hook_menu().
+ * Implements hook_menu().
  */
 function oa_contextual_tabs_menu() {
   $items['node/%node/archive-content'] = array(
@@ -20,12 +20,12 @@ function oa_contextual_tabs_menu() {
     'access arguments' => array(1),
     'weight' => 99,
   );
-
   return $items;
 }
 
 /**
- * Implements hook_contextual_tabs_alter
+ * Implements hook_contextual_tabs_alter().
+ *
  * Add the visibility widget button
  */
 function oa_contextual_tabs_contextual_tabs_alter(&$data) {
@@ -60,8 +60,9 @@ function oa_contextual_tabs_confirmation($node) {
 }
 
 /**
- * Perform access control on the flag. Just piggyback off what
- * trash_flag_flag_access already does.
+ * Perform access control on the flag.
+ *
+ * Just piggyback off what trash_flag_flag_access already does.
  */
 function oa_contextual_tabs_access($node) {
   global $user;
@@ -85,7 +86,7 @@ function oa_contextual_tabs_oa_settings_form(&$form_state) {
   );
 
   $forms[] = array(
-    'caption' => t('Contextual Tabs'),
+    'caption' => t('Privacy'),
     'form' => $form,
   );
   return $forms;

@@ -222,6 +222,11 @@ function oa_clone_og_permission() {
 function oa_clone_clone_access_alter(&$access, $node) {
   global $user;
 
+  if ($user->uid == 0) {
+    $access = FALSE;
+    return;
+  }
+
   // We only affect the access of group content types, but we completely take
   // over the access for those nodes.
   if (og_is_group_content_type('node', $node->type) && clone_is_permitted($node->type)) {
@@ -490,6 +495,62 @@ function oa_clone_get_group_memberships($nid) {
 }
 
 /**
+ * Implements hook_node_presave().
+ */
+function oa_clone_node_presave($node) {
+  if (
+    // If new node.
+    empty($node->nid)
+    // And spacetype value is set.
+    && ($items = field_get_items('node', $node, 'field_oa_space_type')) && ($space_type = taxonomy_term_load($items[0]['tid']))
+    // And in an active wizard.
+    && !empty($node->oa_wizard_name) && ($steps = oa_wizard_get_steps($node->oa_wizard_name))
+    && ($wrapper = entity_metadata_wrapper('taxonomy_term', $space_type))
+    // And cloning is enabled for space type.
+    && $wrapper->field_oa_clone_enabled->value() && ($clone_node = $wrapper->field_oa_clone_space->value())
+    ) {
+    module_load_include('inc', 'clone', 'clone.pages');
+    $clone_node->oa_clone_bypass_access_check = TRUE;
+    $clone_node_prepared = _clone_node_prepare($clone_node, TRUE);
+    $context = array('method' => 'prepopulate', 'original_node' => $clone_node);
+    drupal_alter('clone_node', $clone_node_prepared, $context);
+    // Find what fields to copy to new node.
+    // No additional hooks as people can implement hook_node_presave for
+    // additional logic.
+    $fields_transfer = array_merge(array(
+        'title',
+        'panelizer',
+        'clone_from_original_nid',
+      ), array_keys(field_info_instances('node', $node->type)));
+    // Remove any fields exposed in wizard.
+    foreach ($steps as $step) {
+      foreach ($step['fields'] as $field_name) {
+        $pos = array_search($field_name, $fields_transfer);
+        if ($pos !== FALSE) {
+          unset($fields_transfer[$pos]);
+        }
+      }
+    }
+    $fields_transfer = array_diff($fields_transfer, array('oa_parent_space'));
+    foreach ($fields_transfer as $field_name) {
+      if (isset($clone_node_prepared->{$field_name})) {
+        $node->{$field_name} = $clone_node_prepared->{$field_name};
+      }
+    }
+    $node->oa_clone_alter_batch = TRUE;
+  }
+}
+
+/**
+ * Implements hook_node_delete().
+ */
+function oa_clone_node_delete($node) {
+  foreach (oa_clone_get_space_type_terms($node) as $term) {
+    taxonomy_term_delete($term->tid);
+  }
+}
+
+/**
  * Implements hook_node_insert().
  */
 function oa_clone_node_insert($node) {
@@ -518,6 +579,30 @@ function oa_clone_node_insert($node) {
     }
 
     batch_set($batch);
+    // If in a wizard (modal), drupal_process_form will try executing the batch
+    // no matter that it's an ajax callback, which will fail.
+    // We isntead replace drupal_goto with a function taht remembers where to
+    // redirect to for later.
+    if (!empty($node->oa_clone_alter_batch)) {
+      $batch = & batch_get();
+      $batch['redirect_callback'] = 'oa_clone_save_batch_info';
+      $batch['source_url'] = (!empty($_GET['sitemap']) ? 'sitemap/' : 'node/') . $node->nid;
+    }
+  }
+}
+
+/**
+ * Save batch redirect info for oa_wizard.
+ */
+function oa_clone_save_batch_info($url, $options) {
+  if (!empty($options['query']['op']) && $options['query']['op'] == 'finish') {
+    // Redirect when finished to source_url.
+    drupal_goto($url);
+  }
+  else {
+    // Tell oa_wizard where to redirect the page to (for batching).
+    $redirect = &drupal_static('oa_wizard_redirect');
+    $redirect = url($url, $options);
   }
 }
 
@@ -529,10 +614,13 @@ function _oa_clone_batch_space(&$batch, $space, $original_space_nid) {
 
   // Clone the OG metadata.
   $batch['operations'][] = array('oa_clone_batch_clone_group_metadata', array($space, $original_space_nid));
+  $not_orphan = array();
 
   // Clone all the Sections in this Space.
   foreach (array_keys(oa_core_space_sections($original_space_nid, 1, $bypass_access_check)) as $original_section_nid) {
+    $not_orphan[$original_section_nid] = $original_section_nid; 
     if ($clone_section = oa_clone($original_section_nid, $space->nid, NULL, $bypass_access_check)) {
+      $not_orphan = array_merge($not_orphan, oa_clone_get_section_content($original_section_nid, $bypass_access_check));
       $batch['operations'][] = array('oa_clone_batch_clone_section_content', array($clone_section, $original_section_nid));
     }
   }
@@ -541,13 +629,76 @@ function _oa_clone_batch_space(&$batch, $space, $original_space_nid) {
   $associated_entities = og_subgroups_get_associated_entities('node', $original_space_nid);
   if (!empty($associated_entities['node'])) {
     foreach ($associated_entities['node'] as $original_subspace_nid) {
+      $not_orphan[$original_subspace_nid] = $original_subspace_nid;
       if ($clone_subspace = oa_clone($original_subspace_nid, $space->nid, NULL, $bypass_access_check)) {
         _oa_clone_batch_space($batch, $clone_subspace, $original_subspace_nid);
       }
     }
   }
 
-  // TODO: Find all non-section / non-sub-space content in this Space and clone it.
+  if ($nids = array_diff(oa_clone_get_orphan_content($original_space_nid, $bypass_access_check), $not_orphan)) {
+    $batch['operations'][] = array('oa_clone_batch_clone_orphan_content', array($space, $nids));
+  }
+}
+
+/**
+ * Returns non-sectio/non-subgroup content of a group.
+ */
+function oa_clone_get_orphan_content($space_nid, $bypass_access_check = FALSE) {
+  $query = db_select('node', 'n');
+  $query->fields('n', array('nid'));
+  $query->addJoin('LEFT', 'field_data_oa_section_ref', 'f', 'f.entity_id = n.nid');
+  $query->addJoin('INNER', 'og_membership', 'om', "om.group_type = 'node' AND om.entity_type = 'node' AND om.etid = n.nid");
+  $query->isNull('f.oa_section_ref_target_id');
+  $query->condition('gid', $space_nid);
+  $query->condition('n.type', array('oa_group', 'oa_space', 'oa_section'), 'NOT IN');
+  $query->condition('om.state', OG_STATE_ACTIVE);
+  if (!$bypass_access_check) {
+    $query->addTag('node_access');
+    $query->condition('n.status', 1);
+  }
+  $result = $query->execute();
+  return $result->fetchCol();
+}
+
+/**
+ * Callback for cloning all the content in a section.
+ *
+ * @param object $space_nid
+ * @param array &$context
+ *   A place where we can store values that need to b passed from one iteration
+ *   of this batch operation to the next.
+ */
+function oa_clone_batch_clone_orphan_content($space, $nids, &$context) {
+  // The first time through, set up all the variables.
+  if (empty($context['sandbox']['max'])) {
+    $context['sandbox']['content_ids'] = $nids;
+    $context['sandbox']['max'] = count($context['sandbox']['content_ids']);
+    $context['sandbox']['progress'] = 0;
+    $context['results']['total'] = (!empty($context['results']['total']) ? $context['results']['total'] : 0) + $context['sandbox']['max'];
+  }
+
+  // Get the next node.
+  $next_id = array_shift($context['sandbox']['content_ids']);
+  if (!$next_id) {
+    $context['sandbox']['finished'] = TRUE;
+    return;
+  }
+
+  // Get the original node and mark it so that it doesn't get cloned again.
+  $original_node = node_load($next_id);
+  $original_node->oa_clone_skip = TRUE;
+  $bypass_access_check = !empty($space->oa_clone_bypass_access_check);
+
+  // Clone it, setting to the new Space.
+  $clone = oa_clone($original_node, $space->nid, NULL, $bypass_access_check);
+  // Remeber: $clone can be NULL, if the user doesn't have permission to clone this node!
+
+  // Bump the progress indicator.
+  $context['sandbox']['progress']++;
+
+  // Report progress if not finished and run again.
+  $context['finished'] = $context['sandbox']['progress'] / $context['sandbox']['max'];
 }
 
 /**
@@ -686,4 +837,16 @@ function oa_clone_batch_finished($success, $results, $operations) {
   else {
     drupal_set_message(t('Error cloning content.'), 'error');
   }
+}
+
+/**
+ * Get the terms associated with a space.
+ */
+function oa_clone_get_space_type_terms($node) {
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'taxonomy_term')
+    ->fieldCondition('field_oa_clone_space', 'target_id', $node->nid)
+    ->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');
+  $result = $query->execute();
+  return !empty($result['taxonomy_term']) ? $result['taxonomy_term'] : array();
 }

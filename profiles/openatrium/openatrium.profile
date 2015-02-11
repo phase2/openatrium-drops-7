@@ -27,6 +27,15 @@ function openatrium_apps_servers_info() {
 }
 
 /**
+ * Implements hook_form_FORM_ID_alter() for install_configure_form.
+ */
+function openatrium_form_install_configure_form_alter(&$form, &$form_state) {
+  openatrium_remove_message('offers a wide range of customization options', 'warning');
+  openatrium_remove_message('The image resize filter has been installed', 'warning');
+  openatrium_remove_message('To use menu blocks, find the "Add menu block');
+}
+
+/**
  * Implements hook_form_FORM_ID_alter() for panopoly_theme_selection_form.
  */
 function openatrium_form_panopoly_theme_selection_form_alter(&$form, &$form_state, $form_id) {
@@ -34,4 +43,29 @@ function openatrium_form_panopoly_theme_selection_form_alter(&$form, &$form_stat
   unset($form['theme_wrapper']['theme']['#options']['radix']);
   unset($form['theme_wrapper']['theme']['#options']['radix_starter']);
   $form['theme_wrapper']['theme']['#default_value'] = 'oa_radix';
+}
+
+/**
+ * Implements hook_features_post_restore().
+ */
+function openatrium_features_post_restore($op, $items) {
+  openatrium_remove_message('The following views were using the index', 'warning');
+}
+
+/**
+ * Remove a message as set by drupal_set_message().
+ *
+ * This is used during install to remove irrelavent messages.
+ */
+function openatrium_remove_message($partial_message, $type = 'status') {
+  if (!empty($_SESSION['messages'][$type])) {
+    foreach ($_SESSION['messages'][$type] as $key => $message) {
+      if (strpos($message, $partial_message) !== FALSE) {
+        unset($_SESSION['messages'][$type][$key]);
+      }
+    }
+    if (empty($_SESSION['messages'][$type])) {
+      unset($_SESSION['messages'][$type]);
+    }
+  }
 }

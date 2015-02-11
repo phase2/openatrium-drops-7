@@ -250,6 +250,20 @@ function entity_property_verify_data_type($data, $type) {
     if (is_object($data)) {
       return TRUE;
     }
+    elseif (is_array($data)) {
+      if (!isset($data['id']) && !isset($data['vid'])) {
+        return FALSE;
+      }
+      elseif (isset($data['id']) && isset($data['vid'])) {
+        return entity_property_verify_data_type($data['id'], $type) && entity_property_verify_data_type($data['vid'], 'integer');
+      }
+      elseif (isset($data['id'])) {
+        return entity_property_verify_data_type($data['id'], $type);
+      }
+      elseif (isset($data['vid'])) {
+        return entity_property_verify_data_type($data['vid'], 'integer');
+      }
+    }
     elseif (isset($info[$type]['entity keys']['name'])) {
       // Read the data type of the name key from the metadata if available.
       $key = $info[$type]['entity keys']['name'];

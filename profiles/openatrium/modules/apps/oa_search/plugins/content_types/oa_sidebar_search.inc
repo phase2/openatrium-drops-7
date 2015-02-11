@@ -64,6 +64,7 @@ function oa_sidebar_search_pane_render($subtype, $conf, $args, $context) {
       '#required' => FALSE,
     );
     $element = form_process_select($element);
+    $element['#attributes']['class'][] = 'form-control';
     $spaces = drupal_render($element);
   }
   $extra_classes = '';

@@ -71,6 +71,25 @@ function og_variables_variable_edit_form($entity_type, $entity_id) {
   return drupal_get_form('variable_realm_edit_variables_form', 'og', $entity_type . '_' . $entity_id);
 }
 
+
+/**
+ * Implement hook_form_FORM_ID_alter() for variable_realm_edit_variables_form.
+ */
+function og_variables_form_variable_realm_edit_variables_form_alter(&$form, $form_state) {
+  if ($form_state['build_info']['args'][0] == 'og') {
+    // We assume if variables are available to group, they should be accessible.
+    // variable module only provides global access ability :(, so we change access
+    // here instead.
+    foreach (element_children($form['variables']) as $tab) {
+      foreach (element_children($form['variables'][$tab]) as $key) {
+        if (isset($form['variables'][$tab][$key]['#access'])) {
+          $form['variables'][$tab][$key]['#access'] = TRUE;
+        }
+      }
+    }
+  }
+}
+
 /**
  * Implement hook_og_permission().
  */

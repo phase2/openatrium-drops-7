@@ -577,3 +577,9 @@ function oa_worktracker_theme_comment_alter_diff(&$variables) {
   }
 }
 
+/**
+ * Implements hook_oa_related_allowed_default().
+ */
+function oa_worktracker_oa_related_allowed_default() {
+  return array('oa_worktracker_task');
+}

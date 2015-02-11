@@ -20,8 +20,6 @@ function oa_media_theme_registry_alter(&$theme_registry) {
   }
 }
 
-
-
 /**
  * Implements hook_field_formatter_info().
  */
@@ -186,4 +184,40 @@ function oa_media_media_colorbox($variables) {
   ));
 
   return $output;
+}
+
+/**
+ * Implementation of hook_file_default_displays_alter()
+ */
+function oa_media_file_default_displays_alter(&$default_displays) {
+  // Display the 'Generic file' display on video preview.
+  if (!empty($default_displays['video__teaser__file_field_file_default'])) {
+    $default_displays['video__teaser__file_field_file_default']->status = FALSE;
+  }
+
+  // Set the default video configuration for videos
+  if (!empty($default_displays['video__teaser__media_vimeo_video'])) {
+    $default_displays['video__teaser__media_vimeo_video']->status = FALSE;
+  }
+
+  // Set the default video configuration for videos
+  if (!empty($default_displays['video__teaser__media_youtube_video'])) {
+    $default_displays['video__teaser__media_youtube_video']->status = FALSE;
+  }
+
+  // Set the default image style for videos to be our custom video image style
+  if (!empty($default_displays['video__teaser__media_vimeo_image'])) {
+    $default_displays['video__teaser__media_vimeo_image']->settings['image_style'] = 'panopoly_image_quarter';
+  }
+
+  // Set the default image style for videos to be our custom video image style
+  if (!empty($default_displays['video__teaser__media_youtube_image'])) {
+    $default_displays['video__teaser__media_youtube_image']->settings['image_style'] = 'panopoly_image_quarter';
+  }
+
+  // Set the default video configuration for videos
+  if (!empty($default_displays['image__teaser__file_field_image'])) {
+    $default_displays['image__teaser__file_field_image']->settings['image_style'] = 'panopoly_image_quarter';
+  }
+
 }

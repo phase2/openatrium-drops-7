@@ -196,6 +196,7 @@ function oa_subspaces_field_default_field_instances() {
   // Exported field_instance: 'node-oa_space-oa_parent_space'
   $field_instances['node-oa_space-oa_parent_space'] = array(
     'bundle' => 'oa_space',
+    'comment_alter' => 0,
     'default_value' => NULL,
     'deleted' => 0,
     'description' => 'The parent space to optionally inherit members from.',
@@ -230,6 +231,9 @@ function oa_subspaces_field_default_field_instances() {
     'options_limit_fields' => array(
       'body' => 0,
       'field_featured_image' => 0,
+      'field_oa_banner' => 0,
+      'field_oa_banner_position' => 0,
+      'field_oa_banner_text' => 0,
       'field_oa_node_types' => 0,
       'field_oa_section_override' => 0,
       'field_oa_space_type' => 0,
@@ -244,11 +248,24 @@ function oa_subspaces_field_default_field_instances() {
     'settings' => array(
       'behaviors' => array(
         'og_widget' => array(
+          'access_override' => 0,
           'admin' => array(
-            'widget_type' => 'options_select',
+            'widget_settings' => array(
+              'match_operator' => 'CONTAINS',
+              'size' => 60,
+            ),
+            'widget_type' => 'entityreference_autocomplete',
           ),
           'default' => array(
-            'widget_type' => 'options_select',
+            'widget_settings' => array(
+              'select2widgetajax' => array(
+                'match_operator' => 'CONTAINS',
+                'min_char' => 0,
+                'view_mode' => 'teaser',
+                'width' => '100%',
+              ),
+            ),
+            'widget_type' => 'select2widgetajax',
           ),
           'status' => TRUE,
         ),

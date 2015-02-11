@@ -16,10 +16,19 @@ $plugin = array(
   'description' => t('Notification configuration on the Node form.'),
   'render callback' => 'oa_notifications_node_form_notifications_render',
   'required context' => new ctools_context_required(t('Form'), 'node_form'),
-  'category' => t('Form'),
+  'category' => t('OA Admin'),
 );
 
 function oa_notifications_node_form_notifications_render($subtype, $conf, $panel_args, &$context) {
+  if (!variable_get('oa_messages_notifications', TRUE)) {
+    // Set access to false on the original rather than removing so that
+    // vertical tabs doesn't clone it. I think this is due to references.
+    if (isset($context->form)) {
+      $context->form['oa_notifications']['#access'] = FALSE;
+    }
+    return;
+  }
+
   $block = new stdClass();
 
   $block->title = t('Notifications');

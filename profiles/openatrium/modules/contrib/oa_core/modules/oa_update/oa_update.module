@@ -21,7 +21,7 @@ function oa_update_menu() {
 }
 
 /**
- * Implements hook_menu_alter
+ * Implements hook_menu_alter().
  */
 function oa_update_menu_alter(&$items) {
   // swap out normal update links with our own pages
@@ -39,6 +39,9 @@ function oa_update_menu_alter(&$items) {
   unset($items['admin/reports/update_distro']);
 }
 
+/**
+ * Update distro help page..
+ */
 function oa_update_admin_form() {
   $form = array();
 
@@ -163,6 +166,32 @@ function oa_update_update_projects_alter(&$projects) {
   if (!empty($profile_name)) {
     $profile = oa_update_get_profile($profile_name);
     $projects[$profile_name] = $profile;
+  }
+
+  // If using ver versions, pretend to be latest tag.
+  foreach (array('oa_core', 'oa_discussion', 'oa_subspaces') as $module) {
+    if (!empty($projects[$module]) && empty($projects[$module]['info']['version']) && ($tag = _oa_update_get_tag($module))) {
+      $projects[$module]['info']['version'] = $tag;
+    }
+  }
+}
+
+/**
+ * For a module in -dev, get the latest tag if on -dev branch.
+ */
+function _oa_update_get_tag($module) {
+  $file = drupal_get_path('module', $module) . '/.git/HEAD';
+  if (file_exists($file) && ($contents = file_get_contents($file))) {
+    $tagsdir = drupal_get_path('module', $module) . '/.git/refs/tags';
+    if (strpos($contents, '7.x-2.x') && is_dir($tagsdir) && ($tags = scandir($tagsdir))) {
+      sort($tags);
+      foreach ($tags as $key => $tag) {
+        if (strpos($tag, '7.x-') !== 0) {
+          unset($tags[$key]);
+        }
+      }
+      return array_pop($tags);
+    }
   }
 }
 

@@ -222,6 +222,8 @@ function oa_messages_build_message_notifications_table(&$form_state, $user, $def
           $method_values = $values['all_notifications'];
           $messages_values = $message_defaults;
         }
+        $default_methods = $method_values;
+        $default_messages = $messages_values;
       }
       elseif (isset($defaults['message_notifications'][$space->nid]['methods'])) {
         $default_methods = $defaults['message_notifications'][$space->nid]['methods'];

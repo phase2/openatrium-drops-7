@@ -17,14 +17,6 @@ function oa_discussion_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'oa_parent',
-    'foreign keys' => array(
-      'node' => array(
-        'columns' => array(
-          'target_id' => 'nid',
-        ),
-        'table' => 'node',
-      ),
-    ),
     'indexes' => array(
       'target_id' => array(
         0 => 'target_id',

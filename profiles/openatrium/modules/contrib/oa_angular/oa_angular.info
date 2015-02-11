@@ -1,0 +1,13 @@
+name = Open Atrium Angular
+description = Provides helper functions for using AngularJS in Open Atrium
+core = 7.x
+package = Open Atrium
+dependencies[] = oa_core
+project path = sites/all/modules/contrib/oa_core/modules
+
+; Information added by Drupal.org packaging script on 2015-02-11
+version = "7.x-1.0-rc2"
+core = "7.x"
+project = "oa_angular"
+datestamp = "1423685917"
+

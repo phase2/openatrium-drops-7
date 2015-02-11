@@ -162,6 +162,13 @@ function panopoly_widgets_field_formatter_view($entity_type, $entity, $field, $i
     $duration = variable_get('panopoly_widgets_spotlight_rotation_time', 4);
   }
 
+  $pager_style = 'full'; // Default to the Full pager if field isn't filled out (i.e., legacy data).
+  $pager_style_field = field_get_items('fieldable_panels_pane', $entity, 'field_basic_spotlight_pager');
+  if ($pager_style_field) {
+    $pager_style_field = reset($pager_style_field);
+    $pager_style = $pager_style_field['value'];
+  }
+
   $element = array();
   $settings = $display['settings'];
   $formatter = $display['type'];
@@ -170,15 +177,33 @@ function panopoly_widgets_field_formatter_view($entity_type, $entity, $field, $i
   // Assemble the tabs header
   $header = '<div class="panopoly-spotlight-buttons-wrapper" data-rotation-time="' . $duration * 1000 . '">';
   if (count($items) > 1) {
-    $header .= '<ul>';
+    if ($pager_style == 'full') {
+      $header .= '<ul>';
+    }
+    else {
+      // We're not displaying a full pager but we still want to render the full pager, and just hide it
+      // in an accessible way, instead of not rendering it at all.
+      $header .= '<ul class="element-invisible">';
+    }
     foreach ($items as $delta => $item_data) {
       $header .= '<li>' . '<a href="#panopoly-spotlight-' . $delta . '">' . ($delta+1) . '</a></li>';
     }
     $header .= '</ul>';
 
-    if (variable_get('panopoly_widgets_spotlight_pause_play_buttons', 1)) {
+    if (variable_get('panopoly_widgets_spotlight_pause_play_buttons', 1) || $pager_style == 'mini') {
       $header .= '<div class="panopoly-spotlight-function-buttons">';
-      $header .= '<a href="#" class="panopoly-spotlight-pause-play">' . t('Pause') . '</a>';
+
+      // Have to split up previous and next so that we can squeeze pause between them if needed.
+      if ($pager_style == 'mini') {
+        $header .= '<a href="#panopoly-spotlight" class="panopoly-spotlight-previous">' . t('Prev') . '</a>';
+      }
+      if (variable_get('panopoly_widgets_spotlight_pause_play_buttons', 1)) {
+        $header .= '<a href="#" class="panopoly-spotlight-pause-play">' . t('Pause') . '</a>';
+      }
+      if ($pager_style == 'mini') {
+        $header .= '<a href="#panopoly-spotlight" class="panopoly-spotlight-next">' . t('Next') . '</a>';
+      }
+
       $header .= '</div>';
     }
   }
@@ -372,10 +397,7 @@ function theme_panopoly_spotlight_view($variables) {
   }
 
   $output .= '<div class="panopoly-spotlight-wrapper">';
-  if (!empty($title) || !empty($link)) {
-    if (empty($title)) {
-      $title = t('Link');
-    }
+  if (!empty($title)) {
     $output .= '<h3 class="panopoly-spotlight-label">' . (empty($link) ? check_plain($title) : l($title, $link)) . '</h3>';
   }
   if (!empty($description)) {

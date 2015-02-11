@@ -18,10 +18,16 @@ function entityreference_field_schema($field) {
     $schema = array(
       'columns' => array(
         'target_id' => array(
-          'description' => 'The id of the target entity.',
+          'description' => 'The ID of the target entity.',
           'type' => 'int',
           'unsigned' => TRUE,
           'not null' => TRUE,
+        ),
+        'revision_id' => array(
+          'description' => 'The revision ID of the target entity.',
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => FALSE,
         ),
       ),
       'indexes' => array(
@@ -160,5 +166,35 @@ function entityreference_update_7002() {
       'unsigned' => TRUE,
       'not null' => TRUE,
     ));
+  }
+}
+
+/**
+ * Add "revision-id" to the field schema.
+ */
+function entityreference_update_7003() {
+  if (!module_exists('field_sql_storage')) {
+    return;
+  }
+  foreach (field_info_fields() as $field_name => $field) {
+    if ($field['type'] != 'entityreference' || $field['storage']['type'] !== 'field_sql_storage') {
+      // Not an entity reference field.
+      continue;
+    }
+
+    // Add the new column.
+    $field = field_info_field($field_name);
+    $table_name = _field_sql_storage_tablename($field);
+    $revision_name = _field_sql_storage_revision_tablename($field);
+
+    $spec = array(
+      'description' => 'The revision ID of the target entity.',
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => FALSE,
+    );
+
+    db_add_field($table_name, $field_name . '_revision_id', $spec);
+    db_add_field($revision_name, $field_name . '_revision_id', $spec);
   }
 }

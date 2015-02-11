@@ -77,8 +77,8 @@
           allSpaces[spaceID].prefix = new Array(depth+1).join("- ");
           allSpaces[spaceID].classes = spaceID == active ? 'active' : '';
           dropDownSelects.push(allSpaces[spaceID]);
-          if (allSpaces[spaceID].subspaces.length > 1) {
-            var child = returnChildren(allSpaces[spaceID].nid, active, depth+1);
+          if (allSpaces[spaceID].subspaces.length > 0) {
+            var child = returnChildren(spaceID, active, depth+1);
             if (child) {
               return child;
             }
@@ -106,14 +106,16 @@
       $('a.ctools-use-modal').each(function() {
         // get link url without any query string
         var newurl = $(this).attr('href');
-        var newlink = newurl.split('?')[0];
-        // now need to remove previous ajax assigned to the old url
-        for (var base in Drupal.ajax) {
-          var link = base.split('?')[0];
-          if (newlink == link) {
-            //Drupal.ajax[base].url = newurl;
-            //Drupal.ajax[base].element_settings.url = newurl;
-            Drupal.ajax[base].options.url = newurl;
+        var newquery = newurl.split('?');
+        if (newquery.length > 1) {
+          var newlink = newquery[0];
+          // now need to remove previous ajax assigned to the old url
+          for (var base in Drupal.ajax) {
+            if ($(this)[0] == Drupal.ajax[base].element) {
+              //Drupal.ajax[base].url = newurl;
+              //Drupal.ajax[base].element_settings.url = newurl;
+              Drupal.ajax[base].options.url = newurl;
+            }
           }
         }
       });
@@ -229,9 +231,9 @@
     };
 
     $scope.newSpaceURL = function(spaceID) {
-      var url = Drupal.settings.basePath + 'api/oa_wizard/space-wizard';
+      var url = Drupal.settings.basePath + 'api/oa_wizard/space-wizard?sitemap=1';
       if (spaceID > 0) {
-        url = url + '?oa_parent_space=' + spaceID;
+        url = url + '&oa_parent_space=' + spaceID;
       }
       return url;
     };
@@ -286,7 +288,7 @@
         $.post(
           // Callback URL.
           Drupal.settings.basePath + 'api/oa/sitemap-delete/' + section.nid,
-          {token: Drupal.settings.oa_sitemap.node_tokens['node_' + nid]},
+          {token: Drupal.settings.oa_sitemap.node_tokens['node_' + section.nid]},
           function( result ) {
             if ((result.length > 0) && (result[1].command == 'alert')) {
               alert(result[1].text);
@@ -392,15 +394,20 @@
           if (allSpaces[parentID]) {
             allSpaces[parentID].sections.push({
               'title': node.title,
+              'nid': node.nid,
+              'parent_id': parentID,
               'type': 'oa_section',
               'url': Drupal.settings.basePath + 'node/' + node.nid,
+              'url_edit': Drupal.settings.basePath + 'node/' + node.nid + '/edit',
               'visibility': (node.field_oa_group_ref.und.length == 0) &&
                 node.field_oa_team_ref.und.length == 0 &&
                 node.field_oa_user_ref.und.length == 0,
               'admin': allSpaces[parentID].admin,
               'icon_id': node.field_oa_section.und[0].tid
             });
+            Drupal.settings.oa_sitemap.node_tokens['node_' + node.nid] = node.node_token;
             $scope.spaces = loadSpace(currentID);
+            $scope.exploreSpace(currentID, 0);
             $scope.$apply();
           }
           break;
@@ -421,6 +428,7 @@
             'sections': [],
             'subspaces': []
           };
+          Drupal.settings.oa_sitemap.node_tokens['node_' + node.nid] = node.node_token;
           allSpaces[parentID].subspaces.push(node.nid);
           $scope.exploreSpace(currentID, 0);
           $scope.$apply();

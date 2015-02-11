@@ -240,6 +240,7 @@ function oa_events_field_formatter_view($entity_type, $entity, $field, $instance
     $date_formatted = '';
     $time_formatted = '';
     $rrule = '';
+    $is_all_day = date_all_day_field($field, $instance, $start_date, $end_date);
 
     // Create an array of time / date information for ease of use.
     $dates = array(
@@ -262,7 +263,10 @@ function oa_events_field_formatter_view($entity_type, $entity, $field, $instance
     }
 
     // Format time.
-    if ($dates['start']['time'] == $dates['end']['time']) {
+    if ($is_all_day) {
+      $time_formatted = theme('date_all_day_label');
+    }
+    elseif ($dates['start']['time'] == $dates['end']['time']) {
       $time_formatted = $dates['start']['time'];
     }
     else {
@@ -493,4 +497,11 @@ function oa_events_views_content_type_modal_submit(&$form, &$form_state) {
 function oa_events_form_oa_event_node_form_alter(&$form, &$form_state, $form_id) {
   drupal_add_js(drupal_get_path('module', 'oa_events') . '/js/oa_events.js');
   _oa_core_hide_comment_settings($form);
+}
+
+/**
+ * Implements hook_oa_related_allowed_default().
+ */
+function oa_events_oa_related_allowed_default() {
+  return array('oa_event');
 }

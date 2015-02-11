@@ -7,7 +7,7 @@ $plugin = array(
   'single' => TRUE,
   'title' => t('Open Atrium Tour Dropdown'),
   'description' => t('A dropdown menu that lets users manually start site tours.'),
-  'category' => t('Open Atrium'),
+  'category' => t('OA Admin'),
   'edit form' => 'oa_tour_pane_edit_form',
   'render callback' => 'oa_tour_pane_render',
   'all contexts' => TRUE,
@@ -55,11 +55,15 @@ function oa_tour_pane_render($subtype, $conf, $args, $context = NULL) {
       drupal_alter('bootstrap_tour', $tour);
       if (!empty($tour->steps[0]['path'])) {
         $first_path = $tour->steps[0]['path'];
+        $url = drupal_parse_url($first_path);
+        if (empty($url['query']['tour'])) {
+          $url['query']['tour'] = $tour->name;
+        }
         if (empty($_GET['tour']) || $_GET['tour'] != $tour->name) {
-          $items[] = l($tour->title, $first_path, array('query' => array('tour' => $tour->name)));
+          $items[] = l($tour->title, $url['path'], array('query' => $url['query']));
         }
         else {
-          $items[] = l($tour->title, $first_path, array('query' => array('tour' => $tour->name), 'attributes' => array('class' => array('active-trail'))));
+          $items[] = l($tour->title, $url['path'], array('query' => $url['query'], 'attributes' => array('class' => array('active-trail'))));
         }
       }
     }

@@ -352,7 +352,7 @@ function oa_admin_views_default_views() {
   $handler->display->display_options['filters']['title']['expose']['operator'] = 'title_op';
   $handler->display->display_options['filters']['title']['expose']['identifier'] = 'title';
   $handler->display->display_options['filters']['title']['expose']['remember'] = TRUE;
-  /* Filter criterion: Content: Groups audience (og_group_ref) */
+  /* Filter criterion: Content: Groups audience (og_group_ref:target_id) */
   $handler->display->display_options['filters']['og_group_ref_target_id']['id'] = 'og_group_ref_target_id';
   $handler->display->display_options['filters']['og_group_ref_target_id']['table'] = 'og_membership';
   $handler->display->display_options['filters']['og_group_ref_target_id']['field'] = 'og_group_ref_target_id';
@@ -362,14 +362,13 @@ function oa_admin_views_default_views() {
   $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['label'] = 'Space';
   $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['operator'] = 'og_group_ref_target_id_op';
   $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['identifier'] = 'og_group_ref_target_id';
-  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['multiple'] = TRUE;
   $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
     3 => 0,
     4 => 0,
   );
-  /* Filter criterion: Content: Open Atrium Section (oa_section_ref) */
+  /* Filter criterion: Content: Open Atrium Section (oa_section_ref:target_id) */
   $handler->display->display_options['filters']['oa_section_ref_target_id']['id'] = 'oa_section_ref_target_id';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['table'] = 'field_data_oa_section_ref';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['field'] = 'oa_section_ref_target_id';
@@ -379,7 +378,6 @@ function oa_admin_views_default_views() {
   $handler->display->display_options['filters']['oa_section_ref_target_id']['expose']['label'] = 'Section';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['expose']['operator'] = 'oa_section_ref_target_id_op';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['expose']['identifier'] = 'oa_section_ref_target_id';
-  $handler->display->display_options['filters']['oa_section_ref_target_id']['expose']['multiple'] = TRUE;
   $handler->display->display_options['filters']['oa_section_ref_target_id']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
@@ -458,6 +456,68 @@ function oa_admin_views_default_views() {
   $handler->display->display_options['hide_admin_links'] = TRUE;
   $handler->display->display_options['defaults']['access'] = FALSE;
   $handler->display->display_options['path'] = 'admin/content';
+
+  /* Display: Space Content */
+  $handler = $view->new_display('panel_pane', 'Space Content', 'oa_space_content');
+  $handler->display->display_options['defaults']['access'] = FALSE;
+  $handler->display->display_options['access']['type'] = 'og_context';
+  $handler->display->display_options['access']['perm'] = 'administer group';
+  $handler->display->display_options['pane_category']['name'] = 'OA Admin';
+  $handler->display->display_options['pane_category']['weight'] = '0';
+  $handler->display->display_options['allow']['use_pager'] = 'use_pager';
+  $handler->display->display_options['allow']['items_per_page'] = 'items_per_page';
+  $handler->display->display_options['allow']['offset'] = 0;
+  $handler->display->display_options['allow']['link_to_view'] = 0;
+  $handler->display->display_options['allow']['more_link'] = 0;
+  $handler->display->display_options['allow']['path_override'] = 0;
+  $handler->display->display_options['allow']['title_override'] = 'title_override';
+  $handler->display->display_options['allow']['exposed_form'] = 'exposed_form';
+  $handler->display->display_options['allow']['exposed_form_configure'] = 'exposed_form_configure';
+  $handler->display->display_options['allow']['fields_override'] = 'fields_override';
+  $handler->display->display_options['exposed_form_overrides'] = array(
+    'filters' => array(
+      'title' => 'exposed',
+      'og_group_ref_target_id' => '',
+      'oa_section_ref_target_id' => 'pane_and_exposed',
+      'type' => 'pane_and_exposed',
+      'uid' => 'pane_and_exposed',
+      'status' => 'pane_and_exposed',
+      'vid' => 'pane_and_exposed',
+      'flagged' => 'pane_and_exposed',
+    ),
+  );
+  $handler->display->display_options['inherit_panels_path'] = '1';
+
+  /* Display: Section Content */
+  $handler = $view->new_display('panel_pane', 'Section Content', 'section_content');
+  $handler->display->display_options['defaults']['access'] = FALSE;
+  $handler->display->display_options['access']['type'] = 'og_context';
+  $handler->display->display_options['access']['perm'] = 'administer group';
+  $handler->display->display_options['pane_category']['name'] = 'OA Admin';
+  $handler->display->display_options['pane_category']['weight'] = '0';
+  $handler->display->display_options['allow']['use_pager'] = 'use_pager';
+  $handler->display->display_options['allow']['items_per_page'] = 'items_per_page';
+  $handler->display->display_options['allow']['offset'] = 0;
+  $handler->display->display_options['allow']['link_to_view'] = 0;
+  $handler->display->display_options['allow']['more_link'] = 0;
+  $handler->display->display_options['allow']['path_override'] = 0;
+  $handler->display->display_options['allow']['title_override'] = 'title_override';
+  $handler->display->display_options['allow']['exposed_form'] = 'exposed_form';
+  $handler->display->display_options['allow']['exposed_form_configure'] = 'exposed_form_configure';
+  $handler->display->display_options['allow']['fields_override'] = 'fields_override';
+  $handler->display->display_options['exposed_form_overrides'] = array(
+    'filters' => array(
+      'title' => 'exposed',
+      'og_group_ref_target_id' => '',
+      'oa_section_ref_target_id' => '',
+      'type' => 'pane_and_exposed',
+      'uid' => 'pane_and_exposed',
+      'status' => 'pane_and_exposed',
+      'vid' => 'pane_and_exposed',
+      'flagged' => 'pane_and_exposed',
+    ),
+  );
+  $handler->display->display_options['inherit_panels_path'] = '1';
   $export['oa_admin_views_node'] = $view;
 
   return $export;

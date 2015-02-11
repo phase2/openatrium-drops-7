@@ -1,0 +1,14 @@
+name  = Features Template
+core = 7.x
+
+features[ctools][] = page_manager:pages_default:1
+features[ctools][] = panelizer:panelizer:1
+features[ctools][] = strongarm:strongarm:1
+features[features_api][] = api:2
+
+; Information added by Drupal.org packaging script on 2015-01-22
+version = "7.x-1.0-beta2"
+core = "7.x"
+project = "features_template"
+datestamp = "1421886181"
+

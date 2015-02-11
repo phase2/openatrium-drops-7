@@ -9,7 +9,7 @@ $plugin = array(
   'title' => t('Powered by Open Atrium'),
   'description' => t('Show powered-by logo.'),
   'single' => TRUE,
-  'category' => array(t('Open Atrium'), -9),
+  'category' => array(t('OA Admin'), -9),
   'edit form' => 'oa_widgets_powered_by_edit_form',
   'render callback' => 'oa_widgets_powered_by_render',
 );

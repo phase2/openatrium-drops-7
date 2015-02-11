@@ -5,6 +5,11 @@
 
 (function ($) {
 
+  Drupal.ajax.prototype.commands.oaWizardRedirect = function(ajax, response, status) {
+    // Redirect as requested.
+    window.location.href = response.url;
+  };
+
   Drupal.ajax.prototype.commands.oaWizardNew = function(ajax, response, status) {
     // called when the ajax for adding node has completed
     // trigger an event to notify anybody who might need the node data

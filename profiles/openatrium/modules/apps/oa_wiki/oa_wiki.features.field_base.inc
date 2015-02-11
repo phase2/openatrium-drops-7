@@ -17,7 +17,6 @@ function oa_wiki_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_oa_wiki_page_no_redirect',
-    'foreign keys' => array(),
     'indexes' => array(
       'value' => array(
         0 => 'value',

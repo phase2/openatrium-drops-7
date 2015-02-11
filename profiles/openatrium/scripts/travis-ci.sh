@@ -57,7 +57,6 @@ system_install() {
 
   # Verify that all the .make files will work on Drupal.org.
   header Verifying .make file
-  #don't verify -dev makefile since it has github links
   #verify the release makefile instead
   #drush verify-makefile drupal/profiles/openatrium/drupal-org-dev.make
   drush verify-makefile drupal/profiles/openatrium/drupal-org.make

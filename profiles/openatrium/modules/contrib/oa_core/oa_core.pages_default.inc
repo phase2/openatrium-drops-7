@@ -388,6 +388,292 @@ function oa_core_default_page_manager_pages() {
   $page = new stdClass();
   $page->disabled = FALSE; /* Edit this to true to make a default page disabled initially */
   $page->api_version = 1;
+  $page->name = 'space_content';
+  $page->task = 'page';
+  $page->admin_title = 'Space Content';
+  $page->admin_description = '';
+  $page->path = 'node/%node/content';
+  $page->access = array(
+    'plugins' => array(
+      1 => array(
+        'name' => 'node_access',
+        'settings' => array(
+          'type' => 'view',
+        ),
+        'context' => array(
+          0 => 'logged-in-user',
+          1 => 'argument_entity_id:node_1',
+        ),
+        'not' => FALSE,
+      ),
+      2 => array(
+        'name' => 'oa_core_og_perm',
+        'settings' => array(
+          'perm' => 'administer group',
+        ),
+        'context' => array(
+          0 => 'logged-in-user',
+          1 => 'argument_entity_id:node_1',
+        ),
+        'not' => FALSE,
+      ),
+    ),
+    'logic' => 'and',
+  );
+  $page->menu = array(
+    'type' => 'tab',
+    'title' => 'Content',
+    'name' => 'navigation',
+    'weight' => '0',
+    'parent' => array(
+      'type' => 'none',
+      'title' => '',
+      'name' => 'navigation',
+      'weight' => '0',
+    ),
+  );
+  $page->arguments = array(
+    'node' => array(
+      'id' => 1,
+      'identifier' => 'Node: ID',
+      'name' => 'entity_id:node',
+      'settings' => array(),
+    ),
+  );
+  $page->conf = array(
+    'admin_paths' => FALSE,
+  );
+  $page->default_handlers = array();
+  $handler = new stdClass();
+  $handler->disabled = FALSE; /* Edit this to true to make a default handler disabled initially */
+  $handler->api_version = 1;
+  $handler->name = 'page_space_content_panel_context';
+  $handler->task = 'page';
+  $handler->subtask = 'space_content';
+  $handler->handler = 'panel_context';
+  $handler->weight = 0;
+  $handler->conf = array(
+    'title' => 'Space Content',
+    'no_blocks' => 0,
+    'pipeline' => 'standard',
+    'body_classes_to_remove' => '',
+    'body_classes_to_add' => '',
+    'css_id' => '',
+    'css' => '',
+    'contexts' => array(),
+    'relationships' => array(),
+    'access' => array(
+      'plugins' => array(
+        0 => array(
+          'name' => 'node_type',
+          'settings' => array(
+            'type' => array(
+              'oa_space' => 'oa_space',
+            ),
+          ),
+          'context' => 'argument_entity_id:node_1',
+          'not' => FALSE,
+        ),
+      ),
+      'logic' => 'and',
+    ),
+  );
+  $display = new panels_display();
+  $display->layout = 'radix_boxton';
+  $display->layout_settings = array();
+  $display->panel_settings = array(
+    'style_settings' => array(
+      'default' => NULL,
+      'contentmain' => NULL,
+    ),
+  );
+  $display->cache = array();
+  $display->title = '';
+  $display->uuid = 'e80ffb9f-107e-4481-8b46-017ebe7c8ce2';
+  $display->content = array();
+  $display->panels = array();
+    $pane = new stdClass();
+    $pane->pid = 'new-2012cee5-fec6-4d1f-be95-91f355a10e6b';
+    $pane->panel = 'contentmain';
+    $pane->type = 'views_panes';
+    $pane->subtype = 'oa_admin_views_node-oa_space_content';
+    $pane->shown = TRUE;
+    $pane->access = array();
+    $pane->configuration = array(
+      'exposed' => array(
+        'og_group_ref_target_id' => 'CURRENT',
+        'og_group_ref_target_id_mine' => 0,
+        'og_subspaces_view_all' => 1,
+        'og_subspaces_view_parent' => 0,
+        'oa_section_ref_target_id' => 'All',
+        'type' => 'All',
+        'author' => '',
+        'oa_core_default_to_current_user' => 0,
+        'status' => 'All',
+        'vid' => 'All',
+        'flagged' => '0',
+      ),
+      'show_exposed_form' => 1,
+      'use_pager' => 1,
+      'pager_id' => '0',
+      'items_per_page' => '50',
+      'fields_override' => array(
+        'views_bulk_operations' => 1,
+        'title' => 1,
+        'timestamp' => 1,
+        'oa_section_ref' => 1,
+        'og_group_ref' => 1,
+        'type' => 1,
+        'name' => 1,
+        'status' => 1,
+        'changed' => 1,
+        'edit_node' => 1,
+        'delete_node' => 1,
+      ),
+      'override_title' => '',
+      'override_title_text' => '',
+      'view_settings' => 'table',
+      'header_type' => 'titles',
+      'view_mode' => 'teaser',
+      'widget_title' => '',
+    );
+    $pane->cache = array();
+    $pane->style = array(
+      'settings' => NULL,
+    );
+    $pane->css = array();
+    $pane->extras = array();
+    $pane->position = 0;
+    $pane->locks = array();
+    $pane->uuid = '2012cee5-fec6-4d1f-be95-91f355a10e6b';
+    $display->content['new-2012cee5-fec6-4d1f-be95-91f355a10e6b'] = $pane;
+    $display->panels['contentmain'][0] = 'new-2012cee5-fec6-4d1f-be95-91f355a10e6b';
+  $display->hide_title = PANELS_TITLE_FIXED;
+  $display->title_pane = 'new-2012cee5-fec6-4d1f-be95-91f355a10e6b';
+  $handler->conf['display'] = $display;
+  $page->default_handlers[$handler->name] = $handler;
+  $handler = new stdClass();
+  $handler->disabled = FALSE; /* Edit this to true to make a default handler disabled initially */
+  $handler->api_version = 1;
+  $handler->name = 'page_space_content_panel_context_2';
+  $handler->task = 'page';
+  $handler->subtask = 'space_content';
+  $handler->handler = 'panel_context';
+  $handler->weight = 1;
+  $handler->conf = array(
+    'title' => 'Section Content',
+    'no_blocks' => 0,
+    'pipeline' => 'standard',
+    'body_classes_to_remove' => '',
+    'body_classes_to_add' => '',
+    'css_id' => '',
+    'css' => '',
+    'contexts' => array(),
+    'relationships' => array(
+      0 => array(
+        'identifier' => 'Space Node',
+        'keyword' => 'space',
+        'name' => 'entity_from_field:og_group_ref-node-node',
+        'delta' => 0,
+        'context' => 'argument_entity_id:node_1',
+        'id' => 1,
+      ),
+    ),
+    'access' => array(
+      'plugins' => array(
+        0 => array(
+          'name' => 'node_type',
+          'settings' => array(
+            'type' => array(
+              'oa_section' => 'oa_section',
+            ),
+          ),
+          'context' => 'argument_entity_id:node_1',
+          'not' => FALSE,
+        ),
+      ),
+      'logic' => 'and',
+    ),
+  );
+  $display = new panels_display();
+  $display->layout = 'radix_boxton';
+  $display->layout_settings = array();
+  $display->panel_settings = array(
+    'style_settings' => array(
+      'default' => NULL,
+      'contentmain' => NULL,
+    ),
+  );
+  $display->cache = array();
+  $display->title = '';
+  $display->uuid = 'e80ffb9f-107e-4481-8b46-017ebe7c8ce2';
+  $display->content = array();
+  $display->panels = array();
+    $pane = new stdClass();
+    $pane->pid = 'new-012aada2-0653-438d-ad6c-457ad225b07f';
+    $pane->panel = 'contentmain';
+    $pane->type = 'views_panes';
+    $pane->subtype = 'oa_admin_views_node-section_content';
+    $pane->shown = TRUE;
+    $pane->access = array();
+    $pane->configuration = array(
+      'exposed' => array(
+        'og_group_ref_target_id' => 'CURRENT',
+        'og_group_ref_target_id_mine' => 0,
+        'og_subspaces_view_all' => 0,
+        'og_subspaces_view_parent' => 0,
+        'oa_section_ref_target_id' => '',
+        'type' => 'All',
+        'author' => '',
+        'oa_core_default_to_current_user' => 0,
+        'status' => 'All',
+        'vid' => 'All',
+        'flagged' => '0',
+      ),
+      'show_exposed_form' => 1,
+      'use_pager' => 1,
+      'pager_id' => '0',
+      'items_per_page' => '50',
+      'fields_override' => array(
+        'views_bulk_operations' => 1,
+        'title' => 1,
+        'timestamp' => 1,
+        'oa_section_ref' => 0,
+        'og_group_ref' => 0,
+        'type' => 1,
+        'name' => 1,
+        'status' => 1,
+        'changed' => 1,
+        'edit_node' => 1,
+        'delete_node' => 1,
+      ),
+      'override_title' => '',
+      'override_title_text' => '',
+      'view_settings' => 'table',
+      'header_type' => 'titles',
+      'view_mode' => 'teaser',
+      'widget_title' => '',
+    );
+    $pane->cache = array();
+    $pane->style = array(
+      'settings' => NULL,
+    );
+    $pane->css = array();
+    $pane->extras = array();
+    $pane->position = 0;
+    $pane->locks = array();
+    $pane->uuid = '012aada2-0653-438d-ad6c-457ad225b07f';
+    $display->content['new-012aada2-0653-438d-ad6c-457ad225b07f'] = $pane;
+    $display->panels['contentmain'][0] = 'new-012aada2-0653-438d-ad6c-457ad225b07f';
+  $display->hide_title = PANELS_TITLE_FIXED;
+  $display->title_pane = '0';
+  $handler->conf['display'] = $display;
+  $page->default_handlers[$handler->name] = $handler;
+  $pages['space_content'] = $page;
+
+  $page = new stdClass();
+  $page->disabled = FALSE; /* Edit this to true to make a default page disabled initially */
+  $page->api_version = 1;
   $page->name = 'space_members';
   $page->task = 'page';
   $page->admin_title = 'Space Members';

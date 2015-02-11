@@ -60,7 +60,9 @@ class oa_core_og_group_ref_views_handler_filter_in_operator extends views_handle
     parent::exposed_form($form, $form_state);
     global $user;
     $exposed = $this->view->get_exposed_input();
-    $groups = oa_core_get_groups_by_user($user, 'node');
+    // just call OG for spaces, we don't care about subspaces
+    // really we just need a count, but at least this doesn't load every space
+    $groups = og_get_groups_by_user($user, 'node');
     if (($id = $this->options['expose']['identifier']) && $groups && !empty($form[$id]['#options']) && array_intersect_key($groups, $form[$id]['#options'])) {
       $form[$id . '_mine'] = array(
         '#title' => t('My Spaces'),

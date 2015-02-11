@@ -34,11 +34,17 @@ features[variable][] = panelizer_defaults_node_oa_group
 features[variable][] = panelizer_defaults_node_oa_section
 features[variable][] = panelizer_defaults_node_oa_space
 features[variable][] = panelizer_node:oa_section_allowed_layouts_default
+features[variable][] = panelizer_node:oa_section_allowed_types_default
 features[variable][] = panelizer_node:oa_space_allowed_layouts_default
+features[variable][] = panelizer_node:oa_space_allowed_types_default
+features[variable][] = panelizer_node:oa_space_default
+features_exclude[variable][panelizer_node:oa_section_allowed_layouts] = panelizer_node:oa_section_allowed_layouts
+features_exclude[variable][panelizer_node:oa_space_allowed_layouts] = panelizer_node:oa_space_allowed_layouts
+features_exclude[variable][panelizer_node:oa_space_allowed_types] = panelizer_node:oa_space_allowed_types
 
-; Information added by Drupal.org packaging script on 2014-12-17
-version = "7.x-2.31"
+; Information added by Drupal.org packaging script on 2015-02-11
+version = "7.x-2.39"
 core = "7.x"
 project = "oa_core"
-datestamp = "1418842982"
+datestamp = "1423688275"
 
