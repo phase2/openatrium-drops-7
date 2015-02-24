@@ -45,23 +45,35 @@ function oa_core_get_groups_by_user($account = NULL, $group_type = NULL, $includ
     return $result;
   }
 
-  $user_groups = og_get_groups_by_user($account, $group_type);
+  // Do NOT call og_get_groups_by_user as it loads all entities
+  // Here we do a faster db query
+
+  $query = db_select('node', 'n');
+  $query->join('og_membership', 'ogm', 'ogm.gid = n.nid');
+  $query
+    ->fields('n', array('nid'))
+    ->condition('ogm.etid', $account->uid)
+    ->condition('ogm.entity_type', 'user')
+    ->condition('ogm.state', OG_STATE_ACTIVE)
+    ->condition('n.type', array(OA_SPACE_TYPE, OA_GROUP_TYPE), 'IN');
+
+  if (module_exists('flag') && !$include_archived) {
+    if ($flag = flag_get_flag('trash')) {
+      $query->leftJoin('flag_content', 'a', "a.fid = :fid AND a.content_id = n.nid", array(':fid' => $flag->fid));
+      // This makes sure that archived content isn't included, because 'uid'
+      // will be NULL if the join didn't connect anything.
+      $query->isNull('a.uid');
+    }
+  }
+
+  $user_groups = drupal_map_assoc($query->execute()->fetchCol(0));
+
   if (!empty($group_type) && !empty($user_groups)) {
     $user_groups = array($group_type => $user_groups);
   }
-  if (module_exists('og_subgroups') && !empty($user_groups)) {
-    $user_groups = og_subgroups_children_load_multiple($user_groups);
-  }
-
-  if (module_exists('flag') && !empty($user_groups) && !$include_archived) {
-    if ($flag = flag_get_flag('trash')) {
-      // Filter out groups that are archived.
-      foreach ($user_groups['node'] as $nid) {
-        if ($flag->is_flagged($nid)) {
-          unset($user_groups['node'][$nid]);
-        }
-      }
-    }
+  if (module_exists('og_subgroups') && !empty($user_groups[$group_type])) {
+    //$orig_user_groups = og_subgroups_children_load_multiple($user_groups);
+    $user_groups[$group_type] = oa_core_get_groups_by_parent($user_groups[$group_type], array(OA_SPACE_TYPE, OA_GROUP_TYPE), NULL, $include_archived, NULL, TRUE);
   }
 
   if (!empty($group_type)) {
@@ -162,7 +174,12 @@ function oa_core_get_groups_by_user_access($account = NULL, $include_archived = 
   }
 
   if (isset($type)) {
-    $query->condition('n.type', $type);
+    if (is_array($type)) {
+      $query->condition('n.type', $type, 'IN');
+    }
+    else {
+      $query->condition('n.type', $type);
+    }
   }
 
   if (isset($status)) {
@@ -322,7 +339,7 @@ function oa_core_get_parents($nid, $bundle = OA_SPACE_TYPE, $status = NULL, $inc
  * Get child Spaces or Groups.
  *
  * @param int $nid
- *   The NID of the Space or Group to check.
+ *   The NID of the Space or Group to check, or an array of nids
  * @param string|NULL $bundle
  *   (optional) The node type (default: OA_SPACE_TYPE). If NULL is passed, it
  *   will include all node types.
@@ -333,13 +350,17 @@ function oa_core_get_parents($nid, $bundle = OA_SPACE_TYPE, $status = NULL, $inc
  * @param bool $include_archived
  *   (optional) Whether to include archived nodes or not. By default, archived
  *   items aren't included.
+ * @param int|NULL $account
+ *   (optional) user to control node acess.  If Null, use current user
+ * @param bool $subspaces
+ *   determine if subspaces are also fetched, or if just top level children are fetched
  *
  * @return array
  *   Array of children NIDs.
  */
-function oa_core_get_groups_by_parent($nid, $bundle = OA_SPACE_TYPE, $status = NULL, $include_archived = FALSE, $account = NULL) {
+function oa_core_get_groups_by_parent($nids, $bundle = OA_SPACE_TYPE, $status = NULL, $include_archived = FALSE, $account = NULL, $subspaces = FALSE) {
 
-  if ($nid == 0) {
+  if ($nids == 0) {
     return oa_core_get_top_parents($bundle, $status, $include_archived, $account);
   }
 
@@ -353,23 +374,42 @@ function oa_core_get_groups_by_parent($nid, $bundle = OA_SPACE_TYPE, $status = N
   else {
     $uid = $account->uid;
   }
+  if (is_array($nids)) {
+    $hash = md5(serialize($nids));
+  }
+  else {
+    $hash = $nids;
+  }
 
-  $cid = oa_core_get_cache_id(OA_CACHE_GROUPS_BY_PARENT, $nid . '_' . $uid, $include_archived, array($bundle, $status));
+  $cid = oa_core_get_cache_id(OA_CACHE_GROUPS_BY_PARENT, $hash . '_' . $uid, $include_archived, array($bundle, $status, $subspaces));
   if (oa_core_get_cache(OA_CACHE_GROUPS_BY_PARENT, $cid, $result)) {
     return $result;
   }
 
+  if (!is_array($nids)) {
+    $nids = array($nids);
+  }
   $query = db_select('node', 'n');
   $query->leftJoin('og_membership', 'f', "n.nid = f.etid");
   $query
     ->fields('n', array('nid'))
-    ->condition('f.gid', $nid)
     ->condition('f.entity_type', 'node')
-    ->orderBy('n.title')
+    ->orderBy('n.title');
+
+  // to find all subspaces, we query *all* spaces with parents
+  // otherwise, if just getting top level children we can filter it here.
+  if (!$subspaces) {
+    $query->condition('f.gid', $nids, 'IN')
     ->addTag('node_access');
+  }
 
   if (isset($bundle)) {
-    $query->condition('n.type', $bundle);
+    if (is_array($bundle)) {
+      $query->condition('n.type', $bundle, 'IN');
+    }
+    else {
+      $query->condition('n.type', $bundle);
+    }
   }
   if (isset($status)) {
     $query->condition('n.status', $status);
@@ -384,10 +424,44 @@ function oa_core_get_groups_by_parent($nid, $bundle = OA_SPACE_TYPE, $status = N
     }
   }
 
-  $result = $query->execute()->fetchCol(0);
+  if ($subspaces) {
+    $query->fields('f', array('gid'));
+    $query->condition('f.etid', $nids, 'NOT IN');
+    $query->join('field_data_og_user_inheritance', 'inh', "inh.entity_id = f.etid && inh.entity_type = 'node'");
+    $query->condition('inh.og_user_inheritance_value', 1);
+    $all_parents = $query->execute()->fetchAll();
+    // to get a list of all subspaces, we can now loop through the list of all parents recursively
+    // to build our children list
+    $result = _oa_core_get_all_children($all_parents, $nids);
+  }
+  else {
+    $result = $query->execute()->fetchCol(0);
+  }
 
   oa_core_set_cache(OA_CACHE_GROUPS_BY_PARENT, $cid, $result);
 
+  return $result;
+}
+
+/**
+ * Helper function to return children of a list of parents
+ * @param $all_parents array of nid,gid for all spaces
+ * @param $nids array an array of parents we want children for
+ */
+function _oa_core_get_all_children(&$all_parents, $nids) {
+  $result = array();
+  $children = array();
+  foreach ($nids as $nid) {
+    foreach ($all_parents as $parent) {
+      if ($parent->gid == $nid) {
+        $children[] = $parent->nid;
+      }
+    }
+  }
+  if (!empty($children)) {
+    $result = _oa_core_get_all_children($all_parents, $children);
+  }
+  $result = array_unique( array_merge($nids, $result), SORT_NUMERIC);
   return $result;
 }
 

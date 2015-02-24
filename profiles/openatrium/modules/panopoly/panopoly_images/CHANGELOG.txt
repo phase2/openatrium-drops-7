@@ -1,3 +1,11 @@
+Panopoly Images 7.x-1.17, 2015-02-18
+-----------------------------
+- HP Fatal error:  [] operator not supported for strings in panopoly_images/panopoly_images.module on line 90.
+
+Panopoly Images 7.x-1.16, 2015-02-12
+-----------------------------
+- No changes since last release.
+
 Panopoly Images 7.x-1.15, 2015-01-12
 -----------------------------
 - No changes since last release.

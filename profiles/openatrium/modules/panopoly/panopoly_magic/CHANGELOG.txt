@@ -1,3 +1,12 @@
+Panopoly Magic 7.x-1.17, 2015-02-18
+----------------------------
+- Remove special handling for Pane titles.
+
+Panopoly Magic 7.x-1.16, 2015-02-12
+----------------------------
+- Stray select box when configuring Views widgets.
+- Avoid overwriting title of IPE buton.
+
 Panopoly Magic 7.x-1.15, 2015-01-12
 ----------------------------
 - No changes since last release.

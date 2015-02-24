@@ -4,7 +4,7 @@ body.page-media-browser {
 }
 
 /* Map Widget */
-div.pane-bundle-map {
+div.pane-bundle-map .pane-content {
   overflow: hidden;
 }
 

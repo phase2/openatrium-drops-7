@@ -26,3 +26,10 @@ Display Fields tabs in the UI.
 You can use this hook to rename or remove the default bundle but remember that
 doing so will break any content currently using that bundle. If you do this
 be sure to also fix any content already using it.
+
+
+A note about view modes
+-----------------------
+When viewing an FPP object on its own page, e.g.
+admin/structure/fieldable-panels-panes/view/1, the 'preview' view mode will be
+used if it has been customized, otherwise it defaults to 'default'.

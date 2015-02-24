@@ -172,7 +172,7 @@ function oa_discussion_views_default_views() {
   $handler->display->display_options['fields']['status']['element_default_classes'] = FALSE;
   $handler->display->display_options['fields']['status']['type'] = 'published-notpublished';
   $handler->display->display_options['fields']['status']['not'] = 0;
-  /* Field: Content: Attachments */
+  /* Field: Field: Attachments */
   $handler->display->display_options['fields']['field_oa_media']['id'] = 'field_oa_media';
   $handler->display->display_options['fields']['field_oa_media']['table'] = 'field_data_field_oa_media';
   $handler->display->display_options['fields']['field_oa_media']['field'] = 'field_oa_media';
@@ -344,7 +344,7 @@ function oa_discussion_views_default_views() {
   $handler->display->display_options['fields']['delete_node']['label'] = '';
   $handler->display->display_options['fields']['delete_node']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['delete_node']['text'] = 'remove';
-  /* Field: Content: Attachments */
+  /* Field: Field: Attachments */
   $handler->display->display_options['fields']['field_oa_media']['id'] = 'field_oa_media';
   $handler->display->display_options['fields']['field_oa_media']['table'] = 'field_data_field_oa_media';
   $handler->display->display_options['fields']['field_oa_media']['field'] = 'field_oa_media';
@@ -463,7 +463,7 @@ function oa_discussion_views_default_views() {
   $handler->display->display_options['fields']['created']['date_format'] = 'custom';
   $handler->display->display_options['fields']['created']['custom_date_format'] = 'g:ia D M j';
   $handler->display->display_options['fields']['created']['oa_date'] = '0';
-  /* Field: Content: Attachments */
+  /* Field: Field: Attachments */
   $handler->display->display_options['fields']['field_oa_media']['id'] = 'field_oa_media';
   $handler->display->display_options['fields']['field_oa_media']['table'] = 'field_data_field_oa_media';
   $handler->display->display_options['fields']['field_oa_media']['field'] = 'field_oa_media';
@@ -689,6 +689,10 @@ function oa_discussion_views_default_views() {
   $handler->display->display_options['sorts']['changed']['order'] = 'DESC';
   $handler->display->display_options['defaults']['arguments'] = FALSE;
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
+  $handler->display->display_options['filter_groups']['groups'] = array(
+    1 => 'AND',
+    2 => 'OR',
+  );
   $handler->display->display_options['defaults']['filters'] = FALSE;
   /* Filter criterion: Content: Parent (oa_parent:target_id) */
   $handler->display->display_options['filters']['oa_parent_target_id']['id'] = 'oa_parent_target_id';
@@ -720,6 +724,7 @@ function oa_discussion_views_default_views() {
   $handler->display->display_options['filters']['flagged']['field'] = 'flagged';
   $handler->display->display_options['filters']['flagged']['relationship'] = 'flag_content_rel';
   $handler->display->display_options['filters']['flagged']['value'] = '0';
+  $handler->display->display_options['filters']['flagged']['group'] = 1;
   $handler->display->display_options['filters']['flagged']['exposed'] = TRUE;
   $handler->display->display_options['filters']['flagged']['expose']['operator_id'] = '';
   $handler->display->display_options['filters']['flagged']['expose']['label'] = 'Include archived content';
@@ -731,16 +736,11 @@ function oa_discussion_views_default_views() {
     3 => 0,
     4 => 0,
   );
-  /* Filter criterion: Content: Published */
-  $handler->display->display_options['filters']['status']['id'] = 'status';
-  $handler->display->display_options['filters']['status']['table'] = 'node';
-  $handler->display->display_options['filters']['status']['field'] = 'status';
-  $handler->display->display_options['filters']['status']['relationship'] = 'reverse_oa_parent_node';
-  $handler->display->display_options['filters']['status']['value'] = '1';
   /* Filter criterion: Content: Groups audience (og_group_ref:target_id) */
   $handler->display->display_options['filters']['og_group_ref_target_id']['id'] = 'og_group_ref_target_id';
   $handler->display->display_options['filters']['og_group_ref_target_id']['table'] = 'og_membership';
   $handler->display->display_options['filters']['og_group_ref_target_id']['field'] = 'og_group_ref_target_id';
+  $handler->display->display_options['filters']['og_group_ref_target_id']['group'] = 1;
   $handler->display->display_options['filters']['og_group_ref_target_id']['exposed'] = TRUE;
   $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['operator_id'] = 'og_group_ref_target_id_op';
   $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['label'] = 'Groups audience';
@@ -756,6 +756,7 @@ function oa_discussion_views_default_views() {
   $handler->display->display_options['filters']['oa_section_ref_target_id']['id'] = 'oa_section_ref_target_id';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['table'] = 'field_data_oa_section_ref';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['field'] = 'oa_section_ref_target_id';
+  $handler->display->display_options['filters']['oa_section_ref_target_id']['group'] = 1;
   $handler->display->display_options['filters']['oa_section_ref_target_id']['exposed'] = TRUE;
   $handler->display->display_options['filters']['oa_section_ref_target_id']['expose']['operator_id'] = 'oa_section_ref_target_id_op';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['expose']['label'] = 'Open Atrium Section';
@@ -767,6 +768,20 @@ function oa_discussion_views_default_views() {
     3 => 0,
     4 => 0,
   );
+  /* Filter criterion: Content: Published */
+  $handler->display->display_options['filters']['status']['id'] = 'status';
+  $handler->display->display_options['filters']['status']['table'] = 'node';
+  $handler->display->display_options['filters']['status']['field'] = 'status';
+  $handler->display->display_options['filters']['status']['relationship'] = 'reverse_oa_parent_node';
+  $handler->display->display_options['filters']['status']['value'] = '1';
+  $handler->display->display_options['filters']['status']['group'] = 2;
+  /* Filter criterion: Content: Nid */
+  $handler->display->display_options['filters']['nid']['id'] = 'nid';
+  $handler->display->display_options['filters']['nid']['table'] = 'node';
+  $handler->display->display_options['filters']['nid']['field'] = 'nid';
+  $handler->display->display_options['filters']['nid']['relationship'] = 'reverse_oa_parent_node';
+  $handler->display->display_options['filters']['nid']['operator'] = 'empty';
+  $handler->display->display_options['filters']['nid']['group'] = 2;
   $handler->display->display_options['pane_category']['name'] = 'Open Atrium';
   $handler->display->display_options['pane_category']['weight'] = '0';
   $handler->display->display_options['allow']['use_pager'] = 'use_pager';

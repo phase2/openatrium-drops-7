@@ -138,6 +138,16 @@ class OgSubspacesSelectionHandler extends EntityReference_SelectionHandler_Gener
   }
 
   /**
+   * Implements EntityReferenceHandler::validateReferencableEntities().
+   */
+  public function validateReferencableEntities(array $ids) {
+    $group_type = $this->field['settings']['target_type'];
+    $user_groups = oa_core_get_groups_by_user(NULL, $group_type);
+    $result = array_intersect($ids, $user_groups);
+    return $result;
+  }
+
+  /**
    * Build an EntityFieldQuery to get referencable entities.
    */
   public function buildEntityFieldQuery($match = NULL, $match_operator = 'CONTAINS') {

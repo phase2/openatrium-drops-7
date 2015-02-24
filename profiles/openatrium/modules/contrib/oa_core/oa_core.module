@@ -69,6 +69,13 @@ function oa_core_init() {
   // prevent og-menu-single from participating in Drupal breadcrumb creation
   // otherwise it will load every space node on the site
   menu_tree_set_path('og-menu-single', '');
+
+  // Panopoly Widgets adds the Seven theme css to Media Browser, which fixes
+  // many style issues.  But we need some tweaks with Bootstrap to improve it
+  if (arg(0) == 'media' && arg(1) == 'browser') {
+    drupal_add_css(drupal_get_path('module', 'oa_core') . '/css/oa_core.media.css',
+      array('group' => CSS_THEME, 'weight' => -1));
+  }
 }
 
 /**
@@ -479,11 +486,10 @@ function oa_core_form_node_form_alter(&$form, &$form_state, $form_id) {
   if (isset($form['panelizer'])) {
     $form['panelizer']['page_manager']['name']['#title'] = t('Select Layout');
   }
-  // @todo this is a workaround for og not defaulting based on subgroups,
+  // this is a workaround for og not defaulting based on subgroups,
   // only user direct groups.
   // handling this for both normal users and admin users
-  if (empty($form['#node']->nid)
-    && !empty($form['#node']->{OA_SPACE_FIELD}[LANGUAGE_NONE][0]['target_id'])
+  if (!empty($form['#node']->{OA_SPACE_FIELD}[LANGUAGE_NONE][0]['target_id'])
     && isset($form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['default'])
     && empty($form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['default']['#default_value'])
     && ($group = node_load($form['#node']->{OA_SPACE_FIELD}[LANGUAGE_NONE][0]['target_id']))

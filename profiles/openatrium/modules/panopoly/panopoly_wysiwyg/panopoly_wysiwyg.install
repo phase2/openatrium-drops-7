@@ -1,0 +1,12 @@
+<?php
+/**
+ * @file
+ * Install hooks for Panopoly WYSIWYG.
+ */
+
+/**
+ * Ensure that filter settings get updated.
+ */
+function panopoly_wysiwyg_update_7101() {
+  features_revert(array('panopoly_wysiwyg' => array('filter')));
+}

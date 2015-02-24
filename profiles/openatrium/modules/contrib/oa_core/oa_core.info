@@ -29,7 +29,7 @@ dependencies[] = panopoly_pages
 dependencies[] = paragraphs
 dependencies[] = views_content
 dependencies[] = views_load_more
-stylesheets[all][] = oa_core.css
+stylesheets[all][] = css/oa_core.css
 features[ctools][] = page_manager:pages_default:1
 features[ctools][] = panelizer:panelizer:1
 features[ctools][] = strongarm:strongarm:1
@@ -123,9 +123,9 @@ files[] = plugins/views/oa_core_og_group_ref_views_handler_filter_in_operator.in
 files[] = plugins/views/oa_core_oa_section_ref_views_handler_filter_in_operator.inc
 files[] = plugins/views/oa_core_og_group_ref_views_handler_filter_entityreference_autocomplete.inc
 
-; Information added by Drupal.org packaging script on 2015-02-11
-version = "7.x-2.39"
+; Information added by Drupal.org packaging script on 2015-02-23
+version = "7.x-2.40"
 core = "7.x"
 project = "oa_core"
-datestamp = "1423688275"
+datestamp = "1424718721"
 

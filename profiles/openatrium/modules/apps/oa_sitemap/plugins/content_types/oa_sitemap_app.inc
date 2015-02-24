@@ -105,7 +105,7 @@ function oa_sitemap_app_render($subtype, $conf, $args, $context) {
     'oa-sitemap-section' => array(
       'modalSize' => array(
         'type' => 'scale',
-        'width' => 0.5,
+        'width' => 0.7,
         'height' => 0.9,
       ),
       'animation' => 'fadeIn',
@@ -113,7 +113,7 @@ function oa_sitemap_app_render($subtype, $conf, $args, $context) {
     'oa-sitemap-space' => array(
       'modalSize' => array(
         'type' => 'scale',
-        'width' => 0.5,
+        'width' => 0.7,
         'height' => 0.5,
       ),
       'animation' => 'fadeIn',

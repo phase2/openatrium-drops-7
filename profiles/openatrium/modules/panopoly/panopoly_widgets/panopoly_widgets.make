@@ -15,6 +15,7 @@ projects[simple_gmap][subdir] = contrib
 
 projects[menu_block][version] = 2.4
 projects[menu_block][subdir] = contrib
+projects[menu_block][patch][2418803] = https://www.drupal.org/files/issues/menu_block-ctools-1.6-2418803-2.patch
 
 ; Panopoly - Contrib - Files & Media
 

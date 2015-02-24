@@ -87,27 +87,13 @@
           return;
         }
 
-        // Special handling for title elements.
-        if ($element.length && $(e.target).parent('.form-item-title,.form-item-widget-title').length) {
-
-          // If all text was removed, remove the existing title markup from the dom.
-          if (!$(e.target).val().length) {
-            $('.widget-preview .pane-title', context).remove();
-          }
-          // Insert as link title text if the title is a link.
-          else if ($('a', $element).length) {
-            $('a', $element).html($(e.target).val());
-          }
-          // Otherwise just insert the form value as-is.
-          else {
-            $element.html($(e.target).val());
-          }
-        } 
-        // Automatically submit the field on blur. This won't happen if title markup is already present.
-        else if (e.type == 'blur') {
+        // Automatically submit the field on blur. This won't happen if title
+        // markup is already present.
+        if (e.type == 'blur') {
           triggerSubmit.call(e.target.form)
         }
-        // If all else fails, just trigger a timer to submit the form a second after the last activity.
+        // Otherwise, just trigger a timer to submit the form a second after
+        // the last activity.
         else {
           timer = setTimeout(function () { triggerSubmit.call(e.target.form); }, 1000);
         }

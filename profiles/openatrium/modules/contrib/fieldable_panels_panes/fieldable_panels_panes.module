@@ -51,6 +51,10 @@ function fieldable_panels_panes_entity_info() {
         'label'  => t('Full'),
         'custom settings' => FALSE,
       ),
+      'preview' => array(
+        'label'  => t('Preview'),
+        'custom settings' => FALSE,
+      ),
     ),
 
     // entity module callbacks
@@ -128,6 +132,17 @@ function fieldable_panels_panes_field_extra_fields() {
   }
 
   return $extra;
+}
+
+/**
+ * Implements hook_field_extra_fields_display_alter().
+ */
+function fieldable_panels_panes_field_extra_fields_display_alter(&$displays, $context) {
+  if ($context['entity_type'] == 'fieldable_panels_pane' && $context['view_mode'] == 'full') {
+    // Hide display of the title field on the 'full' view mode (because it gets
+    // displayed as the Pane title).
+    $displays['title']['visible'] = FALSE;
+  }
 }
 
 /**

@@ -177,6 +177,11 @@ function oa_notifications_get_users_for_node($node, $gid = NULL) {
   // The move to an autocomplete might make this potential performance problem
   // disappear.
   $users = oa_core_get_inherited_users_for_space($gid);
+  // The loop below is currently a performance issue that needs more work
+  // Lets just return the list of users that have access to space without
+  // actually calling full node_access. Unfortunately, og_subgroups_node_grants
+  // will cause all subspaces to be entity-loaded!
+  /*
   if (isset($node->nid)) {
     foreach ($users as $uid => $user) {
       if (!node_access('view', $node, $user)) {
@@ -184,6 +189,7 @@ function oa_notifications_get_users_for_node($node, $gid = NULL) {
       }
     }
   }
+  */
   return $users;
 }
 

@@ -7,15 +7,16 @@ dependencies[] = page_manager
 core = 7.x
 configure = admin/config/content/panelizer
 
+files[] = plugins/search_api/PanelizerSearchApiAlterCallback.class.php
 files[] = plugins/views/panelizer_handler_field_link.inc
 files[] = plugins/views/panelizer_handler_panelizer_status.inc
 files[] = plugins/views/panelizer_handler_filter_panelizer_status.inc
 files[] = plugins/views/panelizer_plugin_row_panelizer_node_view.inc
 
 
-; Information added by drush on 2015-02-11
+; Information added by drush on 2015-02-23
 version = "7.x-3.1+9-dev"
 core = "7.x"
 project = "panelizer"
-datestamp = "1423691316"
+datestamp = "1424730488"
 

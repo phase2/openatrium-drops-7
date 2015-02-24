@@ -18,23 +18,6 @@ include_once 'oa_files.features.inc';
 function oa_files_menu() {
   $items = array();
 
-  $items['oa-files/upload'] = array(
-    'access callback' => 'node_access',
-    'access arguments' => array('create', 'oa_wiki_page'),
-    'page callback' => 'oa_files_upload_page',
-    'page title' => 'Upload',
-    'type' => MENU_CALLBACK,
-  );
-
-  $items['oa-files/upload/%ctools_js'] = array(
-    'access callback' => 'node_access',
-    'access arguments' => array('create', 'oa_wiki_page'),
-    'page callback' => 'oa_files_upload_page',
-    'page title' => 'Upload',
-    'page arguments' => array(1),
-    'type' => MENU_CALLBACK,
-  );
-
   if (module_exists('devel')) {
     $items['oa-files/ctools-test'] = array(
       'access arguments' => array('access devel information'),
@@ -44,12 +27,13 @@ function oa_files_menu() {
     );
   }
 
-  $items['oa-files/upload/multi/%oa_files_upload_multi/%ctools_js'] = array(
+  $items['oa-files/upload/multi/%oa_files_upload_multi'] = array(
     'title' => 'Create & Update Documents',
     'page callback' => 'oa_files_upload_create_documents_form_page',
-    'page arguments' => array(3, 4),
+    'page arguments' => array(3),
     'access callback' => 'node_access',
     'access arguments' => array('create', 'oa_wiki_page'),
+    'theme callback' => 'media_dialog_get_theme_name',
   );
 
   $items['api/oa/files-addterm'] = array(
@@ -69,6 +53,15 @@ function oa_files_menu() {
   );
 
   return $items;
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function oa_files_menu_alter(&$items) {
+  if (!empty($items['media/browser'])) {
+    $items['oa-files/upload'] = $items['media/browser'];
+  }
 }
 
 /**
@@ -92,6 +85,10 @@ function oa_files_theme() {
       ),
       'path' => $path,
     ),
+    'oa_files_dialog_page' => array(
+      'render element' => 'page',
+      'template' => 'templates/oa-files-dialog-page',
+    ),
   );
 }
 
@@ -108,98 +105,6 @@ function oa_files_theme() {
  */
 function oa_files_upload_multi_load($fids) {
   return file_load_multiple(explode(' ', $fids));
-}
-
-/**
- * Media upload.
- */
-function oa_files_upload_page($js = FALSE) {
-  ctools_include('modal');
-  ctools_include('ajax');
-  $form_state = array(
-    'title' => t('Add files'),
-    'ajax' => $js,
-    'build_info' => array(
-      'args' => array(
-        array('wiki' => TRUE)
-      ),
-    ),
-  );
-  module_load_include('pages.inc', 'file_entity');
-
-  // This is a workaround due to redirect not working in modals.
-  // file_entity_add_upload is already a multistep form so making it a multistep
-  // form for our extra steps would have been complex.
-  if ($js && !empty($_POST['form_id']) &&  $_POST['form_id'] == 'oa_files_upload_create_documents_form' && !empty($_POST['documents'])) {
-    return oa_files_upload_create_documents_form_page(file_load_multiple(array_keys($_POST['documents'])), TRUE);
-  }
-  else {
-    if (module_exists('plupload') && module_exists('multiform')) {
-      $output = ctools_modal_form_wrapper('file_entity_add_upload_multiple', $form_state);
-    }
-    else {
-      $output = ctools_modal_form_wrapper('file_entity_add_upload', $form_state);
-    }
-  }
-  if ($js) {
-    $commands = array();
-    // Part two of workaround.
-    if (!empty($form_state['file']->fid)) {
-      return oa_files_upload_create_documents_form_page(array($form_state['file']->fid => $form_state['file']), TRUE);
-    }
-    elseif (!empty($form_state['files'])) {
-      return oa_files_upload_create_documents_form_page($form_state['files'], TRUE);
-    }
-    if ($form_state['executed']) {
-      $commands[] = ctools_modal_command_dismiss();
-    }
-    print ajax_render($commands ? $commands : $output);
-    exit;
-  }
-  return $output;
-}
-
-/**
- * Implements hook_form_FORM_ID_alter() for file_entity_add_upload_multiple.
- */
-function oa_files_form_file_entity_add_upload_multiple_alter(&$form, &$form_state) {
-  if (!empty($form_state['build_info']['args'][0]['wiki'])) {
-    $form['#submit'][] = 'oa_files_file_entity_add_upload_multiple_submit';
-  }
-}
-
-/**
- * Implements hook_form_FORM_ID_alter() for file_entity_add_upload_multiple.
- */
-function oa_files_form_file_entity_add_upload_alter(&$form, &$form_state) {
-  if (!empty($form_state['build_info']['args'][0]['wiki'])) {
-    $form['#submit'][] = 'oa_files_file_entity_add_upload_submit';
-    array_unshift($form['#submit'], 'oa_files_file_entity_add_upload_submit_first');
-  }
-}
-
-/**
- * Force skipping the fields step to confirm with multi upload..
- */
-function oa_files_file_entity_add_upload_submit_first($form, &$form_state) {
-  global $conf;
-  $conf['file_entity_file_upload_wizard_skip_fields'] = TRUE;
-}
-
-/**
- * Redirect to our form instead of edit files page.
- */
-function oa_files_file_entity_add_upload_submit($form, &$form_state) {
-  if (empty($form_state['rebuild']) && !empty($form_state['file'])) {
-    $form_state['redirect'] = array('oa-files/upload/multi/' . $form_state['file']->fid . '/' . ($form_state['ajax'] ? 'ajax' : 'nojs'), _oa_files_get_redirect_options());
-  }
-}
-
-/**
- * Redirect to our form instead of edit files page.
- */
-function oa_files_file_entity_add_upload_multiple_submit($form, &$form_state) {
-  $form_state['redirect'] = array('oa-files/upload/multi/' . implode(' ', array_keys($form_state['files'])) . '/' . ($form_state['ajax'] ? 'ajax' : 'nojs'), _oa_files_get_redirect_options());
 }
 
 /**
@@ -230,35 +135,41 @@ function _oa_files_get_redirect_options() {
 /**
  * Page callback to return the create documents.
  */
-function oa_files_upload_create_documents_form_page($files, $js) {
+function oa_files_upload_create_documents_form_page($files) {
   ctools_include('modal');
   ctools_include('ajax');
   $form_state = array(
     'title' => t('Add files'),
-    'ajax' => $js,
     'build_info' => array(
       'args' => array(
         $files,
       ),
     ),
+    'no_redirect' => TRUE,
   );
   $output = ctools_modal_form_wrapper('oa_files_upload_create_documents_form', $form_state);
-  if ($js) {
+  if ($form_state['executed']) {
     $commands = array();
-    if ($form_state['executed']) {
-      $commands[] = ctools_modal_command_dismiss(t('Addition Success'));
-      $commands[] = array(
-        // The command will be used in our JavaScript file (see next section)
-        'command' => 'oaFilesAdded',
-        // We pass the value that the user selected in the select element to our
-        // JavaScript function:
-        'files' => oa_files_prepare_files_from_files($form_state['build_info']['args'][0]), // return $files created
-      );
-    }
-    print ajax_render(!empty($commands) ? $commands : $output);
+    $commands[0] = ctools_modal_command_dismiss(t('Addition Success'));
+    $commands[1] = array(
+      // The command will be used in our JavaScript file (see next section)
+      'command' => 'oaFilesAdded',
+      // We pass the value that the user selected in the select element to our
+      // JavaScript function:
+      'files' => oa_files_prepare_files_from_files($form_state['build_info']['args'][0]), // return $files created
+    );
+    $commands[2] = ajax_command_insert('#main-wrapper', theme('status_messages'));
+    $commands[2]['method'] = 'prepend';
+    $commands[2]['effect'] = 'none';
+    print '<div id="json-encode" style="display:none;">';
+    print ajax_render($commands);
+    print '</div>';
+    print t('Processing...');
     exit;
   }
-  return $output;
+  $render = drupal_render($output);
+  // The responsive table class causes a scrollbar, remove.
+  return str_replace('table-responsive', '', $render);
 }
 
 /**
@@ -266,7 +177,13 @@ function oa_files_upload_create_documents_form_page($files, $js) {
  */
 function oa_files_upload_create_documents_form($form, &$form_state, $files) {
   $form = array();
-  $form['documents']['#tree'] = TRUE;
+  $form['documents'] = array(
+    '#tree' => TRUE,
+    '#theme' => 'table',
+    '#header' => array(t('File Name'), t('Update'), t('Title')),
+    '#rows' => array(),
+    '#sticky' => FALSE,
+  );
   $form['#files'] = $files;
   // Get the group/section to look for the file in.
   $gid = $sid = NULL;
@@ -279,24 +196,45 @@ function oa_files_upload_create_documents_form($form, &$form_state, $files) {
   }
   $form['#gid'] = $gid;
   $form['#sid'] = $sid;
+  $has_update = FALSE;
   foreach ($files as $fid => $file) {
     // Just be sure they have access in case URL manipulation.
     if (!file_entity_access('view', $file)) {
       continue;
     }
-    $form['documents'][$file->fid] = array(
-      '#type' => 'fieldset',
-      '#group' => 'files',
-      '#title' => check_plain($file->filename),
-    );
     $form['documents'][$file->fid]['title'] = array(
       '#type' => 'textfield',
       '#title' => t('Title'),
       '#default_value' => $file->filename,
       '#weight' => $fid,
     );
+    $form['documents'][$file->fid]['title'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Title'),
+      '#default_value' => $file->filename,
+      '#weight' => $fid,
+      '#attributes' => array('style' => 'width:auto;'),
+    );
 
-    if ($node = oa_files_find_document($file, $gid)) {
+    $form['documents'][$file->fid]['update'] = array('#access' => FALSE);
+    if ($node = oa_files_find_document_for_existing_document($file, $gid, $sid)) {
+      $has_update = TRUE;
+      $form['documents'][$file->fid]['update'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Document <a href="@url">@title</a> already contains @filename, make a new copy?', array('@url' => url('node/' . $node->nid), '@title' => $node->title, '@filename' => $file->filename)),
+        '#default_value' => 0,
+        '#weight' => $fid - .5,
+      );
+      $form['documents'][$file->fid]['title']['#states'] = array(
+        'invisible' => array(
+          ':input[name="documents[' . $file->fid . '][update]"]' => array('checked' => FALSE),
+        ),
+      );
+      $form['#files'][$file->fid]->node = $node;
+      $form['#files'][$file->fid]->existing_document = TRUE;
+    }
+    elseif ($node = oa_files_find_document($file, $gid)) {
+      $has_update = TRUE;
       $form['#files'][$file->fid]->node = $node;
       $form['documents'][$file->fid]['update'] = array(
         '#type' => 'checkbox',
@@ -309,8 +247,19 @@ function oa_files_upload_create_documents_form($form, &$form_state, $files) {
           ':input[name="documents[' . $file->fid . '][update]"]' => array('checked' => TRUE),
         ),
       );
-      //oa_files_update_document($node, $node->oa_files_row, $file);
     }
+    $form['documents']['#rows'][$file->fid] = array(
+      array('data' => check_plain($file->filename)),
+      array('data' => &$form['documents'][$file->fid]['update']),
+      array('data' => &$form['documents'][$file->fid]['title']),
+    );
+  }
+  // Remove update row if none are filled in.
+  if (!$has_update) {
+    foreach ($form['documents']['#rows'] as $fid => $row) {
+      unset($form['documents']['#rows'][$fid][1]);
+    }
+    unset($form['documents']['#header'][1]);
   }
   $form['create'] = array(
     '#value' => t('Process'),
@@ -327,16 +276,23 @@ function oa_files_upload_create_documents_form_submit($form, &$form_state) {
   foreach ($form_state['values']['documents'] as $fid => $values) {
     if (!empty($form['#files'][$fid])) {
       $file = $form['#files'][$fid];
-      if (!empty($file->node->nid) && !empty($values['update'])) {
+      // If the document exists already in gid/section.
+      $existing_document = !empty($form['#files'][$file->fid]->existing_document);
+      // If existing document: whether to create a new document (FALSE for create)
+      // otherwise, document with same path exists, update to new file.
+      $update = !empty($values['update']);
+      if (!empty($file->node->nid) && !$existing_document && $update) {
         oa_files_update_document(node_load($file->node->nid), $file->node->oa_files_row, $file);
       }
-      else {
+      elseif (!$existing_document || $update) {
         $node = oa_files_create_document($file, $values['title'], $form['#gid'], $form['#sid']);
         $form['#files'][$fid]->node = $node;
       }
+      else {
+        unset($form['#files'][$fid]);
+      }
     }
   }
-  $form_state['redirect'] = array('oa-files/upload', _oa_files_get_redirect_options());
 }
 
 /**
@@ -391,7 +347,7 @@ function oa_files_create_document($file, $title, $gid = NULL, $sid = NULL) {
     }
 
     if (isset($_GET['menu_parent'])) {
-      $pid = !empty($_GET['menu_parent']) ? $_GET['menu_parent'] : $section_id;
+      $pid = !empty($_GET['menu_parent']) ? $_GET['menu_parent'] : $sid;
       if (($parent = node_load($pid)) && node_access('view', $parent) && ($mlid = og_menu_single_get_link_mlid('node', $pid))) {
         $is_in_group = FALSE;
         foreach (field_get_items('node', $parent, 'og_group_ref') as $value) {
@@ -486,6 +442,34 @@ function oa_files_update_document($node, $row, $file) {
 }
 
 /**
+ * Find the documents that reference current file.
+ *
+ * @param $file
+ *   The file object to find.
+ */
+function oa_files_find_document_for_existing_document($file, $gid = NULL, $sid = NULL) {
+  $query = db_select('file_managed', 'f');
+  $query->innerJoin('field_data_field_oa_media', 'm', 'm.field_oa_media_fid = f.fid AND m.entity_type = :type', array(':type' => 'node'));
+  $query->addField('m', 'entity_id', 'nid');
+  $query->condition('f.fid',$file->fid);
+  $query->orderBy('f.fid', 'ASC');
+  $query->innerJoin('node', 'n', 'n.nid = m.entity_id');
+  $query->condition('n.type', 'oa_wiki_page');
+  if ($gid) {
+    $query->innerJoin('og_membership', 'om', 'm.entity_id = om.etid AND om.entity_type = :type AND om.group_type = :type AND om.gid = :id', array(':type' => 'node', ':id' => $gid));
+    if ($sid) {
+      $query->innerJoin('field_data_oa_section_ref', 'sf', 'm.entity_id = sf.entity_id AND sf.entity_type = :type', array(':type' => 'node'));
+      $query->condition('sf.oa_section_ref_target_id', $sid);
+    }
+  }
+  foreach($query->execute()->fetchCol() as $nid) {
+    if (($node = node_load($nid)) && node_access('view', $node)) {
+      return $node;
+    }
+  }
+}
+
+/**
  * Find the document that may correspond to a given file.
  *
  * @param $file
@@ -509,6 +493,8 @@ function oa_files_find_document($file, $gid = NULL, $sid = NULL) {
   $query->fields('m', array('delta', 'language'));
   $query->addField('f','uri');
   $query->addField('m', 'entity_id', 'nid');
+  $query->innerJoin('node', 'n', 'n.nid = m.entity_id');
+  $query->condition('n.type', 'oa_wiki_page');
   $query->condition(
     db_or()
       ->condition('f.uri', db_like($uri),  'LIKE') // Use like for caseless effect.
@@ -553,11 +539,85 @@ function oa_files_find_document($file, $gid = NULL, $sid = NULL) {
  * Test page callback to display add files ctools link.
  */
 function oa_files_ctools_test() {
-  ctools_include('modal');
-  ctools_include('ajax');
-  ctools_modal_add_js();
-  $output = ctools_modal_text_button(t('Add files'), 'oa-files/upload/ajax', t('Create Files'));
-  return $output;
+  oa_files_include_js();
+  return l(t('Create Files'), 'oa-files/upload/ajax', array('query' => array('menu_parent' => 0)));
+}
+
+/**
+ * Implements hook_page_alter().
+ *
+ * This is used to use our alternate template when ?render=media-popup is passed
+ * in the URL.
+ */
+function oa_files_page_alter(&$page) {
+  if (variable_get('oa_files_include_js', TRUE)) {
+    oa_files_include_js();
+  }
+  if (isset($_GET['render']) && $_GET['render'] == 'oa-files-popup') {
+    drupal_add_css(drupal_get_path('module', 'oa_files') . '/css/oa_files.media.css', array('basename' => 'seven_style', 'group' => CSS_THEME));
+    $page['#theme'] = 'oa_files_dialog_page';
+
+    // Disable administration modules from adding output to the popup.
+    // @see http://drupal.org/node/914786
+    module_invoke_all('suppress', TRUE);
+
+    foreach (element_children($page) as $key) {
+      if ($key != 'content') {
+        unset($page[$key]);
+      }
+    }
+  }
+}
+
+/**
+ * Add messages to the page.
+ */
+function template_preprocess_oa_files_dialog_page(&$variables) {
+  $variables['messages'] = theme('status_messages');
+}
+
+
+/**
+ * Include JS.
+ */
+function oa_files_include_js() {
+  $included = &drupal_static(__FUNCTION__, FALSE);
+  if (!$included) {
+    $included = TRUE;
+    $field = field_info_field('field_oa_media');
+    $instance = field_info_instance('node', 'field_oa_media', 'oa_wiki_page');
+    $widget_settings = $instance['widget']['settings'];
+    $field_settings = $field['settings'];
+    $multiselect = module_exists('media_multiselect');
+    $options = array(
+      'types' => array_filter($widget_settings['allowed_types']),
+      'enabledPlugins' => array_filter($instance['widget']['settings']['browser_plugins']),
+      'schemes' => array_filter($widget_settings['allowed_schemes']),
+      'file_directory' => isset($field_settings['file_directory']) ? $field_settings['file_directory'] : '',
+      'file_extensions' => isset($field_settings['file_extensions']) ? $field_settings['file_extensions'] : variable_get('file_entity_default_allowed_extensions', 'jpg jpeg gif png txt doc docx xls xlsx pdf ppt pptx pps ppsx odt ods odp mp3 mov mp4 m4a m4v mpeg avi ogg oga ogv weba webp webm'),
+      'max_filesize' => isset($field_settings['max_filesize']) ? $field_settings['max_filesize'] : 0,
+      'uri_scheme' => !empty($field['settings']['uri_scheme']) ? $field['settings']['uri_scheme'] : file_default_scheme(),
+      'multiselect' => $multiselect,
+    );
+    drupal_load('module', 'media_wysiwyg');
+    media_wysiwyg_include_browser_js();
+    drupal_add_library('system', 'drupal.ajax');
+    drupal_add_js(drupal_get_path('module', 'oa_files') . '/js/upload.js');
+    drupal_add_js(array('oa_files_media_options' => array('global' => $options), 'oa_files_upload_url' => url('oa-files/upload/multi')), 'setting');
+  }
+}
+
+/**
+ * Implements hook_admin_paths().
+ */
+function oa_files_admin_paths() {
+  $paths = array();
+  $dialog_theme = variable_get('media_dialog_theme', '');
+  if (empty($dialog_theme) || $dialog_theme == variable_get('admin_theme')) {
+    $paths['oa-files/upload'] = TRUE;
+    $paths['oa-files/upload/*'] = TRUE;
+  }
+  return $paths;
 }
 
 /**

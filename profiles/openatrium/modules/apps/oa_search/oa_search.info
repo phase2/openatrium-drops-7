@@ -55,9 +55,9 @@ features[views_view][] = oa_user_solr_search
 features_exclude[dependencies][entity] = entity
 files[] = oa_search.facetapi.inc
 
-; Information added by Drupal.org packaging script on 2015-02-11
-version = "7.x-2.3"
+; Information added by Drupal.org packaging script on 2015-02-23
+version = "7.x-2.4"
 core = "7.x"
 project = "oa_search"
-datestamp = "1423680786"
+datestamp = "1424717887"
 

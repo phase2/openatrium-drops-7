@@ -1280,6 +1280,18 @@ function panelizer_features_pipe_panelizer_defaults_alter(&$more, $data, $export
   return $more;
 }
 
+/**
+ * Implements hook_search_api_alter_callback_info().
+ */
+function panelizer_search_api_alter_callback_info() {
+  $info = array();
+  $info['panelizer'] = array(
+    'name' => t('Panelizer'),
+    'description' => t('Add the content from the Panelizer "Full page override" to the search index.'),
+    'class' => 'PanelizerSearchApiAlterCallback',
+  );
+  return $info;
+}
 // -----------------------------------------------------------------------
 // Theme functions where necessary.
 

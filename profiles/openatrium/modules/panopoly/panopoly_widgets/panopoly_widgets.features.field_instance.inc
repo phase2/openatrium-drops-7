@@ -31,7 +31,7 @@ function panopoly_widgets_field_default_field_instances() {
     'settings' => array(
       'description_field' => 0,
       'file_directory' => 'general',
-      'file_extensions' => 'pdf txt',
+      'file_extensions' => 'txt doc docx xls xlsx pdf ppt pptx pps ppsx odt ods odp',
       'max_filesize' => '',
       'user_register_form' => FALSE,
     ),

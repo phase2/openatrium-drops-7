@@ -16,9 +16,9 @@ apps[author] = Phase2 Technology
 apps[author_url] = http://www.phase2technology.com/
 apps[server] = openatrium
 apps[package] = Core addons
-; Information added by Drupal.org packaging script on 2015-01-21
-version = "7.x-2.0-rc3"
+; Information added by Drupal.org packaging script on 2015-02-23
+version = "7.x-2.0"
 core = "7.x"
 project = "oa_devel"
-datestamp = "1421877194"
+datestamp = "1424717584"
 

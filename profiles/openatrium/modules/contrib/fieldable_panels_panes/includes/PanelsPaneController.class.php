@@ -239,6 +239,22 @@ class PanelsPaneController extends DrupalDefaultEntityController {
 
     // Remove previously built content, if exists.
     $entity->content = array();
+ 
+    // Add the title so that it may be controlled via other display mechanisms.
+    $entity->content['title'] = array(
+      '#theme' => 'html_tag',
+      '#tag' => 'h2',
+      '#value' => '',
+    );
+    // Some titles link to a page.
+    if (!empty($entity->title)) {
+      if (!empty($entity->link) && !empty($entity->path)) {
+        $entity->content['title']['#value'] = l($entity->title, $entity->path);
+      }
+      else {
+        $entity->content['title']['#value'] = check_plain($entity->title);
+      }
+    }
 
     // Allow modules to change the view mode.
     $context = array(

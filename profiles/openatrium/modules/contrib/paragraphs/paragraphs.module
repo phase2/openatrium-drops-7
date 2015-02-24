@@ -29,6 +29,7 @@ define('PARAGRAPHS_ITEM_ACCESS_IGNORE', NULL);
 // Separate some Field API parts in different files.
 require_once dirname(__FILE__) . '/paragraphs.field_formatter.inc';
 require_once dirname(__FILE__) . '/paragraphs.field_widget.inc';
+require_once dirname(__FILE__) . '/paragraphs.node_clone.inc';
 
 /**
  * Loads a paragraphs item.

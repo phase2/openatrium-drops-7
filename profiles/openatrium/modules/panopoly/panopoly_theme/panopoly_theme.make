@@ -12,8 +12,10 @@ projects[radix_layouts][subdir] = contrib
 projects[respondjs][version] = 1.4
 projects[respondjs][subdir] = contrib
 
-libraries[respondjs][download][type] = get
-libraries[respondjs][download][url] = https://github.com/scottjehl/Respond/tarball/master
+libraries[respondjs][download][type] = git
+libraries[respondjs][download][url] = https://github.com/scottjehl/Respond.git
+libraries[respondjs][download][revision] = 86dea4ab1e93a275e2044965ab7452c3c1e2c6da
+libraries[respondjs][download][branch] = master
 
 ; Bundle a Few Panopoly Approved Themes
 

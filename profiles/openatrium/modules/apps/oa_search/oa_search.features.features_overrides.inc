@@ -12,19 +12,18 @@ function oa_search_features_override_default_overrides() {
   $overrides = array();
 
   // Exported overrides for: search_api_server
-  $overrides["search_api_server.database_server.options|indexes|database_node_index|created|type"] = 'date';
   $overrides["search_api_server.database_server.options|indexes|database_node_index|field_oa_related"] = array(
-    'table' => 'search_api_db_database_node_index_field_oa_related_1',
+    'table' => 'search_api_db_database_node_index_field_oa_related',
     'type' => 'list<integer>',
     'boost' => '1.0',
   );
   $overrides["search_api_server.database_server.options|indexes|database_node_index|field_oa_related:field_paragraph_text:value"] = array(
-    'table' => 'search_api_db_database_node_index_field_oa_related_field_par_1',
+    'table' => 'search_api_db_database_node_index_text',
     'type' => 'list<text>',
     'boost' => '1.0',
   );
   $overrides["search_api_server.database_server.options|indexes|database_node_index|field_oa_related:snippet_body"] = array(
-    'table' => 'search_api_db_database_node_index_field_oa_related_snippet_b_1',
+    'table' => 'search_api_db_database_node_index_text',
     'type' => 'list<text>',
     'boost' => '1.0',
   );
@@ -40,32 +39,32 @@ function oa_search_features_override_default_overrides() {
   );
   $overrides["search_api_server.database_server.options|indexes|user_index"] = array(
     'name' => array(
-      'table' => 'search_api_db_user_index_name_1',
+      'table' => 'search_api_db_user_index_name',
       'type' => 'text',
       'boost' => '1.0',
     ),
     'mail' => array(
-      'table' => 'search_api_db_user_index_mail_1',
+      'table' => 'search_api_db_user_index_name',
       'type' => 'text',
       'boost' => '1.0',
     ),
     'og_user_node' => array(
-      'table' => 'search_api_db_user_index_og_user_node_1',
+      'table' => 'search_api_db_user_index_og_user_node',
       'type' => 'list<integer>',
       'boost' => '1.0',
     ),
     'field_user_display_name' => array(
-      'table' => 'search_api_db_user_index_field_user_display_name_1',
+      'table' => 'search_api_db_user_index_name',
       'type' => 'text',
       'boost' => '5.0',
     ),
     'search_api_language' => array(
-      'table' => 'search_api_db_user_index_search_api_language_1',
+      'table' => 'search_api_db_user_index_search_api_language',
       'type' => 'string',
       'boost' => '1.0',
     ),
     'search_api_url' => array(
-      'table' => 'search_api_db_user_index_search_api_url_1',
+      'table' => 'search_api_db_user_index_search_api_url',
       'type' => 'uri',
       'boost' => '1.0',
     ),

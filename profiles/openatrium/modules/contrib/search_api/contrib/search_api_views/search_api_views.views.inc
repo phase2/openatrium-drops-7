@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Views hook implementations for the Search API Views module.
+ */
+
+/**
  * Implements hook_views_data().
  */
 function search_api_views_views_data() {
@@ -27,7 +32,13 @@ function search_api_views_views_data() {
         );
       }
 
-      $wrapper = $index->entityWrapper(NULL, TRUE);
+      try {
+        $wrapper = $index->entityWrapper(NULL, FALSE);
+      }
+      catch (EntityMetadataWrapperException $e) {
+        watchdog_exception('search_api_views', $e, "%type while retrieving metadata for index %index: !message in %function (line %line of %file).", array('%index' => $index->name), WATCHDOG_WARNING);
+        continue;
+      }
 
       // Add field handlers and relationships provided by the Entity API.
       foreach ($wrapper as $key => $property) {
@@ -35,6 +46,14 @@ function search_api_views_views_data() {
         if ($info) {
           entity_views_field_definition($key, $info, $table);
         }
+      }
+
+      try {
+        $wrapper = $index->entityWrapper(NULL);
+      }
+      catch (EntityMetadataWrapperException $e) {
+        watchdog_exception('search_api_views', $e, "%type while retrieving metadata for index %index: !message in %function (line %line of %file).", array('%index' => $index->name), WATCHDOG_WARNING);
+        continue;
       }
 
       // Add handlers for all indexed fields.
@@ -63,7 +82,7 @@ function search_api_views_views_data() {
         if ($group) {
           // @todo Entity type label instead of $group?
           $table[$id]['group'] = $group;
-          $name = t('@field (indexed)', array('@field' => $name));
+          $name = t('!field (indexed)', array('!field' => $name));
         }
         $table[$id]['title'] = $name;
         $table[$id]['help'] = empty($info['description']) ? t('(No information available)') : $info['description'];
@@ -115,8 +134,8 @@ function search_api_views_views_data() {
         if (isset($field['entity_type']) && $field['entity_type'] === 'taxonomy_term') {
           $field_id = ($pos = strrpos($key, ':')) ? substr($key, $pos + 1) : $key;
           $field_info = field_info_field($field_id);
-          if (isset($field_info['settings']['allowed_values'][0]['vocabulary'])) {
-            $vocabulary_fields[$field_info['settings']['allowed_values'][0]['vocabulary']][] = $key;
+          if ($vocabulary = _search_api_views_get_field_vocabulary($field_info)) {
+            $vocabulary_fields[$vocabulary][] = $key;
           }
           else {
             $vocabulary_fields[''][] = $key;
@@ -139,8 +158,18 @@ function search_api_views_views_data() {
 }
 
 /**
- * Helper function that returns an array of handler definitions to add to a
- * views field definition.
+ * Adds handler definitions for a field to a Views data table definition.
+ *
+ * Helper method for search_api_views_views_data().
+ *
+ * @param $id
+ *   The internal identifier of the field.
+ * @param array $field
+ *   Information about the field.
+ * @param EntityMetadataWrapper $wrapper
+ *   A wrapper providing further metadata about the field.
+ * @param array $table
+ *   The existing Views data table definition, as a reference.
  */
 function _search_api_views_add_handlers($id, array $field, EntityMetadataWrapper $wrapper, array &$table) {
   $type = $field['type'];
@@ -155,7 +184,7 @@ function _search_api_views_add_handlers($id, array $field, EntityMetadataWrapper
   if ($inner_type == 'text') {
     $table[$id] += array(
       'argument' => array(
-        'handler' => 'SearchApiViewsHandlerArgument',
+        'handler' => 'SearchApiViewsHandlerArgumentString',
       ),
       'filter' => array(
         'handler' => 'SearchApiViewsHandlerFilterText',
@@ -164,9 +193,9 @@ function _search_api_views_add_handlers($id, array $field, EntityMetadataWrapper
     return;
   }
 
-  if ($options = $wrapper->optionsList('view')) {
+  $info = $wrapper->info();
+  if (isset($info['options list']) && is_callable($info['options list'])) {
     $table[$id]['filter']['handler'] = 'SearchApiViewsHandlerFilterOptions';
-    $table[$id]['filter']['options'] = $options;
     $table[$id]['filter']['multi-valued'] = search_api_is_list_type($type);
   }
   elseif ($inner_type == 'boolean') {
@@ -175,12 +204,35 @@ function _search_api_views_add_handlers($id, array $field, EntityMetadataWrapper
   elseif ($inner_type == 'date') {
     $table[$id]['filter']['handler'] = 'SearchApiViewsHandlerFilterDate';
   }
+  elseif (isset($field['entity_type']) && $field['entity_type'] === 'user') {
+    $table[$id]['filter']['handler'] = 'SearchApiViewsHandlerFilterUser';
+  }
+  elseif (isset($field['entity_type']) && $field['entity_type'] === 'taxonomy_term') {
+    $table[$id]['filter']['handler'] = 'SearchApiViewsHandlerFilterTaxonomyTerm';
+    $field_info = field_info_field($info['name']);
+    // For the "Parent terms" and "All parent terms" properties, we can
+    // extrapolate the vocabulary from the parent in the selector. (E.g.,
+    // for "field_tags:parent" we can use the information of "field_tags".)
+    // Otherwise, we can't include any vocabulary information.
+    if (!$field_info && ($info['name'] == 'parent' || $info['name'] == 'parents_all')) {
+      if (!empty($table[$id]['real field'])) {
+        $parts = explode(':', $table[$id]['real field']);
+        $field_info = field_info_field($parts[count($parts) - 2]);
+      }
+    }
+    if ($vocabulary = _search_api_views_get_field_vocabulary($field_info)) {
+      $table[$id]['filter']['vocabulary'] = $vocabulary;
+    }
+  }
   else {
     $table[$id]['filter']['handler'] = 'SearchApiViewsHandlerFilter';
   }
 
-  if ($inner_type == 'string') {
+  if ($inner_type == 'string' || $inner_type == 'uri') {
     $table[$id]['argument']['handler'] = 'SearchApiViewsHandlerArgumentString';
+  }
+  elseif ($inner_type == 'date') {
+    $table[$id]['argument']['handler'] = 'SearchApiViewsHandlerArgumentDate';
   }
   else {
     $table[$id]['argument']['handler'] = 'SearchApiViewsHandlerArgument';
@@ -239,4 +291,32 @@ function search_api_views_views_plugins() {
   }
 
   return $ret;
+}
+
+/**
+ * Returns the vocabulary machine name of a term field.
+ *
+ * @param array|null $field_info
+ *   The field's field info array, or NULL if the field is not provided by the
+ *   Field API. See the return value of field_info_field().
+ *
+ * @return string|null
+ *   If the field contains taxonomy terms of a single vocabulary (which could be
+ *   determined), that vocabulary's machine name; NULL otherwise.
+ */
+function _search_api_views_get_field_vocabulary($field_info) {
+  // Test for "Term reference" fields.
+  if (isset($field_info['settings']['allowed_values'][0]['vocabulary'])) {
+    return $field_info['settings']['allowed_values'][0]['vocabulary'];
+  }
+  // Test for "Entity reference" fields.
+  elseif (isset($field_info['settings']['handler']) && $field_info['settings']['handler'] === 'base') {
+    if (!empty($field_info['settings']['handler_settings']['target_bundles'])) {
+      $bundles = $field_info['settings']['handler_settings']['target_bundles'];
+      if (count($bundles) == 1) {
+        return key($bundles);
+      }
+    }
+  }
+  return NULL;
 }

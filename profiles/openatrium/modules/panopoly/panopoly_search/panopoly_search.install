@@ -31,6 +31,10 @@ function panopoly_search_update_dependencies() {
   $deps['search_api_solr'][7102] = array(
     'panopoly_core' => 7002,
   );
+  // We need to revert our servers/indexes only after this update to search_api_db.
+  $deps['panopoly_search'][7005] = array(
+    'search_api_db' => 7104,
+  );
   return $deps;
 }
 
@@ -93,5 +97,28 @@ function panopoly_search_update_7004(&$sandbox) {
     }
 
     return t('Panopoly\'s Search API Solr index has been temporarily disabled on Pantheon. Search API DB will now be used for faceted search results.');
+  }
+}
+
+/**
+ * Make sure search is configured to index Panelizer and reindex all nodes.
+ */
+function panopoly_search_update_7005() {
+  features_revert(array('panopoly_search' => array('search_api_server', 'search_api_index')));
+
+  $types = array();
+  foreach (search_api_index_load_multiple(array('database_node_index', 'node_index')) as $index) {
+    if ($index->enabled) {
+      $types[$index->item_type][] = $index;
+    }
+  }
+  foreach ($types as $type => $indexes) {
+    try {
+      $controller = search_api_get_datasource_controller($type);
+      $controller->startTracking($indexes);
+    }
+    catch (SearchApiException $e) {
+      watchdog_exception('panopoly_search', $e);
+    }
   }
 }

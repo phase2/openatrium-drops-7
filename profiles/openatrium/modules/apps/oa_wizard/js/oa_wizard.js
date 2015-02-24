@@ -53,153 +53,162 @@
         }
       };
 
-      $('body').once('oa-wizard', function() {
-        $(document).keydown(wizardKeyHandler);
-      });
+      // only add wizard HTML the first time in case this is in response
+      // to an error in the previous submit
+      if ($("#oa-wizard").length == 0) {
 
-      ////
-      // Set up HTML Stubs
-      ////
+        $('body').once('oa-wizard', function() {
+          $(document).keydown(wizardKeyHandler);
+        });
 
-      // Set up the Nav Container HTML
-      var $navItems = $("<ul/>", {
-        "class": "nav",
-        "role": "tablist",
-        html: $("<li/>", {
-          html: $("<a/>", {
-            "class": "toggle-nav",
-            "href": "#",
+        ////
+        // Set up HTML Stubs
+        ////
+
+        // Set up the Nav Container HTML
+        var $navItems = $("<ul/>", {
+          "class": "nav",
+          "role": "tablist",
+          html: $("<li/>", {
+            html: $("<a/>", {
+              "class": "toggle-nav",
+              "href": "#",
+              click: function (e) {
+                e.preventDefault();
+                $('#oa-wizard').toggleClass('open');
+              }
+            }).append(
+              $("<span/>", {
+                "class": "glyphicon glyphicon-th-list"
+              })
+              )
+          })
+        });
+
+        // Set Up the Tab Container HTML
+        var $tabContent = $("<div/>", {
+          "class": "tab-content"
+        });
+
+        ////
+        // Step Through $steps array
+        ////
+
+        $.each($steps, function (key, value) {
+          var tab = "",
+            fields = value['fields'],
+            prevState = (key == 0 ? "disabled" : "enabled"),
+            nextState = (key == Object.keys($steps).length - 1 ? "disabled" : "enabled");
+          console.log(value['title'],prevState,nextState);
+
+          // clean button container
+          var $buttons = $("<div/>", {
+            "class": "buttons"
+          });
+
+          // clean tab container
+          var $tab = $("<div/>", {
+            "class": "tab-pane",
+            "id": "tab" + (key + 1)
+          });
+
+          ////
+          // Append all Navigation Items
+          ////
+
+          $("<li/>", {
+            html: $("<a/>", {
+              "href": "#tab" + (key + 1),
+              "role": "tab",
+              "data-toggle": "tab",
+              text: value['title']
+            }).append(
+              $("<span/>", {
+                  "class": "badge",
+                  text: key + 1
+                }
+              ))
+          }).appendTo($navItems);
+
+          ////
+          // Append Fields and buttons to tab content
+          ////
+
+          $.each(fields, function (i, field) {
+            field = field.replace(/[_]/g, "-");
+            if (field == "title") {
+              $(".form-item-title").detach().appendTo($tab);
+            }
+            else {
+              $('.field-name-' + field).detach().appendTo($tab);
+            }
+          });
+
+          // create prev/next buttons
+          var $prevButton = $("<button/>", {
+            "class": "btn btn-primary oa-wizard-prev",
+            "type": "button",
+            href: "#",
+            text: "Previous",
             click: function (e) {
               e.preventDefault();
-              $('#oa-wizard').toggleClass('open');
+              $('#oa-wizard').find('[data-toggle="tab"]').eq(key - 1).tab('show');
             }
+          }).attr(prevState, "");
+
+          var $nextButton = $("<button/>", {
+            "class": "btn btn-primary oa-wizard-next",
+            "type": "button",
+            href: "#",
+            text: "Next",
+            click: function (e) {
+              e.preventDefault();
+              $('#oa-wizard').find('[data-toggle="tab"]').eq(key + 1).tab('show');
+            }
+          }).attr(nextState, "");
+
+          // Append Buttons
+          $buttons.append($prevButton).append($nextButton);
+
+          if (nextState == 'disabled') {
+            // do not use #edit-actions id since resubmitting form after error
+            // changes id to #edit-actions--1
+            $('.form-actions').detach().appendTo($buttons);
+          }
+
+          // place buttons at bottom of tab
+          $buttons.appendTo($tab);
+
+          // Add tab to tabContent container
+          $tab.appendTo($tabContent);
+
+        });
+
+        ////
+        // Put it all together
+        ////
+
+        var $html = $("<div/>", {
+          "class": "",
+          "id": "oa-wizard",
+          html: $("<div/>", {
+            "class": "row",
+            html: $navItems
           }).append(
-            $("<span/>", {
-              "class": "glyphicon glyphicon-th-list"
-            })
-            )
-        })
-      });
-
-      // Set Up the Tab Container HTML
-      var $tabContent = $("<div/>", {
-        "class": "tab-content"
-      });
-
-      ////
-      // Step Through $steps array
-      ////
-
-      $.each($steps, function (key, value) {
-        var tab = "",
-          fields = value['fields'],
-          prevState = (key == 0 ? "disabled" : "enabled"),
-          nextState = (key == Object.keys($steps).length - 1 ? "disabled" : "enabled");
-
-        // clean button container
-        var $buttons = $("<div/>", {
-          "class": "buttons"
-        });
-
-        // clean tab container
-        var $tab = $("<div/>", {
-          "class": "tab-pane",
-          "id": "tab" + (key + 1)
+            $('<div/>', {
+              "class": "content",
+              html: $tabContent
+            }))
         });
 
         ////
-        // Append all Navigation Items
+        // Hide original form, insert new wizard and show 1st tab
         ////
 
-        $("<li/>", {
-          html: $("<a/>", {
-            "href": "#tab" + (key + 1),
-            "role": "tab",
-            "data-toggle": "tab",
-            text: value['title']
-          }).append(
-            $("<span/>", {
-                "class": "badge",
-                text: key + 1
-              }
-            ))
-        }).appendTo($navItems);
+        $form.find('div').hide();
+        $form.prepend($html);
+      }
 
-        ////
-        // Append Fields and buttons to tab content
-        ////
-
-        $.each(fields, function (i, field) {
-          field = field.replace(/[_]/g, "-");
-          if (field == "title") {
-            $(".form-item-title").detach().appendTo($tab);
-          }
-          else {
-            $('.field-name-' + field).detach().appendTo($tab);
-          }
-        });
-
-        // create prev/next buttons
-        var $prevButton = $("<button/>", {
-          "class": "btn btn-primary oa-wizard-prev",
-          "type": "button",
-          href: "#",
-          text: "Previous",
-          click: function (e) {
-            e.preventDefault();
-            $('#oa-wizard').find('[data-toggle="tab"]').eq(key - 1).tab('show');
-          }
-        }).attr(prevState, "");
-
-        var $nextButton = $("<button/>", {
-          "class": "btn btn-primary oa-wizard-next",
-          "type": "button",
-          href: "#",
-          text: "Next",
-          click: function (e) {
-            e.preventDefault();
-            $('#oa-wizard').find('[data-toggle="tab"]').eq(key + 1).tab('show');
-          }
-        }).attr(nextState, "");
-
-        // Append Buttons
-        $buttons.append($prevButton).append($nextButton);
-
-        if (nextState == 'disabled') {
-          $('#edit-actions').detach().appendTo($buttons);
-        }
-
-        // place buttons at bottom of tab
-        $buttons.appendTo($tab);
-
-        // Add tab to tabContent container
-        $tab.appendTo($tabContent);
-
-      });
-
-      ////
-      // Put it all together
-      ////
-
-      var $html = $("<div/>", {
-        "class": "",
-        "id": "oa-wizard",
-        html: $("<div/>", {
-          "class": "row",
-          html: $navItems
-        }).append(
-          $('<div/>', {
-            "class": "content",
-            html: $tabContent
-          }))
-      });
-
-      ////
-      // Hide original form, insert new wizard and show 1st tab
-      ////
-
-      $form.find('div').hide();
-      $form.prepend($html);
       // show first item
       $('#oa-wizard').find('[data-toggle="tab"]').eq(0).tab('show');
     }

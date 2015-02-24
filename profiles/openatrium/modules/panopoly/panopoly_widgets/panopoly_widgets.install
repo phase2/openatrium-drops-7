@@ -274,3 +274,54 @@ function panopoly_widgets_update_7009() {
 function panopoly_widgets_update_7010() {
   features_revert(array('panopoly_widgets' => array('field_base', 'field_instance')));
 }
+
+/**
+ * Update the allowed file extensions in File widgets.
+ */
+function panopoly_widgets_update_7011() {
+  if ($file_instance = field_info_instance('fieldable_panels_pane', 'field_basic_file_file', 'basic_file')) {
+    // If the file extensions match the old default, then we set them to the new default.
+    if ($file_instance['settings']['file_extensions'] == 'pdf txt') {
+      $file_instance['settings']['file_extensions'] = PANOPOLY_WIDGETS_FILE_EXTENSIONS_DEFAULT;
+      field_update_instance($file_instance);
+    }
+  }
+}
+
+/**
+ * Update 'Content item' widgets to reference NID rather than title.
+ */
+function panopoly_widgets_update_7012() {
+  // Make sure the View for the 'Content item' widget gets updated.
+  features_revert(array('panopoly_widgets' => array('views_view')));
+  views_invalidate_cache();
+
+  // Go through existing panes and update configuration.
+  // We're going to load the panes directly from the 'panels_pane' table and
+  // replace them with the new pane, reusing the same IDs and everything.
+  // Don't try this at home, kids!
+  $result = db_query("SELECT * FROM {panels_pane} WHERE type = 'views_panes' AND subtype = 'panopoly_widgets_general_content-piece_of_content'");
+  $serialized_fields = array('access', 'configuration', 'cache', 'style', 'css', 'extras', 'locks');
+  foreach ($result as $pane) {
+    // Unserialize all the serialized fields.
+    foreach ($serialized_fields as $field) {
+      $pane->$field = unserialize($pane->$field);
+    }
+
+    // Load the node using the View, set the NID and clear out the title.
+    $exposed =& $pane->configuration['exposed'];
+    $view = views_get_view('panopoly_widgets_general_content');
+    $view->set_display('piece_of_content');
+    $view->set_exposed_input($exposed);
+    $view->pre_execute();
+    $view->execute($view->current_display);
+    $view->post_execute();
+    if (count($view->result) > 0) {
+      $exposed['nid'] = $view->result[0]->nid;
+      $exposed['title'] = '';
+
+      // Write back to the database.
+      drupal_write_record('panels_pane', $pane, array('pid'));
+    }
+  }
+}

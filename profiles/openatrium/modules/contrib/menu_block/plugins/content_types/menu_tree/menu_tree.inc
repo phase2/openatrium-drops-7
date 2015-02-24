@@ -17,6 +17,9 @@ $plugin = array(
   'title' => t('Menu tree'),
 );
 
+// Load the standard config form.
+module_load_include('inc', 'menu_block', 'menu_block.admin');
+
 /**
  * Supplies a list of menu tree content sub-types.
  */
@@ -100,8 +103,6 @@ function menu_block_menu_tree_content_type_render($subtype, $conf, $args, $conte
 function menu_block_menu_tree_content_type_edit_form($form, &$form_state) {
   $conf = $form_state['conf'];
 
-  // Load the standard config form.
-  module_load_include('inc', 'menu_block', 'menu_block.admin');
   // Create a pseudo form state.
   $sub_form_state = array('values' => $conf);
   $form += menu_block_configure_form($form, $sub_form_state);
@@ -140,7 +141,6 @@ function menu_block_menu_tree_content_type_admin_title($subtype, $conf, $context
   }
   else {
     // Build the menu tree.
-    module_load_include('inc', 'menu_block', 'menu_block.admin');
     $output = _menu_block_format_title($conf);
   }
   return $output;

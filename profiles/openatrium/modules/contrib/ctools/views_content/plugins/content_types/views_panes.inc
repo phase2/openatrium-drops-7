@@ -170,6 +170,11 @@ function views_content_views_panes_content_type_render($subtype, $conf, $panel_a
     return;
   }
 
+  // Add contextual links to the output.
+  $block = (array) $block;
+  views_add_block_contextual_links($block, $view, $display, 'panel_pane');
+  $block = (object) $block;
+
   $block->title = $view->get_title();
 
   if (empty($view->total_rows) || $view->total_rows <= $view->get_items_per_page()) {
@@ -538,7 +543,7 @@ function views_content_views_panes_content_type_admin_info($subtype, $conf, $con
     $argument_input = $view->display_handler->get_option('argument_input');
 
     foreach ($conf['arguments'] as $key => $value) {
-      if(!empty($value)){
+      if (!empty($value)){
         $label = $argument_input[$key]['label'];
         $info[] = $label . ': ' . $value;
       }

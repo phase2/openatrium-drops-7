@@ -7,16 +7,13 @@
 /**
  * Implements hook_ctools_plugin_api().
  */
-function panopoly_search_ctools_plugin_api() {
-  list($module, $api) = func_get_args();
+function panopoly_search_ctools_plugin_api($module = NULL, $api = NULL) {
   if ($module == "facetapi" && $api == "facetapi_defaults") {
     return array("version" => "1");
   }
-  list($module, $api) = func_get_args();
   if ($module == "page_manager" && $api == "pages_default") {
     return array("version" => "1");
   }
-  list($module, $api) = func_get_args();
   if ($module == "strongarm" && $api == "strongarm") {
     return array("version" => "1");
   }
@@ -25,7 +22,7 @@ function panopoly_search_ctools_plugin_api() {
 /**
  * Implements hook_views_api().
  */
-function panopoly_search_views_api() {
+function panopoly_search_views_api($module = NULL, $api = NULL) {
   return array("api" => "3.0");
 }
 
@@ -44,31 +41,39 @@ function panopoly_search_default_search_api_index() {
       "index_directly" : 1,
       "cron_limit" : "50",
       "fields" : {
-        "nid" : { "type" : "integer" },
-        "type" : { "type" : "string" },
-        "title" : { "type" : "text", "boost" : "8.0" },
-        "url" : { "type" : "uri" },
-        "status" : { "type" : "boolean" },
-        "created" : { "type" : "integer" },
         "author" : { "type" : "integer", "entity_type" : "user" },
-        "search_api_language" : { "type" : "string" },
-        "search_api_viewed" : { "type" : "text" },
-        "search_api_url" : { "type" : "uri" },
-        "search_api_access_node" : { "type" : "list\\u003Cstring\\u003E" },
+        "body:summary" : { "type" : "text" },
         "body:value" : { "type" : "text" },
-        "body:summary" : { "type" : "text" }
+        "created" : { "type" : "date" },
+        "nid" : { "type" : "integer" },
+        "search_api_access_node" : { "type" : "list\\u003Cstring\\u003E" },
+        "search_api_language" : { "type" : "string" },
+        "search_api_panelizer_content" : { "type" : "text" },
+        "search_api_panelizer_title" : { "type" : "text", "boost" : "8.0" },
+        "search_api_url" : { "type" : "uri" },
+        "search_api_viewed" : { "type" : "text" },
+        "status" : { "type" : "boolean" },
+        "title" : { "type" : "text", "boost" : "8.0" },
+        "type" : { "type" : "string" },
+        "url" : { "type" : "uri" }
       },
       "data_alter_callbacks" : {
         "search_api_alter_bundle_filter" : {
           "status" : 0,
-          "weight" : "-10",
+          "weight" : "-50",
           "settings" : { "default" : "1", "bundles" : [] }
         },
-        "search_api_alter_node_access" : { "status" : 1, "weight" : "0", "settings" : [] },
-        "search_api_alter_add_hierarchy" : { "status" : 0, "weight" : "0", "settings" : { "fields" : [] } },
-        "search_api_alter_add_aggregation" : { "status" : 0, "weight" : "0", "settings" : [] },
-        "search_api_alter_add_url" : { "status" : 1, "weight" : "0", "settings" : [] },
-        "search_api_alter_add_viewed_entity" : { "status" : 1, "weight" : "0", "settings" : { "mode" : "search_index" } }
+        "search_api_alter_node_status" : { "status" : 0, "weight" : "-49", "settings" : [] },
+        "search_api_alter_node_access" : { "status" : 1, "weight" : "-48", "settings" : [] },
+        "search_api_alter_add_viewed_entity" : {
+          "status" : 1,
+          "weight" : "-47",
+          "settings" : { "mode" : "search_index" }
+        },
+        "panelizer" : { "status" : 1, "weight" : "-46", "settings" : [] },
+        "search_api_alter_add_url" : { "status" : 1, "weight" : "-45", "settings" : [] },
+        "search_api_alter_add_aggregation" : { "status" : 0, "weight" : "-44", "settings" : [] },
+        "search_api_alter_add_hierarchy" : { "status" : 0, "weight" : "-43", "settings" : { "fields" : [] } }
       },
       "processors" : {
         "search_api_case_ignore" : {
@@ -86,12 +91,13 @@ function panopoly_search_default_search_api_index() {
             "tags" : "h1 = 5\\r\\nh2 = 3\\r\\nh3 = 2\\r\\nstrong = 2\\r\\nb = 2\\r\\nem = 1.5\\r\\nu = 1.5"
           }
         },
+        "search_api_transliteration" : { "status" : 0, "weight" : "15", "settings" : { "fields" : [] } },
         "search_api_tokenizer" : {
           "status" : 1,
           "weight" : "20",
           "settings" : {
             "fields" : { "title" : true },
-            "spaces" : "[^\\\\p{L}\\\\p{N}^\\u0027]",
+            "spaces" : "[^[:alnum:]]",
             "ignorable" : "[-]"
           }
         },
@@ -102,6 +108,18 @@ function panopoly_search_default_search_api_index() {
             "fields" : { "title" : true },
             "file" : "",
             "stopwords" : "but\\r\\ndid\\r\\nthe this that those\\r\\netc"
+          }
+        },
+        "search_api_highlighting" : {
+          "status" : 0,
+          "weight" : "35",
+          "settings" : {
+            "prefix" : "\\u003Cstrong\\u003E",
+            "suffix" : "\\u003C\\/strong\\u003E",
+            "excerpt" : 1,
+            "excerpt_length" : "256",
+            "exclude_fields" : [],
+            "highlight" : "always"
           }
         }
       }
@@ -119,30 +137,38 @@ function panopoly_search_default_search_api_index() {
       "index_directly" : 1,
       "cron_limit" : "50",
       "fields" : {
-        "nid" : { "type" : "integer" },
-        "type" : { "type" : "string" },
-        "title" : { "type" : "text", "boost" : "8.0" },
-        "url" : { "type" : "uri" },
-        "status" : { "type" : "boolean" },
-        "created" : { "type" : "date" },
         "author" : { "type" : "integer", "entity_type" : "user" },
-        "search_api_language" : { "type" : "string" },
-        "search_api_viewed" : { "type" : "text" },
-        "search_api_url" : { "type" : "uri" },
+        "body:summary" : { "type" : "text" },
         "body:value" : { "type" : "text" },
-        "body:summary" : { "type" : "text" }
+        "created" : { "type" : "date" },
+        "nid" : { "type" : "integer" },
+        "search_api_language" : { "type" : "string" },
+        "search_api_panelizer_content" : { "type" : "text" },
+        "search_api_panelizer_title" : { "type" : "text", "boost" : "8.0" },
+        "search_api_url" : { "type" : "uri" },
+        "search_api_viewed" : { "type" : "text" },
+        "status" : { "type" : "boolean" },
+        "title" : { "type" : "text", "boost" : "8.0" },
+        "type" : { "type" : "string" },
+        "url" : { "type" : "uri" }
       },
       "data_alter_callbacks" : {
         "search_api_alter_bundle_filter" : {
           "status" : 0,
-          "weight" : "-10",
+          "weight" : "-50",
           "settings" : { "default" : "1", "bundles" : [] }
         },
-        "search_api_alter_node_access" : { "status" : 1, "weight" : "0", "settings" : [] },
-        "search_api_alter_add_hierarchy" : { "status" : 0, "weight" : "0", "settings" : { "fields" : [] } },
-        "search_api_alter_add_aggregation" : { "status" : 0, "weight" : "0", "settings" : [] },
-        "search_api_alter_add_url" : { "status" : 1, "weight" : "0", "settings" : [] },
-        "search_api_alter_add_viewed_entity" : { "status" : 1, "weight" : "0", "settings" : { "mode" : "search_index" } }
+        "search_api_alter_node_status" : { "status" : 0, "weight" : "-49", "settings" : [] },
+        "search_api_alter_node_access" : { "status" : 1, "weight" : "-48", "settings" : [] },
+        "search_api_alter_add_viewed_entity" : {
+          "status" : 1,
+          "weight" : "-47",
+          "settings" : { "mode" : "search_index" }
+        },
+        "panelizer" : { "status" : 1, "weight" : "-46", "settings" : [] },
+        "search_api_alter_add_url" : { "status" : 1, "weight" : "-45", "settings" : [] },
+        "search_api_alter_add_aggregation" : { "status" : 0, "weight" : "-44", "settings" : [] },
+        "search_api_alter_add_hierarchy" : { "status" : 0, "weight" : "-43", "settings" : { "fields" : [] } }
       },
       "processors" : {
         "search_api_case_ignore" : {
@@ -158,6 +184,17 @@ function panopoly_search_default_search_api_index() {
             "title" : 0,
             "alt" : 1,
             "tags" : "h1 = 5\\r\\nh2 = 3\\r\\nh3 = 2\\r\\nstrong = 2\\r\\nb = 2\\r\\nem = 1.5\\r\\nu = 1.5"
+          }
+        },
+        "search_api_transliteration" : {
+          "status" : 0,
+          "weight" : "15",
+          "settings" : { "fields" : {
+              "title" : true,
+              "search_api_viewed" : true,
+              "body:value" : true,
+              "body:summary" : true
+            }
           }
         },
         "search_api_tokenizer" : {
@@ -176,6 +213,18 @@ function panopoly_search_default_search_api_index() {
             "fields" : { "title" : true, "body:value" : true },
             "file" : "",
             "stopwords" : "but\\r\\ndid\\r\\nthe this that those\\r\\netc"
+          }
+        },
+        "search_api_highlighting" : {
+          "status" : 0,
+          "weight" : "35",
+          "settings" : {
+            "prefix" : "\\u003Cstrong\\u003E",
+            "suffix" : "\\u003C\\/strong\\u003E",
+            "excerpt" : 1,
+            "excerpt_length" : "256",
+            "exclude_fields" : [],
+            "highlight" : "always"
           }
         }
       }
@@ -199,71 +248,91 @@ function panopoly_search_default_search_api_server() {
     "options" : {
       "database" : "default:default",
       "min_chars" : "3",
+      "partial_matches" : 0,
       "indexes" : { "database_node_index" : {
           "nid" : {
-            "table" : "search_api_db_database_node_index_nid",
+            "table" : "search_api_db_database_node_index",
+            "column" : "nid",
             "type" : "integer",
             "boost" : "1.0"
           },
           "type" : {
-            "table" : "search_api_db_database_node_index_type",
+            "table" : "search_api_db_database_node_index",
+            "column" : "type",
             "type" : "string",
             "boost" : "1.0"
           },
           "title" : {
-            "table" : "search_api_db_database_node_index_title",
+            "table" : "search_api_db_database_node_index_text",
             "type" : "text",
             "boost" : "8.0"
           },
           "url" : {
-            "table" : "search_api_db_database_node_index_url",
+            "table" : "search_api_db_database_node_index",
+            "column" : "url",
             "type" : "uri",
             "boost" : "1.0"
           },
           "status" : {
-            "table" : "search_api_db_database_node_index_status",
+            "table" : "search_api_db_database_node_index",
+            "column" : "status",
             "type" : "boolean",
             "boost" : "1.0"
           },
           "created" : {
-            "table" : "search_api_db_database_node_index_created",
-            "type" : "integer",
+            "table" : "search_api_db_database_node_index",
+            "column" : "created",
+            "type" : "date",
             "boost" : "1.0"
           },
           "author" : {
-            "table" : "search_api_db_database_node_index_author",
+            "table" : "search_api_db_database_node_index",
+            "column" : "author",
             "type" : "integer",
             "boost" : "1.0"
           },
           "search_api_language" : {
-            "table" : "search_api_db_database_node_index_search_api_language",
+            "table" : "search_api_db_database_node_index",
+            "column" : "search_api_language",
             "type" : "string",
             "boost" : "1.0"
           },
-          "search_api_viewed" : {
-            "table" : "search_api_db_database_node_index_search_api_viewed",
-            "type" : "text",
+          "search_api_url" : {
+            "table" : "search_api_db_database_node_index",
+            "column" : "search_api_url",
+            "type" : "uri",
             "boost" : "1.0"
           },
-          "search_api_url" : {
-            "table" : "search_api_db_database_node_index_search_api_url",
-            "type" : "uri",
+          "search_api_viewed" : {
+            "table" : "search_api_db_database_node_index_text",
+            "type" : "text",
             "boost" : "1.0"
           },
           "search_api_access_node" : {
             "table" : "search_api_db_database_node_index_search_api_access_node",
+            "column" : "value",
             "type" : "list\\u003Cstring\\u003E",
             "boost" : "1.0"
           },
           "body:value" : {
-            "table" : "search_api_db_database_node_index_body_value",
+            "table" : "search_api_db_database_node_index_text",
             "type" : "text",
             "boost" : "1.0"
           },
           "body:summary" : {
-            "table" : "search_api_db_database_node_index_body_summary",
+            "table" : "search_api_db_database_node_index_text",
             "type" : "text",
             "boost" : "1.0"
+          },
+          "search_api_panelizer_content" : {
+            "table" : "search_api_db_database_node_index_text",
+            "type" : "text",
+            "boost" : "1.0"
+          },
+          "search_api_panelizer_title" : {
+            "table" : "search_api_db_database_node_index_text",
+            "type" : "text",
+            "boost" : "8.0"
           }
         }
       }

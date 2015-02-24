@@ -90,7 +90,6 @@ function oa_files_actions(&$conf = array()) {
       "enabled" => TRUE,
       "icon" => 'icon-plus',
       "weight" => 5,
-      "class" => 'ctools-use-modal',
     ),
   );
 

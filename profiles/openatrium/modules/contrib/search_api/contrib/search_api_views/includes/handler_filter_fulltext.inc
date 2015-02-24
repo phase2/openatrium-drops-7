@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Contains SearchApiViewsHandlerFilterFulltext.
+ */
+
+/**
  * Views filter handler class for handling fulltext fields.
  */
 class SearchApiViewsHandlerFilterFulltext extends SearchApiViewsHandlerFilterText {
@@ -33,6 +38,7 @@ class SearchApiViewsHandlerFilterFulltext extends SearchApiViewsHandlerFilterTex
     $options['operator']['default'] = 'AND';
 
     $options['mode'] = array('default' => 'keys');
+    $options['min_length'] = array('default' => '');
     $options['fields'] = array('default' => array());
 
     return $options;
@@ -75,6 +81,55 @@ class SearchApiViewsHandlerFilterFulltext extends SearchApiViewsHandlerFilterTex
     if (isset($form['expose'])) {
       $form['expose']['#weight'] = -5;
     }
+
+    $form['min_length'] = array(
+      '#title' => t('Minimum keyword length'),
+      '#description' => t('Minimum length of each word in the search keys. Leave empty to allow all words.'),
+      '#type' => 'textfield',
+      '#element_validate' => array('element_validate_integer_positive'),
+      '#default_value' => $this->options['min_length'],
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function exposed_validate(&$form, &$form_state) {
+    // Only validate exposed input.
+    if (empty($this->options['exposed']) || empty($this->options['expose']['identifier'])) {
+      return;
+    }
+
+    // We only need to validate if there is a minimum word length set.
+    if ($this->options['min_length'] < 2) {
+      return;
+    }
+
+    $identifier = $this->options['expose']['identifier'];
+    $input = &$form_state['values'][$identifier];
+
+    if ($this->options['is_grouped'] && isset($this->options['group_info']['group_items'][$input])) {
+      $this->operator = $this->options['group_info']['group_items'][$input]['operator'];
+      $input = &$this->options['group_info']['group_items'][$input]['value'];
+    }
+
+    // If there is no input, we're fine.
+    if (!trim($input)) {
+      return;
+    }
+
+    $words = preg_split('/\s+/', $input);
+    foreach ($words as $i => $word) {
+      if (drupal_strlen($word) < $this->options['min_length']) {
+        unset($words[$i]);
+      }
+    }
+    if (!$words) {
+      $vars['@count'] = $this->options['min_length'];
+      $msg = t('You must include at least one positive keyword with @count characters or more.', $vars);
+      form_error($form[$identifier], $msg);
+    }
+    $input = implode(' ', $words);
   }
 
   /**
@@ -101,21 +156,29 @@ class SearchApiViewsHandlerFilterFulltext extends SearchApiViewsHandlerFilterTex
 
     if ($filter) {
       $filter = $this->query->createFilter('OR');
+      $op = $this->operator === 'NOT' ? '<>' : '=';
       foreach ($fields as $field) {
-        $filter->condition($field, $this->value, $this->operator);
+        $filter->condition($field, $this->value, $op);
       }
       $this->query->filter($filter);
       return;
     }
 
-    // If the operator was set to OR, set it as the conjunction. (AND is set by
-    // default.)
-    if ($this->operator === 'OR') {
-      $this->query->setOption('conjunction', $this->operator);
+    // If the operator was set to OR or NOT, set OR as the conjunction. (It is
+    // also set for NOT since otherwise it would be "not all of these words".)
+    if ($this->operator != 'AND') {
+      $this->query->setOption('conjunction', 'OR');
     }
 
-    $this->query->fields($fields);
-    $old = $this->query->getOriginalKeys();
+    try {
+      $this->query->fields($fields);
+    }
+    catch (SearchApiException $e) {
+      $this->query->abort($e->getMessage());
+      return;
+    }
+    $old = $this->query->getKeys();
+    $old_original = $this->query->getOriginalKeys();
     $this->query->keys($this->value);
     if ($this->operator == 'NOT') {
       $keys = &$this->query->getKeys();
@@ -126,16 +189,44 @@ class SearchApiViewsHandlerFilterFulltext extends SearchApiViewsHandlerFilterTex
         // We can't know how negation is expressed in the server's syntax.
       }
     }
+
+    // If there were fulltext keys set, we take care to combine them in a
+    // meaningful way (especially with negated keys).
     if ($old) {
       $keys = &$this->query->getKeys();
+      // Array-valued keys are combined.
       if (is_array($keys)) {
-        $keys[] = $old;
+        // If the old keys weren't parsed into an array, we instead have to
+        // combine the original keys.
+        if (is_scalar($old)) {
+          $keys = "($old) ({$this->value})";
+        }
+        else {
+          // If the conjunction or negation settings aren't the same, we have to
+          // nest both old and new keys array.
+          if (!empty($keys['#negation']) != !empty($old['#negation']) || $keys['#conjunction'] != $old['#conjunction']) {
+            $keys = array(
+              '#conjunction' => 'AND',
+              $old,
+              $keys,
+            );
+          }
+          // Otherwise, just add all individual words from the old keys to the
+          // new ones.
+          else {
+            foreach (element_children($old) as $i) {
+              $keys[] = $old[$i];
+            }
+          }
+        }
       }
-      elseif (is_array($old)) {
-        // We don't support such nonsense.
-      }
-      else {
-        $keys = "($old) ($keys)";
+      // If the parse mode was "direct" for both old and new keys, we
+      // concatenate them and set them both via method and reference (to also
+      // update the originalKeys property.
+      elseif (is_scalar($old_original)) {
+        $combined_keys = "($old_original) ($keys)";
+        $this->query->keys($combined_keys);
+        $keys = $combined_keys;
       }
     }
   }

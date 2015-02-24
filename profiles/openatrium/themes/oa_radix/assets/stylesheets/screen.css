@@ -12597,7 +12597,7 @@ fieldset .panel-body {
 
 /* line 73, ../../../../../../../../../../var/lib/gems/1.9.1/gems/compass_radix-3.0.13/stylesheets/compass_radix/_form.scss */
 html.js input.form-autocomplete {
-  background: url('../images/throbber.gif?1422653278') no-repeat right 8px white !important;
+  background: url('../images/throbber.gif?1423691811') no-repeat right 8px white !important;
 }
 /* line 76, ../../../../../../../../../../var/lib/gems/1.9.1/gems/compass_radix-3.0.13/stylesheets/compass_radix/_form.scss */
 html.js input.throbbing {
@@ -12974,6 +12974,11 @@ ol, ul {
 #main .container-fluid:first-of-type {
   padding-left: 0;
   padding-right: 0;
+}
+
+/* line 59, ../sass/layout/_layout.scss */
+.radix-layouts-contentheader {
+  margin-bottom: 1em;
 }
 
 /* line 1, ../sass/layout/_auto_widths.scss */

@@ -116,6 +116,12 @@ function panopoly_images_file_default_displays_alter(&$file_displays) {
  * Implementation of hook_preprocess_image_style()
  */
 function panopoly_images_preprocess_image_style(&$variables) {
+  // Some modules are misusing the class attributes as string
+  // instead of array so make sure the format is correct.
+  // See #2181263.
+  if (isset($variables['attributes']['class']) && !is_array($variables['attributes']['class'])) {
+    $variables['attributes']['class'] = explode(' ', $variables['attributes']['class']);
+  }
   $variables['attributes']['class'][] = str_replace('_', '-', $variables['style_name']);
 }
 

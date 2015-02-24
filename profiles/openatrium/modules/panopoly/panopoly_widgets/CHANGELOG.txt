@@ -1,3 +1,21 @@
+Panopoly Widgets 7.x-1.17, 2015-02-18
+------------------------------
+- Revert "Issue #2424709 by joegraduate: Update 'menu_block' module to 2.5".
+- Update 'menu_block' module to 2.5.
+
+Panopoly Widgets 7.x-1.16, 2015-02-12
+------------------------------
+- Overriding title in "Content Item" widget doesn't work for "Featured" view mode of Content Pages.
+- Switch "Content Item" widget to use some kind of entity reference field rather than title with autocomplete filter.
+- Allow the title of "Content item" widgets to be overridden.
+- Remove empty ("no results") message from "Content list" and "Content item" widgets.
+- Add option to support sorting by updated date to Content List.
+- Submenu widget broken - Fatal error:  Call to undefined function menu_block_configure_form_follow_validate() - take 2!.
+- Submenu widget broken - Fatal error:  Call to undefined function menu_block_configure_form_follow_validate().
+- Spotlight Pause/Pause/Prev/Next buttons stop working after opening or saving Panels IPE.
+- Allow configuring file types for "File" widget without overriding the Feature.
+- Map widget pane-content should hide overflow as opposed to entire pane.
+
 Panopoly Widgets 7.x-1.15, 2015-01-12
 ------------------------------
 - Spotlight: Allow hiding of pager, replace with previous/next controls

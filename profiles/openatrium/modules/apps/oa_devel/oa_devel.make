@@ -1,4 +1,4 @@
-; Open Atrium Events Makefile
+; Open Atrium Devel Makefile
 
 api = 2
 core = 7.x

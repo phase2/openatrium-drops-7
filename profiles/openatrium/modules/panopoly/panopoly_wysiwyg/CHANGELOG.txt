@@ -1,3 +1,12 @@
+Panopoly WYSIWYG 7.x-1.17, 2015-02-18
+------------------------------
+- No changes since last release.
+
+Panopoly WYSIWYG 7.x-1.16, 2015-02-12
+------------------------------
+- Makefile downloads master of markitup library instead of tag/hash.
+- @ rule for wysiwyg_filter needs to come first, rather than last.
+
 Panopoly WYSIWYG 7.x-1.15, 2015-01-15
 ------------------------------
 - Updated LinkIt module to 3.3 version.

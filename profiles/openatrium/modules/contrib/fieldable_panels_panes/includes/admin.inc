@@ -90,7 +90,7 @@ function fieldable_panels_panes_entities_add_page($type) {
  * panes (or blocks).
  */
 function fieldable_panels_panes_entity_view_page($entity) {
-  return fieldable_panels_panes_view($entity);
+  return fieldable_panels_panes_view($entity, 'preview');
 }
 
 /**

@@ -50,7 +50,7 @@ Drupal.settings.spotlight_settings = Drupal.settings.spotlight_settings || {};
          // Navigation is hidden by default, display it if JavaScript is enabled.
          $slides.find('.panopoly-spotlight-buttons-wrapper').css('display', 'block');
 
-         $slides.find('.panopoly-spotlight-pause-play').bind('click', function(event) {
+         $slides.find('.panopoly-spotlight-pause-play').once('panopoly-spotlight').bind('click', function(event) {
            event.preventDefault();
            if ($(this).hasClass('paused')) {
              $slides.tabs().tabs("rotate", rotation_time, true);
@@ -65,7 +65,7 @@ Drupal.settings.spotlight_settings = Drupal.settings.spotlight_settings || {};
            }
          });
          if ($slides.find('.panopoly-spotlight-previous').length && $slides.find('.panopoly-spotlight-next').length) {
-           $slides.find('.panopoly-spotlight-previous').bind('click', function (event) {
+           $slides.find('.panopoly-spotlight-previous').once('panopoly-spotlight').bind('click', function (event) {
              event.preventDefault();
              $slides.find('.panopoly-spotlight-pause-play:not(.paused').trigger('click');
              var activeControl = $($controls.filter('.ui-state-active'));
@@ -77,7 +77,7 @@ Drupal.settings.spotlight_settings = Drupal.settings.spotlight_settings || {};
                $controls.last().children('a').trigger('click');
              }
            });
-           $slides.find('.panopoly-spotlight-next').bind('click', function (event) {
+           $slides.find('.panopoly-spotlight-next').once('panopoly-spotlight').bind('click', function (event) {
              event.preventDefault();
              $slides.find('.panopoly-spotlight-pause-play:not(.paused').trigger('click');
              var activeControl = $($controls.filter('.ui-state-active'));

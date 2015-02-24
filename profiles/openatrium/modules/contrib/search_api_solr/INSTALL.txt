@@ -19,12 +19,11 @@ somewhere outside of your web server's document tree.
 
 [3] http://www.apache.org/dyn/closer.cgi/lucene/solr/
 
-This module also supports Solr 1.4 and 3.x. For better performance and more
-features, 4.x should be used, though. 1.4 is discouraged altogether, as several
-features of the module don't work at all in 1.4.
+This module also supports Solr 3.x. For better performance and more features,
+4.x should be used, though.
 
 For small websites, using the example application, located in $SOLR/example/,
-usually suffices. In any case, you can use it for developing andd testing. The
+usually suffices. In any case, you can use it for developing and testing. The
 following instructions will assume you are using the example application,
 otherwise you should be able to substitute the corresponding paths.
 
@@ -51,7 +50,7 @@ though, as it contains really useful definitions, while the file provided with
 this module is empty, apart from some documentation. For licensing reasons, it
 is not possible for us to include the definitions in the example config file in
 the copy this module provides.
- 
+
 You can then start Solr. For the example application, go to $SOLR/example/ and
 issue the following command (assuming Java is correctly installed):
 
@@ -59,7 +58,7 @@ java -jar start.jar &
 
 Afterwards, go to [4] in your web browser to ensure Solr is running correctly.
 
-[4] http://localhost:8983/solr/#/
+[4] http://localhost:8983/solr/
 
 You can then enable this module and create a new server, using the "Solr search"
 service class. Enter the hostname, port and path corresponding to your Solr
@@ -67,3 +66,7 @@ server in the appropriate fields. The default values already correspond to the
 example application, so you won't have to change the values if you use that.
 If you are using HTTP Authentication to protect your Solr server you also have
 to provide the appropriate user and password here.
+
+NOTE: For Solr 4.x, the server's path should also contain the Solr core name.
+E.g., when using the example application unchanged, set the path to
+"/solr/collection1" instead of "/solr".

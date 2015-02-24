@@ -13,8 +13,6 @@ The "direct" parse mode for queries will result in a simple splitting of the
 query string into keys. Additionally, search keys containing whitespace will be
 split, as searching for phrases is currently not supported.
 
-Due to SQL limitations, fulltext searches are always case-insensitive.
-
 Supported optional features
 ---------------------------
 
@@ -46,6 +44,10 @@ databases in newer releases but must be done manually for other databases.
 See [1] for details.
 
 [1] http://drupal.org/node/1144620
+
+Also, using facets with a database server will only work if the database user
+Drupal is using has the "CREATE TEMPORARY TABLES" permission (or similar, in
+DBMSs other than MySQL).
 
 Developer information
 ---------------------

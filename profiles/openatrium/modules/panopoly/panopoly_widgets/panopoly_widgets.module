@@ -3,6 +3,10 @@
 include_once('panopoly_widgets.features.inc');
 include_once('panopoly_widgets.spotlight.inc');
 
+/**
+ * The default list of allowed file extensions in file widgets.
+ */
+define('PANOPOLY_WIDGETS_FILE_EXTENSIONS_DEFAULT', 'txt doc docx xls xlsx pdf ppt pptx pps ppsx odt ods odp');
 
 /**
  * Implements hook_init()
@@ -33,6 +37,16 @@ function panopoly_widgets_apps_app_info() {
 function panopoly_widgets_configure_form($form, &$form_state) {
   $form = array();
 
+  $file_extensions = variable_get('panopoly_widgets_file_extensions', PANOPOLY_WIDGETS_FILE_EXTENSIONS_DEFAULT);
+  $file_extensions = str_replace(' ', ', ', $file_extensions);
+  $form['panopoly_widgets_file_extensions'] = array(
+    '#title' => t('Allowed file extensions in file widgets.'),
+    '#type' => 'textfield',
+    '#default_value' => $file_extensions,
+    '#element_validate' => array('_file_generic_settings_extensions'),
+    '#description' => t('Separate extensions with a space or comma and do not include the leading dot.'),
+  );
+
   $form['panopoly_widgets_spotlight_pause_play_buttons'] = array(
     '#title' => t('Add pause/play button to all spotlight widgets.'),
     '#type' => 'checkbox',
@@ -40,7 +54,30 @@ function panopoly_widgets_configure_form($form, &$form_state) {
     '#description' => t('The button will appear under to the slide numbers. Helps with accessibility.'),
   );
 
-  return system_settings_form($form);
+  $form = system_settings_form($form);
+  $form['#submit'][] = 'panopoly_widgets_configure_form_submit';
+  return $form;
+}
+
+/**
+ * Form submissions callback for panopoly_widgets_configure_form().
+ */
+function panopoly_widgets_configure_form_submit($form, &$form_state) {
+  if ($file_instance = field_info_instance('fieldable_panels_pane', 'field_basic_file_file', 'basic_file')) {
+    $file_extensions = $form_state['values']['panopoly_widgets_file_extensions'];
+    $file_instance['settings']['file_extensions'] = $file_extensions;
+    field_update_instance($file_instance);
+  }
+}
+
+/** 
+ * Implements hook_field_default_field_instances_alter().
+ */
+function panopoly_widgets_field_default_field_instances_alter(&$instances) {
+  if (isset($instances['fieldable_panels_pane-basic_file-field_basic_file_file'])) {
+    $file_extensions = variable_get('panopoly_widgets_file_extensions', PANOPOLY_WIDGETS_FILE_EXTENSIONS_DEFAULT);
+    $instances['fieldable_panels_pane-basic_file-field_basic_file_file']['settings']['file_extensions'] = $file_extensions;
+  }
 }
 
 /**
@@ -423,5 +460,189 @@ function panopoly_widgets_menu_block_tree_alter($tree, $config) {
     foreach ($tree as $key => $value) {
       $tree[$key]['link']['in_active_trail'] = TRUE;
     }
+  }
+}
+
+/**
+ * Rewrites the node title by poisening the node_load() static cache.
+ *
+ * We use this to support overriding the title of 'Content item' widgets.
+ * Unfortunately, we can't hook into a spot between when the View loads the
+ * entity and Panelizer renders it, so we have to use this hack.
+ *
+ * @param int $nid
+ *   The NID of the node whose title we're going to rewrite.
+ * @param string|NULL $title
+ *   (optional) If a string is given, the this is the new title for the node.
+ *   If NULL is given, return the title to its previous value.
+ *
+ * @see panopoly_widgets_views_post_execute()
+ * @see panopoly_widgets_views_post_render()
+ */
+function _panopoly_widgets_content_item_title_rewrite($nid, $title = NULL) {
+  static $saved_title = array();
+
+  $node = node_load($nid);
+
+  if (!is_null($title)) {
+    $saved_title[$nid] = $node->title;
+    $node->title = $title;
+  }
+  elseif (isset($saved_title[$nid])) {
+    $node->title = $saved_title[$nid];
+  }
+}
+
+/**
+ * Determines if the given view mode on this node shows the title.
+ *
+ * @param object $node
+ *   The fully loaded node object to check.
+ * @param string $view_mode
+ *   The view mode.
+ *
+ * @return boolean
+ *   TRUE if the title is shown; FALSE otherwise.
+ */
+function _panopoly_widgets_is_title_shown($node, $view_mode) {
+  if (!empty($node->panelizer) && (!empty($node->panelizer[$view_mode]) || !empty($node->panelizer['default']))) {
+    $panelizer_display = isset($node->panelizer[$view_mode]) ? $node->panelizer[$view_mode]->display : $node->panelizer['default']->display;
+    if (empty($panelizer_display->hide_title) && empty($panelizer_display->pane_title) && strpos($panelizer_display->title, '%node:title') !== FALSE) {
+      // We're showing the title via the Panelizer display title.
+      return TRUE;
+    }
+    else {
+      foreach ($panelizer_display->content as $pane) {
+        if (($pane->type == 'node_title' && $pane->subtype == 'node_title') || ($pane->type == 'token' && $pane->subtype == 'node:title')) {
+          // We're showing the node title in a Pane inside the view mode.
+          return TRUE;
+        }
+        elseif ($pane->type == 'node_content' && $pane->subtype == 'node_content') {
+          $child_view_mode = $pane->configuration['build_mode'];
+          // Prevent endless recursion.
+          if ($child_view_mode == $view_mode) {
+            if ($child_view_mode != 'full') {
+              $child_view_mode = 'full';
+            }
+            else {
+              continue;
+            }
+          }
+          if (_panopoly_widgets_is_title_shown($node, $child_view_mode)) {
+            return TRUE;
+          }
+        }
+      }
+
+      return FALSE;
+    }
+  }
+  else {
+    // If we're not using Panelizer, the theme should always be showing
+    // the title when rendering the node.
+    return TRUE;
+  }
+}
+
+/**
+ * Implements hook_views_post_execute().
+ */
+function panopoly_widgets_views_post_execute(&$view) {
+  if ($view->name == 'panopoly_widgets_general_content' && $view->current_display == 'piece_of_content') {
+    $display =& $view->display[$view->current_display];
+    $row_plugin = $view->style_plugin->row_plugin;
+
+    // If we are rendering the actual node, rather than showing fields or a
+    // table, then we need to move the title override to the node itself.
+    if (is_a($row_plugin, 'entity_views_plugin_row_entity_view')) {
+      $nid = $view->result[0]->nid;
+      $overridden_title = $display->handler->options['title'];
+      if (!empty($overridden_title)) {
+        _panopoly_widgets_content_item_title_rewrite($nid, $overridden_title);
+
+
+        $hide_pane_title = FALSE;
+
+        // Attempt to determine if the node title is being shown in the view
+        // mode, so that we can hide the pane title and avoid showing it twice.
+        $node = node_load($nid);
+        if (_panopoly_widgets_is_title_shown($node, $row_plugin->options['view_mode'])) {
+          unset($display->handler->options['title']);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_views_post_render().
+ */
+function panopoly_widgets_views_post_render(&$view) {
+  if ($view->name == 'panopoly_widgets_general_content' && $view->current_display == 'piece_of_content') {
+    // Reset the title to its original value.
+    $display = $view->display[$view->current_display];
+    if (is_a($view->style_plugin->row_plugin, 'entity_views_plugin_row_entity_view')) {
+      _panopoly_widgets_content_item_title_rewrite($view->result[0]->nid);
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function panopoly_widgets_form_views_content_views_panes_content_type_edit_form_alter(&$form, &$form_state) {
+  $view = $form_state['view'];
+  if ($view->name == 'panopoly_widgets_general_content' && $view->current_display == 'piece_of_content') {
+    $exposed =& $form['exposed'];
+
+    // If the user updated panopoly_widgets, but hasn't run the update function
+    // panopoly_wigets_update_7012() yet, then bail out because this code can
+    // actually break this widget entirely.
+    if (empty($exposed['filter-nid'])) {
+      return;
+    }
+
+    // If we have a value for NID, then we use that to set the title and then
+    // clear out and hide the NID. This allows the user to chose the node using
+    // the title autocomplete.
+    if (!empty($exposed['filter-nid']['nid']['#default_value'])) {
+      if ($node = node_load($exposed['filter-nid']['nid']['#default_value'])) {
+        $form_state['original_nid'] = $node->nid;
+        $form_state['original_title'] = $node->title;
+        $exposed['filter-title']['title']['#default_value'] = $node->title;
+      }
+    }
+    $exposed['filter-nid']['nid']['#default_value'] = '';
+    $exposed['filter-nid']['#access'] = FALSE;
+
+    // Add a submit callback that will convert back from the title to the NID.
+    array_unshift($form['#submit'], '_panopoly_widgets_content_item_form_submit');
+  }
+}
+
+/**
+ * Submission callback for 'Content Item' widget's exposed form.
+ */
+function _panopoly_widgets_content_item_form_submit($form, &$form_state) {
+  $exposed =& $form_state['values']['exposed'];
+  if ($exposed['title'] != $form_state['original_title']) {
+    // If the title has changed, we need to load the node with that title, set
+    // the NID, and then clear out the title. We use the View itself to query
+    // so that the result is consistent with autocomplete.
+    $view = views_get_view('panopoly_widgets_general_content');
+    $view->set_display('piece_of_content');
+    $view->set_exposed_input($exposed);
+    $view->pre_execute();
+    $view->execute($view->current_display);
+    $view->post_execute();
+    if (count($view->result) > 0) {
+      $exposed['nid'] = $view->result[0]->nid;
+      $exposed['title'] = '';
+    }
+  }
+  else {
+    // If the title hasn't change, we just revert back to the original NID.
+    $exposed['nid'] = $form_state['original_nid'];
+    $exposed['title'] = '';
   }
 }

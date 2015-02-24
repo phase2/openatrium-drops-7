@@ -599,6 +599,7 @@ function panopoly_magic_form_views_content_views_panes_content_type_edit_form_al
     $form['override_title_markup']['#access'] = FALSE;
     $form['override_title']['#access'] = FALSE;
     $form['override_title_text']['#access'] = FALSE;
+    $form['override_title_heading']['#access'] = FALSE;
     $form['exposed']['widget_title'] = array(
       '#field_prefix' => t('Title'),
       '#type' => 'textfield',
@@ -1206,24 +1207,6 @@ function panopoly_magic_views_pre_view(&$view) {
         $view->display_handler->options['row_options'] = $view->display_handler->default_display->options['row_options'];
       }
       $view->display_handler->options['row_options']['view_mode'] = $conf['view_mode'];
-    }
-  }
-}
-
-/**
- * Preprocess the panels_ipe_toolbar to change text for IPE buttons
- */
-function panopoly_magic_preprocess_panels_ipe_toolbar(&$vars) {
-  foreach ($vars['buttons'] as $panel_context_id => $panel_context) {
-    foreach ($panel_context as $button_name => $button) {
-      switch ($button_name) {
-        case 'panels-ipe-startedit':
-          $vars['buttons'][$panel_context_id][$button_name]['#title'] = t('Customize this page');
-          break;
-        case 'panels-ipe-change-layout':
-          $vars['buttons'][$panel_context_id][$button_name]['#title'] = t('Change this layout');
-          break;
-      }
     }
   }
 }

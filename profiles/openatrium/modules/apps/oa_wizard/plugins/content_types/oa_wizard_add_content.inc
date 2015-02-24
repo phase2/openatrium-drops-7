@@ -42,7 +42,7 @@ function oa_wizard_add_content_render($subtype, $conf, $args, $context = NULL) {
     'oa-wizard' => array(
       'modalSize' => array(
         'type' => 'scale',
-        'width' => 0.5,
+        'width' => 0.7,
         'height' => 0.5,
       ),
       'animation' => 'fadeIn',
