@@ -227,6 +227,10 @@ function _panopoly_core_import_demo_content($classes = array()) {
 
   // Process the migrations to import demo content.
   foreach ($classes as $class) {
+    // Register the Migration class since auto-registration is not supported
+    // since Migrate module version 2.6
+    Migration::registerMigration($class);
+
     // Get a handle on our migration class.
     $migration = Migration::getInstance($class);
 
@@ -254,11 +258,9 @@ function _panopoly_core_rollback_demo_content($classes = array()) {
 
     // Roll back the migration.
     $migration->processRollback();
-  }
 
-  // deregister the Migration classes since it will not exist after the
-  // module is disabled.
-  foreach ($classes as $class) {
+    // deregister the Migration classes since it will not exist after the
+    // module is disabled.
     Migration::deregisterMigration($class);
   }
 }

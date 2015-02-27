@@ -122,6 +122,18 @@ function panopoly_images_preprocess_image_style(&$variables) {
   if (isset($variables['attributes']['class']) && !is_array($variables['attributes']['class'])) {
     $variables['attributes']['class'] = explode(' ', $variables['attributes']['class']);
   }
+
+  if (!empty($variables['attributes']['class'])) {
+    $img_style_names = array_keys(image_styles());
+    $classes = array();
+    foreach ($variables['attributes']['class'] as $class) {
+      if (!in_array(str_replace('-', '_', $class), $img_style_names)) {
+        $classes[] = $class;
+      }
+    }
+    $variables['attributes']['class'] = $classes;
+  }
+
   $variables['attributes']['class'][] = str_replace('_', '-', $variables['style_name']);
 }
 

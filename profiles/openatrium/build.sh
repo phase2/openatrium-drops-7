@@ -6,15 +6,17 @@ if [ $# -eq 0 ]; then
   exit 1
 fi
 DEV_BUILD=0
-while getopts ":d" opt; do
+PANOPOLY_DEV=0
+while getopts ":dp" opt; do
   case $opt in
     d) # dev arguments
       DRUSH_OPTS='--working-copy --no-gitinfofile --no-cache'
-      MAKEFILE='build-openatrium-dev.make'
       DEV_BUILD=1
       ;;
+    p) # use panopoly-dev
+      PANOPOLY_DEV=1
+      ;;
     r) # release arg
-      MAKEFILE='build-openatrium-release.make'
       ;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
@@ -66,6 +68,9 @@ if [ $DEV_BUILD -eq 1 ]; then
   # now build the dev version
   cd "$TARGET"
   MAKEFILE='scripts/oa-drush5-dev.make'
+  if [ $PANOPOLY_DEV -eq 1 ]; then
+    MAKEFILE='scripts/oa-drush5-panopoly-dev.make'
+  fi
   echo "Building the profile -dev version..."
   # Patch to add github remotes instead of drupal.
   drush make --yes --no-core $DRUSH_OPTS "$ABS_CALLPATH/$MAKEFILE" --contrib-destination=profiles/openatrium

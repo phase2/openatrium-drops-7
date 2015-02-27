@@ -7,6 +7,11 @@ define('PANOPOLY_ADD_PREVIEW_DISABLED', 2);
 define('PANOPOLY_ADD_PREVIEW_DEFAULT', PANOPOLY_ADD_PREVIEW_AUTOMATIC);
 
 /**
+ * The default list of view modes to exclude from pane configuration forms.
+ */
+define('PANOPOLY_MAGIC_HIDDEN_VIEW_MODE_OPTIONS', "rss\nsearch_index\nsearch_result\ntoken\npreview\ndiff_standard");
+
+/**
  * Implements hook_init()
  */
 function panopoly_magic_init() {
@@ -169,6 +174,20 @@ function panopoly_magic_configure_form($form, &$form_state) {
     ),
     '#default_value' => variable_get('panopoly_magic_strip_js_from_preview', 0),
     '#description' => t('Some embedded javascript may cause issues with panopoly and the IPE, stripping the .js from your previews will fix this issue, but may alter the look of the preview.'),
+  );
+
+  $form['advanced'] = array(
+    '#title' => t('Advanced'),
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['advanced']['panopoly_magic_hidden_view_mode_options'] = array(
+    '#title' => t('Hidden view mode options'),
+    '#type' => 'textarea',
+    '#default_value' => variable_get('panopoly_magic_hidden_view_mode_options', PANOPOLY_MAGIC_HIDDEN_VIEW_MODE_OPTIONS),
+    '#description' => t('List the machine names, one per line, of view modes you want removed from the list of possible view modes on widget configuration forms.'),
+    '#rows' => 6,
   );
 
   return system_settings_form($form);
@@ -547,10 +566,10 @@ function panopoly_magic_form_fieldable_panels_panes_fieldable_panels_pane_conten
 
   // Customize the view mode setting
   if (!empty($form['view_mode'])) {
-    unset($form['view_mode']['#options']['token']);
+    $form['view_mode']['#options'] = panopoly_magic_view_mode_options('fieldable_panels_pane');
     if (count($form['view_mode']['#options']) < 2) {
       $form['view_mode']['#type'] = 'value';
-      $form['view_mode']['#value'] = reset($form['view_mode']['#options']);
+      $form['view_mode']['#value'] = key($form['view_mode']['#options']);
     }
     $form['widget_settings']['view_mode'] = $form['view_mode'];
     unset($form['view_mode']);
@@ -1337,10 +1356,12 @@ function panopoly_magic_get_entity_type($view) {
  */
 function panopoly_magic_view_mode_options($entity_type = 'node') {
   $entity_info = entity_get_info($entity_type);
+  $hidden_view_modes = array_filter(array_map('trim', explode("\n", variable_get('panopoly_magic_hidden_view_mode_options', PANOPOLY_MAGIC_HIDDEN_VIEW_MODE_OPTIONS))));
+
   $options = array();
   if (!empty($entity_info['view modes'])) {
     foreach ($entity_info['view modes'] as $mode => $settings) {
-      if (!in_array($mode, array('rss', 'search_index', 'search_result', 'token', 'preview'))) {
+      if (!in_array($mode, $hidden_view_modes)) {
         $options[$mode] = $settings['label'];
       }
     }

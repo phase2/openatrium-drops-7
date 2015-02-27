@@ -31,9 +31,11 @@ function panopoly_search_update_dependencies() {
   $deps['search_api_solr'][7102] = array(
     'panopoly_core' => 7002,
   );
-  // We need to revert our servers/indexes only after this update to search_api_db.
+  // We need to revert our servers/indexes only after these updates to
+  // search_api_db and search_api_solr.
   $deps['panopoly_search'][7005] = array(
     'search_api_db' => 7104,
+    'search_api_solr' => 7102,
   );
   return $deps;
 }

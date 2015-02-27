@@ -265,7 +265,7 @@ function apps_profile_download_app_modules(&$install_state) {
   apps_include('installer');
   $apps = array();
   foreach ($_SESSION['apps'] as $id => $name) {
-    $apps[] = $_SESSION['apps_manifest'][$name];
+    $apps[] = $_SESSION['apps_manifest'][$id];
   }
   $batch = apps_download_apps_batch($apps);
 

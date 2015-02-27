@@ -56,6 +56,17 @@ abstract class MigrateItem {
    * @return stdClass
    */
   abstract public function getItem($id);
+
+  /**
+   * Implementors may optionally implement a hash function, applied to the
+   * entire source row, if this particular item type makes it difficult to
+   * do on the raw row.
+   *
+   * @param $row
+   *
+   * @return mixed
+   */
+  //abstract public function hash($row);
 }
 
 /**
@@ -191,5 +202,19 @@ class MigrateSourceList extends MigrateSource {
       break;
     }
     return $row;
+  }
+
+  /**
+   * Overrides MigrateSource::hash().
+   */
+  protected function hash($row) {
+    // Let the item class override the default hash function.
+    if (method_exists($this->itemClass, 'hash')) {
+      $hash = $this->itemClass->hash($row);
+    }
+    else {
+      $hash = parent::hash($row);
+    }
+    return $hash;
   }
 }

@@ -80,6 +80,11 @@ function oa_toolbar_oa_settings_form(&$form_state) {
  */
 function oa_toolbar_preprocess_page(&$vars) {
   drupal_add_js(drupal_get_path('module', 'oa_toolbar') . '/js/oa-toolbar.js');
+  $settings = array(
+    'mouseover' => variable_get('oa_toolbar_mouseover', FALSE),
+  );
+  drupal_add_js(array('oa_toolbar' => $settings), 'setting');
+  
   $vars['oa_toolbar_class'] = 'navbar-inverse';
   $vars['oa_toolbar_btn_class'] = variable_get('oa_toolbar_style', 0) ? '' : 'btn-inverse';
   $vars['oa_toolbar_sticky'] = 'navbar-fixed-top';
@@ -246,11 +251,6 @@ function template_preprocess_oa_navigation(&$vars) {
  */
 function template_preprocess_oa_toolbar(&$vars) {
   global $user;
-
-  $settings = array(
-    'mouseover' => variable_get('oa_toolbar_mouseover', FALSE),
-  );
-  drupal_add_js(array('oa_toolbar' => $settings), 'setting');
 
   // Separators
   $vars['oa_toolbar_separator'] = t('&gt;');

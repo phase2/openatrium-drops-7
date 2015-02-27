@@ -1,3 +1,9 @@
+Panopoly Search 7.x-1.18, 2015-02-26
+-----------------------------
+- Patch search_api_db to be a bit less brittle.
+- Upgrade from 1.0-rc4 fails: Table 'cache_search_api_solr' doesn't exist.
+- WD search_api: SearchApiException: Unknown or invalid item type node on update.
+
 Panopoly Search 7.x-1.17, 2015-02-18
 -----------------------------
 - Search API exceptions during install.

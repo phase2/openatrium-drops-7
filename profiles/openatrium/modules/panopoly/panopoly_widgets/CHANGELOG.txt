@@ -1,3 +1,7 @@
+Panopoly Widgets 7.x-1.18, 2015-02-26
+------------------------------
+- No changes since last release.
+
 Panopoly Widgets 7.x-1.17, 2015-02-18
 ------------------------------
 - Revert "Issue #2424709 by joegraduate: Update 'menu_block' module to 2.5".

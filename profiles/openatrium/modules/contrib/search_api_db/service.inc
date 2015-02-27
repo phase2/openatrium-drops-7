@@ -572,6 +572,10 @@ class SearchApiDbService extends SearchApiAbstractService {
             $this->createFieldTable($index, $new_fields[$name], $field);
           }
         }
+        elseif ($text_table && $fields[$name]['table'] != $text_table) {
+          $fields[$name]['table'] = $text_table;
+          $change = TRUE;
+        }
         unset($new_fields[$name]);
       }
 

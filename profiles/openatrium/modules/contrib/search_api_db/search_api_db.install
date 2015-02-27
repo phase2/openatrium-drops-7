@@ -115,6 +115,9 @@ function search_api_db_update_7103() {
  * Use a single full text table per index.
  */
 function search_api_db_update_7104() {
+  // See issue #2428693
+  module_implements('', FALSE, TRUE);
+
   $servers_query = db_select('search_api_server', 's')
     ->condition('s.class', 'search_api_db_service');
   $servers_query->innerJoin('search_api_index', 'i', 'i.server = s.machine_name');
@@ -194,14 +197,26 @@ function search_api_db_update_7104() {
         $connection->query("ALTER TABLE {{$text_table}} CONVERT TO CHARACTER SET 'utf8' COLLATE 'utf8_bin'");
       }
       // Migrate data.
+      // Some tables may already be reusing (in case of not updating or features
+      // so track if used more than once and only delete on 0 usage.
+      $usage = array();
       foreach ($options['indexes'][$server->machine_name] as $name => $field) {
-        if (search_api_is_text_type($field['type'])) {
-          $query = $connection->select($field['table'], 't')
-            ->fields('t', array('item_id', 'word', 'score'));
-          $query->addExpression(':field_name', 'field_name', array(':field_name' => strlen($name) > 255 ? md5($name) : $name));
-          $connection->insert($text_table)->from($query)->execute();
-
-          $connection->schema()->dropTable($field['table']);
+        $usage[$field['table']] = isset($usage[$field['table']]) ? $usage[$field['table']] + 1 : 1;
+      }
+      foreach ($options['indexes'][$server->machine_name] as $name => $field) {
+        if (search_api_is_text_type($field['type']) && ($field['table'] != $text_table)) {
+          // The table may not exist (sometimes in case of features).
+          if ($connection->schema()->tableExists($field['table'])) {
+            $query = $connection->select($field['table'], 't')
+              ->fields('t', array('item_id', 'word', 'score'));
+            $query->addExpression(':field_name', 'field_name', array(':field_name' => strlen($name) > 255 ? md5($name) : $name));
+            $connection->insert($text_table)->from($query)->execute();
+  
+            $usage[$field['table']]--;
+            if (empty($usage[$field['table']])) {
+              $connection->schema()->dropTable($field['table']);
+            }
+          }
           $server_options[$server->server]['indexes'][$server->machine_name][$name]['table'] = $text_table;
         }
       }

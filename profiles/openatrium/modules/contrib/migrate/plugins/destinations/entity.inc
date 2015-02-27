@@ -138,6 +138,11 @@ abstract class MigrateDestinationEntity extends MigrateDestination {
     migrate_handler_invoke_all('Entity', 'prepare', $entity, $source_row);
     // Then call any entity-specific handlers
     migrate_handler_invoke_all($this->entityType, 'prepare', $entity, $source_row);
+
+    // Apply defaults, removing empty fields from the entity object.
+    $form = $form_state = array();
+    _field_invoke_default('submit', $this->entityType, $entity, $form, $form_state);
+
     // Then call any prepare handler for this specific Migration.
     if (method_exists($migration, 'prepare')) {
       $migration->prepare($entity, $source_row);

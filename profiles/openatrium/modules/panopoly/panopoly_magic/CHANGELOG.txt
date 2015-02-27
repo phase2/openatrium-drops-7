@@ -1,3 +1,9 @@
+Panopoly Magic 7.x-1.18, 2015-02-26
+----------------------------
+- Upgrade causes fieldable panels panes Titles to appear twice.
+- Hide 'preview' and 'diff_standard' view modes when adding FPPs.
+- Make view modes removed from pane configuration a setting.
+
 Panopoly Magic 7.x-1.17, 2015-02-18
 ----------------------------
 - Remove special handling for Pane titles.
