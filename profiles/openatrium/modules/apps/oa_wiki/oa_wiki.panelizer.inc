@@ -67,7 +67,7 @@ function oa_wiki_panelizer_defaults() {
     ),
   );
   $display->cache = array();
-  $display->title = '%node:title';
+  $display->title = '';
   $display->uuid = 'bb6a940f-7670-401e-a236-7ab1c5798251';
   $display->content = array();
   $display->panels = array();

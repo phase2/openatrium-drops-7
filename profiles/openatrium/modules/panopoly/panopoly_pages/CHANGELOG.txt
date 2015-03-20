@@ -1,4 +1,5 @@
-Panopoly Pages 7.x-1.18, 2015-02-26
+Panopoly Pages 7.x-1.19, 2015-03-18 ---------------------------- - Make "Landing
+  Page" into node + Panelizer (rather than a Page Manager page)?.Panopoly Pages 7.x-1.18, 2015-02-26
 ----------------------------
 - No changes since last release.
 

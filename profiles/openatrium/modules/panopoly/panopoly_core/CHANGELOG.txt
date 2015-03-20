@@ -1,4 +1,8 @@
-Panopoly Core 7.x-1.18, 2015-02-26
+Panopoly Core 7.x-1.19, 2015-03-18 --------------------------- - Update to
+  CTools 1.7 for SA-CONTRIB-2015-079. - Features exports including Panels stuff
+  (*.pages_default.inc, *.panelizer.inc, etc) use incorrect indentation. -
+  Panopoly Magic abuses FPP revisions. - Administration menu: errors when
+  enabling it.Panopoly Core 7.x-1.18, 2015-02-26
 ---------------------------
 - Update to Entity API 1.6 for SA-CONTRIB-2015-053.
 - Failing to download 'panopoly_demo' when installing via 'drush si': "Downloading updates failed:Failed to download from ".

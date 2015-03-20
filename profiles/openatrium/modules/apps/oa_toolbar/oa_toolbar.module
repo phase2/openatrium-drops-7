@@ -286,17 +286,18 @@ function template_preprocess_oa_toolbar(&$vars) {
     $vars['space_label'] = check_plain($title);
     $vars['space_url'] = url('node/' . $space_id);
     if (isset($vars['show_parents'])) {
-      $parents = oa_core_get_parents($space_id, $space_type, NODE_PUBLISHED, TRUE);
-      if (count($parents)) {
-        $items = oa_core_get_titles($parents);
-        if (!empty($items['titles'])) {
-          // only show first parent
-          $vars['parent_label'] = current($items['titles']);
-          $parent_id = $parents[0];
-          $vars['parent_url'] = url('node/' . $parent_id);
-        }
+      $parents = oa_core_get_parents_with_titles($space_id, $space_type, NODE_PUBLISHED, TRUE);
+      if ($parents) {
+        // only show first parent
+        $title = reset($parents);
+        $vars['parent_label'] = $title;
+        $parent_id = key($parents);
+        $vars['parent_url'] = url('node/' . $parent_id);
         if (count($parents) > 1) {
-          $list = oa_core_truncate_list($items['links'], 15);
+          $list = oa_core_truncate_list($parents, 15);
+          foreach ($list as $nid => $title) {
+            $list[$nid] = check_plain($title);
+          }
           $vars['parent_list'] = theme('item_list', array(
             'items' => $list,
             'title' => t('Siblings'),
@@ -568,7 +569,8 @@ function template_preprocess_oa_toolbar_menu_button(&$vars) {
 }
 
 /**
- * Implements hook_form_alter
+ * Implements hook_form_FORM_ID_alter() for og_menu_single_menu_edit().
+ *
  * Inject option into og_single_menu settings form
  */
 function oa_toolbar_form_og_menu_single_menu_edit_form_alter(&$form, &$form_state, $form_id) {

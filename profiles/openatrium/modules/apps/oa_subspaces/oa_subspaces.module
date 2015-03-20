@@ -106,6 +106,7 @@ function oa_subspaces_form_node_form_validate($form, &$form_state) {
 
 /**
  * Return children of Space, regardless of the inheritance field.
+ * DEPRECATED:  Use oa_core_get_groups_by_parent() instead.
  *
  * @param $group_type
  *   The group (entity) type.
@@ -116,47 +117,12 @@ function oa_subspaces_form_node_form_validate($form, &$form_state) {
  *   An array of NIDs.
  */
 function oa_subspaces_get_children_groups($group_type, $group_id) {
-  $cid = oa_core_get_cache_id(OA_SUBSPACES_CACHE_CHILDREN, $group_id, FALSE, array($group_type));
-
-  $static_cache = &drupal_static(OA_SUBSPACES_CACHE_CHILDREN);
-  if (isset($static_cache[$cid])) {
-    return $static_cache[$cid];
-  }
-
-  if ($cache = cache_get($cid)) {
-    $static_cache[$cid] = $cache->data;
-    return $cache->data;
-  }
-
-  $children_groups = array();
-  _oa_subspaces_get_children_groups($group_type, $group_id, $children_groups);
-
-  // Cache the list of children.
-  $static_cache[$cid] = $children_groups;
-  cache_set($cid, $children_groups);
-
-  return $children_groups;
-}
-
-/**
- * Helper function for oa_subspaces_get_children_groups().
- *
- * @see oa_subspaces_get_children_groups()
- */
-function _oa_subspaces_get_children_groups($group_type, $group_id, &$children_groups) {
-  $children = og_subgroups_get_associated_entities($group_type, $group_id);
-  foreach ($children as $children_type => $children_ids) {
-    foreach ($children_ids as $child_id) {
-      if (!in_array($child_id, $children_groups)) { // prevent recursion
-        $children_groups[] = $child_id;
-        _oa_subspaces_get_children_groups($children_type, $child_id, $children_groups);
-      }
-    }
-  }
+  return oa_core_get_groups_by_parent($group_id);
 }
 
 /**
  * Return parents of a Space, regardless of the inheritance field.
+ * DEPRECATED: Use oa_core_get_parents() instead.
  *
  * @param $group_type
  *   The group (entity) type.
@@ -167,29 +133,7 @@ function _oa_subspaces_get_children_groups($group_type, $group_id, &$children_gr
  *   An array of NIDs.
  */
 function oa_subspaces_get_parent_groups($group_type, $group_id) {
-  $cid = oa_core_get_cache_id(OA_SUBSPACES_CACHE_PARENTS, $group_id, FALSE, array($group_type));
-
-  $static_cache = &drupal_static(OA_SUBSPACES_CACHE_PARENTS);
-  if (isset($static_cache[$cid])) {
-    return $static_cache[$cid];
-  }
-
-  if ($cache = cache_get($cid)) {
-    $static_cache[$cid] = $cache->data;
-    return $cache->data;
-  }
-
-  $result = array();
-  $parents = og_subgroups_parents_load($group_type, $group_id, FALSE);
-  if (!empty($parents[$group_type])) {
-    $result = array_values($parents[$group_type]);
-  }
-
-  // Cache the list of parents.
-  $static_cache[$cid] = $result;
-  cache_set($cid, $result);
-
-  return $result;
+  return oa_core_get_parents($group_id);
 }
 
 /**
@@ -216,33 +160,6 @@ function oa_subspaces_form_views_exposed_form_alter(&$form, &$form_state, $form_
       _oa_subspaces_add_element_all($form, $form_state, $settings);
       _oa_subspaces_add_element_parent($form, $form_state, $settings);
     }
-  }
-}
-
-/**
- * Converts a flat list of spaces into a hierarchical space/subspace list
- */
-function _oa_subspaces_rearrange_options(&$options) {
-  // Reorganize options for better usability.
-  $nid_options = array_keys($options);
-  $indexed = array();
-  foreach ($options as $nid => $title) {
-    $parents = oa_core_get_parents($nid);
-    $indexed[$nid]['title'] = $title;
-    $indexed[$nid]['parent'] = (empty($parents) || !in_array($parents[0], $nid_options)) ? 0 : $parents[0];
-    $indexed[$nid]['children'] = array();
-  }
-
-  // convert flat list into hierarchy
-  foreach ($indexed as $id => $row) {
-    if ($row['parent'] != $id) {
-      $indexed[$row['parent']]['children'][$id] =& $indexed[$id];
-    }
-  }
-
-  // add the nested -- to titles to convert back to flat
-  if (!empty($indexed[0]['children'])) {
-    $options = _oa_subspaces_build_options($indexed[0]['children']);
   }
 }
 
@@ -377,8 +294,10 @@ function oa_subspaces_views_pre_view(&$view) {
   if ($allowed_styles && $style_setting && in_array($style_setting, $allowed_styles) && !empty($view->display_handler->default_display->options['filters']['og_group_ref_target_id']['exposed'])) {
     $settings = _oa_subspaces_find_view_settings($view);
 
-    $og_subspaces_view_all = $settings['og_subspaces_view_all'] && $settings['og_group_ref_target_id'] && oa_subspaces_get_children_groups('node', $settings['og_group_ref_target_id']);
-    $og_subspaces_view_parent = $settings['og_subspaces_view_parent'] && $settings['og_group_ref_target_id'] && oa_subspaces_get_parent_groups('node', $settings['og_group_ref_target_id']);
+    $og_subspaces_view_all = $settings['og_subspaces_view_all'] && $settings['og_group_ref_target_id'] &&
+      oa_core_get_groups_by_parent($settings['og_group_ref_target_id']);
+    $og_subspaces_view_parent = $settings['og_subspaces_view_parent'] && $settings['og_group_ref_target_id'] &&
+      oa_core_get_parents($settings['og_group_ref_target_id']);
 
     if ($og_subspaces_view_all || $og_subspaces_view_parent) {
       // If parent or children filtering is turned on (and there are any parents
@@ -410,10 +329,10 @@ function oa_subspaces_views_query_alter(&$view, &$query) {
     $current_group = $view->exposed_input['og_group_ref_target_id'];
     $extra_groups = array();
     if ($settings['og_subspaces_view_all']) {
-      $extra_groups = array_merge($extra_groups, oa_subspaces_get_children_groups('node', $current_group));
+      $extra_groups = array_merge($extra_groups, oa_core_get_groups_by_parent($current_group));
     }
     if ($settings['og_subspaces_view_parent']) {
-      $extra_groups = array_merge($extra_groups, oa_subspaces_get_parent_groups('node', $current_group));
+      $extra_groups = array_merge($extra_groups, oa_core_get_parents($current_group, OA_SPACE_TYPE, NULL, FALSE, TRUE));
     }
 
     // Add the extra groups to query, if there are any.

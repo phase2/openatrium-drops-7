@@ -182,63 +182,61 @@ class OgSubspacesSelectionHandler extends EntityReference_SelectionHandler_Gener
     }
 
     $field_mode = $this->instance['field_mode'];
-    $user_groups = oa_core_get_groups_by_user(NULL, $group_type);
-    $user_groups = array_merge($user_groups, $this->getGidsForCreate());
-    // This is a workaround for not being able to choice which default value for
-    // 'my groups', which causes my groups to be lost.
-    // @todo find a way to default my groups based on selection handler.
-    $user_groups_only = og_get_entity_groups();
-    $user_groups_only = !empty($user_groups_only['node']) ? $user_groups_only['node'] : array();
-
-    // Show the user only the groups they belong to.
-    if ($field_mode == 'default') {
-      if ($user_groups && !empty($this->instance) && $this->instance['entity_type'] == 'node') {
-        // Determine which groups should be selectable.
-        $node = $this->entity;
-        $node_type = $this->instance['bundle'];
-        $ids = array();
-        foreach ($user_groups as $gid) {
-          // Check if user has "create" permissions on those groups.
-          // If the user doesn't have create permission, check if perhaps the
-          // content already exists and the user has edit permission.
-          if (og_user_access($group_type, $gid, "create $node_type content")) {
-            $ids[] = $gid;
+    if ($field_mode == 'default' || $field_mode == 'admin') {
+      $user_groups = oa_core_get_groups_by_user(NULL, $group_type);
+      $user_groups = array_merge($user_groups, $this->getGidsForCreate());
+      // This is a workaround for not being able to choice which default value for
+      // 'my groups', which causes my groups to be lost.
+      // @todo find a way to default my groups based on selection handler.
+      $user_groups_only = og_get_entity_groups();
+      $user_groups_only = !empty($user_groups_only['node']) ? $user_groups_only['node'] : array();
+  
+      // Show the user only the groups they belong to.
+      if ($field_mode == 'default') {
+        if ($user_groups && !empty($this->instance) && $this->instance['entity_type'] == 'node') {
+          // Determine which groups should be selectable.
+          $node = $this->entity;
+          $node_type = $this->instance['bundle'];
+          $has_create_access = array_keys(array_filter(oa_user_access_nids('node', $user_groups, "create $node_type content")));
+          $has_update_access = array();
+          $remaining = array_diff($user_groups, $has_create_access);
+          if (!empty($node->nid) && $remaining && ($node_groups = array_diff(og_get_entity_groups('node', $node->nid), $remaining))) {
+            $check_perms = array("update any $node_type content");
+            if ($user->uid == $node->uid) {
+              $check_perms = "update own $node_type content";
+            }
+            $has_update_access = array_keys(array_filter(oa_user_access_nids('node', $node_groups, $check_perms)));
           }
-          elseif (!empty($node->nid) && (og_user_access($group_type, $gid, "update any $node_type content") || ($user->uid == $node->uid && og_user_access($group_type, $gid, "update own $node_type content")))) {
-            $node_groups = isset($node_groups) ? $node_groups : og_get_entity_groups('node', $node->nid);
-            if (in_array($gid, $node_groups['node'])) {
-              $ids[] = $gid;
+          $ids = array_merge($has_update_access, $has_create_access);
+        }
+        else {
+          $ids = $user_groups;
+        }
+  
+        if ($ids) {
+          $query->propertyCondition($entity_info['entity keys']['id'], $ids, 'IN');
+        }
+        else {
+          // User doesn't have permission to select any group so falsify this
+          // query.
+          $query->propertyCondition($entity_info['entity keys']['id'], -1, '=');
+        }
+      }
+      elseif ($field_mode == 'admin' && $user_groups_only) {
+        // Show only groups the user doesn't belong to.
+        if (!empty($this->instance) && $this->instance['entity_type'] == 'node') {
+          // Don't include the groups, the user doesn't have create
+          // permission.
+          $node_type = $this->instance['bundle'];
+          foreach ($user_groups_only as $delta => $gid) {
+            if (!og_user_access($group_type, $gid, "create $node_type content")) {
+              unset($user_groups_only[$delta]);
             }
           }
         }
-      }
-      else {
-        $ids = $user_groups;
-      }
-
-      if ($ids) {
-        $query->propertyCondition($entity_info['entity keys']['id'], $ids, 'IN');
-      }
-      else {
-        // User doesn't have permission to select any group so falsify this
-        // query.
-        $query->propertyCondition($entity_info['entity keys']['id'], -1, '=');
-      }
-    }
-    elseif ($field_mode == 'admin' && $user_groups_only) {
-      // Show only groups the user doesn't belong to.
-      if (!empty($this->instance) && $this->instance['entity_type'] == 'node') {
-        // Don't include the groups, the user doesn't have create
-        // permission.
-        $node_type = $this->instance['bundle'];
-        foreach ($user_groups_only as $delta => $gid) {
-          if (!og_user_access($group_type, $gid, "create $node_type content")) {
-            unset($user_groups_only[$delta]);
-          }
+        if ($user_groups) {
+          $query->propertyCondition($entity_info['entity keys']['id'], $user_groups_only, 'NOT IN');
         }
-      }
-      if ($user_groups) {
-        $query->propertyCondition($entity_info['entity keys']['id'], $user_groups_only, 'NOT IN');
       }
     }
 
@@ -267,6 +265,7 @@ class OgSubspacesSelectionHandler extends EntityReference_SelectionHandler_Gener
       // Existing node.
       return array();
     }
+    $node_type = $this->instance['bundle'];
 
     // want to check for create access to public spaces
     $ids = oa_core_get_public_spaces();
@@ -278,13 +277,12 @@ class OgSubspacesSelectionHandler extends EntityReference_SelectionHandler_Gener
         $ids = array_merge($ids, $pre_ids);
       }
     }
-
-    $node_type = $this->instance['bundle'];
-    foreach ($ids as $delta => $id) {
-      if (!is_numeric($id) || !$id || !og_user_access($this->field['settings']['target_type'], $id, "create $node_type content")) {
-        unset($ids[$delta]);
-      }
+    // Allow bypassing this logic if user can create content globally.
+    if (user_access('administer group') || (!variable_get('og_node_access_strict', TRUE) || user_access("create $node_type content"))) {
+      return $ids;
     }
-    return $ids;
+
+    $access = oa_user_access_nids($this->field['settings']['target_type'], $ids, "create $node_type content");
+    return array_intersect($ids, array_keys(array_filter($access)));
   }
 }

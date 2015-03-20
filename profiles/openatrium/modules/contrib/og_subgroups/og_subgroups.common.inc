@@ -148,24 +148,46 @@ function og_subgroups_get_associated_entities($entity_type, $entity, $fields = a
     return $cache[$entity_type][$id];
   }
   $cache[$entity_type][$id] = array();
-  $query = new EntityFieldQuery();
-  $query
-  ->entityCondition('entity_type', 'og_membership', '=')
-  ->propertyCondition('entity_type', 'user', '!=')
-  ->propertyCondition('group_type', $entity_type, '=')
-  ->propertyCondition('gid', $id, '=');
+  $query = db_select('og_membership')
+  ->condition('entity_type', 'user', '!=')
+  ->condition('group_type', $entity_type, '=')
+  ->condition('gid', $id, '=');
   if ($fields || ($fields !== FALSE && $fields = variable_get('og_subgroups_default_fields_' . $entity_type, array()))) {
-    $query->propertyCondition('field_name', $fields, 'IN');
+    $query->condition('field_name', $fields, 'IN');
   }
+  $query->fields('og_membership', array('entity_type', 'id', 'etid'));
   $result = $query->execute();
-  if (!empty($result['og_membership'])) {
+  if ($result) {
     // Get the group ID from the group membership.
-    $og_memberships = og_membership_load_multiple(array_keys($result['og_membership']));
-    foreach ($og_memberships as $og_membership) {
+    foreach ($result as $og_membership) {
       $cache[$entity_type][$id][$og_membership->entity_type][$og_membership->id] = $og_membership->etid;
     }
   }
   return $cache[$entity_type][$id];
+}
+
+/**
+ * Get all parents that could exist.
+ */
+function og_subgroups_get_potentional_parents($entity_type, $fields = array()) {
+  $cache = &drupal_static(__FUNCTION__, array());
+  if (!isset($cache[$entity_type])) {
+    if ($cache = cache_get(__FUNCTION__ . '::' . $entity_type)) {
+      $cache[$entity_type] = $cache->data;
+    }
+    else {
+      $query = db_select('og_membership')
+        ->distinct()
+        ->condition('entity_type', 'user', '!=')
+        ->condition('group_type', $entity_type, '=');
+      if ($fields || ($fields !== FALSE && $fields = variable_get('og_subgroups_default_fields_' . $entity_type, array()))) {
+        $query->condition('field_name', $fields, 'IN');
+      }
+      $query->fields('og_membership', array('gid'));
+      $cache[$entity_type] = $query->execute()->fetchCol();
+    }
+  }
+  return $cache[$entity_type];
 }
 
 /**
@@ -255,6 +277,9 @@ function og_subgroups_parents_load($group_type, $group_id, $filter = TRUE, $fetc
   return $groups_all[$cid];
 }
 
+/**
+ * Same as og_subgroups_parents_load() but takes in an array of groups.
+ */
 function og_subgroups_parents_load_multiple($groups, $filter = TRUE, $fetch_all = TRUE, $include_current = TRUE, $reset = FALSE) {
   $group_cache = &drupal_static(__FUNCTION__, array());
   $return = array();
@@ -265,6 +290,7 @@ function og_subgroups_parents_load_multiple($groups, $filter = TRUE, $fetch_all 
       $process = $group_ids;
     }
     else {
+      // Only find group_ids we haven't looked up yet.
       $process = array();
       foreach ($group_ids as $group_id) {
         $cid = _og_subgroups_load_multiple_cid('parents', $group_type, $group_id, $filter);
@@ -279,14 +305,15 @@ function og_subgroups_parents_load_multiple($groups, $filter = TRUE, $fetch_all 
         }
       }
     }
+
     if ($process) {
-      foreach (entity_load($group_type, $process) as $group_id => $entity) {
+      foreach ($process as $group_id) {
         $key = array_search($group_id, $process);
         unset($process[$key]);
 
         $cid = _og_subgroups_load_multiple_cid('parents', $group_type, $group_id, $filter);
         $group_cache[$cid] = array();
-        if ($parent_groups = og_get_entity_groups($group_type, $entity)) {
+        if ($parent_groups = og_get_entity_groups($group_type, $group_id)) {
           foreach ($parent_groups as $parent_group_type => $parent_group_ids) {
             // If not filtering, than all ids are valid.
             if (!$filter) {
@@ -294,11 +321,8 @@ function og_subgroups_parents_load_multiple($groups, $filter = TRUE, $fetch_all 
             }
             // If filtering, need to check the inhertence field.
             else {
-              foreach (entity_load($parent_group_type, $parent_group_ids) as $parent_group_id => $parent_entity) {
-                $wrapper = entity_metadata_wrapper($parent_group_type, $parent_group_id);
-                if (empty($wrapper->{OG_USER_INHERITANCE_FIELD}) || $wrapper->{OG_USER_INHERITANCE_FIELD}->value()) {
-                  $group_cache[$cid][$parent_group_type][$parent_group_id] = $parent_group_id;
-                }
+              foreach (_og_subgroups_get_field_matching($parent_group_type, $parent_group_ids, OG_USER_INHERITANCE_FIELD, 1) as $parent_group_id) {
+                $group_cache[$cid][$parent_group_type][$parent_group_id] = $parent_group_id;
               }
             }
           }
@@ -313,8 +337,8 @@ function og_subgroups_parents_load_multiple($groups, $filter = TRUE, $fetch_all 
         $group_cache[$cid][$group_type] = array();
         cache_set($cid, $group_cache[$cid]);
       }
-
     }
+
     // Add them to return array.
     foreach ($group_ids as $group_id) {
       $cid = _og_subgroups_load_multiple_cid('parents', $group_type, $group_id, $filter);
@@ -331,6 +355,30 @@ function og_subgroups_parents_load_multiple($groups, $filter = TRUE, $fetch_all 
   }
 
   return $return;
+}
+
+/**
+ * Get groups with a a specific value for a field.
+ *
+ * @param $group_type
+ *  The type of entity.
+ * @param $group_id
+ *  The id of the entity.
+ * @param $field
+ *  The name of the field to test
+ * @param $value
+ *  The value of the field to test.
+ * @param $key
+ *  The specific key for the field.
+ */
+function _og_subgroups_get_field_matching($group_type, $gids, $field, $value, $key = 'value') {
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', $group_type)
+    ->entityCondition('entity_id', $gids)
+    ->fieldCondition($field, $key, $value)
+    ->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');
+  $result = $query->execute();
+  return !empty($result[$group_type]) ? array_keys($result[$group_type]) : array();
 }
 
 function _og_subgroups_load_multiple_cid($type, $group_type, $group_id, $filter) {
@@ -363,9 +411,22 @@ function og_subgroups_children_load($group_type, $group_id, $filter = TRUE, $fet
 /**
  * Get the inheriented groups + current group.
  */
-function og_subgroups_children_load_multiple($groups, $filter = TRUE, $fetch_all = TRUE, $include_current = TRUE, $reset = FALSE) {
+function og_subgroups_children_load_multiple($groups, $filter = TRUE, $fetch_all = TRUE, $include_current = TRUE, $reset = FALSE, $main_level = TRUE) {
   $group_cache = &drupal_static(__FUNCTION__, array());
   $return = array();
+  // Deep trees make the regular caching less then effective, so allow
+  // performance improvements for sites that have deep trees that may
+  // not be best for flatter sites.
+  $deep_tree_performance = variable_get('og_subgroups_deep_tree_performance', FALSE);
+  $group_cache_all = &drupal_static(__FUNCTION__ . '_all', array());
+  // Recursion protection protects both from infinite recursion and from
+  // reprocessing the same children if a parent is the child of two groups.
+  if ($main_level && $deep_tree_performance) {
+    $all_cid = print_r($groups, 1) . ':' . ($filter ? 1 : 0) . ':' . ($fetch_all ? 1 : 0) . ':' . ($include_current ? 1 : 0);
+    if ($deep_tree_performance && isset($group_cache_all[$all_cid])) {
+      return $group_cache_all[$all_cid];
+    }
+  }
 
   foreach ($groups as $group_type => $group_ids) {
     // Reprocess all if resetting.
@@ -388,14 +449,14 @@ function og_subgroups_children_load_multiple($groups, $filter = TRUE, $fetch_all
       }
     }
     if ($process) {
-      foreach (entity_load($group_type, $process) as $group_id => $entity) {
+      $inheritated_groups = _og_subgroups_get_field_matching($group_type, $process, OG_USER_INHERITANCE_FIELD, 1);
+      foreach ($process as $group_id) {
         $key = array_search($group_id, $process);
         unset($process[$key]);
 
         $cid = _og_subgroups_load_multiple_cid('children', $group_type, $group_id, $filter);
         // If group does not inherient then no child groups.
-        $wrapper = entity_metadata_wrapper($group_type, $group_id);
-        if ($filter && (empty($wrapper->{OG_USER_INHERITANCE_FIELD}) || !$wrapper->{OG_USER_INHERITANCE_FIELD}->value())) {
+        if ($filter && !in_array($group_id, $inheritated_groups)) {
           $group_cache[$cid] = array();
         }
         else {
@@ -417,13 +478,32 @@ function og_subgroups_children_load_multiple($groups, $filter = TRUE, $fetch_all
         cache_set($cid, $group_cache[$cid]);
       }
     }
+
     // Add them to return array.
     foreach ($group_ids as $group_id) {
       $cid = _og_subgroups_load_multiple_cid('children', $group_type, $group_id, $filter);
+      $current_return = $return;
       $return = og_subgroups_merge_groups($return, $group_cache[$cid]);
       // If current group has not been processed, process it's children.
       if ($fetch_all && !isset($return[$group_type][$group_id]) && !empty($group_cache[$cid])) {
-        $return = og_subgroups_merge_groups($return, og_subgroups_children_load_multiple($group_cache[$cid], $filter, $fetch_all, TRUE, $reset));
+        // We want to find children that we haven't processed yet and that could be parents.
+        $process_children = array();
+        foreach ($group_cache[$cid] as $new_group_type => $children) {
+          // If it's in return before current children added, it's already been processed.
+          $not_processed = !empty($current_return[$group_type]) ? array_diff($children, $current_return[$group_type]) : $children;
+          unset($children[$group_type][$group_id]);
+          // If performing for big trees, remove any ones that don't have any children.
+          if ($deep_tree_performance && ($potentional_parents = og_subgroups_get_potentional_parents($group_type))) {
+            $process_children[$new_group_type] = array_intersect($not_processed, $potentional_parents);
+          }
+          else {
+            $process_children[$new_group_type] = $not_processed;
+          }
+        }
+        // If we're optomizing for large tree, remove any children that aren't parents of anything.
+        if (array_filter($process_children)) {
+          $return = og_subgroups_merge_groups($return, og_subgroups_children_load_multiple($process_children, $filter, $fetch_all, TRUE, $reset, FALSE));
+        }
       }
       // Include current will generally be set for all but the originall caller.
       // which should prevent recurssion.
@@ -431,6 +511,9 @@ function og_subgroups_children_load_multiple($groups, $filter = TRUE, $fetch_all
         $return[$group_type][$group_id] = $group_id;
       }
     }
+  }
+  if (isset($all_cid) && $deep_tree_performance) {
+    $group_cache_all[$all_cid] = $return;
   }
 
   return $return;

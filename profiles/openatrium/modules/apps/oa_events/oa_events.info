@@ -100,9 +100,9 @@ features_exclude[dependencies][og_vocab] = og_vocab
 features_exclude[variable][panelizer_node:oa_event_allowed_layouts] = panelizer_node:oa_event_allowed_layouts
 features_exclude[variable][panelizer_node:oa_section_allowed_layouts] = panelizer_node:oa_section_allowed_layouts
 
-; Information added by Drupal.org packaging script on 2015-02-11
-version = "7.x-2.27"
+; Information added by Drupal.org packaging script on 2015-03-20
+version = "7.x-2.29"
 core = "7.x"
 project = "oa_events"
-datestamp = "1423683788"
+datestamp = "1426873684"
 

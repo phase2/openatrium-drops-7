@@ -144,6 +144,7 @@ function views_content_views_panes_content_type_render($subtype, $conf, $panel_a
   }
 
   $conf['pane_contexts'] = $contexts;
+  $conf['panel_args'] = $panel_args;
   $view->display_handler->set_pane_conf($conf);
 
   $allow = $view->display_handler->get_option('allow');

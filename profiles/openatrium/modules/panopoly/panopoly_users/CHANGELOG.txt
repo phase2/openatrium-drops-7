@@ -1,4 +1,5 @@
-Panopoly Users 7.x-1.18, 2015-02-26
+Panopoly Users 7.x-1.19, 2015-03-18 ---------------------------- - Perform
+  coding style fixes on panopoly_users.Panopoly Users 7.x-1.18, 2015-02-26
 ----------------------------
 - No changes since last release.
 
@@ -25,8 +26,10 @@ Panopoly Users 7.x-1.13, 2014-10-17
 Panopoly Users 7.x-1.12, 2014-10-15
 ----------------------------
 - Fixed Panopoly Users - Default body classes not added to feature.
-- Fixed The user profile page shows an uploaded image twice in very large formats.
-- Fixed Table 'field_data_field_user_picture' not found in panopoly_users_update_7001() when updating from very old Panopoly.
+- Fixed The user profile page shows an uploaded image twice in very large
+  formats.
+- Fixed Table 'field_data_field_user_picture' not found in
+  panopoly_users_update_7001() when updating from very old Panopoly.
 
 Panopoly Users 7.x-1.11, 2014-08-14
 ----------------------------
@@ -68,15 +71,21 @@ Panopoly Users 7.x-1.2, 2014-13-08
 ----------------------------
 - Add CHANGELOG.txt
 - Escape HTML entities in Panopoly Users settings help.
-- Reduce the minimum user profile picture dimensions to 80x80 (to match our thumbnail size).
+- Reduce the minimum user profile picture dimensions to 80x80 (to match our
+  thumbnail size).
 - Provide feature module updates for ctools / panels upgrade.
-- Error upgrading from 1.0-rc5 or lower: SQLSTATE[42S02]: Base table or view not found: Table 'cache_panels' doesn't exist.
+- Error upgrading from 1.0-rc5 or lower: SQLSTATE[42S02]: Base table or view not
+  found: Table 'cache_panels' doesn't exist.
 
 Panopoly Users 7.x-1.1, 2014-01-13
 ----------------------------
-- Panopoly_users_update_7001 will be skipped due to missing dependency on fieldable_panel_panes_update_7107.
-- Upgrade from 1.0-rc3 or 1.0-rc2 fails: Table 'cache_entity_fieldable_panels_pane' doesn't exist.
+- Panopoly_users_update_7001 will be skipped due to missing dependency on
+  fieldable_panel_panes_update_7107.
+- Upgrade from 1.0-rc3 or 1.0-rc2 fails: Table
+  'cache_entity_fieldable_panels_pane' doesn't exist.
 - Upgrade from 1.0-rc3 or 1.0-rc2 fails: Table 'pathauto_state' doesn't exist.
-- Change 'user_picture' support to save field_user_picture value to {user}.picture.
+- Change 'user_picture' support to save field_user_picture value to
+  {user}.picture.
 - Update all features.
-- Fixed bugs in should set 'user_picture' to work with themes that customize 'user-picture.tpl.php'.
+- Fixed bugs in should set 'user_picture' to work with themes that customize
+  'user-picture.tpl.php'.

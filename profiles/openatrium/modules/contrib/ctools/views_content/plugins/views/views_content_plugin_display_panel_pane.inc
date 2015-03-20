@@ -491,6 +491,7 @@ class views_content_plugin_display_panel_pane extends views_plugin_display {
       $this->set_pane_conf($conf);
     }
     $contexts = $conf['pane_contexts'];
+    $panel_args = $conf['panel_args'];
     $args = array();
     $arguments = $this->get_option('arguments');
 
@@ -602,7 +603,7 @@ class views_content_plugin_display_panel_pane extends views_plugin_display {
     if ($allow['fields_override']) {
       if ($conf['fields_override']) {
         $fields = $this->view->get_items('field');
-        foreach ($fields as $field => $display) {
+        foreach ($fields as $field => $field_display) {
           $fields[$field]['exclude'] = empty($conf['fields_override'][$field]);
         }
         $this->set_option('fields', $fields);

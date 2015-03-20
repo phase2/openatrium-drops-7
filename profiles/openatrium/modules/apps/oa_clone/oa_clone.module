@@ -625,13 +625,15 @@ function _oa_clone_batch_space(&$batch, $space, $original_space_nid) {
     }
   }
 
-  // Clone all sub-Spaces in this Space.
-  $associated_entities = og_subgroups_get_associated_entities('node', $original_space_nid);
-  if (!empty($associated_entities['node'])) {
-    foreach ($associated_entities['node'] as $original_subspace_nid) {
-      $not_orphan[$original_subspace_nid] = $original_subspace_nid;
-      if ($clone_subspace = oa_clone($original_subspace_nid, $space->nid, NULL, $bypass_access_check)) {
-        _oa_clone_batch_space($batch, $clone_subspace, $original_subspace_nid);
+  if (module_exists('oa_subspaces')) {
+    // Clone all sub-Spaces in this Space.
+    $associated_entities = oa_core_get_groups_by_parent($original_space_nid);
+    if (!empty($associated_entities)) {
+      foreach ($associated_entities as $original_subspace_nid) {
+        $not_orphan[$original_subspace_nid] = $original_subspace_nid;
+        if ($clone_subspace = oa_clone($original_subspace_nid, $space->nid, NULL, $bypass_access_check)) {
+          _oa_clone_batch_space($batch, $clone_subspace, $original_subspace_nid);
+        }
       }
     }
   }

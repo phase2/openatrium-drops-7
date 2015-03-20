@@ -479,6 +479,46 @@ function oa_core_og_fields_info() {
 }
 
 /**
+ * Implements hook_og_fields_info().
+ */
+function oa_core_og_fields_info_alter(&$return) {
+  if (isset($return['og_group_ref'])) {
+    $return['og_group_ref']['instance']['settings'] = array(
+      'behaviors' => array(
+        'og_widget' => array(
+          'access_override' => 1,
+          'admin' => array(
+            'widget_settings' => array(
+              'select2widgetajax' => array(
+                'match_operator' => 'CONTAINS',
+                'min_char' => 1,
+                'view_mode' => 'teaser',
+                'width' => '100%',
+              ),
+            ),
+            'widget_type' => 'select2widgetajax',
+          ),
+          'default' => array(
+            'widget_settings' => array(
+              'select2widgetajax' => array(
+                'match_operator' => 'CONTAINS',
+                'min_char' => 1,
+                'view_mode' => 'teaser',
+                'width' => '100%',
+              ),
+            ),
+            'widget_type' => 'select2widgetajax',
+          ),
+          'status' => TRUE,
+        ),
+      ),
+      'user_register_form' => FALSE,
+    );
+  }
+}
+
+
+/**
  * Implements hook_form_alter for node edit forms
  */
 function oa_core_form_node_form_alter(&$form, &$form_state, $form_id) {
@@ -1314,7 +1354,7 @@ function oa_core_oa_core_space_type_options($term, $vocab_name) {
  * Alters a node edit form to hide comment settings.
  */
 function _oa_core_hide_comment_settings(&$form) {
-  if (isset($form['comment_settings'])) {
+  if (isset($form['comment_settings']) && (empty($form['#node']->type) || variable_get('comment_' . $form['#node']->type, COMMENT_NODE_OPEN) == COMMENT_NODE_HIDDEN)) {
     $form['comment_settings']['#access'] = FALSE;
   }
 }

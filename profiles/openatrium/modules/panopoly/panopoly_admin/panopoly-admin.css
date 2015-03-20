@@ -24,10 +24,6 @@
   padding-bottom: .25em;
 }
 
-#node-edit .form-item-title label {
-  display: none;
-}
-
 #node-edit #edit-body .form-type-textarea {
   padding-top: .25em;
 }
@@ -205,13 +201,6 @@
 }
 
 /**
- * Featured Category Styling
- */
-#node-edit .field-name-field-featured-categories>.form-item-field-featured-categories-und>label {
-  display: none;
-}
-
-/**
  * Featured Image Styling
  */
 #node-edit .pane-node-field-featured-image h2 {
@@ -228,7 +217,6 @@
   width: 180px;
 }
 
-#node-edit #edit-field-featured-image .form-item-field-featured-image-und-0 > label,
 #node-edit .form-item-field-featured-image-und-0-alt .description {
   display: none;
 }
@@ -276,7 +264,7 @@
   width: 100%;
 }
 
-#node-edit .form-item-field-featured-image-und-0 > label {
+#node-edit .form-item-field-featured-image-und-0 .description {
   display: none;
 }
 

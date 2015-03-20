@@ -48,55 +48,10 @@ div.pane-bundle-video .media-youtube-video embed {
 }
 
 /* Table Widget */
-table.mobile-table { 
-  display: none;
-}
-
 #modalContent .tablefield-row-0 {
   background-color: rgba(0, 0, 0, 0.51);
   color: #ffffff;
   font-weight: bold;
-}
-
-/* Table Widget - Responsive */
-@media only screen and (max-width: 480px) {
-
-  table.tablefield {
-    display: none;
-  }
-
-  table.mobile-table {
-    display: block;
-  }
-
-  table {
-    margin: 50px;
-  }
-
-  td, th {
-    padding: 10px;
-    text-align: left;
-  }
-
-  .mobile-table tbody tr:nth-child(odd) {
-    background: #eee;
-  }
-
-  .mobile-table tr {
-    width: 50%;
-  }
-
-  .mobile-table tr.even th,
-  .mobile-table tr.even {
-    color: #000;
-    background: #fff;
-  }
-
-  .mobile-table tr.odd th,
-  .mobile-table tr.odd {
-    color: #000;
-    background: #eee;
-  }
 }
 
 /* Spotlight Widget - General Components */

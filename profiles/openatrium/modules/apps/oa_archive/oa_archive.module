@@ -200,11 +200,7 @@ function _oa_archive_get_section_content($nid) {
  *   An array of node IDs.
  */
 function _oa_archive_get_subspaces($nid) {
-  $associated_entities = og_subgroups_get_associated_entities('node', $nid);
-  if (!empty($associated_entities['node'])) {
-    return array_values($associated_entities['node']);
-  }
-  return array();
+  return oa_core_get_groups_by_parent($nid, OA_SPACE_TYPE, NULL, FALSE, NULL, TRUE);
 }
 
 /**

@@ -92,9 +92,9 @@ files[] = views/views_handler_field_oa_last_date.inc
 files[] = views/views_handler_field_oa_new_post.inc
 files[] = views/views_handler_field_oa_updated_post.inc
 
-; Information added by Drupal.org packaging script on 2015-02-23
-version = "7.x-2.28"
+; Information added by Drupal.org packaging script on 2015-03-19
+version = "7.x-2.30"
 core = "7.x"
 project = "oa_discussion"
-datestamp = "1424717284"
+datestamp = "1426789087"
 

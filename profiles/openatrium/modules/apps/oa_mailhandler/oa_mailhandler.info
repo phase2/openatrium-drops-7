@@ -2,7 +2,6 @@ name = Open Atrium Mailhandler
 description = Handle message replies in Open Atrium
 core = 7.x
 package = Open Atrium
-version = 7.x-2.0
 project = oa_mailhandler
 dependencies[] = ctools
 dependencies[] = entity
@@ -28,9 +27,9 @@ features[variable][] = mailcomment_import_filter_mode
 features[variable][] = mailcomment_insert_reply_text
 project path = profiles/openatrium/modules/features
 
-; Information added by Drupal.org packaging script on 2014-11-13
-version = "7.x-2.16"
+; Information added by Drupal.org packaging script on 2015-03-11
+version = "7.x-2.17"
 core = "7.x"
 project = "oa_mailhandler"
-datestamp = "1415901263"
+datestamp = "1426104485"
 

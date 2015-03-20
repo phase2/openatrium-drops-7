@@ -265,16 +265,10 @@ function panopoly_magic_form_alter(&$form, &$form_state, $form_id) {
     $clicked_button = empty($form_state['triggering_element']['#value']) ? '' : $form_state['triggering_element']['#value'];
     if ($form_id == 'fieldable_panels_panes_fieldable_panels_pane_content_type_edit_form' && ($clicked_button == 'Update Preview' || ($form_state['op'] == 'add' && empty($form_state['input']['form_build_id'])))) {
 
-      // Determine the current VID for the element
-      if (!empty($form_state['entity']->fpid)) {
-        $current_vid = db_query("SELECT vid FROM {fieldable_panels_panes} WHERE fpid = :fpid", array(':fpid' => $form_state['entity']->fpid))->fetchField();
-      }
-
       // Run entity information through standard submission form if this is a new or updated object
       // Update the pane settngs with the VID afterwards
       if (!$form_state['entity']->reusable || $form_state['op'] != 'add' || $form_state['rebuild'] == TRUE) {
-        // Process the entity to create a preview. Set the FPID to be the correct version. We need to 
-        // generate a fake set of values to avoid notices from FPP as per http://drupal.org/node/1791734.
+        // Process the entity to create a preview.
         $default_values = array(
           'language' => '',
           'title' => '',
@@ -293,17 +287,53 @@ function panopoly_magic_form_alter(&$form, &$form_state, $form_id) {
         else {
           $form_state['values'] = $default_values;
         }
+        
+        //
+        // This code is copied from fieldable_panels_panes_entity_edit_form_submit():
+        //
 
+        $entity = $form_state['entity'];
 
-        fieldable_panels_panes_entity_edit_form_submit($form, $form_state);
-        $preview_subtype = 'vid:' . $form_state['entity']->vid;
-        $pane->subtype = 'fpid:' . $form_state['entity']->fpid;
+        // Copy hardcoded fields.
+        $entity->title = $form_state['values']['title'];
+        $entity->link = $form_state['values']['link'];
+        $entity->path = $form_state['values']['path'];
+        $entity->language = $form_state['values']['language'];
+        $entity->reusable = $form_state['values']['reusable'];
+        $entity->category = $form_state['values']['category'];
+        $entity->admin_title = $form_state['values']['admin_title'];
+        $entity->admin_description = $form_state['values']['admin_description'];
+
+        $entity->revision = $form_state['values']['revision'];
+        // Only set a log message if there was a new revision. This prevents
+        // overwriting a log message on the current revision
+        if ($entity->revision) {
+          $entity->log = $form_state['values']['log'];
+        }
+
+        //
+        // End code copied from fieldable_panels_panes_entity_edit_form_submit().
+        //
+
+        if (!isset($entity->fpid)) {
+          $entity->fpid = NULL;
+        }
+
+        field_attach_form_validate('fieldable_panels_pane', $entity, $form, $form_state);
+        field_attach_submit('fieldable_panels_pane', $entity, $form, $form_state);
+
+        // Set the callback to use for rendering the preview.
+        $preview_callback = 'panopoly_magic_render_fieldable_panels_pane_preview';
+
+        // Stash the entity stub for the preview content type.
+        $pane->configuration['fieldable_panels_pane'] = $entity;
       }
+    }
 
-      // Properly adjust the VID if we are dealing with an existing object
-      if (!empty($current_vid)) {
-        db_query("UPDATE {fieldable_panels_panes} SET vid = :vid WHERE fpid = :fpid", array(':vid' => $current_vid, ':fpid' => $form_state['entity']->fpid));
-      }
+    // Add our own submit handler ALWAYS, not just when we are generating
+    // a preview.
+    if ($form_id == 'fieldable_panels_panes_fieldable_panels_pane_content_type_edit_form') {
+      $form['#submit'][] = '_panopoly_magic_fieldable_panels_panes_fieldable_panels_pane_content_type_edit_form_submit';
     }
 
     // Set the configuration and determine the content for the pane
@@ -350,7 +380,7 @@ function panopoly_magic_form_alter(&$form, &$form_state, $form_id) {
       // inside form and double rendering.
       $form['#post_render'][] = 'panopoly_magic_form_post_render_preview';
       $form['#panopoly_magic_preview_info'] = array(
-        'preview_subtype' => isset($preview_subtype) ? $preview_subtype : NULL,
+        'preview_callback' => isset($preview_callback) ? $preview_callback : NULL,
         'pane' => $pane,
         'configuration' =>  $configuration,
         'keywords' => $keywords,
@@ -436,6 +466,11 @@ function panopoly_magic_form_alter(&$form, &$form_state, $form_id) {
       // Move all elements which aren't fieldsets or the submit buttons into the general settings fieldset.
       foreach ($children as $child) {
         if ((!empty($form[$child]['#type']) || !empty($form[$child]['#tree'])) && $form[$child]['#type'] != 'fieldset' && $child != 'buttons' && $child != 'submit') {
+          // If the form has #tree => TRUE set, then we need to make sure the
+          // submitted data has the same keys.
+          if (empty($form[$child]['#parents'])) {
+            $form[$child]['#parents'] = array($child);
+          }
           $form['general_settings'][$child] = $form[$child];
           unset($form[$child]);
         }
@@ -458,6 +493,17 @@ function panopoly_magic_form_alter(&$form, &$form_state, $form_id) {
       }
     }
   }
+}
+
+/**
+ * Submission callback for fieldable_panels_panes_fieldable_panels_pane_content_type_edit_form().
+ */
+function _panopoly_magic_fieldable_panels_panes_fieldable_panels_pane_content_type_edit_form_submit($form, &$form_state) {
+  $entity = $form_state['entity'];
+
+  // The live preview causes a stale version of the entity to exist in the
+  // entity controller's static cache, so we much clear it on submit.
+  entity_get_controller('fieldable_panels_pane')->resetCache(array($entity->fpid));
 }
 
 /**
@@ -489,7 +535,12 @@ function panopoly_magic_ajax_update_preview($form, $form_state) {
  */
 function panopoly_magic_form_post_render_preview($output, $form) {
   extract($form['#panopoly_magic_preview_info']);
-  $content = (empty($preview_subtype)) ? ctools_content_render($pane->type, $pane->subtype, $configuration, $keywords, $args, $context) : ctools_content_render($pane->type, $preview_subtype, $configuration, $keywords, $args, $context);
+
+  // If no preview type was specified, render the pane as normal.
+  if (empty($preview_callback)) {
+    $preview_callback = 'ctools_content_render';
+  }
+  $content = $preview_callback($pane->type, $pane->subtype, $configuration, $keywords, $args, $context);
 
   // Create the fieldset with appropriate content
   $preview = array(
@@ -509,6 +560,35 @@ function panopoly_magic_form_post_render_preview($output, $form) {
     $preview['preview']['#markup'] = t('[no preview]');
   }
   return drupal_render($preview) . $output;
+}
+
+/**
+ * Renders previews for fieldable_panels_pane content types.
+ */
+function panopoly_magic_render_fieldable_panels_pane_preview($type, $subtype, $conf, $keywords, $args, $context) {
+  $entity = $conf['fieldable_panels_pane'];
+  if ($entity && fieldable_panels_panes_access('view', $entity)) {
+    $settings = field_bundle_settings('fieldable_panels_pane', $entity->bundle);
+    $block = new stdClass();
+    $block->type = $type;
+    $block->subtype = $subtype;
+    $block->title = '';
+    if (empty($settings['extra_fields']['display']) || !empty($settings['extra_fields']['display']['title']['default']['visible'])) {
+      if (!empty($entity->title)) {
+        $block->title = check_plain($entity->title);
+      }
+    }
+
+    // Some magic necessary to make sure fields are in the same state they
+    // would be in if they were loaded from the database. Found this by looking
+    // at how node generates it's previews in node_preview().
+    _field_invoke_multiple('load', 'fieldable_panels_pane', array($entity->fpid => $entity));
+
+    $view_mode = isset($conf['view_mode']) ? $conf['view_mode'] : 'full';
+    $block->content = fieldable_panels_panes_view($entity, $view_mode);
+
+    return $block;
+  }
 }
 
 /**
@@ -1001,7 +1081,7 @@ function panopoly_magic_form_ctools_entity_field_content_type_formatter_styles_a
  */
 function panopoly_magic_fape_submit(&$form, &$form_state) {
   // If there isn't a next step save the entity.
-  if ((empty($form_state['triggering_element']['#next']) || !empty($form_state['field']['body'])) && !empty($form_state['entity'])) {
+  if ((empty($form_state['triggering_element']['#next']) || !empty($form_state['field']['body'])) && !empty($form_state['entity']) && !empty($form_state['display_cache'])) {
     entity_save($form_state['entity_type'], $form_state['entity']);
     $form_state['display_cache']->display->context['panelizer']->data = $form_state['entity'];
   }

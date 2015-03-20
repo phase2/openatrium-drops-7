@@ -122,6 +122,32 @@ function oa_teams_panelizer_defaults() {
     $display->content['new-f0716b0b-c542-4df3-a986-9ddabb49bd25'] = $pane;
     $display->panels['contentmain'][2] = 'new-f0716b0b-c542-4df3-a986-9ddabb49bd25';
     $pane = new stdClass();
+    $pane->pid = 'new-ba8f7d2d-6879-411d-b75f-cfe0c12513d2';
+    $pane->panel = 'contentmain';
+    $pane->type = 'node_comment_wrapper';
+    $pane->subtype = 'node_comment_wrapper';
+    $pane->shown = TRUE;
+    $pane->access = array();
+    $pane->configuration = array(
+      'mode' => '1',
+      'comments_per_page' => '50',
+      'context' => 'panelizer',
+      'override_title' => 0,
+      'override_title_text' => '',
+      'override_title_heading' => 'h2',
+    );
+    $pane->cache = array();
+    $pane->style = array(
+      'settings' => NULL,
+    );
+    $pane->css = array();
+    $pane->extras = array();
+    $pane->position = 3;
+    $pane->locks = array();
+    $pane->uuid = 'ba8f7d2d-6879-411d-b75f-cfe0c12513d2';
+    $display->content['new-ba8f7d2d-6879-411d-b75f-cfe0c12513d2'] = $pane;
+    $display->panels['contentmain'][3] = 'new-ba8f7d2d-6879-411d-b75f-cfe0c12513d2';
+    $pane = new stdClass();
     $pane->pid = 'new-592610e3-760b-4707-a5cd-110f439132bb';
     $pane->panel = 'sidebar';
     $pane->type = 'oa_teams_add_member';

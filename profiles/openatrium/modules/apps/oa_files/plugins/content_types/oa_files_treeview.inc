@@ -330,7 +330,7 @@ function oa_files_apply_filters(&$query, &$conf) {
   if ($space_id > 0) {
     if (module_exists('oa_subspaces') && !empty($conf['oa_files_subspaces'])) {
       // add list of subspaces to query
-      $extra_groups = array_merge($extra_groups, oa_subspaces_get_children_groups('node', $space_id));
+      $extra_groups = array_merge($extra_groups, oa_core_get_groups_by_parent($space_id, OA_SPACE_TYPE, NODE_PUBLISHED, FALSE, NULL, TRUE));
     }
     $extra_groups[] = $space_id;
     $query->join('og_membership', 'og', "n.nid = og.etid AND og.entity_type = 'node' AND og.field_name = '" . OA_SPACE_FIELD . "'");

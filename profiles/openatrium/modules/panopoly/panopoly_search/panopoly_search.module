@@ -110,3 +110,27 @@ function panopoly_search_modules_enabled($modules) {
     }
   }
 }
+
+/**
+ * Implements hook_search_api_query_alter().
+ */
+function panopoly_search_search_api_query_alter($query) {
+  // Mimick the logging from Drupal core's search module so that the
+  // 'Top search phrase' report will work.
+  $keys = $query->getOriginalKeys();
+  $type = $query->getIndex()->getEntityType();
+
+  // Try to make the type names match if possible.
+  $search_info = search_get_info();
+  $type_title = $type;
+  if (isset($search_info[$type])) {
+    $type_title = $search_info[$type]['title'];
+  }
+
+  $link = NULL;
+  if ($type == 'node') {
+    $link = l(t('results'), 'search/site/' . $keys);
+  }
+
+  watchdog('search', 'Searched %type for %keys.', array('%keys' => $keys, '%type' => $type_title), WATCHDOG_NOTICE, $link);
+}

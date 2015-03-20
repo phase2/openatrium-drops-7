@@ -1,4 +1,7 @@
-Panopoly Widgets 7.x-1.18, 2015-02-26
+Panopoly Widgets 7.x-1.19, 2015-03-18 ------------------------------ -
+  Panopoly_widgets makes it hard/impossible to implement responsive tables
+  strategy for the whole site. - Media Vimeo patch to fix improper Exception
+  handling.Panopoly Widgets 7.x-1.18, 2015-02-26
 ------------------------------
 - No changes since last release.
 

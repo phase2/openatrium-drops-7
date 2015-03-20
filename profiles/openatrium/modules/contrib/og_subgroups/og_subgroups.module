@@ -135,7 +135,8 @@ function og_subgroups_node_access_records_alter(&$grants, $node) {
       // This is almost completly copied form og_access_node_access_records.
       // only differnce is using $parents_with_inheritance vs og_get_entity_groups
       $wrapper = entity_metadata_wrapper('node', $node);
-      $content_access = !empty($wrapper->{OG_CONTENT_ACCESS_FIELD}) ? $wrapper->{OG_CONTENT_ACCESS_FIELD}->value() : OG_CONTENT_ACCESS_DEFAULT;
+      $content_access = !empty($wrapper->{OG_ACCESS_FIELD}) && $wrapper->{OG_ACCESS_FIELD}->value() ? OG_CONTENT_ACCESS_PRIVATE
+        : (!empty($wrapper->{OG_CONTENT_ACCESS_FIELD}) ? $wrapper->{OG_CONTENT_ACCESS_FIELD}->value() : OG_CONTENT_ACCESS_DEFAULT);
       switch ($content_access) {
         case OG_CONTENT_ACCESS_DEFAULT:
           if (!$parents_with_inheritance) {
@@ -228,12 +229,12 @@ function _og_subgroups_check_access(&$perms, $context, $group_type, $id, $user_g
   // Check only one level at a time due to permission inheritance field.
   if ($parent_groups = og_subgroups_intersect_groups(og_subgroups_parents_load($group_type, $id, TRUE, FALSE), $user_groups)) {
     foreach ($parent_groups as $parent_group_type => $ids) {
+      // Find all groups that ahve inheritence set to child (assume inherit
+      // [default] otherwise).
+      $child_inheritence = _og_subgroups_get_field_matching($parent_group_type, $ids, OG_USER_INHERITANCE_PERMISSION_FIELD, OG_USER_INHERITANCE_PERMISSION_CHILD);
       foreach ($ids as $parent_group_id) {
-        // Since og_user_access is usually going to do a entity_load_single
-        // it will have minimal impact to do it here.
-        $wrapper = entity_metadata_wrapper($parent_group_type, $parent_group_id);
-        $perm_inhertance_setting = empty($wrapper->{OG_USER_INHERITANCE_PERMISSION_FIELD}) ? 0 : $wrapper->{OG_USER_INHERITANCE_PERMISSION_FIELD}->value();
-        if ($perm_inhertance_setting == OG_USER_INHERITANCE_PERMISSION_INHERIT) {
+        // Assumed OG_USER_INHERITANCE_PERMISSION_INHERIT as not _CHILD.
+        if (!in_array($parent_group_id, $child_inheritence)) {
           if (og_user_access($parent_group_type, $parent_group_id, $context['string'], $context['account'], TRUE)) {
             $perms[$context['string']] = TRUE;
             return;
@@ -245,7 +246,7 @@ function _og_subgroups_check_access(&$perms, $context, $group_type, $id, $user_g
             return;
           }
         }
-        elseif ($check_member_access && $perm_inhertance_setting == OG_USER_INHERITANCE_PERMISSION_CHILD) {
+        elseif ($check_member_access) {
           // Checks that user has member access to the currentgroup.
           if (og_subgroups_check_member_user_access($group_type, $id, $context['string'])) {
             $perms[$context['string']] = TRUE;
@@ -373,4 +374,7 @@ function _og_subgroups_clear_caches_for_group($group_type, $group_id) {
     }
   }
   drupal_static_reset('og_subgroups_get_associated_entities');
+  drupal_static_reset('og_subgroups_get_potentional_parents');
+  drupal_static_reset('og_subgroups_children_load_multiple_all');
+  cache_clear_all('og_subgroups_get_potentional_parents', 'cache', TRUE);
 }

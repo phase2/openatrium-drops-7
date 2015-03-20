@@ -123,9 +123,9 @@ files[] = plugins/views/oa_core_og_group_ref_views_handler_filter_in_operator.in
 files[] = plugins/views/oa_core_oa_section_ref_views_handler_filter_in_operator.inc
 files[] = plugins/views/oa_core_og_group_ref_views_handler_filter_entityreference_autocomplete.inc
 
-; Information added by Drupal.org packaging script on 2015-02-23
-version = "7.x-2.40"
+; Information added by Drupal.org packaging script on 2015-03-19
+version = "7.x-2.43"
 core = "7.x"
 project = "oa_core"
-datestamp = "1424718721"
+datestamp = "1426789396"
 

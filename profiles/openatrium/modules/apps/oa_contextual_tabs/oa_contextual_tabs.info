@@ -2,7 +2,6 @@ name = Open Atrium Contextual Tabs
 description = Moves drupal page "tabs" into buttons and drop-down menu in the upper-right of the page.
 core = 7.x
 package = Open Atrium
-version = 7.x-2.0
 project = oa_contextual_tabs
 dependencies[] = contextual_tabs
 dependencies[] = ctools
@@ -20,9 +19,9 @@ features[variable][] = contextual_tabs_pages
 features[variable][] = contextual_tabs_visilibity
 project path = sites/all/modules/contrib/oa_core/modules
 
-; Information added by Drupal.org packaging script on 2015-02-11
-version = "7.x-2.24"
+; Information added by Drupal.org packaging script on 2015-03-11
+version = "7.x-2.25"
 core = "7.x"
 project = "oa_contextual_tabs"
-datestamp = "1423682557"
+datestamp = "1426104488"
 

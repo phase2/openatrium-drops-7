@@ -1,4 +1,9 @@
-Panopoly Admin 7.x-1.18, 2015-02-26
+Panopoly Admin 7.x-1.19, 2015-03-18 ---------------------------- - Malformed
+  (and useless) string context causes errors with new versions of CTools. -
+  Update admin_views to version 1.4. - Hide field labels in a more accessible
+  way. - Removal of description from Featured image. - States.js doesn't work
+  properly with jquery 1.7 (jquery_update 2.3). - Update admin_menu to 3.0-rc5.
+  - Update 'module_filter' module to version 7.x-2.0 (1.8 unsupported).Panopoly Admin 7.x-1.18, 2015-02-26
 ----------------------------
 - No changes since last release.
 

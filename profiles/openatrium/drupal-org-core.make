@@ -5,7 +5,7 @@ core = 7.x
 
 ; Drupal Core
 projects[drupal][type] = core
-projects[drupal][version] = 7.34
+projects[drupal][version] = 7.35
 
 ; *********** PATCHES ************
 
@@ -30,3 +30,9 @@ projects[drupal][patch][1919338] = http://drupal.org/files/issues/options_drupal
 
 ; Patch to move registry build so entity_get_info can be called during install.
 projects[drupal][patch][1311820] = https://www.drupal.org/files/issues/1311820-drupal-registry_update-13.patch
+
+; Make node access queries more performant
+projects[drupal][patch][106721] = https://www.drupal.org/files/issues/drupal-106721-optimize_node_access_queries-115.patch
+
+; Cache user grants.
+projects[drupal][patch][2199001] = https://www.drupal.org/files/issues/node_access_grants-static-cache-11.patch

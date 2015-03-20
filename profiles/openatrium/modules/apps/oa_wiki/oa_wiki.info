@@ -68,9 +68,9 @@ features[variable][] = og_menu_enable_oa_wiki_page
 features[variable][] = panelizer_defaults_node_oa_wiki_page
 features[variable][] = panelizer_node:oa_wiki_page_default
 
-; Information added by Drupal.org packaging script on 2015-02-11
-version = "7.x-2.25"
+; Information added by Drupal.org packaging script on 2015-03-19
+version = "7.x-2.29"
 core = "7.x"
 project = "oa_wiki"
-datestamp = "1423683483"
+datestamp = "1426788801"
 

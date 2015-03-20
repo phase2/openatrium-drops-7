@@ -2,7 +2,6 @@ name = Panopoly Users
 description = Maintains user accounts and user workflows.
 core = 7.x
 package = Panopoly
-project = panopoly_users
 dependencies[] = ctools
 dependencies[] = defaultconfig
 dependencies[] = features
@@ -54,9 +53,9 @@ features[variable][] = user_picture_field_source_bundle
 features[variable][] = user_picture_field_source_entity
 features[variable][] = user_picture_field_source_field
 
-; Information added by Drupal.org packaging script on 2015-02-26
-version = "7.x-1.18"
+; Information added by Drupal.org packaging script on 2015-03-18
+version = "7.x-1.19"
 core = "7.x"
 project = "panopoly_users"
-datestamp = "1424987604"
+datestamp = "1426717102"
 

@@ -60,7 +60,7 @@ function oa_discussion_panelizer_defaults() {
     ),
   );
   $display->cache = array();
-  $display->title = '%node:title';
+  $display->title = '';
   $display->uuid = 'f2483186-0bec-4855-a087-1b170ce6c469';
   $display->content = array();
   $display->panels = array();
@@ -511,7 +511,7 @@ function oa_discussion_panelizer_defaults() {
     ),
   );
   $display->cache = array();
-  $display->title = '%node:title';
+  $display->title = '';
   $display->uuid = '82894af0-3dae-495b-a609-56786f6327f7';
   $display->content = array();
   $display->panels = array();
@@ -614,10 +614,10 @@ function oa_discussion_panelizer_defaults() {
     $display->content['new-c7a43a77-fca5-4cc3-829c-220e2142ae5e'] = $pane;
     $display->panels['contentmain'][2] = 'new-c7a43a77-fca5-4cc3-829c-220e2142ae5e';
     $pane = new stdClass();
-    $pane->pid = 'new-b485b8e9-9c6a-4242-8058-06de9082942a';
+    $pane->pid = 'new-a3f6416e-1faf-4899-ae8d-c398767509dd';
     $pane->panel = 'contentmain';
-    $pane->type = 'node_comments';
-    $pane->subtype = 'node_comments';
+    $pane->type = 'node_comment_wrapper';
+    $pane->subtype = 'node_comment_wrapper';
     $pane->shown = TRUE;
     $pane->access = array();
     $pane->configuration = array(
@@ -626,6 +626,7 @@ function oa_discussion_panelizer_defaults() {
       'context' => 'panelizer',
       'override_title' => 0,
       'override_title_text' => '',
+      'override_title_heading' => 'h2',
     );
     $pane->cache = array();
     $pane->style = array(
@@ -635,33 +636,9 @@ function oa_discussion_panelizer_defaults() {
     $pane->extras = array();
     $pane->position = 3;
     $pane->locks = array();
-    $pane->uuid = 'b485b8e9-9c6a-4242-8058-06de9082942a';
-    $display->content['new-b485b8e9-9c6a-4242-8058-06de9082942a'] = $pane;
-    $display->panels['contentmain'][3] = 'new-b485b8e9-9c6a-4242-8058-06de9082942a';
-    $pane = new stdClass();
-    $pane->pid = 'new-e9603b15-2c3a-4b58-8290-692183e7b687';
-    $pane->panel = 'contentmain';
-    $pane->type = 'node_comment_form';
-    $pane->subtype = 'node_comment_form';
-    $pane->shown = TRUE;
-    $pane->access = array();
-    $pane->configuration = array(
-      'anon_links' => 0,
-      'context' => 'panelizer',
-      'override_title' => 0,
-      'override_title_text' => '',
-    );
-    $pane->cache = array();
-    $pane->style = array(
-      'settings' => NULL,
-    );
-    $pane->css = array();
-    $pane->extras = array();
-    $pane->position = 4;
-    $pane->locks = array();
-    $pane->uuid = 'e9603b15-2c3a-4b58-8290-692183e7b687';
-    $display->content['new-e9603b15-2c3a-4b58-8290-692183e7b687'] = $pane;
-    $display->panels['contentmain'][4] = 'new-e9603b15-2c3a-4b58-8290-692183e7b687';
+    $pane->uuid = 'a3f6416e-1faf-4899-ae8d-c398767509dd';
+    $display->content['new-a3f6416e-1faf-4899-ae8d-c398767509dd'] = $pane;
+    $display->panels['contentmain'][3] = 'new-a3f6416e-1faf-4899-ae8d-c398767509dd';
     $pane = new stdClass();
     $pane->pid = 'new-f40e5cbc-b456-4d18-986e-5d516011a7de';
     $pane->panel = 'sidebar';

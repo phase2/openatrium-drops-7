@@ -11,7 +11,7 @@
     <div class="row">
       <div class="col-sm-8">
         <div class="oa-files-filter input-group" ng-show="showfilter">
-          <input type="text" ng-model="filterexp" class="form-control" placeholder="Filter"></input >
+          <input type="text" ng-model="filterexp" class="form-control" placeholder="<?php print t('Filter'); ?>" name="file_filter_text"></input >
           <span class="input-group-btn">
             <button class="btn btn-default" ng-click="clearFilter()" type="button"><?php print t('Clear'); ?></button>
           </span>
@@ -30,10 +30,10 @@
           <a ng-click="showMenu($event,root)"><i class="icon-cog"></i></a>
           <ul ng-show="root.menu" class="dropdown-menu ng-dropdown-menu" role="menu">
             <li><a ng-repeat="action in actions | orderObjectBy:'weight'" ng-if="action.enabled && !action.exposed && action.show(root)" ng-href="{{action.url(root)}}" title="{{action.title}}" ng-click="action.click($event,root)" class="{{action.class}}">{{action.title}}</a></li>
-            <li><a title="Expand all" ng-click="expandAll(true)" class="oa-file-action"><?php print t('Expand all'); ?></a></li>
-            <li><a title="Collapse all" ng-click="expandAll(false)" class="oa-file-action"><?php print t('Collapse all'); ?></a></li>
-            <li><a title="Show filter" ng-click="showFilter(true)" ng-show="!showfilter" class="oa-file-action"><?php print t('Show filter'); ?></a></li>
-            <li><a title="Hide filter" ng-click="showFilter(false)" ng-show="showfilter" class="oa-file-action"><?php print t('Hide filter'); ?></a></li>
+            <li><a title="Expand all" ng-click="expandAll(true)" class="oa-file-action" href=""><?php print t('Expand all'); ?></a></li>
+            <li><a title="Collapse all" ng-click="expandAll(false)" class="oa-file-action" href=""><?php print t('Collapse all'); ?></a></li>
+            <li><a title="Show filter" ng-click="showFilter(true)" ng-show="!showfilter" class="oa-file-action" href=""><?php print t('Show filter'); ?></a></li>
+            <li><a title="Hide filter" ng-click="showFilter(false)" ng-show="showfilter" class="oa-file-action" href=""><?php print t('Hide filter'); ?></a></li>
           </ul>
         </div>
       </div><!-- /.col-sm-4 -->

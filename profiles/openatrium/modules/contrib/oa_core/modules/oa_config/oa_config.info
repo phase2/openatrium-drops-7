@@ -34,9 +34,9 @@ features[variable][] = og_context_providers_weight_group_context
 features[variable][] = pathauto_reduce_ascii
 features[variable][] = preprocess_css
 
-; Information added by Drupal.org packaging script on 2015-02-23
-version = "7.x-2.40"
+; Information added by Drupal.org packaging script on 2015-03-19
+version = "7.x-2.43"
 core = "7.x"
 project = "oa_core"
-datestamp = "1424718721"
+datestamp = "1426789396"
 

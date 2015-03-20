@@ -6,9 +6,9 @@ configure = admin/config/user-interface/fullcalendar/options
 dependencies[] = fullcalendar
 
 
-; Information added by drush on 2015-02-27
+; Information added by drush on 2015-03-20
 version = "7.x-2.0+5-dev"
 core = "7.x"
 project = "fullcalendar"
-datestamp = "1425052625"
+datestamp = "1426880977"
 

@@ -23,7 +23,7 @@ define('CTOOLS_API_VERSION', '2.0.8');
  *   ; Requires CTools v7.x-1.4 or newer.
  *   dependencies[] = ctools (>=1.4)
  */
-define('CTOOLS_MODULE_VERSION', '7.x-1.6');
+define('CTOOLS_MODULE_VERSION', '7.x-1.7');
 
 /**
  * Test the CTools API version.
@@ -1017,4 +1017,18 @@ function ctools_ctools_entity_context_alter(&$plugin, &$entity, $plugin_id) {
       $plugin['required context']->restrictions = array('vocabulary' => array($field['settings']['allowed_values'][0]['vocabulary']));
     }
   }
+}
+
+/**
+ * Implements hook_field_insert().
+ */
+function ctools_field_insert($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  cache_clear_all('ctools_entity_from_field_get_children', 'cache', TRUE);
+}
+
+/**
+ * Implements hook_field_update().
+ */
+function ctools_field_update($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  ctools_field_insert($entity_type, $entity, $field, $instance, $langcode, $items);
 }

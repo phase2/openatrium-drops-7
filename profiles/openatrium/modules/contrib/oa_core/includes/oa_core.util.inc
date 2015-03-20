@@ -285,9 +285,9 @@ function oa_core_get_section_context() {
  *   items aren't included.
  *
  * @return array
- *   Array of parent NIDs.
+ *   Array of parent NIDs to titles.
  */
-function oa_core_get_parents($nid, $bundle = OA_SPACE_TYPE, $status = NULL, $include_archived = FALSE, $account = NULL) {
+function oa_core_get_parents_with_titles($nid, $bundle = OA_SPACE_TYPE, $status = NULL, $include_archived = FALSE, $fetcha_all = FALSE, $account = NULL) {
   if (!isset($account)) {
     global $user;
     $uid = $user->uid;
@@ -299,40 +299,97 @@ function oa_core_get_parents($nid, $bundle = OA_SPACE_TYPE, $status = NULL, $inc
     $uid = $account->uid;
   }
 
-  $cid = oa_core_get_cache_id(OA_CACHE_GET_PARENTS, $nid . '_' . $uid, $include_archived, array($bundle, $status));
+  $cid = oa_core_get_cache_id(OA_CACHE_GET_PARENTS, $nid . '_' . $uid . '_' . ($fetcha_all ? '1' : '0'), $include_archived, array($bundle, $status));
   if (oa_core_get_cache(OA_CACHE_GET_PARENTS, $cid, $result)) {
     return $result;
   }
 
-  $query = db_select('node', 'n');
-  $query->leftJoin('og_membership', 'f', "n.nid = f.gid");
-  if (isset($bundle)) {
-    $query->condition('n.type', $bundle);
-  }
-  if (isset($status)) {
-    $query->condition('n.status', $status);
-  }
-  $query
-    ->fields('n', array('nid'))
-    ->condition('f.etid', $nid)
-    ->condition('f.entity_type', 'node')
-    ->orderBy('n.title')
-    ->addTag('node_access');
-
-  if (module_exists('flag') && !$include_archived) {
-    if ($flag = flag_get_flag('trash')) {
-      $query->leftJoin('flag_content', 'a', "a.fid = :fid AND a.content_id = n.nid", array(':fid' => $flag->fid));
-      // This makes sure that archived content isn't included, because 'uid'
-      // will be NULL if the join didn't connect anything.
-      $query->isNull('a.uid');
-    }
-  }
-
-  $result = $query->execute()->fetchCol(0);
+  $result = og_subgroups_parents_load('node', $nid, FALSE, $fetcha_all);
+  $result = !empty($result['node']) ? oa_core_get_nids_title_matching($result['node'], $bundle, $status, $include_archived, $account) : array();
 
   oa_core_set_cache(OA_CACHE_GET_PARENTS, $cid, $result);
 
   return $result;
+}
+
+/**
+ * Get parent Spaces and Groups.
+ *
+ * @param int $nid
+ *   The NID of the Space or Group to check.
+ * @param string|NULL $bundle
+ *   (optional) The node type (default: OA_SPACE_TYPE). If NULL is passed, it
+ *   will include all node types.
+ * @param int|NULL $status 
+ *   (optional) If specified, the node status (ex. NODE_PUBLISHED or
+ *   NODE_NOT_PUBLISHED) to look for. If not specified, it return 
+ *   nodes of either status.
+ * @param bool $include_archived
+ *   (optional) Whether to include archived nodes or not. By default, archived
+ *   items aren't included.
+ *
+ * @return array
+ *   Array of parent NIDs to titles.
+ */
+function oa_core_get_parents($nid, $bundle = OA_SPACE_TYPE, $status = NULL, $include_archived = FALSE, $fetch_all = FALSE, $account = NULL) {
+  $parents = oa_core_get_parents_with_titles($nid, $bundle, $status, $include_archived, $fetch_all, $account);
+  return array_keys($parents);
+}
+
+/**
+ * Get the nids => title matching criteria from a set of nids.
+ *
+ * @param int $nid
+ *   The NID of the Space or Group to check.
+ * @param string|NULL $bundle
+ *   (optional) The node type (default: OA_SPACE_TYPE). If NULL is passed, it
+ *   will include all node types.
+ * @param int|NULL $status 
+ *   (optional) If specified, the node status (ex. NODE_PUBLISHED or
+ *   NODE_NOT_PUBLISHED) to look for. If not specified, it return 
+ *   nodes of either status.
+ * @param bool $include_archived
+ *   (optional) Whether to include archived nodes or not. By default, archived
+ *   items aren't included.
+ *
+ * @return array
+ *   Array of parent NIDs to title.
+ */
+function oa_core_get_nids_title_matching($nids, $bundle = OA_SPACE_TYPE, $status = NULL, $include_archived = FALSE, $account = NULL) {
+  if (is_numeric($account)) {
+    $account = user_load($uid);
+  }
+  elseif (!$account) {
+    global $user;
+    $account = $user;
+  }
+  sort($nids);
+  $cid = implode(':', $nids);
+  $cache = &drupal_static(__FUNCTION__, array());
+  if (!isset($cache[$cid])) {
+    $query = db_select('node', 'n');
+    if ($bundle) {
+      $query->condition('n.type', $bundle);
+    }
+    if (isset($status)) {
+      $query->condition('n.status', $status);
+    }
+    $query->condition('n.nid', $nids);
+    $query
+      ->fields('n', array('nid', 'title'))
+      ->addTag('node_access')
+      ->addMetaData('account', $account);
+    if (module_exists('oa_archive') && !$include_archived) {
+      if ($flag = flag_get_flag('trash')) {
+        $query->leftJoin('flag_content', 'a', "a.fid = :fid AND a.content_id = n.nid", array(':fid' => $flag->fid));
+        // This makes sure that archived content isn't included, because 'uid'
+        // will be NULL if the join didn't connect anything.
+        $query->isNull('a.uid');
+      }
+    }
+    $cache[$cid] = $query->execute()->fetchAllKeyed();
+  }
+  return $cache[$cid];
 }
 
 /**
@@ -343,7 +400,7 @@ function oa_core_get_parents($nid, $bundle = OA_SPACE_TYPE, $status = NULL, $inc
  * @param string|NULL $bundle
  *   (optional) The node type (default: OA_SPACE_TYPE). If NULL is passed, it
  *   will include all node types.
- * @param int|NULL $status 
+ * @param int|NULL $status
  *   (optional) If specified, the node status (ex. NODE_PUBLISHED or
  *   NODE_NOT_PUBLISHED) to look for. If not specified, it return 
  *   nodes of either status.
@@ -381,7 +438,7 @@ function oa_core_get_groups_by_parent($nids, $bundle = OA_SPACE_TYPE, $status = 
     $hash = $nids;
   }
 
-  $cid = oa_core_get_cache_id(OA_CACHE_GROUPS_BY_PARENT, $hash . '_' . $uid, $include_archived, array($bundle, $status, $subspaces));
+  $cid = oa_core_get_cache_id(OA_CACHE_GROUPS_BY_PARENT, $hash . '_' . $uid, $include_archived, array(serialize($bundle), $status, $subspaces));
   if (oa_core_get_cache(OA_CACHE_GROUPS_BY_PARENT, $cid, $result)) {
     return $result;
   }
@@ -390,17 +447,16 @@ function oa_core_get_groups_by_parent($nids, $bundle = OA_SPACE_TYPE, $status = 
     $nids = array($nids);
   }
   $query = db_select('node', 'n');
-  $query->leftJoin('og_membership', 'f', "n.nid = f.etid");
+  $query->join('og_membership', 'f', "n.nid = f.etid AND f.entity_type = 'node'");
   $query
     ->fields('n', array('nid'))
-    ->condition('f.entity_type', 'node')
     ->orderBy('n.title');
 
   // to find all subspaces, we query *all* spaces with parents
   // otherwise, if just getting top level children we can filter it here.
   if (!$subspaces) {
-    $query->condition('f.gid', $nids, 'IN')
-    ->addTag('node_access');
+    $query->condition('f.gid', $nids, 'IN');
+    $query->addTag('node_access');
   }
 
   if (isset($bundle)) {
@@ -427,7 +483,7 @@ function oa_core_get_groups_by_parent($nids, $bundle = OA_SPACE_TYPE, $status = 
   if ($subspaces) {
     $query->fields('f', array('gid'));
     $query->condition('f.etid', $nids, 'NOT IN');
-    $query->join('field_data_og_user_inheritance', 'inh', "inh.entity_id = f.etid && inh.entity_type = 'node'");
+    $query->join('field_data_og_user_inheritance', 'inh', "inh.entity_id = f.gid && f.group_type = 'node'");
     $query->condition('inh.og_user_inheritance_value', 1);
     $all_parents = $query->execute()->fetchAll();
     // to get a list of all subspaces, we can now loop through the list of all parents recursively
@@ -444,24 +500,30 @@ function oa_core_get_groups_by_parent($nids, $bundle = OA_SPACE_TYPE, $status = 
 }
 
 /**
- * Helper function to return children of a list of parents
+ * Helper function to return children of a list of parents.
+ *
  * @param $all_parents array of nid,gid for all spaces
  * @param $nids array an array of parents we want children for
  */
-function _oa_core_get_all_children(&$all_parents, $nids) {
-  $result = array();
-  $children = array();
-  foreach ($nids as $nid) {
-    foreach ($all_parents as $parent) {
-      if ($parent->gid == $nid) {
-        $children[] = $parent->nid;
-      }
+function _oa_core_get_all_children(&$all_parents, $nids, &$processed = NULL) {
+  if (!isset($processed)) {
+    $processed = array();
+    $save = $all_parents;
+    $all_parents = array();
+    foreach ($save as $parent) {
+      $all_parents[$parent->gid][] = $parent->nid;
     }
   }
-  if (!empty($children)) {
-    $result = _oa_core_get_all_children($all_parents, $children);
+  $processed = array_merge($nids, $processed);
+  $result = array();
+  $children = array();
+  foreach (array_intersect_key($all_parents, array_flip($nids)) as $parent_children) {
+    $children = array_merge($children, $parent_children);
   }
-  $result = array_unique( array_merge($nids, $result), SORT_NUMERIC);
+  if ($new_children = array_diff($children, $processed)) {
+    $result = _oa_core_get_all_children($all_parents, $new_children, $processed);
+  }
+  $result = array_unique(array_merge($nids, $result), SORT_NUMERIC);
   return $result;
 }
 
@@ -1366,3 +1428,257 @@ function oa_core_get_summary($node) {
     (!empty($body_field[0]['#markup']) ? oa_core_trim_text($body_field[0]['#markup'], 'node/' . $node->nid . '/view') : '');
   return $body;
 }
+
+
+/**
+ * Determine whether a user has a given privilege for groups.
+ *
+ * This modules the logic of og_user_access but for multiple node groups.
+ * IMPORTANT, any changes to og_user_access reflect here.
+ *
+ * We cannot offer any speed improvements if og_user_access_alter is implemented
+ * as it requires a entity_load.
+ *
+ * @param $group_type
+ *  This will fall through to og_user_access access if not 'node'
+ * @param $nids
+ *   Array of node nids that are groups.
+ * @param $string
+ *  String can be a string or array of strings (which diverges from 
+ *   og_user_access) of permissions to check. If an array is passed,
+ *   it'll be TRUE for that group if user has ANY of the permissions.
+ *
+ * @return
+ *   An array of nids to access.
+ */
+function oa_user_access_nids($group_type, $nids, $string, $account = NULL, $skip_alter = FALSE, $ignore_admin = FALSE) {
+  global $user;
+  $strings = is_array($string) ? $string : array($string);
+
+  $access = &drupal_static(__FUNCTION__, array());
+  if (empty($account)) {
+    $account = $user;
+  }
+
+  $nids = drupal_map_assoc($nids);
+
+  // Administer group permission. We don't cache it cause ignore_admin can change.
+  if ($account->uid == 1 || (!$ignore_admin && user_access('administer group', $account))) {
+    $return = array();
+    foreach ($nids as $nid) {
+      $return[$nid] = TRUE;
+    }
+    return $return;
+  }
+
+  // We don't handle not-nodes (cause hard to look up owner), the alter hook
+  // (it needs full node_load).
+  $alter = module_implements('og_user_access_alter');
+  foreach (array('og_subgroups', 'og_ui') as $remove) {
+    $pos = array_search($remove, $alter);
+    if ($pos !== FALSE) {
+      unset($alter[$pos]);
+    }
+  }
+  // We cannot replicate unknown alters or unsubscribe logic, so fallback.
+  // @see og_ui_og_user_access_alter().
+  if ($group_type != 'node' || (!$skip_alter && $alter) || in_array('unsubscribe', $strings)) {
+    foreach ($nids as $nid) {
+      foreach ($strings as $string) {
+        if (!isset($access[$account->uid][$string][$nid])) {
+          $access[$account->uid][$string][$nid] = og_user_access($group_type, $nid, $string, $account, $skip_alter, $ignore_admin);
+        }
+      }
+    }
+  }
+
+  $lookup = array();
+  $all_lookup = array();
+  // Find what nodes/permissions still need to be looked up.
+  foreach ($strings as $string) {
+    if (!empty($access[$account->uid][$string])) {
+      $lookup[$string] = array_diff_key($nids, $access[$account->uid][$string]);
+    }
+    else {
+      $lookup[$string] = $nids;
+    }
+    if (!$lookup[$string]) {
+      unset($lookup[$string]);
+    }
+  }
+  foreach ($lookup as $string => $nids_array) {
+    $all_lookup += $nids_array;
+  }
+
+  // Group manager has all privileges (if variable is TRUE).
+  if ($all_lookup && !empty($account->uid) && variable_get('og_group_manager_full_access', TRUE)) {
+    $authored = db_query('SELECT nid FROM {node} WHERE nid in :nids AND uid = :uid', array('nids' => $all_lookup, ':uid' => $account->uid))->fetchCol();
+    foreach ($authored as $nid) {
+      foreach ($strings as $string) {
+        $access[$account->uid][$string][$nid] = TRUE;
+        unset($lookup[$string][$nid]);
+        unset($all_lookup[$nid]);
+      }
+    }
+  }
+
+  if ($all_lookup && !empty($account->uid)) {
+    // Add administer group as first permission checked (as most likely).
+    if (!$ignore_admin) {
+      array_unshift($strings, 'administer group');
+    }
+
+    /**
+     * The query needed is quite complex for regular oa access.
+     *
+     * The rid in og_users_roles can either be associated with no group if
+     * the roles have not been overriden or with the group if they have.
+     *
+     * The rid can either be associated with the user or the 'member' role
+     * which is added automatically.
+     *
+     * Below is a sample query.
+     * @code
+     * SELECT om.gid, orp.permission
+     * FROM og_role_permission orp
+     * INNER JOIN og_role oro ON oro.rid = orp.rid
+     * INNER JOIN og_membership om ON om.group_type = 'node' AND oro.group_type = 'node' AND om.entity_type='user'
+     * INNER JOIN node n ON n.nid = om.gid
+     * INNER JOIN field_data_og_roles_permissions fdp on fdp.entity_type = 'node' AND fdp.entity_id = om.gid
+     * LEFT JOIN og_users_roles our ON our.rid = oro.rid AND our.uid = om.etid AND our.group_type = "node" AND our.gid = om.gid
+     * WHERE om.etid = 159 
+     *   AND (oro.gid = om.gid OR (fdp.og_roles_permissions_value = 0 and oro.gid = 0 AND oro.group_bundle = n.type)) 
+     *   AND (our.uid = 159 OR oro.name = 'member')
+     *   AND om.state = 1 AND om.gid IN (139);
+     * @endcode
+     *
+     * @todo BUNDLE DAMMIT
+     */
+    $query = db_select('og_role_permission', 'orp');
+    $query->innerJoin('og_role', 'oro', 'oro.rid = orp.rid');
+    $query->innerJoin('og_membership', 'om', "om.group_type = 'node' AND oro.group_type = 'node' AND om.entity_type='user'");
+    $query->innerJoin('node', 'n', "n.nid = om.gid");
+    $query->innerJoin('field_data_og_roles_permissions', 'fdp', "fdp.entity_type = 'node' AND fdp.entity_id = om.gid");
+    $query->leftJoin('og_users_roles', 'our', "our.rid = oro.rid AND our.uid = om.etid AND our.group_type = 'node' AND our.gid = om.gid");
+    $query->fields('om', array('gid'));
+    $query->fields('orp', array('permission'));
+    $query->condition('om.etid', $account->uid);
+    $and = db_and()
+      ->condition('fdp.og_roles_permissions_value', 0)
+      ->condition('oro.gid', 0)
+      ->where('n.type = oro.group_bundle');
+    $or = db_or()
+      ->where('oro.gid = om.gid')
+      ->condition($and);
+    $query->condition($or);
+    $or = db_or()
+      ->condition('our.uid', $account->uid)
+      ->condition('oro.name', 'member');;
+    $query->condition($or);
+    $query->condition('orp.permission', $strings);
+    $query->condition('state', OG_STATE_ACTIVE);
+    $query->condition('om.gid', $all_lookup);
+    $result = $query->execute();
+    $rows = $result->fetchAll();
+    foreach ($rows as $row) {
+      $access[$account->uid][$row->permission][$row->gid] = TRUE;
+      unset($lookup[$row->permission][$row->gid]);
+    }
+  }
+  // Check parent access.
+  // This needs further optomization.
+  if ($lookup && !$skip_alter && in_array('og_subgroups', module_implements('og_user_access_alter'))) {
+    $user_groups = og_subgroup_user_groups_load($account, FALSE);
+    foreach ($lookup as $string => $nids_array) {
+      foreach ($nids_array as $nid) {
+        if (oa_og_subgroups_check_access($string, $group_type, $nid, $user_groups, TRUE)) {
+          $access[$account->uid][$string][$nid] = TRUE;
+          unset($lookup[$string][$nid]);
+        }
+      }
+    }
+  }
+  
+  // Any extra NID is no access.
+  foreach ($lookup as $string => $nids_array) {
+    foreach ($nids_array as $nid) {
+      // This should not be set, but just in case only set to false if not.
+      if (!isset($access[$account->uid][$string][$nid])) {
+        $access[$account->uid][$string][$nid] = FALSE;
+      }
+    }
+  }
+
+  // Figure out if user has any access.
+  $return = array();
+  $remaining_nids = $nids;
+  do {
+    $string = array_shift($strings);
+    if (!empty($access[$account->uid][$string])) {
+      $return += array_filter(array_intersect_key($access[$account->uid][$string], $remaining_nids));
+    }
+    $remaining_nids = array_diff_key($nids, $return);
+  } while ($remaining_nids && $strings);
+  // If no strings left, there are no access.
+  if ($remaining_nids) {
+    foreach ($remaining_nids as $nid) {
+      $return[$nid] = FALSE;
+    }
+  }
+
+  // Need to return array as combination of strings.
+  return $return;
+}
+
+/**
+ * Check access for this group's parents.
+ *
+ * Copy of _og_subgroups_check_access but using our functions for optomization.
+ *
+ * @see _og_subgroups_check_access().
+ */
+function oa_og_subgroups_check_access($string, $group_type, $id, $user_groups, $check_member_access = FALSE) {
+  // Check only one level at a time due to permission inheritance field.
+  if ($parent_groups = og_subgroups_intersect_groups(og_subgroups_parents_load($group_type, $id, TRUE, FALSE), $user_groups)) {
+    foreach ($parent_groups as $parent_group_type => $ids) {
+      // Find all groups that ahve inheritence set to child (assume inherit
+      // [default] otherwise).
+      $child_inheritence = _og_subgroups_get_field_matching($parent_group_type, $ids, OG_USER_INHERITANCE_PERMISSION_FIELD, OG_USER_INHERITANCE_PERMISSION_CHILD);
+      $parent_inheritence = array_diff($ids, $child_inheritence);
+      if ($parent_inheritence = array_diff($ids, $child_inheritence)) {
+        if (array_filter(oa_user_access_nids($parent_group_type, $parent_inheritence, $string, NULL, TRUE))) {
+          return TRUE;
+        }
+      }
+      if ($check_member_access) {
+        foreach ($child_inheritence as $parent_group_id) {
+          if (og_subgroups_check_member_user_access($group_type, $id, $string)) {
+            return TRUE;
+          }
+        }
+      }
+      // Check parents if neither current nor member gave access.
+      foreach ($parent_inheritence as $parent_group_id) {
+        if (oa_og_subgroups_check_access($string, $parent_group_type, $parent_group_id, $user_groups)) {
+          return TRUE;
+        }
+      }
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Replacement for og_user_access.
+ *
+ * Because we don't use the alter hook, we don't need to do the full entity load
+ * so often checking via direct query (if node is unlikely to have been loaded)
+ * is faster.
+ *
+ * @see og_user_access
+ */
+function oa_user_access($group_type, $gid, $string, $account = NULL, $skip_alter = FALSE, $ignore_admin = FALSE) {
+  $access = oa_user_access_nids($group_type, array($gid), $string, $account, $skip_alter, $ignore_admin);
+  return reset($access);
+}
+

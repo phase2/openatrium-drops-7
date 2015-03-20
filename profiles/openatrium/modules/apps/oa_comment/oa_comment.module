@@ -1,0 +1,32 @@
+<?php
+/**
+ * @file
+ * Code for the oa Comment feature.
+ */
+
+
+/**
+ * Implements hook_oa_settings_form().
+ */
+function oa_comment_oa_settings_form(&$form_state) {
+  $forms = array();
+
+  $form = array();
+  foreach (node_type_get_names() as $machine_name => $name) {
+    $default = variable_get('comment_' . $machine_name, COMMENT_NODE_OPEN);
+    $form['comment_' . $machine_name] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Enable comments: @name', array('@name' => $name)),
+        // _HIDDEN is 0 so can be used as false, but may be set to _CLOSED (1) 
+      '#default_value' => in_array($default, array(COMMENT_NODE_OPEN, COMMENT_NODE_HIDDEN)) ? $default : COMMENT_NODE_HIDDEN,
+      '#return_value' => COMMENT_NODE_OPEN,
+    );
+  }
+
+  $forms[] = array(
+    'caption' =>t('Comments'),
+    'form' => $form,
+  );
+
+  return $forms;
+}

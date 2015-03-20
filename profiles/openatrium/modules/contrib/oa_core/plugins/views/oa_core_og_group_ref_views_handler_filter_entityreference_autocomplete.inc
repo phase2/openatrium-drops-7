@@ -10,7 +10,8 @@ class oa_core_og_group_ref_views_handler_filter_entityreference_autocomplete ext
     parent::init($view, $options);
     $exposed = $this->view->get_exposed_input();
     if (!empty($this->options['expose']['identifier']))
-      $id = $this->options['expose']['identifier'];
+      $options_exposed = array_filter($this->options['expose']);
+      $id = empty($options_exposed['identifier']) ? 'og_group_ref' : $options_exposed['identifier'];
       if (empty($this->options['expose']['oa_core_no_auto'])) {
         if (isset($exposed[$id]) && (empty($exposed[$id]) || $exposed[$id] == OA_SPACE_CURRENT)) {
           if ($group = oa_core_get_space_context()) {

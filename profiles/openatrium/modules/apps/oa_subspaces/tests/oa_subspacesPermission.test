@@ -31,6 +31,9 @@ class oa_subspacesPermission extends oa_coreBaseWebTest {
     $this->assertTrue(og_user_access('node', $space->nid, 'create oa_discussion_post content', $space_member), t('Member has access to do permissions in main space.'));
     $this->assertTrue(og_user_access('node', $child->nid, 'create oa_discussion_post content', $space_member), t('Member has access to do permissions in child space.'));
     $this->assertFalse(og_user_access('node', $not_child->nid, 'create oa_discussion_post content', $space_member), t('Member does not have access to do permissions in not-child space.'));
+    $this->assertTrue(oa_user_access('node', $space->nid, 'create oa_discussion_post content', $space_member), t('Member has access to do permissions in main space.'));
+    $this->assertTrue(oa_user_access('node', $child->nid, 'create oa_discussion_post content', $space_member), t('Member has access to do permissions in child space.'));
+    $this->assertFalse(oa_user_access('node', $not_child->nid, 'create oa_discussion_post content', $space_member), t('Member does not have access to do permissions in not-child space.'));
 
     $this->drupalLogin($space_member);
     $edit = array(

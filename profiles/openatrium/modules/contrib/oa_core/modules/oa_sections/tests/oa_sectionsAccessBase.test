@@ -35,6 +35,7 @@ abstract class oa_sectionsAccessBase extends oa_coreBaseWebTest {
     if ($team_for_section) {
       $section_space_team_only = $this->createNodeInOaSpace($test_space, array('type' => 'oa_section', 'field_oa_team_ref' => array(LANGUAGE_NONE => array(array('target_id' => $team_for_section->nid)))));
     }
+    drupal_static_reset('node_access_grants');
 
     // Test access to public section.
     $this->oaTestOaSectionAccessToSection($text, 'member', 'public', $test_space, $section_public, $space_member, TRUE);

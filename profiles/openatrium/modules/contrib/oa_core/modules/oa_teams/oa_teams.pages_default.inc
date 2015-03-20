@@ -224,6 +224,30 @@ function oa_teams_default_page_manager_handlers() {
     $display->content['new-1e56eca0-2242-4579-b89e-a0a3c313f5d7'] = $pane;
     $display->panels['sidebar'][3] = 'new-1e56eca0-2242-4579-b89e-a0a3c313f5d7';
     $pane = new stdClass();
+    $pane->pid = 'new-e7ebc128-a2c3-4af7-8a5f-ae7f35333878';
+    $pane->panel = 'sidebar';
+    $pane->type = 'node_form_comment';
+    $pane->subtype = 'node_form_comment';
+    $pane->shown = TRUE;
+    $pane->access = array();
+    $pane->configuration = array(
+      'context' => 'argument_node_edit_1',
+      'override_title' => 0,
+      'override_title_text' => '',
+      'override_title_heading' => 'h2',
+    );
+    $pane->cache = array();
+    $pane->style = array(
+      'settings' => NULL,
+    );
+    $pane->css = array();
+    $pane->extras = array();
+    $pane->position = 4;
+    $pane->locks = array();
+    $pane->uuid = 'e7ebc128-a2c3-4af7-8a5f-ae7f35333878';
+    $display->content['new-e7ebc128-a2c3-4af7-8a5f-ae7f35333878'] = $pane;
+    $display->panels['sidebar'][4] = 'new-e7ebc128-a2c3-4af7-8a5f-ae7f35333878';
+    $pane = new stdClass();
     $pane->pid = 'new-8a6b9e1b-838a-4f2f-996a-43540bcf78ff';
     $pane->panel = 'sidebar';
     $pane->type = 'node_form_buttons';
@@ -241,11 +265,11 @@ function oa_teams_default_page_manager_handlers() {
     );
     $pane->css = array();
     $pane->extras = array();
-    $pane->position = 4;
+    $pane->position = 5;
     $pane->locks = array();
     $pane->uuid = '8a6b9e1b-838a-4f2f-996a-43540bcf78ff';
     $display->content['new-8a6b9e1b-838a-4f2f-996a-43540bcf78ff'] = $pane;
-    $display->panels['sidebar'][4] = 'new-8a6b9e1b-838a-4f2f-996a-43540bcf78ff';
+    $display->panels['sidebar'][5] = 'new-8a6b9e1b-838a-4f2f-996a-43540bcf78ff';
   $display->hide_title = PANELS_TITLE_FIXED;
   $display->title_pane = '0';
   $handler->conf['display'] = $display;

@@ -59,9 +59,13 @@ class OaGroupsSelectionHandler implements EntityReference_SelectionHandler {
     $include_space = $settings['include_space'];
     $all_groups = oa_core_get_all_groups();
     $group_options = array_map(create_function('$group', 'return $group->title;'), $all_groups);
-    if ($include_space) {
-      $space_id = oa_core_get_space_context();
-      if (!empty($space_id)) {
+    if ($space_id = oa_core_get_space_context()) {
+      // Bring current group to front.
+      if (!empty($group_options[$space_id])) {
+        $group_options = array($space_id => t('!name (current)', array('!name' => $group_options[$space_id]))) + $group_options;
+      }
+      // Include current space if configured.
+      elseif ($include_space) {
         $group_options = array($space_id => t('- All space members -')) + $group_options;
       }
     }

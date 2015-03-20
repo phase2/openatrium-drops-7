@@ -1079,12 +1079,12 @@ function panels_export_display($display, $prefix = '') {
         $title_pid = $pid;
       }
       $pane->pid = $pid;
-      $output .= ctools_export_object('panels_pane', $pane, $prefix . '  ');
-      $output .= "$prefix  " . '$display->content[\'' . $pane->pid . '\'] = $pane' . ";\n";
+      $output .= ctools_export_object('panels_pane', $pane, $prefix);
+      $output .= $prefix . '$display->content[\'' . $pane->pid . '\'] = $pane' . ";\n";
       if (!isset($region_counters[$pane->panel])) {
         $region_counters[$pane->panel] = 0;
       }
-      $output .= "$prefix  " . '$display->panels[\'' . $pane->panel . '\'][' . $region_counters[$pane->panel]++ .'] = \'' . $pane->pid . "';\n";
+      $output .= $prefix . '$display->panels[\'' . $pane->panel . '\'][' . $region_counters[$pane->panel]++ .'] = \'' . $pane->pid . "';\n";
     }
   }
   $output .= $prefix . '$display->hide_title = ';

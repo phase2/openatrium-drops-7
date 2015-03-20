@@ -82,6 +82,11 @@ projects[oa_contextual_tabs][subdir] = apps
 projects[oa_contextual_tabs][download][type] = git
 projects[oa_contextual_tabs][download][branch] = 7.x-2.x
 
+projects[oa_comment][version] = 2.x-dev
+projects[oa_comment][subdir] = apps
+projects[oa_comment][download][type] = git
+projects[oa_comment][download][branch] = 7.x-2.x
+
 projects[oa_devel][version] = 2.x-dev
 projects[oa_devel][subdir] = apps
 projects[oa_devel][download][type] = git

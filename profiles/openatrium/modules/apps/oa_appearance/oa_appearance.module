@@ -251,13 +251,12 @@ function oa_appearance_edit_form_submit($form, &$form_state) {
 
   // Clear our colorizer instance cache.
   $nid = $form['#entity_id'];
-  cache_clear_all("oa_appearance:colorizer:{$nid}", "cache");
-
-  // Clear the colorizer instance cache for all child spaces as well.
   if (module_exists("oa_subspaces")) {
-    foreach (oa_subspaces_get_children_groups("node", $nid) as $child_nid) {
-      cache_clear_all("oa_appearance:colorizer:{$child_nid}", "cache");
-    }
+    // Clear the colorizer instance cache for all child spaces as well.
+    cache_clear_all("oa_appearance:colorizer", "cache");
+  }
+  else {
+    cache_clear_all("oa_appearance:colorizer:{$nid}", "cache");
   }
 }
 
@@ -280,13 +279,13 @@ function oa_appearance_oa_clone_group_metadata($node, $original_nid) {
 function oa_appearance_node_update($node) {
   if ($node->type == 'oa_space') {
     // Clear our banner settings cache.
-    cache_clear_all("oa_appearance:banner:{$node->nid}:", "cache", TRUE);
-
-    // Clear the banner settings cache for all child spaces as well.
     if (module_exists("oa_subspaces")) {
-      foreach (oa_subspaces_get_children_groups("node", $node->nid) as $child_nid) {
-        cache_clear_all("oa_appearance:banner:{$child_nid}:", "cache", TRUE);
-      }
+      // Clear the banner settings cache for all child spaces as well.
+      // Don't suffer the performance of looping through all children, just clear the whole cache
+      cache_clear_all("oa_appearance:banner", "cache", TRUE);
+    }
+    else {
+      cache_clear_all("oa_appearance:banner:{$node->nid}:", "cache", TRUE);
     }
   }
 }

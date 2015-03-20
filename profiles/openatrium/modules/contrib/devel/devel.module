@@ -2093,3 +2093,23 @@ function devel_form_system_modules_alter(&$form, &$form_state) {
     }
   }
 }
+
+/**
+ * Implements hook_query_TAG_alter().
+ *
+ * Makes debugging EntityFieldQuery much easier.
+ *
+ * Example usage:
+ *   $q = new EntityFieldQuery;
+ *   $q->entityCondition('entity_type', 'node')
+ *     ->addTag('debug')
+ *     ->execute();
+ *
+ * @param QueryAlterableInterface $query
+ */
+function devel_query_debug_alter(QueryAlterableInterface $query) {
+  if (!$query->hasTag('debug-semaphore')) {
+    $query->addTag('debug-semaphore');
+    dpq($query);
+  }
+}

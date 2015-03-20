@@ -34,6 +34,7 @@ projects[panopoly_widgets][download][branch] = 7.x-1.x
 projects[panopoly_admin][subdir] = panopoly
 projects[panopoly_admin][download][type] = git
 projects[panopoly_admin][download][branch] = 7.x-1.x
+projects[panopoly_admin][patch][2449855] = https://www.drupal.org/files/issues/2449855-panopoly_admin-breakpoints-1.patch
 
 projects[panopoly_users][subdir] = panopoly
 projects[panopoly_users][download][type] = git

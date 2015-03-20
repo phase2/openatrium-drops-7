@@ -1,4 +1,8 @@
-Panopoly Magic 7.x-1.18, 2015-02-26
+Panopoly Magic 7.x-1.19, 2015-03-18 ---------------------------- - User profile:
+  Unable to chage image field style formatter options because they don't get
+  saved. - Panopoly Magic abuses FPP revisions. - Audit Behat code for slowness
+  and optimize. - Panopoly Magic update generates warning when FPP not
+  installed. - Allow live preview to work with WYSIWYG.Panopoly Magic 7.x-1.18, 2015-02-26
 ----------------------------
 - Upgrade causes fieldable panels panes Titles to appear twice.
 - Hide 'preview' and 'diff_standard' view modes when adding FPPs.

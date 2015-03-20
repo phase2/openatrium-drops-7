@@ -411,6 +411,10 @@ function oa_files_create_document($file, $title, $gid = NULL, $sid = NULL) {
       }
     }
 
+    if (module_exists('workbench_moderation')) {
+      $node->workbench_moderation_state_new = variable_get('workbench_moderation_default_state_' . $node->type, workbench_moderation_state_none());
+    }
+
     node_save($node);
     drupal_set_message(t('Document <a href="@url">@title</a> created.', array('@title' => $node->title, '@url' => url('node/' . $node->nid))));
   }
@@ -519,7 +523,7 @@ function oa_files_find_document($file, $gid = NULL, $sid = NULL) {
         $db_uri_before_underscore = substr($db_uri_sans_ext, 0, $pos);
         $db_uri_after_underscore = substr($db_uri_sans_ext, strrpos($db_uri_sans_ext, '_') + 1);
       }
-      if (!$db_uri_after_underscore || !is_numeric($db_uri_after_underscore)) {
+      if (($db_uri_after_underscore !== '0' && !$db_uri_after_underscore) || !is_numeric($db_uri_after_underscore)) {
         $db_uri_before_underscore = $db_uri_sans_ext;
         $db_uri_after_underscore = FALSE;
       }

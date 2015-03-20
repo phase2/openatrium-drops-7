@@ -410,24 +410,6 @@ function fieldable_panels_panes_admin_menu_map() {
   $info = entity_get_info('fieldable_panels_pane');
   foreach ($info['bundles'] as $bundle_name => $bundle_info) {
     $bundles[] = strtr($bundle_name, '_', '-');
-
-    // Add mapping for the individual fields if the Field UI module is enabled.
-    if (module_exists('field_ui')) {
-      if (isset($bundle_info['admin'])) {
-        $admin_path = $bundle_info['admin']['path'];
-        $fields = array();
-
-        foreach (field_info_instances('fieldable_panels_pane', $bundle_name) as $field) {
-          $fields[] = $field['field_name'];
-        }
-
-        $map["$admin_path/fields/%field_ui_menu"]['parent'] = "$admin_path/fields";
-        $map["$admin_path/fields/%field_ui_menu"]['arguments'][] = array(
-          '%fieldable_panels_panes_type' => array($bundle_name),
-          '%field_ui_menu' => $fields,
-        );
-      }
-    }
   }
 
   $map['admin/structure/fieldable-panels-panes/manage/%fieldable_panels_panes_type'] = array(
@@ -437,8 +419,47 @@ function fieldable_panels_panes_admin_menu_map() {
     ),
   );
 
-
   return $map;
+}
+
+/**
+ * Implements hook_admin_menu_map_alter().
+ *
+ * Add mapping for the individual fields if the Field UI module is enabled,
+ * and the mappings are not already added by field_ui_admin_menu_map().
+ */
+function fieldable_panels_panes_admin_menu_map_alter(array &$map) {
+  if (!module_exists('field_ui')) {
+    return;
+  }
+
+  $bundles = array();
+  $info = entity_get_info('fieldable_panels_pane');
+  foreach ($info['bundles'] as $bundle_name => $bundle_info) {
+    if (isset($bundle_info['admin'])) {
+      $admin_path = $bundle_info['admin']['path'];
+
+      // Fields mapping may already be supported by field_ui_admin_menu_map()
+      // so only add it if it doesn't exist.
+      if (isset($map["$admin_path/fields/%field_ui_menu"])) {
+        continue;
+      }
+
+      $fields = array();
+
+      foreach (field_info_instances('fieldable_panels_pane', $bundle_name) as $field) {
+        $fields[] = $field['field_name'];
+      }
+
+      if (!empty($fields)) {
+        $map["$admin_path/fields/%field_ui_menu"]['parent'] = "$admin_path/fields";
+        $map["$admin_path/fields/%field_ui_menu"]['arguments'][] = array(
+          '%fieldable_panels_panes_type' => array($bundle_name),
+          '%field_ui_menu' => $fields,
+        );
+      }
+    }
+  }
 }
 
 /**
@@ -669,7 +690,8 @@ function template_preprocess_fieldable_panels_pane(&$vars) {
  */
 function fieldable_panels_panes_preprocess_panels_pane(&$vars) {
   if ($vars['pane']->type == 'fieldable_panels_pane') {
-    if ($entity = fieldable_panels_panes_load_entity($vars['pane']->subtype)) {
+    if (!empty($vars['content']['#fieldable_panels_pane'])) {
+      $entity = $vars['content']['#fieldable_panels_pane'];
       if ($entity->link && !empty($vars['title'])) {
         $vars['title'] = l($vars['title'], $entity->path);
       }

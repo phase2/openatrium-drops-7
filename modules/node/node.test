@@ -2261,6 +2261,7 @@ class NodeQueryAlter extends DrupalWebTestCase {
     // Test that the noAccessUser still doesn't have the 'view'
     // privilege after adding the node_access record.
     drupal_static_reset('node_access_view_all_nodes');
+    drupal_static_reset('node_access_grants');
     try {
       $query = db_select('node', 'mytab')
         ->fields('mytab');
@@ -2283,6 +2284,7 @@ class NodeQueryAlter extends DrupalWebTestCase {
     $this->drupalLogin($this->noAccessUser2);
     variable_set('node_test_node_access_all_uid', $this->noAccessUser->uid);
     drupal_static_reset('node_access_view_all_nodes');
+    drupal_static_reset('node_access_grants');
     try {
       $query = db_select('node', 'mytab')
         ->fields('mytab');

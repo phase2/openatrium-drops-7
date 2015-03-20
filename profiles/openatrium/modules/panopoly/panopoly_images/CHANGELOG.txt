@@ -1,4 +1,5 @@
-Panopoly Images 7.x-1.18, 2015-02-26
+Panopoly Images 7.x-1.19, 2015-03-18 ----------------------------- - Relabeled
+  view modes baffles.Panopoly Images 7.x-1.18, 2015-02-26
 -----------------------------
 - Panopoly CSS causes issues with WYSIWYG image because of image style class names.
 

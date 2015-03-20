@@ -35,7 +35,6 @@ class MediaVimeoStreamWrapper extends MediaReadOnlyStreamWrapper {
     }
     else {
       throw new Exception("Error Processing Request. (Error: {$response->code}, {$response->error})");
-      return;
     }
   }
 
@@ -46,15 +45,25 @@ class MediaVimeoStreamWrapper extends MediaReadOnlyStreamWrapper {
     $local_path = 'public://media-vimeo/' . check_plain($parts['v']) . '.jpg';
 
     if (!file_exists($local_path)) {
-      $dirname = drupal_dirname($local_path);
-      file_prepare_directory($dirname, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS);
-      $response = drupal_http_request($this->getOriginalThumbnailPath());
+      // getOriginalThumbnailPath throws exception when oEmbed returns error.
+      try {
+        $dirname = drupal_dirname($local_path);
+        file_prepare_directory($dirname, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS);
+        $response = drupal_http_request($this->getOriginalThumbnailPath());
 
-      if (!isset($response->error)) {
-        file_unmanaged_save_data($response->data, $local_path, TRUE);
+        if (!isset($response->error)) {
+          file_unmanaged_save_data($response->data, $local_path, TRUE);
+        }
+        else {
+          @copy($this->getOriginalThumbnailPath(), $local_path);
+        }
       }
-      else {
-        @copy($this->getOriginalThumbnailPath(), $local_path);
+      catch (Exception $e) {
+        // In the event of an endpoint error, use the mime type icon provided
+        // by the Media module.
+
+        $icon_dir = variable_get('media_icon_base_directory', 'public://media-icons') . '/' . variable_get('media_icon_set', 'default');
+        $local_path = file_icon_path($this->getMimeType($this->uri), $icon_dir);
       }
     }
 

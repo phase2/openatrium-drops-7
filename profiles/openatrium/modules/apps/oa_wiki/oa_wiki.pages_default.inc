@@ -270,6 +270,30 @@ function oa_wiki_default_page_manager_handlers() {
     $display->content['new-9393082c-61cd-4cc5-801f-bfe809fcbd43'] = $pane;
     $display->panels['sidebar'][5] = 'new-9393082c-61cd-4cc5-801f-bfe809fcbd43';
     $pane = new stdClass();
+    $pane->pid = 'new-82008dc7-eac3-4985-92d9-0cc6e48cc729';
+    $pane->panel = 'sidebar';
+    $pane->type = 'node_form_comment';
+    $pane->subtype = 'node_form_comment';
+    $pane->shown = TRUE;
+    $pane->access = array();
+    $pane->configuration = array(
+      'context' => 'argument_node_edit_1',
+      'override_title' => 0,
+      'override_title_text' => '',
+      'override_title_heading' => 'h2',
+    );
+    $pane->cache = array();
+    $pane->style = array(
+      'settings' => NULL,
+    );
+    $pane->css = array();
+    $pane->extras = array();
+    $pane->position = 6;
+    $pane->locks = array();
+    $pane->uuid = '82008dc7-eac3-4985-92d9-0cc6e48cc729';
+    $display->content['new-82008dc7-eac3-4985-92d9-0cc6e48cc729'] = $pane;
+    $display->panels['sidebar'][6] = 'new-82008dc7-eac3-4985-92d9-0cc6e48cc729';
+    $pane = new stdClass();
     $pane->pid = 'new-250cd2f8-caf7-437c-9177-3babe6738d57';
     $pane->panel = 'sidebar';
     $pane->type = 'node_form_buttons';
@@ -287,11 +311,11 @@ function oa_wiki_default_page_manager_handlers() {
     );
     $pane->css = array();
     $pane->extras = array();
-    $pane->position = 6;
+    $pane->position = 7;
     $pane->locks = array();
     $pane->uuid = '250cd2f8-caf7-437c-9177-3babe6738d57';
     $display->content['new-250cd2f8-caf7-437c-9177-3babe6738d57'] = $pane;
-    $display->panels['sidebar'][6] = 'new-250cd2f8-caf7-437c-9177-3babe6738d57';
+    $display->panels['sidebar'][7] = 'new-250cd2f8-caf7-437c-9177-3babe6738d57';
   $display->hide_title = PANELS_TITLE_FIXED;
   $display->title_pane = '0';
   $handler->conf['display'] = $display;

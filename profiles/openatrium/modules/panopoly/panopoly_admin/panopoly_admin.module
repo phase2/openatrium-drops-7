@@ -148,6 +148,7 @@ function panopoly_admin_form_alter(&$form, &$form_state, $form_id) {
 
   // Improve the title field
   if (isset($form['title']['#title'])) {
+    $form['title']['#title_display'] = 'invisible';
     $form['title']['#attributes']['placeholder'] = $form['title']['#title'];
   }
 
@@ -166,10 +167,11 @@ function panopoly_admin_form_alter(&$form, &$form_state, $form_id) {
       $form['#submit'][] = 'panopoly_admin_pathauto_submit';
     }
   }
-  
-  // Add clearfix to node body container to prevent clearing issue with
-  // vertical tabs - @see https://drupal.org/node/1686500
+
   if (isset($form['#entity_type']) && $form['#entity_type'] == 'node' && isset($form['body']['#type']) && $form['body']['#type'] == 'container') {
+    $form['body']['und'][0]['#title_display'] = 'invisible';
+    // Add clearfix to node body container to prevent clearing issue with
+    // vertical tabs - @see https://drupal.org/node/1686500
     $form['body']['#attributes']['class'][] = 'clearfix';
   }
 
@@ -197,11 +199,13 @@ function panopoly_admin_form_alter(&$form, &$form_state, $form_id) {
 
   // Remove the description from the featured image
   if (!empty($form['field_featured_image'])) {
-    $form['field_featured_image']['und'][0]['#description'] = '';
+    $form['field_featured_image']['und'][0]['#title_display'] = 'invisible';
   }
 
-  // Hide the featured category field if there are no featured category options
   if (!empty($form['field_featured_categories']) && $form['field_featured_categories']['und']['#type'] != 'textfield') {
+    $form['field_featured_categories']['und']['#title_display'] = 'invisible';
+
+    // Hide the featured category field if there are no featured category options
     if (count($form['field_featured_categories']['und']['#options']) == 0 || (!empty($form['field_featured_categories']['und']['#options']['_none']) && count($form['field_featured_categories']['und']['#options']) == 1)) {
       $form['field_featured_categories']['#access'] = FALSE;
     }

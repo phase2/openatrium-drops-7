@@ -21,7 +21,7 @@
     <?php if (!empty($parent_label)): ?>
       <?php if (empty($sibling_list) && empty($parent_list)): ?>
       <li class="btn-group oa-breadcrumb">
-        <a href="<?php print $parent_url; ?>" class="btn <?php print $oa_toolbar_btn_class; ?>"><?php print $parent_label; ?></a>
+        <a href="<?php print $parent_url; ?>" class="btn <?php print $oa_toolbar_btn_class; ?>" id="oa-breadcrumb-parent-link"><?php print $parent_label; ?></a>
       </li>
       <?php else: ?>
       <li class="btn-group oa-breadcrumb dropdown">
