@@ -33,14 +33,8 @@ function oa_tour_pane_render($subtype, $conf, $args, $context = NULL) {
     $vars['oa_toolbar_btn_class'] = variable_get('oa_toolbar_style', 0) ? '' : ' btn-inverse';
     $items = array();
     foreach ($tours as $tour) {
-      if (!empty($tour->roles)) {
-        global $user;
-        $tour_roles = explode(',', $tour->roles);
-        $user_roles = array_keys($user->roles);
-        $compare = array_intersect($tour_roles, $user_roles);
-        if (empty($compare)) {
-          continue;
-        }
+      if (!bootstrap_tour_access($tour)) {
+        continue;
       }
       if (!empty($tour->spaces)) {
         $tour_spaces = explode(',', $tour->spaces);
@@ -49,12 +43,9 @@ function oa_tour_pane_render($subtype, $conf, $args, $context = NULL) {
           continue;
         }
       }
-      if (!empty($tour->steps) && !is_array($tour->steps)) {
-        $tour->steps = unserialize($tour->steps);
-      }
       drupal_alter('bootstrap_tour', $tour);
-      if (!empty($tour->steps[0]['path'])) {
-        $first_path = $tour->steps[0]['path'];
+      if (($first_path = $tour->start_path)
+        || (!empty($tour->steps[0]->path) && ($first_path = $tour->steps[0]->path))) {
         $url = drupal_parse_url($first_path);
         if (empty($url['query']['tour'])) {
           $url['query']['tour'] = $tour->name;

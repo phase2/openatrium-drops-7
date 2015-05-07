@@ -29,12 +29,13 @@ projects[date_ical][version] = 3.x-dev
 projects[date_ical][subdir] = contrib
 projects[date_ical][download][type] = git
 projects[date_ical][download][branch] = 7.x-3.x
-projects[date_ical][download][revision] = 7afb13
+projects[date_ical][download][revision] = 83719a
 projects[date_ical][patch][2206109] = http://drupal.org/files/issues/date_ical-irule-array-2206109-6.patch
 
 ; GeoPHP
 projects[geophp][version] = 1.7
 projects[geophp][subdir] = contrib
+projects[geophp][patch][2144775] = https://www.drupal.org/files/issues/absolute-path_0.patch
 
 ; GeoField
 projects[geofield][version] = 2.1

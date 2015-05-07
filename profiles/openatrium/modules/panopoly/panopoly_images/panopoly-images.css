@@ -1,7 +1,15 @@
 /**
  * Default image styling
  */
-img {
+img.panopoly-image-full,
+img.panopoly-image-half,
+img.panopoly-image-quarter,
+img.panopoly-image-featured,
+img.panopoly-image-thumbnail
+img.panopoly-image-square,
+img.panopoly-image-original,
+img.panopoly-image-spotlight,
+img.panopoly-image-video {
   max-width: 100%;
   height: auto;
   vertical-align: bottom;
@@ -35,6 +43,35 @@ img.panopoly-image-quarter {
   margin-right: .5em;
   margin-bottom: .25em;
   margin-top: .25em;
+}
+
+.caption.panopoly-image-half {
+  max-width: 50%;
+  float: left;
+}
+
+.caption.panopoly-image-quarter {
+  max-width: 25%;
+}
+
+/* Only remove float if we have successfully added the image style class to the
+ * caption or if we're in the editor.
+ */
+.caption.panopoly-image-half img.panopoly-image-half,
+.caption.panopoly-image-quarter img.panopoly-image-quarter,
+.caption.mceTemp img.panopoly-image-half,
+.caption.mceTemp img.panopoly-image-quarter {
+  max-width: 100%;
+  width: 100%;
+  float: none;
+}
+
+/* If we're in the editor, though, we need to use width:auto otherwise it will
+ * keep resizing on us.
+ */
+.caption.mceTemp img.panopoly-image-half,
+.caption.mceTemp img.panopoly-image-quarter {
+  width: auto;
 }
 
 img.panopoly-image-featured {

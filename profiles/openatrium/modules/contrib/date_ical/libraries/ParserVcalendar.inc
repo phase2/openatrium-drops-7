@@ -17,10 +17,32 @@ class ParserVcalendar {
   protected $xtimezone;
   
   /**
+   * The parsed data for the component that's currently being processed.
+   *
+   * ParserVcalendar parses one component at a time. This array is stored as a
+   * property so that each handler can tell what work the previous handlers
+   * have already completed on the current component.
+   *
+   * @var array
+   */
+  protected $parsed_data = array();
+  
+  /**
    * Variables used for batch processing.
    */
   protected $totalComponents = 0;
   protected $lastComponentParsed = 0;
+  
+  /**
+   * This is the list of iCal properties which are allowed to have more than
+   * one entry in a single VEVENT. If we ever support parsing more than just
+   * the first one, this listing will be useful.
+   */
+  protected $multi_entry_properties = array(
+    'ATTACH', 'ATTENDEE', 'CATEGORIES', 'COMMENT', 'CONTACT', 'DESCRIPTION',
+    'EXDATE', 'EXRULE', 'FREEBUSY', 'RDATE', 'RELATED-TO', 'RESOURCES',
+    'RRULE', 'REQUEST-STATUS', 'TZNAME', 'X-PROP'
+  );
   
   /**
    * Constructor.
@@ -28,10 +50,11 @@ class ParserVcalendar {
   public function __construct($calendar, $source, $fetcher_result, $config) {
     $this->calendar = $calendar;
     $this->source = $source;
+    $this->mapping_sources = feeds_importer($source->id)->parser->getMappingSources();
     $this->fetcherResult = $fetcher_result;
     $this->config = $config;
   }
-
+  
   /**
    * Parses the vcalendar object into an array of event data arrays.
    *
@@ -42,8 +65,7 @@ class ParserVcalendar {
    *   Specifies how many components to parse on this run.
    *
    * @return array
-   *   An array of parsed event data keyed by the same strings as the array
-   *   returned by DateiCalFeedsParser::getiCalMappingSources().
+   *   An array of parsed event data keyed by our mapping source property keys.
    */
   public function parse($offset, $limit) {
     // Sometimes, the feed will set a timezone for every event in the calendar
@@ -69,7 +91,7 @@ class ParserVcalendar {
       $this->timezones[] = $component;
     }
     
-    // This content array is used by date_ical_import_component_alter() and
+    // This context array is used by date_ical_import_component_alter() and
     // date_ical_import_parsed_data_alter().
     $context2 = array(
       'calendar' => $this->calendar,
@@ -95,19 +117,58 @@ class ParserVcalendar {
     // Parse each raw component in the current batch into a Feeds-compatible
     // event data array.
     $events = array();
-    $sources = DateiCalFeedsParser::getiCalMappingSources();
     $batch = array_slice($raw_components, $offset, $limit, TRUE);
     foreach ($batch as $ndx => $raw_component) {
-      $parsed_component = array();
-      foreach ($sources as $property_key => $data) {
-        $handler = $data['date_ical_parse_handler'];
-        $parsed_component[$property_key] = $this->$handler($property_key, $raw_component);
+      $this->parsed_data = array();
+      foreach ($this->mapping_sources as $property_key => $data) {
+        $handler = NULL;
+        if (isset($data['date_ical_parse_handler'])) {
+          $handler = $data['date_ical_parse_handler'];
+        }
+        else {
+          // This is not one of our sources, so if we don't recognize and
+          // support it, we'll have to pass a warning to the user.
+          if ($property_key == 'geofield') {
+            $handler = 'parseGeofield';
+          }
+          else {
+            // We can safely ignore certain sources.
+            $known_unknowns = array(
+              'Blank source 1', // "Black Source 1" is from Feeds Tamper.
+              'parent:nid', // Defined in FeedsParser
+              'parent:uid', // Defined in FeedsParser
+            );
+            if (!in_array($property_key, $known_unknowns)) {
+              // Only warn the user if this mapping source is in use.
+              foreach ($this->source->importer->processor->config['mappings'] as $mapping) {
+                if ($mapping['source'] == $property_key) {
+                  drupal_set_message(t('Date iCal does not recognize the "@name" Mapping Source, and must skip it.', array('@name' => $data['name'])), 'warning', FALSE);
+                  break;
+                }
+              }
+            }
+          }
+        }
+        if ($handler) {
+          $this->parsed_data[$property_key] = $this->$handler($property_key, $raw_component);
+        }
+        
+        if ($property_key == 'geofield' && !empty($this->parsed_data['geofield'])) {
+          // To make our data readable by geofield_feeds_combined_source(), we
+          // need to put it into the format output by Simplepie 1.3.
+          $this->parsed_data['location_latitude'] = array($this->parsed_data['geofield']['lat']);
+          $this->parsed_data['location_longitude'] = array($this->parsed_data['geofield']['lon']);
+        }
       }
+      
       // Allow modules to alter the final parsed data before we send it to the
       // Feeds processor.
-      drupal_alter('date_ical_import_post_parse', $parsed_component, $context2);
+      drupal_alter('date_ical_import_post_parse', $this->parsed_data, $context2);
       
-      $events[] = $parsed_component;
+      // Skip this event if it's earlier than the user's specified skip time.
+      if (!$this->_skip_current_event()) {
+        $events[] = $this->parsed_data;
+      }
       // The indices of the original $raw_components array are preserved in
       // $batch, so using the $ndx value here lets us communicate our progress
       // through the full collection of components.
@@ -132,13 +193,37 @@ class ParserVcalendar {
   }
   
   /**
-   * Parses text fields.
+   * Handler that parses GEO fields.
+   *
+   * @return array
+   *   The latitude and longitude values, keyed by 'lat' and 'lon'.
+   */
+  public function parseGeofield($property_key, $vcalendar_component) {
+    $geo = array();
+    if (!empty($vcalendar_component->geo['value'])) {
+      $geo['lat'] = $vcalendar_component->geo['value']['latitude'];
+      $geo['lon'] = $vcalendar_component->geo['value']['longitude'];
+    }
+    return $geo;
+  }
+  
+  /**
+   * Handler that parses text fields.
    *
    * @return string
    *   The parsed text property.
    */
   public function parseTextProperty($property_key, $vcalendar_component) {
     $text = $vcalendar_component->getProperty($property_key);
+    // In case someone writes a hook that adds a source for a multi-entry
+    // property and a parameter of that same property, we need to force
+    // iCalcreator to assume it has not accessed that property, yet.
+    // TODO: This is really just a hack. If/when multi-entry properties
+    // become supported, this will need to be redesigned.
+    if (in_array($property_key, $this->multi_entry_properties)) {
+      unset($vcalendar_component->propix[$property_key]);
+    }
+    
     if ($text === FALSE) {
       if ($property_key == 'SUMMARY') {
         $uid = $vcalendar_component->getProperty('UID');
@@ -151,9 +236,9 @@ class ParserVcalendar {
     $text = str_replace(array('\n', '\N'), "\n", $text);
     return $text;
   }
-
+  
   /**
-   * Parses field parameters.
+   * Handler that parses field parameters.
    *
    * @return string
    *   The parsed field parameter.
@@ -161,15 +246,21 @@ class ParserVcalendar {
   public function parsePropertyParameter($property_key, $vcalendar_component) {
     list($key, $attr) = explode(':', $property_key);
     $property = $vcalendar_component->getProperty($key, FALSE, TRUE);
+    // See parseTextProperty() for why this is here.
+    if (in_array($property_key, $this->multi_entry_properties)) {
+      unset($vcalendar_component->propix[$property_key]);
+    }
+        
     if ($property === FALSE) {
       // If the component doesn't have this property, return NULL.
       return NULL;
     }
-    return isset($property['params'][$attr]) ? $property['params'][$attr] : '';
+    $param = isset($property['params'][$attr]) ? $property['params'][$attr] : '';
+    return $param;
   }
-
+  
   /**
-   * Parses DATE-TIME and DATE fields.
+   * Handler that parses DATE-TIME and DATE fields.
    *
    * @return FeedsDateTime
    *   The parsed datetime object.
@@ -206,7 +297,7 @@ class ParserVcalendar {
           // If this is an all-day event with no end or duration, treat this
           // as a single-day event by emulating DTEND as 1 day after DTSTART.
           $property = $dtstart;
-          $property['value']['day'] = $dtstart['value']['day'] + 1;
+          $property['value'] = iCalUtilityFunctions::_duration2date($property['value'], array('day' => 1));
         }
         else {
           // This event has no end date.
@@ -246,7 +337,7 @@ class ParserVcalendar {
           $property['value'] = $prev_day;
         }
       }
-
+      
       // FeedsDateTime->setTimezone() ignores timezone changes made to dates
       // with no time element, which means we can't compensate for the Date
       // module's automatic timezone conversion when it writes to the DB. To
@@ -297,12 +388,13 @@ class ParserVcalendar {
         $datetimezone = new DateTimeZone(date_default_timezone_get());
       }
     }
-
-    return new FeedsDateTime($date_string, $datetimezone);
+    
+    $datetime = new FeedsDateTime($date_string, $datetimezone);
+    return $datetime;
   }
-
+  
   /**
-   * Parses multi-value fields, like the CATEGORIES component.
+   * Handler that parses multi-value fields, like the CATEGORIES component.
    *
    * @return array
    *   An array of strings contaning the individual values.
@@ -323,26 +415,29 @@ class ParserVcalendar {
     }
     return $property;
   }
-
+  
   /**
-   * Format RRULEs, which specify when and how often the event is repeated.
+   * Handler that parses RRULE, RDATE, EXRULE, and EXDATE together.
    *
    * @return string
-   *   An RRULE string, with EXDATE and RDATE values separated by \n.
-   *   This is to make the RRULE compatible with date_repeat_split_rrule().
+   *   The RRULE, RDATE, EXRULE, and EXDATE values concatinated with |.
    */
   public function parseRepeatProperty($property_key, $vcalendar_component) {
     if ($vcalendar_component->getProperty($property_key) === FALSE) {
       return NULL;
     }
-
+    
+    $uid = $vcalendar_component->getProperty('UID');
+    $count = $this->config['indefinite_count'];
     // Due to a few bugs and limitations with Date Repeat, we need to massage
     // the RRULE a bit.
     if (count($vcalendar_component->rrule) > 1) {
-      drupal_set_message(t('The event with UID %uid has multiple RRULEs, but the Date Repeat module only supports one. Only the first RRULE in the event will be used.<br>
-          If your events need to have a complex repeat pattern, using RDATEs should help.',
-        array('%uid' => $vcalendar_component->getProperty('UID'))), 'warning'
-      );
+      $msg = 'The event with UID %uid has multiple RRULEs, but the Date Repeat module only supports one. Only the first RRULE in the event will be used.
+        If your events need to have a complex repeat pattern, using RDATEs should help.';
+      watchdog('date_ical', $msg, array('%uid' => $uid), 'warning');
+      drupal_set_message('At least one of the events in this iCal feed has multiple RRULEs, but the Date Repeat module only supports one.
+        Only the first RRULE in an event will be used.', 'warning', FALSE);
+      
       // Date Repeat will get extremely confused if it's sent multiple RRULE
       // values, so we need to manually pare it down to only the first one.
       $vcalendar_component->rrule = array($vcalendar_component->rrule[0]);
@@ -352,23 +447,31 @@ class ParserVcalendar {
       if (!isset($rrule_data['value']['INTERVAL'])) {
         $rrule_data['value']['INTERVAL'] = '1';
       }
-
-      if (!isset($rrule_data['value']['COUNT']) && !isset($rrule_data['value']['UNTIL'])) {
-        drupal_set_message(t("The event with UID %uid has an indefinitely repeating RRULE, which the Date Repeat module doesn't support.<br>
-            As a workaround, Date iCal set the repeat count to @count. This value can be customized in the iCal parser settings.",
-          array('%uid' => $vcalendar_component->getProperty('UID'), '@count' => $this->config['indefinite_count'])), 'warning'
-        );
+      
+      if ((!isset($rrule_data['value']['COUNT']) && !isset($rrule_data['value']['UNTIL']))) {
+        $msg = "The event with UID %uid has an indefinitely repeating RRULE, which the Date Repeat module doesn't support.
+          As a workaround, Date iCal set the repeat count to @count. This value can be customized in the iCal parser settings.";
+        watchdog('date_ical', $msg, array('%uid' => $uid, '@count' => $count), WATCHDOG_WARNING);
+        if ($this->config['indefinite_message_display']) {
+          drupal_set_message(
+            t("At least one of the events in this iCal feed has an indefinitely repeating RRULE, which the Date Repeat module doesn't support.<br>
+              As a workaround, Date iCal set the repeat count to @count. This value can be customized in the iCal parser settings.",
+            array('@count' => $count)),
+            'warning',
+            FALSE
+          );
+        }
         $rrule_data['value']['COUNT'] = $this->config['indefinite_count'];
       }
     }
-
+    
     $rrule = trim($vcalendar_component->createRrule());
     $rdate = trim($vcalendar_component->createRdate());
     $exrule = trim($vcalendar_component->createExrule());
     $exdate = trim($vcalendar_component->createExdate());
     return "$rrule|$rdate|$exrule|$exdate";
   }
-
+  
   /**
    * Internal helper function for creating DateTimeZone objects.
    */
@@ -384,7 +487,7 @@ class ParserVcalendar {
       $windows_to_olson_map = array();
       foreach ($zones_assoc['supplemental']['windowsZones']['mapTimezones'] as $mapTimezone) {
         if ($mapTimezone['mapZone']['_other'] == $tzid) {
-          // $mapTimezone['mapZone']['_type'] is space-separated TZIDs.
+          // Parse out the space-separated TZIDs from $mapTimezone['mapZone']['_type'].
           $tzids = preg_split('/\s/', $mapTimezone['mapZone']['_type']);
           try {
             // They all have the same UTC offset, so for our purposes we can
@@ -411,5 +514,19 @@ class ParserVcalendar {
       $datetimezone = new DateTimeZone('UTC');
     }
     return $datetimezone;
+  }
+  
+  /**
+   * Internal helper function for skipping old events.
+   */
+  protected function _skip_current_event() {
+    // Must use !isset() here, because 0 and NULL mean different things.
+    if (!isset($this->config['skip_days'])) {
+      return FALSE;
+    }
+    $compare_date = isset($this->parsed_data['DTEND']) ? $this->parsed_data['DTEND'] : $this->parsed_data['DTSTART'];
+    $skip_date = new FeedsDateTime("today -{$this->config['skip_days']} days", $compare_date->getTimezone());
+    $skip = ($skip_date > $compare_date);
+    return $skip;
   }
 }

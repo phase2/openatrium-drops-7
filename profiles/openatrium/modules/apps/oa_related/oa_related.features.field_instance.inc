@@ -10,7 +10,8 @@
 function oa_related_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'paragraphs_item-paragraph_content-field_oa_content_layout'
+  // Exported field_instance:
+  // 'paragraphs_item-paragraph_content-field_oa_content_layout'
   $field_instances['paragraphs_item-paragraph_content-field_oa_content_layout'] = array(
     'bundle' => 'paragraph_content',
     'default_value' => array(
@@ -53,7 +54,8 @@ function oa_related_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'paragraphs_item-paragraph_content-field_oa_related_content'
+  // Exported field_instance:
+  // 'paragraphs_item-paragraph_content-field_oa_related_content'
   $field_instances['paragraphs_item-paragraph_content-field_oa_related_content'] = array(
     'bundle' => 'paragraph_content',
     'default_value' => NULL,
@@ -101,7 +103,8 @@ function oa_related_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'paragraphs_item-paragraph_media-field_image_alignment'
+  // Exported field_instance:
+  // 'paragraphs_item-paragraph_media-field_image_alignment'
   $field_instances['paragraphs_item-paragraph_media-field_image_alignment'] = array(
     'bundle' => 'paragraph_media',
     'default_value' => array(
@@ -231,7 +234,8 @@ function oa_related_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'paragraphs_item-paragraph_snippet-field_paragraph_layout'
+  // Exported field_instance:
+  // 'paragraphs_item-paragraph_snippet-field_paragraph_layout'
   $field_instances['paragraphs_item-paragraph_snippet-field_paragraph_layout'] = array(
     'bundle' => 'paragraph_snippet',
     'default_value' => NULL,
@@ -270,7 +274,8 @@ function oa_related_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'paragraphs_item-paragraph_snippet-field_paragraph_lock_revision'
+  // Exported field_instance:
+  // 'paragraphs_item-paragraph_snippet-field_paragraph_lock_revision'
   $field_instances['paragraphs_item-paragraph_snippet-field_paragraph_lock_revision'] = array(
     'bundle' => 'paragraph_snippet',
     'default_value' => array(
@@ -313,7 +318,8 @@ function oa_related_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'paragraphs_item-paragraph_snippet-field_snippet_content'
+  // Exported field_instance:
+  // 'paragraphs_item-paragraph_snippet-field_snippet_content'
   $field_instances['paragraphs_item-paragraph_snippet-field_snippet_content'] = array(
     'bundle' => 'paragraph_snippet',
     'default_value' => NULL,
@@ -364,7 +370,8 @@ function oa_related_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'paragraphs_item-paragraph_snippet-field_snippet_showtitle'
+  // Exported field_instance:
+  // 'paragraphs_item-paragraph_snippet-field_snippet_showtitle'
   $field_instances['paragraphs_item-paragraph_snippet-field_snippet_showtitle'] = array(
     'bundle' => 'paragraph_snippet',
     'default_value' => NULL,
@@ -403,7 +410,8 @@ function oa_related_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'paragraphs_item-paragraph_snippet-field_snippet_title_override'
+  // Exported field_instance:
+  // 'paragraphs_item-paragraph_snippet-field_snippet_title_override'
   $field_instances['paragraphs_item-paragraph_snippet-field_snippet_title_override'] = array(
     'bundle' => 'paragraph_snippet',
     'default_value' => NULL,
@@ -448,7 +456,8 @@ function oa_related_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'paragraphs_item-paragraph_snippet-field_snippet_viewmode'
+  // Exported field_instance:
+  // 'paragraphs_item-paragraph_snippet-field_snippet_viewmode'
   $field_instances['paragraphs_item-paragraph_snippet-field_snippet_viewmode'] = array(
     'bundle' => 'paragraph_snippet',
     'default_value' => array(
@@ -491,7 +500,8 @@ function oa_related_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'paragraphs_item-paragraph_text-field_paragraph_layout'
+  // Exported field_instance:
+  // 'paragraphs_item-paragraph_text-field_paragraph_layout'
   $field_instances['paragraphs_item-paragraph_text-field_paragraph_layout'] = array(
     'bundle' => 'paragraph_text',
     'default_value' => NULL,
@@ -530,7 +540,8 @@ function oa_related_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'paragraphs_item-paragraph_text-field_paragraph_text'
+  // Exported field_instance:
+  // 'paragraphs_item-paragraph_text-field_paragraph_text'
   $field_instances['paragraphs_item-paragraph_text-field_paragraph_text'] = array(
     'bundle' => 'paragraph_text',
     'default_value' => NULL,

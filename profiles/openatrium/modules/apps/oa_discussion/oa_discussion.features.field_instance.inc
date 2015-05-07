@@ -469,65 +469,6 @@ function oa_discussion_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-oa_discussion_post-oa_parent'
-  $field_instances['node-oa_discussion_post-oa_parent'] = array(
-    'bundle' => 'oa_discussion_post',
-    'default_value' => NULL,
-    'default_value_function' => '',
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'entityreference',
-        'settings' => array(
-          'link' => FALSE,
-        ),
-        'type' => 'entityreference_label',
-        'weight' => 3,
-      ),
-      'featured' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'oa_parent',
-    'label' => 'Parent',
-    'required' => 0,
-    'settings' => array(
-      'behaviors' => array(
-        'prepopulate' => array(
-          'status' => 0,
-        ),
-      ),
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'entityreference',
-      'settings' => array(
-        'match_operator' => 'CONTAINS',
-        'path' => '',
-        'references_dialog_add' => 0,
-        'references_dialog_edit' => 0,
-        'references_dialog_search' => 0,
-        'references_dialog_search_view' => '',
-        'size' => 60,
-      ),
-      'type' => 'entityreference_autocomplete',
-      'weight' => 1,
-    ),
-  );
-
   // Exported field_instance: 'node-oa_discussion_post-oa_section_ref'
   $field_instances['node-oa_discussion_post-oa_section_ref'] = array(
     'bundle' => 'oa_discussion_post',
@@ -559,7 +500,7 @@ function oa_discussion_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'oa_section_ref',
-    'label' => 'Open Atrium Section',
+    'label' => 'Section',
     'options_limit' => 1,
     'options_limit_empty_behaviour' => 1,
     'options_limit_fields' => array(
@@ -719,8 +660,6 @@ function oa_discussion_field_default_field_instances() {
   t('Groups audience');
   t('Node');
   t('OG vocabulary');
-  t('Open Atrium Section');
-  t('Parent');
   t('Section');
   t('Space');
 

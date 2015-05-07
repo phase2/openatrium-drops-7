@@ -44,6 +44,7 @@ function oa_core_views_default_views() {
   $handler->display->display_options['fields']['tid']['label'] = '';
   $handler->display->display_options['fields']['tid']['exclude'] = TRUE;
   $handler->display->display_options['fields']['tid']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['tid']['separator'] = '';
   /* Field: Taxonomy term: Name */
   $handler->display->display_options['fields']['name']['id'] = 'name';
   $handler->display->display_options['fields']['name']['table'] = 'taxonomy_term_data';
@@ -188,10 +189,6 @@ function oa_core_views_default_views() {
     3 => 0,
     4 => 0,
   );
-  /* Filter criterion: Open Atrium: Is Parent */
-  $handler->display->display_options['filters']['is_parent']['id'] = 'is_parent';
-  $handler->display->display_options['filters']['is_parent']['table'] = 'field_data_oa_parent';
-  $handler->display->display_options['filters']['is_parent']['field'] = 'is_parent';
   /* Filter criterion: Content: Type */
   $handler->display->display_options['filters']['type_1']['id'] = 'type_1';
   $handler->display->display_options['filters']['type_1']['table'] = 'node';
@@ -220,7 +217,7 @@ function oa_core_views_default_views() {
     4 => 0,
     6 => 0,
   );
-  /* Filter criterion: Content: Open Atrium Section (oa_section_ref:target_id) */
+  /* Filter criterion: Content: Section (oa_section_ref:target_id) */
   $handler->display->display_options['filters']['oa_section_ref_target_id']['id'] = 'oa_section_ref_target_id';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['table'] = 'field_data_oa_section_ref';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['field'] = 'oa_section_ref_target_id';
@@ -464,10 +461,6 @@ function oa_core_views_default_views() {
     3 => 0,
     4 => 0,
   );
-  /* Filter criterion: Open Atrium: Is Parent */
-  $handler->display->display_options['filters']['is_parent']['id'] = 'is_parent';
-  $handler->display->display_options['filters']['is_parent']['table'] = 'field_data_oa_parent';
-  $handler->display->display_options['filters']['is_parent']['field'] = 'is_parent';
   /* Filter criterion: Content: Type */
   $handler->display->display_options['filters']['type_1']['id'] = 'type_1';
   $handler->display->display_options['filters']['type_1']['table'] = 'node';
@@ -496,7 +489,7 @@ function oa_core_views_default_views() {
     4 => 0,
     6 => 0,
   );
-  /* Filter criterion: Content: Open Atrium Section (oa_section_ref:target_id) */
+  /* Filter criterion: Content: Section (oa_section_ref:target_id) */
   $handler->display->display_options['filters']['oa_section_ref_target_id']['id'] = 'oa_section_ref_target_id';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['table'] = 'field_data_oa_section_ref';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['field'] = 'oa_section_ref_target_id';
@@ -777,6 +770,13 @@ function oa_core_views_default_views() {
   $handler->display->display_options['fields']['name']['label'] = '';
   $handler->display->display_options['fields']['name']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['name']['link_to_user'] = FALSE;
+  /* Field: User: Display Name */
+  $handler->display->display_options['fields']['field_user_display_name']['id'] = 'field_user_display_name';
+  $handler->display->display_options['fields']['field_user_display_name']['table'] = 'field_data_field_user_display_name';
+  $handler->display->display_options['fields']['field_user_display_name']['field'] = 'field_user_display_name';
+  $handler->display->display_options['fields']['field_user_display_name']['label'] = '';
+  $handler->display->display_options['fields']['field_user_display_name']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_user_display_name']['element_label_colon'] = FALSE;
   /* Sort criterion: User: Name */
   $handler->display->display_options['sorts']['name']['id'] = 'name';
   $handler->display->display_options['sorts']['name']['table'] = 'users';
@@ -791,6 +791,19 @@ function oa_core_views_default_views() {
   $handler->display->display_options['arguments']['gid']['summary']['number_of_records'] = '0';
   $handler->display->display_options['arguments']['gid']['summary']['format'] = 'default_summary';
   $handler->display->display_options['arguments']['gid']['summary_options']['items_per_page'] = '25';
+  $handler->display->display_options['arguments']['gid']['oa_subspaces_expand'] = TRUE;
+  /* Contextual filter: OG membership: Group_type */
+  $handler->display->display_options['arguments']['group_type']['id'] = 'group_type';
+  $handler->display->display_options['arguments']['group_type']['table'] = 'og_membership';
+  $handler->display->display_options['arguments']['group_type']['field'] = 'group_type';
+  $handler->display->display_options['arguments']['group_type']['relationship'] = 'og_membership_rel';
+  $handler->display->display_options['arguments']['group_type']['default_action'] = 'default';
+  $handler->display->display_options['arguments']['group_type']['default_argument_type'] = 'fixed';
+  $handler->display->display_options['arguments']['group_type']['default_argument_options']['argument'] = 'node';
+  $handler->display->display_options['arguments']['group_type']['summary']['number_of_records'] = '0';
+  $handler->display->display_options['arguments']['group_type']['summary']['format'] = 'default_summary';
+  $handler->display->display_options['arguments']['group_type']['summary_options']['items_per_page'] = '25';
+  $handler->display->display_options['arguments']['group_type']['limit'] = '0';
   /* Filter criterion: User: Active */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'users';
@@ -814,6 +827,7 @@ function oa_core_views_default_views() {
   $handler->display->display_options['style_plugin'] = 'entityreference_style';
   $handler->display->display_options['style_options']['search_fields'] = array(
     'name' => 'name',
+    'field_user_display_name' => 'field_user_display_name',
   );
   $handler->display->display_options['defaults']['style_options'] = FALSE;
   $handler->display->display_options['defaults']['row_plugin'] = FALSE;

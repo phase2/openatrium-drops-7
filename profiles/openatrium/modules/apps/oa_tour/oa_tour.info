@@ -1,22 +1,25 @@
 name = Open Atrium Tour
 description = Open Atrium customizations for the Bootstrap Tour module
-package = Open Atrium
 core = 7.x
-php = 5.2.4
-
+package = Open Atrium
 dependencies[] = bootstrap_tour
 dependencies[] = ctools
-
+dependencies[] = entityreference
+dependencies[] = features
+dependencies[] = select2widget
 apps[screenshots][] = app/screenshot.png
 apps[logo] = app/logo.png
 apps[author] = Phase2 Technology
 apps[author_url] = http://www.phase2technology.com/
 apps[server] = openatrium
 apps[package] = Core addons
+features[features_api][] = api:2
+features[field_base][] = field_bootstrap_tour_spaces
+features[field_instance][] = bootstrap_tour-bootstrap_tour-field_bootstrap_tour_spaces
 
-; Information added by Drupal.org packaging script on 2015-02-11
-version = "7.x-2.0-rc3"
+; Information added by Drupal.org packaging script on 2015-05-04
+version = "7.x-2.1"
 core = "7.x"
 project = "oa_tour"
-datestamp = "1423679885"
+datestamp = "1430775784"
 

@@ -10,16 +10,17 @@ class oa_core_og_group_ref_views_handler_filter_in_operator extends views_handle
   function init(&$view, &$options) {
     parent::init($view, $options);
     $exposed = $this->view->get_exposed_input();
-    if (!empty($this->options['expose']['identifier']))
-      $id = $this->options['expose']['identifier'];
-      if (empty($this->options['expose']['oa_core_no_auto'])) {
-        if (isset($exposed[$id]) && empty($exposed[$id])) {
-          if ($group = oa_core_get_space_context()) {
-            $exposed[$id] = $group;
-          } else {
-            unset($exposed[$id]);
-          }
+    $exposed_options = !empty($this->options['expose']) ? $this->options['expose'] : array();
+    $id = !empty($exposed_options['identifier']) ?  $exposed_options['identifier'] : 'og_group_ref';
+    if (empty($this->options['expose']['oa_core_no_auto'])) {
+      if (isset($exposed[$id]) && empty($exposed[$id])) {
+        if ($group = oa_core_get_space_context()) {
+          $exposed[$id] = $group;
         }
+        else {
+          unset($exposed[$id]);
+        }
+      }
       // Pane doesn't allow unrelated exposed input, so bring it back.
       if (!empty($_GET[$id . '_mine'])) {
         $exposed[$id . '_mine'] = 1;
@@ -37,7 +38,8 @@ class oa_core_og_group_ref_views_handler_filter_in_operator extends views_handle
         if ($groups && ($gids = array_intersect_key($groups, $this->get_value_options()))) {
           $exposed[$id] = $gids;
           $this->options['expose']['multiple'] = TRUE;
-        } else {
+        }
+        else {
           // If restricting to My Spaces but the user has no spaces, fail the build
           $this->fail_build = TRUE;
         }

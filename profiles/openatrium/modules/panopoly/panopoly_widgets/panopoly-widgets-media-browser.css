@@ -1,0 +1,23 @@
+/**
+ * @file
+ * Styles for the media browser.
+ */
+
+/**
+ * Fix weirdness with the tabs when combining the CSS from Seven, the jQuery UI
+ * theme from panopoly_core and the current theme.
+ *
+ * @see https://www.drupal.org/node/2458747
+ */
+#media-tabs-wrapper .ui-tabs-nav li,
+#media-tabs-wrapper .ui-tabs-nav li.ui-tabs-selected {
+  border: 0;
+  background: transparent;
+}
+#media-tabs-wrapper .ui-tabs-nav li.ui-tabs-selected a:link,
+#media-tabs-wrapper .ui-tabs-nav li.ui-tabs-selected a:visited {
+  background: white;
+}
+#media-tabs-wrapper .ui-tabs-nav li.ui-tabs-selected a:hover {
+  color: inherit;
+}

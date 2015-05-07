@@ -22,10 +22,9 @@ function oa_mailhandler_form_system_site_information_settings_alter(&$form, &$fo
   $form['site_information']['mailcomment_mailbox'] = array(
     '#type' => 'textfield',
     '#title' => t('Mailbox E-mail address'),
-    '#description' => t("The email address that corresponds with the !mailbox that you've setup to ingest email replies for !comments and !discussions. Like the site email address, this email address should use this site's domain to avoid being filtered as spam.", array(
+    '#description' => t("The email address that corresponds with the !mailbox that you've setup to ingest email replies for !comments. Like the site email address, this email address should use this site's domain to avoid being filtered as spam.", array(
       '!mailbox' => l(t('mailbox'), 'admin/structure/mailhandler'),
       '!comments' => l(t('comments'), 'import/comment_reply_email_importer'),
-      '!discussions' => l(t('discussions'), 'import/discussion_reply_email_importer'),
     )),
     '#default_value' => variable_get('mailcomment_mailbox', ''),
   );
@@ -51,13 +50,7 @@ function oa_mailhandler_mail_alter(&$message) {
   }
 
   // Return early if this user doesn't have permission to reply to this message.
-  if ($node->type == 'oa_discussion_post') {
-    $space_nid = oa_core_get_group_from_node($node->nid);
-    if (!og_user_access('node', $space_nid, 'write oa_discussion_reply to discussion post', $recipient)) {
-      return;
-    }
-  }
-  elseif ($node->comment != COMMENT_NODE_OPEN || !user_access('post comments', $recipient)) {
+  if ($node->comment != COMMENT_NODE_OPEN || !user_access('post comments', $recipient) || !node_access('view', $node)) {
     return;
   }
 
@@ -102,9 +95,7 @@ function oa_mailhandler_mail_alter(&$message) {
   $message['headers']['Message-ID'] = mailcomment_build_messageid($messageid_params);
 
   // Add the security token to the subject (verified by OaMailParser)
-  $token_node = ($node->type == 'oa_discussion_post' && !empty($node->oa_parent['und'][0]['target_id']))
-    ? node_load($node->oa_parent['und'][0]['target_id']) : $node;
-  $message['subject'] .= ' ' . oa_mailhandler_generate_security_token($token_node);
+  $message['subject'] .= ' ' . oa_mailhandler_generate_security_token($node);
 
   // Set the reply-to header to the mailbox, rather than the site_mail if set.
   $reply = variable_get('mailcomment_mailbox', variable_get('site_mail', ini_get('sendmail_from')));

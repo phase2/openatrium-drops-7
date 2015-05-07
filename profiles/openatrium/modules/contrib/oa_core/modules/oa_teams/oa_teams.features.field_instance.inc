@@ -64,7 +64,8 @@ function oa_teams_field_default_field_instances() {
   // Exported field_instance: 'node-oa_team-field_oa_team_users'
   $field_instances['node-oa_team-field_oa_team_users'] = array(
     'bundle' => 'oa_team',
-    'default_value' => NULL,
+    'comment_alter' => 0,
+    'default_value' => array(),
     'deleted' => 0,
     'description' => 'Select the members of the space that are a member of this team.',
     'display' => array(
@@ -93,17 +94,25 @@ function oa_teams_field_default_field_instances() {
     'entity_type' => 'node',
     'field_name' => 'field_oa_team_users',
     'label' => 'Members',
+    'options_limit' => FALSE,
+    'options_limit_empty_behaviour' => 0,
+    'options_limit_fields' => array(),
     'required' => 0,
     'settings' => array(
       'user_register_form' => FALSE,
     ),
     'widget' => array(
       'active' => 1,
-      'module' => 'options',
+      'module' => 'select2widget',
       'settings' => array(
-        'apply_chosen' => 0,
+        'select2widgetajax' => array(
+          'match_operator' => 'CONTAINS',
+          'min_char' => 1,
+          'view_mode' => 'select2widget_labels',
+          'width' => '',
+        ),
       ),
-      'type' => 'options_select',
+      'type' => 'select2widgetajax',
       'weight' => 2,
     ),
   );

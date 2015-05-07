@@ -67,9 +67,9 @@ if [ $DEV_BUILD -eq 1 ]; then
   # now get the latest profile distro
   # now build the dev version
   cd "$TARGET"
-  MAKEFILE='scripts/oa-drush5-dev.make'
+  MAKEFILE='scripts/oa-drush-dev.make'
   if [ $PANOPOLY_DEV -eq 1 ]; then
-    MAKEFILE='scripts/oa-drush5-panopoly-dev.make'
+    MAKEFILE='scripts/oa-drush-panopoly-dev.make'
   fi
   echo "Building the profile -dev version..."
   # Patch to add github remotes instead of drupal.

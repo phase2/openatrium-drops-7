@@ -543,7 +543,7 @@ function references_dialog_close_on_submit() {
 function references_dialog_views_api() {
   return array(
     'api' => 3,
-    'path' => drupal_get_path('module', 'reference_dialog') . '/views',
+    'path' => drupal_get_path('module', 'references_dialog') . '/views',
   );
 }
 

@@ -62,11 +62,10 @@ function oa_related_views_default_views() {
     'link' => 0,
   );
   $handler->display->display_options['fields']['og_group_ref']['group_column'] = 'target_id';
-  /* Field: Content: Open Atrium Section */
+  /* Field: Content: Section */
   $handler->display->display_options['fields']['oa_section_ref']['id'] = 'oa_section_ref';
   $handler->display->display_options['fields']['oa_section_ref']['table'] = 'field_data_oa_section_ref';
   $handler->display->display_options['fields']['oa_section_ref']['field'] = 'oa_section_ref';
-  $handler->display->display_options['fields']['oa_section_ref']['label'] = 'Section';
   $handler->display->display_options['fields']['oa_section_ref']['click_sort_column'] = 'target_id';
   $handler->display->display_options['fields']['oa_section_ref']['settings'] = array(
     'link' => 0,
@@ -123,7 +122,7 @@ function oa_related_views_default_views() {
     3 => 0,
     4 => 0,
   );
-  /* Filter criterion: Content: Open Atrium Section (oa_section_ref:target_id) */
+  /* Filter criterion: Content: Section (oa_section_ref:target_id) */
   $handler->display->display_options['filters']['oa_section_ref_target_id']['id'] = 'oa_section_ref_target_id';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['table'] = 'field_data_oa_section_ref';
   $handler->display->display_options['filters']['oa_section_ref_target_id']['field'] = 'oa_section_ref_target_id';

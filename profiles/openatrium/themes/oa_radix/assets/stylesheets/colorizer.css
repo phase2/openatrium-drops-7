@@ -42,34 +42,45 @@ a:active {
 .navbar-inner,
 .navbar-inner .panel-panel,
 .navbar-inverse .navbar-inner {
-background-color: @bottom;
-background-image: -moz-linear-gradient(top, @top, @bottom);
-background-image: -webkit-gradient(linear, 0 0, 0 100%, from(@top), to(@bottom));
-background-image: -webkit-linear-gradient(top, @top, @bottom);
-background-image: -o-linear-gradient(top, @top, @bottom);
-background-image: linear-gradient(to bottom, @top, @bottom);
-border: none;
-box-shadow: none;
-color: @titleslogan;
+  background-color: @bottom;
+  background-image: -moz-linear-gradient(top, @top, @bottom);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(@top), to(@bottom));
+  background-image: -webkit-linear-gradient(top, @top, @bottom);
+  background-image: -o-linear-gradient(top, @top, @bottom);
+  background-image: linear-gradient(to bottom, @top, @bottom);
+  border: none;
+  box-shadow: none;
+  color: @titleslogan;
 }
 .navbar-inner .btn,
 .navbar-inverse .btn.btn-inverse,
 .btn-group > .btn .dropdown-toggle,
 #oa-user-badge .user-badge {
-background-color: @toolbarbtn;
-background-image: -moz-linear-gradient(top, @bottom, @toolbarbtn);
-background-image: -webkit-gradient(linear, 0 0, 0 100%, from(@bottom), to(@toolbarbtn));
-background-image: -webkit-linear-gradient(top, @bottom, @toolbarbtn);
-background-image: -o-linear-gradient(top, @bottom, @toolbarbtn);
-background-image: linear-gradient(to bottom, @bottom, @toolbarbtn);
-box-shadow: none;
-border-color: @toolbarborder;
-color: @toolbartext;
+  background-color: @toolbarbtn;
+  background-image: -moz-linear-gradient(top, @bottom, @toolbarbtn);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(@bottom), to(@toolbarbtn));
+  background-image: -webkit-linear-gradient(top, @bottom, @toolbarbtn);
+  background-image: -o-linear-gradient(top, @bottom, @toolbarbtn);
+  background-image: linear-gradient(to bottom, @bottom, @toolbarbtn);
+  box-shadow: none;
+  border-color: @toolbarborder;
+  color: @toolbartext;
 }
 .oa-space-menu .navbar-inner {
   background-image: none;
   background-color: @menubg;
   color: @menutext;
+}
+.navbar .oa-space-menu .nav li.first {
+  margin-left: 2px;
+}
+.navbar .oa-space-menu .nav li.active {
+  background: @menutabs;
+  border-top-left-radius: .75em;
+  border-top-right-radius: .75em;
+}
+.navbar .oa-space-menu .nav li.active a {
+  color: @menuttabsactivetext;
 }
 .navbar .oa-space-menu .nav li > a {
   color: @menutext;
@@ -102,9 +113,9 @@ ul#oa_breadcrumb a.dropdown-toggle.btn.btn-inverse,
 }
 .navbar-inverse ul#oa_breadcrumb .btn.btn-inverse .caret,
 .navbar-inner .caret {
-border-top: 6px solid @toolbartext;
-border-right: 6px solid transparent;
-border-left: 6px solid transparent;
+  border-top: 6px solid @toolbartext;
+  border-right: 6px solid transparent;
+  border-left: 6px solid transparent;
 }
 #oa-navbar-admin li a {
   color: @toolbartext;
@@ -143,37 +154,37 @@ body #footer a {
   color: @titleslogan;
 }
 .oa-pane .pane-title {
-color: @sidebarheadertext;
-background-color: @sidebar;
-background-image: -moz-linear-gradient(top, @sidebartopbg, @sidebarbottombg);
-background-image: -webkit-gradient(linear, 0 0, 0 100%, from(@sidebartopbg), to(@sidebarbottombg));
-background-image: -webkit-linear-gradient(top, @sidebartopbg, @sidebarbottombg);
-background-image: -o-linear-gradient(top, @sidebartopbg, @sidebarbottombg);
-background-image: linear-gradient(to bottom, @sidebartopbg, @sidebarbottombg);
+  color: @sidebarheadertext;
+  background-color: @sidebar;
+  background-image: -moz-linear-gradient(top, @sidebartopbg, @sidebarbottombg);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(@sidebartopbg), to(@sidebarbottombg));
+  background-image: -webkit-linear-gradient(top, @sidebartopbg, @sidebarbottombg);
+  background-image: -o-linear-gradient(top, @sidebartopbg, @sidebarbottombg);
+  background-image: linear-gradient(to bottom, @sidebartopbg, @sidebarbottombg);
 }
 .oa-pane .panel-pane,
 .oa-callout {
-color: @sidebartext;
-background-color: @sidebar;
-border-color: @sidebarborders;
+  color: @sidebartext;
+  background-color: @sidebar;
+  border-color: @sidebarborders;
 }
 .oa-pane {
-border-color: @sidebarborders;
+  border-color: @sidebarborders;
 }
 #oa-navbar .panel-panel .pane-oa-navigation,
 #oa-navbar .panel-panel .pane-oa-mobile,
 #oa-navbar .panel-panel .pane-oa-space-banner {
-background-color: @headerbg;
+  background-color: @headerbg;
 }
 #oa-navbar .panel-panel .pane-oa-navigation .dropdown-menu,
 #oa-navbar .panel-panel .pane-oa-mobile .dropdown-menu {
-background-color: @headerbg;
+  background-color: @headerbg;
 }
 
 #oa-navbar .panel-panel .pane-oa-navigation li > a,
 #oa-navbar .panel-panel .pane-oa-mobile li > a,
 #oa-navbar .panel-panel .pane-oa-space-banner li > a {
-color: @titleslogan;
+  color: @titleslogan;
 }
 
 #oa-navbar-spaces ul.dropdown-menu .item-list h3 {

@@ -6,20 +6,6 @@
  */
 
 /**
- * Implements hook_features_api().
- */
-function paragraphs_features_api() {
-  return array(
-    'paragraphs' => array(
-      'name' => t('Paragraphs Bundles'),
-      'feature_source' => TRUE,
-      'default_hook' => 'paragraphs_info',
-      'file' => drupal_get_path('module', 'paragraphs') . '/paragraphs.features.inc',
-    ),
-  );
-}
-
-/**
  * Implements hook_features_export_options().
  */
 function paragraphs_features_export_options() {

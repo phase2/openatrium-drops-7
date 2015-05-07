@@ -56,6 +56,9 @@ function oa_core_og_group_ref_process($element, &$form_state, &$complete_form) {
       '#field' => $field,
       '#field_parents' => array(),
     ) + $element;
+    if (!empty($element['#multiple'])) {
+      $element['#field']['cardinality'] = FIELD_CARDINALITY_UNLIMITED;
+    }
     $element['#settings']['select2widgetajax']['width'] = '300px';
     $element['#settings']['select2widgetajax']['min_char'] = 0;
     $form_state['field'][$element['#field_name']][$element['#language']]['field'] = $field;
@@ -82,7 +85,7 @@ function oa_core_og_group_ref_process($element, &$form_state, &$complete_form) {
  * Due to how panes work, the form_state isn't preserved so we add this in here.
  */
 function oa_core_exposed_og_group_ref_fix_cardinality($element, &$form_state, $form) {
-  $cardinality = $form_state['field'][$element['#field_name']][$element['#language']]['field'] = $element['#field'];
+  $form_state['field'][$element['#field_name']][$element['#language']]['field'] = $element['#field'];
   return $element;
 }
 
@@ -94,8 +97,16 @@ function oa_core_select2widget_entity_validate_field(&$element, &$form_state, $f
   if (!empty($element['#convert_empty_to_current']) && empty($element['#value'])) {
     $element['#value'] = OA_SPACE_CURRENT;
   }
+  if (empty($element['#oa_core_in_pane_config'])) {
+    $element['#value'] = str_replace(OA_SPACE_CURRENT, oa_core_get_space_context(), $element['#value']);
+    $element['#value'] = str_replace(_oa_core_select2widget_current_label(), oa_core_get_space_context(), $element['#value']);
+  }
   $entity_labels = _oa_core_select2widget_process_entity_labels($element['#value']);
   $element['#attached']['js'][0]['data']['select2widgetajax']['elements'][$element['#id']]['init'] = $entity_labels;
+  if (!empty($element['#oa_core_select2_set_value']) && $entity_labels && isset($form_state['values'])) {
+    $value = array_keys($entity_labels);
+    form_set_value($element, current($value), $form_state);
+  }
 }
 
 /**
@@ -123,7 +134,7 @@ function _oa_core_select2widget_process_entity_labels($value) {
     elseif ($target_entity == 'All') {
       $entity_labels['All'] = _oa_core_select2widget_all_label();
     }
-    elseif ($target_entity == OA_SPACE_CURRENT) {
+    elseif ($target_entity == OA_SPACE_CURRENT || $target_entity = _oa_core_select2widget_current_label()) {
       $entity_labels[OA_SPACE_CURRENT] = _oa_core_select2widget_current_label();
     }
   }

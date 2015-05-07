@@ -225,6 +225,7 @@
 
 .oa-files-wide .oa-file {
   top: 7px;
+  width: auto;
 }
 
 .oa-files-wide .oa-files-leaf {

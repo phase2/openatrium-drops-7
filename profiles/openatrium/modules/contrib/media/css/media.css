@@ -92,6 +92,11 @@
   padding: 5px 10px;
 }
 
+.media-thumbnail > span.file {
+  display: block;
+  overflow: hidden;
+}
+
 /* Media item lists */
 
 #media-browser-library-list {

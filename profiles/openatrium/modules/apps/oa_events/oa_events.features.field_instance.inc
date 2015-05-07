@@ -488,7 +488,7 @@ http://www.whitehouse.gov/',
     ),
     'entity_type' => 'node',
     'field_name' => 'oa_section_ref',
-    'label' => 'Open Atrium Section',
+    'label' => 'Section',
     'options_limit' => 1,
     'options_limit_empty_behaviour' => 1,
     'options_limit_fields' => array(
@@ -686,7 +686,7 @@ http://www.whitehouse.gov/',
 Washington, DC 20500
 http://www.whitehouse.gov/');
   t('OG vocabulary');
-  t('Open Atrium Section');
+  t('Section');
   t('Select a list of additional Spaces that this piece of content should be visible in. This <em>doesn\'t</em> affect access control - users in the other Spaces must have access to see this content in it\'s main Space for it to be visible to them at all.');
   t('Visible in other Spaces');
 

@@ -36,6 +36,12 @@ function oa_core_views_data_alter(&$data) {
   if (isset($data['og_membership']['oa_parent_space_target_id']['filter']['handler'])) {
     $data['og_membership']['oa_parent_space_target_id']['filter']['handler'] = 'oa_core_og_group_ref_views_handler_filter_in_operator';
   }
+
+  // Add option to expand to parent GIDs.
+  if (isset($data['og_membership']['gid']) && module_exists('oa_subspaces')) {
+    $data['og_membership']['gid']['argument']['handler'] = 'oa_core_views_handler_argument_numeric_og_membership_gid';
+  }
+
   if (isset($data['field_data_oa_section_ref']['oa_section_ref_target_id']['filter']['handler'])) {
     $data['field_data_oa_section_ref']['oa_section_ref_target_id']['filter']['handler'] = 'oa_core_oa_section_ref_views_handler_filter_in_operator';
   }

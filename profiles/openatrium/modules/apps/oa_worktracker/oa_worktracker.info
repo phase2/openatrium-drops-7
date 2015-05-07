@@ -102,9 +102,9 @@ features_exclude[field_base][field_oa_worktracker_duedate] = field_oa_worktracke
 features_exclude[field_base][comment_body] = comment_body
 features_exclude[field_instance][node-oa_worktracker_task-field_oa_worktracker_duedate] = node-oa_worktracker_task-field_oa_worktracker_duedate
 
-; Information added by Drupal.org packaging script on 2015-01-21
-version = "7.x-2.0-rc1"
+; Information added by Drupal.org packaging script on 2015-05-05
+version = "7.x-2.0"
 core = "7.x"
 project = "oa_worktracker"
-datestamp = "1421875682"
+datestamp = "1430850788"
 

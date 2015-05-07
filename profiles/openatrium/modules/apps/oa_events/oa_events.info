@@ -73,13 +73,6 @@ features[page_manager_handlers][] = node_edit_panel_context_7
 features[panelizer_defaults][] = node:oa_event:default
 features[panelizer_defaults][] = node:oa_event:default:featured
 features[panelizer_defaults][] = node:oa_section:calendar_section
-features[variable][] = comment_anonymous_oa_event
-features[variable][] = comment_default_mode_oa_event
-features[variable][] = comment_default_per_page_oa_event
-features[variable][] = comment_form_location_oa_event
-features[variable][] = comment_oa_event
-features[variable][] = comment_preview_oa_event
-features[variable][] = comment_subject_field_oa_event
 features[variable][] = field_bundle_settings_message__oa_event_notification
 features[variable][] = field_bundle_settings_node__oa_event
 features[variable][] = menu_options_oa_event
@@ -99,10 +92,17 @@ features_exclude[dependencies][oa_events] = oa_events
 features_exclude[dependencies][og_vocab] = og_vocab
 features_exclude[variable][panelizer_node:oa_event_allowed_layouts] = panelizer_node:oa_event_allowed_layouts
 features_exclude[variable][panelizer_node:oa_section_allowed_layouts] = panelizer_node:oa_section_allowed_layouts
+features_exclude[variable][comment_anonymous_oa_event] = comment_anonymous_oa_event
+features_exclude[variable][comment_default_mode_oa_event] = comment_default_mode_oa_event
+features_exclude[variable][comment_default_per_page_oa_event] = comment_default_per_page_oa_event
+features_exclude[variable][comment_form_location_oa_event] = comment_form_location_oa_event
+features_exclude[variable][comment_oa_event] = comment_oa_event
+features_exclude[variable][comment_preview_oa_event] = comment_preview_oa_event
+features_exclude[variable][comment_subject_field_oa_event] = comment_subject_field_oa_event
 
-; Information added by Drupal.org packaging script on 2015-03-20
-version = "7.x-2.29"
+; Information added by Drupal.org packaging script on 2015-05-05
+version = "7.x-2.31"
 core = "7.x"
 project = "oa_events"
-datestamp = "1426873684"
+datestamp = "1430851702"
 

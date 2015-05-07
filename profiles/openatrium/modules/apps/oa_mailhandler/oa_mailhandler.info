@@ -22,14 +22,13 @@ features[ctools][] = feeds:feeds_importer_default:1
 features[ctools][] = strongarm:strongarm:1
 features[features_api][] = api:2
 features[feeds_importer][] = comment_reply_email_importer
-features[feeds_importer][] = discussion_reply_email_importer
 features[variable][] = mailcomment_import_filter_mode
 features[variable][] = mailcomment_insert_reply_text
 project path = profiles/openatrium/modules/features
 
-; Information added by Drupal.org packaging script on 2015-03-11
-version = "7.x-2.17"
+; Information added by Drupal.org packaging script on 2015-05-04
+version = "7.x-2.19"
 core = "7.x"
 project = "oa_mailhandler"
-datestamp = "1426104485"
+datestamp = "1430776396"
 

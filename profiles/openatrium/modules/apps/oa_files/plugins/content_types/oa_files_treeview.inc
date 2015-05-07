@@ -268,17 +268,39 @@ function oa_files_prepare_files_from_menu($tree, &$conf, $parent = 0) {
   $icon_directory = variable_get('file_icon_directory', drupal_get_path('module', 'file') . '/icons');
 
   $result = array();
+  $all_nids = array();
   foreach ($tree as $key => $item) {
-    $nid = 0;
+    $tree[$key]['nid'] = 0;
     if (preg_match('#node/(\d+)#', $item['link']['href'], $matches) !== FALSE) {
-      $nid = $matches[1];
+      $tree[$key]['nid'] = $matches[1];
     }
+    $all_nids[] = $tree[$key]['nid'];
+  }
+  $titles = $all_nids ? oa_core_get_titles($all_nids, '', 'title', array('title', 'created', 'changed'), TRUE, 0) : array();
+  $check_edit_access = !empty($conf['oa_files_action_edit']) && count($all_nids) < 20;
+  // Find if node is a folder.
+  $nids_are_folder = array();
+  if ($all_nids) {
+    $query = db_select('node', 'n');
+    $query->fields('n', array('nid'));
+    $query->condition('n.nid', $all_nids);
+    $query->addJoin('LEFT', 'field_data_field_oa_media', 'f', "n.nid = f.entity_id AND f.entity_type = 'node'");
+    $query->addJoin('LEFT', 'field_data_field_oa_wiki_page_no_redirect', 'fw', "n.nid = fw.entity_id AND fw.entity_type = 'node'");
+    $query->isNull('f.field_oa_media_fid');
+    $query->condition(
+      db_or()
+        ->condition('fw.field_oa_wiki_page_no_redirect_value', 0)
+        ->isNull('fw.field_oa_wiki_page_no_redirect_value')
+    );
+    $nids_are_folder = $query->execute()->fetchCol();
+  }
 
+  foreach ($tree as $key => $item) {
+    $nid = $item['nid'];
     // need to load the node to determine edit access
-    $full_node = node_load($nid);
     $body = '';
-    if (oa_files_showfield($conf, 'body')) {
-      $body = render(field_view_field('node', $full_node, 'body', 'teaser'));
+    if (oa_files_showfield($conf, 'body') && $nid && ($render_array = field_view_field('node', node_load($nid), 'body', 'teaser'))) {
+      $body = render($render_array);
     }
 
     $treenode = array(
@@ -288,24 +310,16 @@ function oa_files_prepare_files_from_menu($tree, &$conf, $parent = 0) {
       "name" => $item['link']['link_title'],
       "url" => $item['link']['href'],
       "weight" => $item['link']['weight'],
-      "date" => format_date($full_node->created, 'short'),
-      "modified" => format_date($full_node->changed, 'short'),
-      "editor" => node_access("update", $full_node),
+      "date" => $nid && !empty($titles['createds'][$nid]) ? format_date($titles['createds'][$nid], 'short') : '',
+      "modified" => $nid && !empty($titles['changeds'][$nid]) ? format_date($titles['changeds'][$nid], 'short') : '',
+      "editor" => $check_edit_access && $nid ? node_access("update", node_load($nid)) : TRUE,
       "body" => $body,
       "isfolder" => FALSE,
     );
     $result[$nid] = $treenode;
     $children = oa_files_prepare_files_from_menu($item['below'], $conf, $nid);
 
-    $isfolder = (count($children) > 0);
-    if (!$isfolder) {
-      // if node doesn't have children, check if it has no attachments and doesn't have "show node" enabled
-      // then it's a folder
-      if ((!($items = field_get_items('node', $full_node, 'field_oa_wiki_page_no_redirect')) || empty($items[0]['value'])) &&
-        (!($items = field_get_items('node', $full_node, 'field_oa_media')) || (count($items) == 0))) {
-        $isfolder = TRUE;
-      }
-    }
+    $isfolder = (count($children) > 0) || in_array($nid, $nids_are_folder);
     $result[$nid]['isfolder'] = $isfolder;
     if (!$isfolder) {
       $result[$nid]['icon'] = url($icon_directory . '/application-octet-stream.png');
@@ -527,7 +541,13 @@ function oa_files_prepare_files_from_terms($tids, &$conf) {
 
   $tree = array();
   // ensure files at top level appear after the tid folders
-  $weight = count($tids)+1;
+  $weight = count($tids) + 1;
+  $all_nids = array();
+  foreach ($result as $node) {
+    $all_nids[] = $node->nid;
+  }
+  $titles = oa_core_get_titles($all_nids, '', 'title', array('title', 'created', 'changed'), TRUE, 0);
+  $check_edit_access = !empty($conf['oa_files_action_edit']) && count($result) < 20;
   foreach ($result as $node) {
     $nid = $node->nid;
     if (isset($tree[$nid])) {
@@ -535,11 +555,9 @@ function oa_files_prepare_files_from_terms($tids, &$conf) {
       $tree[$nid]['parent'][] = empty($node->tid) ? 0 : 'tid' . $node->tid;
     }
     else {
-      // need to load the node to determine edit access
-      $full_node = node_load($nid);
       $body = '';
       if (oa_files_showfield($conf, 'body')) {
-        $body = oa_files_summary($full_node);
+        $body = oa_files_summary(node_load($nid));
       }
       $parent = (empty($node->tid)) ? 0 : 'tid' . $node->tid;
 
@@ -547,10 +565,11 @@ function oa_files_prepare_files_from_terms($tids, &$conf) {
         "id" => $nid,
         "nid" => $nid,
         "parent" => array($parent),
-        "name" => $full_node->title,
-        "date" => format_date($full_node->created, 'short'),
-        "modified" => format_date($full_node->changed, 'short'),
-        "editor" => node_access("update", $full_node),
+        "name" => $titles['titles'][$nid],
+        "date" => format_date($titles['createds'][$nid], 'short'),
+        "modified" => format_date($titles['changeds'][$nid], 'short'),
+        // Just show the link if too many, won't grant access if can't.
+        "editor" => $check_edit_access ? node_access("update", node_load($nid)) : TRUE,
         "url" => 'node/' . $nid,
         "icon" => url($icon_directory . '/application-octet-stream.png'),
         "body" => $body,
@@ -810,6 +829,7 @@ function oa_files_treeview_settings_form($form, &$form_state) {
     '#options' => $field_options,
     '#default_value' => $conf['oa_files_fields'],
     '#title' => t('Fields to show'),
+    '#description' => t('If showing Description with many files, it will slow the page load signicantly.'),
   );
 
   $actions = oa_files_actions($conf);

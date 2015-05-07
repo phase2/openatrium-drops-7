@@ -8,6 +8,7 @@
 define('SPACE_TAB_FAVORITE', 'Favorite');
 define('SPACE_TAB_ARCHIVED', 'Archived');
 define('SPACE_TAB_ACTIVE', 'Subscribed');
+define('SPACE_TAB_MEMBERS', 'Memberships');
 define('SPACE_TAB_INHERITED', 'Inherited');
 define('SPACE_TAB_ALL', 'All');
 
@@ -20,7 +21,7 @@ $plugin = array(
   'render callback' => 'oa_core_user_spaces_render',
   'required context' => new ctools_context_required(t('User'), 'user'),
   'defaults' => array(
-    'tabs' => array(SPACE_TAB_FAVORITE, SPACE_TAB_ACTIVE, SPACE_TAB_INHERITED, SPACE_TAB_ALL),
+    'tabs' => array(SPACE_TAB_FAVORITE, SPACE_TAB_MEMBERS, SPACE_TAB_INHERITED, SPACE_TAB_ALL),
     'image_size' => 'quarter',
     'show_description' => TRUE,
     'show_sections' => TRUE,
@@ -49,7 +50,10 @@ function oa_core_user_spaces_render($subtype, $conf, $args, $context = NULL) {
     $group_types = array(OA_SPACE_TYPE => OA_SPACE_TYPE);
   }
   $all_spaces_ids = oa_core_get_public_spaces($group_types);
-  $active_spaces_ids = oa_core_get_groups_by_user_access($account);
+  $active_spaces_ids = array();
+  foreach ($group_types as $type) {
+    $active_spaces_ids = array_merge($active_spaces_ids, oa_core_get_groups_by_user_access($account, FALSE, NULL, NULL, NULL, $type));
+  }
   $active_spaces_ids = array_map(
     function($node) { return $node->nid; },
     $active_spaces_ids);
@@ -85,19 +89,23 @@ function oa_core_user_spaces_render($subtype, $conf, $args, $context = NULL) {
   // set our maximum item per page
   $num_per_page = $conf['num_per_page'];
   $vars['space_groups'] = array();
+  if (isset($conf['tabs'][SPACE_TAB_ACTIVE])) {
+    $conf['tabs'][SPACE_TAB_MEMBERS] = $conf['tabs'][SPACE_TAB_ACTIVE];
+    unset($conf['tabs'][SPACE_TAB_ACTIVE]);
+  }
   if (!empty($conf['tabs'][SPACE_TAB_FAVORITE]) && !empty($featured_spaces)) {
     $vars['space_groups'][t(SPACE_TAB_FAVORITE)]['spaces'] = $featured_spaces;
   }
-  if (!empty($conf['tabs'][SPACE_TAB_ACTIVE]) && !empty($active_spaces)) {
+  if (!empty($conf['tabs'][SPACE_TAB_MEMBERS]) && !empty($active_spaces)) {
     if (!$conf['tabs'][SPACE_TAB_ALL] && ($num_per_page > 0)) {
       $active_spaces = array_slice($active_spaces, 0, $num_per_page);
-      $vars['space_groups'][t(SPACE_TAB_ACTIVE)]['pager'] =
+      $vars['space_groups'][t(SPACE_TAB_MEMBERS)]['pager'] =
         l(t('See all'), 'spaces', array(
           'attributes' => array(
             'class' => $conf['link_class'],
         )));
     }
-    $vars['space_groups'][t(SPACE_TAB_ACTIVE)]['spaces'] = $active_spaces;
+    $vars['space_groups'][t(SPACE_TAB_MEMBERS)]['spaces'] = $active_spaces;
   }
   if (!empty($conf['tabs'][SPACE_TAB_ARCHIVED]) && !empty($archived_spaces)) {
     $vars['space_groups'][t(SPACE_TAB_ARCHIVED)]['spaces'] = $archived_spaces;
@@ -365,7 +373,7 @@ function oa_core_user_spaces_edit_form($form, &$form_state) {
     '#options' => array(
       SPACE_TAB_FAVORITE => t(SPACE_TAB_FAVORITE),
       SPACE_TAB_ARCHIVED => t(SPACE_TAB_ARCHIVED),
-      SPACE_TAB_ACTIVE => t(SPACE_TAB_ACTIVE),
+      SPACE_TAB_MEMBERS => t(SPACE_TAB_MEMBERS),
       SPACE_TAB_INHERITED => t(SPACE_TAB_INHERITED),
       SPACE_TAB_ALL => t(SPACE_TAB_ALL),
     ),

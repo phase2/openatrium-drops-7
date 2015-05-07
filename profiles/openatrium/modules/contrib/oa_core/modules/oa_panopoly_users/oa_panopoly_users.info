@@ -22,10 +22,14 @@ features[features_overrides][] = page_manager_handlers.pm_existing_pages_user_lo
 features[features_overrides][] = page_manager_handlers.pm_existing_pages_user_login_panel_context.conf|display|panel_settings|contentmain
 features[features_overrides][] = panelizer_defaults.user:user:default.display|content|new-23b1f4f1-cda8-42ca-880a-afc2ae92f3e9
 features[features_overrides][] = panelizer_defaults.user:user:default.display|content|new-80a6a21b-20e6-4acf-9772-eb089cc6082b
+features[features_overrides][] = panelizer_defaults.user:user:default.display|content|new-9dac586e-77fc-4bc9-a785-af899b5c8f51
 features[features_overrides][] = panelizer_defaults.user:user:default.display|content|new-9def882d-91aa-4313-87b2-0ace29b4329c
 features[features_overrides][] = panelizer_defaults.user:user:default.display|content|new-a617e554-6ad7-4d25-9d89-627d130d8be3
+features[features_overrides][] = panelizer_defaults.user:user:default.display|content|new-bebefbf1-209d-488b-b491-56b1b1ce8a1c
+features[features_overrides][] = panelizer_defaults.user:user:default.display|content|new-c068286a-0523-45cb-9190-9cc350ad6845
 features[features_overrides][] = panelizer_defaults.user:user:default.display|content|new-d3a2a9fb-f88a-4730-bfab-c36f4e0af395
 features[features_overrides][] = panelizer_defaults.user:user:default.display|content|new-d76e85cd-4625-4a52-a17b-e5c65e1a0247
+features[features_overrides][] = panelizer_defaults.user:user:default.display|content|new-f34b9365-3769-4c85-9788-bbfa336fdcad
 features[features_overrides][] = panelizer_defaults.user:user:default.display|content|new-faf0ad46-b575-4f96-874d-9a4548cc8da3
 features[features_overrides][] = panelizer_defaults.user:user:default.display|layout
 features[features_overrides][] = panelizer_defaults.user:user:default.display|panel_settings|style_settings|contentcolumn1
@@ -40,9 +44,9 @@ features[variable][] = panelizer_defaults_user_user
 features_exclude[field_base][field_user_about] = field_user_about
 features_exclude[field_base][field_user_picture] = field_user_picture
 
-; Information added by Drupal.org packaging script on 2015-03-19
-version = "7.x-2.43"
+; Information added by Drupal.org packaging script on 2015-05-06
+version = "7.x-2.52"
 core = "7.x"
 project = "oa_core"
-datestamp = "1426789396"
+datestamp = "1430952376"
 

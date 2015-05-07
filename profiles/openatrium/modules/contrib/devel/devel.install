@@ -47,9 +47,6 @@ function devel_uninstall() {
   variable_del('devel_query_sort');
   variable_del('devel_rebuild_theme_registry');
   variable_del('devel_use_uncompressed_jquery');
-  variable_del('devel_xhprof_directory');
-  variable_del('devel_xhprof_enabled');
-  variable_del('devel_xhprof_url');
   variable_del('devel_debug_mail_file_format');
   variable_del('devel_debug_mail_directory');
 
@@ -132,4 +129,13 @@ function devel_update_7006() {
   }
 
   variable_del('dev_mem');
+}
+
+/**
+ * Delete 'devel_xhprof_*' variables as they were removed from code.
+ */
+function devel_update_7007() {
+  variable_del('devel_xhprof_directory');
+  variable_del('devel_xhprof_enabled');
+  variable_del('devel_xhprof_url');
 }

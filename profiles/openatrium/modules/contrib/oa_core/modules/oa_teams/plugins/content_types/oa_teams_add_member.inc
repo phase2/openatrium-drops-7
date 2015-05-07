@@ -67,7 +67,10 @@ function oa_teams_add_team_member_form($form, &$form_state, $team) {
   $form['name'] = array(
     '#type' => 'textfield',
     '#title' => t('User name'),
-    '#autocomplete_path' => 'user/autocomplete',
+    '#autocomplete_path' => 'entityreference/autocomplete/single/field_oa_team_users/node/oa_team/' . $team->nid,
+    '#field_name' => 'field_oa_team_users',
+    '#entity_type' => 'node',
+    '#bundle' => 'oa_team',
   );
 
   $form['submit'] = array(
@@ -82,18 +85,18 @@ function oa_teams_add_team_member_form($form, &$form_state, $team) {
  * Validate handler; Add users to team.
  */
 function oa_teams_add_team_member_form_validate($form, &$form_state) {
-  $account = user_load_by_name($form_state['values']['name']);
+  _entityreference_autocomplete_validate($form['name'], $form_state, $form);
+  $account = user_load($form_state['values']['name']);
   $team = $form['#team'];
   if (!$account) {
     form_set_error('name', t('You have entered an invalid user name.'));
     return;
   }
-  else {
-    $users = field_get_items('node', $team, 'field_oa_team_users');
+  elseif ($users = field_get_items('node', $team, 'field_oa_team_users')) {
     $user_list = array();
     foreach ($users as $user) {
       if ($user['target_id'] == $account->uid) {
-        form_set_error('name', t('User %name is already subscribed to group.', array('%name' => format_username($account))));
+        form_set_error('name', t('User %name is already a member of that group.', array('%name' => format_username($account))));
         break;
       }
     }
@@ -108,7 +111,7 @@ function oa_teams_add_team_member_form_validate($form, &$form_state) {
  */
 function oa_teams_add_team_member_form_submit($form, &$form_state) {
   $team = $form['#team'];
-  $account = user_load_by_name($form_state['values']['name']);
+  $account = user_load($form_state['values']['name']);
   oa_teams_add_member($team, $account->uid);
   drupal_set_message(t('%user has been added to the team %title.', array('%user' => format_username($account), '%title' => $team->title)));
 }

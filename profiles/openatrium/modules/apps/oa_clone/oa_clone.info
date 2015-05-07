@@ -24,9 +24,9 @@ features[field_instance][] = taxonomy_term-space_type-field_oa_clone_enabled
 features[field_instance][] = taxonomy_term-space_type-field_oa_clone_space
 features[variable][] = clone_use_node_type_name
 
-; Information added by Drupal.org packaging script on 2015-03-11
-version = "7.x-2.2"
+; Information added by Drupal.org packaging script on 2015-05-04
+version = "7.x-2.3"
 core = "7.x"
 project = "oa_clone"
-datestamp = "1426104793"
+datestamp = "1430776687"
 

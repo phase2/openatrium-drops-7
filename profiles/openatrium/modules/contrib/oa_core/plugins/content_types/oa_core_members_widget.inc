@@ -30,7 +30,10 @@ $plugin = array(
 function oa_core_members_widget_render($subtype, $conf, $args, $context = NULL) {
   global $user;
 
-  if (!isset($context->data->nid) || !($space = node_load(oa_core_get_group_from_node($context->data->nid))) || !node_access('view', $space)) {
+  if (!isset($context->data->nid)
+    || !(($space_nid = oa_core_get_group_from_node($context->data))
+      && ($space = node_load($space_nid)))
+    || !node_access('view', $space)) {
     return;
   }
 

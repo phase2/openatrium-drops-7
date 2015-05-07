@@ -67,6 +67,7 @@ function select2widget_field_widget_info() {
         'allow_new' => 0,
         'set_level' => 0,
         'min_char' => 1,
+        'delay' => 100,
         'match_operator' => 'STARTS_WITH',
         'view_mode' => 'default',
       )

@@ -1225,7 +1225,7 @@ function search_api_track_item_delete($type, array $item_ids) {
   unset($conditions['enabled']);
   foreach (search_api_index_load_multiple(FALSE, $conditions) as $index) {
     try {
-      if ($server = $index->server()) {
+      if (($server = $index->server()) && $server->enabled) {
         $server->deleteItems($item_ids, $index);
       }
     }

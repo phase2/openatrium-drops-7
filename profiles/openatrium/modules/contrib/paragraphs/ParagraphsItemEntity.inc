@@ -371,10 +371,6 @@ class ParagraphsItemEntity extends Entity {
    *   revision updates might be skipped. Use with care.
    */
   public function save($skip_host_save = FALSE) {
-    // Make sure we have a host entity during creation.
-    if (!empty($this->is_new) && !(isset($this->hostEntityId) || isset($this->hostEntity) || isset($this->hostEntityRevisionId))) {
-      throw new Exception("Unable to create a paragraphs item without a given host entity.");
-    }
 
     // Only save directly if we are told to skip saving the host entity. Else,
     // we always save via the host as saving the host might trigger saving

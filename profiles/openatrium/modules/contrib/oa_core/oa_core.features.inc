@@ -35,16 +35,8 @@ function oa_core_image_default_styles() {
   // Exported image style: oa_medium_thumbnail.
   $styles['oa_medium_thumbnail'] = array(
     'label' => 'oa_medium_thumbnail',
-    'name' => 'oa_medium_thumbnail',
     'effects' => array(
       1 => array(
-        'label' => 'Scale and crop',
-        'help' => 'Scale and crop will maintain the aspect-ratio of the original image, then crop the larger dimension. This is most useful for creating perfectly square thumbnails without stretching the image.',
-        'effect callback' => 'image_scale_and_crop_effect',
-        'dimensions callback' => 'image_resize_dimensions',
-        'form callback' => 'image_resize_form',
-        'summary theme' => 'image_resize_summary',
-        'module' => 'image',
         'name' => 'image_scale_and_crop',
         'data' => array(
           'width' => 50,
@@ -58,16 +50,8 @@ function oa_core_image_default_styles() {
   // Exported image style: oa_small_thumbnail.
   $styles['oa_small_thumbnail'] = array(
     'label' => 'oa_small_thumbnail',
-    'name' => 'oa_small_thumbnail',
     'effects' => array(
       2 => array(
-        'label' => 'Scale and crop',
-        'help' => 'Scale and crop will maintain the aspect-ratio of the original image, then crop the larger dimension. This is most useful for creating perfectly square thumbnails without stretching the image.',
-        'effect callback' => 'image_scale_and_crop_effect',
-        'dimensions callback' => 'image_resize_dimensions',
-        'form callback' => 'image_resize_form',
-        'summary theme' => 'image_resize_summary',
-        'module' => 'image',
         'name' => 'image_scale_and_crop',
         'data' => array(
           'width' => 30,

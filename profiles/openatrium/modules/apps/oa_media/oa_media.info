@@ -8,10 +8,13 @@ dependencies[] = ctools
 dependencies[] = features
 dependencies[] = file_entity
 dependencies[] = media
+dependencies[] = media_bulk_upload
 dependencies[] = media_colorbox
 dependencies[] = media_vimeo
 dependencies[] = media_youtube
+dependencies[] = multiform
 dependencies[] = panelizer
+dependencies[] = plupload
 dependencies[] = strongarm
 dependencies[] = text
 stylesheets[all][] = oa_media.css
@@ -173,9 +176,9 @@ features[variable][] = colorbox_visibility
 features[variable][] = field_bundle_settings_file__document
 mtime = 1416507754
 
-; Information added by Drupal.org packaging script on 2015-02-11
-version = "7.x-2.23"
+; Information added by Drupal.org packaging script on 2015-05-06
+version = "7.x-2.27"
 core = "7.x"
 project = "oa_media"
-datestamp = "1423681087"
+datestamp = "1430936287"
 

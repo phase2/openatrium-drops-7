@@ -310,7 +310,7 @@ function oa_wiki_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'oa_section_ref',
-    'label' => 'OpenAtrium Section',
+    'label' => 'Section',
     'options_limit' => 1,
     'options_limit_empty_behaviour' => 1,
     'options_limit_fields' => array(
@@ -471,7 +471,7 @@ function oa_wiki_field_default_field_instances() {
   t('Groups audience');
   t('If checked, show the node detail page (Drupal default behavior).  If unchecked, show the first file attachment.');
   t('OG vocabulary');
-  t('OpenAtrium Section');
+  t('Section');
   t('Select a list of additional Spaces that this piece of content should be visible in. This <em>doesn\'t</em> affect access control - users in the other Spaces must have access to see this content in it\'s main Space for it to be visible to them at all.');
   t('Show page instead of file?');
   t('Visible in other Spaces');

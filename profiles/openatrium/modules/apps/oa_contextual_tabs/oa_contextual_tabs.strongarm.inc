@@ -17,6 +17,7 @@ function oa_contextual_tabs_strongarm() {
   $strongarm->value = 'user*:Edit|Edit profile,icon-pencil
 node/*/clone/confirm:View|Cancel,icon-remove
 node/*/edit:View|Cancel,icon-remove
+node/*/moderation:View draft|View draft
 View
 Edit,icon-pencil
 Members,icon-user';

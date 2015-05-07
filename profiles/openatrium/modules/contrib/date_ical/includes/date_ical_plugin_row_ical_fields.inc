@@ -226,13 +226,11 @@ class date_ical_plugin_row_ical_fields extends views_plugin_row {
     drupal_alter('date_ical_export_html', $text_fields, $this->view, $context);
     
     // Sanitize the text fields for iCal compliance, and add them to the event.
-    // Also strip all HTML from the summary and location fields, since they
-    // must be plaintext, and may have been set as links by the view.
-    $event['summary'] = date_ical_sanitize_text(strip_tags($text_fields['summary']));
-    $event['location'] = date_ical_sanitize_text(strip_tags($text_fields['location']));
+    $event['summary'] = date_ical_sanitize_text($text_fields['summary']);
+    $event['location'] = date_ical_sanitize_text($text_fields['location']);
     $event['description'] = date_ical_sanitize_text($text_fields['description']);
     
-    // Allow other modules to alter the event object, before it gets passed to
+    // Allow other modules to alter the event object before it gets passed to
     // the style plugin to be converted into an iCal VEVENT.
     drupal_alter('date_ical_export_raw_event', $event, $this->view, $context);
     

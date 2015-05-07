@@ -33,6 +33,19 @@
     }
   });
 
+  Drupal.behaviors.oa_wysiwyg = {
+    attach: function(context, settings) {
+      // Tweak the WYSIWYG selector on text fields
+      $('form .format-toggle', context).each(function () {
+        var hasLabel = $(this).parents('.text-format-wrapper').find('.form-type-textarea:visible label');
+        var visible = hasLabel.is(':visible') && !hasLabel.hasClass('element-invisible');
+        if (visible) {
+          $(this).css('top', '-25px');
+        }
+      });
+    }
+  };
+
   Drupal.behaviors.fieldset_collapse = {
     attach: function(context, settings) {
       // allow chosen dropdowns within fieldsets to be visible

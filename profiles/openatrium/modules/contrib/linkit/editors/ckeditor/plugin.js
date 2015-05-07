@@ -41,8 +41,20 @@
 
           // Set the editor object.
           Drupal.settings.linkit.currentInstance.editor = editor;
-          // Set profile.
-          Drupal.settings.linkit.currentInstance.profile = Drupal.settings.linkit.fields[editor.name].profile;
+          // Find the current input format of the field we're looking at.
+          var format = '';
+          if (Drupal.wysiwyg) { // If using the WYSIWYG module with CKEditor as the editor
+            // Note that WYSIWYG prepends "profile" to the profile name, so we use .substring() to remove the "format".
+            format = Drupal.wysiwyg.instances[editor.name].format.substring(6);
+          }
+          else if (Drupal.settings.ckeditor) { // If using the CKEditor module
+            format = Drupal.settings.ckeditor.elements[editor.name];
+          } else {
+            alert(Drupal.t('Could not find the Linkit profile.'));
+            return;
+          }
+          // Set profile based on the current text format of this field.
+          Drupal.settings.linkit.currentInstance.profile = Drupal.settings.linkit.formats[format].profile;
           // Set the name of the source field.
           Drupal.settings.linkit.currentInstance.source = editor.name;
           // Set the source type.

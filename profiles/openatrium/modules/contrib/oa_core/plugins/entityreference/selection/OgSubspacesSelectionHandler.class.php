@@ -141,10 +141,26 @@ class OgSubspacesSelectionHandler extends EntityReference_SelectionHandler_Gener
    * Implements EntityReferenceHandler::validateReferencableEntities().
    */
   public function validateReferencableEntities(array $ids) {
-    $group_type = $this->field['settings']['target_type'];
-    $user_groups = oa_core_get_groups_by_user(NULL, $group_type);
-    $result = array_intersect($ids, $user_groups);
-    return $result;
+    if (!$ids) {
+      return $ids;
+    }
+    $field_mode = isset($this->instance['field_mode']) ? $this->instance['field_mode'] : 'all';
+    if ($field_mode == 'default') {
+      $group_type = $this->field['settings']['target_type'];
+      $user_groups = oa_core_get_groups_by_user(NULL, $group_type);
+      $result = array_intersect($ids, $user_groups);
+      return $result;
+    }
+    else {
+      $entity_type = $this->field['settings']['target_type'];
+      $query = $this->buildEntityFieldQuery();
+      $query->entityCondition('entity_id', $ids, 'IN');
+      $result = $query->execute();
+      if (!empty($result[$entity_type])) {
+        return array_keys($result[$entity_type]);
+      }
+    }
+    return array();
   }
 
   /**
@@ -200,12 +216,16 @@ class OgSubspacesSelectionHandler extends EntityReference_SelectionHandler_Gener
           $has_create_access = array_keys(array_filter(oa_user_access_nids('node', $user_groups, "create $node_type content")));
           $has_update_access = array();
           $remaining = array_diff($user_groups, $has_create_access);
-          if (!empty($node->nid) && $remaining && ($node_groups = array_diff(og_get_entity_groups('node', $node->nid), $remaining))) {
-            $check_perms = array("update any $node_type content");
-            if ($user->uid == $node->uid) {
-              $check_perms = "update own $node_type content";
+          if (!empty($node->nid) && $remaining) {
+            $groups = og_get_entity_groups('node', $node->nid);
+            $node_groups = !empty($groups['node']) ? $groups['node'] : array();
+            if ($node_groups = array_diff($node_groups, $remaining)) {
+              $check_perms = array("update any $node_type content");
+              if ($user->uid == $node->uid) {
+                $check_perms = "update own $node_type content";
+              }
+              $has_update_access = array_keys(array_filter(oa_user_access_nids('node', $node_groups, $check_perms)));
             }
-            $has_update_access = array_keys(array_filter(oa_user_access_nids('node', $node_groups, $check_perms)));
           }
           $ids = array_merge($has_update_access, $has_create_access);
         }

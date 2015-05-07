@@ -884,6 +884,7 @@ class MediaElementSettingsTestCase extends MediaFileFieldTestCase {
               'file_extensions' => 'txt',
               'max_filesize' => '',
               'uri_scheme' => 'public',
+              'multiselect' => $field['cardinality'] == FIELD_CARDINALITY_UNLIMITED,
             ),
           ),
         ),

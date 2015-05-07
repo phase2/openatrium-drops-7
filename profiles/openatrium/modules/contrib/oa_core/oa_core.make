@@ -3,88 +3,6 @@
 api = 2
 core = 7.x
 
-; ************************************************
-; ************** PANOPOLY OVERRIDES **************
-
-; Views
-; Override panopoly_core.make: 3.8
-projects[views][version] = 3.10
-projects[views][subdir] = contrib
-; patches from Panopoly
-projects[views][patch][2037469] = http://drupal.org/files/views-exposed-sorts-2037469-1.patch
-; additional patches for OA
-projects[views][patch][1979926] = http://drupal.org/files/1979926-views-reset_fetch_data-2.patch
-projects[views][patch][1735096] = https://www.drupal.org/files/issues/1735096-views-multiple-instance-exposed-form-15.patch
-projects[views][patch][2411922] = https://www.drupal.org/files/issues/2411922-views-group_name-3.patch
-projects[views][patch][2018737] = https://www.drupal.org/files/issues/views-asset-diff-2018737-37.patch
-
-; CTools
-; Override panopoly_core.make: 1.7
-projects[ctools][version] = 1.7
-projects[ctools][subdir] = contrib
-; additional patches for OA
-projects[ctools][patch][1910608] = https://www.drupal.org/files/issues/views_content-ajax-1910608-29.patch
-projects[ctools][patch][1901106] = https://www.drupal.org/files/issues/ctools-views_content-exposed_form_override-1901106-27.patch
-projects[ctools][patch][2023705] = http://drupal.org/files/2023705-ctools-autosubmit-2_0.patch
-projects[ctools][patch][2423839] = https://www.drupal.org/files/issues/2423839-ctools-node_tag-2.patch
-projects[ctools][patch][2448989] = https://www.drupal.org/files/issues/2448989-ctools-frome_field_children-1.patch
-
-; Entity API
-; Override panopoly_core.make: 1.6
-projects[entity][version] = 1.6
-projects[entity][subdir] = contrib
-; additional patches for OA
-projects[entity][patch][1782134] = http://drupal.org/files/entity-translatable_fields_not_overriding_und_with_empty_values-1782134-5.patch
-; related to Entity Reference revisions patch (1837650)
-projects[entity][patch][1788568] = http://drupal.org/files/issues/entity-1788568-21-entity_metadata_wrapper_revisions.patch
-; fix for recursive entity views
-projects[entity][patch][2407905] = http://drupal.org/files/issues/entity_unsupported_operand-2407905-1.patch
-
-; Entity Reference
-; Override panopoly_core.make: 1.1
-projects[entityreference][version] = 1.x-dev
-projects[entityreference][subdir] = contrib
-projects[entityreference][download][type] = git
-projects[entityreference][download][branch] = 7.x-1.x
-projects[entityreference][download][revision] = c4bb9b
-; Add revision support.  Related patches in Entity (1788568) and OG (2363599)
-projects[entityreference][patch][1837650] = http://drupal.org/files/issues/entityreference-n1837650-47.patch
-; Add autocomplete ability for group filters.
-projects[entityreference][patch][1492260] = https://www.drupal.org/files/issues/1492260-54.patch
-
-; Token
-; Override panopoly_core.make: 1.5
-projects[token][version] = 1.5
-projects[token][subdir] = contrib
-; additional patches for OA
-projects[token][patch][1999298] = http://drupal.org/files/1999298-disable-test-warnings.patch
-
-; Field Group
-; Override panopoly_core.make: 1.4
-projects[field_group][version] = 1.4
-projects[field_group][subdir] = contrib
-;following patch not ready yet
-;projects[field_group][patch][1278618] = http://drupal.org/files/issues/field_group-panels-integration-1278618-58.patch
-
-; Features
-; Override panopoly_core.make: 2.3
-projects[features][version] = 2.3
-projects[features][subdir] = contrib
-; additional patches for OA
-projects[features][patch][2378343] = http://drupal.org/files/issues/features_improve_features-2378343-1.patch
-projects[features][patch][2419479] = https://www.drupal.org/files/issues/2419479-features-foreignkey-1.patch
-
-; File Entity
-; Override panopoly_widgets.make: 20f3070
-projects[file_entity][version] = 2.0-beta1
-projects[file_entity][subdir] = contrib
-; additional patches for OA
-projects[file_entity][patch][2360043] = https://www.drupal.org/files/issues/file_entity-destination-token-decode-2360043-1.patch
-projects[file_entity][patch][2386015] = https://www.drupal.org/files/issues/2386015-file_entity-trigger-1.patch
-
-; ************ End Panopoly Overrides ************
-; ************************************************
-
 ; Advagg
 projects[advagg][version] = 2.6
 projects[advagg][subdir] = contrib
@@ -102,7 +20,7 @@ libraries[chosen][directory_name] = "chosen"
 libraries[chosen][destination] = "libraries"
 
 ; Colorizer
-projects[colorizer][version] = 1.4
+projects[colorizer][version] = 1.7
 projects[colorizer][subdir] = contrib
 
 ; Conditional Fields
@@ -131,10 +49,6 @@ projects[date_facets][download][revision] = 9037608
 ; Diff
 projects[diff][version] = 3.2
 projects[diff][subdir] = contrib
-
-; Features Override
-projects[features_override][version] = 2.0-rc2
-projects[features_override][subdir] = contrib
 
 ; Features Template
 projects[features_template][version] = 1.0-beta2
@@ -172,11 +86,6 @@ projects[htmlmail][patch][1692966] = https://www.drupal.org/files/1692966-htmlma
 ; Job Scheduler
 projects[job_scheduler][version] = 2.0-alpha3
 projects[job_scheduler][subdir] = contrib
-
-; Jquery Update
-projects[jquery_update][version] = 2.4
-projects[jquery_update][subdir] = contrib
-projects[jquery_update][patch][2123973] = http://drupal.org/files/issues/jquery_update-jquery_effects_missing-7.x-2.4-2123973-17.patch
 
 ; Mail System
 projects[mailsystem][version] = 2.34
@@ -249,9 +158,11 @@ projects[panels_customerror][version] = 1.0
 projects[panels_customerror][subdir] = contrib
 
 ; Paragraphs
-projects[paragraphs][version] = 1.0-beta5
+projects[paragraphs][version] = 1.0-beta6
 projects[paragraphs][subdir] = contrib
 projects[paragraphs][patch][2399883] = https://www.drupal.org/files/issues/2394313-paragraphs-node_clone-9.patch
+projects[paragraphs][patch][2458801] = https://www.drupal.org/files/issues/paragraphs-instructions_setting-2458801-9.patch
+projects[paragraphs][patch][2481627] = https://www.drupal.org/files/issues/paragraphs-modal_targets_wrong_id-2481627-3.patch
 
 ; Real Name
 projects[realname][version] = 1.2
@@ -274,6 +185,8 @@ projects[select2widget][patch][2404175] = https://www.drupal.org/files/issues/24
 projects[select2widget][patch][2405941] = https://www.drupal.org/files/issues/2405941-select2widget-ajaxreplace-1.patch
 projects[select2widget][patch][2411707] = https://www.drupal.org/files/issues/2411707-select2-suggestions-2.patch
 projects[select2widget][patch][2414409] = https://www.drupal.org/files/issues/2414409-select2widget-menu_access-2.patch
+projects[select2widget][patch][2468545] = https://www.drupal.org/files/issues/2468545-select2widget-labels-1.patch
+projects[select2widget][patch][2472697] = https://www.drupal.org/files/issues/support_for_quitemillis-2472697-2.patch
 
 libraries[select2][download][type] = "get"
 libraries[select2][download][url] = "https://github.com/ivaynberg/select2/archive/3.5.2.tar.gz"

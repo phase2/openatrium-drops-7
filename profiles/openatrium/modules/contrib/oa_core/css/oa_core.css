@@ -7,6 +7,10 @@
   margin: 0 10px 0 0;
 }
 
+.pane-oa-core-members-widget .user-badge {
+  padding: 6px 12px;
+}
+
 .widget-preview iframe {
   max-width: 100%;
 }

@@ -9,45 +9,45 @@ class oa_core_og_group_ref_views_handler_filter_entityreference_autocomplete ext
   function init(&$view, &$options) {
     parent::init($view, $options);
     $exposed = $this->view->get_exposed_input();
-    if (!empty($this->options['expose']['identifier']))
-      $options_exposed = array_filter($this->options['expose']);
-      $id = empty($options_exposed['identifier']) ? 'og_group_ref' : $options_exposed['identifier'];
-      if (empty($this->options['expose']['oa_core_no_auto'])) {
-        if (isset($exposed[$id]) && (empty($exposed[$id]) || $exposed[$id] == OA_SPACE_CURRENT)) {
-          if ($group = oa_core_get_space_context()) {
-            $exposed[$id] = $group;
-          }
-          else {
-            unset($exposed[$id]);
-          }
+    $options_exposed = array_filter($this->options['expose']);
+    $id = !empty($options_exposed['identifier']) ? $options_exposed['identifier'] : 'og_group_ref';
+    if (empty($this->options['expose']['oa_core_no_auto'])) {
+      if (isset($exposed[$id]) && (empty($exposed[$id]) || $exposed[$id] == OA_SPACE_CURRENT)) {
+        if ($group = oa_core_get_space_context()) {
+          $exposed[$id] = $group;
         }
-      // Pane doesn't allow unrelated exposed input, so bring it back.
-      if (!empty($_GET[$id . '_mine'])) {
-        $exposed[$id . '_mine'] = 1;
-      }
-
-      // Form API considers a Value of 0 to be CHECKED!!!!!
-      // So if the value is zero, we set it to FALSE so it is properly UnChecked.
-      if (isset($exposed[$id . '_mine']) && empty($exposed[$id . '_mine'])) {
-        $exposed[$id . '_mine'] = FALSE;
-      }
-
-      global $user;
-      if (!empty($exposed[$id . '_mine'])) {
-        $groups = oa_core_get_groups_by_user($user, 'node');
-        if ($groups && ($gids = array_intersect_key($groups, $this->get_value_options()))) {
-          $exposed[$id] = $gids;
-          $this->options['expose']['multiple'] = TRUE;
-        } else {
-          // If restricting to My Spaces but the user has no spaces, fail the build
-          $this->fail_build = TRUE;
+        else {
+          unset($exposed[$id]);
         }
-      } // If was multiple from mine setting, clear it out.
-      elseif (empty($this->options['expose']['multiple']) && isset($exposed[$id]) && is_array($exposed[$id])) {
-        unset($exposed[$id]);
       }
-      $this->view->set_exposed_input($exposed);
     }
+    // Pane doesn't allow unrelated exposed input, so bring it back.
+    if (!empty($_GET[$id . '_mine'])) {
+      $exposed[$id . '_mine'] = 1;
+    }
+
+    // Form API considers a Value of 0 to be CHECKED!!!!!
+    // So if the value is zero, we set it to FALSE so it is properly UnChecked.
+    if (isset($exposed[$id . '_mine']) && empty($exposed[$id . '_mine'])) {
+      $exposed[$id . '_mine'] = FALSE;
+    }
+
+    global $user;
+    if (!empty($exposed[$id . '_mine'])) {
+      $groups = oa_core_get_groups_by_user($user, 'node');
+      if ($groups && ($gids = array_intersect_key($groups, $this->get_value_options()))) {
+        $exposed[$id] = $gids;
+        $this->options['expose']['multiple'] = TRUE;
+      }
+      else {
+        // If restricting to My Spaces but the user has no spaces, fail the build
+        $this->fail_build = TRUE;
+      }
+    } // If was multiple from mine setting, clear it out.
+    elseif (empty($this->options['expose']['multiple']) && isset($exposed[$id]) && is_array($exposed[$id])) {
+      unset($exposed[$id]);
+    }
+    $this->view->set_exposed_input($exposed);
   }
 
   function value_form(&$form, &$form_state) {
@@ -69,7 +69,7 @@ class oa_core_og_group_ref_views_handler_filter_entityreference_autocomplete ext
     $entity_labels = is_string($saved_value) ? _oa_core_select2widget_process_entity_labels($saved_value) : array();
     $form['value'] = array(
       '#type' => 'textfield',
-      '#default_value' => implode(', ', $entity_labels),
+      '#default_value' => $saved_value == OA_SPACE_CURRENT ? OA_SPACE_CURRENT : implode(', ', $entity_labels),
       '#autocomplete_path' => $autocomplete_path,
       '#element_validate' => array('oa_core_select2widget_entity_validate_field'),
       '#settings' => $instance['widget']['settings'],
@@ -83,6 +83,7 @@ class oa_core_og_group_ref_views_handler_filter_entityreference_autocomplete ext
       '#field' => $field,
       '#field_parents' => array(),
       '#convert_empty_to_current' => TRUE,
+      '#oa_core_select2_set_value' => TRUE,
     ) + $form['value'];
     $form['value']['#settings']['select2widgetajax']['width'] = '400px';
     $form['value']['#settings']['select2widgetajax']['min_char'] = 0;

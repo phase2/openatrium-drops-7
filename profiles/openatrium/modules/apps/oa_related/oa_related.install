@@ -1,0 +1,12 @@
+<?php
+/**
+ * @file
+ * oa_related.install
+ */
+
+/**
+ * Update the Related content paragraph styles.
+ */
+function oa_related_update_7101() {
+  features_template_revert();
+}

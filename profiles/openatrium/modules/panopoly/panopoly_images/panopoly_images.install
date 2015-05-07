@@ -60,3 +60,24 @@ function panopoly_images_update_7102() {
     'manualcrop_require_cropping' => array(),
   ));
 }
+
+/**
+ * Change the image style labels.
+ */
+function panopoly_images_update_7103() {
+  $image_styles = panopoly_images_image_default_styles();
+
+  $overridden_styles = db_select('image_styles', 'i')
+    ->fields('i', array('name'))
+    ->condition('name', array_keys($image_styles), 'IN')
+    ->execute()
+    ->fetchCol();
+
+  foreach ($overridden_styles as $name) {
+    $style = image_style_load($name);
+    $style['label'] = $image_styles[$name]['label'];
+    image_style_save($style);
+  }
+
+  cache_clear_all('image_styles', 'cache');
+}

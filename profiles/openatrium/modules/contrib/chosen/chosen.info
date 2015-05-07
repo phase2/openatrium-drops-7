@@ -6,9 +6,9 @@ core = 7.x
 dependencies[] = jquery_update
 
 
-; Information added by drush on 2015-03-20
+; Information added by drush on 2015-05-07
 version = "7.x-2.0-alpha4+5-dev"
 core = "7.x"
 project = "chosen"
-datestamp = "1426881025"
+datestamp = "1431013613"
 

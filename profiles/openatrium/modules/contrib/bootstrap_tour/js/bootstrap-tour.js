@@ -1,7 +1,6 @@
 (function($) {
   Drupal.behaviors.bootstrapTour = {
     attach: function(context) {
-
       var tourConfig = Drupal.settings.bootstrapTour.tour;
       if (!tourConfig) {
         return;
@@ -26,7 +25,7 @@
         }
 
         // Override the isRedirect function so that we can support non-clean-URLs.
-        currentPath = '/' + (location.pathname+location.search).substr(1)
+        currentPath = '/' + (location.pathname+location.search).substr(1);
         currentPath = cleanPath(currentPath.replace(Drupal.settings.basePath, '/'));
         path = cleanPath(path.replace(Drupal.settings.basePath, '/'));
 
@@ -35,7 +34,7 @@
         } else {
           return (currentPath.indexOf('?q=') !== -1);
         }
-      }
+      };
 
       var wanderedOff = Drupal.t("You have wandered off from the tour! You will be automatically redirected back to the tour. Please click 'OK' to continue, or 'Cancel' to end the tour.");
 
@@ -104,7 +103,7 @@
           content: step.content,
           placement: step.placement,
           animation: true
-        }
+        };
         if (step.path) {
           options.path = '';
           if (step.path.trim() != '<front>') {
@@ -130,6 +129,13 @@
           options.orphan = true;
         } else {
           options.element = step.selector;
+          options.onShown = function (tour) {
+            $(options.element).addClass('bootstrap-tour-selected');
+            shown = true;
+          };
+          options.onHidden = function (tour) {
+            $(options.element).removeClass('bootstrap-tour-selected');
+          };
         }
         t.addSteps([options])
 

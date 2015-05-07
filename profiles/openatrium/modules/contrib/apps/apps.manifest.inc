@@ -284,8 +284,7 @@ function apps_request_manifest($server) {
 function apps_request_manifest_image_process(&$manifest) {
   foreach ($manifest['apps'] as $id => &$app) {
     if (isset($app['logo'])) {
-      $logo = apps_retrieve_app_image($id, $app['logo'], t("@name Logo", array('@name' => $app['name'])));
-      $app['logo'] = !empty($logo) ? $logo : FALSE;
+      $app['logo'] = apps_retrieve_app_image($id, $app['logo'], t("@name Logo", array('@name' => $app['name'])));
     }
 
     if (isset($app['screenshots'])) {
@@ -380,6 +379,10 @@ function apps_retrieve_app_image($app, $url, $title = '', $alt = '') {
     $file = new stdClass();
     $file->filemime = $request->headers['content-type'];
     $file->uri = file_unmanaged_save_data($request->data, $uri, FILE_EXISTS_REPLACE);
+    if (empty($file->uri)) {
+      watchdog('apps', 'unable to save to @file', array('@file' => $uri));
+      return FALSE;
+    }
     if ($current) {
       $file->fid = $current->fid;
     }

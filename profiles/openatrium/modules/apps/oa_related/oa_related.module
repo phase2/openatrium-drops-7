@@ -6,6 +6,9 @@
 
 include_once 'oa_related.features.inc';
 include_once 'oa_related.paragraphs.inc';
+include_once 'oa_related.theme.inc';
+
+define('PARAGRAPH_ADD_MORE_BUNDLE', 'add_more_bundle_');
 
 /**
  * Implements hook_ctools_plugin_directory().
@@ -19,30 +22,111 @@ function oa_related_ctools_plugin_directory($owner, $plugin_type) {
 /**
  * Implements hook_theme().
  */
-function oa_related_theme() {
-  $path = drupal_get_path('module', 'oa_related') . '/templates';
-  return array(
-    'oa_related_files' => array(
-      'template' => 'oa-related-files',
-      'variables' => array(
-      ),
-      'path' => $path,
-    ),
-    'oa_related_ref' => array(
-      'template' => 'oa-related-ref',
-      'variables' => array(
-      ),
-      'path' => $path,
-    ),
+function oa_related_theme($existing, $type, $theme, $path) {
+  $theme = array();
+  $path = $path . '/templates';
+  $theme['oa_related_files'] = array(
+    'template' => 'oa-related-files',
+    'variables' => array(),
+    'path' => $path,
   );
+  $theme['oa_related_ref'] = array(
+    'template' => 'oa-related-ref',
+    'variables' => array(),
+    'path' => $path,
+  );
+
+  // Get all of the paragraph types.
+  $bundles = paragraphs_bundle_load();
+  // Add all of our paragraph bundles dynamically.
+  foreach ($bundles as $machine_name => $bundle) {
+    $filename = 'oa-related-paragraphs-' . $machine_name . '-form';
+    if (file_exists($path . '/' . $filename . '.tpl.php')) {
+      $theme['oa_related_paragraphs_' . $machine_name . '_form'] = array(
+        'template' => $filename,
+        'render element' => 'element',
+        'path' => $path,
+      );
+    }
+  }
+  return $theme;
 }
 
+/**
+ * Implements hook_panels_display_save().
+ */
+function oa_related_panels_display_save($display) {
+  // If a Featured view mode is saved, enable the content type for entityreferences.
+  // cache_key has format: panelizer:default:node:%type.%viewmode:default
+  if (!empty($display->cache_key)) {
+    $parts = explode(':', $display->cache_key);
+    if (!empty($parts[2]) && ($parts[2] == 'node') && !empty($parts[3])) {
+      list($bundle, $viewmode) = explode('.', $parts[3]);
+      if ($viewmode == 'featured') {
+        _oa_related_enable_related($bundle, _oa_related_has_panelizer_viewmode($bundle, $viewmode));
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_node_type_update().
+ */
+function oa_related_node_type_update($info) {
+  // See if this content type has a Featured display mode.
+  // If so, enable it for related content.
+  _oa_related_enable_related($info->type, _oa_related_has_panelizer_viewmode($info->type, 'featured'));
+}
+
+/**
+ * Helper function to determine if a given content type has a given panelized view mode
+ * @param string $type content type (bundle)
+ * @param string $viewmode machine name of view mode
+ */
+function _oa_related_has_panelizer_viewmode($type, $viewmode) {
+  $handler = panelizer_entity_plugin_get_handler('node');
+  return !empty($handler->plugin['bundles'][$type]['status']) &&
+    !empty($handler->plugin['bundles'][$type]['view modes'][$viewmode]['status']);
+}
+
+/**
+ * Helper function to enable or disable related content for a given node type.
+ * NOTE: This determines if the content type is available via the Related Content Paragraph type
+ * It is *not* related to whether oa_related field is added to the content type.
+ * See the oa_related_features_template_info() for that.
+ * This just modifies the target_bundles for the oa_related_content entityreference.
+ * @param string $type content type (bundle)
+ * @param bool $value
+ */
+function _oa_related_enable_related($type, $value = TRUE) {
+  $field = field_info_field('field_oa_related_content');
+  // Installing site, field doesn't exist, exit out.
+  if (!$field) {
+    return;
+  }
+  if ($value) {
+    $do_update = empty($field['settings']['handler_settings']['target_bundles'][$type]);
+    $field['settings']['handler_settings']['target_bundles'][$type] = $type;
+  }
+  else {
+    $do_update = !empty($field['settings']['handler_settings']['target_bundles'][$type]);
+    unset($field['settings']['handler_settings']['target_bundles'][$type]);
+  }
+  if ($do_update) {
+    field_update_field($field);
+    $message = $value ? t('Enabled !type for related content references.', array('!type' => $type))
+      : t('Disabled !type for related content references.', array('!type' => $type));
+    if (variable_get('install_task') == 'done') {
+      drupal_set_message($message);
+    }
+  }
+}
 
 /**
  * Implements hook_form_FORMID_alter().
  */
 function oa_related_form_field_ui_display_overview_form_alter(&$form, &$form_state) {
-  // add Heading option to paragraph field labels
+  // Add Heading option to paragraph field labels.
   if (isset($form['#entity_type']) && ($form['#entity_type'] == 'paragraphs_item')) {
     foreach ($form['#fields'] as $fieldname) {
       if (isset($form['fields'][$fieldname]['label'])) {
@@ -55,7 +139,22 @@ function oa_related_form_field_ui_display_overview_form_alter(&$form, &$form_sta
 }
 
 /**
- * Helper function to create a new panels pane for a given fieldname
+ * Implements hook_paragraphs_field_widget_form_alter().
+ */
+function oa_related_paragraphs_field_widget_form_alter(&$element, &$form_state, &$context) {
+  // Set the theme for the widget.
+  $element['#theme'] = 'oa_related_paragraphs_' . $element['#bundle'] . '_form';
+  // Get the title from pre-rendered markup.
+  $bundle_title = trim(str_replace('Paragraph type:', '', $element['paragraph_bundle_title']['info']['#markup']));
+  // Set the new title.
+  $element['paragraph_bundle_title']['info']['#markup'] = $bundle_title;
+  // Rewrite the value of the button.
+  $element['actions']['remove_button']['#value'] = t('Remove !title', array('!title' => rtrim(strip_tags($bundle_title))));
+}
+
+/**
+ * Helper function to create a new panels pane for a given fieldname.
+ *
  * @param $node
  */
 function oa_related_default_pane($node, $field_name) {
@@ -72,11 +171,9 @@ function oa_related_default_pane($node, $field_name) {
 }
 
 /**
- * Implements hook_panelizer_pre_render_alter
+ * Implements hook_panelizer_pre_render_alter().
+ *
  * Adds the oa_related field panels pane right after the body field
- * @param $panelizer
- * @param $display
- * @param $entity
  */
 function oa_related_panelizer_pre_render_alter(&$panelizer, $display, $entity) {
   if (!empty($entity->field_oa_related)) {
@@ -111,7 +208,8 @@ function oa_related_panelizer_pre_render_alter(&$panelizer, $display, $entity) {
 }
 
 /**
- * Return the best section id to create $node in
+ * Return the best section id to create $node in.
+ *
  * @param $options array is optional to restrict return values
  */
 function oa_related_get_best_section($node, $options = array()) {
@@ -180,7 +278,8 @@ function oa_related_get_best_section($node, $options = array()) {
 }
 
 /**
- * Implements hook_form_alter
+ * Implements hook_form_FORM_ID_alter() for node_form.
+ *
  * For node/add and node/edit pages
  */
 function oa_related_form_node_form_alter(&$form, &$form_state) {
@@ -241,11 +340,16 @@ function oa_related_get_content_types() {
 
 /**
  * Template callback for field_topic.
+ *
  * Used as a template for other bundles.
  * References to oa_wiki_page will be replaced by features_template.
  */
 function oa_related_field_default_field_instances_template() {
   $field_instances = array();
+
+  foreach (paragraphs_bundle_load() as $machine_name => $bundle) {
+    $bundles[$machine_name] = $machine_name;
+  }
 
   // Exported field_instance: 'node-oa_wiki_page-field_oa_related'
   $field_instances['node-oa_wiki_page-field_oa_related'] = array(
@@ -288,9 +392,11 @@ function oa_related_field_default_field_instances_template() {
     'label' => t('Paragraphs'),
     'required' => 0,
     'settings' => array(
-      'add_mode' => 'select',
-      'allowed_bundles' => array(),
+      'add_mode' => 'button',
+      'add_mode_instructions' => '',
+      'allowed_bundles' => array_intersect_key($bundles, array_filter(variable_get('oa_related_paragraph_bundles', $bundles))),
       'default_edit_mode' => 'open',
+      'hide_instructions' => 1,
       'title' => 'Paragraph',
       'title_multiple' => 'Paragraphs',
       'user_register_form' => FALSE,
@@ -333,6 +439,22 @@ function oa_related_oa_settings_form(&$form_state) {
   );
   $form_state['build_info']['oa_related_allowed_types'] = $default;
 
+  // Add enabling of oa_related.
+  $bundles = array();
+  $_bundles = paragraphs_bundle_load();
+  foreach ($_bundles as $machine_name => $bundle) {
+    $bundles[$machine_name] = $bundle->name;
+  }
+  $form['oa_related_paragraph_bundles'] = array(
+    '#title' => t('Enabled paragraph bundles'),
+    '#description' => t('Select which bundles related content field should have.'),
+    '#type' => 'checkboxes',
+    '#required' => TRUE,
+    '#default_value' => array_filter(variable_get('oa_related_paragraph_bundles', array_keys($bundles))),
+    '#options' => $bundles,
+  );
+  $form_state['oa_related_paragraph_bundles'] = $form['oa_related_paragraph_bundles']['#default_value'];
+
   $forms[] = array(
     'caption' => t('Related Content'),
     'form' => $form,
@@ -346,10 +468,20 @@ function oa_related_oa_settings_form(&$form_state) {
  * Submit handler for oa_related_oa_settings_form
  */
 function oa_related_settings_submit($form, &$form_state) {
+  $update = FALSE;
   // only revert features template if content types have changed
   if (!empty($form_state['build_info']['oa_related_allowed_types']) &&
     md5(serialize($form_state['build_info']['oa_related_allowed_types'])) != md5(serialize($form_state['values']['oa_related_allowed_types']))) {
     variable_set('oa_related_allowed_types', $form_state['values']['oa_related_allowed_types']);
+    $update = TRUE;
+  }
+  if (isset($form_state['values']['oa_related_paragraph_bundles'])) {
+    $filtered = array_filter($form_state['values']['oa_related_paragraph_bundles']);
+    variable_set('oa_related_paragraph_bundles', $filtered);
+    $form_state['values']['oa_related_paragraph_bundles'] = $filtered;
+    $update = $update || $form_state['oa_related_paragraph_bundles'] != $filtered;
+  }
+  if ($update) {
     features_template_revert();
   }
 }
@@ -442,4 +574,46 @@ function oa_related_template_modules_enabled($modules) {
       break;
     }
   }
+}
+
+/**
+ * Implements hook_oa_related_icons().
+ *
+ * This is using font-awesome unicode values to return icons for paragraph
+ * buttons.
+ *
+ * @see http://fortawesome.github.io/Font-Awesome/3.2.1/cheatsheet/
+ */
+function oa_related_oa_related_icons($type) {
+  $info = array();
+  switch ($type) {
+    case 'paragraph_content':
+      $info = array(
+        'icon' => decode_entities('&#xf08e;'),
+      );
+      break;
+
+    case 'paragraph_media':
+      $info = array(
+        'icon' => decode_entities('&#xf03e;'),
+      );
+      break;
+
+    case 'paragraph_snippet':
+      $info = array(
+        'icon' => decode_entities('&#xf0c4;'),
+      );
+      break;
+
+    case 'paragraph_text':
+      $info = array(
+        'icon' => decode_entities('&#xf0f6;'),
+      );
+      break;
+
+    default:
+      break;
+  }
+
+  return $info;
 }

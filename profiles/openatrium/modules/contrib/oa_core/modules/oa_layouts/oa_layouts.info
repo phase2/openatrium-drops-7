@@ -11,6 +11,7 @@ dependencies[] = page_manager
 dependencies[] = panelizer
 dependencies[] = panels
 dependencies[] = panels_mini
+dependencies[] = panopoly_admin
 dependencies[] = strongarm
 features[ctools][] = page_manager:pages_default:1
 features[ctools][] = panelizer:panelizer:1
@@ -18,12 +19,19 @@ features[ctools][] = panels:pipelines:1
 features[ctools][] = panels_mini:panels_default:1
 features[ctools][] = strongarm:strongarm:1
 features[features_api][] = api:2
+features[features_override_items][] = page_manager_handlers.node_edit_panel_context
+features[features_overrides][] = page_manager_handlers.node_edit_panel_context.conf|display|content|new-c0926cca-059c-4bb1-bccd-2838ec7a93f2|position
+features[features_overrides][] = page_manager_handlers.node_edit_panel_context.conf|display|content|new-f2ca947f-f14f-4b9e-ac1f-2f8d94ca01a6
+features[features_overrides][] = page_manager_handlers.node_edit_panel_context.conf|display|panels|sidebar|6
+features[features_overrides][] = page_manager_handlers.node_edit_panel_context.conf|display|panels|sidebar|7
 features[menu_custom][] = menu-footer
 features[page_manager_handlers][] = node_edit_panel_context_2
 features[page_manager_handlers][] = node_edit_panel_context_4
 features[panelizer_defaults][] = node:oa_group:default
 features[panelizer_defaults][] = node:oa_section:default
+features[panelizer_defaults][] = node:oa_section:default:featured
 features[panelizer_defaults][] = node:oa_space:default
+features[panelizer_defaults][] = node:oa_space:default:featured
 features[panelizer_defaults][] = node:oa_space:space_description
 features[panels_mini][] = default_section_sidebar
 features[panels_mini][] = oa_footer_panel
@@ -42,9 +50,9 @@ features_exclude[variable][panelizer_node:oa_section_allowed_layouts] = panelize
 features_exclude[variable][panelizer_node:oa_space_allowed_layouts] = panelizer_node:oa_space_allowed_layouts
 features_exclude[variable][panelizer_node:oa_space_allowed_types] = panelizer_node:oa_space_allowed_types
 
-; Information added by Drupal.org packaging script on 2015-03-19
-version = "7.x-2.43"
+; Information added by Drupal.org packaging script on 2015-05-06
+version = "7.x-2.52"
 core = "7.x"
 project = "oa_core"
-datestamp = "1426789396"
+datestamp = "1430952376"
 

@@ -30,9 +30,7 @@ function oa_related_files_render($subtype, $conf, $args, $context) {
   $query = db_select('file_managed', 'f');
   $query->leftJoin('field_data_field_oa_media', 'm', 'm.field_oa_media_fid = f.fid');
   $query->leftJoin('field_data_field_oa_related', 'r', "r.field_oa_related_value = m.entity_id AND m.entity_type = 'paragraphs_item'");
-  $query->leftJoin('field_data_oa_parent', 'p', "p.entity_id = m.entity_id AND m.entity_type = 'node'");
   $query->fields('f', array('fid'))
-    ->orderBy('p.entity_id')
     ->orderBy('f.fid');
 
   $or = db_or();
@@ -42,9 +40,6 @@ function oa_related_files_render($subtype, $conf, $args, $context) {
   $or->condition(db_and()
     ->condition('r.entity_id', $nid)
     ->condition('r.entity_type', 'node'));
-  $or->condition(db_and()
-    ->condition('p.oa_parent_target_id', $nid)
-    ->condition('p.entity_type', 'node'));
 
   $query->condition($or);
   $fids = $query->execute()->fetchCol(0);

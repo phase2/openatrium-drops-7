@@ -62,6 +62,7 @@ function oa_related_field_default_field_bases() {
         'table' => 'Table of files',
         'preview' => 'Preview listing',
         'full' => 'Full content',
+        'list' => 'Simple listing',
       ),
       'allowed_values_function' => '',
     ),
@@ -119,6 +120,8 @@ function oa_related_field_default_field_bases() {
         'target_bundles' => array(
           'oa_discussion_post' => 'oa_discussion_post',
           'oa_event' => 'oa_event',
+          'oa_section' => 'oa_section',
+          'oa_space' => 'oa_space',
           'oa_wiki_page' => 'oa_wiki_page',
           'oa_worktracker_task' => 'oa_worktracker_task',
         ),

@@ -1,188 +1,79 @@
 <?php
 
 /**
- * Helper function to actually run a tour. Can be called from anywhere.
+ * @file
+ * bootstrap_tour.module
  */
-function bootstrap_tour_run_tour($name, $force = FALSE) {
-  $tour = bootstrap_tour_load($name);
-  if (empty($tour) || !empty($tour->disabled)) {
-    return;
-  }
 
-  if (!empty($tour->roles)) {
-    // Compare the tour's roles to the user's roles and if there aren't any overlaps and
-    // the user isn't user 1, cancel running the tour.
-    global $user;
-    $tour_roles = explode(',', $tour->roles);
-    $user_roles = array_keys($user->roles);
-    $compare = array_intersect($tour_roles, $user_roles);
-    if ($user->uid != 1 && empty($compare)) {
-      return;
-    }
-  }
-
-  if (!empty($tour->steps) && !is_array($tour->steps)) {
-    $tour->steps = unserialize($tour->steps);
-  }
-  if (count($tour->steps) > 1) {
-    // Set this as the current tour in the session.
-    $_SESSION['tour'] = $name;
-  }
-  $first_path = $tour->steps[0]['path'];
-  if ($first_path == current_path() || $first_path == request_path() || ($first_path == '<front>' && request_path() == '')) {
-    if (empty($_GET['step']) || $_GET['step'] == 0) {
-      // We're starting the tour over.
-      if (!empty($_SESSION['nexttour'])) {
-        unset($_SESSION['nexttour']);
-      }
-    }
-  }
-  drupal_alter('bootstrap_tour', $tour);
-  $step_path = '';
-  foreach($tour->steps as $key => &$step) {
-    // If a path isn't specified, then use the path from the previous step.
-    if ($step['path']) {
-      $step_path = $step['path'];
-    }
-    else {
-      $step['path'] = $step_path;
-    }
-    // Determine we are on the first step of the tour.
-    if ($key == 0 && ($step['path'] == current_path() || $step['path'] == request_path() || ($step['path'] == '<front>' && request_path() == ''))) {
-      if (!empty($_GET['tour']) && (empty($_GET['step']) || $_GET['step'] == 0)) {
-        $tour->isFirstStep = TRUE;
-      }
-    }
-    // Filter user supplied content.
-    $step['title'] = check_plain($step['title']);
-    $step['content'] = check_markup($step['content'], $step['format']);
-  }
-  $tour->force = $force;
-  $tour->cleanUrls = variable_get('clean_url', 0);
-
-  drupal_add_js(array('bootstrapTour' => array('tour' => $tour)), 'setting');
-
-  if (module_exists('libraries') && ($library = libraries_detect('bootstrap_tour')) && !empty($library['installed'])) {
-    libraries_load('bootstrap_tour');
-  }
-  else {
-    // Grab the Bootstrap Tour JS from CDNJS if the library isn't installed.
-    global $base_url;
-    $base = parse_url($base_url);
-    drupal_add_css($base['scheme'] . '://cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.6.1/css/bootstrap-tour.min.css', 'external');
-    drupal_add_js($base['scheme'] . '://cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.6.1/js/bootstrap-tour.min.js', 'external');
-  }
-
-  drupal_add_js(drupal_get_path('module', 'bootstrap_tour') . '/js/bootstrap-tour.js');
-  drupal_add_css(drupal_get_path('module', 'bootstrap_tour') . '/css/bootstrap-tour.css');
+/**
+ * Implements hook_entity_info().
+ */
+function bootstrap_tour_entity_info() {
+  $bootstrap_tour_entity_info['bootstrap_tour'] = array(
+    'label' => t('Site Tour'),
+    'entity class' => 'Entity',
+    'controller class' => 'BootstrapTourEntityController',
+    'base table' => 'bootstrap_tour_tour',
+    'fieldable' => TRUE,
+    'exportable' => TRUE,
+    'entity keys' => array(
+      'id' => 'bootstrap_tour_id',
+      'label' => 'title',
+      'name' => 'name',
+    ),
+    'static cache' => TRUE,
+    'admin ui' => array(
+      'path' => 'admin/structure/tours',
+      'controller class' => 'BootstrapTourUIController',
+      'file' => 'includes/bootstrap_tour.admin.inc',
+    ),
+    'module' => 'bootstrap_tour',
+    'access callback' => 'bootstrap_tour_admin_access',
+    'views controller class' => 'EntityDefaultViewsController',
+    'bundles' => array(
+      // Entity defaults to entity type for single bundles.
+      'bootstrap_tour' => array(
+        'label' => t('Site Tour'),
+        'admin' => array(
+          'path' => 'admin/structure/tours',
+          'access arguments' => array('administer bootstrap tours'),
+        ),
+      ),
+    ),
+  );
+  $bootstrap_tour_entity_info['bootstrap_tour_step'] = array(
+    'label' => t('Site Tour Step'),
+    'entity class' => 'Entity',
+    'controller class' => 'EntityAPIController',
+    'base table' => 'bootstrap_tour_step',
+    'fieldable' => FALSE,
+    'entity keys' => array(
+      'id' => 'bootstrap_tour_step_id',
+      'label' => 'title',
+      'name' => 'name',
+    ),
+    'static cache' => TRUE,
+    'module' => 'bootstrap_tour',
+    'access callback' => 'bootstrap_tour_admin_access',
+    'views controller class' => 'EntityDefaultViewsController',
+    'inline entity form' => array(
+      'controller' => 'BootstrapTourStepInlineEntityFormController',
+      'file' => 'includes/bootstrap_tour_step.inline_entity_form.inc',
+    ),
+  );
+  return $bootstrap_tour_entity_info;
 }
 
 /**
- * Helper function to end the current toure.
- */
-function bootstrap_tour_end_current_tour() {
-  unset($_SESSION['tour']);
-}
-
-/**
- * Implementation of hook_init().
- * Load all the tours and figure out if any are set to auto-run and start on the current page.
- * If so, go ahead and run that one.
- */
-function bootstrap_tour_page_build(&$page) {
-  // Try and detect if we are in an AJAX request and bail if so.
-  if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-    return;
-  }
-
-  $tours = bootstrap_tour_load_all();
-
-  // Force a tour to run if the tour name is in the session vars.
-  $current_name = !empty($_SESSION['tour']) ? $_SESSION['tour'] : NULL;
-  // We can also jump to a new tour by specifying ?tour=tourname in the query
-  // string, but only if it's the first step OR in the tour we were already
-  // on. This is to prevent weird behavior if we switch domains on the same
-  // site - ie. we shouldn't be able to start a new tour mid-stream.
-  if (!empty($_GET['tour']) && ($_GET['tour'] == $current_name || empty($_GET['step']))) {
-    $current_name = $_GET['tour'];
-  }
-  if (!empty($current_name)) {
-    foreach($tours as $tour) {
-      if ($tour->name == $current_name) {
-        bootstrap_tour_run_tour($tour->name, TRUE);
-        return;
-      }
-    }
-  }
-  // Force the next tour to run if the tour name is in the session vars.
-  if (!empty($_SESSION['nexttour'])) {
-    foreach($tours as $tour) {
-      if ($_SESSION['nexttour'] == $tour->name) {
-        bootstrap_tour_run_tour($tour->name, TRUE);
-        return;
-      }
-    }
-  }
-  // Otherwise, only run the tour if it's set to auto-run and we're on the path of one of the steps.
-  foreach($tours as $tour) {
-    if (!empty($tour->steps) && $tour->autorun) {
-      if (!is_array($tour->steps)) {
-        $tour->steps = unserialize($tour->steps);
-      }
-      $path = $tour->steps[0]['path'];
-      if ($path == current_path() || $path == request_path() || ($path == '<front>' && request_path() == '')) {
-        bootstrap_tour_run_tour($tour->name);
-      }
-    }
-  }
-}
-
-/**
- * Implementation of hook_menu()
+ * Implements hook_menu().
  */
 function bootstrap_tour_menu() {
   $items = array();
+
   $items['admin/structure/tours'] = array(
     'title' => 'Site Tours',
-    'description' => 'Create, edit and delete guided site tours',
-    'page callback' => 'bootstrap_tour_list',
     'access arguments' => array('administer bootstrap tours'),
-  );
-  $items['admin/structure/tours/list'] = array(
-    'title' => 'List',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-    'weight' => -10,
-  );
-  $items['admin/structure/tours/add'] = array(
-    'title' => 'Add site tour',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('bootstrap_tour_form'),
-    'access arguments' => array('administer bootstrap tours'),
-    'type' => MENU_LOCAL_ACTION,
-  );
-  $items['admin/structure/tours/manage/%bootstrap_tour'] = array(
-    'title' => 'Edit site tour',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('bootstrap_tour_form', 4),
-    'access arguments' => array('administer bootstrap tours'),
-  );
-  $items['admin/structure/tours/manage/%bootstrap_tour/edit'] = array(
-    'title' => 'Edit site tour',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-  );
-  $items['admin/structure/tours/manage/%bootstrap_tour/delete'] = array(
-    'title' => 'Delete site tour',
-    'page arguments' => array('bootstrap_tour_delete_confirm', 4),
-    'page callback' => 'drupal_get_form',
-    'access arguments' => array('administer bootstrap tours'),
-    'type' => MENU_LOCAL_TASK,
-  );
-  $items['admin/structure/tours/manage/%bootstrap_tour/toggle'] = array(
-    'title' => 'Toggle tour status',
-    'page arguments' => array(4),
-    'page callback' => 'bootstrap_tour_toggle_status',
-    'access arguments' => array('administer bootstrap tours'),
-    'type' => MENU_LOCAL_TASK,
+    'type' => MENU_NORMAL_ITEM,
   );
   $items['bootstrap_tour/ajax/end_current_tour'] = array(
     'title' => 'AJAX callback to end current tour',
@@ -194,264 +85,31 @@ function bootstrap_tour_menu() {
 }
 
 /**
- * Implementation of hook_permission()
+ * Implements hook_permission().
  */
 function bootstrap_tour_permission() {
   return array(
     'administer bootstrap tours' => array(
       'title' => t('Administer bootstrap tours'),
-      'description' => t('Create and edit Bootstrap Tours'),
+      'description' => t('Allows a user to add, edit, and delete bootstrap tours.'),
     ),
   );
 }
 
 /**
- * Callback form builder for the delete confirmation page.
+ * Bootstrap Tour access callback.
  */
-function bootstrap_tour_delete_confirm($form, &$form_state, $tour = '') {
-  if (empty($tour)) {
-    drupal_goto('admin/structure/tours');
-  }
-  $form['tour'] = array('#type' => 'value', '#value' => $tour->name);
-  return confirm_form($form,
-    t('Are you sure you want to delete %title?', array('%title' => $tour->title)),
-    'admin/structure/tours',
-    t('This action cannot be undone.'),
-    t('Delete'),
-    t('Cancel')
-  );
-}
-
-
-/**
- * Submit callback for the delete confirmation form. Actually performs the delete.
- */
-function bootstrap_tour_toggle_status($tour) {
-  if (empty($tour->disabled)) {
-    drupal_set_message(t('The ') . $tour->title . t(' tour has been disabled.'));
-    $disable = TRUE;
-  } else {
-    drupal_set_message(t('The ') . $tour->title . t(' tour has been enabled.'));
-    $disable = FALSE;
-  }
-  ctools_export_crud_set_status('bootstrap_tour', $tour, $disable);
-  drupal_goto('admin/structure/tours');
+function bootstrap_tour_admin_access($op, $tour = NULL, $account = NULL) {
+  return user_access('administer bootstrap tours', $account);
 }
 
 /**
- * Submit callback for the delete confirmation form. Actually performs the delete.
+ * Implements hook_views_api().
  */
-function bootstrap_tour_delete_confirm_submit($form, &$form_state) {
-  if ($form_state['values']['confirm']) {
-    $tour = $form_state['values']['tour'];
-    $result = db_delete('bootstrap_tour')
-      ->condition('name', $tour)
-      ->execute();
-    drupal_set_message(t('Tour has been deleted.'));
-  }
-  $form_state['redirect'] = 'admin/structure/tours';
-}
-
-/**
- * Form callback for the administration of site tours.
- */
-function bootstrap_tour_form($form, &$form_state, $tour = '') {
-  if (!empty($tour)) {
-    if (!empty($tour->steps) && !is_array($tour->steps)) {
-      $tour->steps = unserialize($tour->steps);
-    }
-  } else {
-    $tour = new stdClass();
-  }
-
-  $form['title'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Name'),
-    '#description' => t('A human readable name for this site tour.'),
-    '#required' => TRUE,
-    '#default_value' => !empty($tour->title) ? $tour->title : '',
+function bootstrap_tour_views_api() {
+  return array(
+    'api' => 3,
   );
-  $form['name'] = array(
-    '#type' => 'value',
-    '#value' => !empty($tour->name) ? $tour->name : '',
-  );
-  $form['description'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Description'),
-    '#description' => t('Used for administrative purposes only.'),
-    '#default_value' => !empty($tour->description) ? $tour->description : '',
-  );
-  $form['roles'] = array(
-    '#type' => 'select',
-    '#title' => t('Roles'),
-    '#description' => t('Which roles can access this tour? Leave blank for all.'),
-    '#multiple' => TRUE,
-    '#options' => user_roles(),
-    '#default_value' => !empty($tour->roles) ? explode(',', $tour->roles) : '',
-  );
-  $form['autorun'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Automatically run'),
-    '#description' => t('Should this tour start automatically the first time a user visits the path of the first step? If this is checked, the first step must have the "Path" field filled out.'),
-    '#default_value' => !empty($tour->autorun) ? $tour->autorun : '',
-    '#weight' => 5,
-  );
-
-  $form['steps_fieldset'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Tour steps'),
-    '#prefix' => '<div id="steps-fieldset-wrapper">',
-    '#suffix' => '</div>',
-    '#weight' => 10,
-  );
-  if (empty($form_state['num_steps'])) {
-    if (empty($tour->steps)) {
-      $form_state['num_steps'] = 1;
-    } else {
-      $form_state['num_steps'] = count($tour->steps);
-    }
-  }
-  for ($i = 0; $i < $form_state['num_steps']; $i++) {
-    $form['steps_fieldset'][$i . '_path'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Path'),
-      '#required' => $i == 0,
-      '#description' => t('Which path should this step be displayed on? This is required on the first step, but if subsequent steps will use the same path as the previous step(s) you can leave this blank. Enter &lt;front&gt; for the front page.'),
-      '#default_value' => !empty($tour->steps[$i]['path']) ? $tour->steps[$i]['path'] : '',
-    );
-    $form['steps_fieldset'][$i . '_selector'] = array(
-      '#type' => 'textfield',
-      '#title' => t('CSS Selector'),
-      '#description' => t('Leave this blank if you want this popup to show up centered on the page and not attached to a specific element.'),
-      '#default_value' => !empty($tour->steps[$i]['selector']) ? $tour->steps[$i]['selector'] : '',
-    );
-    $form['steps_fieldset'][$i . '_placement'] = array(
-      '#type' => 'select',
-      '#title' => t('Placement'),
-      '#options' => array(
-        'top' => t('Top'),
-        'bottom' => t('Bottom'),
-        'left' => t('Left'),
-        'right' => t('Right'),
-      ),
-      '#default_value' => !empty($tour->steps[$i]['placement']) ? $tour->steps[$i]['placement'] : '',
-    );
-    $form['steps_fieldset'][$i . '_title'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Popup Title'),
-      '#required' => TRUE,
-      '#default_value' => !empty($tour->steps[$i]['title']) ? $tour->steps[$i]['title'] : '',
-    );
-    $form['steps_fieldset'][$i . '_content'] = array(
-      '#type' => 'text_format',
-      '#base_type' => 'textarea',
-      '#suffix' => '<hr />',
-      '#title' => t('Popup Content'),
-      '#default_value' => !empty($tour->steps[$i]['content']) ? $tour->steps[$i]['content'] : '',
-    );
-  }
-  $form['add_step'] = array(
-    '#type' => 'submit',
-    '#value' => t('Add another step'),
-    '#submit' => array('bootstrap_tour_form_add_one'),
-    '#ajax' => array(
-      'callback' => 'bootstrap_tour_form_add_one_callback',
-      'wrapper' => 'steps-fieldset-wrapper',
-    ),
-    '#suffix' => ' ',
-    '#weight' => 20,
-  );
-  $form['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Save'),
-    '#weight' => 20,
-  );
-  return $form;
-}
-
-/**
- * AJAX callback to add one more step.
- */
-function bootstrap_tour_form_add_one($form, &$form_state) {
-  $form_state['num_steps']++;
-  $form_state['rebuild'] = TRUE;
-}
-
-/**
- * AJAX callback to add one more step on button click.
- */
-function bootstrap_tour_form_add_one_callback($form, $form_state) {
-  return $form['steps_fieldset'];
-}
-
-/**
- * Submit callback for the Bootstrap Tour create/edit form.
- */
-function bootstrap_tour_form_submit($form, &$form_state) {
-  $vals = $form_state['values'];
-  $tour = new stdClass();
-  $tour->description = $vals['description'];
-  $tour->title = $vals['title'];
-  $tour->is_new = empty($vals['name']) || bootstrap_tour_is_default($vals['name']);
-  $tour->name = !empty($vals['name']) ? $vals['name'] : bootstrap_tour_generate_machine_name($vals['title']);
-  $tour->autorun = $vals['autorun'];
-  $tour->roles = implode(',', $vals['roles']);
-  $i = 0;
-  while (!empty($vals[$i . '_title'])) {
-    $tour->steps[] = array(
-      'selector' => $vals[$i . '_selector'],
-      'path' => $vals[$i . '_path'],
-      'placement' => $vals[$i . '_placement'],
-      'title' => $vals[$i . '_title'],
-      'content' => $vals[$i . '_content']['value'],
-      'format' => $vals[$i . '_content']['format'],
-    );
-    $i++;
-  }
-
-  drupal_alter('bootstrap_tour_presave', $tour, $vals);
-
-  if ($tour->is_new) {
-    drupal_write_record('bootstrap_tour', $tour);
-  } else {
-    drupal_write_record('bootstrap_tour', $tour, array('name'));
-  }
-  drupal_set_message('Tour successfully saved.');
-  $form_state['redirect'] = 'admin/structure/tours';
-}
-
-/**
- * Callback function for admin/build/tours
- */
-function bootstrap_tour_list() {
-  $names = bootstrap_tour_load_all(TRUE);
-  $header = array(t('Name'), array('data' => t('Operations'), 'colspan' => '2'));
-  $rows = array();
-
-  foreach ($names as $name => $tour) {
-    $row = array();
-    $row[] = array('data' => check_plain($tour->title));
-    $row[] = array('data' => l(t('edit'), 'admin/structure/tours/manage/' . $name));
-    if (!bootstrap_tour_is_default($tour->name)) {
-      $row[] = array('data' => l(t('delete'), 'admin/structure/tours/manage/' . $name . '/delete'));
-    } else {
-      if (empty($tour->disabled)) {
-        $row[] = array('data' => l(t('disable'), 'admin/structure/tours/manage/' . $name . '/toggle'));
-      } else {
-        $row[] = array('data' => l(t('enable'), 'admin/structure/tours/manage/' . $name . '/toggle'));
-      }
-    }
-    $rows[] = $row;
-  }
-
-  $build['tours_table'] = array(
-    '#theme' => 'table',
-    '#header' => $header,
-    '#rows' => $rows,
-    '#empty' => t('No site tours available. <a href="@link">Add a site tour</a>.', array('@link' => url('admin/structure/tours/add'))),
-  );
-
-  return $build;
 }
 
 /**
@@ -500,44 +158,225 @@ function bootstrap_tour_libraries_info() {
 }
 
 /**
- * Callback function for loading all bootstrap tours in an array of 'btid' => 'name' format.
+ * Helper function to actually run a tour. Can be called from anywhere.
  */
-function bootstrap_tour_load_all($include_disabled = FALSE) {
-  ctools_include('export');
-  $tours = ctools_export_crud_load_all('bootstrap_tour');
-  if (!$include_disabled) {
-    $tours = array_filter($tours, 'bootstrap_tour_is_enabled');
+function bootstrap_tour_run_tour($id, $force = FALSE) {
+
+  $tour = bootstrap_tour_load($id);
+
+  if (!bootstrap_tour_access($tour)) {
+    return;
   }
+
+  if (count($tour->steps) > 1) {
+    // Set this as the current tour in the session.
+    $_SESSION['tour'] = $tour->name;
+  }
+
+  $first_path = $tour->start_path;
+  $tour->steps[0]->path = $first_path;
+  if ($first_path == current_path() || $first_path == request_path() || ($first_path == '<front>' && request_path() == '')) {
+    if (empty($_GET['step']) || $_GET['step'] == 0) {
+      // We're starting the tour over.
+      if (!empty($_SESSION['nexttour'])) {
+        unset($_SESSION['nexttour']);
+      }
+    }
+  }
+  drupal_alter('bootstrap_tour', $tour);
+
+  $step_path = '';
+  foreach($tour->steps as $key => &$step) {
+    // If a path isn't specified, then use the path from the previous step.
+    if ($step->path) {
+      $step_path = $step->path;
+    }
+    else {
+      $step->path = $step_path;
+    }
+    // Determine we are on the first step of the tour.
+    if ($key == 0 && ($step->path == current_path() || $step->path == request_path() || ($step->path == '<front>' && request_path() == ''))) {
+      if (!empty($_GET['tour']) && (empty($_GET['step']) || $_GET['step'] == 0)) {
+        $tour->isFirstStep = TRUE;
+      }
+    }
+    // Filter user supplied content.
+    $step->title = check_plain($step->title);
+    $step->content = check_markup($step->content, $step->content_text_format);
+  }
+  $tour->force = $force;
+  $tour->cleanUrls = variable_get('clean_url', 0);
+
+  drupal_add_js(array('bootstrapTour' => array('tour' => $tour)), 'setting');
+
+  if (module_exists('libraries') && ($library = libraries_detect('bootstrap_tour')) && !empty($library['installed'])) {
+    libraries_load('bootstrap_tour');
+  }
+  else {
+    // Grab the Bootstrap Tour JS from CDNJS if the library isn't installed.
+    global $base_url;
+    $base = parse_url($base_url);
+    drupal_add_css($base['scheme'] . '://cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.6.1/css/bootstrap-tour.min.css', 'external');
+    drupal_add_js($base['scheme'] . '://cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.6.1/js/bootstrap-tour.js', 'external');
+  }
+
+  drupal_add_js(drupal_get_path('module', 'bootstrap_tour') . '/js/bootstrap-tour.js');
+  drupal_add_css(drupal_get_path('module', 'bootstrap_tour') . '/css/bootstrap-tour.css');
+}
+
+/**
+ * Implementation of hook_init().
+ * Load all the tours and figure out if any are set to auto-run and start on the current page.
+ * If so, go ahead and run that one.
+ */
+function bootstrap_tour_page_build(&$page) {
+
+  // Try and detect if we are in an AJAX request and bail if so.
+  if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+    return;
+  }
+
+  $tours = bootstrap_tour_load_config();
+
+  // Force a tour to run if the tour name is in the session vars.
+  $current_name = !empty($_SESSION['tour']) ? $_SESSION['tour'] : NULL;
+  // We can also jump to a new tour by specifying ?tour=tourname in the query
+  // string, but only if it's the first step OR in the tour we were already
+  // on. This is to prevent weird behavior if we switch domains on the same
+  // site - ie. we shouldn't be able to start a new tour mid-stream.
+  if (!empty($_GET['tour']) && ($_GET['tour'] == $current_name || empty($_GET['step']))) {
+    $current_name = $_GET['tour'];
+  }
+
+  if (!empty($current_name)) {
+    foreach($tours as $id => $tour) {
+      if ($tour->name == $current_name) {
+        bootstrap_tour_run_tour($id, TRUE);
+        return;
+      }
+    }
+  }
+  // Force the next tour to run if the tour name is in the session vars.
+  if (!empty($_SESSION['nexttour'])) {
+    foreach($tours as $id => $tour) {
+      if ($_SESSION['nexttour'] == $tour->name) {
+        bootstrap_tour_run_tour($id, TRUE);
+        return;
+      }
+    }
+  }
+  // Otherwise, only run the tour if it's set to auto-run and we're on the path of one of the steps.
+  foreach($tours as $id => $tour) {
+    if ($tour->autorun) {
+      $path = $tour->start_path;
+      if ($path == current_path() || $path == request_path() || ($path == '<front>' && request_path() == '')) {
+        bootstrap_tour_run_tour($id);
+      }
+    }
+  }
+}
+
+/**
+ * Helper function to end the current tour.
+ */
+function bootstrap_tour_end_current_tour() {
+  unset($_SESSION['tour']);
+}
+
+/**
+ * Helper function to get all bootstrap tour names and ids in an array keyed by id.
+ */
+function bootstrap_tour_load_config($include_disabled = FALSE) {
+  if (!$include_disabled) {
+    $tours = db_query('SELECT bootstrap_tour_id, name, autorun, start_path FROM {bootstrap_tour_tour} WHERE enabled = 1')->fetchAllAssoc('bootstrap_tour_id');
+  }
+  else {
+    $tours = db_query('SELECT bootstrap_tour_id, name, autorun, start_path FROM {bootstrap_tour_tour}')->fetchAllAssoc('bootstrap_tour_id');
+  }
+
   return $tours;
 }
 
 /**
- * Callback function for loading one bootstrap tour by $name.
+ * Callback function to{bo load a complete bootstrap tour, including all steps, by id.
  */
-function bootstrap_tour_load($name) {
-  ctools_include('export');
-  return ctools_export_crud_load('bootstrap_tour', $name);
+function bootstrap_tour_load($id) {
+  $tour = entity_load('bootstrap_tour', array($id), array(), FALSE);
+  $tour = reset($tour);
+  $wrapper = entity_metadata_wrapper('bootstrap_tour', $tour);
+  $tour->steps = $wrapper->bootstrap_tour_step_reference->value();
+
+  return $tour;
+}
+/**
+ * Load all the tours (and caches them).
+ */
+function bootstrap_tour_load_all($reset = FALSE) {
+  $all_tours = &drupal_static(__FUNCTION__);
+  if (!isset($all_tours)|| $reset) {
+    if (!$reset && ($cache = cache_get('bootstrap_tours_all'))) {
+      $all_tours = $cache->data;
+    }
+    else {
+      $all_tours = entity_load('bootstrap_tour');
+      foreach ($all_tours as $id => $tour) {
+        $wrapper = entity_metadata_wrapper('bootstrap_tour', $tour);
+        $all_tours[$id]->steps = $wrapper->bootstrap_tour_step_reference->value();
+      }
+      cache_set('bootstrap_tours_all', $all_tours);
+    }
+  }
+  return $all_tours;
 }
 
 /**
- * Helper function to look up an object by name to see if it's a default or not.
+ * Implements hook_bootstrap_tour_insert().
  */
-function bootstrap_tour_is_default($name) {
-  $tour = bootstrap_tour_load($name);
-  return !empty($tour->in_code_only);
+function bootstrap_tour_bootstrap_tour_insert($tour) {
+  bootstrap_tour_bootstrap_tour_update($tour);
 }
 
 /**
- * Helper function to return whether or not a tour is disabled.
+ * Implements hook_bootstrap_tour_insert().
  */
-function bootstrap_tour_is_enabled($tour) {
-  return empty($tour->disabled);
+function bootstrap_tour_bootstrap_tour_update($tour) {
+  cache_clear_all('bootstrap_tours_all', 'cache');
+  drupal_static_reset('bootstrap_tour_load_all');
 }
 
 /**
- * Helper function to convert a string to a machine name.
+ * Checks access for user for tour.
+ *
+ * @param
+ *  Loaded tour event.
+ * @param $account
+ *  An account object, default to current user.
+ *
+ * @return
+ *  True if user has access, false if they don't.
  */
-function bootstrap_tour_generate_machine_name($text) {
-  $text = preg_replace('/[^A-Za-z0-9_]+/', '_', $text);
-  return strtolower($text);
+function bootstrap_tour_access($tour, $account = NULL) {
+  if (!$account) {
+    global $user;
+    $account = $user;
+  }
+  if (empty($tour) || empty($tour->enabled)) {
+    return FALSE;
+  }
+
+  $access = TRUE;
+
+  if ($account->uid != 1 && !empty($tour->roles)) {
+    // Compare the tour's roles to the user's roles and if there aren't any overlaps and
+    // the user isn't user 1, cancel running the tour.
+    $tour_roles = explode(',', $tour->roles);
+    $account_roles = array_keys($account->roles);
+    $compare = array_intersect($tour_roles, $account_roles);
+    if (empty($compare)) {
+      $access = FALSE;
+    }
+  }
+
+  $access_array = module_invoke_all('bootstrap_tour_access', $tour, $account, $access);
+  return !in_array(FALSE, $access_array, TRUE) && $access;
 }

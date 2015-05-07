@@ -6,7 +6,7 @@
  */
 
 $plugin = array(
-  'title' => t('OpenAtrium Favorites'),
+  'title' => t('Open Atrium Favorites'),
   'description' => t('A single button that contains a dropdown menu exposing a user\'s favorite spaces.'),
   'single' => TRUE,
   'category' => array(t('OA Admin'), -9),

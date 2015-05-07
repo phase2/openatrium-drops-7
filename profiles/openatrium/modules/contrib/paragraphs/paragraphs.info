@@ -7,11 +7,13 @@ dependencies[] = entity
 
 files[] = ParagraphsItemEntity.inc
 files[] = ParagraphsItemMetadataController.inc
+files[] = migrate/destinations/MigrateDestinationParagraphsItem.inc
+files[] = migrate/fields/ParagraphsMigrateParagraphsFieldHandler.inc
 files[] = views/paragraphs_handler_relationship.inc
 
-; Information added by Drupal.org packaging script on 2014-11-16
-version = "7.x-1.0-beta5"
+; Information added by Drupal.org packaging script on 2015-02-11
+version = "7.x-1.0-beta6"
 core = "7.x"
 project = "paragraphs"
-datestamp = "1416148981"
+datestamp = "1423671198"
 

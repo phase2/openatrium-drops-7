@@ -471,7 +471,9 @@ function oa_core_visibility_data($node) {
     }
     else {
       $section_reference_field = field_get_items('node', $node, OA_SECTION_FIELD);
-      $section_node = node_load($section_reference_field[0]['target_id']);
+      if (isset($section_reference_field[0]['target_id'])) {
+        $section_node = node_load($section_reference_field[0]['target_id']);
+      }
     }
     if (empty($section_node)) {
       $section_node = $node;

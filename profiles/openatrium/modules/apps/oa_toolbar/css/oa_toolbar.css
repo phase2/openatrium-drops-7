@@ -29,6 +29,8 @@ ul.oa_toolbar {
 }
 .oa-menu-banner {
   display: inline-block;
+  /* Allow it to take up horizonal space in menu but not vertical space */
+  height: 1px;
 }
 #oa-navbar {
   margin-bottom: 0;
@@ -144,9 +146,22 @@ width: 100%;
 .oa-space-menu ul.nav {
   display: inline-block;
   float: none;
+  margin-top: 4px;
 }
-
 .oa-space-menu img {
   max-height: 36px;
+  top: -4px;
   width: auto;
+  vertical-align: bottom;
+}
+.oa-space-menu ul > li > a > img {
+  max-height: 24px;
+  vertical-align: middle;
+  margin-right: 5px;
+  top: -2px;
+  position: relative;
+}
+
+.oa-space-menu i {
+  margin-right: 3px;
 }

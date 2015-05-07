@@ -617,6 +617,20 @@ function ctools_registry_files_alter(&$files, $indexed_modules) {
   return _ctools_registry_files_alter($files, $indexed_modules);
 }
 
+/**
+ * Implements hook_entity_view().
+ */
+function ctools_entity_view($entity, $type) {
+  // Track which entites have been "viewed" and have therefore had view hooks
+  // invoked for them. This info is used later by page manager to identify
+  // special cases where it needs to invoke view hooks manually.
+  $viewed_entities = &drupal_static(__FUNCTION__);
+  list($id, $rid, $bundle) = entity_extract_ids($type, $entity);
+  if ($id !== NULL) {
+    $viewed_entities[$type][$id] = $id;
+  }
+}
+
 // -----------------------------------------------------------------------
 // CTools hook implementations.
 

@@ -8,6 +8,7 @@ include_once 'oa_core.features.inc';
 include_once 'includes/oa_core.cache.inc';
 include_once 'includes/oa_core.util.inc';
 include_once 'includes/oa_core.access.inc';
+include_once 'includes/oa_core.context.inc';
 include_once 'includes/oa_core.login.inc';
 include_once 'includes/oa_core.theme.inc';
 include_once 'includes/oa_core.fields.inc';
@@ -236,7 +237,7 @@ function oa_core_select2widget_ajax_callback($add_current_option, $field_name, $
   // Current for the pane config so current isn't hard coded (for cloning).
   if ($add_current_option) {
     $matches[] = array(
-      'id' => 'CURRENT',
+      'id' => OA_SPACE_CURRENT,
       'title' => _oa_core_select2widget_current_label(),
       'data' => '<div class="reference-select2widget">' . _oa_core_select2widget_current_label() . '</div>',
     );
@@ -519,7 +520,7 @@ function oa_core_og_fields_info_alter(&$return) {
 
 
 /**
- * Implements hook_form_alter for node edit forms
+ * Implements hook_form_FORM_ID_alter() node_form.
  */
 function oa_core_form_node_form_alter(&$form, &$form_state, $form_id) {
   // Modify label on Panelizer layout field.
@@ -534,7 +535,9 @@ function oa_core_form_node_form_alter(&$form, &$form_state, $form_id) {
     && empty($form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['default']['#default_value'])
     && ($group = node_load($form['#node']->{OA_SPACE_FIELD}[LANGUAGE_NONE][0]['target_id']))
     && (!isset($form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['admin'])
-      || ($form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['admin']['#default_value'] == $group->title . ' (' . $group->nid . ')'))
+      || ($form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['admin']['#default_value'] == $group->title . ' (' . $group->nid . ')' 
+      // This will return both user groups and subspaces, is cached.
+      && in_array($group->nid, oa_core_get_groups_by_user(NULL, 'node'))))
     ) {
     $form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['default']['#default_value'] = $group->title . ' (' . $group->nid . ')';
     $form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['default']['#init'][$group->nid] = $form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['default']['#default_value'];
@@ -594,29 +597,63 @@ function oa_core_views_pre_build(&$view) {
 
 /**
  * Implements hook_preprocess_views_view_fields().
- * Perform field-level replacement/processing here
+ *
+ * Perform field-level replacement/processing here.
  */
 function oa_core_preprocess_views_view_fields(&$vars) {
   $vars['index'] = $vars['view']->row_index;
   $vars['display'] = $vars['view']->current_display;
+  $vars['count'] = count($vars['view']->result);
   foreach ($vars['fields'] as $id => $field) {
     $vars[$id] = $field->content;
     switch ($id) {
       case 'timestamp':
         $vars[$id . '_raw'] = $field->raw;
         break;
+
+      // Views for these fields are: oa_comment_topics, oa_comment_media.
       case 'field_user_picture':
-        // check for missing user image in a view
+      case 'picture':
+        // Check for a missing user image in the view.
         if (!strip_tags($field->content, '<img>')) {
-          $image_style = 'oa_small_thumbnail';
-          if (isset($field->handler->options['settings']['image_style'])) {
-            $image_style = $field->handler->options['settings']['image_style'];
-          }
-          $vars[$id] = oa_users_picture(NULL, $image_style);
+          // Add the user placeholder image.
+          $vars[$id] = oa_core_get_user_picture_for_views_fields($field);
         }
         break;
     }
   }
+}
+
+/**
+ * Helper function to find the correct image style depending on the field.
+ *
+ * @todo: Figure out why we have two different User:picture fields being used.
+ *
+ * @param object $field
+ *   The field being rendered in the view.
+ *
+ * @return string
+ */
+function oa_core_get_user_picture_for_views_fields($field) {
+  // Set a default image style.
+  $image_style = 'oa_small_thumbnail';
+  // Allow the image style setting to overwrite the default.
+  if (isset($field->handler->options['settings']['image_style'])) {
+    $image_style = $field->handler->options['settings']['image_style'];
+  }
+  if (isset($field->handler->options['image_style'])) {
+    $image_style = $field->handler->options['image_style'];
+  }
+  // Add the user placeholder image.
+  return oa_users_picture(NULL, $image_style);
+}
+
+/**
+ * Return a user's profile image.
+ */
+function oa_users_picture($account = NULL, $image_style = 'oa_small_thumbnail', $url = FALSE) {
+  $pictures = module_invoke_all('oa_users_picture', $account, $image_style, $url);
+  return $pictures ? reset($pictures) : NULL;
 }
 
 /**
@@ -988,6 +1025,7 @@ function oa_core_form_views_content_views_panes_content_type_edit_form_alter(&$f
     // Replace autocomplete path to one that returns Current Space as an option.
     if (isset($form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id']['#autocomplete_path'])) {
       $form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id']['#autocomplete_path'] = str_replace('oacoreselect2widget', 'oacoreselect2widgetpanes', $form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id']['#autocomplete_path']);
+      $form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id']['#oa_core_in_pane_config'] = TRUE;
     }
     $form['exposed']['filter-og_group_ref_target_id']['og_group_ref_target_id']['#states'] = array(
       'visible' => array(

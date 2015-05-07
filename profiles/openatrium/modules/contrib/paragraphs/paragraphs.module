@@ -161,24 +161,18 @@ function paragraphs_item_access($op, $entity, $account, $entity_type) {
     return FALSE;
   }
 
-  // Entity variable should be the bundle when op is create.
-  if ($op == 'create' && !is_string($entity)) {
-    return FALSE;
-  }
-
   // Cid is the bundle name when op is create.
   if ($op == 'create') {
-    $cid = $entity;
+    $cid = $entity->bundle;
   }
   else {
     $cid = $entity->item_id . '_' . $entity->revision_id;
   }
 
   // If we've already checked access for this bundle, user and op, return from
-  // cache.
-  if (isset($permissions[$account->uid][$cid][$op])) {
-    return $permissions[$account->uid][$cid][$op];
-  }
+  // cache. Otherwise, we are optimistic and consider that the user can
+  // view / update / delete or create a paragraph.
+  $user_access_permission = isset($permissions[$account->uid][$cid][$op]) ? $permissions[$account->uid][$cid][$op] : TRUE;
 
   // We grant access to the paragraph item if both of the following conditions are met:
   // - No modules say to deny access.
@@ -186,16 +180,14 @@ function paragraphs_item_access($op, $entity, $account, $entity_type) {
   // If no module specified either allow or deny, we always allow.
   $access = module_invoke_all('paragraphs_item_access', $entity, $op, $account);
   if (in_array(PARAGRAPHS_ITEM_ACCESS_DENY, $access, TRUE)) {
-    $permissions[$account->uid][$cid][$op] = TRUE;
-    return FALSE;
+    $user_access_permission = FALSE;
   }
   elseif (in_array(PARAGRAPHS_ITEM_ACCESS_ALLOW, $access, TRUE)) {
-    $permissions[$account->uid][$cid][$op] = TRUE;
-    return TRUE;
+    $user_access_permission = TRUE;
   }
 
-  // We always have access unless somebody implements the hook.
-  $permissions[$account->uid][$cid][$op] = TRUE;
+  // Store the result of the permission in our matrix.
+  $permissions[$account->uid][$cid][$op] = $user_access_permission;
 
   return $permissions[$account->uid][$cid][$op];
 }
@@ -260,6 +252,16 @@ function paragraphs_menu() {
     'file' => 'paragraphs.ajax.inc',
   );
 
+  $items['paragraphs/collapse/ajax'] = array(
+    'title' => 'Close item callback',
+    'page callback' => 'paragraphs_collapse_js',
+    'delivery callback' => 'ajax_deliver',
+    'access callback' => TRUE,
+    'theme callback' => 'ajax_base_page_theme',
+    'type' => MENU_CALLBACK,
+    'file' => 'paragraphs.ajax.inc',
+  );
+
   $items['paragraphs/remove/ajax'] = array(
     'title' => 'Remove item callback',
     'page callback' => 'paragraphs_remove_js',
@@ -306,6 +308,7 @@ function paragraphs_field_info() {
       'title' => PARAGRAPHS_DEFAULT_TITLE,
       'title_multiple' => PARAGRAPHS_DEFAULT_TITLE_MULTIPLE,
       'allowed_bundles' => array(),
+      'bundle_weights' => array(),
     ),
     'default_widget' => 'paragraphs_hidden',
     'default_formatter' => 'paragraphs_view',
@@ -328,14 +331,19 @@ function paragraphs_form_field_ui_field_edit_form_alter(&$form, $form_state) {
 
 function paragraphs_bundle_settings_form_submit($form, &$form_state) {
   $bundle_settings = array();
+  $bundle_weights = array();
   if (isset($form_state['values']['instance']['settings']['allowed_bundles_table'])) {
     $bundle_settings_table = $form_state['values']['instance']['settings']['allowed_bundles_table'];
     uasort($bundle_settings_table, 'drupal_sort_weight');
     foreach ($bundle_settings_table as $machine_name => $value) {
-      $bundle_settings[$machine_name] = (($value['enabled'] === 1) ? $machine_name : 0);
+      $bundle_settings[$machine_name] = (($value['enabled'] === 1) ? $machine_name : -1);
+      $bundle_weights[$machine_name] = $value['weight'];
     }
   }
+
   $form_state['values']['instance']['settings']['allowed_bundles'] = $bundle_settings;
+  $form_state['values']['instance']['settings']['bundle_weights'] = $bundle_weights;
+
   unset($form_state['values']['instance']['settings']['allowed_bundles_table']);
 }
 
@@ -347,19 +355,20 @@ function paragraphs_field_instance_settings_form($field, $instance) {
   $settings = $instance['settings'];
   $bundles = array();
   $_bundles = paragraphs_bundle_load();
+  $max_weight = 0;
+  $weights = array();
+
   foreach ($_bundles as $machine_name => $bundle) {
     $bundles[$machine_name] = $bundle->name;
-  }
-
-  $weights = array();
-  $weight = 0;
-  if (isset($settings['allowed_bundles'])) {
-    foreach ($settings['allowed_bundles'] as $machine_name => $bundle) {
-      $weights[$machine_name] = $weight;
-      $weight++;
+    if (isset($settings['bundle_weights'][$machine_name])) {
+      $weights[$machine_name] = $settings['bundle_weights'][$machine_name];
+      if ($settings['bundle_weights'][$machine_name] > $max_weight) {
+        $max_weight = $settings['bundle_weights'][$machine_name];
+      }
     }
   }
-  $max_weight = $weight;
+
+  $max_weight++;
 
   $element['allowed_bundles_table'] = array(
     '#tree' => TRUE,
@@ -433,6 +442,21 @@ function paragraphs_field_instance_settings_form($field, $instance) {
     ),
     '#default_value' => isset($settings['add_mode']) ? $settings['add_mode'] : PARAGRAPHS_DEFAULT_ADD_MODE,
     '#required' => TRUE,
+  );
+
+  $element['add_mode_instructions'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Paragraph Instructions'),
+    '#rows' => 3,
+    '#description' => t('When there are no existing paragraphs, this text is displayed above the select list or buttons. e.g., "No Paragraphs added yet, press a button below to add one."'),
+    '#default_value' => isset($settings['add_mode_instructions']) ? $settings['add_mode_instructions'] : '',
+  );
+
+  $element['hide_instructions'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Hide paragraph instructions'),
+    '#description' => t('Do not display paragraph instructions.'),
+    '#default_value' => $settings['hide_instructions'],
   );
 
   if (!count($bundles)) {
@@ -1002,7 +1026,9 @@ function theme_paragraphs_field_multiple_value_form($variables) {
       $add_more_button_type = &$element[$key];
     }
     else {
-      $items[] = &$element[$key];
+      if (!isset($element[$key]['#access']) || $element[$key]['#access']) {
+        $items[] = &$element[$key];
+      }
     }
   }
   usort($items, '_field_sort_items_value_helper');
@@ -1027,12 +1053,25 @@ function theme_paragraphs_field_multiple_value_form($variables) {
     $output .= theme('table', array('header' => $header, 'rows' => $rows, 'attributes' => array('id' => $table_id, 'class' => array('field-multiple-table'))));
   }
   else {
-    $add_text = 'No !title_multiple added yet. Select a !title type and press the button below to add one.';
-    if ($add_mode == 'button') {
-      $add_text = 'No !title_multiple added yet. Select a !title type and press a button below to add one.';
+    $output .= (!empty($element['#title'])) ? '<label>' . t('!title !required', array('!title' => $element['#title'], '!required' => $required)) . "</label>" : '';
+    // Make sure we aren't supposed to just hide the instructions.
+    if (empty($instance['settings']['hide_instructions'])) {
+      // Check for custom instructions.
+      if (!empty($instance['settings']['add_mode_instructions'])) {
+        $instructions = rtrim($instance['settings']['add_mode_instructions']);
+        $output .= '<p><em>' . t($instructions) . '</em></p>';
+      }
+      else {
+        $add_text = 'No !title_multiple added yet. Select a !title type and press the button below to add one.';
+        if ($add_mode == 'button') {
+          $add_text = 'No !title_multiple added yet. Select a !title type and press a button below to add one.';
+        }
+        $output .= '<p><em>' . t($add_text, array(
+            '!title_multiple' => t($instance['settings']['title_multiple']),
+            '!title' => t($instance['settings']['title'])
+          )) . '</em></p>';
+      }
     }
-    $output .= '<label>' . t('!title !required', array('!title' => $element['#title'], '!required' => $required)) . "</label>";
-    $output .= '<p><em>' . t($add_text, array('!title_multiple' => t($instance['settings']['title_multiple']), '!title' => t($instance['settings']['title']))) . '</em></p>';
   }
   $output .= $element['#description'] ? '<div class="description">' . $element['#description'] . '</div>' : '';
   $output .= '<div class="clearfix">' . drupal_render($add_more_button_type) . drupal_render($add_more_button) . '</div>';
@@ -1169,12 +1208,51 @@ function paragraphs_field_attach_form($entity_type, $entity, &$form, &$form_stat
  * @see field_attach_prepare_translation()
  */
 function paragraphs_field_prepare_translation($entity_type, $entity, $field, $instance, $langcode, &$items, $source_entity, $source_langcode) {
-  list($id, , ) = entity_extract_ids($entity_type, $entity);
+  if (!module_exists("paragraphs_i18n")) {
+      list($id, , ) = entity_extract_ids($entity_type, $entity);
 
-  // field_attach_prepare_translation() copied the entity ids from the source,
-  // as we need a new entity for a new translation, we cannot reuse that.
-  // @todo clone existing paragraphs to new translation
-  if (empty($id)) {
-    $items = array();
+      // field_attach_prepare_translation() copied the entity ids from the source,
+      // as we need a new entity for a new translation, we cannot reuse that.
+      // @todo clone existing paragraphs to new translation
+      if (empty($id)) {
+          $items = array();
+      }
+  } else {
+      paragraphs_i18n_field_prepare_translation($entity_type, $entity, $field, $instance, $langcode, $items, $source_entity, $source_langcode);
   }
+}
+
+/**
+ * Implements hook_features_api().
+ */
+function paragraphs_features_api() {
+  return array(
+    'paragraphs' => array(
+      'name' => t('Paragraphs Bundles'),
+      'feature_source' => TRUE,
+      'default_hook' => 'paragraphs_info',
+      'file' => drupal_get_path('module', 'paragraphs') . '/paragraphs.features.inc',
+    ),
+  );
+}
+
+/**
+ * Implements hook_bundle_copy_info to provide a bundle copy
+ * export and import tab.
+ */
+function paragraphs_bundle_copy_info() {
+  return array(
+    'paragraphs_item' => array(
+      'bundle_export_callback' => 'paragraphs_bundle_load',
+      'bundle_save_callback' => 'paragraphs_bundle_save',
+      'export_menu' => array(
+        'path' => 'admin/structure/paragraphs/export',
+        'access arguments' => 'administer content types',
+      ),
+      'import_menu' => array(
+        'path' => 'admin/structure/paragraphs/import',
+        'access arguments' => 'administer content types',
+      ),
+    ),
+  );
 }

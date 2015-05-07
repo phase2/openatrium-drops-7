@@ -2,7 +2,8 @@ Date iCal
 
 This module allows users to export iCal feeds using Views, and import iCal feeds
 from other sites using Feeds. Any entity that contains a Date field can act as
-the source of events for an iCal feed.
+the source/target to export/import an iCal feed.
+
 
 ===============================================================================
 INSTALLATION
@@ -15,14 +16,13 @@ Date iCal has several required dependencies, and an optional one:
 - The Feeds module is optional. It's needed only if you you wish to import iCal
   feeds from other sites.
 
-To install the iCalcreator library, download it from the project's github:
-http://github.com/iCalcreator/iCalcreator
-Using either git clone or the "Download Zip" button, you'll find the file
-iCalcreator.class.php inside. Copy that file to a folder in your Drupal site
-named sites/all/libraries/iCalcreator.
+To install the iCalcreator library, download the project's official zip file:
+https://github.com/iCalcreator/iCalcreator/archive/master.zip
+Extract it, and copy iCalcreator.class.php to a folder in your Drupal site
+named sites/all/libraries/iCalcreator (you'll need to create that folder).
 
-Or, if you have drush, install iCalcreator by running this command from your
-site's root directory:
+Or, if you have drush, you can install iCalcreator by running this command from
+your site's root directory:
 drush make sites/all/modules/date_ical/date_ical.make --no-core
 
 Then, clear the cache on your site by using either "drush cc all" or logging in
@@ -91,6 +91,10 @@ HOW TO EXPORT AN ICAL FEED USING THE iCal Entities PLUGIN
     "Format: iCal Feed", and check "Disable webcal://". Then save your View.
     This will make the iCal icon download a .ics file with the events, instead
     of loading the events directly into the user's calendar app.
+17. If events that you expect your feed to include are not appearing when it
+    gets consumed by a calendar app, check the Drupal permissions for your
+    event content type. If anonymous users can't view the event nodes, they
+    won't appear in your feed when it gets loaded by a calendar app.
 
 HOW TO EXPORT AN ICAL FEED USING THE iCal Fields PLUGIN
 1-6.These steps are the same as above.
@@ -137,9 +141,9 @@ IMPORTING AN ICAL FEED FROM ANOTHER SITE USING Feeds
      you add any more mappings, click "Save" at the bottom of the page.
   2) It's a good idea to map the "Summary/Title" source to the "Title" target,
      and the "Description" source to whatever field is the "body" of the node.
-  3) AS OF 2014/02/03 THERE IS A MAJOR BUG IN THE Feeds THAT LEAVES THE DATE
-     VALUES ON ALL IMPORTED EVENTS BLACNK. YOU MUST UPDATE YOUR Feeds MODULE
-     TO THE DEV RELEASE (https://drupal.org/node/927032) TO OVERCOME THIS BUG.
+  3) AS OF 2014/04/10 THERE IS A MAJOR BUG IN Feeds WHICH LEAVES THE DATE
+     VALUES ON ALL IMPORTED EVENTS BLACNK. YOU MUST APPLY A PATCH TO Feeds
+     TO FIX THIS PROBLEM. IT IS AVAILABLE HERE: http://drupal.org/node/2237177.
 - Once you've completed all the mappings, click the "Save" button on the
   bottom left side of the page.
 - Now you can import the iCal feed into nodes by going to the /import page of
@@ -153,14 +157,46 @@ IMPORTING AN ICAL FEED FROM ANOTHER SITE USING Feeds
 Remember, you have to map the UID source to the GUID target, and make it
 unique, or your imports won't work!
 
-IMPORTANT NOTE:
-If you're building a site that will be viewed by out-of-state users, and you
-allow said users to set their own timezone, you'll want to set up your Date
-fields to use the "Date's time zone" option. If you don't, then users who live
-in a different timezone will be shown the times for your events in their local
-timezone, rather than your events' timezone. This makes sense if your events
-will be broadcast live to these out-of-state users, but if they need to travel
-to your event, they may end up arriving at the wrong time.
+
+===============================================================================
+IMPORTANT NOTE ABOUT THE DATE FIELD TIMEZONE SETTING
+===============================================================================
+Date fields have a setting called "Time zone handling" which determines how
+dates are stored in the database, and how they are displayed to users.
+ - "Site's time zone" converts the date to UTC as it stores it to the DB. Upon
+  display, it converts the date to the "Default time zone" that's set on your
+  site's Regional Settings configuration page (/admin/config/regional/settings).
+ - "Date's time zone" stores the date as it is entered, along with the timezone
+  name. Upon display, it converts the date from the stored timezone into the
+  site's default timezone. Well, I'm pretty sure it's *supposed* to do that, but
+  the code behind this setting is very buggy. DO NOT USE THIS SETTING.
+ - "User's time zone" converts the date to UTC as it stores it to the DB. Upon
+  display, it converts the date to the current user's timezone setting.
+ - "UTC" converts the date to UTC as it stores it to the DB. Upon display, it
+  performs no conversion, showing the UTC date directly to the user.
+ - "No time zone conversion" performs no conversion as it stores the date in
+  the DB. It also performs no conversion upon display.
+
+The appropriate setting to choose here will depend upon how you want times to
+be displayed on your site. The best setting *would* be "Date's time zone",
+but since that setting is so buggy, I must recommend against it. Instead,
+I'd suggest using "Site's time zone" for sites which host events that are
+mostly in the same timezone (set the site's default timezone appropriately).
+This works just right for local users of your site, and will be the least
+confusing for users who live in a different timezone.
+
+For sites which store events that take place in multiple different timezones,
+the "User's time zone" setting is probably the most appropriate. Most users will
+presumably be tuning in to your events online or on TV (since many take place
+far away from them), which means they'll want to know what time the event occurs
+in their local timezone, so they don't miss the broadcast.
+
+If your Date field is already set to "Date's time zone", you won't be able to
+change it, because that setting uses a different table schema than the others.
+Since "Date's time zone" is very buggy, I'd strongly recomend deleting the
+field and recreating it with a different setting. This will delete all the
+dates in existing event nodes which use this field.
+
 
 ===============================================================================
 HOW TO FIX THE "not a valid timezone" ERROR
@@ -186,6 +222,7 @@ function <module>_date_ical_import_timezone_alter(&$tzid, $context) {
 
 Replace <module> with the name of your module, change the code to do whatever
 needs to be done to fix your timezones, and clear your Drupal cache.
+
 
 ===============================================================================
 ADDITIONAL NOTES

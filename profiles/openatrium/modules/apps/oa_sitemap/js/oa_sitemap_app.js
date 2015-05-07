@@ -399,9 +399,9 @@
               'type': 'oa_section',
               'url': Drupal.settings.basePath + 'node/' + node.nid,
               'url_edit': Drupal.settings.basePath + 'node/' + node.nid + '/edit',
-              'visibility': (node.field_oa_group_ref.und.length == 0) &&
-                node.field_oa_team_ref.und.length == 0 &&
-                node.field_oa_user_ref.und.length == 0,
+              'visibility': (!node.field_oa_group_ref || node.field_oa_group_ref.length == 0) &&
+                (!node.field_oa_team_ref || node.field_oa_team_ref.length == 0) &&
+                (!node.field_oa_user_ref || node.field_oa_user_ref.length == 0),
               'admin': allSpaces[parentID].admin,
               'icon_id': node.field_oa_section.und[0].tid
             });

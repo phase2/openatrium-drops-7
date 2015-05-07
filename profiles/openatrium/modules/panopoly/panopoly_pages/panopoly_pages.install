@@ -30,7 +30,9 @@ function panopoly_pages_update_7101() {
     'edit own panopoly_landing_page content',
   );
   foreach (array($editor->rid, $admin->rid) as $rid) {
-    user_role_grant_permissions($rid, $node_landing_page_perms);
+    if ($rid) {
+      user_role_grant_permissions($rid, $node_landing_page_perms);
+    }
   }
 
   // Apply pathauto setting.

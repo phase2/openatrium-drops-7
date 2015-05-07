@@ -1,8 +1,30 @@
-Panopoly Core 7.x-1.19, 2015-03-18 --------------------------- - Update to
-  CTools 1.7 for SA-CONTRIB-2015-079. - Features exports including Panels stuff
-  (*.pages_default.inc, *.panelizer.inc, etc) use incorrect indentation. -
-  Panopoly Magic abuses FPP revisions. - Administration menu: errors when
-  enabling it.Panopoly Core 7.x-1.18, 2015-02-26
+Panopoly Core 7.x-1.21, 2015-04-29
+---------------------------
+- Update Views to version 3.11 for SA-CONTRIB-2015-103.
+- Clean up instances of deprecated panpoly_theme layouts.
+- Undefined index: default_filename in defaultconfig_defaultconfig_components()
+  (line 418.
+- Include views patch to fix destination query string on ajax calls from views.
+- Update token module to version 1.6.
+- Make theming FPPs sane.
+- Update to Drupal 7.36.
+- Update Features module to version 2.5.
+- Errors when viewing pages with fieldable panels panes with visibility rules.
+
+Panopoly Core 7.x-1.20, 2015-03-25
+---------------------------
+- CHANGELOG.txt updates for 1.19 went wrong.
+
+Panopoly Core 7.x-1.19, 2015-03-19
+----------------------------
+- Updated CHANGELOG.txt for 7.x-1.19 release.
+- Update to CTools 1.7 for SA-CONTRIB-2015-079.
+- Features exports including Panels stuff (*.pages_default.inc, *.panelizer.inc,
+  etc) use incorrect indentation.
+- Panopoly Magic abuses FPP revisions.
+- Administration menu: errors when enabling it.
+
+Panopoly Core 7.x-1.18, 2015-02-26
 ---------------------------
 - Update to Entity API 1.6 for SA-CONTRIB-2015-053.
 - Failing to download 'panopoly_demo' when installing via 'drush si': "Downloading updates failed:Failed to download from ".

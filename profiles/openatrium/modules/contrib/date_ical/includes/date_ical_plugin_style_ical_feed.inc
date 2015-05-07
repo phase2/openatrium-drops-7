@@ -405,7 +405,7 @@ class date_ical_plugin_style_ical_feed extends views_plugin_style {
       }
     }
     
-    // These steps shouldn't be run when during Preview on the View page.
+    // These steps shouldn't be run during Preview on the View page.
     if (empty($this->view->live_preview)) {
       // Prevent devel module from appending queries to ical export.
       $GLOBALS['devel_shutdown'] = FALSE;

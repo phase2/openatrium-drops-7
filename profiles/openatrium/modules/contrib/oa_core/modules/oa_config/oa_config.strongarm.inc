@@ -162,5 +162,12 @@ function oa_config_strongarm() {
   $strongarm->value = 1;
   $export['preprocess_css'] = $strongarm;
 
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'select2_delay';
+  $strongarm->value = 1000;
+  $export['select2_delay'] = $strongarm;
+
   return $export;
 }

@@ -795,7 +795,9 @@ function oa_core_get_titles($ids = array(), $type = '', $sort_field = 'title', $
     if (!empty($type)) {
       $query->condition('n.type', $type);
     }
-    $query->range(0, $limit);
+    if ($limit) {
+      $query->range(0, $limit);
+    }
     $result = $query->execute();
 
     // if $sort_field is empty, maintain the order of the original $ids
@@ -1076,11 +1078,31 @@ function oa_core_get_user_spaces($uid) {
 
 /**
  * Helper function to return the id of the space/group that contains the nid node
+ *
  * This function is called a lot, so it needs to be fast
  * Do not use node_load here!
+ *
+ * @param $node
+ *  A numeric NID or a complete $node object.
+ * @param $allowed_types
+ *  an array of content types that this node can be part of.
+ *
+ * @return
+ *  An numberic NID that this content is part of.
  */
-function oa_core_get_group_from_node($nid, $allowed_types = array(OA_SPACE_TYPE, OA_GROUP_TYPE)) {
+function oa_core_get_group_from_node($node, $allowed_types = array(OA_SPACE_TYPE, OA_GROUP_TYPE)) {
   $cache = &drupal_static('oa_core_groups', array());
+  // Find the NID in case a $node object was passed in..
+  if (is_object($node) && !empty($node->nid)) {
+    $nid = $node->nid;
+    if (!empty($node_type) && in_array($node->type, $allowed_types)) {
+      $cache[$nid] = $nid;
+    }
+  }
+  else {
+    $nid = $node;
+  }
+
   if (isset($cache[$nid])) {
     return $cache[$nid];
   }

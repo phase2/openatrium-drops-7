@@ -63,7 +63,8 @@ function oa_sections_field_default_field_instances() {
   // Exported field_instance: 'node-oa_section-field_oa_group_ref'
   $field_instances['node-oa_section-field_oa_group_ref'] = array(
     'bundle' => 'oa_section',
-    'default_value' => NULL,
+    'comment_alter' => 0,
+    'default_value' => array(),
     'deleted' => 0,
     'description' => 'Leave empty for public access, otherwise select Groups that can view this Section.',
     'display' => array(
@@ -92,6 +93,12 @@ function oa_sections_field_default_field_instances() {
     'entity_type' => 'node',
     'field_name' => 'field_oa_group_ref',
     'label' => 'Groups',
+    'options_limit' => 0,
+    'options_limit_empty_behaviour' => 0,
+    'options_limit_fields' => array(
+      'body' => 0,
+      'og_group_ref' => 0,
+    ),
     'required' => 0,
     'settings' => array(
       'behaviors' => array(
@@ -109,11 +116,16 @@ function oa_sections_field_default_field_instances() {
     ),
     'widget' => array(
       'active' => 1,
-      'module' => 'options',
+      'module' => 'select2widget',
       'settings' => array(
-        'apply_chosen' => 0,
+        'select2widgetajax' => array(
+          'match_operator' => 'CONTAINS',
+          'min_char' => 1,
+          'view_mode' => 'select2widget_labels',
+          'width' => '100%',
+        ),
       ),
-      'type' => 'options_select',
+      'type' => 'select2widgetajax',
       'weight' => 4,
     ),
   );
@@ -270,7 +282,8 @@ function oa_sections_field_default_field_instances() {
   // Exported field_instance: 'node-oa_section-field_oa_team_ref'
   $field_instances['node-oa_section-field_oa_team_ref'] = array(
     'bundle' => 'oa_section',
-    'default_value' => NULL,
+    'comment_alter' => 0,
+    'default_value' => array(),
     'default_value_function' => '',
     'deleted' => 0,
     'description' => 'Leave empty for public access, otherwise select Teams that can view this Section.',
@@ -300,6 +313,12 @@ function oa_sections_field_default_field_instances() {
     'entity_type' => 'node',
     'field_name' => 'field_oa_team_ref',
     'label' => 'Teams',
+    'options_limit' => 0,
+    'options_limit_empty_behaviour' => 0,
+    'options_limit_fields' => array(
+      'body' => 0,
+      'og_group_ref' => 0,
+    ),
     'required' => 0,
     'settings' => array(
       'behaviors' => array(
@@ -311,11 +330,16 @@ function oa_sections_field_default_field_instances() {
     ),
     'widget' => array(
       'active' => 1,
-      'module' => 'options',
+      'module' => 'select2widget',
       'settings' => array(
-        'apply_chosen' => 0,
+        'select2widgetajax' => array(
+          'match_operator' => 'CONTAINS',
+          'min_char' => 1,
+          'view_mode' => 'select2widget_labels',
+          'width' => '100%',
+        ),
       ),
-      'type' => 'options_select',
+      'type' => 'select2widgetajax',
       'weight' => 5,
     ),
   );
@@ -323,7 +347,8 @@ function oa_sections_field_default_field_instances() {
   // Exported field_instance: 'node-oa_section-field_oa_user_ref'
   $field_instances['node-oa_section-field_oa_user_ref'] = array(
     'bundle' => 'oa_section',
-    'default_value' => NULL,
+    'comment_alter' => 0,
+    'default_value' => array(),
     'default_value_function' => '',
     'deleted' => 0,
     'description' => 'Leave empty for public access, otherwise select Space Members that can view this Section.',
@@ -353,6 +378,9 @@ function oa_sections_field_default_field_instances() {
     'entity_type' => 'node',
     'field_name' => 'field_oa_user_ref',
     'label' => 'Users',
+    'options_limit' => FALSE,
+    'options_limit_empty_behaviour' => 0,
+    'options_limit_fields' => array(),
     'required' => 0,
     'settings' => array(
       'behaviors' => array(
@@ -364,11 +392,16 @@ function oa_sections_field_default_field_instances() {
     ),
     'widget' => array(
       'active' => 1,
-      'module' => 'options',
+      'module' => 'select2widget',
       'settings' => array(
-        'apply_chosen' => 0,
+        'select2widgetajax' => array(
+          'match_operator' => 'CONTAINS',
+          'min_char' => 1,
+          'view_mode' => 'select2widget_labels',
+          'width' => '100%',
+        ),
       ),
-      'type' => 'options_select',
+      'type' => 'select2widgetajax',
       'weight' => 6,
     ),
   );
@@ -580,12 +613,13 @@ function oa_sections_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'taxonomy_term-section_type-field_oa_section_layout'
+  // Exported field_instance:
+  // 'taxonomy_term-section_type-field_oa_section_layout'
   $field_instances['taxonomy_term-section_type-field_oa_section_layout'] = array(
     'bundle' => 'section_type',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => 'Chose the default layout for this section',
+    'description' => 'Choose the default layout for this section',
     'display' => array(
       'default' => array(
         'label' => 'above',
@@ -619,7 +653,8 @@ function oa_sections_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'taxonomy_term-section_type-field_oa_section_type_menu'
+  // Exported field_instance:
+  // 'taxonomy_term-section_type-field_oa_section_type_menu'
   $field_instances['taxonomy_term-section_type-field_oa_section_type_menu'] = array(
     'bundle' => 'section_type',
     'default_value' => array(
@@ -665,7 +700,7 @@ function oa_sections_field_default_field_instances() {
   // Translatables
   // Included for use with string extractors like potx.
   t('Body');
-  t('Chose the default layout for this section');
+  t('Choose the default layout for this section');
   t('Determines order of Section in lists.  Higher value moves the section later in the list.  Lower value moves section earlier in the list.');
   t('Enter the optional bootstrap icon class name (e.g. icon-calendar)');
   t('Groups');

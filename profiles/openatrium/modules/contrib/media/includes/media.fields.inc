@@ -115,6 +115,7 @@ function media_field_widget_form(&$form, &$form_state, $field, $instance, $langc
         'file_extensions' => isset($field_settings['file_extensions']) ? $field_settings['file_extensions'] : variable_get('file_entity_default_allowed_extensions', 'jpg jpeg gif png txt doc docx xls xlsx pdf ppt pptx pps ppsx odt ods odp mp3 mov mp4 m4a m4v mpeg avi ogg oga ogv weba webp webm'),
         'max_filesize' => isset($field_settings['max_filesize']) ? $field_settings['max_filesize'] : 0,
         'uri_scheme' => !empty($field['settings']['uri_scheme']) ? $field['settings']['uri_scheme'] : file_default_scheme(),
+        'multiselect' => $field['cardinality'] == FIELD_CARDINALITY_UNLIMITED,
       ),
     ),
     // Allows this field to return an array instead of a single value.
@@ -279,6 +280,24 @@ function media_field_widget_process($element, &$form_state, $form) {
  * wrapper around the entire group so it can be replaced all at once.
  */
 function media_field_widget_process_multiple($element, &$form_state, $form) {
+  // In order to support multiple selection, we need to reconstruct the _POST
+  // data that is checked in media_attach_file(). We need to reconstruct the
+  // field's _POST key name, for example: field_mediafield_und_0.
+  $upload_name_prefix = implode('_', $element['#parents']) . '_';
+  $upload_name = $upload_name_prefix . $element['#file_upload_delta'];
+
+  if (!empty($_POST['media'][$upload_name])) {
+    $files = explode(',', $_POST['media'][$upload_name]);
+    $count = count($files);
+    // Supposing #file_upload_delta is always the last delta this will work
+    for ($i = 0; $i < $count; $i++) {
+      // For each file selected, increment the field key to be processed.
+      // field_mediafield_und_0 becomes field_mediafield_und_1, etc.
+      $_POST['media'][$upload_name_prefix . ($element['#file_upload_delta'] + $i)] = $files[$i];
+      $element[] = $element[$element['#file_upload_delta']];
+    }
+  }
+
   $element_children = element_children($element, TRUE);
   $count = count($element_children);
 

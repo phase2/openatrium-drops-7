@@ -5,13 +5,16 @@
    */
  Drupal.behaviors.panopolyAdmin = {
    attach: function (context, settings) {
+     // Make the permalink field full width.
      var width = $('#node-edit #edit-title').width() - $('#node-edit .form-item-path-alias label').width() - $('#node-edit .form-item-path-alias .field-prefix').width() - 10;
      $('#node-edit .form-item-path-alias input').css('width', width);
 
-     if ($('#node-edit .form-item-body-und-0-value label').html() == 'Body <span class="form-required" title="This field is required.">*</span>') {
-       $('#node-edit .form-item-body-und-0-value label').html('');
-       $('#node-edit .form-item-body-und-0-value label').css('text-align', 'right');
-     }
+     // Hide the body label in Javascript if requested, which allows the summary
+     // Javacript to continue working.
+     $('#node-edit .panopoly-admin-hide-body-label .form-item-body-und-0-value label', context)
+      .once('panopoly-admin-hide-body-label')
+      .wrapInner('<span class="element-invisible"></span>')
+      .css('text-align', 'right');
 
      if ($('#node-edit .form-item-field-featured-image-und-0-alt label')) {
        $('#node-edit .form-item-field-featured-image-und-0-alt label').html('Alt Text');

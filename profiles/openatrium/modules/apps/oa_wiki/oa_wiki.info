@@ -49,13 +49,6 @@ features[node][] = oa_wiki_page
 features[page_manager_handlers][] = node_edit_panel_context_6
 features[panelizer_defaults][] = node:oa_wiki_page:default
 features[panelizer_defaults][] = node:oa_wiki_page:default:featured
-features[variable][] = comment_anonymous_oa_wiki_page
-features[variable][] = comment_default_mode_oa_wiki_page
-features[variable][] = comment_default_per_page_oa_wiki_page
-features[variable][] = comment_form_location_oa_wiki_page
-features[variable][] = comment_oa_wiki_page
-features[variable][] = comment_preview_oa_wiki_page
-features[variable][] = comment_subject_field_oa_wiki_page
 features[variable][] = dhtml_menu_settings
 features[variable][] = field_bundle_settings_node__oa_wiki_page
 features[variable][] = language_content_type_oa_wiki_page
@@ -67,10 +60,17 @@ features[variable][] = node_submitted_oa_wiki_page
 features[variable][] = og_menu_enable_oa_wiki_page
 features[variable][] = panelizer_defaults_node_oa_wiki_page
 features[variable][] = panelizer_node:oa_wiki_page_default
+features_exclude[variable][comment_anonymous_oa_wiki_page] = comment_anonymous_oa_wiki_page
+features_exclude[variable][comment_default_mode_oa_wiki_page] = comment_default_mode_oa_wiki_page
+features_exclude[variable][comment_default_per_page_oa_wiki_page] = comment_default_per_page_oa_wiki_page
+features_exclude[variable][comment_form_location_oa_wiki_page] = comment_form_location_oa_wiki_page
+features_exclude[variable][comment_oa_wiki_page] = comment_oa_wiki_page
+features_exclude[variable][comment_preview_oa_wiki_page] = comment_preview_oa_wiki_page
+features_exclude[variable][comment_subject_field_oa_wiki_page] = comment_subject_field_oa_wiki_page
 
-; Information added by Drupal.org packaging script on 2015-03-19
-version = "7.x-2.29"
+; Information added by Drupal.org packaging script on 2015-05-05
+version = "7.x-2.31"
 core = "7.x"
 project = "oa_wiki"
-datestamp = "1426788801"
+datestamp = "1430851992"
 

@@ -18,7 +18,7 @@ Drupal.captionFilter.toHTML = function(co, editor) {
   return co.replace(/(?:<p>)?\[caption([^\]]*)\]([\s\S]+?)\[\/caption\](?:<\/p>)?[\s\u00a0]*/g, function(a,b,c){
     var id, cls, w, tempClass;
 
-    b = b.replace(/\\'|\\&#39;|\\&#039;/g, '&#39;').replace(/\\"|\\&quot;/g, '&quot;');
+    b = b.replace(/\\?'|\\&#39;|\\&#039;/g, '&#39;').replace(/\\"|\\&quot;/g, '&quot;');
     c = c.replace(/\\&#39;|\\&#039;/g, '&#39;').replace(/\\&quot;/g, '&quot;');
     id = b.match(/id=['"]([^'"]+)/i);
     cls = b.match(/align=['"]([^'"]+)/i);

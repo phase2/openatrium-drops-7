@@ -114,11 +114,11 @@ function oa_sitemap_update_callback($node) {
   _oa_sitemap_update_field($node, 'title', $new_node['title'], $updated);
   if ($new_node['type'] == OA_SPACE_TYPE) {
     // updating a space node
-    _oa_sitemap_update_field($node, 'oa_parent_space', $new_node['parent_id'], $updated);
+    _oa_sitemap_update_field($node, 'oa_parent_space', $new_node['parent_id'], $updated, 'target_id');
   }
   else {
     // updating a section node
-    _oa_sitemap_update_field($node, 'og_group_ref', $new_node['parent_id'], $updated);
+    _oa_sitemap_update_field($node, 'og_group_ref', $new_node['parent_id'], $updated, 'target_id');
   }
   if ($updated) {
     node_save($node);
@@ -143,39 +143,27 @@ function oa_sitemap_update_callback($node) {
  * @param $field
  * @param $value
  * @param $updated
+ * @param $value_key
  */
-function _oa_sitemap_update_field($node, $field, $value, &$updated) {
+function _oa_sitemap_update_field($node, $field, $value, &$updated, $value_key = NULL) {
   $lang = LANGUAGE_NONE;
-  if (!isset($node->{$field})) {
-    // no field
-    return;
+  if (!$value_key) {
+    if ((empty($node->{$field}) && $value) || (!empty($node->{$field}) && $node->{$field} != $value)) {
+      $node->{$field} = $value;
+      $updated = TRUE;
+    }
   }
-  elseif (is_string($node->{$field}) && ($node->{$field} != $value)) {
-    $node->{$field} = $value;
+  elseif (
+    (empty($node->{$field}[$lang][0][$value_key]) && $value)
+    || (!empty($node->{$field}[$lang][0][$value_key]) && $node->{$field}[$lang][0][$value_key] != $value)) {
+    $node->{$field}[$lang][0][$value_key] = $value;
     $updated = TRUE;
-  }
-  elseif (is_string($node->{$field})) {
-    // string field did not change
-    return;
-  }
-  elseif (isset($node->{$field}[$lang][0]['value']) && ($node->{$field}[$lang][0]['value'] != $value)) {
-    $node->{$field}[$lang][0]['value'] = $value;
-    $updated = TRUE;
-  }
-  elseif (isset($node->{$field}[$lang][0]['target_id']) && ($node->{$field}[$lang][0]['target_id'] != $value)) {
-    if ($value == 0) {
-      unset($node->{field}[$lang][0]);
-      if (count($node->{field}[$lang]) == 0) {
-        unset($node->{field});
-      }
+    if (empty($value)) {
+      unset($node->{$field});
     }
     else {
-      $node->{$field}[$lang][0]['target_id'] = $value;
+      $node->{$field}[$lang][0][$value_key] = $value;
     }
-    $updated = TRUE;
-  }
-  elseif (isset($node->{$field}[$lang][0]['tid']) && ($node->{$field}[$lang][0]['tid'] != $value)) {
-    $node->{$field}[$lang][0]['tid'] = $value;
     $updated = TRUE;
   }
 }

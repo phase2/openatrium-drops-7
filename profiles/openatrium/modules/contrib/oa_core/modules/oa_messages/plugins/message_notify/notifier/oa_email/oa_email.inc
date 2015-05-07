@@ -8,7 +8,7 @@
 
 $plugin = array(
   'title' => t('OA Email'),
-  'description' => t('Send Message via email, with OpenAtrium enchancements.'),
+  'description' => t('Send Message via email, with Open Atrium enchancements.'),
   'class' => 'OaEmail',
   'options' => array(
     'html' => TRUE,

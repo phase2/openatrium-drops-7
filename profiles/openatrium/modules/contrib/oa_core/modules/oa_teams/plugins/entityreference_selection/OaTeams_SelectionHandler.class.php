@@ -41,8 +41,16 @@ class OaTeams_SelectionHandler implements EntityReference_SelectionHandler {
     $teams = node_load_multiple($nids);
 
     $options = array(OA_TEAM_TYPE => array());
+    $count = 0;
     foreach ($teams as $nid => $team) {
-      $options[OA_TEAM_TYPE][$nid] = check_plain($this->getLabel($team));
+      $count++;
+      $label = $this->getLabel($team);
+      if (!$match || stripos($label, $match) !== FALSE) {
+        $options[OA_TEAM_TYPE][$nid] = check_plain($this->getLabel($team));
+      }
+      if ($limit && $count == $limit) {
+        break;
+      }
     }
 
     return $options;

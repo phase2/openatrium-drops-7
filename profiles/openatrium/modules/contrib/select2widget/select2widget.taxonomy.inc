@@ -14,6 +14,7 @@ function select2widget_taxonomy_process_callback($element, &$form_state, $form) 
     'allow_new' => $settings['allow_new'],
     'separator' => $settings['separator'],
     'cardinality' => $cardinality,
+    'delay' => variable_get('select2_delay', '100'),
     'set_level' => $settings['set_level'],
     'min_char' => $settings['min_char'],
     'type' => 'taxonomy_term_reference',

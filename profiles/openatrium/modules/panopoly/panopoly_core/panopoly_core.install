@@ -189,3 +189,24 @@ function panopoly_core_update_7102() {
   }
   variable_set('panels_page_allowed_layouts', serialize($allowed_layouts));
 }
+
+/**
+ * Disown content types that belong to disabled modules.
+ */
+function panopoly_core_update_7103() {
+  $result = db_query("SELECT type, name, module FROM {node_type} WHERE module <> 'node'");
+  foreach ($result as $row) {
+    if (!module_exists($row->module)) {
+      db_update('node_type')
+        ->fields(array(
+            'module' => 'node',
+            'custom' => 1,
+            'modified' => 1,
+            'locked' => 0,
+            'disabled' => 0,
+          ))
+        ->condition('type', $row->type)
+        ->execute();
+    }
+  }
+}

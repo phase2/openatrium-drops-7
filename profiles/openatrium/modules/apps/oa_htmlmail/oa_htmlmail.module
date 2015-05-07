@@ -35,7 +35,8 @@ function oa_htmlmail_htmlmail($vars) {
   $header = '';
   if (module_exists('oa_appearance')) {
     // render a custom header for the space if defined
-    if ($space = node_load(oa_core_get_group_from_node($space_id))) {
+    if (($space_id = oa_core_get_group_from_node($space_id))
+      && ($space = node_load($space_id))) {
       $field = field_get_items('node', $space, OA_SPACE_BANNER_POSITION);
     }
     if (!empty($field[0]['value'])) {

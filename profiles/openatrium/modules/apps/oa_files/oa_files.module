@@ -346,7 +346,7 @@ function oa_files_create_document($file, $title, $gid = NULL, $sid = NULL) {
       );
     }
 
-    if (isset($_GET['menu_parent'])) {
+    if (isset($_GET['menu_parent']) || $sid) {
       $pid = !empty($_GET['menu_parent']) ? $_GET['menu_parent'] : $sid;
       if (($parent = node_load($pid)) && node_access('view', $parent) && ($mlid = og_menu_single_get_link_mlid('node', $pid))) {
         $is_in_group = FALSE;
@@ -592,7 +592,7 @@ function oa_files_include_js() {
     $instance = field_info_instance('node', 'field_oa_media', 'oa_wiki_page');
     $widget_settings = $instance['widget']['settings'];
     $field_settings = $field['settings'];
-    $multiselect = module_exists('media_multiselect');
+    $multiselect = module_exists('plupload');
     $options = array(
       'types' => array_filter($widget_settings['allowed_types']),
       'enabledPlugins' => array_filter($instance['widget']['settings']['browser_plugins']),

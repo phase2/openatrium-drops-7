@@ -28,11 +28,15 @@ function oa_sections_field_default_field_bases() {
       'handler' => 'oa_groups_selection',
       'handler_settings' => array(
         'behaviors' => array(
+          'views-autocomplete' => array(
+            'status' => 0,
+          ),
           'views-select-list' => array(
             'status' => 1,
           ),
         ),
         'include_space' => 1,
+        'target_bundles' => array(),
       ),
       'target_type' => 'node',
     ),
@@ -56,7 +60,6 @@ function oa_sections_field_default_field_bases() {
     'module' => 'text',
     'settings' => array(
       'max_length' => 255,
-      'profile2_private' => FALSE,
     ),
     'translatable' => 0,
     'type' => 'text',
@@ -78,8 +81,7 @@ function oa_sections_field_default_field_bases() {
     'module' => 'image',
     'settings' => array(
       'default_image' => 0,
-      'profile2_private' => FALSE,
-      'uri_scheme' => 'private',
+      'uri_scheme' => 'public',
     ),
     'translatable' => 0,
     'type' => 'image',
@@ -166,6 +168,9 @@ function oa_sections_field_default_field_bases() {
       'handler' => 'oa_teams',
       'handler_settings' => array(
         'behaviors' => array(
+          'views-autocomplete' => array(
+            'status' => 0,
+          ),
           'views-select-list' => array(
             'status' => 0,
           ),
@@ -195,6 +200,9 @@ function oa_sections_field_default_field_bases() {
       'handler' => 'views',
       'handler_settings' => array(
         'behaviors' => array(
+          'views-autocomplete' => array(
+            'status' => 0,
+          ),
           'views-select-list' => array(
             'status' => 0,
           ),

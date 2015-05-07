@@ -19,10 +19,9 @@ function oa_panopoly_users_ctools_plugin_api($module = NULL, $api = NULL) {
 function oa_panopoly_users_default_page_manager_handlers_alter(&$data) {
   if (isset($data['pm_existing_pages_user_login_panel_context'])) {
     $data['pm_existing_pages_user_login_panel_context']->conf['body_classes_to_add'] = 'oa-login'; /* WAS: '' */
-    $data['pm_existing_pages_user_login_panel_context']->conf['body_classes_to_remove'] = ''; /* WAS: '' */
     $data['pm_existing_pages_user_login_panel_context']->conf['display']->content['new-36405db8-54c5-495c-ba8a-0a5f7ade185a']->configuration['override_title_text'] = 'Log In'; /* WAS: '' */
     $data['pm_existing_pages_user_login_panel_context']->conf['display']->hide_title = 1; /* WAS: 0 */
-    $data['pm_existing_pages_user_login_panel_context']->conf['display']->layout = 'boxton'; /* WAS: 'burr_flipped' */
+    $data['pm_existing_pages_user_login_panel_context']->conf['display']->layout = 'boxton'; /* WAS: 'radix_burr_flipped' */
     $data['pm_existing_pages_user_login_panel_context']->conf['display']->panel_settings['contentmain'] = array(
       'style' => 'oa_styles_oa_pane',
     ); /* WAS: '' */
@@ -51,7 +50,7 @@ function oa_panopoly_users_panelizer_defaults_override_alter(&$data) {
             'show_sections' => 0,
             'tabs' => array(
               'Favorite' => 'Favorite',
-              'Subscribed' => 'Subscribed',
+              'Memberships' => 'Memberships',
               'All' => 0,
             ),
             'link_class' => 'btn',
@@ -100,42 +99,36 @@ function oa_panopoly_users_panelizer_defaults_override_alter(&$data) {
             'path' => NULL,
           ),
           'cache' => array(),
-          'style' => '',
+          'style' => array(
+            'settings' => NULL,
+          ),
           'css' => array(),
           'extras' => array(),
           'position' => 0,
           'locks' => array(),
           'uuid' => '9def882d-91aa-4313-87b2-0ace29b4329c',
         ); /* WAS: '' */
-    $data['user:user:default']->display->content['new-a617e554-6ad7-4d25-9d89-627d130d8be3'] = (object) array(
-          'pid' => 'new-a617e554-6ad7-4d25-9d89-627d130d8be3',
+    $data['user:user:default']->display->content['new-c068286a-0523-45cb-9190-9cc350ad6845'] = (object) array(
+          'pid' => 'new-c068286a-0523-45cb-9190-9cc350ad6845',
           'panel' => 'contentheader',
           'type' => 'views_panes',
-          'subtype' => 'open_atrium_discussions-discussion_user_reply',
+          'subtype' => 'oa_comment_topics-comment_user_topics_replied',
           'shown' => TRUE,
           'access' => array(),
           'configuration' => array(
-            'use_pager' => 1,
-            'pager_id' => 0,
-            'items_per_page' => 20,
-            'exposed' => array(
-              'type' => 'All',
-              'flagged' => 0,
-            ),
             'view_settings' => 'fields',
             'header_type' => 'none',
             'view_mode' => 'teaser',
           ),
           'cache' => array(),
           'style' => array(
-            'settings' => array(),
-            'style' => 'oa_styles_oa_pane',
+            'settings' => NULL,
           ),
           'css' => array(),
           'extras' => array(),
-          'position' => 2,
+          'position' => 1,
           'locks' => array(),
-          'uuid' => 'a617e554-6ad7-4d25-9d89-627d130d8be3',
+          'uuid' => 'c068286a-0523-45cb-9190-9cc350ad6845',
         ); /* WAS: '' */
     $data['user:user:default']->display->content['new-d3a2a9fb-f88a-4730-bfab-c36f4e0af395'] = (object) array(
           'pid' => 'new-d3a2a9fb-f88a-4730-bfab-c36f4e0af395',
@@ -165,53 +158,42 @@ function oa_panopoly_users_panelizer_defaults_override_alter(&$data) {
           'locks' => array(),
           'uuid' => 'd3a2a9fb-f88a-4730-bfab-c36f4e0af395',
         ); /* WAS: '' */
-    $data['user:user:default']->display->content['new-faf0ad46-b575-4f96-874d-9a4548cc8da3'] = (object) array(
-          'pid' => 'new-faf0ad46-b575-4f96-874d-9a4548cc8da3',
+    $data['user:user:default']->display->content['new-f34b9365-3769-4c85-9788-bbfa336fdcad'] = (object) array(
+          'pid' => 'new-f34b9365-3769-4c85-9788-bbfa336fdcad',
           'panel' => 'contentheader',
           'type' => 'views_panes',
-          'subtype' => 'open_atrium_discussions-discussion_user',
+          'subtype' => 'oa_comment_topics-comment_user_topics',
           'shown' => TRUE,
           'access' => array(),
           'configuration' => array(
-            'use_pager' => 1,
-            'pager_id' => 0,
-            'items_per_page' => 20,
-            'exposed' => array(
-              'type' => 'oa_discussion_post',
-              'flagged' => 0,
-            ),
-            'context' => array(
-              0 => 'empty',
-            ),
             'view_settings' => 'fields',
             'header_type' => 'none',
             'view_mode' => 'teaser',
           ),
           'cache' => array(),
           'style' => array(
-            'settings' => array(),
-            'style' => 'oa_styles_oa_pane',
+            'settings' => NULL,
           ),
           'css' => array(),
           'extras' => array(),
-          'position' => 1,
+          'position' => 2,
           'locks' => array(),
-          'uuid' => 'faf0ad46-b575-4f96-874d-9a4548cc8da3',
+          'uuid' => 'f34b9365-3769-4c85-9788-bbfa336fdcad',
         ); /* WAS: '' */
-    $data['user:user:default']->display->layout = 'selby_flipped'; /* WAS: 'phelan' */
+    $data['user:user:default']->display->layout = 'selby_flipped'; /* WAS: 'radix_phelan' */
     $data['user:user:default']->display->panel_settings['style_settings']['contentcolumn1'] = NULL; /* WAS: '' */
     $data['user:user:default']->display->panel_settings['style_settings']['contentcolumn2'] = NULL; /* WAS: '' */
     $data['user:user:default']->display->panel_settings['style_settings']['contentfooter'] = NULL; /* WAS: '' */
     $data['user:user:default']->display->panel_settings['style_settings']['contentheader'] = NULL; /* WAS: '' */
+    $data['user:user:default']->display->panels['contentheader'] = array(
+      0 => 'new-d3a2a9fb-f88a-4730-bfab-c36f4e0af395',
+      1 => 'new-c068286a-0523-45cb-9190-9cc350ad6845',
+      2 => 'new-f34b9365-3769-4c85-9788-bbfa336fdcad',
+      3 => 'new-7e2787f8-3f6c-4b3b-a1bb-e11225e395d5',
+    ); /* WAS: '' */
     $data['user:user:default']->display->panels['sidebar'] = array(
       0 => 'new-9def882d-91aa-4313-87b2-0ace29b4329c',
       1 => 'new-80a6a21b-20e6-4acf-9772-eb089cc6082b',
-    ); /* WAS: '' */
-    $data['user:user:default']->display->panels['contentheader'] = array(
-      0 => 'new-d3a2a9fb-f88a-4730-bfab-c36f4e0af395',
-      1 => 'new-a617e554-6ad7-4d25-9d89-627d130d8be3',
-      2 => 'new-faf0ad46-b575-4f96-874d-9a4548cc8da3',
-      3 => 'new-7e2787f8-3f6c-4b3b-a1bb-e11225e395d5',
     ); /* WAS: '' */
     unset($data['user:user:default']->display->content['new-23b1f4f1-cda8-42ca-880a-afc2ae92f3e9']);
     unset($data['user:user:default']->display->content['new-d76e85cd-4625-4a52-a17b-e5c65e1a0247']);

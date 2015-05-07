@@ -25,7 +25,8 @@ function oa_toolbar_oa_space_menu_content_type_render($subtype, $conf, $panel_ar
   $vars = array();
   if (module_exists('oa_appearance')) {
     $space_id = oa_core_get_space_context();
-    if (($space = node_load(oa_core_get_group_from_node($space_id))) && node_access('view', $space)) {
+    $space_id = $space_id ? oa_core_get_group_from_node($space_id) : NULL;
+    if ($space_id && ($space = node_load($space_id)) && node_access('view', $space)) {
       $field = field_get_items('node', $space, OA_SPACE_BANNER_POSITION);
     }
     $show_space = (!empty($field[0]['value']) && ($field[0]['value'] == OA_SPACE_BANNER_SPACE_MENU));
@@ -49,22 +50,83 @@ function oa_toolbar_oa_space_menu_content_type_render($subtype, $conf, $panel_ar
     }
   }
 
-  // grab the basic group menu from og_menu_single's content-type
+  // Grab the basic group menu from og_menu_single's content-type.
   $space_menu = ctools_content_render('og_menu_single_menu', '', array(
     'og_menu_single_depth' => 1,
     'og_menu_single_parent' => '0',
     'override_title_text' => '',
     'override_title' => TRUE,
   ), array());
+
+  // If we have space menu items.
   if (!empty($space_menu->content)) {
-    if (!empty($space_menu->content)) {
-      // Format and add menu to template.
-      $space_menu->content['#theme_wrappers'] = array('menu_tree__oa_navigation');
-      foreach (element_children($space_menu->content) as $mlid) {
-        // Render the links as Radix defaults.
-        $space_menu->content[$mlid]['#theme'] = 'menu_link__oa_navigation';
+    // Format and add menu to template.
+    $space_menu->content['#theme_wrappers'] = array('menu_tree__oa_navigation');
+    // Get icon settings from section types.
+    $terms = oa_sections_get_icons();
+    // If we are viewing content within a section.
+    if (isset($node) && $node->type != OA_SECTION_TYPE) {
+      // Get the section this content belongs to.
+      $parent_section = entity_load_single('node', oa_core_get_section_context());
+      if ($parent_section) {
+        // Get the term id for the section.
+        $parent_section_tid = $parent_section->field_oa_section[LANGUAGE_NONE][0]['tid'];
       }
     }
+    // Iterate over the space menu items so we can prepend icons to their titles.
+    foreach (element_children($space_menu->content) as $mlid) {
+      // Render the links as Radix defaults.
+      $space_menu->content[$mlid]['#theme'] = 'menu_link__oa_navigation';
+      // Get the router item for this link.
+      $item = menu_get_item($space_menu->content[$mlid]['#href']);
+      // The node for this menu item.
+      $item_node = $item['map'][1];
+      // The term id for this items node as it relates to the section.
+      $term_id = $item_node->field_oa_section[LANGUAGE_NONE][0]['tid'];
+      if (isset($terms[$term_id])) {
+        // See if we have an icon value in the form of a class. We check for
+        // this first as we want this to override any uploaded image.
+        if (!empty($terms[$term_id]->field_oa_icon_class_value)) {
+          $icon = '<i class="' . check_plain($terms[$term_id]->field_oa_icon_class_value) . '"></i>';
+        }
+        // Otherwise we will use an uploaded icon image.
+        else if (!empty($terms[$term_id]->field_oa_icon_image_fid)) {
+          // Load the file that represents the icon.
+          $file = file_load($terms[$term_id]->field_oa_icon_image_fid);
+          // Build a content array so we can render the file.
+          $content = array(
+            'file' => array(
+              '#theme' => 'image_style',
+              '#style_name' => 'oa_medium_thumbnail',
+              '#path' => $file->uri,
+            ),
+          );
+          // Render the file as content.
+          $icon = drupal_render($content);
+        }
+        // If there is not icon class or image we set the icon to nothing
+        // otherwise it will just be what the last icon was.
+        else {
+          $icon = '';
+        }
+      }
+      // Prepend the icon to the link title.
+      $space_menu->content[$mlid]['#title'] = $icon . $space_menu->content[$mlid]['#title'];
+      // Allow html in the title.
+      $space_menu->content[$mlid]['#localized_options']['html'] = TRUE;
+      // We are on a section content page we need to set the parent section menu
+      // item as the active link.
+      if (isset($parent_section_tid)) {
+        // If the node's term id matches the parent's section id then we set
+        // the parent menu item to 'active'.
+        if ($item_node->field_oa_section[LANGUAGE_NONE][0]['tid'] == $parent_section_tid) {
+          $space_menu->content[$mlid]['#attributes']['class'][] = 'active';
+        }
+      }
+    }
+  }
+  // If we have space menu items.
+  if (!empty($space_menu->content)) {
     foreach ($space_menu->content as $key => $value) {
       if (!empty($value['#original_link']['menu_name'])) {
         // rename menu to prevent DHTML menu from hooking into this

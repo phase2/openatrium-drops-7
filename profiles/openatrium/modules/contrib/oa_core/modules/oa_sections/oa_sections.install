@@ -6,6 +6,14 @@
  */
 
 /**
+ * Implements hook_install().
+ */
+function oa_sections_install() {
+  // disable comments on Sections by default
+  variable_set('comment_oa_section', 0);
+}
+
+/**
  * Enable reference_option_limit.
  */
 function oa_sections_update_7001() {

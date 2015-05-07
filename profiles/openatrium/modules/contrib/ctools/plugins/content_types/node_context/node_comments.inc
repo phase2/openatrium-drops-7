@@ -91,7 +91,10 @@ function ctools_comment_render($node, $conf) {
     drupal_add_css(drupal_get_path('module', 'comment') . '/comment.css');
     comment_prepare_thread($comments);
     $build = comment_view_multiple($comments, $node);
+
+    global $pager_page_array;
     $build['pager']['#theme'] = 'pager';
+    $build['pager']['#element'] = max(array_keys($pager_page_array));
     return drupal_render($build);
   }
   return;

@@ -53,11 +53,10 @@ features[paragraphs][] = paragraph_snippet
 features[paragraphs][] = paragraph_text
 features[views_view][] = open_atrium_references_search
 features_exclude[dependencies][media_colorbox] = media_colorbox
-mtime = 1421698960
 
-; Information added by Drupal.org packaging script on 2015-02-11
-version = "7.x-2.0-rc5"
+; Information added by Drupal.org packaging script on 2015-05-05
+version = "7.x-2.1"
 core = "7.x"
 project = "oa_related"
-datestamp = "1423678440"
+datestamp = "1430852001"
 

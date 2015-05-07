@@ -5,7 +5,7 @@
  */
 
 $plugin = array(
-  'name' => 'Drupal comments only (not OA Discussion Posts)',
+  'name' => 'Drupal comments only',
   'handler' => array(
     'class' => 'OaMailhandlerFiltersComments',
     'parent' => 'MailhandlerFilters',

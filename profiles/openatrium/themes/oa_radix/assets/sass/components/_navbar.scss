@@ -282,15 +282,23 @@ body.admin-menu #oa-navbar {
   margin-bottom: 0;
   background: transparent;
   border: 0;
+  height: 40px;
   min-height: 40px;
   .navbar-inner {
     border: 0;
     padding: 0;
-    min-height: 40px;
+    height: 40px;
     @include border-radius(0);
-    li > a {
-      padding-top: 10px;
-      padding-bottom: 10px;
+    li {
+      margin: 0 5px;
+      > a {
+        padding: 8px 10px 8px 10px;
+      }
+    }
+  }
+  @media (max-width: 767px) {
+    .navbar-inner {
+      display: none;
     }
   }
 }

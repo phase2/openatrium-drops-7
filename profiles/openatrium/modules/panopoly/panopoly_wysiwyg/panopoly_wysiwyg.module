@@ -365,3 +365,67 @@ function panopoly_wysiwyg_button_order_help($form) {
   }
   return $form;
 }
+
+/**
+ * Implements hook_filter_info()
+ */
+function panopoly_wysiwyg_filter_info() {
+  $filters = array();
+  $filters['panopoly_images_fix_captions'] = array(
+    'title' => t('Add Panopoly image classes to caption wrappers'),
+    'description' => t('This filter must come AFTER Caption Filter. Adds the image style class from the img tag to div.caption.'),
+    'process callback' => '_panopoly_wysiwyg_process_caption_filter',
+  );
+  return $filters;
+}
+
+/**
+ * Filter process callback. Add image style class to caption wrapper div.
+ */
+function _panopoly_wysiwyg_process_caption_filter($text, $filter, $format, $langcode, $cache, $cache_id) {
+
+  // We are going to use DOMDocument to parse this which causes $text to default to Latin-1 unless there's
+  // a charset meta tag because of course there is no server header here.
+  $text = '<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><body>' . $text . '</body>';
+
+  $doc = new DOMDocument();
+  $doc->loadHTML($text);
+  $xpath = new DOMXpath($doc);
+
+  // We need this crazy XPath query because a simple [@class=caption] will not
+  // match if we have multiple classes and a "contains" query will match even
+  // for classes like "mycaption". We want to match only if the actual "caption"
+  // class is present, with or without other classes.
+  // See http://pivotallabs.com/xpath-css-class-matching/
+  $captions = $xpath->query("//div[contains(concat(' ',normalize-space(@class),' '),' caption ')]");
+
+  foreach ($captions as $caption) {
+    $imgs = $caption->getElementsByTagName("img");
+    foreach ($imgs as $img) {
+      $img_classes = $img->getAttribute("class");
+      $img_path = $img->getAttribute("src");
+      $server_path = str_replace('http://' . $_SERVER['HTTP_HOST'], $_SERVER['DOCUMENT_ROOT'], $img_path);
+      $doc_path = explode('?', $server_path);
+      $img_info = image_get_info($doc_path[0]);
+
+      // We only do this for panopoly image styles; we don't mess with other
+      // people's stuff.
+      preg_match("/panopoly-image-[a-z]+/", $img_classes, $panopoly_image_class);
+    }
+    if (empty($panopoly_image_class)) {
+      return $text;
+    }
+    $caption_classes = $caption->getAttribute('class');
+    if (!empty($caption_classes)) {
+      $caption_classes = $caption_classes . ' ' . $panopoly_image_class[0];
+    }
+    $caption->setAttribute('class', $caption_classes);
+  }
+
+  // Generate the HTML and remove everything except the body of the document.
+  $text = $doc->saveHTML();
+  $text = preg_replace('/^.*?<body>/s', '', $text);
+  $text = preg_replace('/<\/body>.*$/s', '', $text);
+
+  return $text;
+}

@@ -1,5 +1,17 @@
-Panopoly Search 7.x-1.19, 2015-03-18 ----------------------------- - "Top search
-  phrases" report not showing any data.Panopoly Search 7.x-1.18, 2015-02-26
+Panopoly Search 7.x-1.21, 2015-04-29
+-----------------------------
+- Update Features module to version 2.5.
+
+Panopoly Search 7.x-1.20, 2015-03-25
+-----------------------------
+- CHANGELOG.txt updates for 1.19 went wrong.
+
+Panopoly Search 7.x-1.19, 2015-03-19
+------------------------------
+- Updated CHANGELOG.txt for 7.x-1.19 release.
+- "Top search phrases" report not showing any data.
+
+Panopoly Search 7.x-1.18, 2015-02-26
 -----------------------------
 - Patch search_api_db to be a bit less brittle.
 - Upgrade from 1.0-rc4 fails: Table 'cache_search_api_solr' doesn't exist.

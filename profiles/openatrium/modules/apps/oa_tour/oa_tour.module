@@ -27,44 +27,6 @@ function oa_tour_theme() {
 }
 
 /**
- * Implements hook_form_FORM_ID_alter().
- * Add the "spaces" form field.
- */
-function oa_tour_form_bootstrap_tour_form_alter(&$form, &$form_state, $form_id) {
-  $spaces = node_load_multiple(array(), array('type' => 'oa_space', 'status' => 1));
-  $options = array();
-  foreach ($spaces as $space) {
-    $options[$space->nid] = $space->title;
-  }
-  asort($options); // Sort alphabetically for the heck of it.
-
-  $tour_name = arg(4);
-  if (!empty($tour_name)) {
-    $tour = bootstrap_tour_load($tour_name);
-  }
-
-  $form['spaces'] = array(
-    '#type' => 'select',
-    '#title' => t('Spaces'),
-    '#description' => t('Which spaces should this tour be active in? Leave empty for all.'),
-    '#multiple' => TRUE,
-    '#options' => $options,
-    '#default_value' => !empty($tour->spaces) ? explode(',', $tour->spaces) : '',
-    '#weight' => 1,
-  );
-}
-
-/**
- * Implements hook_bootstrap_tour_presave_alter().
- * Add the "spaces" field to it before saving.
- */
-function oa_tour_bootstrap_tour_presave_alter(&$tour, &$vals) {
-  if (!empty($vals['spaces'])) {
-    $tour->spaces = implode(',', $vals['spaces']);
-  }
-}
-
-/**
  * Implements hook_bootstrap_tour_alter().
  *
  * Dig into steps with special paths and alter them so that they either point
@@ -89,11 +51,11 @@ function oa_tour_bootstrap_tour_alter(&$tour) {
     return;
   }
   foreach ($tour->steps as $key => $step) {
-    if (empty($step['path'])) {
+    if (empty($step->path)) {
       continue;
     }
 
-    $path_parts = explode('/', $step['path']);
+    $path_parts = explode('/', $step->path);
     if (in_array($path_parts[0], array('firstnode', 'mynode')) && count($path_parts) > 1) {
       // Special step path: firstnode/<node_type>/<node_add_tour>
       //
@@ -147,10 +109,10 @@ function oa_tour_bootstrap_tour_alter(&$tour) {
         $node_add_path .= '?nexttour=' . $tour->name;
 
         // No nodes exist yet so let's send them to the node add form.
-        $tour->steps[$key]['path'] = $node_add_path;
+        $tour->steps[$key]->path = $node_add_path;
         if (!empty($node_add_tour)) {
           // If the URL has a 3rd part, that's the name of the tour to run on the node add form.
-          $tour->steps[$key]['path'] .= '&tour=' . $node_add_tour;
+          $tour->steps[$key]->path .= '&tour=' . $node_add_tour;
         }
       }
       else {
@@ -164,7 +126,7 @@ function oa_tour_bootstrap_tour_alter(&$tour) {
             $node_path .= '/' . $path_parts[2];
           }
         }
-        $tour->steps[$key]['path'] = drupal_get_path_alias($node_path);
+        $tour->steps[$key]->path = drupal_get_path_alias($node_path);
 
         if (!empty($_SESSION['nexttour']) && $_SESSION['nexttour'] == $tour->name) {
           for ($i = 0; $i < $key; $i++) {
@@ -174,21 +136,23 @@ function oa_tour_bootstrap_tour_alter(&$tour) {
         }
       }
     }
-    elseif ($step['path'] == 'node/add/oa-space') {
+    elseif ($step->path == 'node/add/oa-space') {
       // Redirect straight to the first Space Blueprint.
-      $tour->steps[$key]['path'] .= '/' . $space_blueprints[0]->tid;
+      $tour->steps[$key]->path .= '/' . $space_blueprints[0]->tid;
     }
-    elseif ($step['path'] == 'node/add/oa-section') {
+    elseif ($step->path == 'node/add/oa-section') {
       // Redirect straight to the first Section Type.
-      $tour->steps[$key]['path'] .= '/' . $section_types[0]->tid;
+      $tour->steps[$key]->path .= '/' . $section_types[0]->tid;
     }
   }
 }
 
 /**
  * Implements hook_form_FORM_BASE_ID_alter().
- * Add the nexttour parameter as a hidden form field so that we can use it in the submit
- * callback to resume the previous tour on the newly created node's page.
+ *
+ * Add the nexttour parameter as a hidden form field so that we can use it in
+ * the submit callback to resume the previous tour on the newly created node's
+ * page.
  */
 function oa_tour_form_node_form_alter(&$form, &$form_state, $form_id) {
   if (!empty($_GET['nexttour'])) {
@@ -201,10 +165,56 @@ function oa_tour_form_node_form_alter(&$form, &$form_state, $form_id) {
 
 /**
  * Implements hook_node_insert().
- * Fetch the next tour to run from the form fields and then run it.
  */
 function oa_tour_node_insert($node) {
+  // Fetch the next tour to run from the form fields and then run it.
   if (!empty($node->nexttour)) {
     $_SESSION['nexttour'] = $node->nexttour;
+  }
+}
+
+/**
+ * Implements hook_bootstrap_tour_access().
+ */
+function oa_tour_bootstrap_tour_access($tour, $account, $current_access) {
+  if ($items = field_get_items('bootstrap_tour', $tour, 'field_bootstrap_tour_spaces')) {
+    $space_context = oa_core_get_space_context();
+    if (!$space_context) {
+      return FALSE;
+    }
+    foreach ($items as $item) {
+      if ($item['target_id'] == $space_context) {
+        return TRUE;
+      }
+    }
+    return FALSE;
+  }
+}
+
+/**
+ * Implements hook_bootstrap_tour_presave().
+ */
+function oa_tour_bootstrap_tour_presave($tour) {
+  // Convert existing tours spaces to new tours fields.
+  if (!empty($tour->old_tour['btid']) && db_table_exists('bootstrap_tour_old')) {
+    $query = db_select('bootstrap_tour_old', 'b')
+      ->fields('b', array('spaces'))
+      ->condition('b.btid', $tour->old_tour['btid']);
+    $spaces = $query->execute()
+      ->fetchColumn();
+    if ($spaces) {
+      // Since this condition only happens during an update, features revert
+      // likely hasn;t happened yet so we gotta revert ourselves.
+      if (!field_info_field('field_bootstrap_tour_spaces')) {
+        features_revert_module('oa_tour');
+        if (!field_info_field('field_bootstrap_tour_spaces')) {
+          watchdog('oa_tour', 'Unable to create bootstrap spaces field', array(), WATCHDOG_ERROR);
+          return;
+        }
+      }
+      foreach (explode(',', $spaces) as $nid) {
+        $tour->field_bootstrap_tour_spaces[LANGUAGE_NONE][] = array('target_id' => $nid);
+      }
+    }
   }
 }

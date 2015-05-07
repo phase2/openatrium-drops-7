@@ -6,9 +6,9 @@
  */
 
 /**
- * Implements hook_form_alter
+ * Implements hook_form_FORM_ID_alter() for user_profile_form.
  */
-function oa_core_form_alter(&$form, &$form_state, $form_id) {
+function oa_core_form_user_profile_form_alter(&$form, &$form_state, $form_id) {
   // We redirect by using the drupal_goto_alter hook. If we simply
   // call drupal_goto() it may break compability with other modules. If we set
   // the $_GET['destination'] variable we will loose the possibility to redirect
@@ -23,70 +23,20 @@ function oa_core_form_alter(&$form, &$form_state, $form_id) {
   // of user_login_submit(). This is because form_submit() functions are
   // appended to form before hook_form_alter() is executed.
 
-  // We will execute also after LoginToboggan's function as it replaces the
-  // original submit function from user module.
-  switch ($form_id) {
-    case 'user_register_form': // user register page
-    case 'user_login': // user login page
-      $form['#validate'][] = 'oa_core_login_validate';
-      break;
+  if (isset($_GET['pass-reset-token'])) {
+    // Redirect only from user_pass_reset
+    // You have to explicitally turn on the option to always redirect from
+    // the profile page. This is for constistency.
+    $form['#submit'][] = 'oa_core_login_submit';
+  }
+}
 
-    case 'user_profile_form': // one-time login, password reset
-      if (isset($_GET['pass-reset-token'])) {
-        // Redirect only from user_pass_reset
-        // You have to explicitally turn on the option to always redirect from
-        // the profile page. This is for constistency.
-        $form['#submit'][] = 'oa_core_login_submit';
-      }
-      break;
-    case 'user_login_block':
-      $form['links']['#markup'] = '<span class="password-reset">' . t('If you forgot your password') . ', ' .
+/**
+ * Implements hook_form_FORM_ID_alter() for user_login_block.
+ */
+function oa_core_form_user_login_block_alter(&$form, &$form_state) {
+  $form['links']['#markup'] = '<span class="password-reset">' . t('If you forgot your password') . ', ' .
         l(t('request a new password.'), 'user/password') . '</span>';
-      break;
-  }
-  if (preg_match('/_node_form$/', $form_id)) {
-    // make sure node edit forms respect the destination query
-    if (!empty($_GET['destination'])) {
-      $form['actions']['submit']['#submit'][] = 'oa_core_node_edit_submit';
-    }
-  }
-}
-
-/**
- * Helper submit function.
- * Redirect back to destination after node edit
- */
-function oa_core_node_edit_submit($form, &$form_state) {
-  if (!empty($_GET['destination'])) {
-    $form_state['redirect'] = $_GET['destination'];
-  }
-}
-
-/**
- * Helper submit function.
- */
-function oa_core_login_validate($form, &$form_state) {
-  // LoginToboggan's unified page is rendered dynamically. Fix it.
-  switch ($form['#form_id']) {
-    case 'user_register_form':
-      if (drupal_match_path($_GET['q'], 'user')) {
-        $_GET['q'] = 'user/register';
-      }
-      break;
-    case 'user_login':
-      if (drupal_match_path($_GET['q'], 'user/register')) {
-        $_GET['q'] = 'user';
-      }
-      break;
-  }
-
-  // Fix the current page in case of 403 page.
-  if ($form['#form_id'] == 'user_login') {
-    if (drupal_get_http_header('Status') == '403 Forbidden') {
-      $_GET['current'] = $_GET['destination'];
-    }
-  }
-
 }
 
 /**

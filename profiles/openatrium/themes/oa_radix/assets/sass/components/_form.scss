@@ -65,6 +65,9 @@ form {
     display: inline-block;
     width: 90%;
   }
+  .form-control.form-wrapper {
+    height: auto;
+  }
 }
 
 .views-exposed-form .views-exposed-widget .form-submit {
@@ -184,6 +187,10 @@ textarea,
 // Node edit form
 // --------------------------------------------------
 #node-edit {
+  #edit-title {
+    width: 100%;
+  }
+
   .burr-flipped-sidebar .panel-pane,
   .burr-flipped .sidebar .panel-pane {
     border: 0;
@@ -323,9 +330,9 @@ textarea,
 }
 
 //OA-messages form
-#oa-users-settings-form{
-  .container-fluid{
-    &.header{
+#oa-users-settings-form {
+  .container-fluid {
+    &.header {
       background-color: #dedede;
       clear: both;
       height: 25px;
@@ -336,8 +343,8 @@ textarea,
     padding-right:0;
     padding-left:0;
   }
-  .col-sm-6{
-    .panel-heading{
+  .col-sm-6 {
+    .panel-heading {
       display: block;
       float: none;
       line-height: 40px;
@@ -348,9 +355,9 @@ textarea,
   div.column3 div.form-type-checkboxes {
     margin-left: -54%;
   }
-  .collapsible{
-    &.form-wrapper{
-      .fieldset-wrapper{
+  .collapsible {
+    &.form-wrapper {
+      .fieldset-wrapper {
         overflow: visible !important;
         padding:0;
       }
@@ -358,14 +365,14 @@ textarea,
       @include box-shadow(none);
     }
   }
-  input[type="text"]{
+  input[type="text"] {
     width:auto;
   }
   .panel-title > a {
     color: #0071B3;
     font-size:18px;
   }
-  div.column2 div.chosen-container{
+  div.column2 div.chosen-container {
     margin: 8px 0;
     padding:0;
   }
@@ -387,6 +394,42 @@ textarea,
         margin-top: -1px;
       }
       margin-top: 0;
+    }
+  }
+}
+
+// Moving WYSIWYG to top of body fields
+.field-widget-text-textarea-with-summary, .field-widget-text-textarea {
+  .text-format-wrapper {
+    position: relative;
+  }
+  .format-toggle {
+    position: absolute;
+    top: -50px;
+    right: 0;
+    label {
+      display: none;
+    }
+  }
+  .description {
+    margin-bottom: 10px;
+  }
+}
+
+form.node-form {
+  .field-name-body {
+    margin-top: 30px;
+    .description {
+      position: absolute;
+      top: -30px;
+    }
+  }
+}
+
+form.comment-form {
+  .format-toggle {
+    label {
+      font-size: 1em;
     }
   }
 }

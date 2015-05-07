@@ -26,11 +26,16 @@ function oa_buttons_add_section_content_settings_form($form, &$form_state) {
  * Renders the widget.
  */
 function oa_buttons_add_section_content_render($subtype, $conf, $args, $context) {
+  $block = NULL;
   $node = $context->data;
   if ($node) {
-    $node_types = oa_buttons_get_command_buttons($node);
-    if (!empty($node_types)) {
-      $buttons = command_buttons_machine_name_load(array_keys($node_types));
+    $buttons_for_node = oa_buttons_get_command_buttons($node);
+    if (!empty($buttons_for_node)) {
+      $machine_names = array();
+      foreach ($buttons_for_node as $button) {
+        $machine_names[$button['value']] = $button['value'];
+      }
+      $buttons = command_buttons_machine_name_load($machine_names);
 
       $item_list = array();
       $classes = array(
@@ -41,10 +46,12 @@ function oa_buttons_add_section_content_render($subtype, $conf, $args, $context)
         'wrapper_class' => array(
           'oa-buttons',
         ),
+        'use_dropdowns' => FALSE,
+        'dropdown_label' => NULL,
       );
       $block = new stdClass();
       $block->title = t('Create Content');
-      $block->content = command_buttons_render_buttons($buttons, $classes, $node_types);
+      $block->content = command_buttons_render_buttons($buttons, $classes, $buttons_for_node);
     }
   }
   return $block;

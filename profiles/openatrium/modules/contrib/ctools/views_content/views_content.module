@@ -365,8 +365,8 @@ function views_content_form_views_exposed_form_alter_remove_access($form, $form_
     }
   }
   //If we have nerfed all of the filters then kill the submit as well
-  if (!$using_form) {
-    $form['submit']['#access'] = FALSE;
+  if (!$using_form || empty($form['#info'])) {
+    $form['#access'] = FALSE;
   }
   return $form;
 }

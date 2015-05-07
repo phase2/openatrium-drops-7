@@ -1,6 +1,9 @@
 #oa_favorites {
   margin: 10px 0 0 0;
 }
+#oa_favorites h3 {
+  white-space: nowrap;
+}
 .pull-right #oa_favorites {
   margin-right: 5px;
 }

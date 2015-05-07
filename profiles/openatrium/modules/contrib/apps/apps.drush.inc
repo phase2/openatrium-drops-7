@@ -175,7 +175,13 @@ function drush_apps_install() {
       $download = array('url' => $downloadable['url']);
       $name = $downloadable['name'];
       $download_location = variable_get('apps_install_path', APPS_INSTALL_PATH) . "/" . $name;
-      if (!make_download_file($name, $download, $download_location)) {
+      if (DRUSH_VERSION <= 5.9) {
+        $downloaded = make_download_file($name, $download, $download_location);
+      }
+      else {
+        $downloaded = make_download_file($name, 'file', $download, $download_location);
+      }
+      if (!$downloaded) {
         drush_log(dt('One of the dependencies of @app failed to download, canceling installation', array('@app' => $app)), 'error');
         return;
       };

@@ -1,5 +1,16 @@
-Panopoly Theme 7.x-1.19, 2015-03-18 ---------------------------- - No changes
-  since last release.Panopoly Theme 7.x-1.18, 2015-02-26
+Panopoly Theme 7.x-1.21, 2015-04-29
+----------------------------
+- Remove 'Radix' from the label of each of the layouts.
+
+Panopoly Theme 7.x-1.20, 2015-03-25
+----------------------------
+- CHANGELOG.txt updates for 1.19 went wrong.
+
+Panopoly Theme 7.x-1.19, 2015-03-19
+----------------------------
+- No changes since last release.
+
+Panopoly Theme 7.x-1.18, 2015-02-26
 ----------------------------
 - No changes since last release.
 

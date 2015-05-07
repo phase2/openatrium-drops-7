@@ -317,7 +317,7 @@ function oa_access_get_permissions($reset = FALSE) {
 /**
  * Get a list of this user's Groups.
  * 
- * @param object|NULL $user 
+ * @param object $account
  *   (Optional) The user to get groups for. If NULL, it will find groups for
  *   the currently logged in user.
  *
@@ -334,28 +334,26 @@ function oa_access_user_groups($account = NULL) {
   $cache =& drupal_static(__FUNCTION__, array());
 
   if (!isset($cache[$account->uid])) {
-    if (!isset($cache[$account->uid])) {
-      // First, get all the users oa_groups.
-      $query = db_select('og_membership', 'og');
-      $query->innerJoin('node', 'n', 'og.gid = n.nid');
-      $query
-        ->fields('n', array('nid', 'type'))
-        ->condition('og.group_type', 'node')
-        ->condition('og.entity_type', 'user')
-        ->condition('og.state', OG_STATE_ACTIVE)
-        ->condition('n.type', 'oa_group')
-        ->condition('og.etid', $account->uid);
+    // First, get all the users oa_groups.
+    $query = db_select('og_membership', 'og');
+    $query->innerJoin('node', 'n', 'og.gid = n.nid');
+    $query
+      ->fields('n', array('nid', 'type'))
+      ->condition('og.group_type', 'node')
+      ->condition('og.entity_type', 'user')
+      ->condition('og.state', OG_STATE_ACTIVE)
+      ->condition('n.type', 'oa_group')
+      ->condition('og.etid', $account->uid);
 
-      $groups = array();
-      foreach ($query->execute() as $row) {
-        $groups[$row->nid] = $row->nid;
-      }
-
-      // All users are members of the magic 'All' group with an NID of 0.
-      $groups[0] = 0;
-
-      $cache[$account->uid] = $groups;
+    $groups = array();
+    foreach ($query->execute() as $row) {
+      $groups[$row->nid] = $row->nid;
     }
+
+    // All users are members of the magic 'All' group with an NID of 0.
+    $groups[0] = 0;
+
+    $cache[$account->uid] = $groups;
   }
 
   return $cache[$account->uid];

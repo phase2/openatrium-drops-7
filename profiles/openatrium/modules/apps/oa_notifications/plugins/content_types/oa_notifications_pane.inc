@@ -137,6 +137,7 @@ function oa_notifications_edit_form($form, &$form_state, $node) {
     'callback' => 'oa_notifications_ajax_callback',
     'wrapper' => 'group-div',
     'method' => 'replace',
+    'event' => 'change',
   );
   $form['notifications']['group']['#prefix'] = '<div id="group-div">';
   $form['notifications']['group']['#suffix'] = '</div>';
@@ -145,6 +146,7 @@ function oa_notifications_edit_form($form, &$form_state, $node) {
     'callback' => 'oa_notifications_ajax_callback',
     'wrapper' => 'team-div',
     'method' => 'replace',
+    'event' => 'change',
   );
   $form['notifications']['team']['#prefix'] = '<div id="team-div">';
   $form['notifications']['team']['#suffix'] = '</div>';
@@ -153,6 +155,7 @@ function oa_notifications_edit_form($form, &$form_state, $node) {
     'callback' => 'oa_notifications_ajax_callback',
     'wrapper' => 'user-div',
     'method' => 'replace',
+    'event' => 'change',
   );
   $form['notifications']['user']['#prefix'] = '<div id="user-div">';
   $form['notifications']['user']['#suffix'] = '</div>';

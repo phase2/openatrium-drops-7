@@ -10,9 +10,9 @@ configure = admin/config/media/wysiwyg-view-mode
 files[] = media_wysiwyg_view_mode.test
 
 
-; Information added by drush on 2015-03-20
+; Information added by drush on 2015-05-07
 version = "7.x-2.0-alpha3+98-dev"
 core = "7.x"
 project = "media"
-datestamp = "1426880954"
+datestamp = "1431013573"
 

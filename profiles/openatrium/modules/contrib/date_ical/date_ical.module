@@ -10,7 +10,7 @@
  * value of the iCal feeds created by Date iCal. It's primarily used for
  * debugging.
  */
-define('DATE_ICAL_VERSION', '3.1');
+define('DATE_ICAL_VERSION', '3.4-dev');
 
 /**
  * Exception class for generic exceptions thrown by this module.
@@ -168,7 +168,7 @@ function date_ical_libraries_info() {
     'download url' => 'http://github.com/iCalcreator/iCalcreator',
     'version arguments' => array(
       'file' => 'iCalcreator.class.php',
-      'pattern' => "/define\( 'ICALCREATOR_VERSION', 'iCalcreator ([\d\.]+)' \);/",
+      'pattern' => "/define.*?ICALCREATOR_VERSION.*?([\d\.]+)/",
       'lines' => 100,
     ),
     'files' => array(
@@ -222,29 +222,28 @@ function date_ical_feeds_processor_targets_alter(&$targets, $entity_type, $bundl
 /**
  * Reformats the provided text to be compliant with the iCal spec.
  *
- * If the text contains HTML tags, those tags will be stripped (with <p> tags
- * converted to "\n\n" and link tags converted to footnotes), and uneeded
- * whitespace will be cleaned up.
+ * If the text contains HTML tags, those tags will be stripped. Paragraph,
+ * heading, and div tags will be replaced with newlines.
  *
  * @param string $text
  *   The text to be sanitized.
  */
 function date_ical_sanitize_text($text = '') {
-  // Use Drupal's built-in HTML to Text converter, which does a mostly
-  // adequate job of making the text iCal-compliant.
-  $text = trim(drupal_html_to_text($text));
-  // Replace instances of more than one space with exactly one space. This
-  // cleans up the whitespace mess that drupal_html_to_text() leaves behind.
-  $text = preg_replace("/  +/", " ", $text);
-  // The call to drupal_html_to_text() above converted <p> to \n\n, and also
-  // shoved a \n into the string every 80 characters. We don't want those
-  // single \n's lying around, because iCalcreator will properly "fold" long
-  // text fields for us. So, we need to remove all instances of \n which
-  // are neither immediately preceeded, nor followed, by another \n.
-  // However, \n's which are followed immediately by a > character should
-  // remain, because of how drupal_html_to_text() converts <blockquote>.
-  $text = preg_replace("/(?<!\n)\n(?![\n\>])/", " ", $text);
-  return $text;
+  // HTML tags may get converted to &lt; and such by the View code, so we need
+  // to convert them back to HTML so we can remove them with strip_tags().
+  $text = decode_entities($text);
+  
+  // Convert <p> tags to double newlines.
+  $text = trim(preg_replace("/<p.*?>/i", "\n\n", $text));
+  // Separate heading tags from the text around them in both directions.
+  $text = trim(preg_replace("/<\\?h\d.*?>/i", "\n\n", $text));
+  // Add a newline for each <div>.
+  $text = trim(preg_replace("/<div.*?>/i", "\n", $text));
+  
+  // Strip the remaining HTML.
+  $text = strip_tags($text);
+  // Remove newlines added at the beginning.
+  return trim($text);
 }
 
 /**

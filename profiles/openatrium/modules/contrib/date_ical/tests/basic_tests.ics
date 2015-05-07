@@ -132,4 +132,13 @@ UID:date_ical_basic_test0D
 DESCRIPTION:This event uses a fake TZID and should throw the "not a valid timezone" warning at import time, and be treated as UTC.
 END:VEVENT
 
+BEGIN:VEVENT
+SUMMARY:Event w/ GEO
+DTSTART;TZID=America/New_York:20131009T190000
+DTEND;TZID=America/New_York:20131009T210000
+UID:date_ical_basic_test0E
+DESCRIPTION:This is a standard event that has a GEO field.
+GEO:34.1378534;-118.1252851
+END:VEVENT
+
 END:VALENDAR

@@ -10,6 +10,10 @@
  */
 function oa_core_install() {
   oa_core_create_default_terms();
+  // disable comments on Groups by default
+  variable_set('comment_oa_group', 0);
+  // disable comments on Spaces by default
+  variable_set('comment_oa_space', 0);
 }
 
 /**
@@ -253,9 +257,36 @@ function oa_core_update_7226() {
 }
 
 /**
+ * Helper function to remove groups that are using default permissions but
+ * still have entries in og_role table
+ */
+function _oa_core_remove_orphaned_og_roles() {
+  $query = db_select('og_role', 'og');
+  $query->join('field_data_og_roles_permissions', 'f', "og.gid = f.entity_id AND f.entity_type = 'node'");
+  $query->fields('og', array('gid'))
+    ->condition('f.og_roles_permissions_value', 0);
+  $gids = $query->execute()->fetchCol();
+  if (!empty($gids)) {
+    db_delete('og_role')
+      ->condition('gid', $gids, 'IN')
+      ->execute();
+  }
+}
+
+/**
  * Fix accidentatly given roles.
  */
 function oa_core_update_7227() {
+  // NOTE: The original version of this update hook did not remove orphaned
+  // entries in the og_role table.  This was added here when update 7232 was
+  // added to help users who might not have run 7227 yet.
+  // Without this, the DELETE statement below could remove roles from users
+  // that had bad entries in the og_role table left over from this issue:
+  // https://www.drupal.org/node/2411041
+  _oa_core_remove_orphaned_og_roles();
+
+  // Now we can remove user roles that are associated with groups using
+  // overridden permissions but having rid values from the default permissions.
   db_query("DELETE FROM {og_users_roles} where gid in (SELECT gid from {og_role} where gid > 0) and rid in (SELECT rid from {og_role} where gid = 0)");
 }
 
@@ -298,3 +329,26 @@ function oa_core_update_7229() {
     }
   }
 }
+
+/**
+ * Mark that node access needs to be rebuilt.
+ */
+function oa_core_update_7231() {
+  if (module_exists('oa_plupload') || module_exists('media_multiselect')) {
+    drupal_set_message(t('oa_plupload and media_multiselect have been deprecated for oa_media and will be disabled.'));
+    module_disable(array('oa_plupload', 'media_multiselect'));
+    module_enable(array('oa_media'));
+  }
+}
+
+/**
+ * Remove orphaned records in og_role table.
+ */
+function oa_core_update_7232() {
+  // See update_7227.  7227 originally didn't remove orphaned records, causing
+  // some roles to be removed by mistake.  7227 has now been updated, but we
+  // still need to remove orphaned records for sites that have already run the
+  // old version of update 7227.
+  _oa_core_remove_orphaned_og_roles();
+}
+

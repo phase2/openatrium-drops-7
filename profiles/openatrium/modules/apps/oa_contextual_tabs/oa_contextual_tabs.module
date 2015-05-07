@@ -10,16 +10,18 @@ include_once 'oa_contextual_tabs.features.inc';
  * Implements hook_menu().
  */
 function oa_contextual_tabs_menu() {
-  $items['node/%node/archive-content'] = array(
-    'type' => MENU_LOCAL_TASK,
-    'title callback' => 'oa_contextual_tabs_archive_title',
-    'title arguments' => array(1),
-    'page callback' => 'oa_contextual_tabs_confirmation',
-    'page arguments' => array(1),
-    'access callback' => 'oa_contextual_tabs_access',
-    'access arguments' => array(1),
-    'weight' => 99,
-  );
+  if (module_exists('oa_archive')) {
+    $items['node/%node/archive-content'] = array(
+      'type' => MENU_LOCAL_TASK,
+      'title callback' => 'oa_contextual_tabs_archive_title',
+      'title arguments' => array(1),
+      'page callback' => 'oa_contextual_tabs_confirmation',
+      'page arguments' => array(1),
+      'access callback' => 'oa_contextual_tabs_access',
+      'access arguments' => array(1),
+      'weight' => 99,
+    );
+  }
   return $items;
 }
 

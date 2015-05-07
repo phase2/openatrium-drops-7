@@ -12,13 +12,13 @@ dependencies[] = media
 dependencies[] = oa_core
 dependencies[] = options
 dependencies[] = text
+stylesheets[all][] = oa_appearance.css
 apps[screenshots][] = app/screenshot.png
 apps[logo] = app/logo.png
 apps[author] = Phase2 Technology
 apps[author_url] = http://www.phase2technology.com/
 apps[server] = openatrium
 apps[package] = Core addons
-stylesheets[all][] = oa_appearance.css
 features[ctools][] = field_group:field_group:1
 features[features_api][] = api:2
 features[field_base][] = field_oa_banner
@@ -31,9 +31,9 @@ features[field_instance][] = node-oa_space-field_oa_banner_text
 features[image][] = oa_banner
 project path = profiles/openatrium/modules/contrib/oa_core/modules
 
-; Information added by Drupal.org packaging script on 2015-03-11
-version = "7.x-2.2"
+; Information added by Drupal.org packaging script on 2015-05-04
+version = "7.x-2.3"
 core = "7.x"
 project = "oa_appearance"
-datestamp = "1426107488"
+datestamp = "1430776685"
 

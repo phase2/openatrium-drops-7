@@ -1,5 +1,23 @@
-Panopoly WYSIWYG 7.x-1.19, 2015-03-18 ------------------------------ -
-  Livepreview.feature is super slow.Panopoly WYSIWYG 7.x-1.18, 2015-02-26
+Panopoly WYSIWYG 7.x-1.21, 2015-04-29
+------------------------------
+- WYSIWYG format shouldn't use "Convert line breaks into HTML" filter.
+- <meta> tag getting added to the WYSIWYG output.
+- Update TinyMCE library to 3.5.11.
+- LinkIt is broken when changing to WYSIWYG editor after save.
+- Caption filter does not work with Quarter Size image format - or with floated
+  captions.
+- Caption filter not properly converting singe quotes to entities.
+
+Panopoly WYSIWYG 7.x-1.20, 2015-03-25
+------------------------------
+- CHANGELOG.txt updates for 1.19 went wrong.
+
+Panopoly WYSIWYG 7.x-1.19, 2015-03-19
+-------------------------------
+- Updated CHANGELOG.txt for 7.x-1.19 release.
+- Livepreview.feature is super slow.
+
+Panopoly WYSIWYG 7.x-1.18, 2015-02-26
 ------------------------------
 - No changes since last release.
 

@@ -13,18 +13,20 @@ function oa_related_oa_paragraph_media_alter(&$vars) {
   // For images, add a class pull-LAYOUT where LAYOUT is the layout config value.
   $vars['classes_array'][] = drupal_html_class('pull-' . $layout);
   // update caption titles and any display properties as needed
-  for ($i = 0; $i < count($vars['content']['field_oa_media']['#items']); $i++) {
-    $item = &$vars['content']['field_oa_media'][$i];
-    switch ($layout) {
-      case 'full':
-      case 'grid2':
-        // for large images we need to change the view mode to fetch original image sizes
-        $item['#display_settings']['file_view_mode'] = 'default';
-        break;
+  if (isset($vars['content']['field_oa_media']['#items'])) {
+    for ($i = 0; $i < count($vars['content']['field_oa_media']['#items']); $i++) {
+      $item = &$vars['content']['field_oa_media'][$i];
+      switch ($layout) {
+        case 'full':
+        case 'grid2':
+          // for large images we need to change the view mode to fetch original image sizes
+          $item['#display_settings']['file_view_mode'] = 'default';
+          break;
+      }
+      // set the title based on the image alt/title or filename
+      $item['#title'] = !empty($vars['field_oa_media'][$i]['alt']) ? $vars['field_oa_media'][$i]['alt'] :
+        (!empty($vars['field_oa_media'][$i]['title']) ? $vars['field_oa_media'][$i]['title'] : $vars['field_oa_media'][$i]['filename']);
     }
-    // set the title based on the image alt/title or filename
-    $item['#title'] = !empty($vars['field_oa_media'][$i]['alt']) ? $vars['field_oa_media'][$i]['alt'] :
-      (!empty($vars['field_oa_media'][$i]['title']) ? $vars['field_oa_media'][$i]['title'] : $vars['field_oa_media'][$i]['filename']);
   }
   switch ($layout) {
     case 'table':
@@ -245,6 +247,22 @@ function oa_related_oa_paragraph_content_alter(&$vars) {
         $vars['content']['field_oa_related_content'] = array(
           '#theme' => 'table',
           '#rows' => $rows,
+        );
+      }
+      break;
+    case 'list':
+      if (!empty($vars['field_oa_related_content'])) {
+        $items = array();
+        foreach ($vars['field_oa_related_content'] as $key => $item) {
+          $node = $item['entity'];
+          if (node_access('view', $node)) {
+            $items[] = l($node->title, 'node/' . $node->nid);
+          }
+        }
+        $vars['content']['field_oa_related_content'] = array(
+          '#theme' => 'item_list',
+          '#items' => $items,
+          '#type' => 'ul',
         );
       }
       break;

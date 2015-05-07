@@ -221,3 +221,39 @@ function hook_date_ical_import_timezone_alter(&$tzid, $context) {
     $tzid = 'America/New_York';
   }
 }
+
+/**
+ * Add an additional custom source to be mapped by a feed.
+ *
+ * This is useful when you need to map fields from an iCal feed which
+ * the Date iCal module does not currently support.
+ *
+ * @param array $sources
+ *   An associative array containing the source's properties, as follows:
+ *     name: The name that will appear in the feed importer Mapping page.
+ *     description: The description of this field shown in the Mapping page.
+ *     date_ical_parse_handler: The function in the ParserVcalendar class
+ *       which should be used to parse this iCal property into a Drupal field.
+ *
+ * Available date_ical_parse_handlers are:
+ *   parseTextProperty
+ *   parseDateTimeProperty
+ *   parseRepeatProperty
+ *   parseMultivalueProperty
+ *   parsePropertyParameter
+ */
+function hook_date_ical_mapping_sources_alter(&$sources) {
+  // Example of what might be done with this alter hook:
+  // Add the "ATTENDEE" iCal property to the mapping sources.
+  $sources['ATTENDEE'] = array(
+    'name' => t('Attendee'),
+    'description' => t('The ATTENDEE property.'),
+    'date_ical_parse_handler' => 'parseTextProperty',
+  );
+  // Add "ATTENDEE:CN" parameter to the mapping sources.
+  $sources['ATTENDEE:CN'] = array(
+    'name' => t('Attendee: CN'),
+    'description' => t("The CN parameter of the ATTENDEE property: the attendee's Common Name."),
+    'date_ical_parse_handler' => 'parsePropertyParameter',
+  );
+}

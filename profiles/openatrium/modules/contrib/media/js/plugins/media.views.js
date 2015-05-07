@@ -21,9 +21,27 @@ Drupal.behaviors.mediaViews = {
         }
       });
     // Disable the links on media items list
-    $('.view-content ul.media-list-thumbnails a').click(function() {
-      return false;
+    $('.view-content ul.media-list-thumbnails a').click(function(e) {
+      e.preventDefault();
     });
+
+    // Return focus to the correct part of the form.
+    $('.ctools-auto-submit-full-form .ctools-auto-submit-click', context).click(function () {
+      settings.lastFocus = document.activeElement.id;
+    });
+    if (settings.lastFocus) {
+      // Note, we just use each() so we can declare variables in a new scope.
+      $('#' + settings.lastFocus, context).each(function () {
+        var $this = $(this),
+            val = $this.val();
+
+        $this.focus();
+
+        // Clear and reset the value to put the cursor at the end.
+        $this.val('');
+        $this.val(val);
+      });
+    }
 
     // We loop through the views listed in Drupal.settings.media.browser.views
     // and set them up individually.

@@ -18,9 +18,7 @@ class OaMailhandlerFiltersComments extends MailhandlerFilters {
     if (!isset($header->in_reply_to)) {
       return FALSE;
     }
-
-    // Replies to oa_discussion_posts don't count as comments.
     $node = oa_mailhandler_get_node_from_subject($header->subject);
-    return empty($node) || $node->type != 'oa_discussion_post';
+    return !empty($node);
   }
 }

@@ -10,6 +10,7 @@ projects[facetapi][subdir] = contrib
 
 projects[search_api][version] = 1.14
 projects[search_api][subdir] = contrib
+projects[search_api][patch][2468999] = https://www.drupal.org/files/issues/2468999-search_api-disabled_server-1.patch
 
 projects[search_api_solr][version] = 1.6
 projects[search_api_solr][subdir] = contrib

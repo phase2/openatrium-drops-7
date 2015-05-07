@@ -36,7 +36,7 @@ class oa_coreSmoke extends oa_coreBaseWebTest {
     ));
 
     $this->drupalGet('node/' . $space->nid);
-    $this->assertRaw('<h3 class="pane-title">Recent Activity</h3>',  t('Recent Activity widget visible on space'));
+    $this->assertPattern('/\<h2 class="pane-title">\s*Recent Activity\s*\<\/h2>/',  t('Recent Activity widget visible on space'));
     $this->assertText($discussion_section->title,  t('Discussion section visible on space'));
     $this->assertText($calendar_section->title,  t('Calendar section visible on space'));
     $this->assertText($document_section->title,  t('News section visible on space'));

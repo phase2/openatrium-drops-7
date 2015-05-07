@@ -6,6 +6,7 @@ core = 7.x
 ; Radix Layouts
 projects[radix_layouts][version] = 3.3
 projects[radix_layouts][subdir] = contrib
+projects[radix_layouts][patch][2476723] = https://www.drupal.org/files/issues/radix_layouts-radix-label-2476709-1.patch
 
 ; Summon the Power of Respond.js
 

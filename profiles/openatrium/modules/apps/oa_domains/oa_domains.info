@@ -3,8 +3,8 @@ description = Allows each space to have different URL hostnames.
 core = 7.x
 package = Open Atrium
 dependencies[] = features
-dependencies[] = text
 dependencies[] = oa_core
+dependencies[] = text
 apps[screenshots][] = app/screenshot.png
 apps[logo] = app/logo.png
 apps[author] = Phase2 Technology
@@ -16,9 +16,9 @@ features[field_base][] = field_oa_space_domain
 features[field_instance][] = node-oa_space-field_oa_space_domain
 project path = profiles/openatrium/modules
 
-; Information added by Drupal.org packaging script on 2014-10-28
-version = "7.x-2.0-rc1"
+; Information added by Drupal.org packaging script on 2015-04-17
+version = "7.x-2.0"
 core = "7.x"
 project = "oa_domains"
-datestamp = "1414535338"
+datestamp = "1429301968"
 

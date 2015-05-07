@@ -677,11 +677,6 @@ function template_preprocess_fieldable_panels_pane(&$vars) {
   // Make the field variables available with the appropriate language.
   field_attach_preprocess('fieldable_panels_pane', $vars['elements']['#element'], $vars['content'], $vars);
 
-  $vars['fields'] = '';
-  foreach ($vars['content'] as $content) {
-    $vars['fields'] .= render($content);
-  }
-
   $vars['theme_hook_suggestions'][] = 'fieldable_panels_pane__' . $vars['elements']['#element']->bundle;
 }
 
@@ -690,7 +685,7 @@ function template_preprocess_fieldable_panels_pane(&$vars) {
  */
 function fieldable_panels_panes_preprocess_panels_pane(&$vars) {
   if ($vars['pane']->type == 'fieldable_panels_pane') {
-    if (!empty($vars['content']['#fieldable_panels_pane'])) {
+    if (!empty($vars['content']['#fieldable_panels_pane']) && is_object($vars['content']['#fieldable_panels_pane'])) {
       $entity = $vars['content']['#fieldable_panels_pane'];
       if ($entity->link && !empty($vars['title'])) {
         $vars['title'] = l($vars['title'], $entity->path);

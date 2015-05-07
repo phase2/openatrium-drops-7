@@ -3,7 +3,7 @@ distribution_name = Open Atrium 2
 description = A team collaboration platform
 core = 7.x
 exclusive = TRUE
-version = "7.x-2.33"
+version = "7.x-2.40"
 
 base[] = panopoly
 
@@ -100,9 +100,9 @@ dependencies[] = variable
 dependencies[] = panels_customerror
 dependencies[] = ultimate_cron
 
-; Information added by Drupal.org packaging script on 2015-03-20
-version = "7.x-2.33"
+; Information added by Drupal.org packaging script on 2015-05-07
+version = "7.x-2.40"
 core = "7.x"
 project = "openatrium"
-datestamp = "1426880945"
+datestamp = "1431013554"
 

@@ -467,17 +467,17 @@ img[!src|title|alt|width|height|hspace|vspace],',
         'status' => 1,
         'settings' => array(),
       ),
-      'filter_autop' => array(
-        'weight' => -45,
-        'status' => 1,
-        'settings' => array(),
-      ),
       'filter_url' => array(
         'weight' => -44,
         'status' => 1,
         'settings' => array(
           'filter_url_length' => 72,
         ),
+      ),
+      'panopoly_images_fix_captions' => array(
+        'weight' => 0,
+        'status' => 1,
+        'settings' => array(),
       ),
     ),
   );

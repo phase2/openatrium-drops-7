@@ -530,14 +530,14 @@ function apps_installer_has_write_access() {
   if (!is_dir($install_location) && !drupal_mkdir($install_location, NULL, TRUE)) {
     return FALSE;
   }
-  return is_writable(apps_installer_lib_dir()) && is_writable($install_location);
+  return is_writable(apps_installer_lib_dir(TRUE)) && is_writable($install_location);
 }
 
 /**
  * Return the libraries directory to check.
  */
-function apps_installer_lib_dir() {
-  return is_dir('sites/all/libraries') ? 'sites/all/libraries' : 'sites/all';
+function apps_installer_lib_dir($create_directory = FALSE) {
+  return is_dir('sites/all/libraries') || ($create_directory && drupal_mkdir('sites/all/libraries', NULL, TRUE))? 'sites/all/libraries' : 'sites/all';
 }
 
 /**

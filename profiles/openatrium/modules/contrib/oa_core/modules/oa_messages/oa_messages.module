@@ -25,6 +25,11 @@ define('EMAIL_TYPE_HTML', 1);
 function oa_messages_create($message_type, $entity = NULL, $entity_type = 'node', $text = '', $args = NULL, $uid = NULL, $send = TRUE) {
   global $user;
 
+  // See if message creation is disbled.
+  if (oa_messages_skip()) {
+    return;
+  }
+
   if (!empty($entity) && !is_object($entity)) {
     $entity_id = $entity;
     $entity = current(entity_load($entity_type, array($entity_id)));
@@ -108,13 +113,31 @@ function oa_messages_create($message_type, $entity = NULL, $entity_type = 'node'
     if ($send && variable_get('oa_messages_notifications', TRUE) && module_exists('message_subscribe') && isset($entity) && ($entity_type == 'node')) {
       $notify_options = oa_messages_build_notify_options();
       $subscribe_options = oa_messages_build_subscribe_options($entity, $message);
-      message_subscribe_send_message('node', $entity, $message, $notify_options, $subscribe_options);
       if (!empty($subscribe_options['uids'])) {
+        message_subscribe_send_message('node', $entity, $message, $notify_options, $subscribe_options);
         drupal_set_message(t('Notifications sent to ') .
           format_plural(count($subscribe_options['uids']), '1 user', '@count users'));
       }
     }
   }
+}
+
+/**
+ * Return whether message creation should be skipped.
+ *
+ * @param $value
+ *   (optional) Set whether notification should be skipped for this page load.
+ *
+ * @return
+ *  TRUE if message creation should skipped for this page load
+ *  FALSE if message creation is enabled.
+ */
+function oa_messages_skip($value = NULL) {
+  $skip = &drupal_static(__FUNCTION__, FALSE);
+  if (isset($value)) {
+    $skip = $value;
+  }
+  return $skip;
 }
 
 

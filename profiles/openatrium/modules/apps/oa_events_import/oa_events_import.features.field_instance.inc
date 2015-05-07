@@ -151,7 +151,7 @@ function oa_events_import_field_default_field_instances() {
     ),
     'entity_type' => 'node',
     'field_name' => 'oa_section_ref',
-    'label' => 'Open Atrium Section',
+    'label' => 'Section',
     'options_limit' => 1,
     'options_limit_empty_behaviour' => 1,
     'options_limit_fields' => array(
@@ -258,7 +258,7 @@ function oa_events_import_field_default_field_instances() {
   // Included for use with string extractors like potx.
   t('Body');
   t('Groups audience');
-  t('Open Atrium Section');
+  t('Section');
   t('iCal File');
 
   return $field_instances;

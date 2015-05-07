@@ -43,7 +43,10 @@ function ctools_node_comment_wrapper_content_type_render($subtype, $conf, $panel
       $comments = comment_load_multiple($cids);
       comment_prepare_thread($comments);
       $build = comment_view_multiple($comments, $node);
+
+      global $pager_page_array;
       $build['pager']['#theme'] = 'pager';
+      $build['pager']['#element'] = max(array_keys($pager_page_array));
       $renderable['comments'] = $build;
     }
   }

@@ -92,7 +92,7 @@ function panopoly_search_views_default_views() {
   $handler->display->display_options['arguments']['search_api_views_fulltext']['default_argument_options']['argument'] = 'vegetables';
   $handler->display->display_options['arguments']['search_api_views_fulltext']['summary']['format'] = 'default_summary';
   $handler->display->display_options['arguments']['search_api_views_fulltext']['break_phrase'] = 0;
-  /* Filter criterion: Indexed Content: Status */
+  /* Filter criterion: Indexed Node: Status */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'search_api_index_database_node_index';
   $handler->display->display_options['filters']['status']['field'] = 'status';
@@ -210,7 +210,7 @@ function panopoly_search_views_default_views() {
   $handler->display->display_options['arguments']['search_api_views_fulltext']['default_argument_options']['index'] = '2';
   $handler->display->display_options['arguments']['search_api_views_fulltext']['summary']['format'] = 'default_summary';
   $handler->display->display_options['arguments']['search_api_views_fulltext']['break_phrase'] = 0;
-  /* Filter criterion: Indexed Content: Status */
+  /* Filter criterion: Indexed Node: Status */
   $handler->display->display_options['filters']['status_1']['id'] = 'status_1';
   $handler->display->display_options['filters']['status_1']['table'] = 'search_api_index_node_index';
   $handler->display->display_options['filters']['status_1']['field'] = 'status';

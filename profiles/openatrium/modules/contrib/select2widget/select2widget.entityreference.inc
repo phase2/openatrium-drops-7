@@ -16,7 +16,9 @@ function select2widget_entityreference_widget_settings_form($field, $instance) {
 
   $form = array();
   if ($widget['type'] == 'select2widgetajax') {
-    $view_mode_options = array();
+    $view_mode_options = array(
+      'select2widget_labels' => t('Entity labels (no render)'),
+    );
 
     $entity_info = entity_get_info();
     $entity_type = (isset($field['settings']['target_type'])) ? $field['settings']['target_type'] : NULL;
@@ -110,6 +112,8 @@ function select2widget_entity_process_callback($element, &$form_state, $form) {
   if(isset($element['#settings']['select2widgetajax']['min_char'])){
     $data['select2widgetajax']['elements'][$element['#id']]['min_char'] = $element['#settings']['select2widgetajax']['min_char'];
   }
+
+  $data['select2widgetajax']['elements'][$element['#id']]['delay'] = variable_get('select2_delay', '100');
 
   // Attaching library, integration script, and settings array.
   $element['#attached']['library'][] = array('select2widget', 'select2');
@@ -207,7 +211,22 @@ function select2widget_render_modes($entity_labels, $view_mode = "full", $entity
  */
 function select2widget_render_entity($entity_type, $entity, $view_mode = 'full') {
   $entity->select2widget = TRUE;
-  $entity_array = array('id', 'title', 'data');
+  $entity_array = array(
+    'id' => NULL,
+    'title' => NULL,
+    'data' => NULL,
+  );
+
+  // Allow just the entity label to be returned.
+  if ($view_mode == 'select2widget_labels') {
+    $entity_id = entity_id($entity_type, $entity);
+    $entity_label = entity_label($entity_type, $entity);
+    $entity_array['id'] = $entity_id;
+    $entity_array['title'] = $entity_label . " - " . $entity_id;
+    $entity_array['data'] = array('#markup' => $entity_label);
+    return $entity_array;
+  }
+
   switch ($entity_type) {
     case "node":
         $entity_array['id'] = $entity->nid;

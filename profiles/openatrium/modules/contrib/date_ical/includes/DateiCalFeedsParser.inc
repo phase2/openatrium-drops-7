@@ -74,6 +74,8 @@ class DateiCalFeedsParser extends FeedsParser {
   public function sourceDefaults() {
     return array(
       'indefinite_count' => $this->config['indefinite_count'],
+      'until_not_utc' => $this->config['until_not_utc'],
+      'skip_days' => $this->config['skip_days'],
     );
   }
   
@@ -83,6 +85,9 @@ class DateiCalFeedsParser extends FeedsParser {
   public function configDefaults() {
     return array(
       'indefinite_count' => '52',
+      'indefinite_message_display' => TRUE,
+      'until_not_utc' => FALSE,
+      'skip_days' => NULL,
     );
   }
   
@@ -103,7 +108,42 @@ class DateiCalFeedsParser extends FeedsParser {
       '#description' => t('Indefinitely repeating events are not supported. The repeat count will instead be set to this number.'),
       '#default_value' => $this->config['indefinite_count'],
     );
+    $form['indefinite_message_display'] = array(
+      '#title' => t('Display message when RRULE is missing COUNT'),
+      '#type' => 'checkbox',
+      '#default_value' => $this->config['indefinite_message_display'],
+      '#description' => t('Display a message when an indefinitely repeating rule is adjusted by the "Indefinite COUNT" setting above.'),
+    );
+    $form['until_not_utc'] = array(
+      '#title' => t('RRULE UNTILs are not in UTC'),
+      '#type' => 'checkbox',
+      '#description' => t('Enable this setting if your reccuring events are not repeating the correct number of times. ' .
+          'The iCal spec requires that the UNTIL value in an RRULE almost always be specified in UTC, but some iCal feed creators fail to follow that rule ' .
+          '(the UNTIL values in those feeds\' RRULEs don\'t end is "Z"). This causes the UNTIL value to be off by several hours, ' .
+          'which can cause the repeat calculator to miss or add repeats.'),
+      '#default_value' => $this->config['until_not_utc'],
+    );
+    $form['skip_days'] = array(
+      '#title' => t('Skip events more than X days old'),
+      '#type' => 'textfield',
+      '#size' => 5,
+      '#description' => t('Set this value to any positive integer (or 0) to skip events which ended more than that many days before the import. ' .
+        'Leave it blank to import all events.'),
+      '#default_value' => $this->config['skip_days'],
+    );
     return $form;
+  }
+  
+  /**
+   * Validation handler for configForm.
+   */
+  public function configFormValidate(&$source_config) {
+    if (!preg_match('/^\d+$/', $source_config['skip_days']) && $source_config['skip_days'] !== '') {
+      form_set_error('skip_days', 'You must enter a positive integer.');
+    }
+    if ($source_config['skip_days'] === '') {
+      $source_config['skip_days'] = NULL;
+    }
   }
   
   /**
@@ -132,7 +172,7 @@ class DateiCalFeedsParser extends FeedsParser {
       'date_ical_parse_handler' => 'parseDateTimeProperty',
     );
     $sources['RRULE'] = array(
-      'name' => t('Repeat Rule'),
+      'name' => t('Date: Repeat Rule'),
       'description' => t('The RRULE property. Describes when and how often this event should repeat.
         The date field for the target node must be configured to support repeating dates, using the Date Repeat Field module (a submodule of Date).'),
       'date_ical_parse_handler' => 'parseRepeatProperty',
@@ -163,6 +203,10 @@ class DateiCalFeedsParser extends FeedsParser {
       'description' => t('The CATEGORIES property. Catagories that describe the event, which can be imported into taxonomy terms.'),
       'date_ical_parse_handler' => 'parseMultivalueProperty',
     );
+    
+    // Allow other modules to add custom source fields.
+    drupal_alter('date_ical_mapping_sources', $sources);
+    
     return $sources;
   }
 }

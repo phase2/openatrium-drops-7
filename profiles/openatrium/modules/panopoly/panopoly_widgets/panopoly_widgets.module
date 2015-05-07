@@ -19,6 +19,7 @@ function panopoly_widgets_init() {
   if (arg(0) == 'media' && arg(1) == 'browser' && $GLOBALS['theme'] != 'seven') {
     drupal_add_css(drupal_get_path('theme', 'seven') . '/reset.css', array('basename' => 'seven_reset', 'group' => CSS_THEME));
     drupal_add_css(drupal_get_path('theme', 'seven') . '/style.css', array('basename' => 'seven_style', 'group' => CSS_THEME));
+    drupal_add_css(drupal_get_path('module', 'panopoly_widgets') . '/panopoly-widgets-media-browser.css', array('group' => CSS_THEME));
   }
 }
 
@@ -545,6 +546,20 @@ function _panopoly_widgets_is_title_shown($node, $view_mode) {
 }
 
 /**
+ * Implements hook_views_pre_view().
+ */
+function panopoly_widgets_views_pre_view(&$view, &$display_id, &$args) {
+  if ($view->name == 'panopoly_widgets_general_content' && $display_id == 'piece_of_content') {
+    // If neither 'nid' or 'title' is set, then don't display anything. This is
+    // primarily for the live preview, which would otherwise default to the
+    // first node. See issue #2463395.
+    if (empty($view->exposed_input) || (empty($view->exposed_input['nid']) && empty($view->exposed_input['title']))) {
+      $view->executed = TRUE;
+    }
+  }
+}
+
+/**
  * Implements hook_views_post_execute().
  */
 function panopoly_widgets_views_post_execute(&$view) {
@@ -594,6 +609,11 @@ function panopoly_widgets_form_views_content_views_panes_content_type_edit_form_
   $view = $form_state['view'];
   if ($view->name == 'panopoly_widgets_general_content' && $view->current_display == 'piece_of_content') {
     $exposed =& $form['exposed'];
+
+    // Set required on the form rather than the View because we need to allow
+    // either 'title' or 'nid' when actually rendering the View.
+    $exposed['filter-title']['#required'] = TRUE;
+    $exposed['filter-title']['title']['#required'] = TRUE;
 
     // If the user updated panopoly_widgets, but hasn't run the update function
     // panopoly_wigets_update_7012() yet, then bail out because this code can

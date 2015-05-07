@@ -64,8 +64,8 @@ function oa_layouts_strongarm() {
         'choice' => 0,
       ),
       'featured' => array(
-        'status' => 0,
-        'default' => 0,
+        'status' => 1,
+        'default' => 1,
         'choice' => 0,
       ),
     ),
@@ -95,8 +95,8 @@ function oa_layouts_strongarm() {
         'choice' => 0,
       ),
       'featured' => array(
-        'status' => 0,
-        'default' => 0,
+        'status' => 1,
+        'default' => 1,
         'choice' => 0,
       ),
     ),

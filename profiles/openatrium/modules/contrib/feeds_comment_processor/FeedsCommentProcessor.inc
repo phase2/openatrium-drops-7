@@ -99,7 +99,7 @@ class FeedsCommentProcessor extends FeedsProcessor {
   /**
    * Implement expire().
    */
-  public function expire($time = NULL) {
+  public function expire(FeedsSource $source, $time = NULL) {
     if ($time === NULL) {
       $time = $this->expiryTime();
     }

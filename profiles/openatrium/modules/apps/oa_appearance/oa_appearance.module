@@ -253,7 +253,7 @@ function oa_appearance_edit_form_submit($form, &$form_state) {
   $nid = $form['#entity_id'];
   if (module_exists("oa_subspaces")) {
     // Clear the colorizer instance cache for all child spaces as well.
-    cache_clear_all("oa_appearance:colorizer", "cache");
+    cache_clear_all("oa_appearance:colorizer", "cache", TRUE);
   }
   else {
     cache_clear_all("oa_appearance:colorizer:{$nid}", "cache");
@@ -266,9 +266,11 @@ function oa_appearance_edit_form_submit($form, &$form_state) {
 function oa_appearance_oa_clone_group_metadata($node, $original_nid) {
   // Clone the colorizer values from the original.
   foreach (list_themes() as $theme_name => $theme_info) {
-    if ($palette = variable_get('colorizer_' . $theme_name . '_' . $original_nid . '_palette', FALSE)) {
-      variable_set('colorizer_' . $theme_name . '_' . $node->nid . '_palette', $palette);
-      colorizer_update_stylesheet($theme_name, $theme_name . '_' . $node->nid, $palette);
+    $instance = $theme_name . '_' . $original_nid;
+    if ($palette = colorizer_load($instance, 'palette')) {
+      $new_instance = $theme_name . '_' . $node->nid;
+      colorizer_save($new_instance, array('palette' => $palette));
+      colorizer_update_stylesheet($theme_name, $new_instance, $palette);
     }
   }
 }
@@ -455,7 +457,7 @@ function oa_appearance_get_space_colorizer_instance($base_instance, $space_id) {
       $instance = $base_instance . '_' . $space_id;
 
       // If there is no instance for the current Space, then try it's parent.
-      if ($space && variable_get("colorizer_{$instance}_palette", FALSE) === FALSE && module_exists('oa_subspaces')) {
+      if ($space && !colorizer_load($instance) && module_exists('oa_subspaces')) {
         $parent_nids = oa_core_get_parents($space_id);
         $parent = !empty($parent_nids[0]) ? node_load($parent_nids[0]) : NULL;
         if ($parent && $parent->type == 'oa_space') {
