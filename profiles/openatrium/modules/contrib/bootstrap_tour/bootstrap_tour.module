@@ -9,6 +9,10 @@
  * Implements hook_entity_info().
  */
 function bootstrap_tour_entity_info() {
+  // If this is called too early before update runs, it'll fatal.
+  if (!module_exists('inline_entity_form')) {
+    return array();
+  }
   $bootstrap_tour_entity_info['bootstrap_tour'] = array(
     'label' => t('Site Tour'),
     'entity class' => 'Entity',

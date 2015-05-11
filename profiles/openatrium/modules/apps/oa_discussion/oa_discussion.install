@@ -65,6 +65,7 @@ function oa_discussion_update_7104(&$sandbox) {
     return;
   }
    if (!isset($sandbox['progress'])) {
+    cache_clear_all('ctools_plugin_files:', 'cache', TRUE);
     $enable = array(
       'oa_comment',
     );

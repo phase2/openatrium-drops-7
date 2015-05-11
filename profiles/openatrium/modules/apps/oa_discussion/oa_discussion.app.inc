@@ -9,19 +9,7 @@
  */
 function oa_discussion_apps_app_info() {
   $permissions = array();
-  $permissions['node:oa_group:add attachment to oa_discussion_post'] = array(
-    'administrator member' => 'administrator member',
-    'member' => 'member',
-  );
   $permissions['node:oa_group:create oa_discussion_post content'] = array(
-    'administrator member' => 'administrator member',
-    'member' => 'member',
-  );
-  $permissions['node:oa_group:write oa_discussion_reply to discussion post'] = array(
-    'administrator member' => 'administrator member',
-    'member' => 'member',
-  );
-  $permissions['node:oa_space:add attachment to oa_discussion_post'] = array(
     'administrator member' => 'administrator member',
     'member' => 'member',
   );
@@ -29,11 +17,6 @@ function oa_discussion_apps_app_info() {
     'administrator member' => 'administrator member',
     'member' => 'member',
   );
-  $permissions['node:oa_space:write oa_discussion_reply to discussion post'] = array(
-    'administrator member' => 'administrator member',
-    'member' => 'member',
-  );
-
 
   return array(
     'og permissions' => $permissions,

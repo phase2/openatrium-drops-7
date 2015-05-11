@@ -238,9 +238,9 @@ function oa_comment_content_types_enabled() {
  * Implements hook_features_template_info().
  */
 function oa_comment_features_template_info() {
+  $data = array();
   if (module_exists('oa_related')) {
     $enabled_related = oa_related_get_content_types();
-    $data = array();
     // Only process enabled content types as if disabled, comments won't show up
     // so whether they have the field won't matter and thus no dataloss.
     foreach (oa_comment_content_types_enabled() as $content_type) {

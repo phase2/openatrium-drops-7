@@ -43,7 +43,9 @@
     <?php print render($title_suffix); ?>
   <?php endif; ?>
 
+  <div class="pane-content">
   <?php print render($content['comments']); ?>
+  </div>
 
   <?php if ($content['comment_form']): ?>
     <h2 class="title comment-form"><?php print t('Add comment'); ?></h2>

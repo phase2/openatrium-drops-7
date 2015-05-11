@@ -41,20 +41,32 @@ function devel_querylog_explain($request_id, $qid) {
 
   $path = "temporary://devel_querylog/$request_id.txt";
   $path = file_stream_wrapper_uri_normalize($path);
-  $queries = json_decode(file_get_contents($path));
-  $query = $queries[$qid];
-  $result = db_query('EXPLAIN ' . $query->query, (array)$query->args)->fetchAllAssoc('table');
-  $i = 1;
-  foreach ($result as $row) {
-    $row = (array)$row;
-    if ($i == 1) {
-      $header = array_keys($row);
+
+  $output = t('No explain log found.');
+
+  if (file_exists($path)) {
+    $queries = json_decode(file_get_contents($path));
+
+    if ($queries !== FALSE && isset($queries[$qid])) {
+      $header = $rows = array();
+
+      $query = $queries[$qid];
+      $result = db_query('EXPLAIN ' . $query->query, (array)$query->args)->fetchAllAssoc('table');
+      $i = 1;
+      foreach ($result as $row) {
+        $row = (array)$row;
+        if ($i == 1) {
+          $header = array_keys($row);
+        }
+        $rows[] = array_values($row);
+        $i++;
+      }
+
+      $output = theme('table', array('header' => $header, 'rows' => $rows));
     }
-    $rows[] = array_values($row);
-    $i++;
   }
+
   // Print and return nothing thus avoiding page wrapper.
-  $output = theme('table', array('header' => $header, 'rows' => $rows));
   print $output;
   $GLOBALS['devel_shutdown'] = FALSE;
 }
@@ -67,14 +79,22 @@ function devel_querylog_arguments($request_id, $qid) {
 
   $path = "temporary://devel_querylog/$request_id.txt";
   $path = file_stream_wrapper_uri_normalize($path);
-  $queries = json_decode(file_get_contents($path));
-  $query = $queries[$qid];
-  $conn = Database::getConnection();
-  $quoted = array();
-  foreach ((array)$query->args as $key => $val) {
-    $quoted[$key] = $conn->quote($val);
+
+  $output = t('No arguments log found.');
+
+  if (file_exists($path)) {
+    $queries = json_decode(file_get_contents($path));
+
+    if ($queries !== FALSE && isset($queries[$qid])) {
+      $query = $queries[$qid];
+      $conn = Database::getConnection();
+      $quoted = array();
+      foreach ((array)$query->args as $key => $val) {
+        $quoted[$key] = $conn->quote($val);
+      }
+      $output = strtr($query->query, $quoted);
+    }
   }
-  $output = strtr($query->query, $quoted);
 
   // print and return nothing thus avoiding page wrapper.
   print $output;

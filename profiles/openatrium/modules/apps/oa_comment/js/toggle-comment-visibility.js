@@ -12,7 +12,7 @@
     attach: function(context, settings) {
       $('.oa-list.oa-comment .oa-pullout-left', context).each(function() {
         if ($(this).width() > 25) {
-          // for wide comment ids, add extra padding to first paragraph.
+          // For wide comment ids, add extra padding to first paragraph.
           $(this).parents('.accordion-toggle').find('.oa-comment-reply-body p:nth-child(1)').css('text-indent', ($(this).width() - 25) + 'px');
         }
       });
@@ -26,43 +26,53 @@
       // selectors have no content.
       if ($.trim($('.oa-comment').html())) {
         $('#comments, .pane-node-comments').once('comments', function() {
-          $(this).prepend('<div id="toggle-comment-visibility" class="btn btn-default">' + expandText + '</div>');
+          $(this).prepend('<div id="toggle-comment-visibility" class="toggle-comment-visibility btn btn-default">' + expandText + '</div>');
         });
       }
-      var toggle = $('#toggle-comment-visibility');
-      var replies = $('.oa-comment .oa-list-header');
+
       var expand = true;
       var collapseText = '<i class="icon-minus"></i> ' + Drupal.t('Collapse All');
 
-      toggle.click(function(event) {
-        event.preventDefault();
-        // $replies.collapse(expand ? 'show' : 'hide');
-        // Due to a bug in bootstrap's collapse, bodies that have been expanded
-        // by default (By adding the class "in") are collapsed the first time
-        // you run .collapse('show');. Use the above if this gets fixed.
-        if (expand) {
-          replies.each(function() {
-            if (!$(this).hasClass('in')) {
-              $(this).removeClass('oa-comment-hide');
+      $(function() {
+        $('.toggle-comment-visibility').each(function() {
+          // This will get all '.oa-list-header divs that belong with the correct 'toggle'.
+          var replies = $(this).siblings('.pane-content').children('.oa-list').children().children().children('div');
+          $(this).on('click', function(event) {
+            event.preventDefault();
+            // $replies.collapse(expand ? 'show' : 'hide');
+            // Due to a bug in bootstrap's collapse, bodies that have been expanded
+            // by default (By adding the class "in") are collapsed the first time
+            // you run .collapse('show');. Use the above if this gets fixed.
+            if (expand) {
+              replies.each(function() {
+                if (!$(this).hasClass('in')) {
+                  $(this).removeClass('oa-comment-hide');
+                }
+              });
             }
+            else {
+              replies.addClass('oa-comment-hide');
+            }
+
+            expand = !expand;
+            $(this).html(expand ? expandText : collapseText);
+
+            // Get rid of 'new' marker on initial pageload.
+            $('.oa-list.oa-comment').find('.new-marker').empty();
           });
-        }
-        else {
-          replies.addClass('oa-comment-hide');
-        }
-
-        expand = !expand;
-        toggle.html(expand ? expandText : collapseText);
-
-        // Get rid of 'new' marker on initial pageload.
-        $('.oa-list.oa-comment').find('.new-marker').empty();
+        });
       });
 
-      $('.accordion-toggle .oa-list-header:not(.oa-list-header-processed)', context).addClass('oa-list-header-processed').click(function() {
-        $(this).toggleClass('oa-comment-hide');
-        if ($(this).hasClass('oa-comment-is-new') && !$(this).hasClass('oa-comment-new-processed')) {
-          $(this).addClass('oa-comment-new-processed');
-          $(this).parent().parent().find('.new-marker').empty();
+      // Target the <p> tag so we can click on links, images, etc inside a 'paragraph comment' and it won't close the comment.
+      $('.accordion-toggle .oa-list-header .oa-comment-reply-body p:not(.oa-list-header-processed)', context).addClass('oa-list-header-processed').click(function() {
+        // This is targeting '.oa-list-header'
+        $(this).parents('.oa-list-header').eq(0).toggleClass('oa-comment-hide');
+        // This is targeting '.oa-list-header'
+        if ($(this).parents('.oa-list-header').eq(0).hasClass('oa-comment-is-new') && !$(this.parents('.oa-list-header').eq(0).hasClass('oa-comment-new-processed'))) {
+          // This is targeting '.oa-list-header'
+          $(this).parents('.oa-list-header').eq(0).addClass('oa-comment-new-processed');
+          // This is targeting '.accordion'
+          $(this).parents('.accordion').eq(0).find('.new-marker').empty();
         }
       });
 

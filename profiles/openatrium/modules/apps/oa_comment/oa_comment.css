@@ -143,3 +143,7 @@ table.comment-alter-diff {
 .paragraphs-item-paragraph-content .view-mode-featured #comments.comment-wrapper {
   margin-left: 24px;
 }
+
+.accordion-toggle .oa-list-header .oa-comment-reply-body p {
+  cursor: pointer;
+}
