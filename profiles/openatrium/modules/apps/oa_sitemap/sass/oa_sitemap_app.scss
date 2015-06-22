@@ -250,7 +250,7 @@ body.oa-sitemap-full {
       @include translateY(-40%);
     }
   }
-  .newsection .oa-section-icon {
+  .oa-new-section .oa-section-icon {
     border: 1px dashed #aaa;
     color: #3b3b3b;
     &:hover {
@@ -268,7 +268,7 @@ body.oa-sitemap-full {
     width: $width * 1.4;
     height: $width * 1.4;
     margin-bottom: 10px;
-    &.oa-new-space {
+    &.oa-new-subspace {
       border: 1px dashed #aaa;
       i {
         margin-bottom: 5px;

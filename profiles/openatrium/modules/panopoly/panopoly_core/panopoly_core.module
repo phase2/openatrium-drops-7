@@ -87,19 +87,6 @@ function panopoly_core_module_implements_alter(&$implementations, $hook) {
     $implementations['panopoly_core'] = $group;
   }
 }
-
-/**
- * Implementation hook_element_info_alter().
- */
-function panopoly_core_element_info_alter(&$type) {
-  // Rather than implementing hook_css_alter(), we'll add a custom pre render
-  // function for the styles elemement. This is to allow us to override
-  // seven_css_alter(), which always runs after any module's implementation.
-  if (isset($type['styles']['#pre_render'])) {
-    array_unshift($type['styles']['#pre_render'], 'panopoly_core_pre_render_styles');
-  }
-}
-
 /**
  * Implements hook_modules_enabled().
  *
@@ -150,25 +137,36 @@ function panopoly_core_css_alter() {
 }
 
 /**
- * Pre render the styles element.
+ * Implements hook_library_alter().
  */
-function panopoly_core_pre_render_styles($elements) {
-  $css = &$elements['#items'];
+function panopoly_core_library_alter(&$libraries, $module) {
+  if ($module == 'system') {
+    // Installs our custom jQuery UI theme.
+    if (isset($libraries['ui'])) {
+      if (isset($libraries['ui']['css']['misc/ui/jquery.ui.theme.css'])) {
+        $libraries['ui']['css']['misc/ui/jquery.ui.theme.css']['data'] = drupal_get_path('module', 'panopoly_core') . '/css/panopoly-jquery-ui-theme.css';
+      }
+      if (isset($libraries['ui']['css']['misc/ui/jquery.ui.core.css'])) {
+        unset($libraries['ui']['css']['misc/ui/jquery.ui.core.css']);
+      }
+    }
 
-  // Installs the jQuery.UI themeroller theme to the theme.
-  if (isset($css['misc/ui/jquery.ui.theme.css'])) {
-    $css['misc/ui/jquery.ui.theme.css']['data'] = drupal_get_path('module', 'panopoly_core') . '/css/panopoly-jquery-ui-theme.css';
+    $jquery_ui_unnecessary_css = array(
+      'ui.button',
+      'ui.resizable',
+      'ui.selectable',
+      'ui.dialog',
+      'ui.tabs',
+    );
+
+    foreach ($jquery_ui_unnecessary_css as $name) {
+      if (isset($libraries[$name])) {
+        if (isset($libraries[$name]['css']["misc/ui/jquery.$name.css"])) {
+          unset($libraries[$name]['css']["misc/ui/jquery.$name.css"]);
+        }
+      }
+    }
   }
-
-  if (isset($css['misc/ui/jquery.ui.dialog.css'])) {
-    unset($css['misc/ui/jquery.ui.dialog.css']);
-  }
-
-  if (isset($css['misc/ui/jquery.ui.tabs.css'])) {
-    unset($css['misc/ui/jquery.ui.tabs.css']);
-  }
-
-  return $elements;
 }
 
 /**

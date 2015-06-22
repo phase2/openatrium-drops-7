@@ -43,6 +43,14 @@ function oa_wiki_strongarm_alter(&$items) {
       sort($items[$node_options_name]->value);
     }
   }
+
+  // Set up space-specific variables.
+  if (isset($data['variable_realm_list_og'])) {
+    // The assigned to settings.
+    if (!in_array('oa_wiki_vocab', $data['variable_realm_list_og']->value)) {
+      $data['variable_realm_list_og']->value[] = 'oa_wiki_vocab';
+    }
+  }
 }
 
 /**
@@ -121,6 +129,7 @@ function oa_wiki_redirect_to_view_submit($form, &$form_state) {
 function oa_wiki_init() {
   if (module_exists('oa_files') && arg(0) == 'node' && is_numeric(arg(1)) && !arg(2) && ($node = menu_get_object()) && $node->type == 'oa_wiki_page') {
     if (($path = oa_wiki_node_uri($node)) && $path['path'] != $_GET['q']) {
+      node_tag_new($node);
       drupal_goto($path['path']);
     }
   }

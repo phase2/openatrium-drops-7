@@ -23,7 +23,11 @@
       var showcount = settings.showcount;
       var parentfield = settings.parentfield;
       var showfilter = settings.showfilter;
+      var currentid = settings.currentid;
       var hideempty = settings.hideempty;
+      var linkvocab = settings.linkvocab;
+      var nodetype = settings.nodetype;
+      var topid = (settings.topid) ? settings.topid : 0;
 
       var expandedList = $cookieStore.get(cookieKey('expanded'));
       if (expandedList == undefined) {
@@ -43,7 +47,11 @@
         for (var id in files) {
           var item = files[id];
           // match both string and int values for parent
-          if ((item.parent.indexOf(parent) > -1) || (item.parent.indexOf(parent.toString()) > -1)) {
+          // if parent is the top, also match parent values of zero
+          if ((item.parent.indexOf(parent) > -1) || (item.parent.indexOf(parent.toString()) > -1)
+            || ((parent == topid) &&
+              ((item.parent.indexOf(0) > -1) || (item.parent.indexOf('0') > -1)))
+            ) {
             // need to clone the item so we get unique row objects within each parent
             // otherwise things like the popup menu will appear for all instances
             // of the same node
@@ -95,6 +103,18 @@
         $cookieStore.put(key, expandedList);
       }
 
+      function setExpandCookie(all) {
+        var key = cookieKey('expanded');
+        expandedList = [];
+        if (all) {
+          for (var index in $scope.expandedNodes) {
+            var node = $scope.expandedNodes[index];
+            expandedList.push(node.id);
+          }
+        }
+        $cookieStore.put(key, expandedList);
+      }
+
       // ensure node is expanded
       function doExpand(node) {
         if (node != undefined) {
@@ -119,6 +139,20 @@
         }
       }
 
+      // expand the current node in the tree.
+      function expandCurrent(id) {
+        var currentnode = files[id];
+        if (currentnode) {
+          for (var pid in currentnode.parent) {
+            var node = files[currentnode.parent[pid]];
+            if (node != undefined) {
+              $scope.expandedNodes.push(files[currentnode.parent[pid]]);
+              expandCurrent(currentnode.parent[pid]);
+            }
+          }
+        }
+      }
+
       var previousNode = null;
 
       $scope.options = {
@@ -129,6 +163,7 @@
           iFolderItem: "oa-files-folder"
         },
         isLeaf: function (node) {
+          $scope.options.injectClasses.iLeafItem = (node.id == currentid) ? "oa-files-selected oa-files-leaf" : "oa-files-leaf";
           return !(node.isfolder) && (node.children.length == 0);
         }
       };
@@ -158,7 +193,7 @@
       });
       angular.extend($scope.actions['edit'], {
         url: function (node) {
-          return Drupal.settings.basePath + node.url + '/edit?destination=' + document.URL;
+          return Drupal.settings.basePath + node.url + '/edit?destination=' + settings.currentpath;
         },
         show: function (node) {
           return node.editor;
@@ -184,10 +219,10 @@
         url: function (node) {
           var id = 0;
           if (parentfield == 'menu_parent') {
-            id = node.nid || 0;
+            id = node.nid || topid;
           }
           else {
-            id = node.tid || 0;
+            id = node.tid || topid;
           }
           return Drupal.settings.basePath + 'oa-files/upload/ajax?' + parentfield + '=' + id;
         },
@@ -197,6 +232,26 @@
         click: function (e, node) {
           $scope.stopPropagate(e);
           $scope.closeMenu(node);
+          return true;
+        }
+      });
+      angular.extend($scope.actions['adddocument'], {
+        url: function (node) {
+          var id = 0;
+          if (parentfield == 'menu_parent') {
+            id = node.nid || topid;
+          }
+          else {
+            id = node.tid || topid;
+          }
+          return Drupal.settings.basePath + 'node/add/' + nodetype + '?' + parentfield + '=' + id + '&type=' + nodetype + '&destination=' + settings.currentpath;
+        },
+        show: function (node) {
+          return $scope.allowfiles && node.isfolder;
+        },
+        click: function (e, node) {
+          $scope.showToggle(node, true);
+          if (e.stopPropagation) e.stopPropagation();
           return true;
         }
       });
@@ -218,13 +273,15 @@
       $scope.parentFolder = null;
 
       $scope.expandedNodes = [];
+      $scope.rearrange = settings.rearrange;
       $scope.allownew = allownew;
       $scope.allowfiles = allowfiles;
       $scope.showcount = showcount;
       $scope.showfilter = showfilter;
       $scope.selected = null;
-      $scope.treeData = buildTree(files, 0);
+      $scope.treeData = buildTree(files, topid);
       preExpand($scope.treeData);
+      expandCurrent(currentid);
 
       $scope.root = {
         id: 0,
@@ -309,7 +366,7 @@
       $scope.showSelected = function (node) {
         if (node != undefined) {
           $scope.selected = node;
-          if ($scope.options.isLeaf(node)) {
+          if ($scope.options.isLeaf(node) || linkvocab) {
             window.location.href = Drupal.settings.basePath + node.url;
           }
         }
@@ -339,6 +396,7 @@
         else {
           $scope.expandedNodes = [];
         }
+        setExpandCookie(value);
       };
 
       // determine if the cog menu needs to be shown
@@ -398,6 +456,7 @@
             Drupal.settings.basePath + $url,
             {
               'node': treeNode,
+              'type': nodetype,
               'token': token
             },
             function (result) {
@@ -500,7 +559,7 @@
             parents.push(file.parent[pid]);
           }
           // need to rebuild because it could have effected any parents
-          $scope.treeData = buildTree(files,0);
+          $scope.treeData = buildTree(files, topid);
           // now add parents to expanded list
           for (var pid in parents) {
             addExpandCookie(parents[pid], true)

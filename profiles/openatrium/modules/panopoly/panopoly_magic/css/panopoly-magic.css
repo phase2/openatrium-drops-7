@@ -126,11 +126,6 @@ div.modal-content-preview-button {
   display: inline;
 }
 
-#modal-content .form-item-view-settings {
-  display:inline;
-  margin-left: 5px;
-}
-
 /* Handle the Header Type Setting Element */
 #modal-content .form-item-header-type label {
   display:inline;
@@ -146,13 +141,25 @@ div.modal-content-preview-button {
   margin-top: 5px;
 }
 
-#modal-content .view-settings-wrapper .field-prefix {
+/* Handle the Display Type setting element. */
+#modal-content .view-settings-wrapper .form-item-view-settings {
+  display: inline;
+}
+
+#modal-content .view-settings-wrapper label {
+  display: inline;
   padding-right: 5px;
+  font-weight: normal;
+  font-size: 12px;
 }
 
 #modal-content .view-settings-wrapper .form-radios {
   display: inline;
   padding-right: 5px;
+}
+
+#modal-content .view-settings-wrapper .form-radio {
+  margin-left: 5px;
 }
 
 /**

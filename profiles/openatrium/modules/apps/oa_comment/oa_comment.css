@@ -119,6 +119,7 @@ form.comment-form .text-format-wrapper .clearfix:after {
 
 table.comment-alter-diff {
   float: right;
+  clear: right;
   margin-left: 10px;
 }
 

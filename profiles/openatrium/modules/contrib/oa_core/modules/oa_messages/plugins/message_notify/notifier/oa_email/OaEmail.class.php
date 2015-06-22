@@ -40,7 +40,10 @@ class OaEmail extends MessageNotifierEmail {
 
     // Pass the message entity along to hook_drupal_mail().
     $output['message_entity'] = $message;
-
+    if (!empty($message->email_attachments)) {
+      $output['attachments'] = isset($output['attachments']) ? $output['attachments'] : array();
+      $output['attachments'] = array_merge($message->email_attachments, $output['attachments']);
+    }
     return drupal_mail('message_notify', $message->type, $mail, $lang, $output, $from);
   }
 }

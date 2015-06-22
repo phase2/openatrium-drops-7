@@ -216,7 +216,7 @@ class ctools_context_optional extends ctools_context_required {
     $context = new ctools_context('any');
     $context->title      = t('No context');
     $context->identifier = t('No context');
-    $contexts = array_merge(array('empty' => $context), $contexts);
+    $contexts['empty'] = $context;
   }
 
   function filter($contexts) {

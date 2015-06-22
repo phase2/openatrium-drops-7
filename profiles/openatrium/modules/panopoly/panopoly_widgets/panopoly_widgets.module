@@ -560,6 +560,26 @@ function panopoly_widgets_views_pre_view(&$view, &$display_id, &$args) {
 }
 
 /**
+ * Implements hook_views_default_views_alter().
+ */
+function panopoly_widgets_views_default_views_alter(&$views) {
+  // If the locale module is enabled, ensure the "Add content item" widget's
+  // View will respect current language settings for the content.
+  if (module_exists('locale') && array_key_exists('panopoly_widgets_general_content', $views)) {
+    /** @var views_display $piece_of_content */
+    $piece_of_content =& $views['panopoly_widgets_general_content']->display['piece_of_content'];
+
+    $piece_of_content->handler->display->display_options['filters']['language']['id'] = 'language';
+    $piece_of_content->handler->display->display_options['filters']['language']['table'] = 'node';
+    $piece_of_content->handler->display->display_options['filters']['language']['field'] = 'language';
+    $piece_of_content->handler->display->display_options['filters']['language']['value'] = array(
+      '***CURRENT_LANGUAGE***' => '***CURRENT_LANGUAGE***',
+      'und' => 'und',
+    );
+  }
+}
+
+/**
  * Implements hook_views_post_execute().
  */
 function panopoly_widgets_views_post_execute(&$view) {

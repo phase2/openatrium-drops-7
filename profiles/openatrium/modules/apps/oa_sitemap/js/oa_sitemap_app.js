@@ -1,6 +1,3 @@
-
-
-
 /**
  * @file
  * Javascript for the OA sitemap.
@@ -8,14 +5,78 @@
 
 (function ($) {
 
-  var app = angular.module("oaSitemap", ['ngSanitize', 'ngDraggable']);
+  var app = angular.module("oaSitemap", ['ngSanitize', 'ngDraggable', 'ngRoute', 'oaSitemapComponents', 'oaSitemapFilters', 'oaService']);
+  var oa_map_redirected = false;
 
-  app.controller("oaSitemapController", function($scope, $timeout, $location) {
+  app.config(function($routeProvider) {
+    $routeProvider
+      .when('/', {
+        controller:'oaSitemapController',
+        templateUrl: oaSitemapAngularTemplate('oa-sitemap'),
+        resolve: {
+          allSpaces: function (SpacesService) {
+            return SpacesService.fetch(0);
+          },
+          "redirect_to_path": function($location){
+            if (Drupal.settings.oa_sitemap.topID && !oa_map_redirected){
+              oa_map_redirected = true;
+              $location.path('/space/' + Drupal.settings.oa_sitemap.topID);
+            }
+            return true;
+          },
+        }
+      })
+      // Allows us to be lazy by catching nid is 0 condition.
+      .when('/space/0', {
+        redirectTo:'/'
+      })
+      .when('/space/:spaceID', {
+        controller:'oaSitemapController',
+        templateUrl: oaSitemapAngularTemplate('oa-sitemap'),
+        resolve: {
+          allSpaces: function ($route, SpacesService) {
+            return SpacesService.fetch($route.current.params.spaceID);
+          }
+        }
+      })
+      .otherwise({
+        redirectTo:'/'
+      });
+  })
+
+  app.controller("oaSitemapController", function(allSpaces, $scope, $timeout, $location, $routeParams, SpacesService, nodeService, SectionsService) {
 
     var currentID = 0;
     var topID = 0;
-    var allSpaces = {};
     var breadcrumbs = [];
+    /**
+     * @todo Fix draggable so ng-click events aren't executed after drag.
+     * Till then, this is a work around to stop relocation on drag.
+     */
+    $scope.$on('draggable:start', function() {
+      $scope.dragging = true;
+    });
+    $scope.$on('draggable:end', function() {
+      $timeout( function() {
+        $scope.dragging = false;
+      }, 10);
+    });
+
+    /**
+     * Allows us to go to specific route, e.g. va ng-click attribute on button.
+     */
+    $scope.go = function ( path ) {
+      $location.path( path );
+    };
+
+    /**
+     * Allows us to go to a space route, e.g. va ng-click attribute on button.
+     */
+    $scope.goToSpace = function ( nid ) {
+      if (!$scope.dragging) {
+        $location.path('/space/' + nid );
+      }
+    };
 
 
     function loadSpace(id) {
@@ -25,6 +86,7 @@
 
       // if ID has a valid parent space
       var parentSpace = allSpaces[parentId];
+
       if (parentSpace) {
         for (var i in parentSpace.subspaces) {
           var childSpace = allSpaces[parentSpace.subspaces[i]];
@@ -40,10 +102,8 @@
       // need to call CTools to get it to re-attach the modal popup behavior
       // to links *after* our space has been updated
       $timeout( function() {
-        $location.hash('');
         $scope.$broadcast('oaSitemapRefresh', id);
       }, 10);
-
       return currentSpaces;
     }
 
@@ -77,7 +137,7 @@
           allSpaces[spaceID].prefix = new Array(depth+1).join("- ");
           allSpaces[spaceID].classes = spaceID == active ? 'active' : '';
           dropDownSelects.push(allSpaces[spaceID]);
-          if (allSpaces[spaceID].subspaces.length > 0) {
+          if (allSpaces[spaceID] && allSpaces[spaceID].subspaces) {
             var child = returnChildren(spaceID, active, depth+1);
             if (child) {
               return child;
@@ -102,35 +162,56 @@
     }
 
     $scope.$on('oaSitemapRefresh', function(event, e) {
-      // need to reset ctools since it caches the previous href values on modal links
-      $('a.ctools-use-modal').each(function() {
-        // get link url without any query string
-        var newurl = $(this).attr('href');
-        var newquery = newurl.split('?');
-        if (newquery.length > 1) {
-          var newlink = newquery[0];
-          // now need to remove previous ajax assigned to the old url
-          for (var base in Drupal.ajax) {
-            if ($(this)[0] == Drupal.ajax[base].element) {
-              //Drupal.ajax[base].url = newurl;
-              //Drupal.ajax[base].element_settings.url = newurl;
-              Drupal.ajax[base].options.url = newurl;
+      $timeout(function () {
+        // need to reset ctools since it caches the previous href values on modal links
+        $('a.ctools-use-modal').each(function() {
+          // get link url without any query string
+          var newurl = $(this).attr('href');
+          var newquery = newquery ? newurl.split('?') : [];
+          if (newquery.length > 1) {
+            var newlink = newquery[0];
+            // now need to remove previous ajax assigned to the old url
+            for (var base in Drupal.ajax) {
+              if ($(this)[0] == Drupal.ajax[base].element) {
+                //Drupal.ajax[base].url = newurl;
+                //Drupal.ajax[base].element_settings.url = newurl;
+                Drupal.ajax[base].options.url = newurl;
+              }
             }
           }
+        });
+        // ok, now reattach new ctools ajax to modals
+        var $sitemap = $('.oa-sitemap');
+        if ($sitemap.length) {
+          Drupal.attachBehaviors($sitemap);
+          $('#edit-space').change(function() {
+            var item_nid = $(this).val();
+            if (item_nid == 'All') {
+              $scope.go('/');
+            }
+            else if (item_nid == 'CURRENT') {
+              $scope.goToSpace(Drupal.settings.oa_sitemap.current_space_context);
+            }
+            else if (jQuery.isNumeric(item_nid)) {
+              $scope.goToSpace(item_nid);
+            }
+            $scope.$apply()
+          });
         }
-      });
-      // ok, now reattach new ctools ajax to modals
-      Drupal.attachBehaviors($('.oa-sitemap'));
+      }, 0, false);
     });
 
-    topID = Drupal.settings.oa_sitemap.topID;
-    allSpaces = Drupal.settings.oa_sitemap.spaces;
+    topID = 0;
+    if ($routeParams.spaceID) {
+      topID = $routeParams.spaceID;
+    }
 
     $scope.allSpaces = allSpaces;
+    $scope.topID = topID;
     $scope.spaces = loadSpace(topID);
-    $scope.topDropdown = (0 in allSpaces) ? 0 : topID;
+    $scope.topDropdown = (0 in allSpaces) ? 0 : Drupal.settings.oa_sitemap.topID;
     $scope.dropDownSelects = returnDropDownSelects(topID, $scope.topDropdown);
-    $scope.editableTitle = {};
+    $scope.oldTitles = {};
     $scope.space = allSpaces[topID];
     $scope.showHelp = Drupal.settings.oa_sitemap.showHelp;
     $scope.helpStatus = Drupal.settings.oa_sitemap.options & 0x01;
@@ -144,26 +225,9 @@
     $scope.breadcrumbs = loadBreadCrumbs(topID);
     $scope.icons = Drupal.settings.oa_sitemap.icons;
     $scope.currentSlide = returnSpacePosition($scope.spaces, topID);
-
-    $scope.exploreSpace = function(spaceID, direction) {
-      if (!allSpaces[spaceID].dragging) {
-        breadcrumbs = [];
-        $scope.breadcrumbs = loadBreadCrumbs(spaceID);
-        $scope.spaces = loadSpace(spaceID);
-        $scope.currentSlide = returnSpacePosition($scope.spaces, spaceID);
-        $scope.space = allSpaces[spaceID];
-        $scope.dropDownSelects = returnDropDownSelects(topID, $scope.topDropdown);
-        if (parseInt(direction) != 0) {
-          $('#oa-sitemap-top').css({
-            top: -20 * parseInt(direction)
-          });
-          $('#oa-sitemap-top').animate({
-            top: 0
-          }, 300);
-        }
-
-      }
-    };
+    $scope.currentSpace = $scope.spaces[$scope.currentSlide];
+    $scope.prevSpace = $scope.currentSlide - 1 > -1 ? $scope.spaces[$scope.currentSlide - 1] : null;
+    $scope.nextSpace = $scope.spaces[$scope.currentSlide + 1] != undefined ? $scope.spaces[$scope.currentSlide + 1] : null;
 
     $scope.slide = function(slide) {
       var diff = $scope.currentSlide - parseInt(slide);
@@ -207,19 +271,7 @@
       var arg = getOptions($scope.helpStatus, value);
       // ajax callback to set drupal user session value
       $.get(Drupal.settings.basePath + 'api/oa/sitemap-option/' + arg, {token: Drupal.settings.oa_sitemap.option_token});
-    };
-
-    $scope.spaceClass = function(spaceID) {
-      var className = '';
-      if (allSpaces[spaceID].status != 0) {
-        className = (allSpaces[spaceID].visibility == 0) ? 'oa-icon-green' : 'oa-icon-red';
-      }
-      return className;
-    };
-
-    $scope.sectionClass = function(section) {
-      var className = (section.visibility) ? 'oa-border-green' : 'oa-border-red';
-      return className;
+      Drupal.settings.oa_sitemap.options = arg;
     };
 
     $scope.newSpaceTitle = function(spaceID) {
@@ -254,126 +306,85 @@
       return url;
     };
 
-    $scope.deleteSubspace = function(space, nid) {
-      if ((allSpaces[nid].sections.length > 0) || (allSpaces[nid].subspaces.length > 0)) {
-        alert('Can only delete empty spaces.');
-        return;
-      }
-      if (confirm('Are you sure you wish to delete "' + allSpaces[nid].title + '" ?')) {
-        //TODO: drupal ajax callback to delete a node
-        var index = space.subspaces.indexOf(nid);
-        $.post(
-          // Callback URL.
-          Drupal.settings.basePath + 'api/oa/sitemap-delete/' + nid,
-          {token: Drupal.settings.oa_sitemap.node_tokens['node_' + nid]},
-          function( result ) {
-            if ((result.length > 0) && (result[1].command == 'alert')) {
-              alert(result[1].text);
-            }
-            else {
-              if (index > -1) {
-                space.subspaces.splice(index, 1);
-              }
-              delete allSpaces.nid;
-              $scope.$apply();
-            }
+    /**
+     * Calls delete space service then reacts as needed.
+     */
+    $scope.deleteSpace = function(space) {
+      var promise = SpacesService.delete(space);
+      if (promise) {
+        promise.then(function (data) {
+          // If we want to add any additional functionaly after delete, add here.
+          // Scope is re-applied purely this being here but empty.
         });
       }
     };
 
+
     $scope.deleteSection = function(space, section) {
-      if (confirm('Are you sure you wish to delete "' + section.title + '" ?')) {
-        //TODO: drupal ajax callback to delete a node
-        var index = space.sections.indexOf(section);
-        $.post(
-          // Callback URL.
-          Drupal.settings.basePath + 'api/oa/sitemap-delete/' + section.nid,
-          {token: Drupal.settings.oa_sitemap.node_tokens['node_' + section.nid]},
-          function( result ) {
-            if ((result.length > 0) && (result[1].command == 'alert')) {
-              alert(result[1].text);
-            }
-            else {
-              if (index > -1) {
-                space.sections.splice(index, 1);
-              }
-              $scope.$apply();
-            }
-          });
+      var promise = SectionsService.delete(space, section);
+      if (promise) {
+        promise.then(function (data) {});
       }
     };
 
+    /**
+     * Make the title editor visible.
+     *
+     * The user is directly changing node.title object via ngModel (as that
+     * is passed around already to components via node object)
+     */
     $scope.enableEditor = function(node) {
-      $scope.editableTitle[node.nid] = node.title;
+      $scope.oldTitles[node.nid] = node.title;
+      // This property determines visiblity of textarea via ng-show attribute..
       node.editorEnabled = true;
+    };
+
+    /**
+     * If the user clicks cancel, return the old title to space object.
+     */
+    $scope.restoreTitle = function(node) {
+      if ($scope.oldTitles[node.nid]) {
+        node.title = $scope.oldTitles[node.nid];
+      }
+      node.editorEnabled = false;
     };
 
     $scope.disableEditor = function(node) {
       node.editorEnabled = false;
     };
 
+    /**
+     * Call the save title service to save title change to server.
+     */
     $scope.saveTitle = function(node) {
-      var oldTitle = node.title;
-      node.title = $scope.editableTitle[node.nid];
       $scope.disableEditor(node);
-      $.post(
-        // Callback URL.
-        Drupal.settings.basePath + 'api/oa/sitemap-update/' + node.nid,
-        {'node': node, token: Drupal.settings.oa_sitemap.node_tokens['node_' + node.nid]},
-      function( result ) {
-        if ((result.length > 0) && (result[1].command == 'alert')) {
-          // undo local change and report error
-          node.title = oldTitle;
-          $scope.$apply();
-          alert(result[1].text);
-        }
-      });
+      var promise = nodeService.saveTitle(node, $scope.oldTitles[node.nid]);
+      if (promise) {
+        promise.then(function (data) {});
+      }
     };
 
-    $scope.editURL = function(node) {
+    $scope.editUrl = function(node) {
       return node.url_edit + '?destination=' + document.URL;
     };
 
-    $scope.onDropOnSpace = function(data, spaceID, evt){
-      if (data.nid != spaceID) {
-        // dropping a space or section on a space
-        var oldParent = data.parent_id;
-        data.parent_id = spaceID;
-        $.post(
-          // Callback URL.
-          Drupal.settings.basePath + 'api/oa/sitemap-update/' + data.nid,
-          {'node': data, token: Drupal.settings.oa_sitemap.node_tokens['node_' + data.nid]},
-          function( result ) {
-            if ((result.length > 0) && (result[0].command == 'redirect')) {
-              window.location.href = result[0].url;
-            }
-            else if ((result.length > 0) && (result[1].command == 'alert')) {
-              // failed, so undo
-              data.parent_id = oldParent;
-              $scope.$apply();
-              alert(result[1].text);
-            }
-            else {
-              if (data.type == 'oa_space') {
-                var oldIndex = allSpaces[oldParent].subspaces.indexOf(data.nid);
-                allSpaces[oldParent].subspaces.splice(oldIndex, 1);
-                allSpaces[spaceID].subspaces.push(data.nid);
-              }
-              else {
-                var oldIndex = $scope.space.sections.indexOf(data);
-                allSpaces[$scope.space.nid].sections.splice(oldIndex, 1);
-                allSpaces[spaceID].sections.push(data);
-              }
-              $scope.$apply();
-            }
-          });
+    $scope.onDropOnSpace = function(node, newParentID){
+      if (node.nid == newParentID) return;
+      var promise;
+      if (node.type == 'oa_space') {
+        promise = SpacesService.updateParent(node, newParentID);
+      }
+      else {
+        promise = SectionsService.updateParent(node, newParentID, $scope.allSpaces);
+      }
+      if (promise) {
+        promise.then(function (data) {});
       }
     };
 
     $scope.onDropOnSpaceList = function(data, index, spaceID, evt){
       if (data.nid != spaceID) {
         // don't drop over itself
-        console.log("drop SPACELIST " + spaceID + " success, index: " + index + " data:", data);
         // reordering subspaces
       }
     };
@@ -381,11 +392,9 @@
     $scope.onDropOnSection = function(data, index, section, evt){
       if (!angular.equals(data,section)) {
         // don't drop over itself
-        console.log("drop SECTION " + index + " success, data:", data);
         // reordering sections
       }
     };
-
     $(document).on('oaWizardNew', function(event, node) {
       // respond to event message from submitting oa_wizard form
       switch (node.type) {
@@ -403,12 +412,10 @@
                 (!node.field_oa_team_ref || node.field_oa_team_ref.length == 0) &&
                 (!node.field_oa_user_ref || node.field_oa_user_ref.length == 0),
               'admin': allSpaces[parentID].admin,
-              'icon_id': node.field_oa_section.und[0].tid
+              'icon_id': node.field_oa_section.und[0].tid,
+              'token': node.node_token,
             });
-            Drupal.settings.oa_sitemap.node_tokens['node_' + node.nid] = node.node_token;
-            $scope.spaces = loadSpace(currentID);
-            $scope.exploreSpace(currentID, 0);
-            $scope.$apply();
+            $scope.$apply()
           }
           break;
         case 'oa_space':
@@ -426,24 +433,50 @@
             'new_space': allSpaces[parentID].new_space,
             'new_section': (parentID == 0) ? allSpaces[parentID].new_space : allSpaces[parentID].new_section,
             'sections': [],
-            'subspaces': []
+            'subspaces': {},
+            'token': node.node_token,
           };
-          Drupal.settings.oa_sitemap.node_tokens['node_' + node.nid] = node.node_token;
-          allSpaces[parentID].subspaces.push(node.nid);
-          $scope.exploreSpace(currentID, 0);
-          $scope.$apply();
+          allSpaces[parentID].subspaces[node.nid] = node.nid;
+          $scope.dropDownSelects = returnDropDownSelects($scope.topID, $scope.topDropdown);
+          $scope.$apply()
           break;
       }
     });
 
   });
 
+  var $space_selection_element;
+
   Drupal.behaviors.oaSitemap = {
     attach: function(context, settings) {
       if (settings.oa_sitemap.fullPage) {
         $('body').addClass('oa-sitemap-full');
       }
+      // We need to save the select2 element before it's attached, as
+      // the suggested select2(destroy) didn't work.
+      if (!$space_selection_element) {
+        $space_selection_element = $('.form-item-space');
+        $space_selection_element.find('label').hide();
+        $select2_element = $space_selection_element.find('.select2widget-processed');
+        $space_selection_element.removeClass('form-item').addClass('pull-right');
+        $space_selection_element.detach();
+      }
+
+      // We move the unprocessed select2 element into the header here
+      // Attachbeviours is called again when sitemap is loaded.
+      var $header = $('.oa-sitemap-header');
+      if ($header.length && !$header.find('.form-item-space').length) {
+        if ($space_selection_element.length) {
+          $header.append($space_selection_element.clone(true));
+        }
+      }
     }
+  }
+  // This reorders drupal.behaviours so select2widget comes after us.
+  if (Drupal.behaviors.select2widget) {
+    var save_behaviour = Drupal.behaviors.select2widget;
+    delete Drupal.behaviors.select2widget;
+    Drupal.behaviors.select2widget = save_behaviour;
   }
 
 }(jQuery));

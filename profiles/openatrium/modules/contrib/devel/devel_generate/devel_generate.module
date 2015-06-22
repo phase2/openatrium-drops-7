@@ -435,7 +435,7 @@ function devel_generate_menu_form() {
       '#size' => 10,
       '#states' => array(
         'visible' => array(
-          ':input[name=existing_menus[__new-menu__]]' => array('checked' => TRUE),
+          ':input[name="existing_menus[__new-menu__]"]' => array('checked' => TRUE),
         ),
       ),
     );

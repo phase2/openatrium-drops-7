@@ -113,7 +113,7 @@ function oa_core_select2widget_entity_validate_field(&$element, &$form_state, $f
  * Turn the current values to labels for select2 init/default value.
  */
 function _oa_core_select2widget_process_entity_labels($value) {
-  $target_entities = explode(',', $value);
+  $target_entities = is_array($value) ? $value : explode(',', $value);
   $entity_labels = array();
   foreach ($target_entities as &$target_entity) {
     if (is_numeric($target_entity)) {
@@ -153,17 +153,23 @@ function oa_core_oa_section_ref_process($element, &$form_state, &$complete_form)
   );
   $element['#options'][-1] = t(' - Current Section - ');
   if (empty($element['#required'])) {
-    $element['#options'][0] = t(' - None - ');
+    $element['#options'][0] = t(' - Any - ');
   }
   if (!isset($element['#default_value'])) {
-    $element['#default_value'] = -1;
+    $element['#default_value'] = !empty($element['#multiple']) ? array(-1) : -1;
   }
   $element += element_info('select');
 
-  if (!empty($element['#og_group_ref'])) {
-    $group_ref = !is_array($element['#og_group_ref']) ? array($element['#og_group_ref']) : $element['#og_group_ref'];
-    $group_ref_key = implode('--', $group_ref);
-    $value = drupal_array_get_nested_value($form_state['input'], $group_ref);
+  $group_ref_key = NULL;
+  if (isset($element['#og_group_ref'])) {
+    if (!empty($element['#og_group_ref'])) {
+      $group_ref = !is_array($element['#og_group_ref']) ? array($element['#og_group_ref']) : $element['#og_group_ref'];
+      $group_ref_key = implode('--', $group_ref);
+      $value = drupal_array_get_nested_value($form_state['input'], $group_ref);
+    }
+    else {
+      $value = -1;
+    }
     // Gid == 0 is no group.
     $gid = isset($value) && ($value === 0 || $value != -1) ? $value : oa_core_get_space_context();
     // Add options based on current selected group.
@@ -172,22 +178,25 @@ function oa_core_oa_section_ref_process($element, &$form_state, &$complete_form)
         $element['#options'][$nid] = check_plain($title);
       }
     }
+
     // Since IDs change with ajax (to be unique), need a static id for wrappers.
     $element['#ajax_id'] = isset($form_state['oa_section_ref_replace'][$group_ref_key]['id']) ?
       $form_state['oa_section_ref_replace'][$group_ref_key]['id'] : $element['#id'];
-
-    // Add wrapper to replace via ajax.
     $element['#prefix'] = '<div id="' . $element['#ajax_id'] . '-replace">';
     $element['#suffix'] = '</div>';
-    // Find the group element and add ajax processing to it.
-    $group_element = &_oa_core_oa_section_ref_process_find_element($complete_form, $group_ref);
-    $group_element['#ajax'] = array(
-      'callback' => 'oa_core_oa_section_ref_replace',
-      'wrapper' => $element['#ajax_id'] . '-replace',
-      'method' => 'replace',
-      'effect' => 'fade',
-      'event' => 'change',
-    );
+
+    if (!empty($group_ref_key)) {
+      // Add wrapper to replace via ajax.
+      // Find the group element and add ajax processing to it.
+      $group_element = &_oa_core_oa_section_ref_process_find_element($complete_form, $group_ref);
+      $group_element['#ajax'] = array(
+        'callback' => 'oa_core_oa_section_ref_replace',
+        'wrapper' => $element['#ajax_id'] . '-replace',
+        'method' => 'replace',
+        'effect' => 'fade',
+        'event' => 'change',
+      );
+    }
     if (arg(0) == 'panels' && strpos($_GET['q'], 'ajax')) {
       $group_element['#ajax']['path'] = 'system/panopoly-magic';
     }
@@ -215,9 +224,21 @@ function oa_core_oa_section_ref_process($element, &$form_state, &$complete_form)
   }
 
   // Make sure if ajax with change group, invalid sections are forgotten.
-  if (!empty($element['#value']) && $element['#value'] > 0 && empty($element['#options'][$element['#value']])) {
-    $element['#value'] = -1;
+  $values = is_array($element['#value']) ? $element['#value'] : array($element['#value']);
+  foreach ($values as $key => $value) {
+    if (empty($element['#options'][$value])) {
+      unset($values[$key]);
+    }
   }
+  if (empty($values)) {
+    $element['#value'] = !empty($element['#multiple']) ? array(-1) : -1;
+  }
+  else {
+    $element['#value'] = !empty($element['#multiple']) ? $values : reset($values);
+  }
+
+  // Allow standard select processing (allows use of #multiple)
+  $element = form_process_select($element);
 
   return $element;
 }

@@ -36,7 +36,8 @@
       $(function() {
         $('.toggle-comment-visibility').each(function() {
           // This will get all '.oa-list-header divs that belong with the correct 'toggle'.
-          var replies = $(this).siblings('.pane-content').children('.oa-list').children().children().children('div');
+          var replies = ($(this).siblings('.pane-content').length > 0) ? $(this).siblings('.pane-content').children('.oa-list') : $(this).siblings('.oa-list');
+          replies = replies.children().children().children('div');
           $(this).on('click', function(event) {
             event.preventDefault();
             // $replies.collapse(expand ? 'show' : 'hide');
@@ -80,7 +81,7 @@
       $(window).bind('load hashchange', function() {
         // Get the fragment that contains the comment number.
         var hash = document.location.hash;
-        if (hash) {
+        if (hash && hash.indexOf("#/") != 0 ) {
           // Expand that comment.
           $(hash).next().find('.oa-list-header').toggleClass('oa-comment-hide');
           // Get the height of the fixed oa-navbar.

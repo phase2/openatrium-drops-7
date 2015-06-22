@@ -24,7 +24,7 @@ function oa_search_theme() {
       'variables' => array(
         'options' => array(),
       ),
-      'path' => drupal_get_path('module', 'oa_search') . '/templates',
+      'path' => $path,
     ),
     'oa_sidebar_search' => array(
       'template' => 'oa-sidebar-search',
@@ -33,7 +33,7 @@ function oa_search_theme() {
         'spaces' => array(),
         'extra_classes' => '',
       ),
-      'path' => drupal_get_path('module', 'oa_search') . '/templates',
+      'path' => $path,
     ),
     'views_view_fields__search_database_results' => array(
       'template'  => 'views-view-fields--search-database-results',

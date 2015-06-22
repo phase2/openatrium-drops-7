@@ -25,7 +25,7 @@ class fieldable_panels_panes_handler_field_is_current extends views_handler_fiel
         if (!empty($value->{$this->aliases['fpid']}) && !empty($value->{$this->aliases['vid']})) {
           $this->entities[$row_index] = fieldable_panels_panes_load($value->{$this->aliases['fpid']}, $value->{$this->aliases['vid']});
 
-          if ($this->entities[$row_index]->vid == $this->entities[$row_index]->current_vid) {
+          if (!empty($this->entities[$row_index]) && $this->entities[$row_index]->vid == $this->entities[$row_index]->current_vid) {
             $values[$row_index]->{$this->field_alias} = $this->options['current_text'];
           }
           else {

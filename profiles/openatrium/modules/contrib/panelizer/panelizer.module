@@ -12,6 +12,28 @@ define('PANELIZER_VERSION', '3.0');
 // Drupal core hooks
 
 /**
+ * Implements hook_help().
+ */
+function panelizer_help($path, $arg) {
+  if ($path == 'admin/structure/panelizer') {
+    return '<p>' . t('Other than "Full page override" or "Default" (when applicable), only view modes enabled through the Custom Display Settings section of the <em>Manage Display</em> settings for that entity or bundle will be available for use.') . '</p>';
+  }
+}
+
+/**
+ * Implements hook_hook_info().
+ */
+function panelizer_hook_info() {
+  $hooks = array(
+    'panelizer_defaults_override_alter',
+    'panelizer_entity_plugin_process_alter',
+    'panelizer_operations_alter',
+  );
+
+  return array_fill_keys($hooks, array('group' => 'panelizer'));
+}
+
+/**
  * Implements hook_permission().
  */
 function panelizer_permission() {
@@ -28,6 +50,50 @@ function panelizer_permission() {
   }
 
   return $items;
+}
+
+/**
+ * Implements hook_og_permission().
+ */
+function panelizer_og_permission() {
+  $items = array();
+
+  // Delegate.
+  foreach (panelizer_get_plugins_with_hook('permission') as $handler) {
+    if ($handler->entity_type == 'node') {
+      $handler->hook_permission($items);
+    }
+  }
+
+  $final = array(
+    'administer panelizer og_group defaults' => array(
+      'title' => t('Group: Administer Panelizer default panels, allowed content and settings.'),
+      'description' => t('Users with this permission can fully administer panelizer for this entity bundle.'),
+    ),
+    'administer panelizer og_group overview' => array(
+      'title' => t('Group: Administer Panelizer overview.'),
+      'description' => t('Allow access to the panelizer overview page for the entity type/bundle. Note: This permission will be required for panelizer tabs to appear on an entity.'),
+    ),
+  );
+
+  foreach (panelizer_operations() as $path => $operation) {
+    $final["administer panelizer og_group $path"] = array(
+      'title' => t('Group: Administer Panelizer @operation', array(
+        '@operation' => $operation['link title'],
+      )),
+    );
+  }
+
+  foreach ($items as $key => $item) {
+    // Get node bundle.
+    $words = explode(' ', $key);
+    $bundle = $words[3];
+    if (og_is_group_content_type('node', $bundle)) {
+      $final[$key] = $item;
+    }
+  }
+
+  return $final;
 }
 
 /**
@@ -98,6 +164,24 @@ function panelizer_admin_paths() {
 }
 
 /**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Check whether a given view mode is panelized.
+ * Set an error message if there are un-hidden fields
+ * because they won't be printed anyway.
+ */
+function panelizer_form_field_ui_display_overview_form_alter(&$form, &$form_state, $form_id) {
+
+  if (!empty($form['#entity_type']) && !empty($form['#bundle']) && !empty($form['#view_mode'])) {
+    module_load_install('panelizer');
+    if (panelizer_view_mode_extra_field_displays($form['#entity_type'], $form['#bundle'], $form['#view_mode'])) {
+      $message = t("This view mode is being controlled via Panelizer. For performance reasons, it is recommended to move all fields to 'hidden'. Fields not marked as hidden will be prepared for output but will not actually output, thus needlessly increasing render and page load time.");
+      drupal_set_message($message, 'error', FALSE);
+    }
+  }
+}
+
+/**
  * Implements hook_form_alter().
  */
 function panelizer_form_alter(&$form, &$form_state, $form_id) {
@@ -159,12 +243,13 @@ function panelizer_panels_default_settings_submit($form, &$form_state) {
 }
 
 /**
- * Implements hook_page_alter().
+ * Implements hook_process_page().
  */
-function panelizer_page_alter(&$page) {
+function panelizer_process_page(&$variables) {
   // Delegate.
+  // We target the theme layer to ensure we can manipulate the overview table.
   foreach (panelizer_get_plugins_with_hook('page_alter') as $handler) {
-    $handler->hook_page_alter($page);
+    $handler->hook_page_alter($variables['page']);
   }
 }
 
@@ -252,17 +337,19 @@ function panelizer_entity_view_alter(&$build, $entity_type) {
 
   list($entity_id, $revision_id, $bundle) = entity_extract_ids($entity_type, $entity);
 
-  // If the requested view mode does not exist, rendering will fall back
-  // to 'default' and we should check that one instead.
-  $view_mode = $build['#view_mode'];
-
-  // Test to see if this view mode is actually panelizable at all.
-  if (!isset($handler->plugin['view modes'][$view_mode]) || (empty($handler->plugin['view modes'][$view_mode]['custom settings']) && empty($handler->plugin['view mode status'][$bundle][$view_mode]))) {
-    $view_mode = 'default';
-  }
+  // If the requested view mode does not exist, check if a substitute is
+  // assigned, otherwise rendering will fall back to 'default' and we should
+  // check that one instead.
+  $view_mode = $handler->get_view_mode($build['#view_mode'], $bundle);
 
   // Make sure the bundle + view mode is actually panelized!
   if (!$handler->is_panelized($bundle . '.' . $view_mode)) {
+    return;
+  }
+
+  // Also verify that the configuration exists. This may happen if a display is
+  // improperly configured.
+  if (empty($entity->panelizer[$view_mode])) {
     return;
   }
 
@@ -283,7 +370,6 @@ function panelizer_entity_view_alter(&$build, $entity_type) {
     $build['#panelizer_entity_id'] = $entity_id;
   }
   $recursion_prevention[$entity_type][$entity_id][$view_mode] = FALSE;
-
 }
 
 // -----------------------------------------------------------------------
@@ -605,13 +691,15 @@ function panelizer_get_plugins_with_hook($hook) {
  */
 function panelizer_entity_plugin_switcher_page($entity_type, $op) {
   $args = func_get_args();
-  $js = !empty($_REQUEST['js']);
 
   // Load the $plugin information
   if ($handler = panelizer_entity_plugin_get_handler($entity_type)) {
     // replace the first two arguments:
-    $args[0] = $js;
+    $args[0] = !empty($_REQUEST['js']);
     $args[1] = $_POST;
+    if (empty($args[3])) {
+      $args[3] = 'page_manager';
+    }
     $method = 'page_' . $op;
     if (method_exists($handler, $method)) {
       return call_user_func_array(array($handler, $method), $args);
@@ -714,8 +802,8 @@ function panelizer_export_ui_switcher_page($entity_handler, $bundle, $plugin_nam
     $handler->entity_bundle = $bundle;
     $handler->entity_view_mode = $view_mode;
 
-    if (empty($entity_handler->entity_admin_root) || substr($_GET['q'], 30) == 'admin/config/content/panelizer') {
-      $handler->plugin['menu']['menu prefix'] = 'admin/config/content/panelizer/' . $entity_handler->entity_type;
+    if (empty($entity_handler->entity_admin_root) || substr($_GET['q'], 30) == 'admin/structure/panelizer') {
+      $handler->plugin['menu']['menu prefix'] = 'admin/structure/panelizer' . $entity_handler->entity_type;
       $handler->plugin['menu']['menu item'] = $bundle;
     }
     else {
@@ -736,10 +824,10 @@ function panelizer_export_ui_switcher_page($entity_handler, $bundle, $plugin_nam
 
     foreach ($handler->plugin['redirect'] as $key => $old_path) {
       if ($key == 'add') {
-        $handler->plugin['redirect'][$key] = $path . '/list/%ctools_export_ui/settings';
+        $handler->plugin['redirect'][$key] = $path . '/%ctools_export_ui/settings';
       }
       else {
-        $handler->plugin['redirect'][$key] = $path . '/list';
+        $handler->plugin['redirect'][$key] = $path;
       }
     }
 
@@ -802,7 +890,7 @@ function panelizer_has_choice_callback($handler, $bundle, $name = NULL) {
     $handler = panelizer_entity_plugin_get_handler($handler);
   }
 
-  if (!$handler) {
+  if (empty($handler)) {
     return FALSE;
   }
 
@@ -811,7 +899,7 @@ function panelizer_has_choice_callback($handler, $bundle, $name = NULL) {
   }
 
   // Check to see if $name is valid
-  if ($name && !$handler->get_default_panelizer_object($bundle, $name)) {
+  if (!empty($name) && !$handler->get_default_panelizer_object($bundle, $name)) {
     return FALSE;
   }
 
@@ -835,11 +923,11 @@ function panelizer_has_no_choice_callback($handler, $bundle, $view_mode = NULL) 
     $handler = panelizer_entity_plugin_get_handler($handler);
   }
 
-  if (!$handler) {
+  if (empty($handler)) {
     return FALSE;
   }
 
-  if ($view_mode) {
+  if (!empty($view_mode)) {
     $bundle .= '.' . $view_mode;
   }
 
@@ -847,7 +935,10 @@ function panelizer_has_no_choice_callback($handler, $bundle, $view_mode = NULL) 
     return FALSE;
   }
 
-  return $handler->has_default_panel($bundle) && !$handler->has_panel_choice($bundle);
+  $has_default = $handler->has_default_panel($bundle);
+  $has_choice = $handler->has_panel_choice($bundle);
+
+  return $has_default && !$has_choice;
 }
 
 /**
@@ -946,6 +1037,11 @@ function panelizer_export_save_callback(&$object) {
     $object->export_type = EXPORT_IN_DATABASE;
   }
 
+  // Reset the entity's cache. If the EntityCache module is enabled, this also
+  // resets its permanent cache.
+  list($entity_type, ) = explode(':', $object->name);
+  entity_get_controller($entity_type)->resetCache();
+
   return drupal_write_record('panelizer_defaults', $object, $update);
 }
 
@@ -968,6 +1064,10 @@ function panelizer_export_delete_callback($object) {
   if (!empty($object->did)) {
     panels_delete_display($object->did);
   }
+
+  // Allow modules to react on a default Panelizer object before deletion.
+  // Triggers hook_panelizer_delete_default().
+  module_invoke_all('panelizer_delete_default', $object);
 
   db_delete('panelizer_defaults')
     ->condition('name', $object->name)
@@ -1078,7 +1178,9 @@ function panelizer_context_cache_clear($entity_type, $key) {
 // Panels edit cache contexts.
 
 /**
- * Get display edit cache for a panel being edited.
+ * Implements hook_panels_cache_get().
+ *
+ * Get display edit cache for a display being edited.
  *
  * The key is the second half of the key in this form:
  * panelizer:TYPE:KEY;
@@ -1101,6 +1203,14 @@ function panelizer_panels_cache_get($argument) {
     return;
   }
 
+  // Extract the entity ID and view mode.
+  list($entity_id, $view_mode) = explode(':', $key, 2);
+  // If this entity supports revisions, and a custom revision is being
+  // displayed, it's possible for the key to also include the revision ID.
+  if ($handler->supports_revisions && strpos($view_mode, ':') !== FALSE) {
+    list($entity_id, $view_mode, $vid) = explode(':', $key);
+  }
+
   // If it's already cached, we still need to restore our contexts.
   if (!empty($cache)) {
     $cache->cached = TRUE;
@@ -1109,8 +1219,8 @@ function panelizer_panels_cache_get($argument) {
       $cache->display->context = $handler->get_contexts($panelizer);
     }
     else {
-      list($entity_id, $view_mode) = explode(':', $key);
-      $entities = entity_load($entity_type, array($entity_id));
+      $conditions = (isset($vid) ? array('vid' => $vid) : array());
+      $entities = entity_load($entity_type, array($entity_id), $conditions);
       if (!empty($entities[$entity_id]) && !empty($entities[$entity_id]->panelizer[$view_mode])) {
         $panelizer = $entities[$entity_id]->panelizer[$view_mode];
         $cache->display->context = $handler->get_contexts($panelizer, $entities[$entity_id]);
@@ -1129,8 +1239,8 @@ function panelizer_panels_cache_get($argument) {
     $cache->display->context = $handler->get_contexts($panelizer);
   }
   else {
-    list($entity_id, $view_mode) = explode(':', $key);
-    $entities = entity_load($entity_type, array($entity_id));
+    $conditions = (isset($vid) ? array('vid' => $vid) : array());
+    $entities = entity_load($entity_type, array($entity_id), $conditions);
     if (empty($entities[$entity_id]) || empty($entities[$entity_id]->panelizer[$view_mode])) {
       return $cache;
     }
@@ -1143,7 +1253,16 @@ function panelizer_panels_cache_get($argument) {
 
   ctools_include('common', 'panels');
   ctools_include('plugins', 'panels');
-  $cache->display->cache_key = "panelizer:$type:$key";
+
+  $cache_keys = array(
+    'panelizer',
+    $type,
+    $key,
+  );
+  if (isset($vid) && is_numeric($vid) && substr($key, strlen($vid) * -1) != $vid) {
+    $cache_keys[] = $vid;
+  }
+  $cache->display->cache_key = implode(':', $cache_keys);
 
   // Set the allowed content types
   if (variable_get('panelizer_' . $type . ':' . $bundle . '_allowed_types_default', FALSE)) {
@@ -1154,35 +1273,34 @@ function panelizer_panels_cache_get($argument) {
   }
 
   // Set the allowed layout options
-  if (variable_get('panelizer_' . $type . ':' . $bundle . '_allowed_layouts_default', FALSE)) {
-    $cache->display->allowed_layouts = panels_common_get_allowed_layouts('panels_page');
-  }
-  else {
-    $cache->display->allowed_layouts = panels_common_get_allowed_layouts('panelizer_' . $type . ':' . $bundle, $cache->display->context);
-  }
+  $cache->display->allowed_layouts = panels_common_get_allowed_layouts(panelizer_get_allowed_layouts_option($type, $bundle));
 
   return $cache;
 }
 
 /**
+ * Implements hook_panels_cache_set().
+ *
  * Store a display edit in progress in the page cache.
  */
 function panelizer_panels_cache_set($argument, $cache) {
-  list($type, $key) = explode(':', $argument, 2);
   ctools_include('object-cache');
-  ctools_object_cache_set('panelizer_display_cache', $type . ':' . $key, $cache);
+  ctools_object_cache_set('panelizer_display_cache', $argument, $cache);
 }
 
 /**
+ * Implements hook_panels_cache_clear().
+ *
  * Save all changes made to a display using the Page Manager page cache.
  */
 function panelizer_panels_cache_clear($argument, $cache) {
-  list($type, $key) = explode(':', $argument, 2);
   ctools_include('object-cache');
-  ctools_object_cache_clear('panelizer_display_cache', $type . ':' . $key);
+  ctools_object_cache_clear('panelizer_display_cache', $argument);
 }
 
 /**
+ * Implements hook_panels_cache_save().
+ *
  * Save all changes made to a display using the Page Manager page cache.
  */
 function panelizer_panels_cache_save($argument, $cache) {
@@ -1214,7 +1332,8 @@ function panelizer_panels_cache_save($argument, $cache) {
   }
   else {
     list($entity_id, $view_mode) = explode(':', $key);
-    $entities = entity_load($entity_type, array($entity_id));
+    $conditions = (isset($vid) ? array('vid' => $vid) : array());
+    $entities = entity_load($entity_type, array($entity_id), $conditions);
     if ($entities[$entity_id] && $entities[$entity_id]->panelizer[$view_mode]) {
       $entities[$entity_id]->panelizer[$view_mode]->display = $cache->display;
       $entities[$entity_id]->panelizer[$view_mode]->display_is_modified = TRUE;
@@ -1271,6 +1390,15 @@ function panelizer_features_pipe_panelizer_defaults_alter(&$more, $data, $export
       'panelizer_' . $entity_type . ':' . $bundle . '_allowed_types_default',
       'panelizer_' . $entity_type . ':' . $bundle . '_default',
     );
+
+    // Add default display variables for each view mode.
+    $entity_info = entity_get_info($entity_type);
+    $default_base = 'panelizer_' . $entity_type . ':' . $bundle . ':';
+    foreach ($entity_info['view modes'] as $view_mode => $view_info) {
+      $variables[] = $default_base . $view_mode . '_selection';
+    }
+    $variables[] = $default_base . 'page_manager' . '_selection';
+    $variables[] = $default_base . 'default' . '_selection';
 
     foreach ($variables as $variable) {
       $more['variable'][$variable] = $variable;
@@ -1400,7 +1528,6 @@ function panelizer_set_status_action_form($context, &$form_state) {
       'not' => t('Not panelized'),
     ) + $options[$view_mode];
 
-
     $form['panelizer'][$view_mode] = array(
       '#type' => 'select',
       '#title' => t('Panelizer status'),
@@ -1481,6 +1608,26 @@ function panelizer_operations() {
 }
 
 /**
+ * Gets the current layout options approach for an entity bundle.
+ *
+ * @param string $type
+ *   The entity type.
+ * @param string $bundle
+ *   The entity bundle.
+ *
+ * @return string
+ *   The name of the layout approach to check (default or per bundle).
+ */
+function panelizer_get_allowed_layouts_option($type, $bundle) {
+  if (variable_get('panelizer_' . $type . ':' . $bundle . '_allowed_layouts_default', FALSE)) {
+    return 'panels_page';
+  }
+  else {
+    return 'panelizer_' . $type . ':' . $bundle;
+  }
+}
+
+/**
  * Implements hook_form_alter().
  *
  * Alter the IPE save control form to handle extra Panelizer functionality.
@@ -1525,21 +1672,50 @@ function panelizer_form_panels_ipe_edit_control_form_alter(&$form, &$form_state)
 
   $panelizer = $entities[$entity_id]->panelizer[$view_mode];
 
+  module_load_include('inc', 'panelizer', 'includes/common');
+  $revision_info = $handler->entity_allows_revisions($entity);
+
+  // Set panelizer info regardless of revision or panelizer layout default
+  // status.
+  $form_state['panelizer entity'] = $entity;
+  $form_state['panelizer bundle'] = $bundle;
+  $form_state['panelizer handler'] = $handler;
+  $form_state['panelizer view_mode'] = $view_mode;
+
+  // If this entity has revisions enabled we can assume that they have
+  // permissions to add revisions via IPE.
+  if (!empty($revision_info)) {
+    $form_state['entity'] = $entity;
+    $form_state['revision info'] = $revision_info;
+    panelizer_add_revision_info_form($form, $form_state);
+    // Tweak the log message field to make it fit better.
+    if (isset($form['revision_information'])) {
+      $form['revision_information']['log']['#type'] = 'textfield';
+      $form['revision_information']['log']['#description'] = '';
+    }
+  }
+
   // If the entity already has customized panelizer data, add the revert button.
   if (!empty($panelizer->did)) {
     if ($handler->has_default_panel($bundle . '.' . $view_mode)) {
+      $uri = entity_uri($handler->entity_type, $entity);
+      $url = $uri['path'];
+      // Support for Workbench Moderation to redirect to the newest revision for
+      // this node.
+      if ($handler->entity_type == 'node' && module_exists('workbench_moderation')) {
+        $url = 'node/' . $entity->nid . '/current-revision';
+      }
+      $redirect_url = url($uri['path'] . '/panelizer/' . $view_mode . '/reset', array('query' => array('destination' => $url)));
+      drupal_add_js(array('panelizer' => array('revert_default_url' => $redirect_url)), 'setting');
+
       $form['buttons']['revert_default'] = array(
         '#type' => 'submit',
         '#value' => t('Revert to @bundle_name default', array('@bundle_name' => $entity_info['bundles'][$bundle]['label'])),
         '#submit' => array('panels_ipe_revert_to_default'),
         '#attributes' => array('class' => array('panels-ipe-cancel')),
         '#id' => 'panelizer-ipe-revert',
-//        '#attributes' => array('onclick' => ''),
+        '#access' => $handler->panelizer_access('defaults', $entity, $panelizer->view_mode),
       );
-      $form_state['panelizer entity'] = $entity;
-      $form_state['panelizer bundle'] = $bundle;
-      $form_state['panelizer handler'] = $handler;
-      $form_state['panelizer view_mode'] = $view_mode;
     }
     return;
   }
@@ -1569,7 +1745,43 @@ function panelizer_form_panels_ipe_edit_control_form_alter(&$form, &$form_state)
     '#cache_key' => 'default:' . $handler->entity_type . ':' . $bundle . '.' . $panelizer->view_mode . ':' . $name,
     '#attributes' => array('class' => array('panels-ipe-save')),
     '#id' => 'panelizer-save-default',
+    '#access' => $handler->panelizer_access('defaults', $entity, $panelizer->view_mode),
   );
+}
+
+/**
+ * Implement template_preprocess_panels_ipe_toolbar().
+ *
+ * Add some extra CSS for the Panelizer additional requirements for IPE.
+ */
+function panelizer_preprocess_panels_ipe_toolbar(&$variables) {
+  // Some custom CSS to improve the UX.
+  // $variables['#attached'] = array(
+  //   'css' => array(
+  //     drupal_get_path('module', 'panelizer') . '/css/panelizer.ipe.css',
+  //   ),
+  // );
+  // dpm($variables);
+}
+
+/**
+ * Implements hook_panels_ipe_ajax_save_commands_alter().
+ *
+ * If Workbench Moderation is enabled, and this is for the form submission on a
+ * Panelized node, redirect to the latest revision upon save.
+ */
+function panelizer_panels_ipe_ajax_save_commands_alter(&$ipe, $form_state) {
+  // This requires Workbench Moderation.
+  if (module_exists('workbench_moderation')) {
+    // The form was actually saved.
+    if (!empty($form_state['submitted']) && !empty($ipe->meta_location)) {
+      // This is for a revisions-enabled Panelizer entity.
+      if (!empty($form_state['use revisions'])) {
+        $entity = $form_state['entity'];
+        $ipe->commands[0] = ctools_ajax_command_redirect('node/' . $entity->nid . '/current-revision');
+      }
+    }
+  }
 }
 
 /**
@@ -1610,4 +1822,103 @@ function panels_ipe_revert_to_default($form, &$form_state) {
   $display->context = $handler->get_contexts($panelizer, $entity);
 
   $renderer->commands[] = ajax_command_replace("#panels-ipe-display-{$renderer->clean_key}", panels_render_display($display, $renderer));
+}
+
+/**
+ * Implements hook_panelizer_pre_render_alter().
+ *
+ * Panelizer fails to communicate to the theme layer what view mode an entity's
+ * fields are being rendered in, so we unfortunately have to do that ourselves.
+ */
+function panelizer_panelizer_pre_render_alter(&$panelizer, &$display, &$entity) {
+  foreach ($entity->panelizer as $view_mode => $reference_panelizer) {
+    if ($reference_panelizer === $panelizer) {
+      $entity->panelizer_view_mode = $view_mode;
+      break;
+    }
+  }
+}
+
+/**
+ * Implements hook_workbench_moderation_node_history_view_alter().
+ *
+ * This is a little kludgy as the data in the row is stored as final HTML for
+ * display.
+ */
+function panelizer_workbench_moderation_node_history_view_alter(&$rows) {
+  // Load the node.
+  $node = node_load(arg(1));
+
+  // Verify the user has access to the Panelizer configuration.
+  if (panelizer_is_panelized('node', $node->type)) {
+    // Loop over each table row.
+    foreach ($rows as $key => &$row) {
+      // Published.
+      $path = 'node/' . $node->nid . '/panelizer';
+
+      // Not published.
+      if (!in_array('published-revision', $row['class'])) {
+        $path = 'node/' . $node->nid . '/revisions/' . $row['data']['vid'] . '/panelizer';
+      }
+
+      // Add a link to the Panelizer page.
+      $row['data']['revision'] .= ' | ' . l('Customize display', $path);
+    }
+  }
+}
+
+/**
+ * Menu callback load method to either return the requested revision ID or FALSE
+ * to prevent the tab from being processed.
+ *
+ * @param string $vid
+ *   An entity's revision ID.
+ *
+ * @return mixed
+ *   Either the revision_id or FALSE if the
+ */
+function panelizer_node_revision_load($revision_id = NULL) {
+  if (!empty($revision_id)) {
+    return $revision_id;
+  }
+  return FALSE;
+}
+
+/**
+ * Implements hook_clone_node_alter().
+ *
+ * Custom integration for Node Clone to handle objects that might be embedded
+ * in a custom Panelizer display. Currently supports Fieldable Panels Panes.
+ */
+function panelizer_clone_node_alter(&$node, $context) {
+  if (!empty($node->panelizer)) {
+    foreach ($node->panelizer as $view_mode => &$panelizer) {
+      // Only deal with custom displays, ignore default displays which would
+      // be selected in $panelizer->name.
+      if (!empty($panelizer->did) && !empty($panelizer->display)) {
+        // Loop over each pane.
+        foreach ($panelizer->display->content as &$pane) {
+          // Clone each FPP and then assign the new fpid.
+          if ($pane->type == 'fieldable_panels_pane') {
+            list($subtype, $fpid) = explode(':', $pane->subtype);
+            if ($subtype == 'fpid') {
+              // Clone the FPP object.
+              $fpp = fieldable_panels_panes_load($fpid);
+
+              // Clean the some basic settings.
+              $fpp->fpid = NULL;
+              $fpp->created = NULL;
+              $fpp->timestamp = NULL;
+
+              // Save the cloned FPP.
+              $newfpp = fieldable_panels_panes_save($fpp);
+
+              // Update the FPP reference.
+              $pane->subtype = 'fpid:' . $newfpp->fpid;
+            }
+          }
+        }
+      }
+    }
+  }
 }

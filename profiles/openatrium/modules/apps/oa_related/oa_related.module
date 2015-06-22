@@ -104,6 +104,10 @@ function _oa_related_enable_related($type, $value = TRUE) {
   if (!$field) {
     return;
   }
+  // If it isn't a group content type then exit
+  if (!og_is_group_content_type('node', $type)) {
+    return;
+  }
   if ($value) {
     $do_update = empty($field['settings']['handler_settings']['target_bundles'][$type]);
     $field['settings']['handler_settings']['target_bundles'][$type] = $type;
@@ -212,18 +216,18 @@ function oa_related_panelizer_pre_render_alter(&$panelizer, $display, $entity) {
  *
  * @param $options array is optional to restrict return values
  */
-function oa_related_get_best_section($node, $options = array()) {
+function oa_related_get_best_section($type, $options = array(), $space_id = NULL) {
   $section = oa_core_get_section_context();
 
   // Get all possible sections in the current space that can contain this content.
-  $space_id = oa_core_get_space_context();
+  $space_id = !empty($space_id) ? $space_id : oa_core_get_space_context();
   $space = node_load($space_id);
   $commands = oa_buttons_get_command_buttons($space, TRUE);
 
   $nids = array();
   // Remove any commands that do not match the content type we are creating.
   foreach ($commands as $key => $command) {
-    if ($command['value'] != $node->type) {
+    if ($command['value'] != $type) {
       unset($commands[$key]);
     }
     else {
@@ -287,7 +291,7 @@ function oa_related_form_node_form_alter(&$form, &$form_state) {
     if (!empty($_GET['render']) && ($_GET['render'] == 'references-dialog')) {
       // we are in a References Dialog popup form
       $node = $form['#node'];
-      $section = oa_related_get_best_section($node, $form[OA_SECTION_FIELD][LANGUAGE_NONE]['#options']);
+      $section = oa_related_get_best_section($node->type, $form[OA_SECTION_FIELD][LANGUAGE_NONE]['#options']);
       if (!empty($section)) {
         $form[OA_SECTION_FIELD][LANGUAGE_NONE]['#default_value'] = $section;
       }

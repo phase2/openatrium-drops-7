@@ -145,7 +145,7 @@ function oa_discussion_update_7104(&$sandbox) {
         'uid' => $node->uid,
         'comment_body' => $node->body,
         // Comment subject is short.
-        'subject' => substr($node->title, 0, 64),
+        'subject' => mb_substr($node->title, 0, 64),
         'nid' => $parent_node->nid,
         'pid' => $pid,
         'cid' => NULL,

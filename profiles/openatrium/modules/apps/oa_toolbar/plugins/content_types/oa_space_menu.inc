@@ -81,33 +81,34 @@ function oa_toolbar_oa_space_menu_content_type_render($subtype, $conf, $panel_ar
       $item = menu_get_item($space_menu->content[$mlid]['#href']);
       // The node for this menu item.
       $item_node = $item['map'][1];
+      // If there is no icon class or image, we set the icon to nothing.
+      $icon = '';
       // The term id for this items node as it relates to the section.
-      $term_id = $item_node->field_oa_section[LANGUAGE_NONE][0]['tid'];
-      if (isset($terms[$term_id])) {
-        // See if we have an icon value in the form of a class. We check for
-        // this first as we want this to override any uploaded image.
-        if (!empty($terms[$term_id]->field_oa_icon_class_value)) {
-          $icon = '<i class="' . check_plain($terms[$term_id]->field_oa_icon_class_value) . '"></i>';
-        }
-        // Otherwise we will use an uploaded icon image.
-        else if (!empty($terms[$term_id]->field_oa_icon_image_fid)) {
-          // Load the file that represents the icon.
-          $file = file_load($terms[$term_id]->field_oa_icon_image_fid);
-          // Build a content array so we can render the file.
-          $content = array(
-            'file' => array(
-              '#theme' => 'image_style',
-              '#style_name' => 'oa_medium_thumbnail',
-              '#path' => $file->uri,
-            ),
-          );
-          // Render the file as content.
-          $icon = drupal_render($content);
-        }
-        // If there is not icon class or image we set the icon to nothing
-        // otherwise it will just be what the last icon was.
-        else {
-          $icon = '';
+      if (isset($item_node->field_oa_section[LANGUAGE_NONE][0]['tid'])) {
+        $term_id = $item_node->field_oa_section[LANGUAGE_NONE][0]['tid'];
+        if (isset($terms[$term_id])) {
+          // See if we have an icon value in the form of a class. We check for
+          // this first as we want this to override any uploaded image.
+          if (!empty($terms[$term_id]->field_oa_icon_class_value)) {
+            $icon = '<i class="' . check_plain($terms[$term_id]->field_oa_icon_class_value) . '"></i>';
+          }
+          // Otherwise we will use an uploaded icon image.
+          else {
+            if (!empty($terms[$term_id]->field_oa_icon_image_fid)) {
+              // Load the file that represents the icon.
+              $file = file_load($terms[$term_id]->field_oa_icon_image_fid);
+              // Build a content array so we can render the file.
+              $content = array(
+                'file' => array(
+                  '#theme' => 'image_style',
+                  '#style_name' => 'oa_medium_thumbnail',
+                  '#path' => $file->uri,
+                ),
+              );
+              // Render the file as content.
+              $icon = drupal_render($content);
+            }
+          }
         }
       }
       // Prepend the icon to the link title.
@@ -119,7 +120,7 @@ function oa_toolbar_oa_space_menu_content_type_render($subtype, $conf, $panel_ar
       if (isset($parent_section_tid)) {
         // If the node's term id matches the parent's section id then we set
         // the parent menu item to 'active'.
-        if ($item_node->field_oa_section[LANGUAGE_NONE][0]['tid'] == $parent_section_tid) {
+        if (isset($term_id) && $term_id == $parent_section_tid) {
           $space_menu->content[$mlid]['#attributes']['class'][] = 'active';
         }
       }

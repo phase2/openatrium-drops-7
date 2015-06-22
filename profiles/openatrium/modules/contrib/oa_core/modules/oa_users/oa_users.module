@@ -47,6 +47,15 @@ function oa_users_user_is_current_user($account) {
 }
 
 /**
+ * Implements hook_ctools_plugin_directory
+ */
+function oa_users_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'ctools' && $plugin_type == 'content_types') {
+    return 'plugins/content_types';
+  }
+}
+
+/**
  * Page callback for user/%user/settings.
  *
  * Provide a settings form, and hooks for modules to add their own settings.
@@ -172,4 +181,79 @@ function oa_users_user_categories() {
     'title' => t('User Info'),
     'weight' => 1,
   ));
+}
+
+/**
+ * Implements hook_oa_core_add_panes().
+ */
+function oa_users_oa_core_add_panes() {
+  $info = array();
+  $info['user:user:default']['80a6a21b-20e6-4acf-9772-eb089cc6082b'] = array(
+    'panel' => 'sidebar',
+    'type' => 'oa_core_user_spaces',
+    'subtype' => 'oa_core_user_spaces',
+    'configuration' => array(
+      'featured_spaces' => 1,
+      'context' => 'panelizer',
+      'override_title' => 0,
+      'override_title_text' => '',
+      'image_size' => 'none',
+      'show_description' => 0,
+      'show_sections' => 0,
+      'tabs' => array(
+        'Favorite' => 'Favorite',
+        'Memberships' => 'Memberships',
+        'All' => 0,
+      ),
+      'link_class' => 'btn',
+      'show_links' => 0,
+      'num_per_page' => 15,
+    ),
+    'style' => array(
+      'settings' => NULL,
+      'style' => 'oa_styles_oa_pane',
+    ),
+    'position' => 1,
+  );
+  $info['user:user:default']['d3a2a9fb-f88a-4730-bfab-c36f4e0af395'] = array(
+    'panel' => 'contentheader',
+    'type' => 'entity_field',
+    'subtype' => 'user:field_user_about',
+    'configuration' => array(
+      'label' => 'hidden',
+      'formatter' => 'text_default',
+      'delta_limit' => 0,
+      'delta_offset' => 0,
+      'delta_reversed' => FALSE,
+      'formatter_settings' => array(),
+      'context' => array(),
+      'override_title' => 0,
+      'override_title_text' => '',
+    ),
+    'position' => 0,
+  );
+  // Remove the profile widget added by panopoly
+  $info['user:user:default']['d76e85cd-4625-4a52-a17b-e5c65e1a0247'] = array();
+  return $info;
+}
+
+
+/**
+ * Implements hook_theme()
+ */
+function oa_users_theme() {
+  return array(
+    'oa_users_submitted' => array(
+      'template'  => 'oa-users-submitted',
+      'arguments' => array(
+        'userlink'  => '',
+        'date' => '',
+        'picture' => '',
+        'label'  => '',
+        'onlabel'  => '',
+        'bylabel'  => '',
+      ),
+      'path' => drupal_get_path('module', 'oa_users') . '/templates',
+    ),
+  );
 }

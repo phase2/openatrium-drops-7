@@ -29,9 +29,10 @@ project = "select2widget"
 datestamp = "1418635982"
 
 
-; Information added by Drupal.org packaging script on 2015-01-07
-version = "7.x-2.5"
+
+; Information added by drush on 2015-06-22
+version = "7.x-2.7+3-dev"
 core = "7.x"
 project = "select2widget"
-datestamp = "1420628887"
+datestamp = "1434998282"
 

@@ -144,7 +144,7 @@ function oa_core_node_insert($node) {
 /**
  * Implements hook_node_delete().
  */
-function oa_core_node_delete($node) {
+function _oa_core_node_delete($node) {
   if (($node->type == OA_SPACE_TYPE) || ($node->type == OA_GROUP_TYPE)) {
     oa_core_clear_group_cache($node);
   }

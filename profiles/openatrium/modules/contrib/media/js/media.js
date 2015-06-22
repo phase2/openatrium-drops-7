@@ -16,21 +16,16 @@ Drupal.behaviors.mediaElement = {
   attach: function (context, settings) {
     if (settings.media && settings.media.elements) {
       $.each(settings.media.elements, function(selector) {
-        var configuration = settings.media.elements[selector];
-        // The user has JavaScript enabled, so display the browse field and hide
-        // the upload and attach fields which are only used as a fallback in
-        // case the user is unable to use the media browser.
-        $(selector, context).children('.browse').show();
-        $(selector, context).children('.upload').hide();
-        $(selector, context).children('.attach').hide();
-        $(selector, context).children('.browse').unbind().bind('click', {configuration: configuration}, Drupal.media.openBrowser);
-      });
-    }
-  },
-  detach: function (context, settings) {
-    if (settings.media && settings.media.elements) {
-      $.each(settings.media.elements, function(selector) {
-        $(selector, context).children('.browse').unbind('click', Drupal.media.openBrowser);
+        $(selector, context).once('media-browser-launch', function () {
+          var configuration = settings.media.elements[selector];
+          // The user has JavaScript enabled, so display the browse field and hide
+          // the upload and attach fields which are only used as a fallback in
+          // case the user is unable to use the media browser.
+          $(selector, context).children('.browse').show();
+          $(selector, context).children('.upload').hide();
+          $(selector, context).children('.attach').hide();
+          $(selector, context).children('.browse').bind('click', {configuration: configuration}, Drupal.media.openBrowser);
+        });
       });
     }
   }

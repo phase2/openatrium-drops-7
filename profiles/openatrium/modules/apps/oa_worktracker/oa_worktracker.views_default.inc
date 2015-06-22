@@ -914,7 +914,6 @@ function oa_worktracker_views_default_views() {
   $handler->display->display_options['filters']['flagged']['expose']['label'] = 'Include archived content';
   $handler->display->display_options['filters']['flagged']['expose']['operator'] = 'flagged_op';
   $handler->display->display_options['filters']['flagged']['expose']['identifier'] = 'flagged';
-  $handler->display->display_options['filters']['flagged']['expose']['required'] = TRUE;
   $handler->display->display_options['filters']['flagged']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,

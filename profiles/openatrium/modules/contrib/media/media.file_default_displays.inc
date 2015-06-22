@@ -15,7 +15,7 @@ function media_file_default_displays() {
   $file_display = new stdClass();
   $file_display->api_version = 1;
   $file_display->name = 'audio__preview__file_field_media_large_icon';
-  $file_display->weight = 50;
+  $file_display->weight = 49;
   $file_display->status = TRUE;
   $file_display->settings = '';
   $file_displays['audio__preview__file_field_media_large_icon'] = $file_display;
@@ -24,7 +24,7 @@ function media_file_default_displays() {
   $file_display = new stdClass();
   $file_display->api_version = 1;
   $file_display->name = 'document__preview__file_field_media_large_icon';
-  $file_display->weight = 50;
+  $file_display->weight = 49;
   $file_display->status = TRUE;
   $file_display->settings = '';
   $file_displays['document__preview__file_field_media_large_icon'] = $file_display;
@@ -33,7 +33,7 @@ function media_file_default_displays() {
   $file_display = new stdClass();
   $file_display->api_version = 1;
   $file_display->name = 'image__preview__file_field_media_large_icon';
-  $file_display->weight = 50;
+  $file_display->weight = 49;
   $file_display->status = TRUE;
   $file_display->settings = '';
   $file_displays['image__preview__file_field_media_large_icon'] = $file_display;
@@ -42,7 +42,7 @@ function media_file_default_displays() {
   $file_display = new stdClass();
   $file_display->api_version = 1;
   $file_display->name = 'video__preview__file_field_media_large_icon';
-  $file_display->weight = 50;
+  $file_display->weight = 49;
   $file_display->status = TRUE;
   $file_display->settings = '';
   $file_displays['video__preview__file_field_media_large_icon'] = $file_display;

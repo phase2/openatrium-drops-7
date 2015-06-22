@@ -31,9 +31,9 @@ features[field_instance][] = node-oa_space-field_oa_banner_text
 features[image][] = oa_banner
 project path = profiles/openatrium/modules/contrib/oa_core/modules
 
-; Information added by Drupal.org packaging script on 2015-05-04
-version = "7.x-2.3"
+; Information added by Drupal.org packaging script on 2015-06-18
+version = "7.x-2.4"
 core = "7.x"
 project = "oa_appearance"
-datestamp = "1430776685"
+datestamp = "1434652994"
 

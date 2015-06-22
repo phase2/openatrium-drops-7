@@ -23,7 +23,7 @@ function oa_wiki_install_section_type() {
     'layout' => 'node:oa_section:oa_section_news',
     'icon' => 'icon-folder-open',
   );
-  oa_core_create_term('section_type', 'News Section', $params);
+  oa_core_create_term('section_type', 'Document Section', $params);
 }
 
 /**
@@ -31,4 +31,17 @@ function oa_wiki_install_section_type() {
  */
 function oa_wiki_update_7002() {
   oa_wiki_install_section_type();
+}
+
+/**
+ * Change News section to Document section
+ */
+function oa_wiki_update_7201() {
+  $terms = taxonomy_get_term_by_name('News Section');
+  if (!empty($terms)) {
+    foreach ($terms as &$term) {
+      $term->name = 'Document Section';
+      taxonomy_term_save($term);
+    }
+  }
 }

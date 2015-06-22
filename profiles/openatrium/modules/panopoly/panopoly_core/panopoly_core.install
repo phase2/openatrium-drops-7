@@ -210,3 +210,16 @@ function panopoly_core_update_7103() {
     }
   }
 }
+
+/**
+ * Ensure that jquery_update in enabled and configured.
+ */
+function panopoly_core_update_7104() {
+  module_enable(array('jquery_update'));
+
+  // If the user never configured the jquery version, then we set it to our
+  // default of 1.7.
+  if (variable_get('jquery_update_jquery_version', 'not set') === 'not set') {
+    variable_set('jquery_update_jquery_version', '1.7');
+  }
+}

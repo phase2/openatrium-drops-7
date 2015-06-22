@@ -61,6 +61,7 @@ class panels_renderer_editor extends panels_renderer_standard {
       ctools_add_js('display_editor', 'panels');
       ctools_add_css('panels_dnd', 'panels');
       ctools_add_css('panels_admin', 'panels');
+      drupal_add_library('system', 'ui');
     }
   }
 
@@ -560,6 +561,11 @@ class panels_renderer_editor extends panels_renderer_standard {
       $output = theme('panels_add_content_modal', array('renderer' => $this, 'categories' => $categories, 'category' => $category, 'region' => $region));
     }
     $this->commands[] = ctools_modal_command_display($title, $output);
+
+    // Give keybord focus to the first item in the category we just loaded.
+    if (!empty($category)) {
+      $this->commands[] = ajax_command_invoke(".panels-add-content-modal .panels-section-columns :focusable:first", 'focus');
+    }
   }
 
   /**

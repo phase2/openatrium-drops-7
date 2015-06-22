@@ -1,3 +1,24 @@
+.page-node.node-type-oa-wiki-page #content .pane-node-terms ul.links {
+  margin-left: 0;
+}
+
+.page-node.node-type-oa-wiki-page #content .pane-node-terms li {
+  display: inline-block;
+}
+
+.page-node.node-type-oa-wiki-page #content .pane-node-terms li > a {
+  padding: .2em .6em .3em;
+  font-size: 90%;
+  font-weight: normal;
+  line-height: 1;
+  background-color: #ddd;
+  color: #333;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: .25em;
+}
+
 li.dhtml-folder {
   position: relative;
 }

@@ -23,9 +23,9 @@ files[] = includes/views/handlers/message_handler_filter_message_type.inc
 files[] = includes/views/handlers/message_handler_filter_message_type_category.inc
 
 
-; Information added by drush on 2015-05-08
+; Information added by drush on 2015-06-22
 version = "7.x-1.9+3-dev"
 core = "7.x"
 project = "message"
-datestamp = "1431125718"
+datestamp = "1434998286"
 

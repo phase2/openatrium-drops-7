@@ -21,6 +21,7 @@ dependencies[] = paragraphs
 dependencies[] = select2widget
 dependencies[] = strongarm
 dependencies[] = text
+dependencies[] = variable
 dependencies[] = views
 dependencies[] = views_content
 stylesheets[all][] = oa_wiki.css
@@ -68,9 +69,9 @@ features_exclude[variable][comment_oa_wiki_page] = comment_oa_wiki_page
 features_exclude[variable][comment_preview_oa_wiki_page] = comment_preview_oa_wiki_page
 features_exclude[variable][comment_subject_field_oa_wiki_page] = comment_subject_field_oa_wiki_page
 
-; Information added by Drupal.org packaging script on 2015-05-05
-version = "7.x-2.31"
+; Information added by Drupal.org packaging script on 2015-06-18
+version = "7.x-2.32"
 core = "7.x"
 project = "oa_wiki"
-datestamp = "1430851992"
+datestamp = "1434652473"
 

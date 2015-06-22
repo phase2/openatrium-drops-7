@@ -5,6 +5,8 @@
  * Main file for the Respond.js module
  */
 
+define('RESPONDJS_DOWNLOAD_URI', 'https://raw.githubusercontent.com/scottjehl/Respond/master/dest/respond.min.js');
+define('RESPONDJS_DOWNLOAD_LOCATION', 'sites/all/libraries/respondjs');
 define('RESPONDJS_SCOPE_DEFAULT','header');
 define('RESPONDJS_QUIET_DEFAULT',NULL);
 

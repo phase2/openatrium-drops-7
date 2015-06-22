@@ -7,37 +7,33 @@
 <div class="oa-ng-loading alert alert-warning"><?php print t('Loading widget...'); ?></div>
 <div class="oa-files-treeview" ng-init="init(<?php print $instance?>)" ng-cloak ng-module="oaFilesTreeview" ng-controller="oaFilesTreeviewController" ng-class="themeClass()">
 
+  <div class="oa-file oa-file-root oa-file-hidden pull-right">
+    <a ng-click="showMenu($event,root)"><i class="icon-cog"></i></a>
+    <ul ng-show="root.menu" class="dropdown-menu ng-dropdown-menu" role="menu">
+      <li><a ng-repeat="action in actions | orderObjectBy:'weight'" ng-if="action.enabled && !action.exposed && action.show(root)" ng-href="{{action.url(root)}}" title="{{action.title}}" ng-click="action.click($event,root)" class="{{action.class}}">{{action.title}}</a></li>
+      <li><a title="Rearrange" href="{{rearrange}}" ng-if="allownew" class="oa-file-action"><?php print t('Rearrange'); ?></a></li>
+      <li><a title="Expand all" ng-click="expandAll(true)" class="oa-file-action" href=""><?php print t('Expand all'); ?></a></li>
+      <li><a title="Collapse all" ng-click="expandAll(false)" class="oa-file-action" href=""><?php print t('Collapse all'); ?></a></li>
+      <li><a title="Show filter" ng-click="showFilter(true)" ng-show="!showfilter" class="oa-file-action" href=""><?php print t('Show filter'); ?></a></li>
+      <li><a title="Hide filter" ng-click="showFilter(false)" ng-show="showfilter" class="oa-file-action" href=""><?php print t('Hide filter'); ?></a></li>
+    </ul>
+  </div>
   <div class="oa-files-header">
-    <div class="row">
-      <div class="col-sm-8">
-        <div class="oa-files-filter input-group" ng-show="showfilter">
-          <input type="text" ng-model="filterexp" class="form-control" placeholder="<?php print t('Filter'); ?>" name="file_filter_text"></input >
-          <span class="input-group-btn">
-            <button class="btn btn-default" ng-click="clearFilter()" type="button"><?php print t('Clear'); ?></button>
-          </span>
+    <div class="pull-right oa-files-rightalign">
+      <div class="oa-files-topbuttons" ng-repeat="action in ['folder', 'adddocument', 'addfile']">
+        <div ng-if="actions[action].enabled && actions[action].show(root)">
+          <a ng-href="{{actions[action].url(root)}}" ng-click="actions[action].click($event,root)" class="btn btn-default {{actions[action].class}}"><i class="{{actions[action].icon}}"></i>&nbsp;{{actions[action].title}}</a>
         </div>
-      </div><!-- /.col-sm-8 -->
-      <div class="col-sm-4 oa-files-rightalign">
-        <div class="oa-files-topbuttons">
-          <div ng-if="actions['folder'].enabled && actions['folder'].show(root)">
-            <a ng-href="{{actions['folder'].url(root)}}" ng-click="actions['folder'].click($event,root)" class="btn btn-default btn-sm {{actions['folder'].class}}"><i class="{{actions['folder'].icon}}"></i>&nbsp;{{actions['folder'].title}}</a>
-          </div>
-          <div ng-if="actions['addfile'].enabled && actions['addfile'].show(root)">
-            <a ng-href="{{actions['addfile'].url(root)}}" ng-click="actions['addfile'].click($event,root)" class="btn btn-primary btn-sm {{actions['addfile'].class}}"><i class="{{actions['addfile'].icon}}"></i>&nbsp;{{actions['addfile'].title}}</a>
-          </div>
-        </div>
-        <div class="oa-file oa-file-hidden">
-          <a ng-click="showMenu($event,root)"><i class="icon-cog"></i></a>
-          <ul ng-show="root.menu" class="dropdown-menu ng-dropdown-menu" role="menu">
-            <li><a ng-repeat="action in actions | orderObjectBy:'weight'" ng-if="action.enabled && !action.exposed && action.show(root)" ng-href="{{action.url(root)}}" title="{{action.title}}" ng-click="action.click($event,root)" class="{{action.class}}">{{action.title}}</a></li>
-            <li><a title="Expand all" ng-click="expandAll(true)" class="oa-file-action" href=""><?php print t('Expand all'); ?></a></li>
-            <li><a title="Collapse all" ng-click="expandAll(false)" class="oa-file-action" href=""><?php print t('Collapse all'); ?></a></li>
-            <li><a title="Show filter" ng-click="showFilter(true)" ng-show="!showfilter" class="oa-file-action" href=""><?php print t('Show filter'); ?></a></li>
-            <li><a title="Hide filter" ng-click="showFilter(false)" ng-show="showfilter" class="oa-file-action" href=""><?php print t('Hide filter'); ?></a></li>
-          </ul>
-        </div>
-      </div><!-- /.col-sm-4 -->
-    </div><!-- /.row -->
+      </div>
+    </div>
+    <div ng-show="treeData.length != 0">
+      <div class="oa-files-filter input-group" ng-show="showfilter">
+        <input type="text" ng-model="filterexp" class="form-control" placeholder="<?php print t('Filter'); ?>" name="file_filter_text"></input >
+        <span class="input-group-btn">
+          <button class="btn btn-default" ng-click="clearFilter()" type="button"><?php print t('Clear'); ?></button>
+        </span>
+      </div>
+    </div>
   </div>
 
   <div class="alert alert-warning" ng-if="treeData.length == 0">

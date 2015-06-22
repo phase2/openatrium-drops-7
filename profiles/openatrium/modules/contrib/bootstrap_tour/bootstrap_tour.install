@@ -90,6 +90,19 @@ function bootstrap_tour_update_7200() {
 }
 
 /**
+ * Remove orphaned steps.
+ */
+function bootstrap_tour_update_7201() {
+  $subquery = ' NOT in (SELECT bootstrap_tour_step_reference_target_id FROM {field_revision_bootstrap_tour_step_reference})';
+  foreach (array_keys(field_info_instances('bootstrap_tour_step', 'bootstrap_tour_step')) as $field_name) {
+    db_query("DELETE from {field_data_" . $field_name . "} WHERE entity_type = 'bootstrap_tour_step' AND entity_id " . $subquery);
+    db_query("DELETE from {field_revision_" . $field_name . "} WHERE entity_type = 'bootstrap_tour_step' AND entity_id " . $subquery);
+
+  }
+  db_query('DELETE from {bootstrap_tour_step} WHERE bootstrap_tour_step_id ' . $subquery);
+}
+
+/**
  * Implements hook_schema().
  */
 function bootstrap_tour_schema() {
@@ -353,7 +366,7 @@ function bootstrap_tour_setup_step_field() {
 
 /**
  * Legacy function which loads all 1.x tours from both exported Features and from the DB.
- * 
+ *
  * @return array
  */
 function bootstrap_tour_load_legacy_tours() {

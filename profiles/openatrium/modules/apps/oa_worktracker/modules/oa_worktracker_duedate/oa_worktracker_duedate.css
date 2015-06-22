@@ -3,18 +3,37 @@
 /**
  * Get the fieldset to look like a field label.
  */
+.group-oa-worktracker-task-info .field-name-field-oa-worktracker-duedate .form-group {
+  margin-bottom: 0;
+}
+
+.group-oa-worktracker-task-info .field-name-field-oa-worktracker-duedate .help-block {
+  display: none;
+}
+
+.group-oa-worktracker-task-info .field-name-field-oa-worktracker-duedate fieldset {
+  border: 0;
+  margin-top: 0.5em;
+  margin-bottom: 0;
+}
+
 .group-oa-worktracker-task-info .field-name-field-oa-worktracker-duedate fieldset legend {
   margin: 0;
+  padding: 0;
   border: 0;
   font-size: inherit;
   line-height: inherit;
-
-  /**
-   * This is questionable in it's genericness - maybe this should be in the
-   * OA Radix theme?
-   */
-  padding-top: .5em;
   margin-bottom: 5px;
+  background-color: transparent;
+}
+
+.group-oa-worktracker-task-info .field-name-field-oa-worktracker-duedate fieldset legend > .panel-title {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.group-oa-worktracker-task-info .field-name-field-oa-worktracker-duedate fieldset > .panel-body {
+  padding: 0;
 }
 
 /**
@@ -32,7 +51,7 @@
   width: 40%;
 }
 .group-oa-worktracker-task-info .field-name-field-oa-worktracker-duedate .container-inline-date .form-item .form-item input {
-  width: 80%;
+  width: 95%;
 }
 
 /**

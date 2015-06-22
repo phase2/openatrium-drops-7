@@ -1,23 +1,30 @@
 (function ($) {
-
- Drupal.behaviors.panopolyMagic = {
-   attach: function (context, settings) {
-
-     /**
-      * Title Hax for Panopoly
-      *
-      * Replaces the markup of a node title pane with
-      * the h1.title page element
-      */
-     if ($.trim($('.pane-node-title .pane-content').html()) == $.trim($('h1.title').html())) {
-       $('.pane-node-title .pane-content').html('');
-       $('h1.title').hide().clone().prependTo('.pane-node-title .pane-content');
-       $('.pane-node-title h1.title').show();
-     }
-
-   }
- }
-
+  Drupal.behaviors.panopolyMagic = {
+    attach: function (context, settings) {
+ 
+      /**
+       * Title Hax for Panopoly
+       *
+       * Replaces the markup of a node title pane with
+       * the h1.title page element
+       */
+      if ($.trim($('.pane-node-title .pane-content').html()) == $.trim($('h1.title').html())) {
+        $('.pane-node-title .pane-content').html('');
+        $('h1.title').hide().clone().prependTo('.pane-node-title .pane-content');
+        $('.pane-node-title h1.title').show();
+      }
+ 
+      // Focus on the 'Add' button for a single widget preview, after it's loaded.
+      if (settings.panopoly_magic && settings.panopoly_magic.pane_add_preview_mode === 'single' && settings.panopoly_magic.pane_add_preview_subtype) {
+        // Need to defer until current set of behaviors is done, because Panels
+        // will move the focus to the first widget by default.
+        setTimeout(function () {
+          var link_class = 'add-content-link-' + settings.panopoly_magic.pane_add_preview_subtype.replace(/_/g, '-') + '-icon-text-button';
+          $('#modal-content .panopoly-magic-preview-link .content-type-button a.' + link_class, context).focus();
+        }, 0);
+      }
+    }
+  };
 })(jQuery);
 
 (function ($) {
@@ -161,7 +168,7 @@
       .once('ctools-auto-submit')
       .bind('keyup blur', function (e) {
         var $element;
-        $element = $('.widget-preview .pane-title', context);
+        $element = $('.panopoly-magic-preview .pane-title', context);
 
         cancelSubmit(e.target.form, timer);
 

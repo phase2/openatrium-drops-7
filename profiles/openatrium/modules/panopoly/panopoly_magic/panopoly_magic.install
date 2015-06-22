@@ -36,3 +36,19 @@ function panopoly_magic_update_7101() {
     }
   }
 }
+
+/**
+ * Clear the Views cache so our new 'Display type override' option appears.
+ */
+function panopoly_magic_update_7102() {
+  views_flush_caches();
+}
+
+/**
+ * Preserve the old 'Add content' preview default.
+ */
+function panopoly_magic_update_7103() {
+  if (variable_get('panopoly_magic_pane_add_preview', 'not set') === 'not set') {
+    variable_set('panopoly_magic_pane_add_preview', PANOPOLY_ADD_PREVIEW_AUTOMATIC);
+  }
+}

@@ -6,19 +6,12 @@
  */
 
 /**
- * The URI to the respond.js library.
- */
-define('RESPONDJS_DOWNLOAD_URI', 'https://raw.githubusercontent.com/scottjehl/Respond/master/dest/respond.min.js');
-
-/**
  * Implementation of hook_drush_command().
  *
- * In this hook, you specify which commands your
- * drush module makes available, what it does and
- * description.
+ * In this hook, you specify which commands your drush module makes available,
+ * what it does and description.
  *
- * Notice how this structure closely resembles how
- * you define menu hooks.
+ * Notice how this structure closely resembles how you define menu hooks.
  *
  * @See drush_parse_command() for a list of recognized keys.
  *
@@ -71,14 +64,13 @@ function respondjs_drush_respondjs_download() {
   if (isset($args[0])) {
     $path = $args[0];
   }
-  elseif (function_exists('libraries_get_path')) {
-    $path = libraries_get_path('respondjs');
-    if ($path === FALSE) {
-      $path = 'sites/all/libraries/respondjs';
-    }
-  }
   else {
-    $path = drupal_get_path('module', 'respondjs') . '/lib';
+    if (function_exists('libraries_get_path') && libraries_get_path('respondjs')) {
+      $path = libraries_get_path('respondjs');
+    }
+    else {
+      $path = RESPONDJS_DOWNLOAD_LOCATION;
+    }
   }
 
   // Create the path if it does not exist yet.

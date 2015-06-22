@@ -1,6 +1,7 @@
 <?php
 /**
- * @file oa_notifications_pane.inc
+ * @file oa_toolbar_search.inc
+ * Plugin to provide OA Toolbar Search.
  */
 
 $plugin = array(

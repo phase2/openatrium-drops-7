@@ -66,5 +66,4 @@ class PanelizerSearchApiAlterCallback extends SearchApiAbstractAlterCallback {
       ),
     );
   }
-
 }

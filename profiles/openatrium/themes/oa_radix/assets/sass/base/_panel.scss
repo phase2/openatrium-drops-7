@@ -55,7 +55,7 @@ div#panels-ipe-control-container {
   background-color: transparent;
   position: absolute;
   top: -5px;
-  right: -6px;
+  right: -0.5em;
   bottom: auto;
   width: auto;
   // needs to be above most stuff, but below the dropdown
@@ -69,11 +69,33 @@ div#panels-ipe-control-container {
     font-weight: normal;
     text-shadow: none;
   }
+  .panels-ipe-form-container {
+    margin: 0.3em 0.5em;
+  }
+  .form-item-revision {
+    display: inline-block;
+    float: left;
+    label {
+      color: #3b3b3b;
+    }
+  }
+  .form-item-log {
+    display: inline-block;
+    float: left;
+    margin-top: 0;
+  }
   @include breakpoint('xs') {
     // We don't need this on phone for now.
     display: none !important;
   }
 }
+
+.panels-ipe-dragbar-admin-title {
+  margin-top: 8px;
+  margin-left: 5px;
+  display: inline-block;
+}
+
 div.panels-ipe-pseudobutton-container, div.panels-ipe-control .form-submit {
   font-weight: normal;
 }

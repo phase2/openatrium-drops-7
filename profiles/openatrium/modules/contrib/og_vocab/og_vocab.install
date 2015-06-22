@@ -9,6 +9,37 @@
  * Implements hook_schema().
  */
 function og_vocab_schema() {
+  $schema['og_vocab_vocab'] = array(
+    'description' => t('Global Vocab Settings'),
+    'fields' => array(
+      'vid' => array(
+        'description' => 'Vocabulary ID',
+        'type'        => 'int',
+        'not null'    => TRUE,
+      ),
+      'group_type' => array(
+        'description' => "The owner group's entity type.",
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'gid'               => array(
+        'description'     => "The owner group's unique ID.",
+        'type'            => 'int',
+        'size'            => 'normal',
+        'not null'        => TRUE,
+      ),
+      'settings' => array(
+        'description' => 'Additional settings for this relationship.',
+        'type' => 'text',
+        'serialize' => TRUE,
+        'size' => 'big',
+      ),
+    ),
+    'primary key' => array('vid'),
+  );
+
   $schema['og_vocab_relation'] = array(
     'description' => t('Relate groups to vocabularies'),
     'fields' => array(
@@ -264,4 +295,80 @@ function og_vocab_update_7102() {
 function og_vocab_update_7103() {
   db_drop_primary_key('og_vocab_relation');
   db_add_primary_key('og_vocab_relation', array('vid', 'gid', 'group_type'));
+}
+
+/**
+ * Replace the primary key with a compound key.
+ */
+function og_vocab_update_7104() {
+  db_create_table('og_vocab_vocab', array(
+    'description' => t('Global Vocab Settings'),
+    'fields' => array(
+      'vid' => array(
+        'description' => 'Vocabulary ID',
+        'type'        => 'int',
+        'not null'    => TRUE,
+      ),
+      'group_type' => array(
+        'description' => "The owner group's entity type.",
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'gid'               => array(
+        'description'     => "The owner group's unique ID.",
+        'type'            => 'int',
+        'size'            => 'normal',
+        'not null'        => TRUE,
+      ),
+      'settings' => array(
+        'description' => 'Additional settings for this relationship.',
+        'type' => 'text',
+        'serialize' => TRUE,
+        'size' => 'big',
+      ),
+    ),
+    'primary key' => array('vid'),
+  ));
+  // Convert old patches vawriables to vocabulary.
+  
+  $rows = db_select('variable', 'v')
+    ->fields('v', array('name'))
+    ->condition('name', 'og_vocab_inherit_%', 'LIKE')
+    ->execute()
+    ->fetchCol();
+  $inherit = array();
+  foreach ($rows as $name) {
+    $vid = str_replace('og_vocab_inherit_', '', $name);
+    $inherit[] = $vid;
+    variable_del($name);
+  }
+  $query = db_select('og_vocab_relation', 'ovr');
+  $query->fields('ovr', array('vid', 'id', 'group_type', 'gid', ));
+  $query->orderBy('id', 'ASC');
+  $query->groupBy('vid');
+  $query->addExpression('count(gid)', 'shared');
+  $rows = $query->execute()->fetchAll();
+  $seen_vids = array();
+  foreach ($rows as $row) {
+    if (!in_array($row->vid, $seen_vids)) {
+      $seen_vids[] = $row->vid;
+      $settings = array();
+      if ($inherit && in_array($row->vid, $inherit)) {
+        $settings['og_subgroups_inherit'] = TRUE;
+      }
+      // If shared vocab between more than one, mark it as shared.
+      $settings['shared'] = $row->shared > 1;
+      db_merge('og_vocab_vocab')
+        ->fields(array(
+          'vid' => $row->vid,
+          'group_type' => $row->group_type,
+          'gid' => $row->gid,
+          'settings' => serialize($settings),
+        ))
+        ->condition('vid', $row->vid)
+        ->execute();
+    }
+  }
 }

@@ -359,6 +359,7 @@ function oa_appearance_get_space_banner($space_id, $banner_position) {
             'width' => $space_image['width'],
             'height' => $space_image['height'],
             'alt' => $space_image['alt'],
+            'title' => $space_image['title'],
             'attributes' => array(
               'class' => array('oa-banner-overlay-img'),
             ),

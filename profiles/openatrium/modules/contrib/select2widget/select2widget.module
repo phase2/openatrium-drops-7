@@ -48,6 +48,7 @@ function select2widget_field_widget_info() {
       'taxonomy_term_reference',
       'user_reference',
       'entityreference',
+      'language_field',
     ),
     'behaviors' => array(
       'multiple values' => FIELD_BEHAVIOR_CUSTOM,
@@ -70,6 +71,7 @@ function select2widget_field_widget_info() {
         'delay' => 100,
         'match_operator' => 'STARTS_WITH',
         'view_mode' => 'default',
+        'placeholder' => t('Search'),
       )
     ),
     'behaviors' => array(
@@ -276,7 +278,7 @@ function select2widget_library() {
   $libraries['select2'] = array(
     'title' => 'select2',
     'website' => 'http://ivaynberg.github.io/select2/',
-    'version' => '3.4.1',
+    'version' => '3.5.2',
     'js' => array(
       $path . '/select2.js' => array(),
       $module_path . '/js/select2widget.js' => array(),
@@ -343,9 +345,6 @@ function select2widget_menu() {
   return $items;
 }
 
-/**
- * Tests user access for autocomplete callback.
- */
 function select2widget_autocomplete_access($field_name, $entity_type, $bundle_name, $entity_id) {
   $field = field_info_field($field_name);
   $entity = NULL;
@@ -385,6 +384,17 @@ function select2widget_ajax_callback($field_name, $entity_type, $bundle_name, $e
 
   $field = field_info_field($field_name);
   $instance = field_info_instance($entity_type, $field_name, $bundle_name);
+
+  if (($instance['widget']['module'] == 'og_vocab') && (module_exists('og_vocab'))) {
+    $vid = $_GET['vid'];
+    $og_vocab = og_vocab_load_og_vocab($vid, $entity_type, $instance['bundle'], NULL, TRUE);
+    if (isset($og_vocab)) {
+      $mocked_field = $og_vocab->getMockedField();
+      $instance = $mocked_field['instance'];
+      $field = $mocked_field['field'];
+      $entity_type = $og_vocab->entity_type;
+    }
+  }
 
   $type = $field['type'];
   $function = "select2widget_" . $type . '_get_matches';

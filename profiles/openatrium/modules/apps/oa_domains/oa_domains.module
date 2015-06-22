@@ -83,50 +83,55 @@ function oa_domains_url_outbound_alter(&$path, &$options, $original_path) {
   }
   else if (preg_match('#^node/(\d+)$#', $path, $matches)) {
     $base = parse_url($base_url);
-    $nid = $matches[1];
-    $space_id = oa_core_get_group_from_node($nid, array(OA_SPACE_TYPE));
     $domain = $base['scheme'] . '://' . $domain;
-    if ($space_id == $nid) {
-      // we have a space node
-      if ($space_path = oa_domains_get_space_path($nid)) {
-        // for Space nodes, replace entire alias with custom domain
-        $path = $base['scheme'] . '://' . $space_path;
-        $options['alias'] = $path;
-        $options['external'] = TRUE;
+    $nid = $matches[1];
+    $node_alias = drupal_get_path_alias('node/' . $nid);
+    $space_id = oa_core_get_group_from_node($nid, array(OA_SPACE_TYPE));
+    $space_path = oa_domains_get_space_path($space_id);
+    $custom_path = FALSE;
+    if ($space_path) {
+      // a custom domain is set
+      if ($space_id == $nid) {
+        // the node is a space with a custom domain, replace entire alias
+        $custom_path = $base['scheme'] . '://' . $space_path;
       }
-      elseif ($base_url != $domain) {
-        // spaces without a specific domain get the default
-        $path = $domain . '/' . drupal_get_path_alias('node/' . $nid);
-        $options['alias'] = $path;
-        $options['external'] = TRUE;
-      }
-    }
-    else {
-      // for other content nodes, check custom domain of space
-      if ($space_path = oa_domains_get_space_path($space_id)) {
+      else {
+        // this is a node within a space, check custom domain of space
         $space_alias = drupal_get_path_alias('node/' . $space_id) . '/';
-        $node_alias = drupal_get_path_alias('node/' . $nid);
         // check if node_alias begins with space_alias
         if (substr($node_alias, 0, strlen($space_alias)) == $space_alias) {
           // remove the space alias from the beginning of the node alias
           $node_alias = substr($node_alias, strlen($space_alias) - strlen($node_alias));
-          $path = $base['scheme'] . '://' . $space_path . '/' . $node_alias;
-          $options['alias'] = $path;
-          $options['external'] = TRUE;
         }
-        elseif ($base_url != $domain) {
-          // nodes without the space alias use default domain
-          $path = $domain . '/' . drupal_get_path_alias('node/' . $nid);
-          $options['alias'] = $path;
-          $options['external'] = TRUE;
+        $custom_path = $base['scheme'] . '://' . $space_path . '/' . $node_alias;
+      }
+    }
+    else {
+      // the node may have a parent with a custom domain
+      while ($parents = oa_core_get_parents($nid, OA_SPACE_TYPE)) {
+        $nid = $parents[0];
+        if ($parent_path = oa_domains_get_space_path($nid)) {
+          break;
         }
       }
-      elseif ($base_url != $domain) {
-        // nodes without a group domain use the default domain
-        $path = $domain . '/' . drupal_get_path_alias('node/' . $nid);
-        $options['alias'] = $path;
-        $options['external'] = TRUE;
+      if (!empty($parent_path)) {
+        $parent_alias = drupal_get_path_alias('node/' . $nid) . '/';
+        // check if node_alias begins with space_alias
+        if (substr($node_alias, 0, strlen($parent_alias)) == $parent_alias) {
+          // remove the parent alias from the beginning of the node alias
+          $node_alias = substr($node_alias, strlen($parent_alias) - strlen($node_alias));
+        }
+        $custom_path = $base['scheme'] . '://' . $parent_path . '/' . $node_alias;
       }
+    }
+    if (!$custom_path && ($base_url != $domain)) {
+      // nodes without a specific domain get the default
+      $custom_path = $domain . '/' . $node_alias;
+    }
+    if ($custom_path) {
+      $path = $custom_path;
+      $options['alias'] = $path;
+      $options['external'] = TRUE;
     }
     $cache[$cache_key]['path'] = $path;
     $cache[$cache_key]['options'] = $options;

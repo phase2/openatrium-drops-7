@@ -99,7 +99,6 @@
             fields = value['fields'],
             prevState = (key == 0 ? "disabled" : "enabled"),
             nextState = (key == Object.keys($steps).length - 1 ? "disabled" : "enabled");
-          console.log(value['title'],prevState,nextState);
 
           // clean button container
           var $buttons = $("<div/>", {

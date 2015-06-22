@@ -371,7 +371,11 @@ a.close img {
 
 .content-type-button a {
   display: inline-block;
-  width: 100%;
+  width: 99%;
+}
+
+.content-type-button a:focus {
+  border: 1px dotted black;
 }
 
 .content-type-button img {

@@ -103,78 +103,45 @@ function manualcrop_libraries_info() {
   $libraries = array();
 
   $libraries['jquery.imagesloaded'] = array(
-    'name' => 'jQuery imagesLoaded',
+    'name' => 'imagesLoaded',
     'vendor url' => 'http://desandro.github.io/imagesloaded',
-    'version callback' => 'manualcrop_library_get_version',
     'version arguments' => array(
-      'file' => array(
-        'jquery.imagesloaded.js',
-        'jquery.imagesloaded.min.js',
-      ),
+      'file' => 'jquery.imagesloaded.js',
       'pattern' => '# v([0-9\.]+)#',
       'lines' => 5,
       'cols' => 40,
     ),
     'files' => array(
       'js' => array(
-        'jquery.imagesloaded.js',
+        'jquery.imagesloaded.min.js',
       ),
     ),
     'variants' => array(
-      'minified' => array(
+      'source' => array(
         'files' => array(
           'js' => array(
-            'jquery.imagesloaded.min.js',
+            'jquery.imagesloaded.js',
           ),
         ),
-        'variant callback' => 'manualcrop_library_detect_variant',
-        'variant arguments' => array(),
       ),
     ),
   );
 
   $libraries['jquery.imgareaselect'] = array(
-    'name' => 'jQuery imgAreaSelect',
+    'name' => 'imgAreaSelect',
     'vendor url' => 'http://odyniec.net/projects/imgareaselect',
-    'version callback' => 'libraries_get_version',
     'version arguments' => array(
-      'file' => 'scripts/jquery.imgareaselect.js',
-      'pattern' => '#version ([0-9\.]+)#',
+      'file' => 'jquery.imgareaselect.dev.js',
+      'pattern' => '#version ([0-9\.]+(?:-[a-z0-9\.]+)?)#',
       'lines' => 10,
-      'cols' => 20,
+      'cols' => 30,
     ),
     'files' => array(
       'js' => array(
-        'scripts/jquery.imgareaselect.js',
+        'jquery.imgareaselect.dev.js',
       ),
       'css' => array(
-        'css/imgareaselect-animated.css',
-      ),
-    ),
-    'variants' => array(
-      'minified' => array(
-        'files' => array(
-          'js' => array(
-            'scripts/jquery.imgareaselect.min.js',
-          ),
-          'css' => array(
-            'css/imgareaselect-animated.css',
-          ),
-        ),
-        'variant callback' => 'manualcrop_library_detect_variant',
-        'variant arguments' => array(),
-      ),
-      'packed' => array(
-        'files' => array(
-          'js' => array(
-            'scripts/jquery.imgareaselect.pack.js',
-          ),
-          'css' => array(
-            'css/imgareaselect-animated.css',
-          ),
-        ),
-        'variant callback' => 'manualcrop_library_detect_variant',
-        'variant arguments' => array(),
+        'distfiles/css/imgareaselect-animated.css',
       ),
     ),
   );
@@ -269,22 +236,29 @@ function manualcrop_field_widget_form_alter(&$element, &$form_state, $context) {
     $widget = $context['instance']['widget'];
 
     if (manualcrop_supported_widgets($widget['type'])) {
-      if ($widget['type'] == 'media_generic') {
-        // We don't check if Manual Crop is enabled, this happens in the file
-        // enntity edit form.
-        foreach (element_children($element) as $key) {
-          $element[$key]['#after_build'][] = 'manualcrop_media_element_process';
+      if (!empty($widget['settings']['manualcrop_enable'])) {
+        $after_build = FALSE;
+        if ($widget['type'] == 'media_generic') {
+          $after_build = !_manualcrop_media_element_add_after_build($element);
         }
 
-        _manualcrop_attach_files();
-      }
-      elseif (!empty($widget['settings']['manualcrop_enable'])) {
-        // Default, add a process and validate callback for each child.
         foreach (element_children($element) as $key) {
           $element[$key]['#process'][] = 'manualcrop_widget_process';
           $element[$key]['#element_validate'][] = 'manualcrop_croptool_validate';
-          $element[$key]['#element_validate'][] = 'file_managed_file_validate';
+
+          if ($widget['type'] == 'media_generic') {
+            $element[$key]['#element_validate'][] = 'media_element_validate';
+          }
+          elseif ($widget['type'] != 'media') {
+            $element[$key]['#element_validate'][] = 'file_managed_file_validate';
+          }
+
+          if ($after_build) {
+            _manualcrop_media_element_add_after_build($element[$key]);
+          }
         }
+
+        _manualcrop_attach_files();
 
         if (module_exists('insert')) {
           $element['#after_build'][] = 'manualcrop_insert_element_process';
@@ -314,6 +288,7 @@ function manualcrop_manualcrop_supported_widgets() {
     'image_image' => array('thumblist', 'inline_crop', 'instant_crop'),
     'image_miw' => array('thumblist', 'inline_crop', 'instant_crop'),
     'media_generic' => array('thumblist', 'inline_crop'),
+    'linkimagefield_widget' => array('thumblist', 'inline_crop', 'instant_crop'),
   );
 }
 
@@ -404,10 +379,11 @@ function manualcrop_media_element_process($element) {
   // Attach the options as javascript settings.
   foreach ($element['#attached']['js'] as &$js) {
     if (isset($js['data']['media'])) {
-      if (!isset($js['data']['media']['elements'][$element['#id']]['global'])) {
-        $js['data']['media']['elements'][$element['#id']]['global'] = array();
+      if (!isset($js['data']['media']['elements']['#' . $element['#id']]['global'])) {
+        $js['data']['media']['elements']['#' . $element['#id']]['global'] = array();
       }
-      $js['data']['media']['elements'][$element['#id']]['global'] += $data;
+
+      $js['data']['media']['elements']['#' . $element['#id']]['global'] += $data;
       break;
     }
   }
@@ -908,16 +884,24 @@ function manualcrop_reuse_effect(&$image, $data) {
     return FALSE;
   }
 
-  // Get the first image style effect.
+  // Load the style to reuse.
   $style = image_style_load($data['reuse_crop_style']);
-  $effect = reset($style['effects']);
 
-  if ($effect) {
-    image_effect_apply($image, $effect);
+  if (empty($data['apply_all_effects'])) {
+    // Apply only the crop effect.
+    $effect = reset($style['effects']);
+    return image_effect_apply($image, $effect);
+  }
+  else {
+    // Apply all effects.
+    foreach ($style['effects'] as $effect) {
+      if (!image_effect_apply($image, $effect)) {
+        return FALSE;
+      }
+    }
+
     return TRUE;
   }
-
-  return FALSE;
 }
 
 /**
@@ -937,19 +921,30 @@ function manualcrop_reuse_effect(&$image, $data) {
  * @see image_crop_effect()
  */
 function manualcrop_auto_reuse_effect(&$image, $data) {
-  // Get the style to reuse.
-  $style_name = _manualcrop_get_auto_reuse_style_name($image->source, $data);
-
-  if ($style_name) {
-    // Load and apply the Manual Crop effect.
+  if ($style_name = _manualcrop_get_auto_reuse_style_name($image->source, $data)) {
+    // Load the style to reuse.
     $style = image_style_load($style_name);
-    $effect = reset($style['effects']);
 
-    return image_effect_apply($image, $effect);
+    if (empty($data['apply_all_effects'])) {
+      // Apply only the crop effect.
+      $effect = reset($style['effects']);
+      return image_effect_apply($image, $effect);
+    }
+    else {
+      // Apply all effects.
+      foreach ($style['effects'] as $effect) {
+        if (!image_effect_apply($image, $effect)) {
+          return FALSE;
+        }
+      }
+
+      return TRUE;
+    }
   }
   elseif (!empty($data['fallback_style'])) {
     // Load and apply all effects of the fallback style.
     $style = image_style_load($data['fallback_style']);
+
     foreach ($style['effects'] as $effect) {
       if (!image_effect_apply($image, $effect)) {
         return FALSE;

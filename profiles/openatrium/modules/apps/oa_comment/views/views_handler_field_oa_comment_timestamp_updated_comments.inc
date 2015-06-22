@@ -19,6 +19,6 @@ class views_handler_field_oa_comment_timestamp_updated_comments extends views_ha
     $comment = $this->query->ensure_table('comment', 'comment_node');
 
     $params = $this->options['group_type'] != 'group' ? array('function' => $this->options['group_type']) : array();
-    $this->field_alias = $this->query->add_field(NULL, "CASE WHEN (($field IS NULL or $comment.changed > $field) AND $comment.status = 1)  THEN 1 ELSE 0 END", $this->table . '_' . $this->field, $params);
+    $this->field_alias = $this->query->add_field(NULL, "CASE WHEN (($field IS NULL or ($comment.changed > $field AND $comment.created <= $field)) AND $comment.status = 1)  THEN 1 ELSE 0 END", $this->table . '_' . $this->field, $params);
   }
 }

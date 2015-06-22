@@ -39,11 +39,9 @@ function oa_tour_theme() {
 function oa_tour_bootstrap_tour_alter(&$tour) {
   global $user;
 
-  $space_vocab = taxonomy_vocabulary_machine_name_load('space_type');
-  $section_vocab = taxonomy_vocabulary_machine_name_load('section_type');
-  if (empty($space_vocab) || empty($section_vocab)) {
-    return;
-  }
+  $space_vocab = oa_core_taxonomy_vocabulary('space_type');
+  $section_vocab = oa_core_taxonomy_vocabulary('section_type');
+
   $space_blueprints = taxonomy_get_tree($space_vocab->vid, 0, 1);
   $section_types = taxonomy_get_tree($section_vocab->vid, 0, 1);
 

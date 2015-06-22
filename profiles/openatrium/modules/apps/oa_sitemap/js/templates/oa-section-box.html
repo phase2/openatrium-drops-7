@@ -1,0 +1,20 @@
+<div class="oa-section" ng-drag="{{dragDrop}}" ng-drag-data="section" ng-drag-id="1">
+  <h4 class="oa-section-title dropdown" ng-drop="true" ng-drop-id="[1]" ng-drop-success="onDropOnSection($data,$index,section,$event)">
+    <div class="oa-section-icon {{sectionClass(section)}}" ng-bind-html="icons[section.icon_id]"></div>
+    <a ng-hide="section.editorEnabled" class="oa-section-link {{section.class}}" data-toggle="dropdown" href="#">{{section.title}}</a>
+    <ul class="dropdown-menu" role="menu">
+      <li ng-show="section.admin"><a ng-href="{{ editUrl(section) }}">{{ 'Edit' | drupalt}}</a></li>
+      <li ng-show="section.admin"><a ng-click="deleteSection({space: space, section : section})">{{ 'Delete' | drupalt}}</a></li>
+      <li ng-show="section.admin"><a ng-click="enableEditor({section : section})">{{ 'Rename' | drupalt}}</a></li>
+      <li><a href="{{ section.url }}">{{ 'View' | drupalt}}</a></li>
+    </ul>
+    <div ng-show="section.editorEnabled">
+      <textarea ng-model="section.title"></textarea>
+      <div class="oa-rename-actions">
+        <a href ng-click="saveTitle({node : section})">{{ 'Save' | drupalt}}</a>
+        {{ 'or' | drupalt}}
+        <a href ng-click="restoreTitle({node : section})">{{ 'Cancel' | drupalt}}</a>.
+      </div>
+    </div>
+  </h4>
+</div>

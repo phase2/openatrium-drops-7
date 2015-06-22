@@ -29,7 +29,7 @@
   <div class='oa-pull-left'>
   <?php print $field_user_picture; ?>
   </div>
-  <div class='oa-list-header oa-description oa-pull-right'>
+  <div class='oa-list-header oa-description oa-list-category oa-pull-right'>
   <?php print $cid_1 . " " . format_plural($cid_1, t('reply'), t('replies')); ?>
     <?php if (!empty($timestamp_new_comments)): print $timestamp_new_comments . t(' new'); endif; ?>
     <?php if (!empty($timestamp_updated_comments)): print $timestamp_updated_comments . t(' updated'); endif; ?>

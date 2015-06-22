@@ -388,6 +388,11 @@ function _panopoly_wysiwyg_process_caption_filter($text, $filter, $format, $lang
   // a charset meta tag because of course there is no server header here.
   $text = '<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><body>' . $text . '</body>';
 
+  // Prevent parse errors from becoming PHP notices.
+  if (function_exists('libxml_use_internal_errors')) {
+    $use_errors = libxml_use_internal_errors(TRUE);
+  }
+
   $doc = new DOMDocument();
   $doc->loadHTML($text);
   $xpath = new DOMXpath($doc);
@@ -426,6 +431,12 @@ function _panopoly_wysiwyg_process_caption_filter($text, $filter, $format, $lang
   $text = $doc->saveHTML();
   $text = preg_replace('/^.*?<body>/s', '', $text);
   $text = preg_replace('/<\/body>.*$/s', '', $text);
+
+  // Clear the error buffer and restore old error handling mode.
+  if (function_exists('libxml_use_internal_errors')) {
+    libxml_clear_errors();
+    libxml_use_internal_errors($use_errors);
+  }
 
   return $text;
 }

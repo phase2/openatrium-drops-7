@@ -543,3 +543,34 @@ function _oa_core_build_visibility_links($type, $node, $field, $bundle = '') {
   return $links;
 }
 
+/**
+ * Helper function to determine access to create nodes of certain taxonomy terms
+ * @param $tid
+ * @param null $gid
+ * @param string $vocab_name
+ */
+function oa_core_get_taxonomy_term_access($tid, $gid = NULL, $vocab_name = 'space_type') {
+  global $user;
+  $cache = &drupal_static('oa_core_get_taxonomy_term_access', array());
+
+  $gid = isset($gid) ? $gid : oa_core_get_space_context();
+  if (isset($cache[$tid][$gid][$vocab_name])) {
+    return $cache[$tid][$gid][$vocab_name];
+  }
+
+  $result = FALSE;
+  // When checking OG Permission, don't let Admin Group override this since all
+  // Space admins typically have Admin Group but we want to limit types of subspaces
+  // to be created.
+  if (!$gid || !module_exists('oa_subspaces')
+    || user_access('administer group') || user_access('create oa_space content')
+    || og_user_access('node', $gid, 'use any oa button space_type', NULL, FALSE, TRUE)) {
+    $result = TRUE;
+  }
+  elseif ($gid && $user->uid) {
+    $result = og_user_access('node', $gid, _oa_buttons_perm_name($vocab_name, $tid), NULL, FALSE, TRUE);
+  }
+
+  $cache[$tid][$gid][$vocab_name] = $result;
+  return $result;
+}

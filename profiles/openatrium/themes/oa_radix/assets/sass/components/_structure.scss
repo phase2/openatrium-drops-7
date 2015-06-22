@@ -83,11 +83,11 @@ div.tabs.main-tabs {
   }
   .pull-left img,
   .oa-pull-left img {
-    padding-right: 10px;
+    margin-right: 10px;
   }
   .pull-right img,
   .oa-pull-right img {
-    padding-left: 5px;
+    margin-left: 5px;
   }
   .accordion {
     margin-bottom: 0;
@@ -176,6 +176,15 @@ dl.admin-list {
   }
 }
 
+.view-content table > caption {
+  font-size: 20px;
+  line-height: 32px;
+  color: #777;
+  font-weight: normal;
+  text-transform: uppercase;
+  text-align: left;
+}
+
 ul.group-content {
   margin: 0;
 }
@@ -183,4 +192,19 @@ ul.group-content {
 // Inline links
 ul.links.inline li {
   display: inline-block;
+}
+
+.oa-users-submitted {
+  .user-badge {
+    display: inline-block;
+  }
+  .oa-description {
+    display: inline-block;
+  }
+  img {
+    vertical-align: middle;
+  }
+  &.align-right {
+    text-align: right;
+  }
 }

@@ -32,7 +32,26 @@ Drupal.behaviors.mediaFormatForm = {
 
 Drupal.media.formatForm.getOptions = function () {
   // Get all the values
-  var ret = {}; $.each($('#media-wysiwyg-format-form fieldset#edit-options *').serializeArray(), function (i, field) { ret[field.name] = field.value; });
+  var ret = {};
+
+  $.each($('#media-wysiwyg-format-form .fieldset-wrapper *').serializeArray(), function (i, field) {
+    ret[field.name] = field.value;
+
+    // When a field uses a WYSIWYG format, the value needs to be extracted.
+    if (field.name.match(/\[format\]/i)) {
+      field.name = field.name.replace(/\[format\]/i, '[value]');
+      field.key  = 'edit-' + field.name.replace(/[_\[]/g, '-').replace(/[\]]/g, '');
+
+      if (Drupal.wysiwyg.instances[field.key]) {
+        // Retrieve the content from the WYSIWYG instance.
+        ret[field.name] = Drupal.wysiwyg.instances[field.key].getContent();
+
+        // Escape the double-quotes and encode it to play nicely within JSON.
+        ret[field.name] = encodeURIComponent(ret[field.name].replace(/"/g, '\\"'));
+      }
+    }
+  });
+
   return ret;
 };
 

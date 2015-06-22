@@ -178,15 +178,15 @@ function panopoly_admin_form_alter(&$form, &$form_state, $form_id) {
 
     // Hide the body label if it's 'Body' (which isn't terribly helpful) and the
     // field is required.
-    if (!empty($form['body']['und'][0]['#required']) && $form['body']['und'][0]['#title'] == t('Body')) {
-      if ($form['body']['und'][0]['summary']['#type'] == 'textarea') {
+    if (!empty($form['body'][LANGUAGE_NONE][0]['#required']) && $form['body'][LANGUAGE_NONE][0]['#title'] == t('Body')) {
+      if ($form['body'][LANGUAGE_NONE][0]['summary']['#type'] == 'textarea') {
         // We can't just set '#title_display' to invisible because it'll break
         // the summary Javascript. So, we just set a class which we'll use in
         // our own Javascript to hide the label.
         $form['body']['#attributes']['class'][] = 'panopoly-admin-hide-body-label';
       }
       else {
-        $form['body']['und'][0]['#title_display'] = 'invisible';
+        $form['body'][LANGUAGE_NONE][0]['#title_display'] = 'invisible';
       }
     }
 
@@ -230,14 +230,14 @@ function panopoly_admin_form_alter(&$form, &$form_state, $form_id) {
 
   // Remove the description from the featured image
   if (!empty($form['field_featured_image'])) {
-    $form['field_featured_image']['und'][0]['#title_display'] = 'invisible';
+    $form['field_featured_image'][LANGUAGE_NONE][0]['#title_display'] = 'invisible';
   }
 
-  if (!empty($form['field_featured_categories']) && $form['field_featured_categories']['und']['#type'] != 'textfield') {
-    $form['field_featured_categories']['und']['#title_display'] = 'invisible';
+  if (!empty($form['field_featured_categories']) && $form['field_featured_categories'][LANGUAGE_NONE]['#type'] != 'textfield') {
+    $form['field_featured_categories'][LANGUAGE_NONE]['#title_display'] = 'invisible';
 
     // Hide the featured category field if there are no featured category options
-    if (count($form['field_featured_categories']['und']['#options']) == 0 || (!empty($form['field_featured_categories']['und']['#options']['_none']) && count($form['field_featured_categories']['und']['#options']) == 1)) {
+    if (count($form['field_featured_categories'][LANGUAGE_NONE]['#options']) == 0 || (!empty($form['field_featured_categories'][LANGUAGE_NONE]['#options']['_none']) && count($form['field_featured_categories'][LANGUAGE_NONE]['#options']) == 1)) {
       $form['field_featured_categories']['#access'] = FALSE;
     }
   }

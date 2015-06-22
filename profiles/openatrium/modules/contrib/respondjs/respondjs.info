@@ -8,9 +8,9 @@ files[] = respondjs.admin.inc
 
 configure = admin/config/media/respondjs
 
-; Information added by Drupal.org packaging script on 2014-08-22
-version = "7.x-1.4"
+; Information added by Drupal.org packaging script on 2015-03-12
+version = "7.x-1.5"
 core = "7.x"
 project = "respondjs"
-datestamp = "1408721454"
+datestamp = "1426164182"
 

@@ -11,45 +11,30 @@ function manualcrop_requirements($phase) {
   $requirements = array();
 
   if ($phase == 'runtime') {
-    $requirements['manualcrop_jquery_imagesloaded'] = array(
-      'title' => 'jQuery imagesLoaded',
-      'value' => t('Not installed'),
-      'description' => t('The %name plugin could not be detected.', array('%name' => 'jQuery imagesLoaded')),
-      'severity' => REQUIREMENT_ERROR,
-    );
+    $libraries = array('jquery.imagesloaded', 'jquery.imgareaselect');
+    $t = get_t();
 
-    $requirements['manualcrop_jquery_imgareaselect'] = array(
-      'title' => 'jQuery imageAreaSelect',
-      'value' => t('Not installed'),
-      'description' => t('The %name plugin could not be detected.', array('%name' => 'jQuery imagesLoaded')),
-      'severity' => REQUIREMENT_ERROR,
-    );
+    foreach ($libraries as $name) {
+      $info = libraries_detect($name);
 
-    if (module_exists('libraries')) {
-      $libraries = array('jquery.imagesloaded', 'jquery.imgareaselect');
-
-      foreach ($libraries as $name) {
-        $key = 'manualcrop_' . str_replace('.', '_', $name);
-        $info = libraries_detect($name);
-
-        if ($info['installed']) {
-          $requirements[$key]['description'] = t('The %name plugin is installed at %path', array(
-            '%name' => $requirements[$key]['title'],
-            '%path' => libraries_get_path($name),
-          ));
-          $requirements[$key]['severity'] = REQUIREMENT_OK;
-
-          if (!empty($info['version'])) {
-            $requirements[$key]['value'] = $info['version'];
-          }
-          else {
-            $requirements[$key]['value'] = t('Installed');
-          }
-        }
-        else {
-          $requirements[$key]['value'] = drupal_ucfirst($info['error']);
-          $requirements[$key]['description'] = $info['error message'];
-        }
+      if ($info['installed']) {
+        $requirements[$name] = array(
+          'title' => $info['name'],
+          'value' => $info['version'],
+          'severity' => REQUIREMENT_OK,
+        );
+      }
+      else {
+        $requirements[$name] = array(
+          'title' => $info['name'],
+          'value' => $t('Not installed'),
+          'description' => $t('Download and copy the <a href="@link">@name</a> library to %path.', array(
+            '@link' => $info['vendor url'],
+            '@name' => $info['name'],
+            '%path' => 'sites/all/libraries/' . $name,
+          )),
+          'severity' => REQUIREMENT_ERROR,
+        );
       }
     }
   }
@@ -75,9 +60,11 @@ function manualcrop_uninstall() {
   variable_del('manualcrop_cache_control');
   variable_del('manualcrop_skip_js_check');
 
-  // Remove settings for individual file types.
-  foreach (file_type_load_all() as $type) {
-    variable_del('manualcrop_file_entity_settings_' . $type->type);
+  if (module_exists('file_entity') && function_exists('file_type_load_all')) {
+    // Remove the settings for individual file types.
+    foreach (file_type_load_all() as $type) {
+      variable_del('manualcrop_file_entity_settings_' . $type->type);
+    }
   }
 }
 

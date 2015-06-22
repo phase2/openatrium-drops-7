@@ -1,3 +1,12 @@
+Panopoly Pages 7.x-1.23, 2015-06-17
+----------------------------
+- SQL Integrity constraint thrown for Panopoly Landing Page permissions on
+  upgrade.
+
+Panopoly Pages 7.x-1.22, 2015-06-04
+----------------------------
+- No changes since last release.
+
 Panopoly Pages 7.x-1.21, 2015-04-29
 ----------------------------
 - Clean up instances of deprecated panpoly_theme layouts.

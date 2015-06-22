@@ -150,8 +150,11 @@ projects[og_variables][subdir] = contrib
 projects[og_vocab][version] = 1.2
 projects[og_vocab][subdir] = contrib
 ; patch to support subgroups
-projects[og_vocab][patch][2039009] = http://drupal.org/files/issues/2039009-allow-shared-vocabularies-13.patch
-projects[og_vocab][patch][2399883] = https://www.drupal.org/files/issues/2399883-og_vocab-menuitem-2.patch
+projects[og_vocab][patch][2039009] = https://www.drupal.org/files/issues/2039009-og_vocab-share-25.patch
+projects[og_vocab][patch][2399883] = https://www.drupal.org/files/issues/2399883-og_vocab-menuitem-4.patch
+projects[og_vocab][patch][2503991] = https://www.drupal.org/files/issues/og_vocab_support_custom_widget_settings-2503991-1.patch
+projects[og_vocab][patch][2242387] = https://www.drupal.org/files/issues/og_vocab_override_widget_settings-2242387-2.patch
+projects[og_vocab][patch][2503997] = https://www.drupal.org/files/issues/og_vocab_add_support_for_select2widget-2503997-1.patch
 
 ; Panels Custom Error
 projects[panels_customerror][version] = 1.0
@@ -178,15 +181,16 @@ projects[reference_option_limit][patch][1986532] = https://www.drupal.org/files/
 projects[reference_option_limit][patch][1986526] = http://drupal.org/files/1986526_reference_option_limit_12.patch
 
 ; Select 2 Widget
-projects[select2widget][version] = 2.5
+; projects[select2widget][version] = 2.7
 projects[select2widget][subdir] = contrib
-projects[select2widget][patch][2404143] = https://www.drupal.org/files/issues/2404143-select2widget-addclass-1.patch
+projects[select2widget][version] = 2.x-dev
+projects[select2widget][subdir] = contrib
+projects[select2widget][download][type] = git
+projects[select2widget][download][branch] = 7.x-2.x
+projects[select2widget][download][revision] = eb87c27
 projects[select2widget][patch][2404175] = https://www.drupal.org/files/issues/2404175-select2widget-og_complex-2.patch
-projects[select2widget][patch][2405941] = https://www.drupal.org/files/issues/2405941-select2widget-ajaxreplace-1.patch
-projects[select2widget][patch][2411707] = https://www.drupal.org/files/issues/2411707-select2-suggestions-2.patch
-projects[select2widget][patch][2414409] = https://www.drupal.org/files/issues/2414409-select2widget-menu_access-2.patch
-projects[select2widget][patch][2468545] = https://www.drupal.org/files/issues/2468545-select2widget-labels-1.patch
-projects[select2widget][patch][2472697] = https://www.drupal.org/files/issues/support_for_quitemillis-2472697-2.patch
+projects[select2widget][patch][2503787] = https://www.drupal.org/files/issues/select2widget_add_support_for_og_vocab-2503787-4.patch
+projects[select2widget][patch][2503789] = https://www.drupal.org/files/issues/select2widget_error_from_placeholder-2503789-1.patch
 
 libraries[select2][download][type] = "get"
 libraries[select2][download][url] = "https://github.com/ivaynberg/select2/archive/3.5.2.tar.gz"

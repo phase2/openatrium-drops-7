@@ -110,15 +110,12 @@ InsertMedia.prototype = {
    * tagmap.
    */
   insert: function (formatted_media) {
-    var attributes = Drupal.media.filter.parseAttributeFields(formatted_media.options);
-
     var element = Drupal.media.filter.create_element(formatted_media.html, {
           fid: this.mediaFile.fid,
           view_mode: formatted_media.type,
-          attributes: $.extend(this.mediaFile.attributes, attributes),
+          attributes: this.mediaFile.attributes,
           fields: formatted_media.options
         });
-
     // Get the markup and register it for the macro / placeholder handling.
     var markup = Drupal.media.filter.getWysiwygHTML(element);
 

@@ -77,23 +77,13 @@ function oa_sitemap_app_render($subtype, $conf, $args, $context) {
   if ($top_id == 0) {
     $options[0] = $title;
   }
-  $spaces = array();
-  oa_sitemap_spaces($top_id, $spaces);
 
-  $map_link = '';
-  if (empty($conf['oa_sitemap_parent']) && ($space_id != 0)) {
-    $map_link = l(t('Full sitemap'), 'sitemap/' . $space_id);
-  }
-
-  $header_vars = array(
-    'link' => $map_link,
-  );
+  $header_vars = array();
 
   drupal_add_js(array(
     'oa_sitemap' => array(
       'topID' => $space_id,
       'icons' => $icons,
-      'spaces' => $spaces,
       'showHelp' => !empty($conf['oa_sitemap_help']) ? $logged_in && $conf['oa_sitemap_help'] : FALSE,
       'options' => isset($_SESSION['oa_sitemap_option']) ? $_SESSION['oa_sitemap_option'] : 1,
       'fullPage' => !empty($conf['oa_sitemap_fullpage']) ? $logged_in && $conf['oa_sitemap_fullpage'] : FALSE,
@@ -101,6 +91,8 @@ function oa_sitemap_app_render($subtype, $conf, $args, $context) {
       'sectionHelp' => !empty($conf['oa_sitemap_section_help']['value']) ? $conf['oa_sitemap_section_help']['value'] : '',
       'basePath' => base_path() . $base,
       'title' => $page_title,
+      'option_token' => drupal_get_token('sitemap-option'),
+      'current_space_context' => oa_core_get_space_context(),
     ),
     'oa-sitemap-section' => array(
       'modalSize' => array(
@@ -120,8 +112,20 @@ function oa_sitemap_app_render($subtype, $conf, $args, $context) {
     ),
   ), 'setting');
 
-  oa_angular_add(array('sanitize', 'ngDraggable'));
+  $form['space'] = array(
+    '#type' => 'og_group_ref',
+    '#title' => t('Space'),
+    '#allow_current' => TRUE,
+  );
 
+  $form = drupal_get_form('oa_sitemap_search_form');
+  $header_vars['sitemap_search'] = drupal_render($form);
+
+  oa_angular_add(array('sanitize', 'ngDraggable', 'resource', 'route'));
+
+  drupal_add_js($base . '/js/oa_sitemap_services.js');
+  drupal_add_js($base . '/js/oa_sitemap_filters.js');
+  drupal_add_js($base . '/js/oa_sitemap_components.js');
   drupal_add_js($base . '/js/oa_sitemap_app.js');
   drupal_add_css($base . '/css/oa_sitemap_app.css');
 
@@ -129,6 +133,20 @@ function oa_sitemap_app_render($subtype, $conf, $args, $context) {
   $block->title = '';
   $block->content = theme('oa_sitemap_app', $header_vars);
   return $block;
+}
+
+/**
+ * This is just a wrapper form to make the element so can use JS events with it.
+ */
+function oa_sitemap_search_form() {
+  $form['space'] = array(
+    '#type' => 'og_group_ref',
+    '#title' => t('Space'),
+    '#allow_current' => TRUE,
+    '#default_value' => array(),
+    '#description' => '',
+  );
+  return $form;
 }
 
 /**

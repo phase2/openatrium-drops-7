@@ -36,25 +36,29 @@ ManualCrop.init = function(context) {
     });
   });
 
-  // Open, if enabled in the settings, the crop tool when a new file is uploaded.
-  $('.ajax-new-content', context).once('manualcrop-init', function() {
-    var content = $(this);
+  // If the user isn't using a mobile device (screen width should be > 767), the
+  // crop tool should be opened when a new file gets uploaded and "crop after upload"
+  // has been enabled in the settings.
+  if (screen.width > 767) {
+    $('.ajax-new-content', context).once('manualcrop-init', function() {
+      var content = $(this);
 
-    if (!content.html().length) {
-      // If the $form['#file_upload_delta'] is not set or invalid the file module
-      // will add an empty <span> as .ajax-new-content element, so we need the
-      // previous element to execute the after upload function.
-      content = content.prev();
-    }
+      if (!content.html().length) {
+        // If the $form['#file_upload_delta'] is not set or invalid the file module
+        // will add an empty <span> as .ajax-new-content element, so we need the
+        // previous element to execute the after upload function.
+        content = content.prev();
+      }
 
-    if ($('.manualcrop-cropdata', content).length == 1) {
-      for (var identifier in elements) {
-        if (elements[identifier].instantCrop) {
-          $('.manualcrop-style-button, .manualcrop-style-thumb', content).trigger('mousedown');
+      if ($('.manualcrop-cropdata', content).length == 1) {
+        for (var identifier in elements) {
+          if (elements[identifier].instantCrop) {
+            $('.manualcrop-style-button, .manualcrop-style-thumb', content).trigger('mousedown');
+          }
         }
       }
-    }
-  });
+    });
+  }
 
   // Trigger the init handler if a Media modal was opened.
   $('.modal-content', context).once('manualcrop-init', function() {
@@ -193,10 +197,10 @@ ManualCrop.showCroptool = function(identifier, style, fid) {
               options.aspectRatio = styleSettings.data.width + ':' + styleSettings.data.height;
             }
         }
-      }
 
-      // Set the image style name.
-      $('.manualcrop-style-name', ManualCrop.croptool).text(styleName);
+        // Set the image style name.
+        $('.manualcrop-style-name', ManualCrop.croptool).text(styleSettings.label);
+      }
 
       if (typeof styleSelect != 'undefined') {
         // Reset the image style selection list.
@@ -232,7 +236,7 @@ ManualCrop.showCroptool = function(identifier, style, fid) {
 
       // IE seems to have some issues with the imgAreaSelect $parent variable,
       // so we set the options again to initialize it correctly.
-      if ($.browser.msie) {
+      if (navigator.userAgent.toLowerCase().indexOf('msie ') != -1) {
         ManualCrop.widget.setOptions(options);
       }
 
@@ -595,6 +599,15 @@ ManualCrop.selectionStored = function(element, fid, styleName) {
     var defaultPreview = $('.manualcrop-preview-' + fid + '-' + styleName + ' > img');
     if (!defaultPreview.length) {
       defaultPreview = $('.manualcrop-preview-' + fid + ' > img');
+    }
+
+    // Change the elements if Media is detected.
+    var media = $('.manualcrop-preview-' + fid + ' .media-item[data-fid] .media-thumbnail');
+
+    if (media.length) {
+      media.prepend(previewHolder);
+      previewHolder = media.find('.manualcrop-preview-cropped');
+      defaultPreview = $('.manualcrop-preview-' + fid + ' .media-item[data-fid] .media-thumbnail > img');
     }
 
     var toolOpener = $('.manualcrop-style-select-' + fid + " option[value='" + styleName + "'], .manualcrop-style-button-" + fid + ', .manualcrop-style-thumb-' + fid + '-' + styleName + ' .manualcrop-style-thumb-label');

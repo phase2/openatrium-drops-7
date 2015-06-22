@@ -111,6 +111,10 @@ class OgVocab extends Entity {
       // values.
       $element['#element_validate'] = array('_og_vocab_autocomplete_tags_validate');
     }
+    else if ($this->settings['widget_type'] == 'select2widgetajax') {
+      $element['#vid'] = $vid;
+      $element['#autocomplete_path'] .= '?vid=' . $vid;
+    }
 
     $element['#element_validate'][] = 'og_vocab_sub_widget_cardinality_validate';
     $element['#og_vocab'] = $this;
@@ -144,7 +148,8 @@ class OgVocab extends Entity {
     // Set the widget's module.
     $widget_info = field_info_widget_types($widget_type);
     $mocked_instance['widget']['module'] = $widget_info['module'];
-    $mocked_instance['widget']['settings'] = drupal_array_merge_deep($widget_info['settings'], $instance['widget']['settings']);
+    $this->settings['widget']['settings'] = empty($this->settings['widget']['settings']) ? array() : $this->settings['widget']['settings'];
+    $mocked_instance['widget']['settings'] = drupal_array_merge_deep($widget_info['settings'], $instance['widget']['settings'], $this->settings['widget']['settings']);
 
     // Set widget's auto complete path if needed.
     if (in_array($this->settings['widget_type'], array('entityreference_autocomplete', 'entityreference_autocomplete_tags'))) {

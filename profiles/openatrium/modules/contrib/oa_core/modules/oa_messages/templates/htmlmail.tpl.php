@@ -55,7 +55,7 @@ color: #333;';
   <tr>
     <td></td>
     <td style="<?php print $user_badge_style; ?>">
-      <a href="<?php print url('user/' . $user->uid); ?>">
+      <a href="<?php print url('user/' . $to_user->uid); ?>">
         <?php print $to_user_details['realname']; ?>
         <?php print $to_user_details['picture']; ?>
       </a>

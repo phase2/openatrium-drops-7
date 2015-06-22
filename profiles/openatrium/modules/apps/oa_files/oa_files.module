@@ -5,12 +5,6 @@
  */
 
 include_once 'oa_files.features.inc';
-/**
- * @files
- * Module code for oa_files.
- */
-
-include_once 'oa_files.features.inc';
 
 /**
  * Implements hook_menu().
@@ -61,6 +55,8 @@ function oa_files_menu() {
 function oa_files_menu_alter(&$items) {
   if (!empty($items['media/browser'])) {
     $items['oa-files/upload'] = $items['media/browser'];
+    $items['oa-files/upload']['access callback'] = 'node_access';
+    $items['oa-files/upload']['access arguments'] = array('create', 'oa_wiki_page');
   }
 }
 
@@ -196,6 +192,20 @@ function oa_files_upload_create_documents_form($form, &$form_state, $files) {
   }
   $form['#gid'] = $gid;
   $form['#sid'] = $sid;
+
+  if (empty($sid)) {
+    // Figure out best Section to create document page.
+    // And prompt user to select section.
+    $sid = oa_related_get_best_section('oa_wiki_page', NULL, $gid);
+
+    $form['oa_files_section'] = array(
+      '#type' => 'oa_section_ref',
+      '#title' => 'Section',
+      '#default_value' => $sid,
+      '#og_group_ref' => '',
+    );
+  }
+
   $has_update = FALSE;
   foreach ($files as $fid => $file) {
     // Just be sure they have access in case URL manipulation.
@@ -273,6 +283,7 @@ function oa_files_upload_create_documents_form($form, &$form_state, $files) {
  * Submit callback that creates or updates documents.
  */
 function oa_files_upload_create_documents_form_submit($form, &$form_state) {
+  $sid = !empty($form_state['values']['oa_files_section']) ? $form_state['values']['oa_files_section'] : $form['#sid'];
   foreach ($form_state['values']['documents'] as $fid => $values) {
     if (!empty($form['#files'][$fid])) {
       $file = $form['#files'][$fid];
@@ -285,7 +296,7 @@ function oa_files_upload_create_documents_form_submit($form, &$form_state) {
         oa_files_update_document(node_load($file->node->nid), $file->node->oa_files_row, $file);
       }
       elseif (!$existing_document || $update) {
-        $node = oa_files_create_document($file, $values['title'], $form['#gid'], $form['#sid']);
+        $node = oa_files_create_document($file, $values['title'], $form['#gid'], $sid);
         $form['#files'][$fid]->node = $node;
       }
       else {
@@ -650,7 +661,25 @@ function oa_files_prepare_files_from_files($files) {
       $node = $file->node;
       $nid = $node->nid;
       $icon = file_icon_url($file);
-      $parent = isset($_GET['menu_parent']) ? $_GET['menu_parent'] : (!empty($_GET['term_parent']) ? 'tid' . $_GET['term_parent'] : 0);
+      // Determine parent of item.
+      // Mostly this comes from the term_parent or menu_parent in URL.
+      if (isset($_GET['term_parent'])) {
+        $parent = 'tid' . $_GET['term_parent'];
+      }
+      // But the Menu parent for the node might have been overridden.
+      elseif (isset($_GET['menu_parent']) && ($mlid = og_menu_single_get_link_mlid('node', $nid))) {
+        $menu_link = menu_link_load($mlid);
+        $parent_link = menu_link_load($menu_link['plid']);
+        if (preg_match('#^node/(\d+)#', $parent_link['link_path'], $matches)) {
+          $parent = $matches[1];
+        }
+      }
+      elseif (isset($_GET['menu_parent'])) {
+        $parent = $_GET['menu_parent'];
+      }
+      else {
+        $parent = 0;
+      }
       $result[$nid] = array(
         'id' => $nid,
         'nid' => $nid,
@@ -677,6 +706,7 @@ function oa_files_prepare_files_from_files($files) {
  */
 function oa_files_addterm_callback($parent_tid = 0, $parent_vid = 0) {
   $new_term = $_POST['node'];
+  $node_type = !empty($_POST['type']) ? str_replace('-', '_', $_POST['type']) : 'oa_wiki_page';
   $parent_term = null;
   $vid = $parent_vid;
   if ($parent_tid) {
@@ -698,7 +728,7 @@ function oa_files_addterm_callback($parent_tid = 0, $parent_vid = 0) {
 
   $allownew = FALSE;
   if (module_exists('og_vocab')) {
-    $vids = og_vocab_get_accessible_vocabs('node', 'oa_wiki_page', OG_VOCAB_FIELD);
+    $vids = og_vocab_get_accessible_vocabs('node', $node_type, OG_VOCAB_FIELD);
     if (in_array($vid, $vids)) {
       // check OG access for editing vocab terms
       $allownew = og_user_access('node', $space_id, "edit terms");
@@ -815,3 +845,123 @@ function oa_files_addmenu_callback($parent = NULL) {
   }
 }
 
+/**
+ * Implements hook_form_alter().
+ */
+function oa_files_form_alter(&$form, &$form_state, $form_id) {
+  // We are creating a new node from the Add button in the files/folder widget
+  if (isset($_GET['menu_parent']) || isset($_GET['term_parent'])) {
+
+    // Check if this matches the content type being created.
+    if (preg_match('#(.+)_node_form#', $form_id, $matches)) {
+      $type = isset($_GET['type']) ? str_replace('-', '_', $_GET['type']) : 'oa_wiki_page';
+      if ($matches[1] == $type) {
+
+        $node = &$form['#node'];
+        $menu_parent = isset($_GET['menu_parent']) ? $_GET['menu_parent'] : NULL;
+
+        // When creating document nodes from files widget, auto-fill menu parent or taxonomy from URL.
+        // Check "Show node instead of file" option by default.
+        if (isset($form['field_oa_wiki_page_no_redirect'][LANGUAGE_NONE])) {
+          $form['field_oa_wiki_page_no_redirect'][LANGUAGE_NONE]['#default_value'] = 1;
+        }
+
+        if (isset($form[OA_SECTION_FIELD][LANGUAGE_NONE])) {
+          // Figure out best Section to create document page.
+          $section = oa_related_get_best_section($node->type, $form[OA_SECTION_FIELD][LANGUAGE_NONE]['#options']);
+          if (!empty($section)) {
+            $form[OA_SECTION_FIELD][LANGUAGE_NONE]['#default_value'] = $section;
+            // when creating first item, menu_parent is zero, so change it to actual section
+            if (empty($menu_parent)) {
+              $menu_parent = $section;
+            }
+          }
+
+          // move Section selection to top of node form so user can confirm it
+          $form[OA_SECTION_FIELD]['#weight'] = $form['body']['#weight'] - 0.5;
+          // and move the field out of any field group
+          if (isset($form['#group_children'])) {
+            unset($form['#group_children'][OA_SECTION_FIELD]);
+          }
+        }
+
+        if (isset($menu_parent) && empty($form['menu']['link']['parent']['#default_value'])) {
+          $pid = $menu_parent;
+          if (module_exists('og_menu_single') && ($parent = node_load($pid)) && node_access('view', $parent) && ($mlid = og_menu_single_get_link_mlid('node', $pid))) {
+            if (!isset($form['menu'])) {
+              // If we got called before menu item was added, force it to be added now.
+              og_menu_single_form_node_form_alter($form, $form_state);
+            }
+            $form['menu']['enabled']['#default_value'] = 1;
+            $form['menu']['link']['parent']['#default_value'] = OG_MENU_SINGLE_MENU_NAME . ':' . $mlid;
+          }
+        }
+
+        if (!empty($_GET['term_parent']) && ($term = taxonomy_term_load($_GET['term_parent']))) {
+          // if using og_vocab, grab the valid vocab ids.
+          $fieldname = '';
+          $propname = '';
+          if (module_exists('og_vocab')) {
+            $vids = og_vocab_get_accessible_vocabs('node', $node->type, OG_VOCAB_FIELD);
+            if (in_array($term->vid, $vids)) {
+              $fieldname = 'og_vocabulary';
+              $propname = 'target_id';
+            }
+          }
+          if (empty($fieldname)) {
+            // did not find og vocab, so check for global taxonomy reference fields
+            $vocab = taxonomy_vocabulary_load($term->vid);
+            $field_info = field_info_fields();
+            $fields = field_info_instances('node', $node->type);
+            foreach ($fields as $key => $field) {
+              $info = $field_info[$key];
+              if ($info['module'] == 'taxonomy') {
+                foreach ($info['settings']['allowed_values'] as $index => $item) {
+                  if ($item['vocabulary'] == $vocab->machine_name) {
+                    $fieldname = $info['field_name'];
+                    $propname = 'tid';
+                    break;
+                  }
+                }
+              }
+            }
+          }
+
+          if (!empty($fieldname) && isset($form[$fieldname][LANGUAGE_NONE][0][$term->vid])) {
+            if (is_array($form[$fieldname][LANGUAGE_NONE][0][$term->vid]['#default_value'])) {
+              // Set default term when field is an array of ids.
+              if (!in_array($term->tid, $form[$fieldname][LANGUAGE_NONE][0][$term->vid]['#default_value'])) {
+                $form[$fieldname][LANGUAGE_NONE][0][$term->vid]['#default_value'][] = $term->tid;
+              }
+            }
+            else {
+              // Set default term when field is a string.
+              if (strpos($form[$fieldname][LANGUAGE_NONE][0][$term->vid]['#default_value'], '(' . $term->tid . ')') === FALSE) {
+                $form[$fieldname][LANGUAGE_NONE][0][$term->vid]['#default_value'] = $term->name . ' (' . $term->tid . ')';
+                $form[$fieldname][LANGUAGE_NONE][0][$term->vid]['#init'][$term->tid] = $form[$fieldname][LANGUAGE_NONE][0][$term->vid]['#default_value'];
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Submit handler for saving wiki node when a ?destination=xyz is set in the creation URL.
+ * @param $form
+ * @param $form_state
+ */
+function oa_files_redirect_submit($form, &$form_state) {
+  if (!empty($form['#custom_redirect'])) {
+    $options = drupal_parse_url($form['#custom_redirect']);
+    $form_state['redirect'] = array(
+      $options['path'],
+      array(
+        'query' => $options['query'],
+        'fragment' => $options['fragment']
+      )
+    );
+  }
+}

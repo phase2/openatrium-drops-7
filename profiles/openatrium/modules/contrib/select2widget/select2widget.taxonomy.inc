@@ -17,6 +17,7 @@ function select2widget_taxonomy_process_callback($element, &$form_state, $form) 
     'delay' => variable_get('select2_delay', '100'),
     'set_level' => $settings['set_level'],
     'min_char' => $settings['min_char'],
+    'placeholder' => $settings['placeholder'],
     'type' => 'taxonomy_term_reference',
     'init' => $element['#init'],
   );
@@ -36,7 +37,9 @@ function select2widget_taxonomy_process_callback($element, &$form_state, $form) 
  */
 function select2widget_taxonomy_term_reference_widget_settings_form($field, $instance) {
   $widget = $instance['widget'];
-  $settings = $widget['settings'] + field_info_widget_settings($widget['type']);
+
+  $settings = array_replace_recursive(field_info_widget_settings($widget['type']), $widget['settings']);
+
   $form = array();
   if ($widget['type'] == 'select2widgetajax') {
 
@@ -46,6 +49,12 @@ function select2widget_taxonomy_term_reference_widget_settings_form($field, $ins
       '#tree' => TRUE,
     );
 
+    $form['select2widgetajax']['placeholder'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Placeholder text'),
+      '#description' => t('Type a text for the placeholder'),
+      '#default_value' => $settings['select2widgetajax']['placeholder'],
+    );
 
     $form['select2widgetajax']['match_operator'] = array(
       '#type' => 'select',

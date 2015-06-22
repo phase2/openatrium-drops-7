@@ -137,6 +137,7 @@ function media_menu() {
     'page arguments' => array('media_file_edit_modal', 1, 3),
     'access callback' => 'file_entity_access',
     'access arguments' => array('update', 1),
+    'theme callback' => 'ajax_base_page_theme',
     'file' => 'includes/media.pages.inc',
     'type' => MENU_CALLBACK,
   );
@@ -166,6 +167,7 @@ function media_menu_local_tasks_alter(&$data, $router_item, $root_path) {
  */
 function media_admin_paths() {
   $paths['media/*/edit/*'] = TRUE;
+  $paths['media/*/format-form'] = TRUE;
 
   // If the media browser theme is set to the admin theme, ensure it gets set
   // as an admin path as well.
@@ -354,6 +356,13 @@ function media_form_field_ui_field_edit_form_alter(&$form, &$form_state) {
     // Do not increase maxlength of file extensions for image fields, since
     // presumably they will not need a long list of extensions.
   }
+
+  // Add a validation function to any field instance which uses the media widget
+  // to ensure that the upload destination scheme is one of the allowed schemes.
+  if ($form['instance']['widget']['type']['#value'] == 'media_generic') {
+    $form['#validate'][] = 'media_field_instance_validate';
+  }
+
   if ($form['#instance']['entity_type'] == 'file') {
     $form['instance']['settings']['wysiwyg_override'] = array(
       '#type' => 'checkbox',
@@ -361,6 +370,19 @@ function media_form_field_ui_field_edit_form_alter(&$form, &$form_state) {
       '#description' => t('If checked, then this field may be overridden in the WYSIWYG editor.'),
       '#default_value' => isset($form['#instance']['settings']['wysiwyg_override']) ? $form['#instance']['settings']['wysiwyg_override'] : TRUE,
     );
+  }
+}
+
+/**
+ * Validation handler; ensure that the upload destination scheme is one of the
+ * allowed schemes.
+ */
+function media_field_instance_validate($form, &$form_state) {
+  $allowed_schemes = $form_state['values']['instance']['widget']['settings']['allowed_schemes'];
+  $upload_destination = $form_state['values']['field']['settings']['uri_scheme'];
+
+  if (!in_array($upload_destination, array_filter($allowed_schemes))) {
+    form_set_error('allowed_schemes', t('The upload destination must be one of the allowed schemes.'));
   }
 }
 

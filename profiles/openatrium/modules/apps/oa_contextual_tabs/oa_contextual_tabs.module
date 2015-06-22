@@ -10,6 +10,7 @@ include_once 'oa_contextual_tabs.features.inc';
  * Implements hook_menu().
  */
 function oa_contextual_tabs_menu() {
+  $items = array();
   if (module_exists('oa_archive')) {
     $items['node/%node/archive-content'] = array(
       'type' => MENU_LOCAL_TASK,

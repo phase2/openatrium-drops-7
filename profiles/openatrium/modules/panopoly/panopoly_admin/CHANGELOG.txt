@@ -1,3 +1,16 @@
+Panopoly Admin 7.x-1.23, 2015-06-17
+----------------------------
+- Update to jquery_update 2.6 for SA-CONTRIB-2015-123.
+- Update jquery_update to version 2.5.
+- Patch breakpoints so it doesn't make cache clear slow on sites with enabled
+  themes not using breakpoints.
+
+Panopoly Admin 7.x-1.22, 2015-06-04
+----------------------------
+- Move jquery_update to panopoly_core.make and .info.
+- Replace 'und' with the constant LANGUAGE_NONE for multi language site in
+  panopoly_admin.
+
 Panopoly Admin 7.x-1.21, 2015-04-29
 ----------------------------
 - Clean up instances of deprecated panpoly_theme layouts.

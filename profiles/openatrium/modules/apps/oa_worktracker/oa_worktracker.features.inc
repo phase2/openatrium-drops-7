@@ -30,63 +30,6 @@ function oa_worktracker_views_api($module = NULL, $api = NULL) {
 }
 
 /**
- * Implements hook_panelizer_defaults_override_alter().
- */
-function oa_worktracker_panelizer_defaults_override_alter(&$data) {
-  if (isset($data['user:user:default'])) {
-    $data['user:user:default']->display->content['new-7e2787f8-3f6c-4b3b-a1bb-e11225e395d5'] = (object) array(
-          'pid' => 'new-7e2787f8-3f6c-4b3b-a1bb-e11225e395d5',
-          'panel' => 'contentheader',
-          'type' => 'views_panes',
-          'subtype' => 'oa_worktracker-user_tasks',
-          'shown' => TRUE,
-          'access' => array(),
-          'configuration' => array(
-            'show_exposed_form' => 1,
-            'items_per_page' => 10,
-            'fields_override' => array(
-              'title' => 1,
-              'timestamp' => 1,
-              'realname_1' => 0,
-              'realname' => 0,
-              'title_1' => 1,
-              'field_oa_worktracker_priority' => 1,
-              'field_oa_worktracker_task_type' => 1,
-              'field_oa_worktracker_task_status' => 1,
-              'comment_count' => 1,
-              'last_updated' => 1,
-            ),
-            'exposed' => array(
-              'field_oa_worktracker_task_status_value' => array(),
-              'field_oa_worktracker_priority_value' => array(),
-              'field_oa_worktracker_task_type_value' => array(),
-              'flagged' => 0,
-            ),
-            'context' => array(
-              0 => 'panelizer',
-            ),
-            'override_title' => '',
-            'override_title_text' => '',
-            'view_settings' => 'fields',
-            'header_type' => 'none',
-            'view_mode' => 'teaser',
-            'widget_title' => 'Your Tasks',
-          ),
-          'cache' => array(),
-          'style' => array(
-            'settings' => NULL,
-          ),
-          'css' => array(),
-          'extras' => array(),
-          'position' => 3,
-          'locks' => array(),
-          'uuid' => '7e2787f8-3f6c-4b3b-a1bb-e11225e395d5',
-        ); /* WAS: '' */
-    $data['user:user:default']->display->panels['contentheader']['3'] = 'new-7e2787f8-3f6c-4b3b-a1bb-e11225e395d5'; /* WAS: '' */
-  }
-}
-
-/**
  * Implements hook_default_message_type().
  */
 function oa_worktracker_default_message_type() {

@@ -21,7 +21,7 @@
     // caused by jQuery being loaded before bootstrap, which is hard to change
     // http://stackoverflow.com/questions/17367736/jquery-ui-dialog-missing-close-icon
     if ($.ui.dialog !== undefined) {
-      $.widget( "ui.dialog", $.ui.dialog, {
+      $.extend($.ui.dialog, {
         open: function() {
           var result = this._super();
           if ('uiDialogTitlebarClose' in this) {

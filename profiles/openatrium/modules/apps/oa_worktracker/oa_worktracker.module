@@ -300,6 +300,9 @@ function oa_worktracker_node_insert($node) {
  */
 function oa_worktracker_form_comment_form_alter(&$form, &$form_state, $form_id) {
   if ($form['#node']->type == 'oa_worktracker_task') {
+    // Adding a custom validate function to the comment form.
+    array_unshift($form['#validate'], 'oa_worktracker_form_validate');
+
     $langcode = $form['language']['#value'];
 
     // If the form is for an authenticated user (not anonymous) then hide the 
@@ -339,6 +342,82 @@ function oa_worktracker_form_views_exposed_form_alter(&$form, &$form_state, $for
       }
     }
   }
+}
+
+/**
+ * Implements hook_form_validate().
+ */
+function oa_worktracker_form_validate(&$form, &$form_state) {
+  // If the comment body is empty we need to create a subject/body that
+  // reflects changes from the status fields, if any.
+  if ($form_state['values']['comment_body'][LANGUAGE_NONE][0]['value'] == '') {
+    $node = $form['#node'];
+    $values = $form_state['values'];
+    // Do not try to save anything if there is nothing that was allowed to be
+    // changed from the comment form.
+    if (isset($values['comment_alter'])) {
+      // add the _old fields to the alterable columns because comment_alter_cleanup
+      // only checks the base fields. (See https://www.drupal.org/node/2506917)
+      foreach ($values['comment_alter']['alterable_columns'] as $field_name => $column) {
+        if (substr($field_name, strlen($field_name), -4) != '_old') {
+          $values['comment_alter']['alterable_columns'][$field_name . '_old'] = $column;
+        }
+      }
+      $changed_fields = array();
+      foreach ($values['comment_alter']['fields'] as $field_name) {
+        if (!empty($values[$field_name . '_old'])) {
+          _comment_alter_cleanup_field_values($values, $field_name);
+          _comment_alter_cleanup_field_values($values, $field_name . '_old');
+          // If field values have changed, add it to the list.
+          if ($values[$field_name . '_old'] != $values[$field_name]) {
+            $changed_fields[$field_name] = $field_name;
+          }
+        }
+      }
+
+      if (!empty($changed_fields)) {
+        $changes = array();
+        foreach ($changed_fields as $field_name) {
+          $node = $form_state['node'];
+          $langcode = !empty($node->language) ? $node->language : LANGUAGE_NONE;
+          $value = _oa_worktracker_get_field_value($form, $form_state, $field_name, $langcode);
+          $changes[] = $form[$field_name][$langcode]['#title'] . ' &raquo; ' . $value;
+        }
+        $output = implode(', ', $changes);
+        $form_state['values']['comment_body'][LANGUAGE_NONE][0]['value'] = $output;
+      }
+    }
+  }
+}
+
+/**
+ * Helper function to return the value of a field being changed
+ * @param $form
+ * @param $form_state
+ * @param $field_name
+ */
+function _oa_worktracker_get_field_value($form, $form_state, $field_name, $langcode) {
+  $value = '';
+  if (!empty($form_state['values'][$field_name])) {
+    $field = $form_state['values'][$field_name];
+    if (isset($field[$langcode][0]['value'])) {
+      if (isset($form[$field_name][$langcode]['#options'])) {
+        $value = $form[$field_name][$langcode]['#options'][$field[$langcode][0]['value']];
+      }
+      else {
+        $value = $field[$langcode][0]['value'];
+      }
+    }
+    elseif (isset($field[$langcode][0]['target_id'])) {
+      if (isset($form[$field_name][$langcode]['#options'])) {
+        $value = $form[$field_name][$langcode]['#options'][$field[$langcode][0]['target_id']];
+      }
+      else {
+        $value = $field[$langcode][0]['target_id'];
+      }
+    }
+  }
+  return $value;
 }
 
 /**
@@ -582,4 +661,74 @@ function oa_worktracker_theme_comment_alter_diff(&$variables) {
  */
 function oa_worktracker_oa_related_allowed_default() {
   return array('oa_worktracker_task');
+}
+
+/**
+ * Implements hook_oa_settings_form().
+ */
+function oa_worktracker_oa_settings_form(&$form_state) {
+  $forms = array();
+
+  $form = array();
+  $form = variable_group_form($form, $form_state, 'oa_worktracker');
+  $form['#after_build'][] = 'oa_worktracker_oa_settings_form_process';
+  $forms[] = array(
+    'caption' => t('Worktracker'),
+    'form' => $form,
+  );
+  return $forms;
+}
+
+/**
+ * Callback for settings form #after_build
+ * Ensure variable.form.inc is loaded when submitting config form
+ */
+function oa_worktracker_oa_settings_form_process($element, &$form_state) {
+  form_load_include($form_state, 'form.inc', 'variable');
+  return $element;
+}
+
+/**
+ * Implements hook_oa_core_add_panes().
+ */
+function oa_worktracker_oa_core_add_panes() {
+  $info = array();
+  $info['user:user:default']['7e2787f8-3f6c-4b3b-a1bb-e11225e395d5'] = array(
+    'panel' => 'contentheader',
+    'type' => 'views_panes',
+    'subtype' => 'oa_worktracker-user_tasks',
+    'configuration' => array(
+      'show_exposed_form' => 1,
+      'items_per_page' => 10,
+      'fields_override' => array(
+        'title' => 1,
+        'timestamp' => 1,
+        'realname_1' => 0,
+        'realname' => 0,
+        'title_1' => 1,
+        'field_oa_worktracker_priority' => 1,
+        'field_oa_worktracker_task_type' => 1,
+        'field_oa_worktracker_task_status' => 1,
+        'comment_count' => 1,
+        'last_updated' => 1,
+      ),
+      'exposed' => array(
+        'field_oa_worktracker_task_status_value' => array(),
+        'field_oa_worktracker_priority_value' => array(),
+        'field_oa_worktracker_task_type_value' => array(),
+        'flagged' => 0,
+      ),
+      'context' => array(
+        0 => 'panelizer',
+      ),
+      'override_title' => '',
+      'override_title_text' => '',
+      'view_settings' => 'fields',
+      'header_type' => 'none',
+      'view_mode' => 'teaser',
+      'widget_title' => 'Your Tasks',
+    ),
+    'position' => 3,
+  );
+  return $info;
 }

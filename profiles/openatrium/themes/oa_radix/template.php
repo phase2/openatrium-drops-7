@@ -112,9 +112,11 @@ function oa_radix_preprocess_page(&$vars) {
     $vars['user_badge'] = $user_badge['content'];
     $vars['mobile_buttons'] = theme('oa_toolbar_mobile');
   }
-  $toolbar = panels_mini_block_view('oa_toolbar_panel');
+  $toolbar_name = variable_get_value('oa_layouts_minipanel_header', array('defaults' => 'oa_toolbar_panel'));
+  $toolbar = panels_mini_block_view($toolbar_name);
   $vars['oa_toolbar_panel'] = isset($toolbar) ? $toolbar['content'] : '';
-  $footer = panels_mini_block_view('oa_footer_panel');
+  $footer_name = variable_get_value('oa_layouts_minipanel_footer', array('defaults' => 'oa_footer_panel'));
+  $footer = panels_mini_block_view($footer_name);
   $vars['oa_footer_panel'] = isset($footer) ? $footer['content'] : '';
 
   ctools_include('content');

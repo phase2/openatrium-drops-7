@@ -412,6 +412,7 @@ function oa_messages_theme() {
 function oa_messages_theme_registry_alter(&$theme_reg) {
   $theme_reg['htmlmail']['path'] = drupal_get_path('module', 'oa_messages') . '/templates';
   $theme_reg['htmlmail']['theme path'] = $theme_reg['htmlmail']['path'];
+  $theme_reg['mimemail_message']['path'] = drupal_get_path('module', 'oa_messages') . '/templates';
 }
 
 /**
@@ -505,4 +506,45 @@ function oa_messages_field_default_field_instances_alter(&$data) {
       }
     }
   }
+}
+
+/**
+ * Implements hook_preprocess_mimemail_message().
+ */
+function oa_messages_preprocess_mimemail_message(&$variables) {
+  $variables['message'] = !empty($variables['params']['message_entity']) ? $variables['params']['message_entity'] : array();
+  $variables['recipient_details'] = !empty($variables['recipient']) ? oa_users_build_user_details($variables['recipient']) : array();
+
+  // Add in our custom css.
+  $css = @file_get_contents(drupal_get_path('module', 'oa_messages') . '/css/oa-messages-mail.css');
+
+  // Below is copied.
+  // @see template_preprocess_mimemail_message().
+
+  // Regexp to match comment blocks.
+  $comment = '/\*[^*]*\*+(?:[^/*][^*]*\*+)*/';
+  // Regexp to match double quoted strings.
+  $double_quot = '"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"';
+  // Regexp to match single quoted strings.
+  $single_quot = "'[^'\\\\]*(?:\\\\.[^'\\\\]*)*'";
+
+  // Perform some safe CSS optimizations (derived from core CSS aggregation).
+  $css = preg_replace_callback(
+    "<$double_quot|$single_quot|$comment>Sus",  // Match all comment blocks along
+    "_mimemail_process_comment",                // with double/single quoted strings
+    $css);                                      // and feed them to _mimemail_process_comment().
+  $css = preg_replace(
+    '<\s*([@{}:;,]|\)\s|\s\()\s*[^\n\S]>S',  // Remove whitespace around separators,
+    '\1',                                    // but keep space around parentheses
+    $css);                                   // and new lines between definitions.
+
+  // End the file with a new line.
+  $css .= "\n";
+  // End copying
+
+  // Wordwrap to adhere to RFC821
+  $css = wordwrap($css, 700);
+
+  // Set styles for the message.
+  $variables['css'] .= $css;
 }

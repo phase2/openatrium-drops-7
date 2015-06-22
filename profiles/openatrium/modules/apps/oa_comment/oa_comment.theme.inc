@@ -92,7 +92,7 @@ function oa_comment_preprocess_comment(&$vars) {
     $vars['paragraphs'] = render($vars['elements']['field_oa_related']);
   }
   // Get the user picture.
-  $user_details = oa_users_build_user_details($vars['user']);
+  $user_details = oa_users_build_user_details(user_load($comment->uid));
   $vars['user_picture'] = $user_details['picture'];
   $vars['body'] = (!empty($comment->comment_body[LANGUAGE_NONE][0]['safe_value'])) ? $comment->comment_body[LANGUAGE_NONE][0]['safe_value'] : NULL;
   $vars['comment_link'] = l(t('#!comment_id', array('!comment_id' => $vars['thread'])), 'node/' . $vars['node']->nid, array(

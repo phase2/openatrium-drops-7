@@ -1,3 +1,21 @@
+Panopoly Core 7.x-1.23, 2015-06-17
+---------------------------
+- Update to jquery_update 2.6 for SA-CONTRIB-2015-123.
+- Update jquery_update to version 2.5.
+- Update Features to version 2.6-rc1.
+
+Panopoly Core 7.x-1.22, 2015-06-04
+---------------------------
+- Include Panels and CTools patches for improved keyboard accessibility.
+- Update to latest Fieldable Panels Panes (FPP).
+- Move jquery_update to panopoly_core.make and .info.
+- Switch from hook_pre_render_styles() to hook_library_alter().
+- Revert "Issue #2456255 by dsnopek: Update views_autocomplete_filters to
+  version 1.2".
+- Update Date to 2.9-rc1.
+- Update apps to rc1.
+- Update views_autocomplete_filters to version 1.2.
+
 Panopoly Core 7.x-1.21, 2015-04-29
 ---------------------------
 - Update Views to version 3.11 for SA-CONTRIB-2015-103.

@@ -17,9 +17,9 @@ It requires Panels and Page Manager.
 
 INITIAL CONFIGURATION
 
-Visit Configuration >> Panelizer to enable the module for the entities you
-need. You may need to visit Site Building >> Pages and enable the appropriate
-pages for supported entities.
+Visit Structure >> Panelizer to enable the module for the entities you need.
+You may need to visit Site Building >> Pages and enable the appropriate pages
+for supported entities.
 
 Note that in all cases, modifying Panelizer settings for an entity requires
 update privileges for that entity.
@@ -114,3 +114,12 @@ Future functionality
     of an entity, using Panelizer.
   - Allow some other way of panelizing entities other than bundles. Either
     that or find a contrib module to allow users to have bundles.
+
+
+Troubleshooting / Known Issues
+------------------------------------------------------------------------------
+* Saving an entity's overridden Panelizer display (i.e. nodes, etc) can cause
+  the entity's path alias to be reset. This is an outstanding bug in Pathauto
+  v7.x-1.2 and can be resolved by either installing Pathauto Persistent State
+  (https://www.drupal.org/project/pathauto_persist) or applying the latest
+  patch from https://www.drupal.org/node/936222.

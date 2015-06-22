@@ -1,3 +1,11 @@
+Panopoly Search 7.x-1.23, 2015-06-17
+-----------------------------
+- No changes since last release.
+
+Panopoly Search 7.x-1.22, 2015-06-04
+-----------------------------
+- Alter Search Form Submit.
+
 Panopoly Search 7.x-1.21, 2015-04-29
 -----------------------------
 - Update Features module to version 2.5.

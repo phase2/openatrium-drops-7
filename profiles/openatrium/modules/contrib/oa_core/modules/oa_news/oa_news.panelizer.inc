@@ -14,7 +14,7 @@ function oa_news_panelizer_defaults() {
   $panelizer->disabled = FALSE; /* Edit this to true to make a default panelizer disabled initially */
   $panelizer->api_version = 1;
   $panelizer->name = 'node:oa_section:oa_section_news';
-  $panelizer->title = 'News Section';
+  $panelizer->title = 'Document Section';
   $panelizer->panelizer_type = 'node';
   $panelizer->panelizer_key = 'oa_section';
   $panelizer->no_blocks = FALSE;

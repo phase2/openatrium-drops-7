@@ -36,10 +36,9 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
               data.node = data.node.$;
             }
             if (selection.getType() == CKEDITOR.SELECTION_TEXT) {
-              if (CKEDITOR.env.ie) {
+              if (CKEDITOR.env.ie && CKEDITOR.env.version < 10) {
                 data.content = selection.getNative().createRange().text;
               }
-
               else {
                 data.content = selection.getNative().toString();
               }

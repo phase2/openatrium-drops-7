@@ -6,62 +6,6 @@
  */
 
 /**
- * List all bundles and administrative options for entity panes.
- */
-function fieldable_panels_panes_entities_page() {
-  $entity_info = entity_get_info('fieldable_panels_pane');
-
-  $header = array(t('Name'), array('data' => t('Operations'), 'colspan' => 2));
-  $rows = array();
-
-  foreach ($entity_info['bundles'] as $bundle => $info) {
-    $type_url_str = str_replace('_', '-', $bundle);
-
-    $row = array();
-
-    $label = check_plain($info['label']);
-    $label .= ' <small>' . t('(Machine name: @type)', array('@type' => $bundle)) . '</small>';
-
-    $row[] = $label;
-
-    $operations = array();
-
-    $operations['list'] = array(
-      'title' => t('list'),
-      'href' => 'admin/structure/fieldable-panels-panes/manage/' . $type_url_str,
-    );
-
-    $operations['add'] = array(
-      'title' => t('add'),
-      'href' => 'admin/structure/fieldable-panels-panes/manage/' . $type_url_str . '/add',
-    );
-
-    $operations['fields'] = array(
-      'title' => t('manage fields'),
-      'href' => 'admin/structure/fieldable-panels-panes/manage/' . $type_url_str . '/fields',
-    );
-
-    $operations['display'] = array(
-      'title' => t('manage display'),
-      'href' => 'admin/structure/fieldable-panels-panes/manage/' . $type_url_str . '/display',
-    );
-
-    $ops = theme('links', array('links' => $operations, 'attributes' => array('class' => array('links', 'inline'))));
-
-    $row[] = $ops;
-    $rows[] = $row;
-  }
-
-  $build['panes_table'] = array(
-    '#theme' => 'table',
-    '#header' => $header,
-    '#rows' => $rows,
-  );
-
-  return $build;
-}
-
-/**
  * List all entities for the given type.
  */
 function fieldable_panels_panes_entities_list_page($type) {

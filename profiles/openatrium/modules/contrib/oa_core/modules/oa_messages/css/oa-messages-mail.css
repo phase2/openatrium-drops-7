@@ -1,0 +1,26 @@
+table.mail-table {
+  width: 100%;
+  background: #fbfbfb;
+  border: 1px solid #E3E3E3;
+  border-radius: 4px;
+}
+
+h2.subject {
+  font-size: 20px;
+}
+
+.user-badge {
+  width: 170px;
+  background-color: #f9f9f9;
+  border: 1px solid #CCC;
+  border-radius: 4px;
+  text-align: right;
+  padding: 10px;
+}
+
+.body {
+  padding: 10px;
+  font-size: 14px;
+  line-height: 20px;
+  color: #333;
+}

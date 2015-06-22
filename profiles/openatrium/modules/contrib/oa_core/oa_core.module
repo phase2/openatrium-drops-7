@@ -166,8 +166,8 @@ function oa_core_menu() {
     'title' => 'Create Space',
     'page callback' => 'oa_core_create_space_page_callback',
     'page arguments' => array(OA_SPACE_TYPE, 3),
-    'access callback' => 'node_access',
-    'access arguments' => array('create', OA_SPACE_TYPE),
+    'access callback' => 'oa_core_create_space_access',
+    'access arguments' => array(3),
     'type' => MENU_CALLBACK,
   );
 
@@ -318,6 +318,16 @@ function oa_core_create_space_page_callback($type, $space_tid) {
   }
 
   return MENU_NOT_FOUND;
+}
+
+/**
+ * Menu access callback for creating space types
+ * @param $tid
+ */
+function oa_core_create_space_access($tid) {
+  $gid = oa_core_get_space_context(TRUE);
+  $tids = oa_core_get_allowed_space_terms($gid);
+  return !isset($tids) || empty($tids) || isset($tids[$tid]);
 }
 
 /**
@@ -530,28 +540,159 @@ function oa_core_form_node_form_alter(&$form, &$form_state, $form_id) {
   // this is a workaround for og not defaulting based on subgroups,
   // only user direct groups.
   // handling this for both normal users and admin users
-  if (!empty($form['#node']->{OA_SPACE_FIELD}[LANGUAGE_NONE][0]['target_id'])
-    && isset($form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['default'])
-    && empty($form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['default']['#default_value'])
-    && ($group = node_load($form['#node']->{OA_SPACE_FIELD}[LANGUAGE_NONE][0]['target_id']))
-    && (!isset($form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['admin'])
-      || ($form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['admin']['#default_value'] == $group->title . ' (' . $group->nid . ')' 
-      // This will return both user groups and subspaces, is cached.
-      && in_array($group->nid, oa_core_get_groups_by_user(NULL, 'node'))))
-    ) {
-    $form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['default']['#default_value'] = $group->title . ' (' . $group->nid . ')';
-    $form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['default']['#init'][$group->nid] = $form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['default']['#default_value'];
-    if (isset($form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['admin'])) {
-      $form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['admin']['#default_value'] = '';
-      $form[OA_SPACE_FIELD][LANGUAGE_NONE][0]['admin']['#init'] = array();
+  $fields = array(OA_SPACE_FIELD);
+  if (empty($form['#node']->clone_from_original_nid)) {
+    $fields[] = OA_PARENT_SPACE;
+  }
+  foreach ($fields as $field_name) {
+    if (!empty($form['#node']->{$field_name}[LANGUAGE_NONE][0]['target_id'])
+      && isset($form[$field_name][LANGUAGE_NONE][0]['default'])
+      && empty($form[$field_name][LANGUAGE_NONE][0]['default']['#default_value'])
+      && ($group = node_load($form['#node']->{$field_name}[LANGUAGE_NONE][0]['target_id']))
+      && (!isset($form[$field_name][LANGUAGE_NONE][0]['admin'])
+        || ($form[$field_name][LANGUAGE_NONE][0]['admin']['#default_value'] == $group->title . ' (' . $group->nid . ')'
+        // This will return both user groups and subspaces, is cached.
+        && in_array($group->nid, oa_core_get_groups_by_user(NULL, 'node'))))
+      ) {
+      $form[$field_name][LANGUAGE_NONE][0]['default']['#default_value'] = $group->title . ' (' . $group->nid . ')';
+      $form[$field_name][LANGUAGE_NONE][0]['default']['#init'][$group->nid] = $form[$field_name][LANGUAGE_NONE][0]['default']['#default_value'];
+      if (isset($form[$field_name][LANGUAGE_NONE][0]['admin'])) {
+        $form[$field_name][LANGUAGE_NONE][0]['admin']['#default_value'] = '';
+        $form[$field_name][LANGUAGE_NONE][0]['admin']['#init'] = array();
+      }
     }
+  }
+
+  if (isset($form['field_oa_space_type']) && !isset($form['#node']->nid)) {
+    // Creating a new space node, so limit space types
+    $form['field_oa_space_type'][LANGUAGE_NONE]['#options'] = oa_core_get_allowed_space_terms();
   }
 }
 
 /**
+ * Implements hook_form_alter().
+ */
+function oa_core_form_node_delete_confirm_alter(&$form, $form_state) {
+  $form['#submit'][] = 'oa_core_node_delete_redirect';
+  /**
+   * Organic group itself has some functionality for how to handle content on
+   * group deletion.
+   *
+   * By default, it'll delete the og_membership table entries for that group.
+   *
+   * If variable og_use_queue is configured to true:
+   * * It'll delete the membership via a queue job.
+   * * It'll delete the content of the group if $entity->og_orphans['delete'] is
+   *   TRUE or variable og_orphans_delete is set to true
+   * * It'll move the content of the group if $entity->og_orphans['move'] is set
+   * to  an array containing group_type and gid of the group to move to.
+   *
+   * Use og_use_queue and og_orphans_delete are configurable via the OG UI.
+   *
+   * All it's deletion logic can be bypassed via setting:
+   * $entity->skip_og_membership_delete_by_group = TRUE
+   */
+  if (variable_get('og_use_queue', FALSE) && ($orphans = oa_core_get_orphans('node', $form['#node']->nid))) {
+    $form['oa_core_orphans'] = array(
+      '#title' => t('Orphan Content'),
+      '#description' => t('How to handle orphan content (content that is a member of this group but no others)'),
+      '#type' => 'radios',
+      '#options' => array(
+        'nothing' => t('Orphan (remove membership but otherwise leave content alone)'),
+        'delete' => t('Delete'),
+        'move' => t('Move'),
+      ),
+      '#default_value' => 'nothing',
+    );
+    $form['oa_core_orphans_og_group_ref'] = array(
+      '#type' => 'og_group_ref',
+      '#title' => t('Space'),
+      '#default_value' => array(),
+      '#states' => array(
+        'visible' => array(
+          ':input[name="oa_core_orphans"]' => array('value' => 'move'),
+        ),
+      ),
+    );
+    $form['#validate'][] = 'oa_core_form_node_delete_confirm_validate';
+  }
+}
+
+/**
+ * Validate the function and set a variable for checking later to set og_orphan
+ */
+function oa_core_form_node_delete_confirm_validate($form, &$form_state) {
+  $node = $form['#node'];
+  if ($form_state['values']['oa_core_orphans'] == 'move') {
+    $gid = $form_state['values']['oa_core_orphans_og_group_ref'];
+    if (empty($gid) || !is_numeric($gid) || !($group = node_load($gid))) {
+      form_set_error('oa_core_orphans', t('Please select a space to move the content to.'));
+    }
+    elseif ($gid === $node->nid) {
+      form_set_error('oa_core_orphans', t('Please select a space that is not the current space to move the content to.'));
+    }
+    elseif (!node_access('update', $group)) {
+      form_set_error('oa_core_orphans', t('Please choice a group where have more access to.'));
+    }
+    else {
+      oa_core_store_orphan_settings($node, array('og_orphans' => array('move' => array('group_type' => 'node', 'gid' => $gid))));
+    }
+  }
+  else {
+    // Set whether should be left alone or deleted.
+    oa_core_store_orphan_settings($node, array('og_orphans' => array('delete' => $form_state['values']['oa_core_orphans'] == 'delete')));
+  }
+}
+
+/**
+ * Since there is no way to directly send anything to node_delete, store info.
+ *
+ * @param $node
+ *   A node that will be deleted.
+ * @param $settings
+ *   Settings for that node being deleted.
+ */
+function oa_core_store_orphan_settings($node, $settings = NULL) {
+  $data = &drupal_static(__FUNCTION__, array());
+  if ($settings) {
+    $data[$node->nid] = $settings + (isset($data[$node->nid]) ? $data[$node->nid] : array());
+  }
+  return isset($data[$node->nid]) ? $data[$node->nid] : array();
+}
+
+/**
+ * Implements hook_node_delete().
+ */
+function oa_core_node_delete($node) {
+  if ($settings = oa_core_store_orphan_settings($node)) {
+    foreach($settings as $key => $value) {
+      $node->{$key} = $value;
+    }
+  }
+  _oa_core_node_delete($node);
+}
+
+/**
+ * Find if any orphans.
+ */
+function oa_core_get_orphans($group_type, $gid, $max = 1) {
+  $query = new EntityFieldQuery();
+  $result = $query
+    ->entityCondition('entity_type', 'og_membership')
+    ->propertyCondition('group_type', $group_type, '=')
+    ->propertyCondition('gid', $gid, '=')
+    ->propertyCondition('entity_type', 'user', '!=')
+    ->propertyOrderBy('id')
+    ->range(0, $max)
+    ->execute();
+  return !empty($result['og_membership']) ? og_membership_load_multiple(array_keys($result['og_membership'])) : array();
+}
+
+
+/**
  * Implements hook_node_prepare().
  *
- * Default the GId to current GID 
+ * Default the GId to current GID
  */
 function oa_core_node_prepare($node) {
   if (empty($node->nid) && field_info_instance('node', OA_SPACE_FIELD, $node->type)) {
@@ -1333,23 +1474,48 @@ function oa_core_get_allowed_space_types($field) {
   $gid = oa_core_get_space_context();
   // If no gid, may be using this as a filter or such.
   // @see oa_subspaces_form_node_form_alter().
-  if (!$gid || !module_exists('oa_subspaces') || user_access('administer group') || user_access('create oa_space content') || og_user_access('node', $gid, 'use any oa button space_type') || og_user_access('node', $gid, 'administer group')) {
+  if (!$gid || !module_exists('oa_subspaces') || user_access('administer group') || user_access('create oa_space content') || og_user_access('node', $gid, 'use any oa button space_type')) {
     return taxonomy_allowed_values($field);
   }
   if ($gid) {
     foreach ($field['settings']['allowed_values'] as $tree) {
-      if ($vocabulary = oa_core_taxonomy_vocabulary($tree['vocabulary'])) {
-        if ($terms = taxonomy_get_tree($vocabulary->vid, $tree['parent'])) {
-          foreach ($terms as $term) {
-            if (og_user_access('node', $gid, _oa_buttons_perm_name($tree['vocabulary'], $term->tid))) {
-              $options[$term->tid] = str_repeat('-', $term->depth) . $term->name;
-            }
+      $options = $options + oa_core_get_allowed_space_terms($gid, $tree['vocabulary']);
+    }
+  }
+  return $options;
+}
+
+/**
+ * Helper function to return list of space blueprint term ids allowed to be created.
+ * @param int $gid (optional)
+ * @return array of tids ($tid => $term->name).  If NULL, all tids are allowed.
+ */
+function oa_core_get_allowed_space_terms($gid = NULL, $vocab_name = 'space_type') {
+  global $user;
+
+  $gid = isset($gid) ? $gid : oa_core_get_space_context();
+  $tids = array();
+
+  // When checking OG Permission, don't let Admin Group override this since all
+  // Space admins typically have Admin Group but we want to limit types of subspaces
+  // to be created.
+  if (!$gid || !module_exists('oa_subspaces')
+    || user_access('administer group') || user_access('create oa_space content')
+    || og_user_access('node', $gid, 'use any oa button space_type', NULL, FALSE, TRUE)) {
+    return NULL;
+  }
+  if ($gid && $user->uid) {
+    if ($vocabulary = oa_core_taxonomy_vocabulary($vocab_name)) {
+      if ($terms = taxonomy_get_tree($vocabulary->vid)) {
+        foreach ($terms as $term) {
+          if (oa_core_get_taxonomy_term_access($term->tid, $gid, $vocab_name)) {
+            $tids[$term->tid] = str_repeat('-', $term->depth) . $term->name;
           }
         }
       }
     }
   }
-  return $options;
+  return $tids;
 }
 
 /**
@@ -1392,8 +1558,29 @@ function oa_core_oa_core_space_type_options($term, $vocab_name) {
  * Alters a node edit form to hide comment settings.
  */
 function _oa_core_hide_comment_settings(&$form) {
-  if (isset($form['comment_settings']) && (empty($form['#node']->type) || variable_get('comment_' . $form['#node']->type, COMMENT_NODE_OPEN) == COMMENT_NODE_HIDDEN)) {
+  $node = $form['#node'];
+  if (isset($form['comment_settings'])
+    && (empty($node->type) || variable_get('comment_' . $node->type, COMMENT_NODE_OPEN) == COMMENT_NODE_HIDDEN)
+    && (empty($node->nid)
+      || ($node->comment == COMMENT_NODE_HIDDEN)
+      || ($node->comment == COMMENT_NODE_CLOSED && empty($node->comment_count))
+    )) {
     $form['comment_settings']['#access'] = FALSE;
+  }
+}
+
+/**
+ * Implements hook_panelizer_pre_render_alter().
+ */
+function oa_core_panelizer_pre_render_alter(&$panelizer, $display, $entity) {
+  // Hide comments when set to be hidden.
+  // @see https://www.drupal.org/node/2505395
+  if (isset($entity->comment) && $entity->comment == COMMENT_NODE_HIDDEN) {
+    foreach ($panelizer->display->content as $key => $display) {
+      if ($display->type == 'node_comment_wrapper') {
+        unset($panelizer->display->content[$key]);
+      }
+    }
   }
 }
 
@@ -1537,13 +1724,6 @@ function oa_core_form_taxonomy_form_term_alter(&$form, &$form_state, $form_id) {
 }
 
 /**
- * Implements hook_form_FORM_ID_alter().
- */
-function oa_core_form_node_delete_confirm_alter(&$form, $form_state, $form_id) {
-  $form['#submit'][] = 'oa_core_node_delete_redirect';
-}
-
-/**
  * Helper to redirect to proper landing page after content deletion
  */
 function oa_core_node_delete_redirect($form, &$form_state) {
@@ -1583,20 +1763,39 @@ function oa_core_view_query_modify_condition(&$query, $columns, $ids) {
   }
   // Loop over all conditions in all 'where groups'.
   foreach (array_keys($query->where) as $where_group) {
-    foreach ($query->where[$where_group]['conditions'] as $key => $condition) {
+    foreach ($query->where[$where_group]['conditions'] as $key => &$condition) {
       // If it matches the column or an alias.
       foreach ($columns as $column) {
-        if ($condition['field'] === $column ||
-          (is_string($condition['field']) && substr($condition['field'], -strlen($column)-2) === "__{$column}")) {
-          $value = $query->where[$where_group]['conditions'][$key]['value'];
-          if (!is_array($value)) {
-            $value = array($value);
-            $query->where[$where_group]['conditions'][$key]['operator'] = 'IN';
-          }
-          $query->where[$where_group]['conditions'][$key]['value'] = array_merge($value, $ids);
-        }
+        oa_core_view_query_modify_condition_object($condition, $column, $ids);
       }
     }
+    // free referenced object
+    unset($condition);
+  }
+}
+
+function oa_core_view_query_modify_condition_object(&$condition, $column, $ids) {
+  if (is_object($condition['field']) && is_a($condition['field'], 'DatabaseCondition')) {
+    $conditions = $condition['field']->conditions();
+    // cannot modify conditions directly in a DatabaseCondition object
+    // so we need to create a new one.
+    $new_subquery = new DatabaseCondition($conditions['#conjunction']);
+    foreach ($conditions as $key => $inner_condition) {
+      if (is_numeric($key)) {
+       oa_core_view_query_modify_condition_object($inner_condition, $column, $ids);
+        $new_subquery->condition($inner_condition['field'], $inner_condition['value'], $inner_condition['operator']);
+      }
+    }
+    $condition['field'] = $new_subquery;
+  }
+  elseif ($condition['field'] === $column ||
+    (is_string($condition['field']) && substr($condition['field'], -strlen($column)-2) === "__{$column}")) {
+    $value = $condition['value'];
+    if (!is_array($value)) {
+      $value = array($value);
+      $condition['operator'] = 'IN';
+    }
+    $condition['value'] = array_merge($value, $ids);
   }
 }
 
@@ -1604,6 +1803,15 @@ function oa_core_view_query_modify_condition(&$query, $columns, $ids) {
  * Implements hook_views_query_alter().
  */
 function oa_core_views_query_alter(&$view, &$query) {
+  // only show space types allowed to create.
+  if ($view->name == 'oa_core_space_types') {
+    $tids = oa_core_get_allowed_space_terms();
+    if (isset($tids)) {
+      $tids = array_keys($tids);
+      $query->add_where(1, 'taxonomy_term_data.tid', $tids, 'IN');
+    }
+  }
+
   // We only modify views that have 'og_group_ref_target_id' as an exposed
   // filter and only when that filter has a value. We are adding support for
   // the 'Visible in other Spaces' (oa_other_spaces_ref) field.
@@ -1633,7 +1841,17 @@ function oa_core_views_query_alter(&$view, &$query) {
             || $condition['field'] === $column . ".gid"
             || substr($condition['field'], -strlen($column)-2) === "__{$column}")) {
           // Move the condition to our new where group.
-          $query->add_where($group, $condition['field'], $condition['value'], $condition['operator']);
+          // Also need to modify the condition to only match the og_membership.gid field
+          // if the "other_spaces" field is empty, or has a delta of zero
+          // This prevents duplicate entries when the node is visible in multiple
+          // other spaces and is faster than making the query distinct.
+          $sub_condition = db_or()
+            ->condition("{$alias}.delta", NULL, 'IS NULL')
+            ->condition("{$alias}.delta", 0);
+          $new_condition = db_and()
+            ->condition($condition['field'], $condition['value'], $condition['operator'])
+            ->condition($sub_condition);
+          $query->add_where($group, $new_condition);
           $extra_groups[] = $condition['value'];
           unset($query->where[1]['conditions'][$key]);
           break;
@@ -1667,3 +1885,235 @@ function oa_core_oa_related_allowed_default() {
   return array(OA_SECTION_TYPE, OA_SPACE_TYPE);
 }
 
+/**
+ * Helper function for Views handlers to process the exposed input
+ * @param $filter views_handler_filter_in_operator object
+ * @return bool TRUE if successful, FALSE if errors
+ *
+ * This function processed the exposed filter for og_group_ref.
+ * It converts OA_SPACE_CURRENT to the current space context
+ * It also supports the "My Spaces" checkbox to restrict to user's groups
+ * All logic can be bypassed by setting options['expose']['oa_core_no_auto']
+ */
+function oa_core_process_exposed_group_input($filter) {
+  $options_exposed = !empty($filter->options['expose']) ? array_filter($filter->options['expose']) : array();
+  if (empty($options_exposed['oa_core_no_auto'])) {
+    $exposed = $filter->view->get_exposed_input();
+    $id = !empty($options_exposed['identifier']) ? $options_exposed['identifier'] : 'og_group_ref';
+
+    // Replace current space value if filter is empty or OA_SPACE_CURRENT.
+    if (isset($exposed[$id]) && (empty($exposed[$id]) || $exposed[$id] == OA_SPACE_CURRENT)) {
+      if ($group = oa_core_get_space_context()) {
+        $exposed[$id] = $group;
+      }
+      else {
+        unset($exposed[$id]);
+      }
+    }
+
+    // Pane doesn't allow unrelated exposed input, so bring it back.
+    if (!empty($_GET[$id . '_mine'])) {
+      $exposed[$id . '_mine'] = 1;
+    }
+
+    // Form API considers a Value of 0 to be CHECKED!!!!!
+    // So if the value is zero, we set it to FALSE so it is properly UnChecked.
+    if (isset($exposed[$id . '_mine']) && empty($exposed[$id . '_mine'])) {
+      $exposed[$id . '_mine'] = FALSE;
+    }
+
+    // If "My Spaces" is checked, restrict to user's groups
+    global $user;
+    if (!empty($exposed[$id . '_mine'])) {
+      $groups = oa_core_get_groups_by_user($user, 'node');
+      if ($groups && ($gids = array_intersect_key($groups, $filter->get_value_options()))) {
+        $exposed[$id] = $gids;
+        $filter->options['expose']['multiple'] = TRUE;
+      }
+      else {
+        // If restricting to My Spaces but the user has no spaces, fail the build
+        return FALSE;
+      }
+    } // If was multiple from mine setting, clear it out.
+    elseif (empty($options_exposed['multiple']) && isset($exposed[$id]) && is_array($exposed[$id])) {
+      unset($exposed[$id]);
+    }
+    $filter->view->set_exposed_input($exposed);
+  }
+  return TRUE;
+}
+
+/**
+ * Implements hook_panelizer_defaults_override_alter().
+ */
+function oa_core_panelizer_defaults_override_alter(&$data) {
+  // Add any custom widgets coming from Atrium plugins
+  // Change layout from radix_phelan to selby_flipped
+  _oa_core_change_panel_layout($data, 'user:user:default', 'selby_flipped', 'contentheader', array('column2' => 'sidebar'));
+  $info = module_invoke_all('oa_core_add_panes');
+  foreach ($info as $panelizer => $panes) {
+    if (isset($data[$panelizer]->display)) {
+      foreach ($panes as $uuid => $pane) {
+        $pid = 'new-' . $uuid;
+        if (empty($pane)) {
+          if (isset($data[$panelizer]->display->content[$pid])) {
+            unset($data[$panelizer]->display->content[$pid]);
+          }
+        }
+        else {
+          $pane = $pane + array(
+            'shown' => TRUE,
+            'access' => array(),
+            'configuration' => array(),
+            'cache' => array(),
+            'style' => array(
+              'settings' => NULL,
+            ),
+            'css' => array(),
+            'extras' => array(),
+            'position' => 9,
+            'locks' => array(),
+            'uuid' => $uuid,
+            'pid' => $pid,
+          );
+          if (isset($data[$panelizer])) {
+            $data[$panelizer]->display->content[$pid] = (object) $pane;
+          }
+        }
+      }
+    }
+  }
+  _oa_core_panelizer_sort($data);
+}
+
+/**
+ * Implements hook_default_page_manager_handlers_alter().
+ * $data['node_edit_panel_context']->conf['display']->content
+ */
+function oa_core_default_page_manager_handlers_alter(&$data) {
+  $info = module_invoke_all('oa_core_add_panes');
+  foreach ($info as $panelizer => $panes) {
+    if (isset($data[$panelizer]->conf['display'])) {
+      foreach ($panes as $uuid => $pane) {
+        $pid = 'new-' . $uuid;
+        if (empty($pane)) {
+          if (isset($data[$panelizer]->conf['display']->content[$pid])) {
+            unset($data[$panelizer]->conf['display']->content[$pid]);
+          }
+        }
+        else {
+          $pane = $pane + array(
+            'shown' => TRUE,
+            'access' => array(),
+            'configuration' => array(),
+            'cache' => array(),
+            'style' => array(
+              'settings' => NULL,
+            ),
+            'css' => array(),
+            'extras' => array(),
+            'position' => 9,
+            'locks' => array(),
+            'uuid' => $uuid,
+            'pid' => $pid,
+          );
+          if (isset($data[$panelizer])) {
+            $data[$panelizer]->conf['display']->content[$pid] = (object) $pane;
+          }
+        }
+      }
+    }
+  }
+  _oa_core_panels_sort($data);
+}
+
+/**
+ * Helper function to put panes in correct order using the position property
+ * For Panelizer objects
+ * @param $data
+ */
+function _oa_core_panelizer_sort(&$data) {
+  foreach ($data as $key => $panel) {
+    $regions = array();
+    // Group panes by region
+    if (isset($panel->display)) {
+      foreach ($panel->display->content as $pid => $pane) {
+        $regions[$pane->panel][$pid] = $pane->position;
+      }
+      // Sort each region by position
+      $data[$key]->display->panels = array();
+      foreach ($regions as $region => $panels) {
+        asort($panels);
+        $data[$key]->display->panels[$region] = array_keys($panels);
+        foreach ($data[$key]->display->panels[$region] as $index => $pid) {
+          $data[$key]->display->content[$pid]->position = $index;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Helper function to put panes in correct order using the position property
+ * For Page Manager/Panels objects
+ * @param $data
+ */
+function _oa_core_panels_sort(&$data) {
+  foreach ($data as $key => $panel) {
+    $regions = array();
+    // Group panes by region
+    if (isset($panel->conf['display'])) {
+      foreach ($panel->conf['display']->content as $pid => $pane) {
+        $regions[$pane->panel][$pid] = $pane->position;
+      }
+      // Sort each region by position
+      $data[$key]->conf['display']->panels = array();
+      foreach ($regions as $region => $panels) {
+        asort($panels);
+        $data[$key]->conf['display']->panels[$region] = array_keys($panels);
+        foreach ($data[$key]->conf['display']->panels[$region] as $index => $pid) {
+          $data[$key]->conf['display']->content[$pid]->position = $index;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Helper function to change the layout of a panel
+ * @param $data
+ * @param $key string specifying index into $data
+ * @param $new_layout string new layout machine name
+ * @param $default_region string default region name to assign existing panes
+ * @param array $region_map array mapping of old regions to new regions
+ */
+function _oa_core_change_panel_layout(&$data, $key, $new_layout, $default_region, $region_map = array()) {
+  if (!empty($data[$key])) {
+    $data[$key]->display->layout = $new_layout;
+    foreach ($data[$key]->display->panels as $region => $panels) {
+      $new_region = isset($region_map[$region]) ? $region_map[$region] : $default_region;
+      $data[$key]->display->panels[$new_region] = $panels;
+      unset($data[$key]->display->panels[$region]);
+    }
+    foreach ($data[$key]->display->content as $pid => $pane) {
+      $new_region = isset($region_map[$pane->panel]) ? $region_map[$pane->panel] : $default_region;
+      $data[$key]->display->content[$pid]->panel = $new_region;
+    }
+    if (!empty($data[$key]->display->panel_settings['style_settings'])) {
+      foreach ($data[$key]->display->panel_settings['style_settings'] as $region => $settings) {
+        $new_region = isset($region_map[$region]) ? $region_map[$region] : $default_region;
+        $data[$key]->display->panel_settings['style_settings'][$new_region] = $settings;
+        unset($data[$key]->display->panel_settings['style_settings'][$region]);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_field_display_alter().
+ */
+function oa_core_field_display_alter(&$display, $context) {
+  if ($display['type'] == 'og_vocab') {
+    $display['label'] = 'hidden';
+  }
+}

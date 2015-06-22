@@ -12,7 +12,8 @@
  */
 function select2widget_entityreference_widget_settings_form($field, $instance) {
   $widget = $instance['widget'];
-  $settings = $widget['settings'] + field_info_widget_settings($widget['type']);
+
+  $settings = array_replace_recursive(field_info_widget_settings($widget['type']), $widget['settings']);
 
   $form = array();
   if ($widget['type'] == 'select2widgetajax') {
@@ -43,6 +44,13 @@ function select2widget_entityreference_widget_settings_form($field, $instance) {
       '#description' => t('Install !entity_view_mode_link module to create own view modes.',
         array('!entity_view_mode_link' => l(t('"Entity view modes"'), "http://drupal.org/project/entity_view_mode",
         array('attributes' => array('target' => '_blank'))))),
+    );
+
+    $form['select2widgetajax']['placeholder'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Placeholder text'),
+      '#description' => t('Type a text for the placeholder'),
+      '#default_value' => $settings['select2widgetajax']['placeholder'],
     );
 
 
@@ -103,14 +111,12 @@ function select2widget_entity_process_callback($element, &$form_state, $form) {
     'url' => $element['#autocomplete_path'],
     'cardinality' => $cardinality,
     'init' => $element['#init'],
+    'placeholder' => isset($element['#settings']['select2widgetajax']['placeholder']) ? $element['#settings']['select2widgetajax']['placeholder'] : '',
+    'min_char' => $element['#settings']['select2widgetajax']['min_char']
   );
 
   if(isset($element['#settings']['select2widgetajax']['width'])){
     $data['select2widgetajax']['elements'][$element['#id']]['width'] = $element['#settings']['select2widgetajax']['width'];
-  }
-
-  if(isset($element['#settings']['select2widgetajax']['min_char'])){
-    $data['select2widgetajax']['elements'][$element['#id']]['min_char'] = $element['#settings']['select2widgetajax']['min_char'];
   }
 
   $data['select2widgetajax']['elements'][$element['#id']]['delay'] = variable_get('select2_delay', '100');

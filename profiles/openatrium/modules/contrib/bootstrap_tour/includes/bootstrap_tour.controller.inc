@@ -15,15 +15,31 @@ class BootstrapTourEntityController extends EntityAPIControllerExportable {
   public function export($entity, $prefix = '') {
     $wrapper = entity_metadata_wrapper('bootstrap_tour', $entity);
     $entity->steps = $wrapper->bootstrap_tour_step_reference->value();
+    // Need to remove the step reference as they will be overriden anyway.
+    // Remove step keys as they are ignored anyway.
+    unset($entity->bootstrap_tour_step_reference);
+    foreach ($entity->steps as $step) {
+      unset($step->bootstrap_tour_step_id);
+    }
     return parent::export($entity, $prefix);
   }
 
   public function import($data) {
-    $tour = drupal_json_decode($data);
-    if (is_array($tour)) {
+    return parent::import($data);
+  }
 
-      $steps = $tour['steps'];
-      unset($tour['steps']);
+  /**
+   * Add in a presave before any else to handle imported steps.
+   */
+  public function invoke($hook, $entity) {
+    // Handle imported steps
+    if ($hook == 'presave' && !empty($entity->steps)) {
+      $step_ids = array();
+      if (!empty($entity->original)) {
+        $step_ids = field_get_items('bootstrap_tour', $entity->original, 'bootstrap_tour_step_reference');
+      }
+      $steps = $entity->steps;
+      unset($entity->steps);
 
       foreach ($steps as $index => $step) {
         $new_step = entity_create('bootstrap_tour_step', array (
@@ -34,17 +50,21 @@ class BootstrapTourEntityController extends EntityAPIControllerExportable {
           'content' => $step['content'],
           'content_text_format' => $step['content_text_format'],
         ));
+        // If a step of index ID existed, use existing id.
+        if (!empty($step_ids[$index])) {
+          $new_step->bootstrap_tour_step_id = $step_ids[$index]['target_id'];
+          unset($new_step->is_new);
+          unset($step_ids[$index]);
+        }
         $new_step->save();
-        if ($new_step) {
-          $tour['bootstrap_tour_step_reference'][LANGUAGE_NONE][$index]['target_id'] = $new_step->bootstrap_tour_step_id;
-        }
-        else {
-          $tour['bootstrap_tour_step_reference'][LANGUAGE_NONE][$index]['target_id'] = NULL;
-        }
+        $entity->bootstrap_tour_step_reference[LANGUAGE_NONE][$index]['target_id'] = $new_step ? $new_step->bootstrap_tour_step_id : NULL;
       }
-      return $this->create($tour);
+      // Delete any orphaned steps.
+      if ($step_ids) {
+        entity_delete_multiple('bootstrap_tour_step', $step_ids);
+      }
     }
-    return FALSE;
+    parent::invoke($hook, $entity);
   }
 }
 

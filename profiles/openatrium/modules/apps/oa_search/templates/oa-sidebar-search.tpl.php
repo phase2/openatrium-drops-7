@@ -19,7 +19,7 @@
     <?php if (count(array_filter($options)) == 1): ?>
       <div class="options element-invisible <?php print $extra_classes ?>">
         <input type="radio" name="searchOptions"
-               value="<?php print array_shift(array_keys($options)); ?>"
+               value="<?php $keys = array_keys($options); print reset($keys); ?>"
                checked>
       </div>
     <?php else: ?>

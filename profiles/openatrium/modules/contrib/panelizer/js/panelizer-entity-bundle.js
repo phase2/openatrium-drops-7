@@ -1,16 +1,16 @@
 /**
  * @file
- * This JavaScript provides Vertical Tabs integration with Panelizer so
- * that the tab displays a summary of what is enabled.
+ * This JavaScript provides Vertical Tabs integration with Panelizer so that the
+ * tab displays a summary of what is enabled.
  */
 (function ($) {
+  'use strict';
 
 Drupal.behaviors.panelizerFieldsetSummary = {
   attach: function (context) {
     $('fieldset.panelizer-entity-bundle', context).drupalSetSummary(function (context) {
       // Identify whether Panelizer is enabled.
-      var enabled = $('input#panelizer-status:checked', context).length;
-      if (enabled == 0) {
+      if ($('input#panelizer-status:checked', context).length === 0) {
         return Drupal.t('Not panelized');
       }
 
@@ -21,7 +21,7 @@ Drupal.behaviors.panelizerFieldsetSummary = {
       });
 
       // The view modes might not actually be enabled.
-      if (vals.length == 0) {
+      if (vals.length === 0) {
         return Drupal.t('No view modes enabled');
       }
       else {

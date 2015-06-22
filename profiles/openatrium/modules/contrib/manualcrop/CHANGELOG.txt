@@ -1,3 +1,23 @@
+Manual Crop 7.x-1.5, 2015-04-11
+-------------------------------
+- Added a permission to crop images.
+- Added auto reuse effect (thanks to OnkelTem).
+- Added a hook to expose supporting widgets (thanks to dreamlabs).
+- Added Views integration (thanks to OnkelTem and merlinofchaos).
+- Added option to maximize the default crop area.
+- Added support for the image style labels.
+- Added support for the Link Image widget
+- Added support for the MultiUpload widget (thanks to havran).
+- Added support for the Image URL Formatter module (thanks to papadak).
+- Added an example Drush make file.
+- Removed the third-party jQuery plugins and added the Libraries module as dependency.
+- Removed faulty width and height attributes.
+- Disabled crop after upload on mobile devices.
+- Fixed and improved Media integration (there are a lot of people to thank for this).
+- Fixed compatibility jQuery 1.9 and up.
+- Fixed issues with the admin bar (thanks to anou and candelas).
+- And much more fixes and features, see the git log for more details.
+
 Manual Crop 7.x-1.4, 2012-10-19
 -------------------------------
 - Switched from the custom widget to the default image widget (thanks to Alan D. for improving the upgrade path).

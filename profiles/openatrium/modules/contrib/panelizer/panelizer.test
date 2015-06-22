@@ -1,0 +1,191 @@
+<?php
+
+/**
+ * @file
+ * Test integration for the panelizer module.
+ */
+
+class PanelizerTestHelper extends DrupalWebTestCase {
+  function setUp(array $modules = array()) {
+    $modules[] = 'ctools';
+    $modules[] = 'panels';
+    $modules[] = 'panelizer';
+    parent::setUp($modules);
+  }
+}
+
+/**
+ * Test file administration page functionality.
+ */
+class PanelizerAdminTestCase extends PanelizerTestHelper {
+  public static function getInfo() {
+    return array(
+      'name' => 'Panelizer administration',
+      'description' => 'Test panelizer administration page functionality.',
+      'group' => 'Panelizer',
+      'dependencies' => array('ctools', 'panels'),
+    );
+  }
+
+  function setUp(array $modules = array()) {
+    parent::setUp();
+
+    $admin_user = $this->drupalCreateUser(array('administer panelizer'));
+    $this->drupalLogin($admin_user);
+  }
+
+  /**
+   * Tests panelizer overview with different entities.
+   */
+  function testPanelizerAdminPages() {
+    $this->drupalGet('admin/structure/panelizer');
+    $edit = array();
+
+    $entity_plugins = panelizer_get_entity_plugins();
+
+    foreach ($entity_plugins as $entity_type => $plugin) {
+      $entity_info = entity_get_info($entity_type);
+
+      if ($entity_info) {
+        $bundles = $entity_info['bundles'];
+
+        foreach ($bundles as $bundle => $info) {
+          $this->assertFieldByXPath('//input[@type="checkbox" and @name="entities[' . $entity_type . '][' . $bundle . '][0][status]"]', FALSE, t('The %bundle bundle of the %entity_type entity type can be panelized.', array('%bundle' => $bundle, '%entity_type' => $entity_type)));
+
+          // Collect a list of all of the available entity types + bundles.
+          $edit['entities[' . $entity_type . '][' . $bundle . '][0][status]'] = TRUE;
+        }
+      }
+    }
+
+    // Panelize all of the known entity types and their bundles.
+    $this->drupalPost('admin/structure/panelizer', $edit, t('Save'));
+
+    // Reset the ctools plugins static cache to include the newly panelized
+    // entity types.
+    ctools_get_plugins_reset();
+
+    $entity_plugins = panelizer_get_entity_plugins();
+
+    foreach ($entity_plugins as $entity_type => $plugin) {
+      $entity_info = entity_get_info($entity_type);
+
+      if ($entity_info) {
+        $bundles = $entity_info['bundles'];
+
+        foreach ($bundles as $bundle => $info) {
+          if (!empty($plugin['bundles'][$bundle]['status'])) {
+            if (!empty($info['admin']['real path'])) {
+              $this->assertLinkByHref($info['admin']['real path'] . '/display', 0, t('A link to manage the display for the %bundle bundle of the %entity_type entity type appears on the page.', array('%bundle' => $bundle, '%entity_type' => $entity_type)));
+            }
+            $this->assertLinkByHref('admin/structure/panelizer/' . $entity_type . '/' . $bundle . '/allowed', 0, t('A link to restrict the allowed content for the %bundle bundle of the %entity_type entity type appears on the page.', array('%bundle' => $bundle, '%entity_type' => $entity_type)));
+          }
+
+          foreach ($plugin['view modes'] as $view_mode => $view_mode_info) {
+            // Automatically allow view modes that are part of Panels.
+            if (isset($entity_info['view modes'][$view_mode])) {
+              // Skip this view mode if it isn't enabled for this bundle.
+              if (!empty($bundle)) {
+                if (empty($view_mode_settings[$view_mode]['custom_settings'])) {
+                  continue;
+                }
+              }
+
+              // When configuring a new bundle for an entity, the view modes
+              // that are by default set to now have custom settings will be
+              // hidden, to avoid confusion.
+              else {
+                if (isset($entity_info['view modes'][$view_mode]['custom settings']) && empty($entity_info['view modes'][$view_mode]['custom settings'])) {
+                  continue;
+                }
+              }
+            }
+
+            if (isset($plugin['view mode status'][$bundle][$view_mode]) && empty($plugin['view mode status'][$bundle][$view_mode])) {
+              // continue;
+            }
+
+            if (!empty($plugin['bundles'][$bundle]['view modes'][$view_mode]) && is_array($plugin['bundles'][$bundle]['view modes'][$view_mode])) {
+              $settings = $plugin['bundles'][$bundle]['view modes'][$view_mode];
+            }
+            else {
+              $settings = array(
+                'status' => FALSE,
+                'default' => FALSE,
+                'choice' => FALSE
+              );
+            }
+
+            $this->assertFieldByXPath('//input[@type="checkbox" and @name="entities[' . $entity_type . '][' . $bundle . '][' . $view_mode . '][status]"]', !empty($settings['status']), t('The %view_mode view mode of the %bundle bundle of the %entity_type entity type can be panelized.', array('%view_mode' => $view_mode, '%bundle' => $bundle, '%entity_type' => $entity_type)));
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Verifies panelizer configuration options for panelized entity type bundles.
+ */
+class PanelizerEntityBundleConfigurationTestCase extends PanelizerTestHelper {
+  public static function getInfo() {
+    return array(
+      'name' => 'Panelizer entity bundle configuration',
+      'description' => 'Test entity bundle configuration settings.',
+      'group' => 'Panelizer',
+      'dependencies' => array('ctools', 'panels'),
+    );
+  }
+
+  function setUp(array $modules = array()) {
+    parent::setUp();
+
+    $web_user = $this->drupalCreateUser(array('create page content', 'administer content types', 'bypass node access', 'administer panelizer'));
+    $this->drupalLogin($web_user);
+  }
+
+  /**
+   * Verify that the "Basic page" content type can be panelized.
+   */
+  function testPageConfiguration() {
+    // Panelize "Basic page" content type.
+    $edit = array();
+    $edit['panelizer[status]'] = TRUE;
+    $this->drupalPost('admin/structure/types/manage/page', $edit, t('Save content type'));
+
+    // Create a node.
+    $edit = array();
+    $langcode = LANGUAGE_NONE;
+    $edit["title"] = $this->randomName(8);
+    $edit["body[$langcode][0][value]"] = $this->randomName(16);
+    $this->drupalPost('node/add/page', $edit, t('Save'));
+
+    // Check that the post has been panelized.
+    $node = $this->drupalGetNodeByTitle($edit["title"]);
+    $this->assertLink('Customize display', 0, 'The customize display link appears on the page');
+    $this->assertLinkByHref('node/' . $node->nid . '/panelizer', 0, 'A link to customize the node appears on the page');
+
+    // Allow panelization of the "Default" view mode.
+    $edit = array();
+    $edit['panelizer[view modes][default][status]'] = TRUE;
+    $this->drupalPost('admin/structure/types/manage/page', $edit, t('Save content type'));
+
+    // Check that the view mode can be panelized.
+    $this->drupalGet('node/' . $node->nid . '/panelizer');
+    $this->assertText('Default');
+    $this->assertLink('panelize', 0, 'The panelize link for the default view mode appears on the page');
+    $this->assertLinkByHref('node/' . $node->nid . '/panelizer/default', 0, 'A link to panelize the default view mode appears on the page');
+
+    // Verify that the view mode is not currently panelized.
+    $this->drupalGet('node/' . $node->nid . '/panelizer/default');
+    $this->assertRaw(t('This %entity is not currently panelized.', array('%entity' => 'Node')));
+
+    // Panelize the view mode.
+    $this->drupalPost(NULL, array(), t('Panelize it!'));
+
+    // Check that the view mode has been panelized.
+    $this->drupalGet('node/' . $node->nid);
+    $elements = $this->xpath('//div[contains(@class,:class)]', array(':class' => 'panelizer-view-mode'));
+    $this->assertEqual(count($elements), 1, 'The node is panelized.');
+  }
+}

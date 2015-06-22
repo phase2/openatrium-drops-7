@@ -505,3 +505,47 @@ function oa_events_form_oa_event_node_form_alter(&$form, &$form_state, $form_id)
 function oa_events_oa_related_allowed_default() {
   return array('oa_event');
 }
+
+/**
+ * Implements hook_message_view().
+ */
+function oa_events_message_view($entity, $view_mode, $langcode) {
+  if ($view_mode == 'message_notify_email_body') {
+    if (($items = field_get_items('message', $entity, 'field_oa_node_ref')) && ($node = node_load($items[0]['target_id'])) && $node->type == 'oa_event') {
+      // We communicate to the ical alters that we have an attendee.
+      $display_id = 'oa_calendar_ical';
+      if (($view = views_get_view('oa_fullcalendar')) && $view->access($display_id)) {
+        $account = user_load($entity->uid);
+        $attendee = &drupal_static('oa_event_message_attendee');
+        $attendee = $account->mail;
+        $view->live_preview = TRUE;
+        $entity->email_attachments[] = array(
+          'filecontent' => $view->preview($display_id, array($node->nid)),
+          'filename' => 'export-' . $node->nid . '.ics',
+          'filemime' => 'text/calendar',
+        );
+      }
+      $attendee = FALSE;
+    }
+  }
+}
+
+/**
+ * Implements hook_date_ical_export_vcalendar_alter().
+ */
+function oa_events_date_ical_export_vcalendar_alter($vcalendar, $view) {
+  if (drupal_static('oa_event_message_attendee')) {
+    $vcalendar->setMethod('REQUEST');
+  }
+}
+
+/**
+ * Implements hook_date_ical_export_vcalendar_alter().
+ */
+function oa_events_date_ical_export_vevent_alter($vevent, $view, $event) {
+  if ($to_mail = drupal_static('oa_event_message_attendee')) {
+    $vevent->setOrganizer(variable_get('site_mail', ini_get('sendmail_from')));
+    $vevent->setAttendee($to_mail);
+  }
+}
+

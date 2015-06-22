@@ -25,13 +25,13 @@ function command_buttons_schema() {
       'name' => array(
         'description' => 'The machine name of the entity.',
         'type' => 'varchar',
-        'length' => 25,
+        'length' => 255,
         'not null' => TRUE,
       ),
       'module' => array(
         'description' => 'The module name.',
         'type' => 'varchar',
-        'length' => 25,
+        'length' => 255,
         'not null' => TRUE,
       ),
       'title' => array(
@@ -99,4 +99,26 @@ function command_buttons_update_7104() {
       ->condition('field_button_size_value', 'btn-' . $old)
       ->execute();
   }
+}
+
+/**
+ * Make the name and module length bigger.
+ */
+function command_buttons_update_7105() {
+  db_change_field('command_buttons', 'name', 'name',
+    array(
+      'description' => 'The machine name of the entity.',
+      'type' => 'varchar',
+      'length' => 255,
+      'not null' => TRUE,
+    )
+  );
+  db_change_field('command_buttons', 'module', 'module',
+    array(
+      'description' => 'The module name.',
+      'type' => 'varchar',
+      'length' => 255,
+      'not null' => TRUE,
+    )
+  );
 }

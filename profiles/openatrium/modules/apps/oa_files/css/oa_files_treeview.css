@@ -1,15 +1,19 @@
+.pane-oa-files-treeview > .pane-content {
+  position: relative;
+}
+
 .oa-files-treeview {
   overflow: visible;
 }
 
 .oa-files-treeview.oa-files-sidebar  {
-  margin-top: -15px;
+  margin-top: -5px;
 }
 
 .oa-files-header {
-  margin: 0 3px 3px 0;
+  margin: 0 0 3px 0;
   position: relative;
-  min-height: 20px;
+  clear: both;
 }
 
 .oa-files-header .row {
@@ -22,7 +26,7 @@
 }
 
 .oa-files-wide .oa-files-header {
-  min-height: 25px;
+  overflow: hidden;
 }
 
 .oa-files-treeview .alert {
@@ -48,7 +52,7 @@
 
 .oa-files-topbuttons {
   display: inline-block;
-  margin-right: 10px;
+  margin-left: 3px;
 }
 
 .oa-files-rightalign {
@@ -178,9 +182,13 @@
   display: none;
 }
 
-.oa-files-sidebar .oa-files-header:hover .oa-file-hidden,
 .oa-files-sidebar [treecontrol] li .tree-node:hover .oa-file-hidden {
   display: inline;
+}
+
+.oa-files-sidebar .oa-file-root:hover,
+.pane-oa-files-treeview:hover .oa-file-root {
+  display: block;
 }
 
 .oa-files-sidebar [treecontrol] li .oa-file-hidden a {
@@ -214,7 +222,7 @@
   border-radius: 5px;
 }
 
-.oa-files-header .oa-file,
+.oa-file.oa-file-root,
 .oa-files-wide .oa-file {
   text-align: right;
   width: 100px;
@@ -226,6 +234,20 @@
 .oa-files-wide .oa-file {
   top: 7px;
   width: auto;
+}
+
+.oa-files-wide .oa-file.oa-file-root {
+  top: -20px;
+  padding-right: 2px;
+}
+
+.oa-files-sidebar .oa-file.oa-file-root {
+  top: 0;
+  z-index: 5;
+}
+
+.oa-files-wide .oa-files-header .btn {
+  padding: 6px 6px;
 }
 
 .oa-files-wide .oa-files-leaf {
@@ -315,6 +337,10 @@
 [treecontrol].tree-classic li.tree-leaf i.tree-leaf-head,
 [treecontrol].tree-classic li.tree-leaf i.tree-branch-head {
   display: none;
+}
+
+.oa-files-selected {
+  background-color: #ccc;
 }
 
 /* Mobile settings */

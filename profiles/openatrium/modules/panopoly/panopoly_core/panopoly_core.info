@@ -16,6 +16,7 @@ dependencies[] = field_group
 dependencies[] = field_sql_storage
 dependencies[] = fieldable_panels_panes
 dependencies[] = image
+dependencies[] = jquery_update
 dependencies[] = libraries
 dependencies[] = list
 dependencies[] = menu
@@ -65,6 +66,7 @@ features[panelizer_defaults][] = taxonomy_term:panopoly_categories:default:defau
 features[panelizer_defaults][] = taxonomy_term:panopoly_categories:default:featured
 features[taxonomy][] = panopoly_categories
 features[variable][] = ctools_content_all_views
+features[variable][] = jquery_update_jquery_version
 features[variable][] = page_manager_node_edit_disabled
 features[variable][] = page_manager_node_view_disabled
 features[variable][] = page_manager_term_view_disabled
@@ -72,9 +74,9 @@ features[variable][] = panelizer_taxonomy_term:panopoly_categories_allowed_layou
 features[variable][] = panelizer_taxonomy_term:panopoly_categories_allowed_types_default
 features[views_view][] = panopoly_taxonomy
 
-; Information added by Drupal.org packaging script on 2015-04-29
-version = "7.x-1.21"
+; Information added by Drupal.org packaging script on 2015-06-18
+version = "7.x-1.23"
 core = "7.x"
 project = "panopoly_core"
-datestamp = "1430338256"
+datestamp = "1434586213"
 

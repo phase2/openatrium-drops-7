@@ -7,17 +7,13 @@
 (function ($) {
   Drupal.behaviors.select2widget = {
     attach: function (context, settings) {
-		  this.overwriteSelect2Defaults();
+      this.overwriteSelect2Defaults();
 
       if (checkjQueryRequirements()) {
         var config = settings.select2widget2;
         if (typeof config != 'undefined' && typeof config.elements != 'undefined') {
             for (var el in config.elements) {
-                var e = $('#' + config.elements[el].id + ':not(.select2widget-processed)', context);
-                if (e.length == 0) {
-                  continue;
-                }
-                e.addClass('select2widget-processed');
+                var e = $('#' + config.elements[el].id, context);
                 e.select2({
                   width: 'element'
                 });
@@ -30,38 +26,42 @@
           var settings = config.elements;
 
           for (var el in config.elements) {
-            var e = $('#' + settings[el].id + ':not(.select2widget-processed)', context);
+            var e = $('#' + config.elements[el].id + ':not(.select2widget-processed)', context);
+
             var url = Drupal.settings.basePath + settings[el].url;
 
-						if(e.length == 0)
-						  continue;
-						e.addClass('select2widget-processed');
+            if(e.length == 0) {
+              continue;
+            }
+
+            e.addClass('select2widget-processed');
 
             e.select2({
-			        width: (settings[el].width) ? settings[el].width : 'element',
-			        separator: settings[el].separator,
-            //  placeholder: "Search",
+              width: (settings[el].width) ? settings[el].width : 'element',
+              separator: settings[el].separator,
+              placeholder: Drupal.t(settings[el].placeholder),
+              allowClear: true,
               minimumInputLength: settings[el].min_char,
               maximumSelectionSize: settings[el].cardinality,
               multiple: settings[el].cardinality == 1 ? false : true,
               tokenSeparators : [','],
-							createSearchChoice: function(term, data) {
+              createSearchChoice: function(term, data) {
                 var el = this.containerId.replace('s2id_', '');
 
-								if(!settings[el].allow_new || settings[el].allow_new == 0) {
-								  return;
-								}
+                if(!settings[el].allow_new || settings[el].allow_new == 0) {
+                  return;
+                }
 
                 if ($(data).filter(function() {
-								  return this.title.localeCompare(term) === 0;
-								}).length === 0) {
-								  return {
-								    id:  term,
-								    title: term,
-								    data: term
-								  };
-								}
-							},
+                  return this.title.localeCompare(term) === 0;
+                }).length === 0) {
+                  return {
+                    id:  term,
+                    title: term,
+                    data: term
+                  };
+                }
+              },
               ajax: { // instead of writing the function to execute the request we use Select2's convenient helper
                   url: url,
                   data: function (term, page) {
@@ -90,11 +90,12 @@
                   }
                 }
                 else {
-                  for (id in settings[el].init){
+                  for (id in settings[el].init) {
                     data.push({id: id, title: settings[el].init[id]});
                   }
                   element.val('');
                 }
+
                 // Drupal settings get merged on ajax, so empty out init so
                 // has new value when updated via ajax.
                 if (typeof Drupal.settings.select2widgetajax != 'undefined' && typeof Drupal.settings.select2widgetajax.elements[el] != 'undefined') {

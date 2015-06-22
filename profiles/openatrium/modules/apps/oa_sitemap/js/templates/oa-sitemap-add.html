@@ -1,0 +1,14 @@
+<div class="oa-{{ addType }} oa-new-{{ addType }}">
+  <h4 class="oa-{{ addType }}-title">
+    <a ng-if="addType == 'section'" ng-href="{{ newUrl({nid : space.nid}) }}" ng-class="newClass({nid : space.nid})" title="{{ newTitle({nid : space.nid}) }}">
+      <div class="oa-{{ addType }}-icon"><i class="icon-plus"></i></div>
+      {{ newTitle({nid : space.nid}) }}
+    </a>
+    <a ng-if="addType == 'subspace'" ng-href="{{ newUrl({nid : space.nid}) }}" ng-class="newClass({nid : space.nid})" title="{{ newTitle({nid : space.nid}) }}">
+      <span class="oa-{{ addType }}-icon">
+        <i class="icon-plus"></i>
+      {{ newTitle({nid : space.nid}) }}
+      </span>
+    </a>
+  </h4>
+</div>

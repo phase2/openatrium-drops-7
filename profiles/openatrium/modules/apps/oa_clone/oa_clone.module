@@ -299,6 +299,7 @@ function oa_clone_form_oa_space_node_form_alter(&$form, &$form_state) {
     if (isset($form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default'])) {
       $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default']['#default_value'] = '';
       $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default']['#init'] = array();
+      $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['#other_groups_ids'] = array();
     }
   }
 }
@@ -624,7 +625,7 @@ function _oa_clone_batch_space(&$batch, $space, $original_space_nid) {
 
   // Clone all the Sections in this Space.
   foreach (array_keys(oa_core_space_sections($original_space_nid, 1, $bypass_access_check)) as $original_section_nid) {
-    $not_orphan[$original_section_nid] = $original_section_nid; 
+    $not_orphan[$original_section_nid] = $original_section_nid;
     if ($clone_section = oa_clone($original_section_nid, $space->nid, NULL, $bypass_access_check)) {
       $not_orphan = array_merge($not_orphan, oa_clone_get_section_content($original_section_nid, $bypass_access_check));
       $batch['operations'][] = array('oa_clone_batch_clone_section_content', array($clone_section, $original_section_nid));
@@ -644,10 +645,63 @@ function _oa_clone_batch_space(&$batch, $space, $original_space_nid) {
     }
   }
 
+  if (module_exists('og_vocab') && ($vocabs = og_vocab_relation_get_by_group('node', $original_space_nid))) {
+    foreach ($vocabs as $vocab) {
+      $batch['operations'][] = array('oa_clone_batch_og_vocab', array($space, $vocab->vid, $original_space_nid));
+    }
+  }
+
   if ($nids = array_diff(oa_clone_get_orphan_content($original_space_nid, $bypass_access_check), $not_orphan)) {
     $batch['operations'][] = array('oa_clone_batch_clone_orphan_content', array($space, $nids));
   }
   $batch['operations'][] = array('oa_clone_batch_og_menu_clone', array($space, $original_space_nid));
+}
+
+/**
+ * Clones a vocab and it's terms.
+ */
+function oa_clone_batch_og_vocab($space, $vocab_vid, $original_space_nid) {
+  if (($vocab = taxonomy_vocabulary_load($vocab_vid)) && ($relations = og_vocab_relation_get($vocab_vid))) {
+    $first_relation = reset($relations);
+    if (variable_get('og_vocab_allow_shared_vocabularies', FALSE) && !empty($first_relation->settings['shared'])) {
+      // Just save relationship to this vocab.
+      og_vocab_relation_save($vocab->vid, 'node', $space->nid, $first_relation->settings);
+    }
+    else {
+      $new_vocab = clone $vocab;
+      unset($new_vocab->vid);
+      $new_vocab->machine_name = $new_vocab->machine_name . '_' . $space->nid;
+      taxonomy_vocabulary_save($new_vocab);
+      if (!empty($new_vocab->vid)) {
+
+        og_vocab_relation_save($new_vocab->vid, 'node', $space->nid, $first_relation->settings);
+        db_query('INSERT into {og_vocab} (vid, entity_type, bundle, settings, field_name) SELECT :vid, entity_type, bundle, settings, field_name FROM {og_vocab} WHERE vid = :old_vid', array(':vid' => $new_vocab->vid, ':old_vid' => $vocab_vid));
+
+        // Copy the terms. Currently not further batched as term save is fast.
+        if ($tree = taxonomy_get_tree($vocab_vid)) {
+          $saved = array();
+          foreach ($tree as $term) {
+            $loaded_term = taxonomy_term_load($term->tid);
+            $new_term = clone $loaded_term;
+            unset($new_term->tid);
+            $new_term->vid = $new_vocab->vid;
+            if (!empty($term->parents)) {
+              foreach ($term->parents as $parent_id) {
+                if (!empty($saved[$parent_id])) {
+                  $new_term->parent[] = $saved[$parent_id];
+                }
+              }
+            }
+            taxonomy_term_save($new_term);
+            if (!empty($new_term->tid)) {
+              $saved[$term->tid] = $new_term->tid;
+            }
+          }
+        }
+
+      }
+    }
+  }
 }
 
 /**
@@ -718,7 +772,7 @@ function oa_clone_batch_clone_orphan_content($space, $nids, &$context) {
  *
  * @param object $space
  *   Cloned space object
- * @param 
+ * @param
  * @param array &$context
  *   A place where we can store values that need to b passed from one iteration
  *   of this batch operation to the next.

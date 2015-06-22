@@ -14,7 +14,7 @@ function panopoly_search_ctools_plugin_directory($module, $plugin) {
  */
 function panopoly_search_form_alter(&$form, &$form_state, $form_id) {
   if ($form_id == 'search_form' || $form_id == 'search_theme_form') {
-    $form['#submit'] = array('panopoly_search_all_form_submit');
+    $form['#submit'][] = 'panopoly_search_all_form_submit';
     if (!empty($form['basic']['keys'])) {
       $form['basic']['keys']['#size'] = '';
     }

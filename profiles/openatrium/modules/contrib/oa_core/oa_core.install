@@ -352,3 +352,31 @@ function oa_core_update_7232() {
   _oa_core_remove_orphaned_og_roles();
 }
 
+/**
+ * Mark that node access needs to be rebuilt.
+ */
+function oa_core_update_7233() {
+  // Finds all private groups.
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', array('oa_group', 'oa_space'))
+    ->propertyCondition('status', NODE_PUBLISHED)
+    ->fieldCondition('group_access', 'value', 1)
+    ->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');
+  $result = $query->execute();
+
+  if (isset($result['node'])) {
+    // Finds if any private group has the wrong node access record.
+    $nids = db_select('node_access')
+      ->condition('nid', array_keys($result['node']))
+      ->condition('realm', 'all')
+      ->condition('gid', '0')
+      ->fields('node_access', array('nid'))
+      ->execute()
+      ->fetchCol();
+    if ($nids) {
+      node_access_needs_rebuild(TRUE);
+    }
+  }
+}
+

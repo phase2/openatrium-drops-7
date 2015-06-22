@@ -1,0 +1,36 @@
+<div class="oa-subspace" ng-drag="{{dragDrop}}" ng-drag-data="space" ng-drag-id="2">
+  <div class="oa-subspace-icons" ng-hide="space.editorEnabled">
+    <div class="oa-subspace-icon-left">
+      <a ng-href="{{space.url}}">
+        <i class="icon-user {{spaceClass(space)}}"></i>
+      </a>
+    </div>
+    <div ng-show="space.admin" class="dropdown oa-subspace-icon-center">
+      <a class="" data-toggle="dropdown" href="" title="{{ Settings | drupalt  }}"><i class="icon-cog"></i></a>
+      <ul class="dropdown-menu" role="menu">
+        <li><a ng-href="{{ editUrl({space: space}) }} ">{{ 'Edit' | drupalt }}</a></li>
+        <li><a ng-click="deleteSpace({space: space})">{{ 'Delete' | drupalt }}</a></li>
+        <li><a ng-click="enableEditor({space: space})">{{ 'Rename' | drupalt }}</a></li>
+      </ul>
+    </div>
+    <div class="oa-subspace-icon-right">
+      <a ng-href="{{space.url}}" title="{{ 'Visit Space' | drupalt }}">
+        <i class="icon-eye-open"></i>
+      </a>
+    </div>
+  </div>
+  <h4 class="oa-subspace-title">
+    <a ng-hide="space.editorEnabled" class="oa-subspace-link" ng-click="goToSpace({nid: space.nid})"
+       ng-drop="true" ng-drop-success="onDropOnSpace({space: $data, newParentID: space.nid})">
+      <span>{{space.title}}</span>
+    </a>
+    <div ng-show="space.editorEnabled">
+      <textarea ng-model="space.title"></textarea>
+      <div class="oa-rename-actions">
+        <a href ng-click="saveTitle({node: space})">{{ 'Save' | drupalt }}</a>
+        {{ 'or' | drupalt }}
+        <a href ng-click="restoreTitle({node: space})">{{ 'Cancel' | drupalt }}</a>.
+      </div>
+    </div>
+  </h4>
+</div>

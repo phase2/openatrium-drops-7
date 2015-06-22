@@ -15,6 +15,7 @@ dependencies[] = number
 dependencies[] = oa_buttons
 dependencies[] = oa_section_context
 dependencies[] = oa_sections
+dependencies[] = oa_subspaces
 dependencies[] = oa_teams
 dependencies[] = og
 dependencies[] = og_access
@@ -88,6 +89,7 @@ features[variable][] = node_preview_oa_group
 features[variable][] = node_preview_oa_space
 features[variable][] = node_submitted_oa_group
 features[variable][] = node_submitted_oa_space
+features[variable][] = og_use_queue
 features[variable][] = pathauto_node_oa_group_pattern
 features[variable][] = pathauto_node_oa_space_pattern
 features[variable][] = pathauto_node_pattern
@@ -98,6 +100,7 @@ features[views_view][] = open_atrium_user_filters
 features_exclude[dependencies][features_template] = features_template
 features_exclude[dependencies][oa_clone] = oa_clone
 features_exclude[dependencies][oa_subspaces] = oa_subspaces
+features_exclude[dependencies][oa_drive] = oa_drive
 features_exclude[variable][comment_anonymous_oa_group] = comment_anonymous_oa_group
 features_exclude[variable][comment_anonymous_oa_space] = comment_anonymous_oa_space
 features_exclude[variable][comment_default_mode_oa_group] = comment_default_mode_oa_group
@@ -125,9 +128,9 @@ files[] = plugins/views/oa_core_oa_section_ref_views_handler_filter_in_operator.
 files[] = plugins/views/oa_core_og_group_ref_views_handler_filter_entityreference_autocomplete.inc
 files[] = plugins/views/oa_core_views_handler_argument_numeric_og_membership_gid.inc
 
-; Information added by Drupal.org packaging script on 2015-05-06
-version = "7.x-2.52"
+; Information added by Drupal.org packaging script on 2015-06-22
+version = "7.x-2.55"
 core = "7.x"
 project = "oa_core"
-datestamp = "1430952376"
+datestamp = "1434986377"
 

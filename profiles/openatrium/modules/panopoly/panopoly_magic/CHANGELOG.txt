@@ -1,3 +1,18 @@
+Panopoly Magic 7.x-1.23, 2015-06-17
+----------------------------
+- Generate preview markup in a theme function/template.
+
+Panopoly Magic 7.x-1.22, 2015-06-04
+----------------------------
+- Only show one widget preview at a time when adding content in panels.
+- Update to latest Fieldable Panels Panes (FPP).
+- Editing body of node in FAPE via the IPE doesn't save changes.
+- Style settings form breaks 'managed_file' elements, puts 'Cancel' button in
+  'General Settings' fieldset, and gives PHP notices on region style settings.
+- Visual regression on 'Add content' dialog for the top-level widget buttons.
+- Provide a way for Views to opt out of allowing the "Display type" to be
+  changed on the pane settings.
+
 Panopoly Magic 7.x-1.21, 2015-04-29
 ----------------------------
 - Allow panopoly magic to affect other forms.

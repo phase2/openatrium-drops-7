@@ -5,7 +5,12 @@ core = 7.x
 
 ; Drupal Core
 projects[drupal][type] = core
-projects[drupal][version] = 7.36
+projects[drupal][version] = 7.38
+
+; ***** Patches from Panopoly *******
+; Bug with image styles on database update
+projects[drupal][patch][1973278] = http://www.drupal.org/files/issues/image-accommodate_missing_definition-1973278-16.patch
+; ***** End of Panopoly patches *****
 
 ; *********** PATCHES ************
 
@@ -35,3 +40,6 @@ projects[drupal][patch][106721] = https://www.drupal.org/files/issues/drupal-106
 
 ; Cache user grants.
 projects[drupal][patch][2199001] = https://www.drupal.org/files/issues/node_access_grants-static-cache-11.patch
+
+; Fix javascript error with angular
+projects[drupal][patch][2492993] = https://www.drupal.org/files/issues/2492993-drupal-hash-1.patch

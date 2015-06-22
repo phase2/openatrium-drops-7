@@ -107,7 +107,7 @@ function oa_core_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'mimemail_sitestyle';
-  $strongarm->value = 1;
+  $strongarm->value = '0';
   $export['mimemail_sitestyle'] = $strongarm;
 
   $strongarm = new stdClass();
@@ -164,6 +164,13 @@ function oa_core_strongarm() {
   $strongarm->name = 'node_submitted_oa_space';
   $strongarm->value = 1;
   $export['node_submitted_oa_space'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'og_use_queue';
+  $strongarm->value = '1';
+  $export['og_use_queue'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */

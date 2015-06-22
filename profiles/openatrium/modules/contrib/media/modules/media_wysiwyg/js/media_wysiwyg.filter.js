@@ -61,23 +61,46 @@
     },
 
     /**
-     * Returns alt and title field values for use as html attributes. Ensures
-     * changes made via the media popup persist into the macro as title/alt
-     * attributes.
+     * Returns alt and title field attribute data from the corresponding fields.
+     *
+     * Specifically looks for file_entity module's file_image_alt_text and
+     * file_image_title_text fields as those are by default used to store
+     * override values for image alt and title attributes.
      *
      * @param options (array)
      *   Options passed through a popup form submission.
+     * @param includeFieldID (bool)
+     *   If set, the returned object will have extra keys with the IDs of the
+     *   found fields.
+     *
+     * If the alt or title fields were not found, their keys will be excluded
+     * from the returned array.
+     *
+     * @return
+     *   An object with the following keys:
+     *   - alt: The value of the alt field.
+     *   - altField: The id of the alt field.
+     *   - title: The value of the title field.
+     *   - titleField: The id of the title field.
      */
-    parseAttributeFields: function(options) {
-      var attributes = [];
+    parseAttributeFields: function(options, includeFieldID) {
+      var attributes = {};
 
-      for (field in options) {
-        if (field.match('image_alt')) {
-          attributes['alt'] = options[field];
+      for (var field in options) {
+        // If the field is set to false, use an empty string for output.        
+        options[field] = options[field] === false ? '' : options[field];
+        if (field.match(/^field_file_image_alt_text/)) {
+          attributes.alt = options[field];
+          if (includeFieldID) {
+            attributes.altField = field;
+          }
         }
 
-        if (field.match('image_title')) {
-          attributes['title'] = options[field];
+        if (field.match(/^field_file_image_title_text/)) {
+          attributes.title = options[field];
+          if (includeFieldID) {
+            attributes.titleField = field;
+          }
         }
       }
 
@@ -85,13 +108,27 @@
     },
 
     /**
-     * Ensures changes made to fielded attributes persist set to the field(s).
+     * Ensures changes made to fielded attributes are done on the fields too.
+     *
+     * This should be called when creating a macro tag from a placeholder.
+     *
+     * Changed made to attributes represented by fields are synced back to the
+     * corresponding fields, if they exist. The alt/title attribute
+     * values encoded in the macro will override the alt/title field values (set
+     * in the Media dialog) during rendering of both WYSIWYG placeholders and
+     * the final file entity on the server. Syncing makes changes applied to a
+     * placeholder's alt/title attribute using native WYSIWYG tools visible in
+     * the fields shown in the Media dialog.
+     *
+     * The reverse should be done when creating a placeholder from a macro tag
+     * so changes made in the Media dialog are reflected in the placeholder's
+     * alt and title attributes or the values there become stale and the change
+     * appears uneffective.
      *
      * @param file_info (object)
-     *   A json decoded object of the file being inserted/updated.
+     *   A JSON decoded object of the file being inserted/updated.
      */
     syncAttributesToFields: function(file_info) {
-      // If the title attribute has changed, ensure the title field is updated.
       if (!file_info) {
         file_info = {};
       }
@@ -101,17 +138,18 @@
       if (!file_info.fields) {
         file_info.fields = {};
       }
-      var titleAttr  = file_info.attributes.title || false;
-      var titleField = file_info.fields['field_file_image_title_text[und][0][value]'] || false;
-      if (titleAttr !== titleField) {
-        file_info.fields['field_file_image_title_text[und][0][value]'] = titleAttr;
+      var fields = Drupal.media.filter.parseAttributeFields(file_info.fields, true);
+
+      // If the title attribute has changed, ensure the title field is updated.
+      var titleAttr = file_info.attributes.title || false;
+      if (fields.titleField && (titleAttr !== fields.title)) {
+        file_info.fields[fields.titleField] = titleAttr;
       }
 
       // If the alt attribute has changed, ensure the alt field is updated.
-      var altAttr  = file_info.attributes.alt || false;
-      var altField = file_info.fields['field_file_image_alt_text[und][0][value]'] || false;
-      if (altAttr !== altField) {
-        file_info.fields['field_file_image_alt_text[und][0][value]'] = altAttr;
+      var altAttr = file_info.attributes.alt || false;
+      if (fields.altField && (altAttr !== fields.alt)) {
+        file_info.fields[fields.altField] = altAttr;
       }
 
       return file_info;
@@ -173,12 +211,15 @@
         element = element.children();
       }
 
+      // Extract attributes represented by fields and use those values to keep
+      // them in sync, usually alt and title.
+      var attributes = Drupal.media.filter.parseAttributeFields(info.fields);
+      info.attributes = $.extend(info.attributes, attributes);
+
       // Move attributes from the file info array to the placeholder element.
       if (info.attributes) {
         $.each(Drupal.settings.media.wysiwyg_allowed_attributes, function(i, a) {
-          if (info.attributes[a]) {
-            element.attr(a, info.attributes[a]);
-          }
+          element.attr(a, info.attributes[a]);
         });
         delete(info.attributes);
 

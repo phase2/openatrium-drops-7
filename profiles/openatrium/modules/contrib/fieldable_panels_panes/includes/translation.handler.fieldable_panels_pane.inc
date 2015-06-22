@@ -28,4 +28,22 @@ class EntityTranslationFieldablePanelsPaneHandler extends EntityTranslationDefau
   public function getAccess($op) {
     return fieldable_panels_panes_access($op, $this->entity);
   }
+
+  /**
+   * Convert the translation update status fieldset into a vartical tab.
+   */
+  public function entityForm(&$form, &$form_state) {
+    parent::entityForm($form, $form_state);
+
+    // Move the translation fieldset to a vertical tab.
+    if (isset($form['translation'])) {
+      $form['translation'] += array(
+        '#group' => 'additional_settings',
+        '#weight' => 100,
+        '#attached' => array(
+          'js' => array(drupal_get_path('module', 'entity_translation') . '/entity_translation.node-form.js'),
+        ),
+      );
+    }
+  }
 }

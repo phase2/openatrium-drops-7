@@ -10,6 +10,9 @@
 .ui-tabs {
   padding: 0;
 }
+.ui-front {
+  z-index: 10001 !important;
+}
 
 .ui-dialog.media-wrapper .ui-dialog-content {
   padding: 0;
@@ -90,11 +93,6 @@
 .media-item .label-wrapper label {
   font-size: 10px;
   padding: 5px 10px;
-}
-
-.media-thumbnail > span.file {
-  display: block;
-  overflow: hidden;
 }
 
 /* Media item lists */

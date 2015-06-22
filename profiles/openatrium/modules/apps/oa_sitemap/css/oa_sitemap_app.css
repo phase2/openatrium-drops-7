@@ -216,7 +216,7 @@ body.oa-sitemap-full .oa-sitemap {
 /* line 206, ../sass/oa_sitemap_app.scss */
 .oa-sitemap .dropdown-menu > li > a {
   padding: 0 20px;
-  color: #333;
+  color: #333 !important;
 }
 /* line 209, ../sass/oa_sitemap_app.scss */
 .oa-sitemap .dropdown-menu > li > a:hover {
@@ -277,12 +277,12 @@ body.oa-sitemap-full .oa-sitemap {
   transform: translateY(-40%);
 }
 /* line 253, ../sass/oa_sitemap_app.scss */
-.oa-sitemap .newsection .oa-section-icon {
+.oa-sitemap .oa-new-section .oa-section-icon {
   border: 1px dashed #aaa;
   color: #3b3b3b;
 }
 /* line 256, ../sass/oa_sitemap_app.scss */
-.oa-sitemap .newsection .oa-section-icon:hover {
+.oa-sitemap .oa-new-section .oa-section-icon:hover {
   background-color: #ddd;
 }
 /* line 261, ../sass/oa_sitemap_app.scss */
@@ -298,11 +298,11 @@ body.oa-sitemap-full .oa-sitemap {
   margin-bottom: 10px;
 }
 /* line 271, ../sass/oa_sitemap_app.scss */
-.oa-sitemap .oa-subspace.oa-new-space {
+.oa-sitemap .oa-subspace.oa-new-subspace {
   border: 1px dashed #aaa;
 }
 /* line 273, ../sass/oa_sitemap_app.scss */
-.oa-sitemap .oa-subspace.oa-new-space i {
+.oa-sitemap .oa-subspace.oa-new-subspace i {
   margin-bottom: 5px;
 }
 /* line 279, ../sass/oa_sitemap_app.scss */

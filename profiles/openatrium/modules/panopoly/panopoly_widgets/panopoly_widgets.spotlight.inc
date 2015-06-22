@@ -174,6 +174,23 @@ function panopoly_widgets_field_formatter_view($entity_type, $entity, $field, $i
   $formatter = $display['type'];
   drupal_add_library('system', 'ui.tabs');
 
+  // Load the images and filter out slides with missing images.
+  foreach ($items as $delta => $item_data) {
+    if (!empty($item_data['uuid']) && module_exists('uuid')) {
+      $image_entity = entity_uuid_load('file', array($item_data['uuid']));
+      $image = file_load(array_pop($image_entity)->fid);
+    }
+    else {
+      $image = (object)$item_data;
+    }
+    if (empty($image->uri) || !file_exists($image->uri)) {
+      unset($items[$delta]);
+    }
+    else {
+      $items[$delta]['image'] = $image;
+    }
+  }
+
   // Assemble the tabs header
   $header = '<div class="panopoly-spotlight-buttons-wrapper" data-rotation-time="' . $duration * 1000 . '">';
   if (count($items) > 1) {
@@ -377,14 +394,7 @@ function theme_panopoly_spotlight_view($variables) {
   $alt = $variables['items']['alt'];
   $settings = $variables['settings'];
 
-  if (module_exists('uuid')) {
-    $image_entity = entity_uuid_load('file', array($variables['items']['uuid']));
-    $image = file_load(array_pop($image_entity)->fid);
-  }
-  else {
-    $image = (object) $variables['items'];
-  }
-
+  $image = $variables['items']['image'];
   $image_markup = theme('image_style', array('style_name' => $settings['image_style'], 'path' => $image->uri, 'alt' => $alt));
 
   $output = '<div id="' . 'panopoly-spotlight-' . $variables['delta'] . '" class="' . 'panopoly-spotlight' . '">';

@@ -224,7 +224,6 @@ function oa_sections_node_prepare($node) {
       $section = taxonomy_term_load($section_tid);
       $values = field_get_items('taxonomy_term', $section, 'field_oa_section_type_menu');
       if (!empty($values[0]['value'])) {
-        dsm($values[0]['value']);
         if ($values[0]['value'] == OA_SECTION_TYPE_MENU_VISIBLE) {
           $node->default_menu_hidden = FALSE;
         }
@@ -304,7 +303,7 @@ function oa_sections_views_pre_view(&$view) {
  * Return array of icon/images keyed by section type tid
  */
 function oa_sections_get_icons() {
-  $vid = taxonomy_vocabulary_machine_name_load('section_type')->vid;
+  $vid = oa_core_taxonomy_vocabulary('section_type')->vid;
   $terms = taxonomy_get_tree($vid);
   $query = db_select('taxonomy_term_data', 't');
   $query->leftJoin('field_data_field_oa_icon_class', 'ic', "ic.entity_id = t.tid");

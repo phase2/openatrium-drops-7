@@ -901,33 +901,43 @@ function media_update_7210() {
 }
 
 /**
- * Flush old version of the image style to make the thumbnails appear correctly.
+ * Save a square_thumbnail image style in the database for legacy support if one
+ * does not already exist.
  */
 function media_update_7211() {
-  $style = image_style_load('square_thumbnail');
+  $default_style = array(
+    'name' => 'square_thumbnail'
+  );
 
-  if ($style) {
-    $style['name'] = 'media_thumbnail';
-    image_style_save($style);
+  // Clear the image cache to remove any old image styles that only exist in
+  // code.
+  cache_clear_all('*', 'cache_image', TRUE);
+
+  // Check if the square_thumbnail image style exists.
+  // The style will only exist if the user has customized it, otherwise it would
+  // have been removed by clearing the image style cache.
+  $existing_style = image_style_load('square_thumbnail');
+
+  // Save a square_thumbnail image style in the database for legacy support.
+  // This is only necessary if a square_thumbnail image style doesn't already
+  // exist.
+  if (empty($existing_style)) {
+    $style = image_style_save($default_style);
+
+    $effect = array(
+      'name' => 'image_scale_and_crop',
+      'data' => array(
+        'width' => 180,
+        'height' => 180,
+        'weight' => 0,
+      ),
+      'isid' => $style['isid'],
+    );
+
+    image_effect_save($effect);
   }
 
-  // Replace any instances in display settings
-  module_load_include('inc', 'file_entity', 'file_entity.file_api');
-  $entity_info = entity_get_info('file');
-  $view_modes = array('default' => array('label' => t('Default'))) + $entity_info['view modes'];
-  foreach ($view_modes as $view_mode => $view_mode_info) {
-    $displays = file_displays_load('image', $view_mode);
-    foreach ($displays as $display) {
-      if (isset($display->settings['image_style'])) {
-        if ($display->settings['image_style'] == 'square_thumbnail') {
-          $display->settings['image_style'] = 'media_thumbnail';
-          file_display_save($display);
-        }
-      }
-    }
-  }
-
-  return t('Flushed image style and updated display styles.');
+  return t('Saved a square_thumbnail image style in the database for legacy support if one did not already exist.');
 }
 
 /**

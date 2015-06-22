@@ -19,6 +19,9 @@ function panopoly_pages_update_7101() {
   $items['panopoly_pages'] = array('node_info');
   features_revert($items);
 
+  // Rebuild node type info to purge caches (just in case!) for permissions.
+  node_types_rebuild();
+
   // Set the new permissions.
   $editor = user_role_load_by_name('editor');
   $admin = user_role_load_by_name('administrator');

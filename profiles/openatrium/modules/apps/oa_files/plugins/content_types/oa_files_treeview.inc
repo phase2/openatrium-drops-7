@@ -3,8 +3,6 @@
  * @file oa_files_menu.inc
  */
 
-const OA_FILE_TYPE = 'oa_wiki_page';
-
 $plugin = array(
   'title' => t('Files & Folders'),
   'description' => t('Displays documents in a folder hierarchy that can be expanded and collapsed.'),
@@ -12,6 +10,7 @@ $plugin = array(
   'category' => array(t('Open Atrium'), -9),
   'edit form' => 'oa_files_treeview_settings_form',
   'render callback' => 'oa_files_treeview_render',
+  'required context' => new ctools_context_optional(t('Node'), 'node'),
   'defaults' => array(
     'oa_files_treeview_mode' => 0,
     'oa_files_menu_mode' => 0,
@@ -27,6 +26,9 @@ $plugin = array(
     'oa_files_only_attached' => FALSE,
     'oa_files_hide_empty' => FALSE,
     'oa_files_subspaces' => FALSE,
+    'oa_files_auto' => FALSE,
+    'oa_files_link_vocab' => FALSE,
+    'oa_files_only_folders' => FALSE,
   ),
 );
 
@@ -91,6 +93,13 @@ function oa_files_actions(&$conf = array()) {
       "icon" => 'icon-plus',
       "weight" => 5,
     ),
+    "adddocument" => array(
+      "title" => t('Add document'),
+      "exposed" => FALSE,
+      "enabled" => TRUE,
+      "icon" => 'icon-plus',
+      "weight" => 6,
+    ),
   );
 
   foreach ($actions as $key => $action) {
@@ -120,19 +129,35 @@ function oa_files_actions(&$conf = array()) {
  * @see ctools_plugin_examples for more advanced info
  */
 function oa_files_treeview_render($subtype, $conf, $args, $context) {
+  global $user;
   static $js_instance = 0;
 
   drupal_add_js('misc/ajax.js', array('group' => JS_LIBRARY, 'weight' => 2));
 
   $base = drupal_get_path('module', 'oa_files');
   $space_id = oa_core_get_space_context();
+  $current_id = isset($context->data) ? $context->data->nid : $space_id;
 
   $files = array();
   $plid = NULL;
   $vid = 0;
-  $allowfiles = og_user_access('node', $space_id, "create " . OA_FILE_TYPE . " content");
-  if (empty($conf['oa_files_menu_mode'])) {
+  $conf['topid'] = 0;
+  $node_type = (isset($conf['oa_files_type']) ? $conf['oa_files_type'] : 'oa_wiki_page');
+  $allowfiles = og_user_access('node', $space_id, "create " . $node_type . " content");
+  $mode = !empty($conf['oa_files_menu_mode']) ? $conf['oa_files_menu_mode'] : 0;
+  $override_vocab = variable_get_value('oa_wiki_vocab');
+  if (!empty($override_vocab)  && !empty($conf['oa_files_auto'])) {
+    if ($mode == 0) {
+      $conf['oa_files_space'] = -1;
+      $conf['oa_files_section'] = -1;
+    }
+    $mode = 1;  // force taxonomy base
+    $conf['oa_files_vocabulary'] = $override_vocab;
+    $conf['oa_files_all'] = FALSE;
+  }
+  if ($mode == 0) {
     $parent_field = "menu_parent";
+    $rearrange = url('/group/node/' . $space_id . '/admin/menu');
     $allownew = $allowfiles;
     // use Space Menu for tree
     $plid = og_menu_single_get_active_plid();
@@ -146,6 +171,11 @@ function oa_files_treeview_render($subtype, $conf, $args, $context) {
 
     drupal_add_js(array('oa_files' => array('node_token' => array('undefined' => drupal_get_token('add-node-undefined')))), 'setting');
     if ($plid) {
+      // determine nid of menu parent
+      $top_menu = menu_link_load($plid);
+      if (!empty($top_menu['link_path']) && preg_match('#node/(\d+)#', $top_menu['link_path'], $matches) !== FALSE) {
+        $conf['topid'] = $matches[1];
+      }
       $menu_tree = og_menu_single_children_items($plid, !empty($conf['og_menu_single_depth']) ? $conf['og_menu_single_depth'] : MENU_MAX_DEPTH);
       if ($menu_tree) {
         $files = oa_files_prepare_files_from_menu($menu_tree, $conf);
@@ -159,14 +189,20 @@ function oa_files_treeview_render($subtype, $conf, $args, $context) {
       }
     }
   }
-  elseif ($conf['oa_files_menu_mode'] == 1) {
+  elseif ($mode == 1) {
     // use Vocabulary for tree
     $parent_field = 'term_parent';
+    if ($user->uid == 0) {
+      // always hide empty terms from anonymous users
+      $conf['oa_files_hide_empty'] = TRUE;
+    }
     $vid = $conf['oa_files_vocabulary'];
+    $vocab = taxonomy_vocabulary_load($vid);
+    $rearrange = $vocab ? url('admin/structure/taxonomy/' . $vocab->machine_name) : '';
     $terms = taxonomy_get_tree($vid);
     $allownew = FALSE;
     if (module_exists('og_vocab')) {
-      $vids = og_vocab_get_accessible_vocabs('node', OA_FILE_TYPE, OG_VOCAB_FIELD);
+      $vids = og_vocab_get_accessible_vocabs('node', $node_type, OG_VOCAB_FIELD);
       if (!empty($vids) && in_array($vid, $vids)) {
         // check OG access for editing vocab terms
         $allownew = og_user_access('node', $space_id, "edit terms");
@@ -184,8 +220,21 @@ function oa_files_treeview_render($subtype, $conf, $args, $context) {
   $actions = oa_files_actions($conf);
   $space = oa_files_space_filter($conf);
   $section = oa_files_section_filter($conf);
+  if (is_array($section)) {
+    // If multiple sections are selected, convert to a string list.
+    // Just used for the Cookie for saving expand/collapse state.
+    $section = implode('_', $section);
+  }
 
-  if (!empty($files) || ($allownew && $actions['addfile']['enabled'])) {
+  if ($node_type != 'oa_wiki_page') {
+    // allow taxonomy-based tree for any content type, but only oa_wiki_page for files.
+    if ($actions['adddocument']['enabled']) {
+      $actions['adddocument']['title'] = t('Add') . ' ' . node_type_get_name($node_type);
+    }
+    $actions['addfile']['enabled'] = FALSE;
+  }
+
+  if (!empty($files) || ($allownew && ($actions['addfile']['enabled'] || $actions['adddocument']['enabled']))) {
     oa_files_add_file_links($files, $conf);
 
     drupal_add_js(array(
@@ -202,7 +251,13 @@ function oa_files_treeview_render($subtype, $conf, $args, $context) {
         'hideempty' => isset($conf['oa_files_hide_empty']) ? $conf['oa_files_hide_empty'] : FALSE,
         'actions' => $actions,
         'parentfield' => $parent_field,
+        'currentpath' => current_path(),
+        'currentid' => $current_id,
+        'rearrange' => $rearrange,
+        'linkvocab' => isset($conf['oa_files_link_vocab']) ? $conf['oa_files_link_vocab'] : FALSE,
+        'nodetype' => str_replace('_', '-', $node_type),
         'vid' => $vid,
+        'topid' => $conf['topid'],
       ),
     ), 'setting');
 
@@ -266,6 +321,7 @@ function oa_files_summary($node) {
  */
 function oa_files_prepare_files_from_menu($tree, &$conf, $parent = 0) {
   $icon_directory = variable_get('file_icon_directory', drupal_get_path('module', 'file') . '/icons');
+  $node_type = (isset($conf['oa_files_type']) ? $conf['oa_files_type'] : 'oa_wiki_page');
 
   $result = array();
   $all_nids = array();
@@ -276,7 +332,9 @@ function oa_files_prepare_files_from_menu($tree, &$conf, $parent = 0) {
     }
     $all_nids[] = $tree[$key]['nid'];
   }
-  $titles = $all_nids ? oa_core_get_titles($all_nids, '', 'title', array('title', 'created', 'changed'), TRUE, 0) : array();
+  $titles = $all_nids ? oa_core_get_titles($all_nids, '', 'title', array('title', 'created', 'changed', 'type'), TRUE, 0) : array();
+  // Determine if we should check node access.  Only if less than 20 nodes.
+  // For other cases, we add the Edit link for all files and let normal node access handle Access denied.
   $check_edit_access = !empty($conf['oa_files_action_edit']) && count($all_nids) < 20;
   // Find if node is a folder.
   $nids_are_folder = array();
@@ -286,18 +344,25 @@ function oa_files_prepare_files_from_menu($tree, &$conf, $parent = 0) {
     $query->condition('n.nid', $all_nids);
     $query->addJoin('LEFT', 'field_data_field_oa_media', 'f', "n.nid = f.entity_id AND f.entity_type = 'node'");
     $query->addJoin('LEFT', 'field_data_field_oa_wiki_page_no_redirect', 'fw', "n.nid = fw.entity_id AND fw.entity_type = 'node'");
+    $query->addJoin('LEFT', 'field_data_body', 'fb', "n.nid = fb.entity_id AND fb.entity_type = 'node'");
     $query->isNull('f.field_oa_media_fid');
     $query->condition(
       db_or()
         ->condition('fw.field_oa_wiki_page_no_redirect_value', 0)
         ->isNull('fw.field_oa_wiki_page_no_redirect_value')
     );
+    $query->condition(
+      db_or()
+        ->condition('fb.body_value', '')
+        ->isNull('fb.body_value')
+    );
     $nids_are_folder = $query->execute()->fetchCol();
   }
 
   foreach ($tree as $key => $item) {
     $nid = $item['nid'];
-    // need to load the node to determine edit access
+    // need to load the node to determine edit access.
+    // but only load node if $check_edit_access is set or if we need the body field.
     $body = '';
     if (oa_files_showfield($conf, 'body') && $nid && ($render_array = field_view_field('node', node_load($nid), 'body', 'teaser'))) {
       $body = render($render_array);
@@ -320,12 +385,18 @@ function oa_files_prepare_files_from_menu($tree, &$conf, $parent = 0) {
     $children = oa_files_prepare_files_from_menu($item['below'], $conf, $nid);
 
     $isfolder = (count($children) > 0) || in_array($nid, $nids_are_folder);
-    $result[$nid]['isfolder'] = $isfolder;
-    if (!$isfolder) {
-      $result[$nid]['icon'] = url($icon_directory . '/application-octet-stream.png');
+    if (($titles['types'][$nid] != $node_type) && (count($children) == 0)) {
+      // Don't show single items that are not document pages and don't have children
+      // e.g., don't show manually added menu links to spaces/sections
+      unset($result[$nid]);
     }
-
-    $result = $result + $children;
+    else {
+      $result = $result + $children;
+      $result[$nid]['isfolder'] = $isfolder;
+      if (!$isfolder) {
+        $result[$nid]['icon'] = url($icon_directory . '/application-octet-stream.png');
+      }
+    }
   }
   return $result;
 }
@@ -350,12 +421,17 @@ function oa_files_apply_filters(&$query, &$conf) {
     $query->join('og_membership', 'og', "n.nid = og.etid AND og.entity_type = 'node' AND og.field_name = '" . OA_SPACE_FIELD . "'");
     $query->condition('og.gid', $extra_groups, 'IN');
   }
-  if ($section_id > 0) {
-    if (module_exists('oa_subspaces') && isset($conf['oa_files_section']) && ($conf['oa_files_section'] != 0) && (count($extra_groups) > 1)) {
-      // we are searching multiple spaces and have a specific section selected, so use that same section name within subspaces
-      $extra_sections = oa_subspaces_matching_sections($section_id, $extra_groups, array($space_id));
+  $sections = is_array($section_id) ? $section_id : array($section_id);
+  foreach ($sections as $section_id) {
+    if ($section_id > 0) {
+      if (module_exists('oa_subspaces') && isset($conf['oa_files_section']) && ($conf['oa_files_section'] != 0) && (count($extra_groups) > 1)) {
+        // we are searching multiple spaces and have a specific section selected, so use that same section name within subspaces
+        $extra_sections = oa_subspaces_matching_sections($section_id, $extra_groups, array($space_id));
+      }
+      $extra_sections[] = $section_id;
     }
-    $extra_sections[] = $section_id;
+  }
+  if (!empty($extra_sections)) {
     $query->join('field_data_oa_section_ref', 's', "s.entity_id = n.nid AND s.entity_type = 'node'");
     $query->condition('s.oa_section_ref_target_id', $extra_sections, 'IN');
   }
@@ -371,13 +447,14 @@ function oa_files_add_uncategorized(&$menu_tree, &$conf) {
   $icon_directory = variable_get('file_icon_directory', drupal_get_path('module', 'file') . '/icons');
   $sort_field = !empty($conf['oa_files_sort']) ? $conf['oa_files_sort'] : 'title';
   $sort_dir = !empty($conf['oa_files_dir']) ? $conf['oa_files_dir'] : 'ASC';
+  $node_type = (isset($conf['oa_files_type']) ? $conf['oa_files_type'] : 'oa_wiki_page');
 
   $query = db_select('node', 'n');
   $query->leftJoin('menu_links', 'm', "CONCAT('node/', n.nid) = m.link_path AND m.menu_name = 'og-menu-single'");
   oa_files_apply_filters($query, $conf);
   $query->fields('n', array('nid'))
     ->isNull('m.plid')
-    ->condition('n.type', OA_FILE_TYPE)
+    ->condition('n.type', $node_type)
     ->addTag('node_access')
     ->orderBy($sort_field, $sort_dir);
 
@@ -420,6 +497,7 @@ function oa_files_add_uncategorized(&$menu_tree, &$conf) {
  */
 function oa_files_add_other_nodes(&$result, $conf, $tids = NULL, $exclude = NULL) {
   if (!empty($conf['extra_groups'])) {
+    $node_type = (isset($conf['oa_files_type']) ? $conf['oa_files_type'] : 'oa_wiki_page');
     $query = db_select('node', 'n');
     $query->join('field_data_oa_other_spaces_ref', 'o', "o.entity_id = n.nid AND o.entity_type = 'node'");
     if (!empty($tids)) {
@@ -434,7 +512,7 @@ function oa_files_add_other_nodes(&$result, $conf, $tids = NULL, $exclude = NULL
     $query
       ->fields('n', array('nid'))
       ->condition('o.oa_other_spaces_ref_target_id', $conf['extra_groups'], 'IN')
-      ->condition('n.type', OA_FILE_TYPE)
+      ->condition('n.type', $node_type)
       ->addTag('node_access');
     $extra_nodes = $query->execute()->fetchAll();
     $result = array_merge($result, $extra_nodes);
@@ -496,6 +574,7 @@ function oa_files_prepare_files_from_terms($tids, &$conf) {
   $icon_directory = variable_get('file_icon_directory', drupal_get_path('module', 'file') . '/icons');
   $sort_field = !empty($conf['oa_files_sort']) ? $conf['oa_files_sort'] : 'title';
   $sort_dir = !empty($conf['oa_files_dir']) ? $conf['oa_files_dir'] : 'ASC';
+  $node_type = (isset($conf['oa_files_type']) ? $conf['oa_files_type'] : 'oa_wiki_page');
 
   $nids = array();
   $result = array();
@@ -507,7 +586,7 @@ function oa_files_prepare_files_from_terms($tids, &$conf) {
     $query->fields('n', array('nid'))
       ->fields('t', array('tid'))
       ->condition('t.tid', $tids, 'IN')
-      ->condition('n.type', OA_FILE_TYPE)
+      ->condition('n.type', $node_type)
       ->addTag('node_access')
       ->orderBy($sort_field, $sort_dir);
     $result = $query->execute()->fetchAll();
@@ -525,7 +604,7 @@ function oa_files_prepare_files_from_terms($tids, &$conf) {
       $query->condition('n.nid', $nids, 'NOT IN');
     }
     $query->fields('n', array('nid'))
-      ->condition('n.type', OA_FILE_TYPE)
+      ->condition('n.type', $node_type)
       ->addTag('node_access')
       ->orderBy($sort_field, $sort_dir);
     $all_nids = $query->execute()->fetchAll();
@@ -590,6 +669,14 @@ function oa_files_prepare_files_from_terms($tids, &$conf) {
  */
 function oa_files_add_file_links(&$files, $conf) {
 
+  if (!empty($conf['oa_files_only_folders'])) {
+    foreach ($files as $id => $file) {
+      if (empty($file['isfolder'])) {
+        unset($files[$id]);
+      }
+    }
+  }
+
   // generate list of nids to get files for and create map array
   $nids = array();
   $map = array();
@@ -650,7 +737,23 @@ function oa_files_space_filter($conf) {
  */
 function oa_files_section_filter($conf) {
   $filter = isset($conf['oa_files_section']) ? $conf['oa_files_section'] : -1;
-  return ($filter == -1) ?  oa_core_get_section_context() : $filter;
+  $filter = is_array($filter) ? $filter : array($filter);
+  $current_section = NULL;
+  foreach ($filter as $key => $value) {
+    if ($value == -1) {
+      if (!isset($current_section)) {
+        $current_section = oa_core_get_section_context();
+      }
+      $filter[$key] = $current_section;
+    }
+  }
+  if (empty($filter)) {
+    $filter = 0;
+  }
+  elseif (is_array($filter) && count($filter) == 1) {
+    $filter = $filter[0];
+  }
+  return $filter;
 }
 
 /**
@@ -670,6 +773,11 @@ function oa_files_treeview_settings_form($form, &$form_state) {
     ),
     '#title' => 'Select whether files should be categorized by a vocabulary or by the Space Menu',
     '#default_value' => $conf['oa_files_menu_mode'],
+  );
+  $form['oa_files_mode_group']['oa_files_auto'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Allow space taxonomy to override widget'),
+    '#default_value' => isset($conf['oa_files_auto']) ? $conf['oa_files_auto'] : FALSE,
   );
 
   /* Fields for using the Space Menu */
@@ -708,13 +816,50 @@ function oa_files_treeview_settings_form($form, &$form_state) {
     }
   }
 
+  $node_type = isset($form_state['values']['oa_files_type']) ? $form_state['values']['oa_files_type'] :
+    (isset($conf['oa_files_type']) ? $conf['oa_files_type'] : 'oa_wiki_page');
+
+  $types = array_map('check_plain', node_type_get_names());
+  $form['oa_files_mode_group']['oa_files_type'] = array(
+    '#type' => 'select',
+    '#title' => t('Content Type'),
+    '#default_value' => $node_type,
+    '#options' => $types,
+    '#states' => array(
+      'visible' => array(
+        ':input[name="oa_files_menu_mode"]' => array('value' => 1),
+      ),
+    ),
+    '#ajax' => array(
+      'callback' => 'oa_files_vocab_ajax',
+      'wrapper' => 'oa-files-vocab',
+      'method' => 'replace',
+      'effect' => 'fade',
+      // This is needed because Ctools doesn't allow normal Drupal #ajax.
+      'path' => 'system/panopoly-magic',
+    ),
+  );
+
   /* Fields for using Vocabularies */
   $form['oa_files_mode_group']['oa_files_vocabulary'] = array(
     '#title' => t('Vocabulary'),
     '#type' => 'select',
-    '#options' => oa_files_get_vocab_options(OA_FILE_TYPE),
+    '#options' => oa_files_get_vocab_options($node_type),
     '#default_value' => $conf['oa_files_vocabulary'],
     '#description' => t('Select which vocabulary to group files by.'),
+    '#prefix' => '<div id="oa-files-vocab">',
+    '#suffix' => '</div>',
+    '#states' => array(
+      'visible' => array(
+        ':input[name="oa_files_menu_mode"]' => array('value' => 1),
+      ),
+    ),
+  );
+
+  $form['oa_files_mode_group']['oa_files_link_vocab'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Link vocab folders to listing pages'),
+    '#default_value' => isset($conf['oa_files_link_vocab']) ? $conf['oa_files_link_vocab'] : FALSE,
     '#states' => array(
       'visible' => array(
         ':input[name="oa_files_menu_mode"]' => array('value' => 1),
@@ -724,9 +869,8 @@ function oa_files_treeview_settings_form($form, &$form_state) {
 
   $form['oa_files_mode_group']['oa_files_space'] = array(
     '#type' => 'og_group_ref',
-    '#title' => 'Space',
-    '#default_value' => isset($conf['oa_files_space']) || $conf['oa_files_space'] == OA_SPACE_CURRENT ? $conf['oa_files_space'] :
-      OA_SPACE_CURRENT,
+    '#title' => t('Space'),
+    '#default_value' => isset($conf['oa_files_space']) ? $conf['oa_files_space'] : OA_SPACE_CURRENT,
     '#states' => array(
       'visible' => array(
         ':input[name="oa_files_menu_mode"]' => array('value' => 1),
@@ -746,9 +890,9 @@ function oa_files_treeview_settings_form($form, &$form_state) {
   $form['oa_files_mode_group']['oa_files_section'] = array(
     '#type' => 'oa_section_ref',
     '#title' => 'Section',
-    '#default_value' => isset($conf['oa_files_section']) || $conf['oa_files_section'] == -1 ? $conf['oa_files_section'] :
-      OA_SPACE_CURRENT,
+    '#default_value' => isset($conf['oa_files_section']) ? $conf['oa_files_section'] : OA_SPACE_CURRENT,
     '#og_group_ref' => 'oa_files_space',
+    '#multiple' => TRUE,
     '#states' => array(
       'visible' => array(
         ':input[name="oa_files_menu_mode"]' => array('value' => 1),
@@ -787,6 +931,12 @@ function oa_files_treeview_settings_form($form, &$form_state) {
     '#type' => 'checkbox',
     '#title' => t('Only show documents with attached files'),
     '#default_value' => isset($conf['oa_files_only_attached']) ? $conf['oa_files_only_attached'] : FALSE,
+  );
+
+  $form['oa_files_only_folders'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Only show folders'),
+    '#default_value' => isset($conf['oa_files_only_folders']) ? $conf['oa_files_only_folders'] : FALSE,
   );
 
   $form['oa_files_hide_empty'] = array(
@@ -864,9 +1014,16 @@ function oa_files_treeview_settings_form($form, &$form_state) {
 }
 
 /**
+ * Ajax callback when selecting content type for vocab
+ */
+function oa_files_vocab_ajax($form, $form_state) {
+  return $form['oa_files_mode_group']['oa_files_vocabulary'];
+}
+
+/**
  * Helper function to determine which vocabularies are allowed on this content type
  */
-function oa_files_get_vocab_options($type = OA_FILE_TYPE) {
+function oa_files_get_vocab_options($type = 'oa_wiki_page') {
   $vids = array();
   $vocab_names = array();
 

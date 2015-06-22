@@ -217,6 +217,7 @@ function oa_core_get_groups_by_user_access($account = NULL, $include_archived = 
 /**
  * Returns the current space id context
  * @param  boolean $from_session only use the context stored in $SESSION
+ *   set this to TRUE if calling from a access hook to avoid infinite loops
  * @return int Space ID
  */
 function oa_core_get_space_context($from_session = FALSE) {
@@ -224,9 +225,13 @@ function oa_core_get_space_context($from_session = FALSE) {
     // don't run this during the installer
     return 0;
   }
-  if ($from_session && defined('OG_SESSION_CONTEXT_ID') && isset($_SESSION[OG_SESSION_CONTEXT_ID])) {
-    return $_SESSION[OG_SESSION_CONTEXT_ID];
+  if ($from_session) {
+    if (defined('OG_SESSION_CONTEXT_ID') && isset($_SESSION[OG_SESSION_CONTEXT_ID])) {
+      return $_SESSION[OG_SESSION_CONTEXT_ID];
+    }
+    return 0;
   }
+
   $context = og_context('node');
   if (!empty($context['gid'])) {
     return $context['gid'];
@@ -283,11 +288,13 @@ function oa_core_get_section_context() {
  * @param bool $include_archived
  *   (optional) Whether to include archived nodes or not. By default, archived
  *   items aren't included.
+ * @param book $fetch_all
+ *   (optional) Set to true to return all parents, rather than just direct parents
  *
  * @return array
  *   Array of parent NIDs to titles.
  */
-function oa_core_get_parents_with_titles($nid, $bundle = OA_SPACE_TYPE, $status = NULL, $include_archived = FALSE, $fetcha_all = FALSE, $account = NULL) {
+function oa_core_get_parents_with_titles($nid, $bundle = OA_SPACE_TYPE, $status = NULL, $include_archived = FALSE, $fetch_all = FALSE, $account = NULL) {
   if (!isset($account)) {
     global $user;
     $uid = $user->uid;
@@ -299,12 +306,12 @@ function oa_core_get_parents_with_titles($nid, $bundle = OA_SPACE_TYPE, $status 
     $uid = $account->uid;
   }
 
-  $cid = oa_core_get_cache_id(OA_CACHE_GET_PARENTS, $nid . '_' . $uid . '_' . ($fetcha_all ? '1' : '0'), $include_archived, array($bundle, $status));
+  $cid = oa_core_get_cache_id(OA_CACHE_GET_PARENTS, $nid . '_' . $uid . '_' . ($fetch_all ? '1' : '0'), $include_archived, array($bundle, $status));
   if (oa_core_get_cache(OA_CACHE_GET_PARENTS, $cid, $result)) {
     return $result;
   }
 
-  $result = og_subgroups_parents_load('node', $nid, FALSE, $fetcha_all);
+  $result = og_subgroups_parents_load('node', $nid, FALSE, $fetch_all);
   $result = !empty($result['node']) ? oa_core_get_nids_title_matching($result['node'], $bundle, $status, $include_archived, $account) : array();
 
   oa_core_set_cache(OA_CACHE_GET_PARENTS, $cid, $result);

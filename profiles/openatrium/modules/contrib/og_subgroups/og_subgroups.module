@@ -166,6 +166,7 @@ function og_subgroups_node_access_records_alter(&$grants, $node) {
           // Do nothing.
           break;
         case OG_CONTENT_ACCESS_PRIVATE:
+          $gids['node'][] = $node->nid;
           $gids = array_merge_recursive($gids, $parents_with_inheritance);
           break;
       }
@@ -184,7 +185,7 @@ function og_subgroups_node_access_records_alter(&$grants, $node) {
         if (!in_array($gids['node'], $gids['node'])) {
           $gids['node'][] = $node->nid;
         }
-        foreach ($gids['node'] as $gid) {
+        foreach (array_unique($gids['node']) as $gid) {
           $grants[] = array (
             'realm' => OG_ACCESS_REALM . ':node',
             'gid' => $gid,

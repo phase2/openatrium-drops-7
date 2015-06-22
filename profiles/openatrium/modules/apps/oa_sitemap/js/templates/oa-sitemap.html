@@ -1,0 +1,122 @@
+<div class="oa-sitemap" ng-cloak ondragstart="return false;" ondrop="return false;">
+  <div class="oa-sitemap-header clearfix">
+    <div class="oa-sitemap-title pull-left">
+      <h3>{{title}}</h3>
+    </div>
+    <div class="oa-sitemap-search pull-right btn-group">
+      <button class="oa-sitemap-search-toggle btn btn-default dropdown-toggle" data-toggle="dropdown">{{currentSpace.title}} <span class="caret"></span></button>
+      <ul class="dropdown-menu" role="menu">
+        <li ng-repeat="dropDownSelect in dropDownSelects track by $index">
+          <a ng-class="dropDownSelect.classes" class="oa-sitemap-search-link" ng-href="#/space/{{dropDownSelect.nid}}">{{dropDownSelect.prefix}}{{dropDownSelect.title}}<span ng-if="!dropDownSelect.children_fetched"> [...]</span></a>
+        </li>
+      </ul>
+    </div>
+    <a class="btn-none pull-right" ng-if="showHelp && helpStatus" ng-click="toggleHelp(false)" href>
+      {{ 'Hide Help' | drupalt }}
+    </a>
+    <a class="btn btn-default pull-right" ng-if="showHelp && !helpStatus" ng-click="toggleHelp(true)" href>
+      <i class="icon-question-sign"></i> {{ 'Help' | drupalt }}
+    </a>
+    <div class="oa-sitemap-full pull-left">
+    </div>
+  </div>
+  <div class="oa-sitemap-help" ng-if="showHelp && helpStatus && space.new_space">
+    <img class="oa-sitemap-helpimage" ng-src="{{basePath}}/images/atrium-tree.png">
+    <div class="oa-sitemap-spacehelp" ng-if="!space.new_section">
+      <img class="pull-left oa-sitemap-helpicon" ng-src="{{basePath}}/images/space.png">
+      <div ng-bind-html="spaceHelp"></div>
+    </div>
+    <div class="oa-sitemap-sectionhelp" ng-if="space.new_section">
+      <img class="pull-left oa-sitemap-helpicon" ng-src="{{basePath}}/images/section.png">
+      <div ng-bind-html="sectionHelp"></div>
+    </div>
+    <div class="oa-sitemap-caret">
+      <img ng-src="{{basePath}}/images/triangle.png">
+    </div>
+  </div>
+  <ul class="oa-sitemap-breadcrumbs">
+    <li class="oa-sitemap-breadcrumb" ng-repeat="breadcrumb in breadcrumbs.slice().reverse()">
+      <a class="btn btn-default" ng-href="#/space/{{breadcrumb.nid}}"  ng-drop="true" ng-drop-success="onDropOnSpace($data,breadcrumb.nid)">{{breadcrumb.title}}</a>
+    </li>
+  </ul>
+  <div id="oa-sitemap-top" class="oa-carousel-container">
+    <div class="oa-space-header">
+      <button class="prev" ng-show="prevSpace" ng-click="goToSpace(prevSpace.nid)" ng-drop="true" ng-drop-success="onDropOnSpace($data,prevSpace.nid)">{{ prevSpace.title }}</button>
+      <div class="dropdown">
+        <a class="oa-space-title" data-toggle="dropdown" href ng-drop="true" ng-drop-success="onDropOnSpace($data,spaces[currentSlide].nid)">{{spaces[currentSlide].title}}</a>
+        <ul class="dropdown-menu" role="menu">
+          <li ng-repeat="space in spaces">
+            <a ng-href="#/space/{{space.nid}}" ng-drop="true" ng-drop-success="onDropOnSpace($data,space.nid)">{{space.title}}</a>
+          </li>
+        </ul>
+        <a ng-href="{{ currentSpace.url }}" title="{{ 'Visit Space' | drupalt }}">
+          &nbsp;&nbsp;<i class="icon-eye-open"></i>
+        </a>
+      </div>
+      <button class="next" ng-show="nextSpace" ng-click="goToSpace(nextSpace.nid)" ng-drop="true" ng-drop-success="onDropOnSpace($data,nextSpace.nid)">{{ nextSpace.title }}</button>
+    </div>
+
+    <div class="oa-spaces">
+
+      <section class="oa-sections">
+        <oa-section-box ng-repeat="section in space.sections"
+          drag-drop="dragDrop"
+          section="section"
+          space="space"
+          icons="icons"
+          edit-url="editUrl(section)"
+          delete-section="deleteSection(space, section)"
+          enable-editor="enableEditor(section)"
+          save-title="saveTitle(node)"
+          restore-title="restoreTitle(node)"
+          ></oa-section-box>
+        <oa-sitemap-add ng-if="space.new_section"
+          space="space"
+          add-type="section"
+          on-drop="onDropOnSection($data, length1, length2, $event)"
+          drop-id="1"
+          length1="space.sections.length"
+          length2="undefined"
+          new-url="newSectionURL(nid)"
+          new-class="newSectionClass(nid)"
+          new-title="newSectionTitle(space.nid)"
+          ></oa-sitemap-add>
+      </section>
+
+      <section class="oa-subspaces">
+        <oa-space-box ng-repeat="space_index in space.subspaces track by $index" ng-if="allSpaces[space_index] != undefined"
+          drag-drop="dragDrop"
+          space="allSpaces[space_index]"
+          delete-space="deleteSpace(space)"
+          enable-editor="enableEditor(space)"
+          parent-space="$parent.space"
+          edit-url="editUrl(space)"
+          save-title="saveTitle(node)"
+          restore-title="restoreTitle(node)"
+          on-drop-on-space="onDropOnSpace(space,newParentID)"
+          go-to-space="goToSpace(nid)"
+          ></oa-space-box>
+        <oa-sitemap-add ng-if="space.new_space"
+          space="space"
+          add-type="subspace"
+          on-drop="onDropOnSpaceList($data, length1, length2, $event)"
+          drop-id="2"
+          length1="space.subspaces.length"
+          length2="-1"
+          new-url="newSpaceURL(nid)"
+          new-class="newSpaceClass(nid)"
+          new-title="newSpaceTitle(nid)"
+          ></oa-sitemap-add>
+      </section>
+
+    </div>
+  </div>
+  <div id="oa-sitemap-footer">
+    <a class="btn-none pull-right" ng-if="space.new_space && dragDrop" ng-click="toggleDrag(false)" href>
+      {{ 'Disable Drag/drop' | drupalt }}
+    </a>
+    <a class="btn-none pull-right" ng-if="space.new_space && !dragDrop" ng-click="toggleDrag(true)" href>
+      {{ 'Enable Drag/drop' | drupalt }}
+    </a>
+  </div>
+</div>

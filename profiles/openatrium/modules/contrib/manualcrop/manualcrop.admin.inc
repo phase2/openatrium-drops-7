@@ -20,7 +20,7 @@ function manualcrop_global_settings_form() {
   $form['manualcrop_skip_js_check'] = array(
     '#type' => 'checkbox',
     '#title' => t('Skip javascript cookie check'),
-    '#description' => t("Don't check if the javascript cookie has been set."),
+    '#description' => t('Enable Manual Crop even if the <em>has_js</em> cookie (which is set by Drupal when the brower supports javascript) is missing.'),
     '#default_value' => variable_get('manualcrop_skip_js_check', FALSE),
   );
 
@@ -244,6 +244,13 @@ function manualcrop_reuse_form($data) {
     '#required' => TRUE,
   );
 
+  $form['apply_all_effects'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Apply all effects'),
+    '#description' => t('Apply all effects of the base image style.'),
+    '#default_value' => !empty($data['apply_all_effects']),
+  );
+
   return $form;
 }
 
@@ -295,9 +302,15 @@ function manualcrop_auto_reuse_form($data) {
     ),
   );
 
-  // Get the styles in their correct order.
-  $styles = array_merge(array_fill_keys($data['style_priority'], 0), $styles);
-  $styles = array_filter($styles);
+  if (empty($data['style_priority'])) {
+    // Make sure the style_priority key exists.
+    $data['style_priority'] = array();
+  }
+  else {
+    // Put the styles in their correct order.
+    $styles = array_merge(array_fill_keys($data['style_priority'], 0), $styles);
+    $styles = array_filter($styles);
+  }
 
   // Add each crop image style as row with a weight (priority) element.
   $maxweight = count($data['style_priority']);
@@ -314,7 +327,7 @@ function manualcrop_auto_reuse_form($data) {
     $form['style_priority'][$style_name] = &$weight;
     $form['style_priority']['#rows'][] = array(
       'data' => array(
-        array('data' => $label),
+        array('data' => check_plain($label)),
         array('data' => &$weight),
       ),
       'class' => array('draggable'),
@@ -335,6 +348,13 @@ function manualcrop_auto_reuse_form($data) {
   if (isset($styles[arg(5)])) {
     unset($styles[arg(5)]);
   }
+
+  $form['apply_all_effects'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Apply all effects'),
+    '#description' => t('Apply all effects of the reused image style.'),
+    '#default_value' => !empty($data['apply_all_effects']),
+  );
 
   $form['fallback_style'] = array(
     '#type' => 'select',
@@ -569,32 +589,27 @@ function manualcrop_form_field_ui_field_edit_form_alter(&$form, $form_state) {
 
 /**
  * Implements hook_form_FORM_ID_alter().
- *
- * Adds manualcrop settings to the 'image' entity's configuration form.
  */
 function manualcrop_form_file_entity_file_type_form_alter(&$form, &$form_state) {
   if (isset($form['#file_type']) && $form['#file_type']->type == 'image') {
-    $file_type = $form['#file_type'];
-    $widget_type = 'image_image';
+    // Get the previously saved or default settings.
+    $settings = variable_get('manualcrop_file_entity_settings_' . $form['#file_type']->type, manualcrop_default_widget_settings());
 
-    $settings = variable_get('manualcrop_file_entity_settings_' . $file_type->type, manualcrop_default_widget_settings());
-    $form += manualcrop_field_widget_settings_form($widget_type, $settings);
+    // Add the settings form elements.
+    $form += manualcrop_field_widget_settings_form('image_image', $settings);
     $form['manualcrop']['#tree'] = TRUE;
     unset($form['manualcrop']['#parents']);
 
-    $form['#submit'][] = '_manualcrop_form_file_entity_file_type_form_submit';
+    $form['#submit'][] = 'manualcrop_form_file_entity_file_type_form_submit';
   }
 }
 
 /**
- * Submit callback for file_entity_file_type_form() form.
- *
- * @see manualcrop_form_file_entity_file_type_form_alter()
+ * Form submit handler; Saves the Manual Crop settings of a File Entity type.
  */
-function _manualcrop_form_file_entity_file_type_form_submit($form, &$form_state) {
+function manualcrop_form_file_entity_file_type_form_submit($form, &$form_state) {
   if (!empty($form_state['values']['manualcrop'])) {
-    $file_type = $form['#file_type'];
-    variable_set('manualcrop_file_entity_settings_' . $file_type->type, $form_state['values']['manualcrop']);
+    variable_set('manualcrop_file_entity_settings_' . $form['#file_type']->type, $form_state['values']['manualcrop']);
   }
 }
 
@@ -677,7 +692,7 @@ function manualcrop_field_widget_settings_form($widget_type, $settings) {
     $form['manualcrop']['manualcrop_instant_crop'] = array(
       '#type' => 'checkbox',
       '#title' => t('Crop after upload'),
-      '#description' => t('Open the cropping tool direct after the file upload. Note that this will only work if you <strong>enable only one image style</strong>.'),
+      '#description' => t('Open the cropping tool immediatly after a file upload. Please note that this feature requires a single image style to be enabled. Also it will only be applied for screens of at least 768px width.'),
       '#default_value' => $settings['manualcrop_instant_crop'],
     );
   }
@@ -711,6 +726,8 @@ function manualcrop_field_widget_settings_form($widget_type, $settings) {
     ),
     '#default_value' => $settings['manualcrop_styles_mode'],
   );
+
+  $style_options = array_map('check_plain', $style_options);
 
   $form['manualcrop']['manualcrop_styles_list'] = array(
     '#type' => 'checkboxes',

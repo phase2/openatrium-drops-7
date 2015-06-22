@@ -284,7 +284,7 @@ function oa_comment_views_default_views() {
   $handler->display->display_options['relationships']['uid_1']['table'] = 'comment';
   $handler->display->display_options['relationships']['uid_1']['field'] = 'uid';
   $handler->display->display_options['relationships']['uid_1']['relationship'] = 'cid';
-  $handler->display->display_options['relationships']['uid_1']['label'] = 'uid';
+  $handler->display->display_options['relationships']['uid_1']['label'] = 'commentuid';
   /* Field: Content: Nid */
   $handler->display->display_options['fields']['nid']['id'] = 'nid';
   $handler->display->display_options['fields']['nid']['table'] = 'node';
@@ -394,8 +394,10 @@ function oa_comment_views_default_views() {
   $handler->display->display_options['fields']['og_group_ref']['table'] = 'og_membership';
   $handler->display->display_options['fields']['og_group_ref']['field'] = 'og_group_ref';
   $handler->display->display_options['fields']['og_group_ref']['label'] = '';
-  $handler->display->display_options['fields']['og_group_ref']['element_type'] = '0';
+  $handler->display->display_options['fields']['og_group_ref']['element_type'] = 'span';
+  $handler->display->display_options['fields']['og_group_ref']['element_class'] = 'label';
   $handler->display->display_options['fields']['og_group_ref']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['og_group_ref']['element_default_classes'] = FALSE;
   $handler->display->display_options['fields']['og_group_ref']['click_sort_column'] = 'target_id';
   $handler->display->display_options['fields']['og_group_ref']['settings'] = array(
     'link' => 1,
@@ -406,8 +408,10 @@ function oa_comment_views_default_views() {
   $handler->display->display_options['fields']['oa_section_ref']['table'] = 'field_data_oa_section_ref';
   $handler->display->display_options['fields']['oa_section_ref']['field'] = 'oa_section_ref';
   $handler->display->display_options['fields']['oa_section_ref']['label'] = '';
-  $handler->display->display_options['fields']['oa_section_ref']['element_type'] = '0';
+  $handler->display->display_options['fields']['oa_section_ref']['element_type'] = 'span';
+  $handler->display->display_options['fields']['oa_section_ref']['element_class'] = 'label';
   $handler->display->display_options['fields']['oa_section_ref']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['oa_section_ref']['element_default_classes'] = FALSE;
   $handler->display->display_options['fields']['oa_section_ref']['click_sort_column'] = 'target_id';
   $handler->display->display_options['fields']['oa_section_ref']['settings'] = array(
     'link' => 1,
@@ -633,7 +637,7 @@ function oa_comment_views_default_views() {
   $handler->display->display_options['arguments']['uid_1']['id'] = 'uid_1';
   $handler->display->display_options['arguments']['uid_1']['table'] = 'users';
   $handler->display->display_options['arguments']['uid_1']['field'] = 'uid';
-  $handler->display->display_options['arguments']['uid_1']['relationship'] = 'uid';
+  $handler->display->display_options['arguments']['uid_1']['relationship'] = 'uid_1';
   $handler->display->display_options['arguments']['uid_1']['default_action'] = 'default';
   $handler->display->display_options['arguments']['uid_1']['default_argument_type'] = 'user';
   $handler->display->display_options['arguments']['uid_1']['default_argument_options']['user'] = TRUE;

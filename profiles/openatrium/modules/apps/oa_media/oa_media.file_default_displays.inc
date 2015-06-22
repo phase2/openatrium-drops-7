@@ -1126,10 +1126,10 @@ function oa_media_file_default_displays() {
   $file_display->api_version = 1;
   $file_display->name = 'video__teaser__file_field_media_colorbox';
   $file_display->weight = -44;
-  $file_display->status = FALSE;
+  $file_display->status = TRUE;
   $file_display->settings = array(
     'file_view_mode' => 'default',
-    'colorbox_view_mode' => 'default',
+    'colorbox_view_mode' => 'colorbox',
     'fixed_width' => '',
     'fixed_height' => '',
     'colorbox_gallery' => 'post',
