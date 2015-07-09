@@ -513,7 +513,9 @@ function oa_messages_field_default_field_instances_alter(&$data) {
  */
 function oa_messages_preprocess_mimemail_message(&$variables) {
   $variables['message'] = !empty($variables['params']['message_entity']) ? $variables['params']['message_entity'] : array();
-  $variables['recipient_details'] = !empty($variables['recipient']) ? oa_users_build_user_details($variables['recipient']) : array();
+  $variables['recipient_details'] = (!empty($variables['recipient']) && is_object($variables['recipient']))
+    ? oa_users_build_user_details($variables['recipient'])
+    : array();
 
   // Add in our custom css.
   $css = @file_get_contents(drupal_get_path('module', 'oa_messages') . '/css/oa-messages-mail.css');

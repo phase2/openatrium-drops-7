@@ -99,6 +99,33 @@ function oa_wiki_panelizer_defaults() {
   $display->content['new-7746f122-1e4b-445f-8cf4-d15ef627d71f'] = $pane;
   $display->panels['contentmain'][0] = 'new-7746f122-1e4b-445f-8cf4-d15ef627d71f';
   $pane = new stdClass();
+  $pane->pid = 'new-32c308fc-ae57-43df-a4fa-8667a747ea6f';
+  $pane->panel = 'contentmain';
+  $pane->type = 'node_terms';
+  $pane->subtype = 'node_terms';
+  $pane->shown = TRUE;
+  $pane->access = array();
+  $pane->configuration = array(
+    'vid' => '0',
+    'term_format' => 'term-links',
+    'link' => 1,
+    'term_delimiter' => ', ',
+    'context' => 'panelizer',
+    'override_title' => 1,
+    'override_title_text' => '',
+  );
+  $pane->cache = array();
+  $pane->style = array(
+    'settings' => NULL,
+  );
+  $pane->css = array();
+  $pane->extras = array();
+  $pane->position = 1;
+  $pane->locks = array();
+  $pane->uuid = '32c308fc-ae57-43df-a4fa-8667a747ea6f';
+  $display->content['new-32c308fc-ae57-43df-a4fa-8667a747ea6f'] = $pane;
+  $display->panels['contentmain'][1] = 'new-32c308fc-ae57-43df-a4fa-8667a747ea6f';
+  $pane = new stdClass();
   $pane->pid = 'new-a811ab4b-b391-4bac-aee2-f0b6bdb5a65d';
   $pane->panel = 'contentmain';
   $pane->type = 'node_links';
@@ -121,38 +148,11 @@ function oa_wiki_panelizer_defaults() {
     'css_class' => 'link-wrapper',
   );
   $pane->extras = array();
-  $pane->position = 1;
+  $pane->position = 2;
   $pane->locks = array();
   $pane->uuid = 'a811ab4b-b391-4bac-aee2-f0b6bdb5a65d';
   $display->content['new-a811ab4b-b391-4bac-aee2-f0b6bdb5a65d'] = $pane;
-  $display->panels['contentmain'][1] = 'new-a811ab4b-b391-4bac-aee2-f0b6bdb5a65d';
-  $pane = new stdClass();
-  $pane->pid = 'new-32c308fc-ae57-43df-a4fa-8667a747ea6f';
-  $pane->panel = 'contentmain';
-  $pane->type = 'node_terms';
-  $pane->subtype = 'node_terms';
-  $pane->shown = TRUE;
-  $pane->access = array();
-  $pane->configuration = array(
-    'vid' => '0',
-    'term_format' => 'term-links',
-    'link' => 1,
-    'term_delimiter' => ', ',
-    'context' => 'panelizer',
-    'override_title' => 1,
-    'override_title_text' => '',
-  );
-  $pane->cache = array();
-  $pane->style = array(
-    'settings' => NULL,
-  );
-  $pane->css = array();
-  $pane->extras = array();
-  $pane->position = 2;
-  $pane->locks = array();
-  $pane->uuid = '32c308fc-ae57-43df-a4fa-8667a747ea6f';
-  $display->content['new-32c308fc-ae57-43df-a4fa-8667a747ea6f'] = $pane;
-  $display->panels['contentmain'][2] = 'new-32c308fc-ae57-43df-a4fa-8667a747ea6f';
+  $display->panels['contentmain'][2] = 'new-a811ab4b-b391-4bac-aee2-f0b6bdb5a65d';
   $pane = new stdClass();
   $pane->pid = 'new-fd50a4cf-8298-4584-8504-b21e0e215e78';
   $pane->panel = 'contentmain';
@@ -308,8 +308,8 @@ function oa_wiki_panelizer_defaults() {
     'delta_offset' => '0',
     'delta_reversed' => 0,
     'formatter_settings' => array(
-      'file_view_mode' => 'preview',
-      'colorbox_view_mode' => 'colorbox',
+      'file_view_mode' => 'teaser',
+      'colorbox_view_mode' => 'default',
       'fixed_width' => '',
       'fixed_height' => '',
       'colorbox_gallery' => 'page',
@@ -317,9 +317,10 @@ function oa_wiki_panelizer_defaults() {
       'colorbox_caption' => 'title',
       'audio_playlist' => 0,
     ),
-    'context' => array(),
+    'context' => 'panelizer',
     'override_title' => 0,
     'override_title_text' => '',
+    'override_title_heading' => 'h2',
     'view_mode' => NULL,
     'widget_title' => NULL,
     'items_per_page' => NULL,

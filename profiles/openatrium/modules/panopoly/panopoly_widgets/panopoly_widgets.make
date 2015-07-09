@@ -13,7 +13,7 @@ projects[simple_gmap][subdir] = contrib
 
 ; Panopoly - Contrib - Widgets
 
-projects[menu_block][version] = 2.6
+projects[menu_block][version] = 2.7
 projects[menu_block][subdir] = contrib
 
 ; Panopoly - Contrib - Files & Media
@@ -32,12 +32,10 @@ projects[media][patch][2084287] = http://www.drupal.org/files/issues/media-file-
 projects[media][patch][2421589] = https://www.drupal.org/files/issues/media-library-preview-overflow-2421589-3.patch
 projects[media][patch][951004] = https://www.drupal.org/files/issues/allow_selecting_of-951004-136.patch
 projects[media][patch][2473481] = http://drupal.org/files/issues/clicking_images_in-2473481-1.patch
+projects[media][patch][2528428] = https://www.drupal.org/files/issues/media_browser_view_javascript_not_loaded-2528428-1.patch
 
-projects[media_youtube][version] = 2.x-dev
+projects[media_youtube][version] = 3.0
 projects[media_youtube][subdir] = contrib
-projects[media_youtube][download][type] = git
-projects[media_youtube][download][revision] = d0377b3
-projects[media_youtube][download][branch] = 7.x-2.x
 
 projects[media_vimeo][version] = 2.0
 projects[media_vimeo][subdir] = contrib

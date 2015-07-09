@@ -11,7 +11,7 @@ class oa_core_og_group_ref_views_handler_filter_in_operator extends views_handle
 
   function init(&$view, &$options) {
     parent::init($view, $options);
-    $this->fail_build = oa_core_process_exposed_group_input($this);
+    $this->fail_build = !oa_core_process_exposed_group_input($this);
   }
 
   function query() {

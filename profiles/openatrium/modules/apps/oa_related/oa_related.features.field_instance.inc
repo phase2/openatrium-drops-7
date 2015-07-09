@@ -161,7 +161,7 @@ function oa_related_field_default_field_instances() {
           'colorbox_caption' => 'title',
           'colorbox_gallery' => 'post',
           'colorbox_gallery_custom' => '',
-          'colorbox_view_mode' => 'colorbox',
+          'colorbox_view_mode' => 'default',
           'file_view_mode' => 'teaser',
           'fixed_height' => '',
           'fixed_width' => '',

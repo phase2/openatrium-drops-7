@@ -93,14 +93,13 @@ function oa_files_theme() {
  *
  * @param string $fids
  *   Separated by space (e.g., "3 6 12 99"). This often appears as "+" within
- *   URLs (e.g., "3+6+12+99"), but Drupal automatically decodes paths when
- *   intializing $_GET['q'].
+ *   URLs (e.g., "3+6+12+99"), but sometimes changes these to spaces.
  *
  * @return array
  *   An array of corresponding file entities.
  */
 function oa_files_upload_multi_load($fids) {
-  return file_load_multiple(explode(' ', $fids));
+  return file_load_multiple(explode(' ', str_replace('+', ' ', $fids)));
 }
 
 /**

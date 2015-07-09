@@ -49,6 +49,18 @@ function panopoly_core_configure_form($form, &$form_state) {
     '#description' => t('Do you want Panopoly to append the page title to the site breadcrumb?'),
   );
 
+  $form['panopoly_core_override_jquery_ui_theme'] = array(
+    '#title' => t('Override jQuery UI theme provided by any theme'),
+    '#type' => 'select',
+    '#required' => TRUE,
+    '#options' => array(
+      '1' => 'Enabled',
+      '0' => 'Disabled',
+    ),
+    '#default_value' => variable_get('panopoly_core_override_jquery_ui_theme', 1),
+    '#description' => t('Panopoly provides a custom jQuery UI theme. If this option is disabled, it will only be used by themes that don\'t provide one of their own. However, if enabled, we\'ll override all themes.'),
+  );
+
   return system_settings_form($form);
 }
 
@@ -87,6 +99,19 @@ function panopoly_core_module_implements_alter(&$implementations, $hook) {
     $implementations['panopoly_core'] = $group;
   }
 }
+
+/**
+ * Implementation hook_element_info_alter().
+ */
+function panopoly_core_element_info_alter(&$type) {
+  // Rather than implementing hook_css_alter(), we'll add a custom pre render
+  // function for the styles elemement. This is to allow us to override
+  // seven_css_alter(), which always runs after any module's implementation.
+  if (isset($type['styles']['#pre_render'])) {
+    array_unshift($type['styles']['#pre_render'], 'panopoly_core_pre_render_styles');
+  }
+}
+
 /**
  * Implements hook_modules_enabled().
  *
@@ -151,6 +176,8 @@ function panopoly_core_library_alter(&$libraries, $module) {
       }
     }
 
+    // If our jQuery UI theme is in use, then we need to remove unnecessary CSS,
+    // because it's all merged into our theme.
     $jquery_ui_unnecessary_css = array(
       'ui.button',
       'ui.resizable',
@@ -158,15 +185,36 @@ function panopoly_core_library_alter(&$libraries, $module) {
       'ui.dialog',
       'ui.tabs',
     );
-
     foreach ($jquery_ui_unnecessary_css as $name) {
       if (isset($libraries[$name])) {
-        if (isset($libraries[$name]['css']["misc/ui/jquery.$name.css"])) {
-          unset($libraries[$name]['css']["misc/ui/jquery.$name.css"]);
+        if (isset($libraries[$name]['css'])) {
+          unset($libraries[$name]['css']);
         }
       }
     }
   }
+}
+
+/**
+ * Pre render the styles element.
+ */
+function panopoly_core_pre_render_styles($elements) {
+  $css =& $elements['#items'];
+
+  // We only need to mess with the CSS if a jQuery UI theme is loaded.
+  if (!isset($css['misc/ui/jquery.ui.theme.css'])) {
+    return $elements;
+  }
+
+  $seven_theme = drupal_get_path('theme', 'seven') . '/jquery.ui.theme.css';
+
+  // Always override the Seven theme's jQuery UI theme (because its for an
+  // earlier version of jQuery UI and doesn't quite work right).
+  if ($css['misc/ui/jquery.ui.theme.css']['data'] === $seven_theme || variable_get('panopoly_core_override_jquery_ui_theme', 1)) {
+    $css['misc/ui/jquery.ui.theme.css']['data'] = drupal_get_path('module', 'panopoly_core') . '/css/panopoly-jquery-ui-theme.css';
+  }
+
+  return $elements;
 }
 
 /**

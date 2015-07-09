@@ -151,8 +151,8 @@ function oa_media_file_default_displays() {
   $file_display->weight = 0;
   $file_display->status = FALSE;
   $file_display->settings = array(
-    'file_view_mode' => 'ical',
-    'colorbox_view_mode' => 'ical',
+    'file_view_mode' => 'teaser',
+    'colorbox_view_mode' => 'full',
     'fixed_width' => '',
     'fixed_height' => '',
     'colorbox_gallery' => 'post',
@@ -659,7 +659,7 @@ function oa_media_file_default_displays() {
   $file_display->weight = 0;
   $file_display->status = FALSE;
   $file_display->settings = array(
-    'colorbox_view_mode' => 'colorbox',
+    'colorbox_view_mode' => 'default',
     'fixed_width' => '',
     'fixed_height' => '',
     'colorbox_gallery' => 'page',
@@ -687,7 +687,7 @@ function oa_media_file_default_displays() {
   $file_display->status = FALSE;
   $file_display->settings = array(
     'file_view_mode' => 'teaser',
-    'colorbox_view_mode' => 'colorbox',
+    'colorbox_view_mode' => 'default',
     'fixed_width' => '',
     'fixed_height' => '',
     'colorbox_gallery' => 'page',
@@ -745,10 +745,10 @@ function oa_media_file_default_displays() {
   $file_display->api_version = 1;
   $file_display->name = 'video__colorbox__file_field_media_colorbox';
   $file_display->weight = -42;
-  $file_display->status = FALSE;
+  $file_display->status = TRUE;
   $file_display->settings = array(
-    'file_view_mode' => 'default',
-    'colorbox_view_mode' => 'default',
+    'file_view_mode' => 'teaser',
+    'colorbox_view_mode' => 'full',
     'fixed_width' => '',
     'fixed_height' => '',
     'colorbox_gallery' => 'post',
@@ -802,7 +802,7 @@ function oa_media_file_default_displays() {
   $file_display->api_version = 1;
   $file_display->name = 'video__colorbox__media_vimeo_video';
   $file_display->weight = 2;
-  $file_display->status = TRUE;
+  $file_display->status = FALSE;
   $file_display->settings = array(
     'width' => '560',
     'height' => '340',
@@ -831,7 +831,7 @@ function oa_media_file_default_displays() {
   $file_display->api_version = 1;
   $file_display->name = 'video__colorbox__media_youtube_video';
   $file_display->weight = 0;
-  $file_display->status = TRUE;
+  $file_display->status = FALSE;
   $file_display->settings = array(
     'width' => '560',
     'height' => '340',
@@ -901,8 +901,8 @@ function oa_media_file_default_displays() {
   $file_display->weight = 4;
   $file_display->status = FALSE;
   $file_display->settings = array(
-    'file_view_mode' => 'ical',
-    'colorbox_view_mode' => 'ical',
+    'file_view_mode' => 'preview',
+    'colorbox_view_mode' => 'default',
     'fixed_width' => '',
     'fixed_height' => '',
     'colorbox_gallery' => 'post',
@@ -1126,10 +1126,10 @@ function oa_media_file_default_displays() {
   $file_display->api_version = 1;
   $file_display->name = 'video__teaser__file_field_media_colorbox';
   $file_display->weight = -44;
-  $file_display->status = TRUE;
+  $file_display->status = FALSE;
   $file_display->settings = array(
-    'file_view_mode' => 'default',
-    'colorbox_view_mode' => 'colorbox',
+    'file_view_mode' => 'preview',
+    'colorbox_view_mode' => 'default',
     'fixed_width' => '',
     'fixed_height' => '',
     'colorbox_gallery' => 'post',

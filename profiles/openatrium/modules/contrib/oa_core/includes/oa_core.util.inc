@@ -364,7 +364,7 @@ function oa_core_get_parents($nid, $bundle = OA_SPACE_TYPE, $status = NULL, $inc
  */
 function oa_core_get_nids_title_matching($nids, $bundle = OA_SPACE_TYPE, $status = NULL, $include_archived = FALSE, $account = NULL) {
   if (is_numeric($account)) {
-    $account = user_load($uid);
+    $account = user_load($account);
   }
   elseif (!$account) {
     global $user;
@@ -1155,7 +1155,7 @@ function oa_core_get_last_word($string) {
  * Return the name of a user
  */
 function oa_core_realname($user) {
-  return !empty($user->realname) ? $user->realname : $user->name;
+  return isset($user) ? (!empty($user->realname) ? $user->realname : $user->name) : '';
 }
 
 /**
@@ -1422,6 +1422,7 @@ function oa_core_trim_text($value, $more_link = '', $max_length = NULL) {
     $regex = "(.*)\b.+";
     if (function_exists('mb_ereg')) {
       mb_regex_encoding('UTF-8');
+      $matches = array();
       $found = mb_ereg($regex, $value, $matches);
     }
     else {

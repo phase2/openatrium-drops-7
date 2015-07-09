@@ -930,7 +930,7 @@ function oa_clone_batch_clone_group_memberships($node, $original_nid, &$context)
  */
 function oa_clone_batch_clone_group_metadata($node, $original_nid, &$context) {
   // Clone OG variables.
-  foreach (variable_realm_controller('og')->getEnabledVariables() as $name) {
+  foreach (variable_store_list_all('og', 'node_' . $original_nid) as $name) {
     variable_realm_set('og', 'node_' . $node->nid, $name, variable_realm_get('og', 'node_' . $original_nid, $name));
   }
 

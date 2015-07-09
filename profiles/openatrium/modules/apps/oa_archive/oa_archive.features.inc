@@ -18,7 +18,7 @@ function oa_archive_flag_default_flags_alter(&$data) {
     $data['trash']['unflag_confirmation'] = 'Are you sure you want to remove this item from archive?'; /* WAS: 'Are you sure you want to remove this item from trash?' */
     $data['trash']['unflag_denied_text'] = 'Archived'; /* WAS: 'trashed' */
     $data['trash']['unflag_long'] = 'Unarchive item and restore previous access settings.'; /* WAS: 'Remove from trash item and restore previous access settings.' */
-    $data['trash']['unflag_message'] = 'Item removed fromt archive'; /* WAS: 'Item removed from Trash' */
+    $data['trash']['unflag_message'] = 'Item removed from archive'; /* WAS: 'Item removed from Trash' */
     $data['trash']['unflag_short'] = 'Remove from archive'; /* WAS: 'Remove from Trash' */
   }
 }

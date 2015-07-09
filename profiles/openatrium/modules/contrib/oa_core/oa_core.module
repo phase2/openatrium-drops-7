@@ -1575,10 +1575,12 @@ function _oa_core_hide_comment_settings(&$form) {
 function oa_core_panelizer_pre_render_alter(&$panelizer, $display, $entity) {
   // Hide comments when set to be hidden.
   // @see https://www.drupal.org/node/2505395
-  if (isset($entity->comment) && $entity->comment == COMMENT_NODE_HIDDEN) {
-    foreach ($panelizer->display->content as $key => $display) {
-      if ($display->type == 'node_comment_wrapper') {
-        unset($panelizer->display->content[$key]);
+  if (module_exists('comment')) {
+    if (isset($entity->comment) && $entity->comment == COMMENT_NODE_HIDDEN) {
+      foreach ($panelizer->display->content as $key => $display) {
+        if ($display->type == 'node_comment_wrapper') {
+          unset($panelizer->display->content[$key]);
+        }
       }
     }
   }
@@ -2116,4 +2118,30 @@ function oa_core_field_display_alter(&$display, $context) {
   if ($display['type'] == 'og_vocab') {
     $display['label'] = 'hidden';
   }
+}
+
+/**
+ * Determine if an exposed filter form should be collapsed
+ * Called from views-exposed-form.tpl.php in oa_radix
+ * Needs to determine if arguments are passed to change the filter that
+ * should cause the filter to remain expanded
+ * @param $form
+ * @return bool
+ */
+function oa_core_collapse_filter($form) {
+  // The views template used to use (count($_GET) < 2) to determine if filter
+  // is auto-collapsed.  But this causes filter to remain open when any other
+  // GET arguments are passed, such as Tours.
+  // So we need to actually compare passed arguments with form fields
+  $result = TRUE;
+  if (!empty($_GET)) {
+    foreach ($_GET as $key => $value) {
+      if (isset($form[$key]['#type'])) {
+        // Passing a valid form field, so keep filter expanded
+        $result = FALSE;
+        break;
+      }
+    }
+  }
+  return $result;
 }

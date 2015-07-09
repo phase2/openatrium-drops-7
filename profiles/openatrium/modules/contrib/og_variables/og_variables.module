@@ -22,7 +22,7 @@ function og_variables_variable_realm_info() {
     'title' => t('Organic Group'),
     'weight' => 200,
     'controller class' => 'OgVariableRealm',
-    'store class' => 'VariableStoreRealmStoreDefaultGlobal',
+    'store class' => 'OgVariableStoreRealmStore',
     // Name for variables that belong to this realm: 'multilingual' variable/s
     'variable name' => t('group'),
     'variable class' => 'og-variable',
@@ -80,11 +80,134 @@ function og_variables_form_variable_realm_edit_variables_form_alter(&$form, $for
     // We assume if variables are available to group, they should be accessible.
     // variable module only provides global access ability :(, so we change access
     // here instead.
+    $autosave = FALSE;
     foreach (element_children($form['variables']) as $tab) {
       foreach (element_children($form['variables'][$tab]) as $key) {
+        $access = FALSE;
         if (isset($form['variables'][$tab][$key]['#access'])) {
           $form['variables'][$tab][$key]['#access'] = TRUE;
+          if (!isset($form['variables'][$tab][$key]['#ajax'])) {
+            // Only know how to handle some type of fields.
+            if (in_array($form['variables'][$tab][$key]['#type'], array('textfield'))) {
+              $id = $tab . '-' . $key . '-save';
+              $autosave = TRUE;
+              $form['variables'][$tab][$key]['#ajax'] = array(
+                'callback' => 'og_variables_form_ajax_set_variable',
+                'event' => 'change',
+                'keypress' => TRUE,
+                'wrapper' => $id,
+              );
+              $form['variables'][$tab][$key]['#field_suffix'] = '<span id="' . $id . '">(' . t('autosaves') . ')</span>';
+              $form['variables'][$tab][$key]['#ajax_save_as'] = $key;
+            }
+          }
+          $access = TRUE;
         }
+      }
+      if ($access) {
+        $form['variables'][$tab]['top'] = array(
+          '#type' => 'markup',
+          '#markup' => '<div id="' . $tab . '-wrapper">',
+          '#weight' => -1000,
+        );
+        $form['variables'][$tab]['bottom'] = array(
+          '#type' => 'markup',
+          '#markup' => '</div>',
+          '#weight' => 1000,
+        );
+        $form['variables'][$tab]['save_' . $tab] = array(
+          '#type' => 'submit',
+          '#value' => t('Save @title', array('@title' => $form['variables'][$tab]['#title'])),
+          '#description' => t('Save all the values for @title.', array('@title' => $form['variables'][$tab]['#title'])),
+          '#submit' => array('og_variables_form_ajax_save_variables_submit'),
+          '#ajax' => array(
+            'callback' => 'og_variables_form_ajax_tab_fieldset',
+            'wrapper' => $tab . '-wrapper',
+          ),
+          '#tab' => $tab,
+          // This ensures the submit button doesn't get saved as a value.
+          '#parents' => array('save_' . $tab),
+        );
+        $form['variables'][$tab]['reset_' . $tab] = array(
+          '#type' => 'submit',
+          '#value' => t('Reset @title', array('@title' => $form['variables'][$tab]['#title'])),
+          '#description' => t('Remove variable overrides for @title.', array('@title' => $form['variables'][$tab]['#title'])),
+          '#submit' => array('og_variables_form_ajax_delete_variables_submit'),
+          '#ajax' => array(
+            'callback' => 'og_variables_form_ajax_tab_fieldset',
+            'wrapper' => $tab . '-wrapper',
+          ),
+          '#tab' => $tab,
+          // This ensures the submit button doesn't get saved as a value.
+          '#parents' => array('reset_' . $tab),
+        );
+      }
+    }
+    if ($autosave) {
+      $form['description'] = array(
+        '#markup' => t('Form items marked with the text "autosaves" will automatically save upon changing [text will update on saving]. Otherwise, the entire form needs to be saved via the Save Configuration button. Child spaces will inherit these values unless they override them.'),
+        '#weight' => -1,
+      );
+    }
+    $form['#after_build'][] = 'og_variables_form_variable_realm_edit_variables_include_files';
+  }
+}
+
+/**
+ * Ensures that variable file is included for ajax callbacks..
+ */
+function og_variables_form_variable_realm_edit_variables_include_files($form) {
+  module_load_include('form.inc', 'variable_realm');
+  module_load_include('form.inc', 'variable');
+  return $form;
+}
+
+/**
+ * Set the variable that triggered the ajax call.
+ */
+function og_variables_form_ajax_set_variable($form, &$form_state) {
+  $realm_name = $form_state['values']['realm_name'];
+  $realm_key = $form_state['values']['realm_key'];
+  variable_realm_set($realm_name, $realm_key, $form_state['triggering_element']['#ajax_save_as'], $form_state['triggering_element']['#value']);
+  return '<span id="' . $form_state['triggering_element']['#ajax']['wrapper'] . '">' . t('Autosaved: @title saved as %value', array('@title' => $form_state['triggering_element']['#title'], '%value' => $form_state['triggering_element']['#value'])) . '</span>';
+}
+
+/**
+ * Reset variables to default state.
+ */
+function og_variables_form_ajax_tab_fieldset($form, &$form_state) {
+  $form['variables'][$form_state['triggering_element']['#tab']]['#theme_wrappers'] = array();
+  return $form['variables'][$form_state['triggering_element']['#tab']];
+}
+
+/**
+ * Reset variables to default state.
+ */
+function og_variables_form_ajax_delete_variables_submit($form, &$form_state) {
+  if (!empty($form_state['triggering_element']['#tab']) && !empty($form_state['values']['variables'][$form_state['triggering_element']['#tab']])) {
+    $realm_name = $form_state['values']['realm_name'];
+    $realm_key = $form_state['values']['realm_key'];
+    foreach (array_keys($form_state['values']['variables'][$form_state['triggering_element']['#tab']]) as $var_name) {
+      variable_realm_del($realm_name, $realm_key, $var_name);
+      unset($form_state['values']['variables'][$form_state['triggering_element']['#tab']][$var_name]);
+      unset($form_state['input']['variables'][$form_state['triggering_element']['#tab']][$var_name]);
+    }
+    $form_state['rebuild'] = TRUE;
+  }
+}
+
+
+/**
+ * Save variables to new values.
+ */
+function og_variables_form_ajax_save_variables_submit($form, &$form_state) {
+  if (!empty($form_state['triggering_element']['#tab']) && !empty($form_state['values']['variables'][$form_state['triggering_element']['#tab']])) {
+    $realm_name = $form_state['values']['realm_name'];
+    $realm_key = $form_state['values']['realm_key'];
+    foreach ($form_state['values']['variables'][$form_state['triggering_element']['#tab']] as $var_name => $value) {
+      $current = variable_realm_get($realm_name, $realm_key, $var_name);
+      if ($current !== $value) {
+        variable_realm_set($realm_name, $realm_key, $var_name, $value);
       }
     }
   }

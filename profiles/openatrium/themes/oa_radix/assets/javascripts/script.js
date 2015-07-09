@@ -21,13 +21,12 @@
     // caused by jQuery being loaded before bootstrap, which is hard to change
     // http://stackoverflow.com/questions/17367736/jquery-ui-dialog-missing-close-icon
     if ($.ui.dialog !== undefined) {
-      $.extend($.ui.dialog, {
+      $.widget( "ui.dialog", $.ui.dialog, {
         open: function() {
-          var result = this._super();
-          if ('uiDialogTitlebarClose' in this) {
-            this.uiDialogTitlebarClose.html("<span class='ui-button-icon-primary ui-icon ui-icon-closethick'></span>");
-          }
-          return result;
+          $(this.uiDialogTitlebarClose)
+            .html("<span class='ui-button-icon-primary ui-icon ui-icon-closethick'></span><span class='ui-button-text'>close</span>");
+          // Invoke the parent widget's open().
+          return this._super();
         }
       });
     }

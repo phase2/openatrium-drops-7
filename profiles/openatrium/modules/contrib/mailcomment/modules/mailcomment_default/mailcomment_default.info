@@ -10,9 +10,9 @@ name = "Mail Comment quick-start"
 package = "Mail Comment"
 
 
-; Information added by drush on 2015-06-22
+; Information added by drush on 2015-07-09
 version = "7.x-2.4+13-dev"
 core = "7.x"
 project = "mailcomment"
-datestamp = "1434998267"
+datestamp = "1436448344"
 

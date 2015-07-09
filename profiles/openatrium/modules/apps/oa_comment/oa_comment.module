@@ -12,10 +12,10 @@ include_once 'oa_comment.theme.inc';
  */
 function oa_comment_menu() {
   $items = array();
-  $items['oa/%ctools_js/comment/%node/reply/%comment'] = array(
+  $items['oa/%ctools_js/comment/reply/%node/%comment'] = array(
     'title' => '',
     'page callback' => 'oa_comment_comment_actions',
-    'page arguments' => array(3, 4, 1, 5),
+    'page arguments' => array(4, 3, 1, 5),
     'access callback' => 'node_access',
     'access arguments' => array('view', 3),
     'file' => 'oa_comment.ajax.inc',
@@ -414,5 +414,85 @@ function oa_comment_views_pre_build(&$view) {
       'value' => $view->args[0],
       'numeric' => TRUE,
     );
+  }
+}
+
+/**
+ * Implements hook_views_query_alter().
+ */
+function oa_comment_views_query_alter(&$view, &$query) {
+  // If using aggragation, sort handler is ignored.
+  // Aggragation is done after views query alter and there is basically no
+  // way to customize how it is done, so we add in a tag here to alter the dbtng
+  // query. This is very fragile :(
+  foreach (array_values($view->sort) as $key => $sort) {
+    if ($sort->definition['handler'] == 'views_handler_sort_oa_comment_last_date' && $sort->options['group_type'] != 'group') {
+      if (!empty($query->orderby[$key]['field']) && !empty($query->fields[$query->orderby[$key]['field']])) {
+        $query->options['query_tags'][] = 'oa_comments_add_last_date_alter';
+        // Store the field we are altering to find out later.
+        $field_to_change = &drupal_static('oa_comment_query_oa_comments_add_last_date_alter_alter');
+        $field_to_change= $sort->relationship . '_' . $sort->real_field;
+        break;
+      }
+    }
+  }
+
+  if ($view->name == 'oa_comment_media') {
+    $query->add_field('field_oa_related_paragraphs_item_1', 'thread', 'thread');
+    // sort by comment thread
+    array_unshift($query->orderby, array(
+      'field' => 'thread',
+      'direction' => 'ASC',
+    ));
+  }
+}
+
+/**
+ * Implements hook_query_TAG_alter() for oa_comments_add_last_date_alter.
+ */
+function oa_comment_query_oa_comments_add_last_date_alter_alter(QueryAlterableInterface $query) {
+  $expressions = & $query->getExpressions();
+  $tables = & $query->getTables();
+  $field_to_change = &drupal_static('oa_comment_query_oa_comments_add_last_date_alter_alter');
+  if (!empty($expressions[$field_to_change])) {
+    foreach ($tables as $table) {
+      if ($table['table'] == 'node') {
+        $node_alias =  $table['alias'];
+        $current = $expressions[$field_to_change]['expression'];
+        $expressions[$field_to_change]['expression'] = 'COALESCE(' . $current . ',' . $node_alias . '.changed)';
+        break;
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_views_view_fields().
+ *
+ * Perform field-level replacement/processing here.
+ */
+function oa_comment_preprocess_views_view_fields(&$vars) {
+  if ($vars['view']->name == 'oa_comment_media') {
+    // Convert thread to a human comment number
+    // First, remove trailing slash.
+    $thread = substr($vars['row']->thread, 0, -1);
+    $parts = explode('.', $thread);
+    foreach ($parts as $key => &$part) {
+      $parts[$key] = vancode2int($part);
+      // First id starts at 1, but rest start at zero.
+      if ($key > 0) {
+        $parts[$key]++;
+      }
+    }
+    $vars['thread'] = implode('.', $parts);
+    $options = !empty($vars['row']->field_oa_related_paragraphs_item_1_cid)
+      ? array('fragment' => 'comment-' . $vars['row']->field_oa_related_paragraphs_item_1_cid)
+      : array();
+    $nid = !empty($vars['row']->field_oa_related_paragraphs_item_1_nid)
+      ? $vars['row']->field_oa_related_paragraphs_item_1_nid
+      : (!empty($vars['row']->field_oa_related_paragraphs_item_nid)
+         ? $vars['row']->field_oa_related_paragraphs_item_nid
+         : $vars['row']->field_oa_media_file_managed_1_nid);
+    $vars['thread_link'] = l('#' . $vars['thread'], 'node/' . $nid, $options);
   }
 }

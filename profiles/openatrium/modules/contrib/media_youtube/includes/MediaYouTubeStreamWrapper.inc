@@ -1,9 +1,8 @@
 <?php
 
 /**
- *  @file media_youtube/includes/MediaYouTubeStreamWrapper.inc
- *
- *  Create a YouTube Stream Wrapper class for the Media/Resource module.
+ *  @file
+ *  Extends the MediaReadOnlyStreamWrapper class to handle YouTube videos.
  */
 
 /**
@@ -11,34 +10,27 @@
  *  $youtube = new MediaYouTubeStreamWrapper('youtube://v/[video-code]');
  */
 class MediaYouTubeStreamWrapper extends MediaReadOnlyStreamWrapper {
-
-  // Overrides $base_url defined in MediaReadOnlyStreamWrapper.
   protected $base_url = 'http://www.youtube.com/watch';
-
-  /**
-   * Returns a url in the format "http://www.youtube.com/watch?v=qsPQN4MiTeE".
-   *
-   * Overrides interpolateUrl() defined in MediaReadOnlyStreamWrapper.
-   * This is an exact copy of the function in MediaReadOnlyStreamWrapper,
-   * here in case that example is redefined or removed.
-   */
-  function interpolateUrl() {
-    if ($parameters = $this->get_parameters()) {
-      return $this->base_url . '?' . http_build_query($parameters);
-    }
-  }
 
   static function getMimeType($uri, $mapping = NULL) {
     return 'video/youtube';
   }
 
-  function getTarget($f) {
-    return FALSE;
-  }
-
   function getOriginalThumbnailPath() {
     $parts = $this->get_parameters();
-    return 'http://img.youtube.com/vi/' . check_plain($parts['v']) . '/0.jpg';
+    $uri = file_stream_wrapper_uri_normalize('youtube://v/' . check_plain($parts['v']));
+    $external_url = file_create_url($uri);
+    $oembed_url = url('http://www.youtube.com/oembed', array('query' => array('url' => $external_url, 'format' => 'json')));
+    $response = drupal_http_request($oembed_url);
+
+    if (!isset($response->error)) {
+      $data = drupal_json_decode($response->data);
+      return $data['thumbnail_url'];
+    }
+    else {
+      throw new Exception("Error Processing Request. (Error: {$response->code}, {$response->error})");
+      return;
+    }
   }
 
   function getLocalThumbnailPath() {
@@ -46,10 +38,12 @@ class MediaYouTubeStreamWrapper extends MediaReadOnlyStreamWrapper {
     // There's no need to hide thumbnails, always use the public system rather
     // than file_default_scheme().
     $local_path = 'public://media-youtube/' . check_plain($parts['v']) . '.jpg';
+
     if (!file_exists($local_path)) {
       $dirname = drupal_dirname($local_path);
       file_prepare_directory($dirname, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS);
       $response = drupal_http_request($this->getOriginalThumbnailPath());
+
       if (!isset($response->error)) {
         file_unmanaged_save_data($response->data, $local_path, TRUE);
       }
@@ -57,6 +51,7 @@ class MediaYouTubeStreamWrapper extends MediaReadOnlyStreamWrapper {
         @copy($this->getOriginalThumbnailPath(), $local_path);
       }
     }
+
     return $local_path;
   }
 }

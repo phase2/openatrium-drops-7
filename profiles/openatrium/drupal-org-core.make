@@ -43,3 +43,6 @@ projects[drupal][patch][2199001] = https://www.drupal.org/files/issues/node_acce
 
 ; Fix javascript error with angular
 projects[drupal][patch][2492993] = https://www.drupal.org/files/issues/2492993-drupal-hash-1.patch
+
+; Fix invalid headers with image styles
+projects[drupal][patch][1891228] = https://www.drupal.org/files/issues/image_system-can_create_invalid_headers-1891228-16.patch

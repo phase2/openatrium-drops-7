@@ -20,7 +20,7 @@ function oa_subspaces_field_group_info() {
   $field_group->mode = 'form';
   $field_group->parent_name = '';
   $field_group->data = array(
-    'label' => 'Inheritence',
+    'label' => 'Inheritance',
     'weight' => '6',
     'children' => array(
       0 => 'og_roles_permissions',
@@ -30,7 +30,7 @@ function oa_subspaces_field_group_info() {
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
-      'label' => 'Inheritence',
+      'label' => 'Inheritance',
       'instance_settings' => array(
         'required_fields' => 1,
         'classes' => 'group-oa-space-inheritence field-group-fieldset',

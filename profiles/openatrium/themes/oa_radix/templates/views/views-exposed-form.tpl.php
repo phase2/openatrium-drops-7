@@ -29,7 +29,7 @@
 <?php if ($collapsed_filter): ?>
   <?php drupal_add_js(drupal_get_path('module', 'ctools') . '/js/collapsible-div.js'); ?>
 <?php endif ?>
-<div class="views-exposed-form <?php if ($collapsed_filter) {print 'ctools-collapsible-container' . (count($_GET) < 2 ? '  ctools-collapsed' : '');} ?>">
+<div class="views-exposed-form <?php if ($collapsed_filter) {print 'ctools-collapsible-container' . (oa_core_collapse_filter($form) ? ' ctools-collapsed' : '');} ?>">
   <?php if ($collapsed_filter): ?>
     <div class="ctools-collapsible-handle filter-btn">
       <div class="btn"><?php print t('Filter'); ?>&nbsp;<b class="caret"></b></div>

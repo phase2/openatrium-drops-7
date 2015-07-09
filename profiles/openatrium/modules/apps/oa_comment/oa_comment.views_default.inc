@@ -84,17 +84,21 @@ function oa_comment_views_default_views() {
   $handler->display->display_options['fields']['cid']['label'] = '';
   $handler->display->display_options['fields']['cid']['exclude'] = TRUE;
   $handler->display->display_options['fields']['cid']['element_label_colon'] = FALSE;
+  /* Field: File: Rendered */
+  $handler->display->display_options['fields']['rendered']['id'] = 'rendered';
+  $handler->display->display_options['fields']['rendered']['table'] = 'file_managed';
+  $handler->display->display_options['fields']['rendered']['field'] = 'rendered';
+  $handler->display->display_options['fields']['rendered']['label'] = '';
+  $handler->display->display_options['fields']['rendered']['element_label_colon'] = FALSE;
+  $handler->display->display_options['fields']['rendered']['file_view_mode'] = 'colorbox';
   /* Field: File: Name */
   $handler->display->display_options['fields']['filename']['id'] = 'filename';
   $handler->display->display_options['fields']['filename']['table'] = 'file_managed';
   $handler->display->display_options['fields']['filename']['field'] = 'filename';
   $handler->display->display_options['fields']['filename']['label'] = '';
-  $handler->display->display_options['fields']['filename']['alter']['make_link'] = TRUE;
-  $handler->display->display_options['fields']['filename']['alter']['path'] = 'node/!1#comment-[cid]';
   $handler->display->display_options['fields']['filename']['alter']['word_boundary'] = FALSE;
   $handler->display->display_options['fields']['filename']['alter']['ellipsis'] = FALSE;
   $handler->display->display_options['fields']['filename']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['filename']['link_to_file'] = FALSE;
   /* Field: Content: Title */
   $handler->display->display_options['fields']['title_1']['id'] = 'title_1';
   $handler->display->display_options['fields']['title_1']['table'] = 'node';
@@ -110,26 +114,6 @@ function oa_comment_views_default_views() {
   $handler->display->display_options['fields']['title']['label'] = '';
   $handler->display->display_options['fields']['title']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['title']['empty'] = '[title_1]';
-  /* Field: Field: Attachments */
-  $handler->display->display_options['fields']['field_oa_media']['id'] = 'field_oa_media';
-  $handler->display->display_options['fields']['field_oa_media']['table'] = 'field_data_field_oa_media';
-  $handler->display->display_options['fields']['field_oa_media']['field'] = 'field_oa_media';
-  $handler->display->display_options['fields']['field_oa_media']['relationship'] = 'reverse_field_oa_media_paragraphs_item';
-  $handler->display->display_options['fields']['field_oa_media']['label'] = '';
-  $handler->display->display_options['fields']['field_oa_media']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['field_oa_media']['click_sort_column'] = 'fid';
-  $handler->display->display_options['fields']['field_oa_media']['type'] = 'media_colorbox';
-  $handler->display->display_options['fields']['field_oa_media']['settings'] = array(
-    'file_view_mode' => 'preview',
-    'colorbox_view_mode' => 'colorbox',
-    'fixed_width' => '',
-    'fixed_height' => '',
-    'colorbox_gallery' => 'post',
-    'colorbox_gallery_custom' => '',
-    'colorbox_caption' => 'title',
-    'audio_playlist' => 0,
-  );
-  $handler->display->display_options['fields']['field_oa_media']['delta_offset'] = '0';
   /* Field: User: Name */
   $handler->display->display_options['fields']['name_2']['id'] = 'name_2';
   $handler->display->display_options['fields']['name_2']['table'] = 'users';

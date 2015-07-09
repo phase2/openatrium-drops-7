@@ -151,7 +151,7 @@ function manualcrop_instance_required_styles($settings) {
 function manualcrop_croptool_process(&$form, &$form_state, &$element, $file, $settings = array(), $instance = NULL, $preview = 'preview') {
   static $processed_forms;
 
-  if (user_access('use manualcrop') && (!empty($_COOKIE['has_js']) || variable_get('manualcrop_skip_js_check', FALSE))) {
+  if (user_access('use manualcrop') && ($file->type == 'image') && (!empty($_COOKIE['has_js']) || variable_get('manualcrop_skip_js_check', FALSE))) {
     $styles = manualcrop_styles_with_crop();
 
     if (!empty($styles)) {

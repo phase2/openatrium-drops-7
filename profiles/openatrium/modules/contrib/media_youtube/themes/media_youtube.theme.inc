@@ -10,7 +10,6 @@
  * Preprocess function for theme('media_youtube_video').
  */
 function media_youtube_preprocess_media_youtube_video(&$variables) {
-
   // Build the URI.
   $wrapper = file_stream_wrapper_get_instance_by_uri($variables['uri']);
   $parts = $wrapper->get_parameters();
@@ -39,7 +38,7 @@ function media_youtube_preprocess_media_youtube_video(&$variables) {
     $query['playerapiid'] = drupal_html_id('media-youtube-' . $variables['video_id']);
     $variables['api_id_attribute'] = 'id="' . $query['playerapiid'] . '" ';
 
-    //Add the origin for improved security
+    // Add the origin for improved security
     $variables['options']['origin'] ? $query['origin'] = $variables['options']['origin'] : '';
   }
   else {
@@ -85,6 +84,7 @@ function media_youtube_preprocess_media_youtube_video(&$variables) {
       }
     }
   }
+
   // Non-query options.
   if ($variables['options']['nocookie']) {
     $url_base = 'youtube-nocookie.com';

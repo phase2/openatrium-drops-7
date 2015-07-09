@@ -32,7 +32,7 @@
   <div class="row">
     <div class="col-xs-12">
       <div class="col-xs-6 pull-left">
-        <?php print $field_oa_media; ?>
+        <?php print $rendered; ?>
       </div>
       <div class="col-xs-6">
         <div class="row">
@@ -43,7 +43,7 @@
         </div>
         <div class="row">
           <div class="pull-right filename">
-            <?php print $filename; ?>
+            <?php print $filename . '&nbsp;&nbsp;' . $thread_link; ?>
           </div>
         </div>
       </div>

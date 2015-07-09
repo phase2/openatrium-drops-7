@@ -1,3 +1,12 @@
+Panopoly Theme 7.x-1.25, 2015-07-08
+----------------------------
+- No changes since last release.
+
+Panopoly Theme 7.x-1.24, 2015-07-02
+----------------------------
+- Undefined index: active in
+  theme_panopoly_theme_panopoly_accordion_style_render_region(.
+
 Panopoly Theme 7.x-1.23, 2015-06-17
 ----------------------------
 - Update to radix_layouts 3.4.

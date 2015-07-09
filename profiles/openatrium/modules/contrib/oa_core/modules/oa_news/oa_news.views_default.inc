@@ -194,10 +194,6 @@ function oa_news_views_default_views() {
     3 => 0,
     4 => 0,
   );
-  /* Filter criterion: Open Atrium: Is Parent */
-  $handler->display->display_options['filters']['is_parent']['id'] = 'is_parent';
-  $handler->display->display_options['filters']['is_parent']['table'] = 'field_data_oa_parent';
-  $handler->display->display_options['filters']['is_parent']['field'] = 'is_parent';
   /* Filter criterion: Content: Groups audience (og_group_ref:target_id) */
   $handler->display->display_options['filters']['og_group_ref_target_id']['id'] = 'og_group_ref_target_id';
   $handler->display->display_options['filters']['og_group_ref_target_id']['table'] = 'og_membership';

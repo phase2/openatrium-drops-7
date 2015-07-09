@@ -208,3 +208,64 @@ ul.links.inline li {
     text-align: right;
   }
 }
+
+// Taxonomy links (og_vocab, etc)
+// --------------------------------------------------
+.field-name-og-vocabulary > .field-items > .field-item {
+  ul {
+    display: inline-block;
+    margin: 0 10px 0 0;
+    padding: 0;
+  }
+  li {
+    display: inline-block;
+    margin: 0;
+  }
+  h3 {
+    display: none;
+  }
+  a {
+    padding: .2em .6em .3em;
+    font-size: 90%;
+    font-weight: normal;
+    line-height: 1;
+    background-color: #ddd;
+    color: #333;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: .25em;
+  }
+}
+
+.page-node #content .pane-node-terms {
+  ul.links {
+    margin-left: 0;
+  }
+  li {
+    display: inline-block;
+    > a {
+      padding: .2em .6em .3em;
+      font-size: 90%;
+      font-weight: normal;
+      line-height: 1;
+      background-color: #ddd;
+      color: #333;
+      text-align: center;
+      white-space: nowrap;
+      vertical-align: baseline;
+      border-radius: .25em;
+    }
+  }
+}
+
+.content .panel-pane.pane-node-terms,
+.content .panel-pane.pane-node-links,
+.content .panel-pane.pane-node-field-oa-media,
+.content .panel-pane.pane-oa-event-detail-event-details {
+  padding-bottom: 5px;
+}
+
+.content .panel-pane.pane-node-field-oa-media table {
+  margin-bottom: 0;
+}

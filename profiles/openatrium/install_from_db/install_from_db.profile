@@ -177,6 +177,7 @@ function install_from_db_install_profile_modules(&$install_state) {
  * 'Finished' callback for module installation batch.
  */
 function _install_from_db_install_db_import_finished($success, $results, $operations) {
+  _install_from_db_cc_all();
   // remove any field data added to user entity
   // since we did not import any users
   $fields_info = field_info_instances('user', 'user');
@@ -237,11 +238,6 @@ function _install_from_db_install_db_import($line, $table, &$context) {
     foreach ($saved_vars as $var) {
       variable_set($var, $saved_values[$var]);
     }
-  }
-  else if ($table === 'system') {
-    // Flush all caches to complete the module installation process. Subsequent
-    // installation tasks will now have full access to the profile's modules.
-    _install_from_db_cc_all();
   }
 }
 

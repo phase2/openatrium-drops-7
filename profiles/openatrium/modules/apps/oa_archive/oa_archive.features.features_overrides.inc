@@ -21,7 +21,7 @@ function oa_archive_features_override_default_overrides() {
   $overrides["flag.trash.unflag_confirmation"] = 'Are you sure you want to remove this item from archive?';
   $overrides["flag.trash.unflag_denied_text"] = 'Archived';
   $overrides["flag.trash.unflag_long"] = 'Unarchive item and restore previous access settings.';
-  $overrides["flag.trash.unflag_message"] = 'Item removed fromt archive';
+  $overrides["flag.trash.unflag_message"] = 'Item removed from archive';
   $overrides["flag.trash.unflag_short"] = 'Remove from archive';
 
   // Exported overrides for: views_view

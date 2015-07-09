@@ -69,8 +69,8 @@ function oa_toolbar_oa_space_menu_content_type_render($subtype, $conf, $panel_ar
       // Get the section this content belongs to.
       $parent_section = entity_load_single('node', oa_core_get_section_context());
       if ($parent_section) {
-        // Get the term id for the section.
-        $parent_section_tid = $parent_section->field_oa_section[LANGUAGE_NONE][0]['tid'];
+        // Get the node id for the section.
+        $parent_section_id = $parent_section->nid;
       }
     }
     // Iterate over the space menu items so we can prepend icons to their titles.
@@ -117,10 +117,10 @@ function oa_toolbar_oa_space_menu_content_type_render($subtype, $conf, $panel_ar
       $space_menu->content[$mlid]['#localized_options']['html'] = TRUE;
       // We are on a section content page we need to set the parent section menu
       // item as the active link.
-      if (isset($parent_section_tid)) {
-        // If the node's term id matches the parent's section id then we set
+      if (isset($parent_section_id)) {
+        // If the node's nid matches the parent's section nid then we set
         // the parent menu item to 'active'.
-        if (isset($term_id) && $term_id == $parent_section_tid) {
+        if (isset($item_node) && ($item_node->nid == $parent_section_id)) {
           $space_menu->content[$mlid]['#attributes']['class'][] = 'active';
         }
       }

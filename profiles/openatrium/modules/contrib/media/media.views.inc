@@ -57,6 +57,16 @@ function media_views_plugins() {
 }
 
 /**
+ * Implements hook_views_pre_view().
+ */
+function media_views_pre_view(&$view, &$display_id, &$args) {
+  if ($view->name == 'media_default') {
+    // Add media browser javascript and CSS.
+    drupal_add_js(drupal_get_path('module', 'media') . '/js/plugins/media.views.js');
+  }
+}
+
+/**
  * Display the view as a media browser.
  */
 function template_preprocess_media_views_view_media_browser(&$vars) {
@@ -117,9 +127,6 @@ function template_preprocess_media_views_view_media_browser(&$vars) {
 
   // Run theming variables through a standard Views preprocess function.
   template_preprocess_views_view_unformatted($vars);
-
-  // Add media browser javascript and CSS.
-  drupal_add_js(drupal_get_path('module', 'media') . '/js/plugins/media.views.js');
 }
 
 /**

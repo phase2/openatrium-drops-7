@@ -76,7 +76,8 @@
 }
 
 /*CSS for various paragraph item styles*/
-.paragraphs-item-paragraph-media .file-image .content {
+.paragraphs-item-paragraph-media .file-image .content,
+.paragraphs-item-paragraph-media .file-video .content {
   padding-bottom: 10px;
 }
 
@@ -107,7 +108,8 @@ h4.oa-table-title {
   border: 0;
 }
 
-.pull-center .file-image .content {
+.pull-center .file-image .content,
+.pull-center .file-video .content {
   clear: both;
   text-align: center;
 }

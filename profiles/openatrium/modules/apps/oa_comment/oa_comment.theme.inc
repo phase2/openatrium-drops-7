@@ -103,16 +103,17 @@ function oa_comment_preprocess_comment(&$vars) {
       'title' => t('Copy this link to share.')), 'fragment' => 'comment-' . $comment->cid));
   // Action links for each comment.
   // @todo Figure out how do add delete confirm_form in modal.
-  $vars['delete_comment'] = l(t('delete'), 'comment/' . $comment->cid . '/delete');
-  $vars['edit_comment'] = ctools_modal_text_button(t('edit'), 'oa/nojs/comment/' . $comment->cid . '/edit', t('Edit Reply'));
-  $vars['reply_comment'] = ctools_modal_text_button(t('reply'), 'oa/nojs/comment/' . $comment->nid . '/reply/' . $comment->cid, t('Reply'));
-  if (!empty($vars['content']['links']['comment']['#links']['fasttoggle_status_status'])) {
-    $link = $vars['content']['links']['comment']['#links']['fasttoggle_status_status'];
-    $vars['publish_comment'] = l($link['title'], $link['href'], $link);
+  $links = array();
+  foreach ($vars['content']['links']['comment']['#links'] as $key => $link) {
+    if (in_array($key, array('comment-edit', 'comment-reply'))) {
+      // Convert these comment links to ajax callbacks
+      $links[$key] = ctools_modal_text_button($link['title'], 'oa/nojs/' . $link['href'], $link['title']);
+    }
+    else {
+      $links[$key] = l($link['title'], $link['href'], $link);
+    }
   }
-  else {
-    $vars['publish_comment'] = NULL;
-  }
+  $vars['comment_links'] = $links;
 }
 
 /**

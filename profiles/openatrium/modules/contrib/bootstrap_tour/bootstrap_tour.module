@@ -162,13 +162,63 @@ function bootstrap_tour_libraries_info() {
 }
 
 /**
+ * Remove tour cookies from session
+ */
+function bootstrap_tour_cleanup() {
+  if (isset($_SESSION['tour'])) {
+    unset($_SESSION['tour']);
+  }
+  if (isset($_SESSION['nexttour'])) {
+    unset($_SESSION['nexttour']);
+  }
+}
+
+/**
+ * Helper function to load a file from local disk or from remote url
+ * @param $type
+ * @param $filename
+ * @param $uri
+ */
+function bootstrap_tour_load_file($type, $filename, $uri) {
+  $file = 'public://' . $filename;
+  $realfile = drupal_realpath($file);
+  $options = NULL;
+  if (!file_exists($realfile)) {
+    global $base_url;
+    $base = parse_url($base_url);
+    $url = $base['scheme'] . '://' . $uri;
+    if (system_retrieve_file($url, $file, FALSE, FILE_EXISTS_REPLACE) === FALSE) {
+      // If we can't cache the file locally, use the remote CDN link
+      $file = $url;
+      $options = 'external';
+    }
+  }
+  if ($type == 'js') {
+    drupal_add_js($file, $options);
+  }
+  else {
+    drupal_add_css($file, $options);
+  }
+}
+
+/**
  * Helper function to actually run a tour. Can be called from anywhere.
  */
 function bootstrap_tour_run_tour($id, $force = FALSE) {
 
   $tour = bootstrap_tour_load($id);
 
-  if (!bootstrap_tour_access($tour)) {
+  if (!bootstrap_tour_access($tour) && empty($tour->steps)) {
+    bootstrap_tour_cleanup();
+    return;
+  }
+
+  if ($tour->autorun && !empty($tour->start_path)) {
+    $tour->steps[0]->path = $tour->start_path;
+  }
+  $first_path = $tour->steps[0]->path;
+  if (empty($first_path)) {
+    bootstrap_tour_cleanup();
     return;
   }
 
@@ -177,12 +227,10 @@ function bootstrap_tour_run_tour($id, $force = FALSE) {
     $_SESSION['tour'] = $tour->name;
   }
 
-  $first_path = $tour->start_path;
-  $tour->steps[0]->path = $first_path;
   if ($first_path == current_path() || $first_path == request_path() || ($first_path == '<front>' && request_path() == '')) {
     if (empty($_GET['step']) || $_GET['step'] == 0) {
       // We're starting the tour over.
-      if (!empty($_SESSION['nexttour'])) {
+      if (isset($_SESSION['nexttour'])) {
         unset($_SESSION['nexttour']);
       }
     }
@@ -218,10 +266,8 @@ function bootstrap_tour_run_tour($id, $force = FALSE) {
   }
   else {
     // Grab the Bootstrap Tour JS from CDNJS if the library isn't installed.
-    global $base_url;
-    $base = parse_url($base_url);
-    drupal_add_css($base['scheme'] . '://cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.6.1/css/bootstrap-tour.min.css', 'external');
-    drupal_add_js($base['scheme'] . '://cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.6.1/js/bootstrap-tour.js', 'external');
+    bootstrap_tour_load_file('css','bootstrap-tour.min.css', 'cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.6.1/css/bootstrap-tour.min.css');
+    bootstrap_tour_load_file('js','bootstrap-tour.js', 'cdnjs.cloudflare.com/ajax/libs/bootstrap-tour/0.6.1/js/bootstrap-tour.js');
   }
 
   drupal_add_js(drupal_get_path('module', 'bootstrap_tour') . '/js/bootstrap-tour.js');
@@ -284,7 +330,9 @@ function bootstrap_tour_page_build(&$page) {
  * Helper function to end the current tour.
  */
 function bootstrap_tour_end_current_tour() {
-  unset($_SESSION['tour']);
+  if (isset($_SESSION['tour'])) {
+    unset($_SESSION['tour']);
+  }
 }
 
 /**

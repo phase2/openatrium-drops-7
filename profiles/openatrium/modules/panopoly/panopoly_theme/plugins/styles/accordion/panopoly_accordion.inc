@@ -54,7 +54,7 @@ function theme_panopoly_theme_panopoly_accordion_style_render_region($vars) {
     'accordion' => array($region_id  => array('options' => array('header' => 'h4.accordion-title')))
   );
   $settings_js['accordion'][$region_id]['options'] += $settings;
-  $settings_js['accordion'][$region_id]['options']['active'] = (int) $settings_js['accordion'][$region_id]['options']['active'];
+  $settings_js['accordion'][$region_id]['options']['active'] = isset($settings_js['accordion'][$region_id]['options']['active']) ? (int)$settings_js['accordion'][$region_id]['options']['active'] : 0;
   drupal_add_js($settings_js, 'setting');
   return $output;
 }

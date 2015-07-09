@@ -254,54 +254,6 @@ function oa_events_views_default_views() {
   );
   $handler->display->display_options['fields']['field_oa_related']['delta_offset'] = '0';
   $handler->display->display_options['fields']['field_oa_related']['separator'] = '';
-  /* Field: Field: Attachments */
-  $handler->display->display_options['fields']['field_oa_media']['id'] = 'field_oa_media';
-  $handler->display->display_options['fields']['field_oa_media']['table'] = 'field_data_field_oa_media';
-  $handler->display->display_options['fields']['field_oa_media']['field'] = 'field_oa_media';
-  $handler->display->display_options['fields']['field_oa_media']['label'] = '';
-  $handler->display->display_options['fields']['field_oa_media']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['field_oa_media']['hide_empty'] = TRUE;
-  $handler->display->display_options['fields']['field_oa_media']['click_sort_column'] = 'fid';
-  $handler->display->display_options['fields']['field_oa_media']['type'] = 'oa_media_formatter';
-  $handler->display->display_options['fields']['field_oa_media']['settings'] = array(
-    'image_style' => 'thumbnail',
-  );
-  $handler->display->display_options['fields']['field_oa_media']['delta_offset'] = '0';
-  /* Field: Flags: Flag link */
-  $handler->display->display_options['fields']['ops']['id'] = 'ops';
-  $handler->display->display_options['fields']['ops']['table'] = 'flag_content';
-  $handler->display->display_options['fields']['ops']['field'] = 'ops';
-  $handler->display->display_options['fields']['ops']['relationship'] = 'flag_content_rel';
-  $handler->display->display_options['fields']['ops']['label'] = '';
-  $handler->display->display_options['fields']['ops']['element_label_colon'] = FALSE;
-  /* Field: Field: Attachments */
-  $handler->display->display_options['fields']['field_oa_media_1']['id'] = 'field_oa_media_1';
-  $handler->display->display_options['fields']['field_oa_media_1']['table'] = 'field_data_field_oa_media';
-  $handler->display->display_options['fields']['field_oa_media_1']['field'] = 'field_oa_media';
-  $handler->display->display_options['fields']['field_oa_media_1']['click_sort_column'] = 'fid';
-  $handler->display->display_options['fields']['field_oa_media_1']['type'] = 'file_table';
-  $handler->display->display_options['fields']['field_oa_media_1']['delta_offset'] = '0';
-  /* Field: Content: All taxonomy terms */
-  $handler->display->display_options['fields']['term_node_tid']['id'] = 'term_node_tid';
-  $handler->display->display_options['fields']['term_node_tid']['table'] = 'node';
-  $handler->display->display_options['fields']['term_node_tid']['field'] = 'term_node_tid';
-  $handler->display->display_options['fields']['term_node_tid']['label'] = '';
-  $handler->display->display_options['fields']['term_node_tid']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['term_node_tid']['type'] = 'ul';
-  $handler->display->display_options['fields']['term_node_tid']['vocabularies'] = array(
-    'announcementtype' => 0,
-    'barrier' => 0,
-    'bicompendium' => 0,
-    'panopoly_categories' => 0,
-    'eventtype' => 0,
-    'focusarea' => 0,
-    'keywords' => 0,
-    'meaningfuluse' => 0,
-    'publicationtype' => 0,
-    'settings' => 0,
-    'targetaudience' => 0,
-    'tooltype' => 0,
-  );
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
   $handler->display->display_options['defaults']['filters'] = FALSE;
   /* Filter criterion: Content: Published */

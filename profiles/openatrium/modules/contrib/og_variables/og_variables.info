@@ -12,9 +12,9 @@ dependencies[] = entity
 
 files[] = og_variables.class.inc
 
-; Information added by Drupal.org packaging script on 2014-12-31
-version = "7.x-1.0-beta2"
+; Information added by Drupal.org packaging script on 2015-07-08
+version = "7.x-1.0"
 core = "7.x"
 project = "og_variables"
-datestamp = "1420006381"
+datestamp = "1436385540"
 

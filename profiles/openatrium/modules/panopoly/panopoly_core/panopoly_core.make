@@ -11,10 +11,11 @@ projects[ctools][patch][2280853] = http://www.drupal.org/files/issues/ctools-key
 projects[ctools][patch][1910608] = https://www.drupal.org/files/issues/views_content-ajax-1910608-29.patch
 projects[ctools][patch][1901106] = https://www.drupal.org/files/issues/1901106-ctools-views_content-override-ajax-30.patch
 projects[ctools][patch][2023705] = http://drupal.org/files/2023705-ctools-autosubmit-2_0.patch
-projects[ctools][patch][2448989] = https://www.drupal.org/files/issues/2448989-ctools-frome_field_children-1.patch
+projects[ctools][patch][2448989] = https://www.drupal.org/files/issues/2448989-ctools-from_field_children-8.patch
 projects[ctools][patch][2422123] = https://www.drupal.org/files/issues/ctools-fix_entity_view_hooks_invoked_twice-2422123-15.patch
 projects[ctools][patch][2483415] = https://www.drupal.org/files/issues/ctools-more_than_one_comment_pager-2483415-1.patch
 projects[ctools][patch][1032218] = https://www.drupal.org/files/issues/ctools_context_optional_always_empty-1032218-13.patch
+projects[ctools][patch][2493041] = https://www.drupal.org/files/issues/ctools-n2493041-3.patch
 
 projects[panels][version] = 3.5
 projects[panels][subdir] = contrib
@@ -29,6 +30,8 @@ projects[panelizer][subdir] = contrib
 projects[panelizer][download][type] = git
 projects[panelizer][download][branch] = 7.x-3.x
 projects[panelizer][download][revision] = 6b76359
+projects[panelizer][patch][2514068] = https://www.drupal.org/files/issues/2514068-panelizer-cache_key-2.patch
+projects[panelizer][patch][1549608] = https://www.drupal.org/files/issues/1549608-panelizer-cache-24.patch
 
 projects[fieldable_panels_panes][version] = 1.6
 projects[fieldable_panels_panes][subdir] = contrib
@@ -56,9 +59,8 @@ projects[views_autocomplete_filters][patch][2277453] = http://drupal.org/files/i
 projects[views_autocomplete_filters][patch][2374709] = http://www.drupal.org/files/issues/views_autocomplete_filters-cache-2374709-2.patch
 projects[views_autocomplete_filters][patch][2317351] = http://www.drupal.org/files/issues/views_autocomplete_filters-content-pane-2317351-4.patch
 
-projects[views_bulk_operations][version] = 3.2
+projects[views_bulk_operations][version] = 3.3
 projects[views_bulk_operations][subdir] = contrib
-projects[views_bulk_operations][patch][2192775] = http://drupal.org/files/issues/views-bulk-operations-2192775-1_0.patch
 
 ; The Usual Suspects
 
@@ -108,10 +110,10 @@ projects[link][subdir] = contrib
 
 ; Harness the Power of Features and Apps with Default Content
 
-projects[apps][version] = 1.0-rc1
+projects[apps][version] = 1.0
 projects[apps][subdir] = contrib
 
-projects[features][version] = 2.6-rc1
+projects[features][version] = 2.6
 projects[features][subdir] = contrib
 
 projects[strongarm][version] = 2.0
@@ -130,7 +132,7 @@ projects[defaultcontent][subdir] = contrib
 projects[defaultcontent][patch][1754428] = http://drupal.org/files/1754428-allow-node-export-alter.patch
 projects[defaultcontent][patch][1757782] = http://drupal.org/files/1757782-cannot-import-menu-hierarchy-8.patch
 
-projects[migrate][version] = "2.7"
+projects[migrate][version] = "2.8"
 projects[migrate][type] = "module"
 projects[migrate][subdir] = "contrib"
 

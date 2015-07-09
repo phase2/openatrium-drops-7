@@ -38,9 +38,9 @@ features[page_manager_pages][] = panopoly_admin_page_library
 features[page_manager_pages][] = panopoly_admin_pane_library
 features[variable][] = user_admin_role
 
-; Information added by Drupal.org packaging script on 2015-06-18
-version = "7.x-1.23"
+; Information added by Drupal.org packaging script on 2015-07-09
+version = "7.x-1.25"
 core = "7.x"
 project = "panopoly_admin"
-datestamp = "1434586207"
+datestamp = "1436405050"
 

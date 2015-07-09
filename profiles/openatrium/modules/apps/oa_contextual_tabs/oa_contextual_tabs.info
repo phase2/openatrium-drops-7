@@ -19,9 +19,9 @@ features[variable][] = contextual_tabs_pages
 features[variable][] = contextual_tabs_visilibity
 project path = sites/all/modules/contrib/oa_core/modules
 
-; Information added by Drupal.org packaging script on 2015-06-18
-version = "7.x-2.27"
+; Information added by Drupal.org packaging script on 2015-07-08
+version = "7.x-2.28"
 core = "7.x"
 project = "oa_contextual_tabs"
-datestamp = "1434653285"
+datestamp = "1436366652"
 

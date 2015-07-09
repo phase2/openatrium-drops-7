@@ -45,8 +45,5 @@
     <?php  print $field_oa_date_2; ?>
     <?php print $body; ?>
     <?php if (!empty($field_oa_related)) {print $field_oa_related;} ?>
-    <?php print $field_oa_media_1; ?>
-    <?php print $term_node_tid; ?>
-    <?php print $ops; ?>
   </div>
 </div>

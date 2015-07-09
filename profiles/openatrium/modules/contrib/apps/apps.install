@@ -28,7 +28,7 @@ function apps_update_7001() {
  * Reset permissions
  */
 function apps_update_7102() {
-  if (!module_exists('og')) {
+  if (!module_exists('og') || !module_exists('apps')) {
     return;
   }
   $changed = FALSE;

@@ -1,3 +1,11 @@
+Panopoly Admin 7.x-1.25, 2015-07-08
+----------------------------
+- Update to admin_views 1.5 for SA-CONTRIB-2015-132.
+
+Panopoly Admin 7.x-1.24, 2015-07-02
+----------------------------
+- No changes since last release.
+
 Panopoly Admin 7.x-1.23, 2015-06-17
 ----------------------------
 - Update to jquery_update 2.6 for SA-CONTRIB-2015-123.

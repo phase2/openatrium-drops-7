@@ -10,6 +10,8 @@ projects[manualcrop][subdir] = contrib
 projects[manualcrop][download][type] = git
 projects[manualcrop][download][revision] = d6c449d
 projects[manualcrop][download][branch] = 7.x-1.x
+projects[manualcrop][patch][2521962] = https://www.drupal.org/files/issues/manualcrop_dont_show_crop_for_video-2521962-1.patch
+
 
 ; jquery.imagesLoaded library for manualcrop
 libraries[jquery.imagesloaded][download][type] = file

@@ -227,7 +227,7 @@ function apps_request_manifest($server) {
   $info = drupal_parse_info_file(dirname(__FILE__) . '/apps.info');
   $rest_data = array(
     'client_id' => apps_client_id(),
-    'apps_version' => $info['version'],
+    'apps_version' => isset($info['version']) ? $info['version'] : NULL,
     'format' => 'json',
   ) + $server;
 

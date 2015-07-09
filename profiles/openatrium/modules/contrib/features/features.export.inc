@@ -1027,7 +1027,7 @@ function features_sanitize(&$array, $component = NULL, $remove_empty = TRUE) {
  */
 function _features_sanitize(&$array, $remove_empty = TRUE) {
   if (is_object($array)) {
-    $array = (array) $array;
+    $array = get_object_vars($array);
   }
   if (is_array($array)) {
     $is_assoc = _features_is_assoc($array);

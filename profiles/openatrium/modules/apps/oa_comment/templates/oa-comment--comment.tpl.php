@@ -99,10 +99,9 @@
           </div>
           <?php if ($show_links): ?>
           <div class="links">
-            <?php if (!empty($reply_comment)): print $reply_comment; endif; ?>
-            <?php if (!empty($edit_comment)): print $edit_comment; endif; ?>
-            <?php if (!empty($publish_comment)): print $publish_comment; endif; ?>
-            <?php if (!empty($delete_comment)): print $delete_comment; endif; ?>
+            <?php foreach ($comment_links as $key => $link): ?>
+              <?php print $link; ?>
+            <?php endforeach; ?>
           </div>
           <?php endif; ?>
         </div>

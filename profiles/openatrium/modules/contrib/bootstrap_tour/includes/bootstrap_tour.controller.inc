@@ -14,12 +14,14 @@ class BootstrapTourEntityController extends EntityAPIControllerExportable {
 
   public function export($entity, $prefix = '') {
     $wrapper = entity_metadata_wrapper('bootstrap_tour', $entity);
-    $entity->steps = $wrapper->bootstrap_tour_step_reference->value();
-    // Need to remove the step reference as they will be overriden anyway.
-    // Remove step keys as they are ignored anyway.
-    unset($entity->bootstrap_tour_step_reference);
-    foreach ($entity->steps as $step) {
-      unset($step->bootstrap_tour_step_id);
+    if (field_info_instance('bootstrap_tour', 'bootstrap_tour_step_reference', 'bootstrap_tour')) {
+      $entity->steps = $wrapper->bootstrap_tour_step_reference->value();
+      // Need to remove the step reference as they will be overriden anyway.
+      // Remove step keys as they are ignored anyway.
+      unset($entity->bootstrap_tour_step_reference);
+      foreach ($entity->steps as $step) {
+        unset($step->bootstrap_tour_step_id);
+      }
     }
     return parent::export($entity, $prefix);
   }

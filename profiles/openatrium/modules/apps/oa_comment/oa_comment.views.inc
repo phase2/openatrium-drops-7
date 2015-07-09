@@ -20,10 +20,7 @@ function oa_comment_views_data() {
       'handler' => 'views_handler_field_oa_comment_last_date',
     ),
     'sort' => array(
-      'handler' => 'views_handler_sort_date',
-    ),
-    'filter' => array(
-      'handler' => 'views_handler_filter_date',
+      'handler' => 'views_handler_sort_oa_comment_last_date',
     ),
   );
 

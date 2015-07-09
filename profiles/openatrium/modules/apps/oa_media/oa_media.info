@@ -176,9 +176,9 @@ features[variable][] = colorbox_visibility
 features[variable][] = field_bundle_settings_file__document
 mtime = 1416507754
 
-; Information added by Drupal.org packaging script on 2015-06-18
-version = "7.x-2.28"
+; Information added by Drupal.org packaging script on 2015-07-08
+version = "7.x-2.29"
 core = "7.x"
 project = "oa_media"
-datestamp = "1434653589"
+datestamp = "1436366958"
 

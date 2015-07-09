@@ -1,3 +1,13 @@
+Panopoly Widgets 7.x-1.25, 2015-07-08
+------------------------------
+- Split spotlight JS into it's own file.
+
+Panopoly Widgets 7.x-1.24, 2015-07-02
+------------------------------
+- Media dialog missing styles.
+- Update to media_youtube 3.0.
+- Update to menu_block 2.7.
+
 Panopoly Widgets 7.x-1.23, 2015-06-17
 ------------------------------
 - Update jquery_update to version 2.5.

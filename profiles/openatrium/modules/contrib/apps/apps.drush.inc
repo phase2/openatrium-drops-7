@@ -175,7 +175,8 @@ function drush_apps_install() {
       $download = array('url' => $downloadable['url']);
       $name = $downloadable['name'];
       $download_location = variable_get('apps_install_path', APPS_INSTALL_PATH) . "/" . $name;
-      if (DRUSH_VERSION <= 5.9) {
+      $parts = explode('.', DRUSH_VERSION);
+      if ($parts[0] < 6 && !($parts[0] == 5 && $parts[1] > 9)) {
         $downloaded = make_download_file($name, $download, $download_location);
       }
       else {

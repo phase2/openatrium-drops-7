@@ -20,6 +20,12 @@ function oa_related_oa_paragraph_media_alter(&$vars) {
         case 'full':
         case 'grid2':
           // for large images we need to change the view mode to fetch original image sizes
+          if ($vars['field_oa_media'][$i]['type'] == 'image') {
+            $item['#display_settings']['file_view_mode'] = 'default';
+          }
+          break;
+        case 'center':
+        case 'none':
           $item['#display_settings']['file_view_mode'] = 'default';
           break;
       }
