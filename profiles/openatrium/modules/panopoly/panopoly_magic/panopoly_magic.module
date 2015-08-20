@@ -644,6 +644,13 @@ function panopoly_magic_render_fieldable_panels_pane_preview($type, $subtype, $c
       }
     }
 
+    // Necessary to allow 'tablefield' to work per Issue #2479569, but it breaks
+    // the Spotlight widget per Issue #2533064. So, for now, only run on the
+    // Table widget.
+    if ($entity->bundle == 'table') {
+      _field_invoke('presave', 'fieldable_panels_pane', $entity);
+    }
+
     // Some magic necessary to make sure fields are in the same state they
     // would be in if they were loaded from the database. Found this by looking
     // at how node generates it's previews in node_preview().

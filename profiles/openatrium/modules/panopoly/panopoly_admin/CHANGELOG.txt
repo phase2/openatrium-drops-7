@@ -1,3 +1,8 @@
+Panopoly Admin 7.x-1.26, 2015-08-19
+----------------------------
+- Multilingual options for menu does not work.
+- Does panopoly_admin really depend on panopoly_theme?.
+
 Panopoly Admin 7.x-1.25, 2015-07-08
 ----------------------------
 - Update to admin_views 1.5 for SA-CONTRIB-2015-132.

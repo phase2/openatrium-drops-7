@@ -168,6 +168,47 @@ function _openatrium_set_up_theme() {
 }
 
 /**
+ * Implements hook_requirements().
+ */
+function openatrium_requirements($phase) {
+  // Cannot test during install time because menu is how test and can't use that.
+  $requirements = array();
+  // Ensure translations don't break during installation.
+  $t = get_t();
+
+  // Report Drupal version
+  if ($phase == 'runtime') {
+    $available = FALSE;
+    if (strpos(request_uri(), '?q=') === FALSE && strpos(request_uri(), '&q=') === FALSE) {
+      $available = TRUE;
+    }
+    else {
+      $request = drupal_http_request($GLOBALS ['base_url'] . '/admin/config/search/clean-urls/check');
+      // If the request returns HTTP 200, clean URLs are available.
+      if (isset($request->code) && $request->code == 200 && ($data = drupal_json_decode($request->data)) && !empty($data['status'])) {
+        $available = TRUE;
+      }
+    }
+    if (!$available) {
+      $requirements ['clean_urls_available'] = array(
+        'title' => $t('Clean Urls Available'),
+        'value' => t('Clean Urls is not available, but OpenAtrium requires it to function properly.'),
+        'severity' => REQUIREMENT_ERROR
+      );
+    }
+    if ($phase == 'runtime' && !variable_get('clean_url', 0)) {
+      $requirements ['clean_urls_enabled'] = array(
+        'title' => $t('Clean Urls Enabled'),
+        'value' => t('Clean Urls are not enabled, but OpenAtrium requires it to function properly.'),
+        'severity' => REQUIREMENT_ERROR
+      );
+    }
+  }
+
+  return $requirements;
+}
+
+/**
  * Enable oa_variables module.
  */
 function openatrium_update_7002() {

@@ -6,20 +6,20 @@
 /**
  * Show the link class option if the "Link to the original" option is checked.
  */
-jQuery(document).ready(function() {
-  jQuery('.image-resize-filter-link-options input.form-checkbox').change(function() {
+(function($){$().ready(function(){
+  $('.image-resize-filter-link-options input.form-checkbox').change(function() {
     if (this.checked) {
-      jQuery('span.image-resize-filter-rel').css('display', 'inline');
-      jQuery('span.image-resize-filter-class').css('display', 'inline');
+      $('span.image-resize-filter-rel').css('display', 'inline');
+      $('span.image-resize-filter-class').css('display', 'inline');
     }
     else {
-      jQuery('span.image-resize-filter-rel').css('display', 'none');
-      jQuery('span.image-resize-filter-class').css('display', 'none');
+      $('span.image-resize-filter-rel').css('display', 'none');
+      $('span.image-resize-filter-class').css('display', 'none');
     }
   });
 
-  if (jQuery('.image-resize-filter-link-options input').is('[checked]') == false) {
-    jQuery('span.image-resize-filter-rel').css('display', 'none');
-    jQuery('span.image-resize-filter-class').css('display', 'none');
+  if ($('.image-resize-filter-link-options input').is('[checked]') == false) {
+    $('span.image-resize-filter-rel').css('display', 'none');
+    $('span.image-resize-filter-class').css('display', 'none');
   }
-});
+});})(jQuery);

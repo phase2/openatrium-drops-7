@@ -33,6 +33,20 @@ function openatrium_form_install_configure_form_alter(&$form, &$form_state) {
   openatrium_remove_message('offers a wide range of customization options', 'warning');
   openatrium_remove_message('The image resize filter has been installed', 'warning');
   openatrium_remove_message('To use menu blocks, find the "Add menu block');
+  $form['#validate'][] = 'openatrium_clean_urls_validate';
+}
+
+/**
+ * Validate that clean URLs work.
+ */
+function openatrium_clean_urls_validate($form, &$form_state) {
+  // We cannot test for clean urls during hook_requirments during intall due to
+  // lack of menu to test a url for, so we test here instead.
+  // The javascript enables clean urls automatically if they work.
+  // Could have just required clean_url, but wanted to customize the error.
+  if (empty($form_state['values']['clean_url'])) {
+    form_set_error('clean_url', t('Clean Urls most be available and enabled to use OpenAtrium.'));
+  }
 }
 
 /**

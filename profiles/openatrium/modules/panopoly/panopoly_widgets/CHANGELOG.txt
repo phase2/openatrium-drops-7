@@ -1,3 +1,14 @@
+Panopoly Widgets 7.x-1.26, 2015-08-19
+------------------------------
+- Panopoly Widgets - support the Title module.
+- Counting Spotlight clicks.
+- Update media_vimeo to version 2.1.
+- Update Vimeo configuration export.
+- Spotlight accessibility regressions.
+- Panopoly Widgets overridden after upgrade to -dev.
+- Move rendering of Spotlight formatter into theme template.
+- Update tablefield to version 2.4.
+
 Panopoly Widgets 7.x-1.25, 2015-07-08
 ------------------------------
 - Split spotlight JS into it's own file.

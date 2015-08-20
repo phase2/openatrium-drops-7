@@ -43,6 +43,10 @@
 
       // build tree data hierarchy from flat files list
       function buildTree(files, parent) {
+        var seenIds = [];
+        return _buildTree(files, parent, seenIds);
+      }
+      function _buildTree(files, parent, seenIds) {
         var result = [];
         for (var id in files) {
           var item = files[id];
@@ -52,15 +56,22 @@
             || ((parent == topid) &&
               ((item.parent.indexOf(0) > -1) || (item.parent.indexOf('0') > -1)))
             ) {
-            // need to clone the item so we get unique row objects within each parent
-            // otherwise things like the popup menu will appear for all instances
-            // of the same node
+            // In case of files, need to clone the item so we get unique row objects
+            // within each parent otherwise things like the popup menu will appear
+            //  for all instancesof the same node
             // fortunately we have a simple object structure
-            var clone = {};
-            for (var key in item) {
-              clone[key] = item[key];
+            var clone;
+            if (seenIds.indexOf(item.id) > -1) {
+              clone = {};
+              for (var key in item) {
+                clone[key] = item[key];
+              }
             }
-            clone.weight = parseInt(clone.weight);
+            else {
+              clone = item;
+              seenIds.push(item.id);
+            }
+            clone.weight = clone.weight ? parseInt(clone.weight) : 0;
             if (clone.isfolder) {
               clone.children = buildTree(files, id);
             }
@@ -449,7 +460,7 @@
             parent: [parent],
             isfolder: true,
             editor: parentNode.editor,
-            children: []
+            children: [],
           };
           $.post(
             // Callback URL.
@@ -476,6 +487,12 @@
                     }
                   }
                 }
+                // Merge in additional data.
+                if (result.additions) {
+                  for (var addition_key in result.additions) {
+                    treeNode[addition_key] = result.additions[addition_key];
+                  }
+                }
                 maxId++;
                 treeNode.id = result.id;
                 treeNode.parent = [parentId];
@@ -487,13 +504,8 @@
                   treeNode.tid = result.tid;
                   treeNode.url = 'taxonomy/term/' + result.tid;
                 }
-                if (parentNode == $scope.root) {
-                  $scope.treeData.push(treeNode);
-                }
-                else {
-                  parentNode.children.push(treeNode);
-                }
                 files[treeNode.id] = treeNode;
+                $scope.treeData = buildTree(files, topid);
                 addExpandCookie(parentId, true);
                 preExpand($scope.treeData);
                 $scope.$apply();

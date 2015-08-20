@@ -1,3 +1,14 @@
+Panopoly Search 7.x-1.26, 2015-08-19
+-----------------------------
+- Have panopoly_search SOLR intergration configured for node access by default.
+- Search indexes source code.
+- Update search_api to 1.15 and search_api_solr to 1.7.
+- Redirect search block to our search_api-based search.
+- Update from Panopoly 1.15 or older fails with "Table 'drupal.search_api_task'
+  doesn't exist".
+- Check if panopoly_search is enabled in panopoly_search update 7005.
+- Exported disabled server "Solr Server" cannot have an index attached.
+
 Panopoly Search 7.x-1.25, 2015-07-08
 -----------------------------
 - No changes since last release.

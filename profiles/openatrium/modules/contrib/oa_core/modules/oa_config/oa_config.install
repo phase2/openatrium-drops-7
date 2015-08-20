@@ -36,3 +36,10 @@ function oa_config_ensure_default_group_rids() {
 function oa_config_update_7101() {
   oa_config_ensure_default_group_rids();
 }
+
+/**
+ * Enable the oa_wysiwyg module
+ */
+function oa_config_update_7201() {
+  module_enable(array('oa_wysiwyg'));
+}

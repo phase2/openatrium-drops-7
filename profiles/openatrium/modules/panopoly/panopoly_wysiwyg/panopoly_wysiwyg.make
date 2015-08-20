@@ -22,8 +22,9 @@ projects[linkit][version] = 3.3
 projects[linkit][subdir] = contrib
 projects[linkit][patch][2115763] = http://drupal.org/files/issues/linkit-2115763-18-text-format-switching.patch
 
-projects[image_resize_filter][version] = 1.14
+projects[image_resize_filter][version] = 1.15
 projects[image_resize_filter][subdir] = contrib
+projects[image_resize_filter[patch][1929710] = https://www.drupal.org/files/issues/image_resize_filter-query_string-1929710-14-D7.patch
 
 projects[caption_filter][version] = 1.x-dev
 projects[caption_filter][subdir] = contrib

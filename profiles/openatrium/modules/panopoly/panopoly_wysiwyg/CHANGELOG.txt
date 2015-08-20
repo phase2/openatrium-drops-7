@@ -1,3 +1,8 @@
+Panopoly WYSIWYG 7.x-1.26, 2015-08-19
+------------------------------
+- Update to image_resize_filter 1.15.
+- Image Resize Filter never utilized.
+
 Panopoly WYSIWYG 7.x-1.25, 2015-07-08
 ------------------------------
 - No changes since last release.

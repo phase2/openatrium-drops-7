@@ -565,7 +565,10 @@ function oa_core_form_node_form_alter(&$form, &$form_state, $form_id) {
 
   if (isset($form['field_oa_space_type']) && !isset($form['#node']->nid)) {
     // Creating a new space node, so limit space types
-    $form['field_oa_space_type'][LANGUAGE_NONE]['#options'] = oa_core_get_allowed_space_terms();
+    $options = oa_core_get_allowed_space_terms();
+    if (isset($options)) {
+      $form['field_oa_space_type'][LANGUAGE_NONE]['#options'] = $options;
+    }
   }
 }
 

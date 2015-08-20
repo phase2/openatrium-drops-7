@@ -163,6 +163,9 @@ function oa_core_members_widget_render($subtype, $conf, $args, $context = NULL) 
         t('Inheritance disabled') => $parent_no_inherit,
       ),
       'links' => array(),
+      'subpage' => array(
+        t('Spaces') => '/members',
+      ),
     );
     if (user_access('create ' . OA_GROUP_TYPE . ' content', $user)) {
       $tabs['parents']['global_links'][] = array(
@@ -201,8 +204,9 @@ function oa_core_members_widget_render($subtype, $conf, $args, $context = NULL) 
     $tabs[$category]['items'] = array();
     if (!empty($tab['items'])) {
       foreach ($tab['items'] as $key => $items) {
+        $subpage = !empty($tabs[$category]['subpage'][$key]) ? $tabs[$category]['subpage'][$key] : '';
         foreach ($items as $id => $entity) {
-          $tabs[$category]['items'][$key][$id] = oa_core_entity_build_display($entity, $id, $space);
+          $tabs[$category]['items'][$key][$id] = oa_core_entity_build_display($entity, $id, $space, $subpage);
           if ($entity->uid == $space->uid) {
             // don't show links for main space owner
             $tabs[$category]['items'][$key][$id]['uid'] = 0;

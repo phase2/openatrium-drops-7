@@ -34,13 +34,14 @@ function panopoly_search_update_dependencies() {
   // We need to revert our servers/indexes only after these updates to
   // search_api_db and search_api_solr.
   $deps['panopoly_search'][7005] = array(
+    'search_api' => 7116,
     'search_api_db' => 7104,
     'search_api_solr' => 7102,
   );
   return $deps;
 }
 
-/** 
+/**
  * Panopoly Beta 4 Update: Enabling Search API DB Module
  */
 function panopoly_search_update_7001(&$sandbox) {
@@ -106,21 +107,67 @@ function panopoly_search_update_7004(&$sandbox) {
  * Make sure search is configured to index Panelizer and reindex all nodes.
  */
 function panopoly_search_update_7005() {
-  features_revert(array('panopoly_search' => array('search_api_server', 'search_api_index')));
+  if (module_exists('panopoly_search')) {
+    features_revert(array('panopoly_search' => array('search_api_server', 'search_api_index')));
 
-  $types = array();
-  foreach (search_api_index_load_multiple(array('database_node_index', 'node_index')) as $index) {
-    if ($index->enabled) {
-      $types[$index->item_type][] = $index;
+    $types = array();
+    foreach (search_api_index_load_multiple(array('database_node_index', 'node_index')) as $index) {
+      if ($index->enabled) {
+        $types[$index->item_type][] = $index;
+      }
+    }
+    foreach ($types as $type => $indexes) {
+      try {
+        $controller = search_api_get_datasource_controller($type);
+        $controller->startTracking($indexes);
+      }
+      catch (SearchApiException $e) {
+        watchdog_exception('panopoly_search', $e);
+      }
     }
   }
-  foreach ($types as $type => $indexes) {
-    try {
-      $controller = search_api_get_datasource_controller($type);
-      $controller->startTracking($indexes);
+}
+
+/**
+ * Reindex all nodes after applying patch to fix issue 2530866. Also, update the
+ * configuration in the DB so that it matches the Feature.
+ */
+function panopoly_search_update_7006() {
+  $fields = array('body:summary', 'body:value', 'search_api_panelizer_content', 'search_api_panelizer_title', 'search_api_viewed');
+  foreach (search_api_index_load_multiple(array('database_node_index', 'node_index')) as $index) {
+    // If the index configuration is stored in the database, also update it there.
+    if ($index->status & EXPORT_IN_DATABASE) {
+      $options = $index->options;
+      foreach (array('search_api_case_ignore', 'search_api_html_filter', 'search_api_tokenizer') as $processor_name) {
+        foreach ($fields as $field_name) {
+          $options['processors'][$processor_name]['settings']['fields'][$field_name] = TRUE;
+        }
+      }
+      $index->update(array('options' => $options));
     }
-    catch (SearchApiException $e) {
-      watchdog_exception('panopoly_search', $e);
+    // If the index is enabled, queue it for re-indexing.
+    if ($index->enabled) {
+      $index->reindex();
     }
+  }
+  return t('All items in the search indexes have been queued for reindexing.');
+}
+
+/**
+ * Configure Solr index to use node access by default.
+ */
+function panopoly_search_update_7007() {
+  $index = search_api_index_load('node_index');
+  // If the index configuration is stored in the database, update it there.
+  if ($index->status & EXPORT_IN_DATABASE) {
+    $options = $index->options;
+    // Add the node_access field to be indexed.
+    $options['fields']['search_api_access_node']['type'] = 'list<string>';
+    $index->update(array('options' => $options));
+    // If the index is enabled, queue it for re-indexing.
+    if ($index->enabled) {
+      $index->reindex();
+    }
+    return t('All items in the search indexes have been queued for reindexing.');
   }
 }

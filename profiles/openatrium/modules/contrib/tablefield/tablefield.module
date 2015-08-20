@@ -150,9 +150,21 @@ function tablefield_field_info() {
       'label' => t('Table Field'),
       'description' => t('Stores a table of text fields'),
       'default_widget' => 'tablefield',
-      'default_formatter' => 'default',
+      'default_formatter' => 'tablefield_default',
+      'property_type' => 'tablefield',
+      'property_callbacks' => array('tablefield_property_info_callback'),
     ),
   );
+}
+
+/**
+ * Defines info for the properties of the tablefield field data structure.
+ */
+function tablefield_property_info_callback(&$info, $entity_type, $field, $instance, $field_type) {
+  $property = &$info[$entity_type]['bundles'][$instance['bundle']]['properties'][$field['field_name']];
+  $property['getter callback'] = 'entity_metadata_field_verbatim_get';
+  $property['setter callback'] = 'entity_metadata_field_verbatim_set';
+  unset($property['query callback']);
 }
 
 /**
@@ -190,25 +202,6 @@ function tablefield_field_settings_form($field, $instance, $has_data) {
   );
 
   return $form;
-}
-
-/**
- * Implements hook_field_schema().
- */
-function tablefield_field_schema($field) {
-  return array(
-    'columns' => array(
-      'value' => array(
-        'type' => 'text',
-        'size' => 'big',
-      ),
-      'format' => array(
-        'type' => 'varchar',
-        'length' => 255,
-        'default value' => '',
-      ),
-    ),
-  );
 }
 
 /**
@@ -259,9 +252,11 @@ function tablefield_field_widget_error($element, $error, $form, &$form_state) {
  * Implements hook_field_load().
  */
 function tablefield_field_load($entity_type, $entities, $field, $instances, $langcode, &$items, $age) {
-  foreach ($items as $delta => $table) {
-    if (isset($table[0]['value'])) {
-      $items[$delta][0]['tabledata'] = tablefield_rationalize_table(unserialize($table[0]['value']));
+  foreach ($entities as $id => $entity) {
+    foreach ($items[$id] as $delta => $item) {
+      if (isset($item['value'])) {
+        $items[$id][$delta]['tabledata'] = tablefield_rationalize_table(unserialize($item['value']));
+      }
     }
   }
 }
@@ -275,6 +270,12 @@ function tablefield_field_is_empty($item, $field) {
   // Allow the system settings form to have an emtpy table
   $arg0 = arg(0);
   if ($arg0 == 'admin') {
+    return FALSE;
+  }
+
+  // Check for already serialized data. This is the case for other language
+  // versions of this field.
+  if (!empty($item['tabledata'])) {
     return FALSE;
   }
 
@@ -297,7 +298,7 @@ function tablefield_field_is_empty($item, $field) {
  */
 function tablefield_field_formatter_info() {
   return array(
-    'default' => array(
+    'tablefield_default' => array(
       'label' => t('Tabular View'),
       'field types' => array('tablefield'),
     ),
@@ -315,8 +316,8 @@ function tablefield_field_formatter_view($entity_type, $entity, $field, $instanc
   foreach ($items as $delta => $table) {
 
     // Rationalize the stored data
-    if (!empty($table['tablefield'])) {
-      $tabledata = tablefield_rationalize_table($table['tablefield']);
+    if (!empty($table['tabledata'])) {
+      $tabledata = $table['tabledata'];
     }
     elseif (!empty($table['value'])) {
       $tabledata = tablefield_rationalize_table(unserialize($table['value']));
@@ -396,21 +397,44 @@ function tablefield_field_widget_form(&$form, &$form_state, $field, $instance, $
   $element['#type'] = 'tablefield';
   $form['#attributes']['enctype'] = 'multipart/form-data';
 
+  /* Tablefield is sometimes embedded within another form by other modules, such
+  * as Field Collection. Because of that, we cannot rely on field_name and
+  * $delta to provide a unique ID for this element. Instead we use a
+  * concatenation of the field parents along with the current field name,
+  * language, delta and tablefield key.
+  */
+  $tablefield_parents = isset($element['#field_parents']) ? $element['#field_parents'] : array();
+  array_push($tablefield_parents,
+    $element['#field_name'],
+    $element['#language'],
+    $element['#delta'],
+    'tablefield'
+  );
+  $id = drupal_clean_css_identifier(implode('-', $tablefield_parents));
+
+  // IDs to use for various buttons/wrapper for this element. When processing
+  // an AJAX request, these IDs are used to build the fieldstack so we know
+  // where the value we're adjusting is in the FormAPI array.
+  $ajax_wrapper_id = "$id-wrapper";
+  $rebuild_id = "$id-rebuild";
+  $import_id = "$id-import";
+
   // Establish a list of saved/submitted/default values
-  if (isset($form_state['clicked_button']['#value']) && $form_state['clicked_button']['#name'] == 'tablefield_rebuild_' . $field['field_name'] . '_' . $delta) {
+  if (isset($form_state['clicked_button']['#value']) && $form_state['clicked_button']['#name'] == $rebuild_id) {
     // Rebuilding table rows/cols
-    $default_value = tablefield_rationalize_table($form_state['tablefield_rebuild'][$field['field_name']][$langcode][$delta]['tablefield']);
+    $tablefield_rebuild = drupal_array_get_nested_value($form_state['tablefield_rebuild'], $tablefield_parents);
+    $default_value = tablefield_rationalize_table($tablefield_rebuild);
   }
-  elseif (isset($form_state['clicked_button']['#value']) && $form_state['clicked_button']['#name'] == 'tablefield-import-button-' . $field['field_name'] . '-' . $delta) {
+  elseif (isset($form_state['clicked_button']['#value']) && $form_state['clicked_button']['#name'] == $import_id) {
     // Importing CSV data
-    tablefield_import_csv($form, $form_state);
-    $default_value = tablefield_rationalize_table($form_state['input'][$field['field_name']][$langcode][$delta]['tablefield']);
+    tablefield_import_csv($form, $form_state, $langcode, $import_id, $tablefield_parents);
+    $default_value = tablefield_rationalize_table(drupal_array_get_nested_value($form_state['input'], $tablefield_parents));
   }
-  elseif ($form_state['submitted'] && isset($items[$delta]) && isset($items[$delta]['tablefield'])) {
+  elseif ($form_state['submitted'] && isset($items[$delta]) && isset($items[$delta]['tablefield']) && !isset($form_state['clicked_button']['#value'])) {
     // A form was submitted
     $default_value = tablefield_rationalize_table($items[$delta]['tablefield']);
   }
-  elseif (isset($items[$delta]['value'])) {
+  elseif (isset($items[$delta]['value']) && !isset($form_state['clicked_button']['#value'])) {
     // Default from database (saved node)
     $default_value = tablefield_rationalize_table(unserialize($items[$delta]['value']));
   }
@@ -421,9 +445,15 @@ function tablefield_field_widget_form(&$form, &$form_state, $field, $instance, $
     }
 
     // Get the widget default value
-    if(!empty($form_state['input'][$field['field_name']][$langcode][$delta]['tablefield'])) {
-      $default_value = tablefield_rationalize_table($form_state['input'][$field['field_name']][$langcode][$delta]['tablefield']);
-    } else {
+    $default_value = drupal_array_get_nested_value($form_state['input'], $tablefield_parents);
+    if (!empty($default_value)) {
+      // locked cells values do not end up in the input, so use instance defaults
+      if (!empty($field['settings']['lock_values'])) {
+        $default_value = tablefield_fill_locked_values($default_value, $instance['default_value'][0]['tablefield']);
+      }
+      $default_value = tablefield_rationalize_table($default_value);
+    }
+    else {
       $default_value = tablefield_rationalize_table($instance['default_value'][0]['tablefield']);
     }
 
@@ -441,11 +471,14 @@ function tablefield_field_widget_form(&$form, &$form_state, $field, $instance, $
   $element['tablefield'] = array(
     '#title' => $element['#title'],
     '#description' => filter_xss_admin($help_text),
-    '#attributes' => array('id' => 'form-tablefield-' . $field['field_name'] . '-' . $delta, 'class' => array('form-tablefield')),
+    '#attributes' => array(
+      'id' => $id,
+      'class' => array('form-tablefield')
+    ),
     '#type' => 'fieldset',
     '#tree' => TRUE,
     '#collapsible' => FALSE,
-    '#prefix' => '<div id="tablefield-' . $field['field_name'] . '-' . $delta . '-wrapper">',
+    '#prefix' => '<div id="'. $ajax_wrapper_id .'">',
     '#suffix' => '</div>',
   );
 
@@ -456,7 +489,7 @@ function tablefield_field_widget_form(&$form, &$form_state, $field, $instance, $
 
   $arg0 = arg(0);
   if ($arg0 == 'admin') {
-    $element['tablefield']['#description'] = t('This form defines the table field defaults, but the number of rows/columns and content can be overridden on a per-node basis. The first row will appear as the table header. Leave the first row bland if you do not need a header.');
+    $element['tablefield']['#description'] = t('This form defines the table field defaults, but the number of rows/columns and content can be overridden on a per-node basis. The first row will appear as the table header. Leave the first row blank if you do not need a header.');
   }
 
   // Determine how many rows/columns are saved in the data
@@ -471,16 +504,15 @@ function tablefield_field_widget_form(&$form, &$form_state, $field, $instance, $
     }
   }
   else {
-    $count_rows = count($default_value);
     $count_cols = isset($default_count_cols) ? $default_count_cols : 0;
     $count_rows = isset($default_count_rows) ? $default_count_rows : 0;
   }
 
   // Override the number of rows/columns if the user rebuilds the form.
-  if (isset($form_state['clicked_button']['#value']) && $form_state['clicked_button']['#name'] == 'tablefield_rebuild_' . $field['field_name'] . '_' . $delta) {
-    $count_cols = $form_state['tablefield_rebuild'][$field['field_name']][$langcode][$delta]['tablefield']['rebuild']['count_cols'];
-    $count_rows = $form_state['tablefield_rebuild'][$field['field_name']][$langcode][$delta]['tablefield']['rebuild']['count_rows'];
-
+  // $tablefield_rebuild variable was set above
+  if (isset($form_state['clicked_button']['#value']) && $form_state['clicked_button']['#name'] == $rebuild_id) {
+    $count_cols = $tablefield_rebuild['rebuild']['count_cols'];
+    $count_rows = $tablefield_rebuild['rebuild']['count_rows'];
     drupal_set_message(t('Table structure rebuilt.'), 'status', FALSE);
   }
 
@@ -517,7 +549,7 @@ function tablefield_field_widget_form(&$form, &$form_state, $field, $instance, $
           '#maxlength' => 2048,
           '#size' => 0,
           '#attributes' => array(
-            'id' => 'tablefield_' . $delta . '_cell_' . $i . '_' . $ii,
+            'id' => $id .'-cell-' . $i . '-' . $ii,
             'class' => array('tablefield-row-' . $i, 'tablefield-col-' . $ii),
             'style' => 'width:100%'
           ),
@@ -586,13 +618,13 @@ function tablefield_field_widget_form(&$form, &$form_state, $field, $instance, $
       '#executes_submit_callback' => TRUE,
       '#submit' => array('tablefield_rebuild_form'),
       '#value' => t('Rebuild Table'),
-      '#name' => 'tablefield_rebuild_' . $field['field_name'] . '_' . $delta,
+      '#name' => $rebuild_id,
       '#attributes' => array(
         'class' => array('tablefield-rebuild'),
       ),
       '#ajax' => array(
         'callback' => 'tablefield_rebuild_form_ajax',
-        'wrapper' => 'tablefield-' . $field['field_name'] . '-' . $delta . '-wrapper',
+        'wrapper' => $ajax_wrapper_id,
         'effect' => 'fade',
       ),
     );
@@ -606,29 +638,27 @@ function tablefield_field_widget_form(&$form, &$form_state, $field, $instance, $
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
   );
-  $element['tablefield']['import']['tablefield_csv_' . $field['field_name'] . '_' . $delta] = array(
-    '#name' => 'files[' . $field['field_name'] . '_' . $delta . ']',
+  $element['tablefield']['import']['file'] = array(
+    '#name' => 'files[' . $import_id . ']',
     '#title' => 'File upload',
     '#type' => 'file',
   );
 
-  $element['tablefield']['import']['rebuild_' . $field['field_name'] . '_' . $delta] = array(
+  $element['tablefield']['import']['import'] = array(
     '#type' => 'button',
     '#validate' => array(),
     '#limit_validation_errors' => array(),
     '#executes_submit_callback' => TRUE,
     '#submit' => array('tablefield_rebuild_form'),
     '#value' => t('Upload CSV'),
-    '#name' => 'tablefield-import-button-' . $field['field_name'] . '-' . $delta,
+    '#name' => $import_id,
     '#attributes' => array(
       'class' => array('tablefield-rebuild'),
-      //'id' => 'tablefield-import-button-' . $field['field_name'] . '-' . $delta,
     ),
     '#ajax' => array(
       'callback' => 'tablefield_rebuild_form_ajax',
-      'wrapper' => 'tablefield-' . $field['field_name'] . '-' . $delta . '-wrapper',
+      'wrapper' => $ajax_wrapper_id,
       'effect' => 'fade',
-      'event' => 'click'
     ),
   );
 
@@ -638,6 +668,9 @@ function tablefield_field_widget_form(&$form, &$form_state, $field, $instance, $
     $element['#base_type'] = $element['#type'];
     $element['#type'] = 'text_format';
     $element['#format'] = isset($items[$delta]['format']) ? $items[$delta]['format'] : NULL;
+    if (module_exists('wysiwyg')) {
+      $element['#wysiwyg'] = FALSE;
+    }
   }
 
   return $element;
@@ -647,48 +680,40 @@ function tablefield_field_widget_form(&$form, &$form_state, $field, $instance, $
  * Helper function to import data from a CSV file
  * @param array $form
  * @param array $form_state
+ * @param string $langcode
+ * @param string $file_form_field_name
+ * @param array $tablefield_parents
  */
-function tablefield_import_csv($form, &$form_state) {
-  // Look for the field name by checking on the clicked button
-  if(preg_match('/tablefield-import-button-(.*)$/', $form_state['clicked_button']['#name'], $id)) {
-    // Extract the field and file name from the id of the clicked button
-    $file_name = preg_replace('/\-/', '_', $id[1]);
-    preg_match('/_([0-9]+)$/', $file_name, $field_delta);
-    // Extract the field delta from the field name
-    $delta = $field_delta[1];
-    $field_name = preg_replace('/' . $field_delta[0] . '/', '', $file_name);
-    $language = isset($form[$field_name]['#language']) ? $form[$field_name]['#language'] : 'und';
-    $file = file_save_upload($file_name, array('file_validate_extensions' => array('csv')));
+function tablefield_import_csv($form, &$form_state, $langcode, $file_form_field_name, $tablefield_parents) {
+  // Extract the field and file name from the id of the clicked button
+  $file = file_save_upload($file_form_field_name, array('file_validate_extensions' => array('csv')));
 
-    if (is_object($file)) {
-      if (($handle = fopen($file->uri, "r")) !== FALSE) {
-        tablefield_delete_table_values($form_state['values'][$field_name][$language][$delta]['tablefield']);
-        tablefield_delete_table_values($form_state['input'][$field_name][$language][$delta]['tablefield']);
+  if (is_object($file)) {
+    if (($handle = fopen($file->uri, "r")) !== FALSE) {
+      tablefield_delete_table_values(drupal_array_get_nested_value($form_state['values'], $tablefield_parents));
+      tablefield_delete_table_values(drupal_array_get_nested_value($form_state['input'], $tablefield_parents));
 
-        // Populate CSV values
-        $max_col_count = 0;
-        $row_count = 0;
-        while (($csv = fgetcsv($handle, 0, variable_get('tablefield_csv_separator', ','))) !== FALSE) {
-          $col_count = count($csv);
-          foreach ($csv as $col_id => $col) {
-            $form_state['input'][$field_name][$language][$delta]['tablefield']['cell_' . $row_count . '_' . $col_id] =
-            $form_state['values'][$field_name][$language][$delta]['tablefield']['cell_' . $row_count . '_' . $col_id] = $col;
-          }
-          $max_col_count = $col_count > $max_col_count ? $col_count : $max_col_count;
-          $row_count++;
+      // Populate CSV values
+      $max_col_count = 0;
+      $row_count = 0;
+      $imported_tablefield = array();
+      while (($csv = fgetcsv($handle, 0, variable_get('tablefield_csv_separator', ','))) !== FALSE) {
+        $col_count = count($csv);
+        foreach ($csv as $col_id => $col) {
+          $imported_tablefield['cell_'. $row_count .'_'. $col_id] = $col;
         }
-        fclose($handle);
-
-        $form_state['input'][$field_name][$language][$delta]['tablefield']['rebuild']['count_cols'] =
-        $form_state['values'][$field_name][$language][$delta]['tablefield']['rebuild']['count_cols'] = $max_col_count;
-        $form_state['input'][$field_name][$language][$delta]['tablefield']['rebuild']['count_rows'] =
-        $form_state['values'][$field_name][$language][$delta]['tablefield']['rebuild']['count_rows'] = $row_count;
-
-        drupal_set_message(t('Successfully imported @file', array('@file' => $file->filename)));
+        $max_col_count = $col_count > $max_col_count ? $col_count : $max_col_count;
+        $row_count++;
       }
-      else {
-        drupal_set_message(t('There was a problem importing @file.', array('@file' => $file->filename)));
-      }
+      fclose($handle);
+      $imported_tablefield['rebuild'] = array('count_cols' => $max_col_count, 'count_rows' => $row_count);
+      drupal_array_set_nested_value($form_state['values'], $tablefield_parents, $imported_tablefield);
+      drupal_array_set_nested_value($form_state['input'], $tablefield_parents, $imported_tablefield);
+
+      drupal_set_message(t('Successfully imported @file', array('@file' => $file->filename)));
+    }
+    else {
+      drupal_set_message(t('There was a problem importing @file.', array('@file' => $file->filename)));
     }
   }
 }
@@ -715,30 +740,13 @@ function tablefield_delete_table_values(&$tablefield) {
  * @param array $form_state
  */
 function tablefield_rebuild_form_ajax($form, $form_state) {
-  $rebuild = $form;
-  $parents = $form_state['clicked_button']['#parents'];
+  $parents = $form_state['triggering_element']['#array_parents'];
 
-  if ($form['#id'] == 'field-ui-field-edit-form') {
-    $rebuild = $form['instance']['default_value_widget'][$parents[0]];
-  }
-  else {
-    foreach ($parents as $parent) {
-      // Locate the delta of the field - 0 deltas need to break after
-      // descending to the 'rebuild' element, but deltas greater than
-      // 0 need to break /before/ adding the 'rebuild' element.
-      if (is_int($parent)) {
-        $delta = $parent;
-      }
-      $tmp = $rebuild;
+  // we do not want to go as deep as rebuild/rebuild or import/import, i.e. the triggering buttons
+  array_pop($parents);
+  array_pop($parents);
 
-      if ($parent == 'rebuild' || $parent == 'import') {
-        $rebuild = $delta == 0 ? $tmp[$parent] : $tmp;
-        //$rebuild = $tmp[$parent];
-        break;
-      }
-      $rebuild = $tmp[$parent];
-    }
-  }
+  $rebuild = drupal_array_get_nested_value($form, $parents);
 
   // We don't want to re-send the format/_weight options.
   unset($rebuild['format']);
@@ -846,4 +854,26 @@ function theme_tablefield_view($variables) {
     )
     . $export
     . '</div>';
+}
+
+/**
+ * Helper function to fill in locked values from instance defaults
+ * @param array $tablefield
+ * @params array $instance_default - instance default tablefield
+ * @return array - filled tablefield
+ */
+function tablefield_fill_locked_values($tablefield, $instance_default) {
+  if (!empty($tablefield['rebuild'])) {
+    $count_cols = $tablefield['rebuild']['count_cols'];
+    $count_rows = $tablefield['rebuild']['count_rows'];
+
+    for ($i = 0; $i < $count_rows; $i++) {
+      for ($ii = 0; $ii < $count_cols; $ii++) {
+        if (!isset($tablefield["cell_${i}_${ii}"])) {
+          $tablefield["cell_${i}_${ii}"] = isset($instance_default["cell_${i}_${ii}"]) ? $instance_default["cell_${i}_${ii}"] : '';
+        }
+      }
+    }
+  }
+  return $tablefield;
 }

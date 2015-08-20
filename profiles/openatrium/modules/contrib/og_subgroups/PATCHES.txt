@@ -1,5 +1,5 @@
 The following patches have been applied to this project:
-- https://www.drupal.org/files/issues/2407399-og_subgroups-parent-5.patch
+- https://www.drupal.org/files/issues/2407399-og_subgroups-parent-12.patch
 - https://www.drupal.org/files/issues/2438445-og_subgroups-no-entity-load-2.patch
 - https://www.drupal.org/files/issues/2446943-og_subgroups-db_select-1.patch
 - https://www.drupal.org/files/issues/2447683-og_subgroups-deep-tree-3.patch

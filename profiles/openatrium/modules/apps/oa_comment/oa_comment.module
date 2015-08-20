@@ -17,7 +17,7 @@ function oa_comment_menu() {
     'page callback' => 'oa_comment_comment_actions',
     'page arguments' => array(4, 3, 1, 5),
     'access callback' => 'node_access',
-    'access arguments' => array('view', 3),
+    'access arguments' => array('view', 4),
     'file' => 'oa_comment.ajax.inc',
     'type' => MENU_CALLBACK,
   );
@@ -99,7 +99,7 @@ function oa_comment_comment_presave($comment) {
     }
     // Build a custom body so it's not blank when adding a paragraph attachment
     // with no comment body.
-    $comment->comment_body[$comment->language][0]['value'] = '<i class="fa fa-paperclip"></i>' . ' ' . t('!name', array('!name' => $name));
+    $comment->comment_body[$comment->language][0]['value'] = '<p><i class="fa fa-paperclip"></i>' . ' ' . t('!name', array('!name' => $name)) . '</p>';
     $comment->comment_body[$comment->language][0]['format'] = 'panopoly_wysiwyg_text';
   }
   return $comment;

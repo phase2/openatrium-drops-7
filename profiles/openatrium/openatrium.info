@@ -81,6 +81,7 @@ dependencies[] = oa_update
 dependencies[] = oa_users
 dependencies[] = oa_variables
 dependencies[] = oa_widgets
+dependencies[] = oa_wysiwyg
 
 ; Open Atrium 2.0 Theme required
 dependencies[] = radix_layouts
@@ -100,9 +101,9 @@ dependencies[] = variable
 dependencies[] = panels_customerror
 dependencies[] = ultimate_cron
 
-; Information added by Drupal.org packaging script on 2015-07-09
-version = "7.x-2.43"
+; Information added by Drupal.org packaging script on 2015-08-20
+version = "7.x-2.44"
 core = "7.x"
 project = "openatrium"
-datestamp = "1436448310"
+datestamp = "1440091408"
 

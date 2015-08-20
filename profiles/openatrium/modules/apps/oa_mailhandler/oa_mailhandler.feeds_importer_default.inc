@@ -28,6 +28,7 @@ function oa_mailhandler_feeds_importer_default() {
       'config' => array(
         'available_commands' => 'status',
         'authenticate_plugin' => 'MailhandlerAuthenticateDefault',
+        'filter_email' => TRUE,
         'extended_headers' => NULL,
         'require_contextual_nid' => 1,
       ),
@@ -47,23 +48,28 @@ function oa_mailhandler_feeds_importer_default() {
             'unique' => FALSE,
           ),
           2 => array(
+            'source' => 'body_html',
+            'target' => 'comment',
+            'unique' => FALSE,
+          ),
+          3 => array(
             'source' => 'parent_nid',
             'target' => 'nid',
             'unique' => FALSE,
           ),
-          3 => array(
+          4 => array(
             'source' => 'parent_cid',
             'target' => 'pid',
             'unique' => FALSE,
           ),
-          4 => array(
+          5 => array(
             'source' => 'status',
             'target' => 'status',
             'unique' => FALSE,
           ),
         ),
         'update_existing' => '0',
-        'input_format' => 'plain_text',
+        'input_format' => 'panopoly_wysiwyg_text',
         'skip_hash_check' => FALSE,
         'bundle' => NULL,
         'expire' => '-1',

@@ -68,16 +68,8 @@ function oa_core_get_groups_by_user($account = NULL, $group_type = NULL, $includ
 
   $user_groups = drupal_map_assoc($query->execute()->fetchCol(0));
 
-  if (!empty($group_type) && !empty($user_groups)) {
-    $user_groups = array($group_type => $user_groups);
-  }
-  if (module_exists('og_subgroups') && !empty($user_groups[$group_type])) {
-    //$orig_user_groups = og_subgroups_children_load_multiple($user_groups);
-    $user_groups[$group_type] = oa_core_get_groups_by_parent($user_groups[$group_type], array(OA_SPACE_TYPE, OA_GROUP_TYPE), NULL, $include_archived, NULL, TRUE);
-  }
-
-  if (!empty($group_type)) {
-    $user_groups = (!empty($user_groups[$group_type])) ? $user_groups[$group_type] : array();
+  if (module_exists('og_subgroups') && $user_groups) {
+    $user_groups = oa_core_get_groups_by_parent($user_groups, array(OA_SPACE_TYPE, OA_GROUP_TYPE), NULL, $include_archived, NULL, TRUE);
   }
 
   oa_core_set_cache(OA_CACHE_GROUPS_BY_USER, $cid, $user_groups);
@@ -234,6 +226,7 @@ function oa_core_get_space_context($from_session = FALSE) {
 
   $context = og_context('node');
   if (!empty($context['gid'])) {
+    og_session_context_set_context($context['gid']);
     return $context['gid'];
   }
   else {
@@ -281,9 +274,9 @@ function oa_core_get_section_context() {
  * @param string|NULL $bundle
  *   (optional) The node type (default: OA_SPACE_TYPE). If NULL is passed, it
  *   will include all node types.
- * @param int|NULL $status 
+ * @param int|NULL $status
  *   (optional) If specified, the node status (ex. NODE_PUBLISHED or
- *   NODE_NOT_PUBLISHED) to look for. If not specified, it return 
+ *   NODE_NOT_PUBLISHED) to look for. If not specified, it return
  *   nodes of either status.
  * @param bool $include_archived
  *   (optional) Whether to include archived nodes or not. By default, archived
@@ -327,9 +320,9 @@ function oa_core_get_parents_with_titles($nid, $bundle = OA_SPACE_TYPE, $status 
  * @param string|NULL $bundle
  *   (optional) The node type (default: OA_SPACE_TYPE). If NULL is passed, it
  *   will include all node types.
- * @param int|NULL $status 
+ * @param int|NULL $status
  *   (optional) If specified, the node status (ex. NODE_PUBLISHED or
- *   NODE_NOT_PUBLISHED) to look for. If not specified, it return 
+ *   NODE_NOT_PUBLISHED) to look for. If not specified, it return
  *   nodes of either status.
  * @param bool $include_archived
  *   (optional) Whether to include archived nodes or not. By default, archived
@@ -351,9 +344,9 @@ function oa_core_get_parents($nid, $bundle = OA_SPACE_TYPE, $status = NULL, $inc
  * @param string|NULL $bundle
  *   (optional) The node type (default: OA_SPACE_TYPE). If NULL is passed, it
  *   will include all node types.
- * @param int|NULL $status 
+ * @param int|NULL $status
  *   (optional) If specified, the node status (ex. NODE_PUBLISHED or
- *   NODE_NOT_PUBLISHED) to look for. If not specified, it return 
+ *   NODE_NOT_PUBLISHED) to look for. If not specified, it return
  *   nodes of either status.
  * @param bool $include_archived
  *   (optional) Whether to include archived nodes or not. By default, archived
@@ -409,7 +402,7 @@ function oa_core_get_nids_title_matching($nids, $bundle = OA_SPACE_TYPE, $status
  *   will include all node types.
  * @param int|NULL $status
  *   (optional) If specified, the node status (ex. NODE_PUBLISHED or
- *   NODE_NOT_PUBLISHED) to look for. If not specified, it return 
+ *   NODE_NOT_PUBLISHED) to look for. If not specified, it return
  *   nodes of either status.
  * @param bool $include_archived
  *   (optional) Whether to include archived nodes or not. By default, archived
@@ -500,6 +493,7 @@ function oa_core_get_groups_by_parent($nids, $bundle = OA_SPACE_TYPE, $status = 
   else {
     $result = $query->execute()->fetchCol(0);
   }
+  $result = drupal_map_assoc($result);
 
   oa_core_set_cache(OA_CACHE_GROUPS_BY_PARENT, $cid, $result);
 
@@ -863,9 +857,9 @@ function oa_core_truncate_list($list, $count, $more_link = '', $always_link = FA
  * @param array $group_types
  *   (optional) An associative array of node types.
  *   (default: array(OA_SPACE_TYPE => OA_SPACE_TYPE)
- * @param int $status 
+ * @param int $status
  *   (optional) If specified, the node status (ex. NODE_PUBLISHED or
- *   NODE_NOT_PUBLISHED) to look for. If not specified, it return 
+ *   NODE_NOT_PUBLISHED) to look for. If not specified, it return
  *   nodes of either status.
  * @param bool $include_archived
  *   (optional) Whether to include archived nodes or not. By default, archived
@@ -1161,10 +1155,10 @@ function oa_core_realname($user) {
 /**
  * Convert known entities in to a simple array of title and picture.
  */
-function oa_core_entity_build_display($entity, $id, $space) {
+function oa_core_entity_build_display($entity, $id, $space, $subpage = '') {
   if (!empty($entity->nid)) {
     if (node_access('view', $entity)) {
-      $display['title'] = l($entity->title, 'node/' . $entity->nid);
+      $display['title'] = l($entity->title, 'node/' . $entity->nid . $subpage);
     }
     else {
       $display['title'] = t('A @type', array('@type' => array('@type' => node_type_get_name($entity->type))));
@@ -1174,7 +1168,7 @@ function oa_core_entity_build_display($entity, $id, $space) {
     $display['options'] = array();
   }
   else {
-    $display['title'] = l(format_username($entity), 'user/' . $entity->uid);
+    $display['title'] = l(format_username($entity), 'user/' . $entity->uid . $subpage);
     $display['uid'] = $entity->uid;
     $display['picture'] = oa_users_picture($entity);
     $display['options'] = array(
@@ -1474,7 +1468,7 @@ function oa_core_get_summary($node) {
  * @param $nids
  *   Array of node nids that are groups.
  * @param $string
- *  String can be a string or array of strings (which diverges from 
+ *  String can be a string or array of strings (which diverges from
  *   og_user_access) of permissions to check. If an array is passed,
  *   it'll be TRUE for that group if user has ANY of the permissions.
  *
@@ -1576,8 +1570,8 @@ function oa_user_access_nids($group_type, $nids, $string, $account = NULL, $skip
      * INNER JOIN node n ON n.nid = om.gid
      * INNER JOIN field_data_og_roles_permissions fdp on fdp.entity_type = 'node' AND fdp.entity_id = om.gid
      * LEFT JOIN og_users_roles our ON our.rid = oro.rid AND our.uid = om.etid AND our.group_type = "node" AND our.gid = om.gid
-     * WHERE om.etid = 159 
-     *   AND (oro.gid = om.gid OR (fdp.og_roles_permissions_value = 0 and oro.gid = 0 AND oro.group_bundle = n.type)) 
+     * WHERE om.etid = 159
+     *   AND (oro.gid = om.gid OR (fdp.og_roles_permissions_value = 0 and oro.gid = 0 AND oro.group_bundle = n.type))
      *   AND (our.uid = 159 OR oro.name = 'member')
      *   AND om.state = 1 AND om.gid IN (139);
      * @endcode
@@ -1628,7 +1622,7 @@ function oa_user_access_nids($group_type, $nids, $string, $account = NULL, $skip
       }
     }
   }
-  
+
   // Any extra NID is no access.
   foreach ($lookup as $string => $nids_array) {
     foreach ($nids_array as $nid) {

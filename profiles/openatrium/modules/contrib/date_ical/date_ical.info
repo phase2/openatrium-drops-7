@@ -22,9 +22,9 @@ files[] = includes/date_ical_plugin_style_ical_feed.inc
 files[] = includes/DateiCalFeedsParser.inc
 
 
-; Information added by drush on 2015-07-09
+; Information added by drush on 2015-08-20
 version = "7.x-3.3+4-dev"
 core = "7.x"
 project = "date_ical"
-datestamp = "1436448354"
+datestamp = "1440091446"
 

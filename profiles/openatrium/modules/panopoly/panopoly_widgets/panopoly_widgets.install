@@ -325,3 +325,24 @@ function panopoly_widgets_update_7012() {
     }
   }
 }
+
+/**
+ * Update the tablefield formatter to the new name.
+ */
+function panopoly_widgets_update_7013() {
+  if ($tablefield_instance = field_info_instance('fieldable_panels_pane', 'field_basic_table_table', 'table')) {
+    // If the formatter matches the old default, then we set it to the new default.
+    if ($tablefield_instance['display']['default']['type'] == 'default') {
+      $tablefield_instance['display']['default']['type'] = 'tablefield_default';
+      field_update_instance($tablefield_instance);
+      field_info_cache_clear();
+    }
+  }
+}
+
+/**
+ * Rebuild theme registry so that spotlight theme functions are available.
+ */
+function panopoly_widgets_update_7014() {
+  drupal_theme_rebuild();
+}

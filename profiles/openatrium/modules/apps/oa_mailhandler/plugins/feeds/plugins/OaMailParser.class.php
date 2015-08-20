@@ -56,9 +56,40 @@ class OaMailParser extends MailhandlerParser {
       elseif ($this->config['require_contextual_nid']) {
         $item = array();
       }
+      $item['body_text'] = $this->filterBody($item['body_text']);
+      $item['body_html'] = $this->filterBody($item['body_html']);
     }
 
     return $result;
+  }
+
+  /**
+   * Filter the body field to remove previous reply.
+   *
+   * We use code in mailcomment and then add additional filters of our own.
+   *
+   * @param $text
+   * @return string
+   */
+  protected function filterBody($text) {
+
+    $delimiters = array(
+      // HTML email
+      "<blockquote.+?cite=.+?>.+?<\/blockquote>",
+    );
+
+    // NOTE the "s" option to allow . to include newlines
+    $expression = '/(' . implode('|', $delimiters) . ')/s';
+
+    if (preg_match($expression, $text, $matches, PREG_OFFSET_CAPTURE)) {
+      $text = trim(drupal_substr($text, 0, $matches[0][1]));
+    }
+    else {
+      // If we didn't process it, then let mailcomment do it.
+      $text = _mailcomment_filter_aggressive($text);
+    }
+
+    return $text;
   }
 
   /**

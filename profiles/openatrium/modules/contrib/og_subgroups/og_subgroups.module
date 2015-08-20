@@ -121,6 +121,23 @@ function og_subgroups_node_grants($account, $op) {
 }
 
 /**
+ * Determine if a group is considered a Private Parent.
+ * A Private parent will cause children groups to be private.
+ *
+ * @param $group_type
+ * @param $entity
+ * @return bool
+ */
+function og_subgroups_is_parent_private($group_type, $entity) {
+  $group_wrapper = entity_metadata_wrapper($group_type, $entity);
+  $result = (!empty($group_wrapper->{OG_ACCESS_FIELD}) && $group_wrapper->{OG_ACCESS_FIELD}->value());
+  // Allow modules to alter this result.  Some groups might have different
+  // fields or types to determine if their privacy should affect children.
+  drupal_alter('og_subgroups_is_parent_private', $result, $group_type, $entity);
+  return $result;
+}
+
+/**
  * Implements hook_node_access_records_alter().
  */
 function og_subgroups_node_access_records_alter(&$grants, $node) {
@@ -132,8 +149,8 @@ function og_subgroups_node_access_records_alter(&$grants, $node) {
       $gids = array();
       $parents_with_inheritance = og_subgroups_parents_load('node', $node->nid, TRUE, TRUE, FALSE, TRUE);
 
-      // This is almost completly copied form og_access_node_access_records.
-      // only differnce is using $parents_with_inheritance vs og_get_entity_groups
+      // This is almost completely copied form og_access_node_access_records.
+      // only difference is using $parents_with_inheritance vs og_get_entity_groups
       $wrapper = entity_metadata_wrapper('node', $node);
       $content_access = !empty($wrapper->{OG_ACCESS_FIELD}) && $wrapper->{OG_ACCESS_FIELD}->value() ? OG_CONTENT_ACCESS_PRIVATE
         : (!empty($wrapper->{OG_CONTENT_ACCESS_FIELD}) ? $wrapper->{OG_CONTENT_ACCESS_FIELD}->value() : OG_CONTENT_ACCESS_DEFAULT);
@@ -144,7 +161,7 @@ function og_subgroups_node_access_records_alter(&$grants, $node) {
           }
           $has_private = FALSE;
           foreach ($parents_with_inheritance as $group_type => $values) {
-            entity_load($group_type, $values);
+            $parents = entity_load($group_type, $values);
             foreach ($values as $gid) {
               $list_gids[$group_type][] = $gid;
               if ($has_private) {
@@ -152,8 +169,7 @@ function og_subgroups_node_access_records_alter(&$grants, $node) {
                 // re-checking it.
                 continue;
               }
-              $group_wrapper = entity_metadata_wrapper($group_type, $gid);
-              if (!empty($group_wrapper->{OG_ACCESS_FIELD}) && $group_wrapper->{OG_ACCESS_FIELD}->value()) {
+              if (og_subgroups_is_parent_private($group_type, $parents[$gid])) {
                 $has_private = TRUE;
               }
             }

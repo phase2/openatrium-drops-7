@@ -3,9 +3,9 @@ core = 7.x
 dependencies[] = fullcalendar
 package = FullCalendar
 
-; Information added by Drupal.org packaging script on 2015-07-08
-version = "7.x-2.34"
+; Information added by Drupal.org packaging script on 2015-08-20
+version = "7.x-2.35"
 core = "7.x"
 project = "oa_events"
-datestamp = "1436366044"
+datestamp = "1440083130"
 

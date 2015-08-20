@@ -213,7 +213,7 @@ function panopoly_pages_panelizer_defaults() {
   $pane->access = array();
   $pane->configuration = array(
     'menu_name' => 'main-menu',
-    'parent_mlid' => 'main-menu:0',
+    'parent_mlid' => '0',
     'title_link' => 0,
     'admin_title' => '',
     'level' => '2',

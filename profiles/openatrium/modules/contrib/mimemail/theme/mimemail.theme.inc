@@ -10,7 +10,7 @@ function mimemail_theme_theme() {
 
   return array(
     'mimemail_message' => array(
-      'variables' => array('module' => NULL, 'key' => NULL, 'recipient' => NULL, 'subject' => NULL, 'body' => NULL),
+      'variables' => array('module' => NULL, 'key' => NULL, 'recipient' => NULL, 'subject' => NULL, 'body' => NULL, 'message' => array()),
       'template' => 'mimemail-message',
       'pattern' => 'mimemail_message__',
       'file' => 'mimemail.theme.inc',

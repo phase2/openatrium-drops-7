@@ -36,13 +36,15 @@
 .mceContentBody {
   ul {
     list-style-type: disc;
-    list-style-position: inside;
-    margin: 0 0 10px 0;
+    margin: 5px 15px;
+    overflow: auto;
+    padding-left: 20px;
   }
   ol {
     list-style-type: decimal;
-    list-style-position: inside;
-    margin: 0 0 10px 0;
+    margin: 5px 15px;
+    overflow: auto;
+    padding-left: 20px;
   }
 }
 

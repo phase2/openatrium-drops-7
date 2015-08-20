@@ -23,7 +23,7 @@ define('CTOOLS_API_VERSION', '2.0.8');
  *   ; Requires CTools v7.x-1.4 or newer.
  *   dependencies[] = ctools (>=1.4)
  */
-define('CTOOLS_MODULE_VERSION', '7.x-1.7');
+define('CTOOLS_MODULE_VERSION', '7.x-1.8');
 
 /**
  * Test the CTools API version.
@@ -617,18 +617,25 @@ function ctools_registry_files_alter(&$files, $indexed_modules) {
   return _ctools_registry_files_alter($files, $indexed_modules);
 }
 
+// -----------------------------------------------------------------------
+// FAPI hooks that must be in the .module file.
+
 /**
- * Implements hook_entity_view().
+ * Alter the comment form to get a little more control over it.
  */
-function ctools_entity_view($entity, $type) {
-  // Track which entites have been "viewed" and have therefore had view hooks
-  // invoked for them. This info is used later by page manager to identify
-  // special cases where it needs to invoke view hooks manually.
-  $viewed_entities = &drupal_static(__FUNCTION__);
-  list($id, $rid, $bundle) = entity_extract_ids($type, $entity);
-  if ($id !== NULL) {
-    $viewed_entities[$type][$id] = $id;
+function ctools_form_comment_form_alter(&$form, &$form_state) {
+  if (!empty($form_state['ctools comment alter'])) {
+    // Force the form to post back to wherever we are.
+    $form['#action'] = url($_GET['q'], array('fragment' => 'comment-form'));
+    if (empty($form['#submit'])) {
+      $form['#submit'] = array('comment_form_submit');
+    }
+    $form['#submit'][] = 'ctools_node_comment_form_submit';
   }
+}
+
+function ctools_node_comment_form_submit(&$form, &$form_state) {
+  $form_state['redirect'][0] = $_GET['q'];
 }
 
 // -----------------------------------------------------------------------
@@ -1031,6 +1038,53 @@ function ctools_ctools_entity_context_alter(&$plugin, &$entity, $plugin_id) {
       $plugin['required context']->restrictions = array('vocabulary' => array($field['settings']['allowed_values'][0]['vocabulary']));
     }
   }
+}
+
+/**
+ * Implements hook_field_create_field().
+ */
+function ctools_field_create_field($field) {
+  ctools_flush_field_caches();
+}
+
+/**
+ * Implements hook_field_create_instance().
+ */
+function ctools_field_create_instance($instance) {
+  ctools_flush_field_caches();
+}
+/**
+ * Implements hook_field_delete_field().
+ */
+function ctools_field_delete_field($field) {
+  ctools_flush_field_caches();
+}
+/**
+ * Implements hook_field_delete_instance().
+ */
+function ctools_field_delete_instance($instance) {
+  ctools_flush_field_caches();
+}
+/**
+ * Implements hook_field_update_field().
+ */
+function ctools_field_update_field($field, $prior_field, $has_data) {
+  ctools_flush_field_caches();
+}
+
+/**
+ * Implements hook_field_update_instance().
+ */
+function ctools_field_update_instance($instance, $prior_instance) {
+  ctools_flush_field_caches();
+}
+
+/**
+ * Clear field related caches.
+ */
+function ctools_flush_field_caches() {
+  // Clear caches of 'Entity field' content type plugin.
+  cache_clear_all('ctools_entity_field_content_type_content_types', 'cache');
 }
 
 /**

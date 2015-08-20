@@ -1,3 +1,15 @@
+Panopoly Core 7.x-1.26, 2015-08-19
+---------------------------
+- Revert "Issue #2474563 by mglaman: Need ctools patch for calling node_view
+  more than once".
+- Update to CTools 1.8 for SA-CONTRIB-2015-141.
+- Update views_autocomplete_filters to version 1.2.
+- Need ctools patch for calling node_view more than once.
+- Update Apps to 1.0.
+- Error on install of Panopoly-based install profile: "Column 'module' cannot be
+  null" when profile starts with "e".
+- The breadcrumb for create text & image shows ampersand as" &amp; ".
+
 Panopoly Core 7.x-1.25, 2015-07-08
 ---------------------------
 - Media dialog broken (possible bug).

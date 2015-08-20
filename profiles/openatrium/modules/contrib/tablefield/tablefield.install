@@ -46,6 +46,25 @@ function tablefield_update_dependencies() {
   return $dependencies;
 }
 
+/**
+ * Implements hook_field_schema().
+ */
+function tablefield_field_schema($field) {
+  return array(
+    'columns' => array(
+      'value' => array(
+        'type' => 'text',
+        'size' => 'big',
+      ),
+      'format' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'default value' => '',
+      ),
+    ),
+  );
+}
+
 function tablefield_repair_schema() {
   $spec = array(
     'type' => 'varchar',
@@ -83,4 +102,23 @@ function tablefield_update_7000() {
  */
 function tablefield_update_7001() {
   tablefield_repair_schema();
+}
+
+
+/**
+ * Change default field_formatter name from 'default' to 'tablefield_default'.
+ */
+function tablefield_update_7002() {
+  $include_additional = array('include_inactive' => TRUE, 'include_deleted' => TRUE);
+  $fields = field_read_fields(array('type' => 'tablefield'), $include_additional);
+  $instances = field_read_instances(array('field_id' => array_keys($fields)), $include_additional);
+
+  foreach ($instances as $instance) {
+    foreach ($instance['display'] as $d => $display) {
+      if ($display['type'] == 'default') {
+        $instance['display'][$d]['type'] = 'tablefield_default';
+        field_update_instance($instance);
+      }
+    }
+  }
 }

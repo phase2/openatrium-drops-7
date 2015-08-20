@@ -1,3 +1,8 @@
+Panopoly Magic 7.x-1.26, 2015-08-19
+----------------------------
+- Live preview after image upload breaks Spotlight (regression).
+- Update tablefield to version 2.4.
+
 Panopoly Magic 7.x-1.25, 2015-07-08
 ----------------------------
 - No changes since last release.

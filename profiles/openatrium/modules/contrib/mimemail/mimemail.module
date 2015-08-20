@@ -359,7 +359,8 @@ function mimemail_prepare_message($message) {
     'key' => $key,
     'recipient' => $to,
     'subject' => $subject,
-    'body' => $body
+    'body' => $body,
+    'message' => $message,
   );
 
   $body = theme($hook, $variables);

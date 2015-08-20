@@ -79,7 +79,10 @@ class oa_core_og_group_ref_views_handler_filter_entityreference_autocomplete ext
         $form[$id]['#access'] = FALSE;
         // Need to set it here else the value is ignored when access is FALSE.
         if (!empty($exposed[$id])) {
-          $form[$id]['#value'] = $exposed[$id];
+          $form[$id] = array(
+            '#type' => 'value',
+            '#value' =>  $exposed[$id],
+          );
         }
       }
     }

@@ -18,6 +18,15 @@ function oa_users_menu() {
     'access callback' => 'user_edit_access',
     'access arguments' => array(1),
   );
+  $items['oa_users/add/%ctools_js/%node'] = array(
+    'title' => t('Add New User'),
+    'page callback' => 'oa_users_register_external_user_modal',
+    'page arguments' => array(2, 3),
+    'access callback' => TRUE,
+    'file' => 'plugins/content_types/oa_users_add_external_user.inc',
+    'file path' => drupal_get_path('module', 'oa_users'),
+    'type' => MENU_CALLBACK,
+  );
 
   return $items;
 }
@@ -53,6 +62,19 @@ function oa_users_ctools_plugin_directory($owner, $plugin_type) {
   if ($owner == 'ctools' && $plugin_type == 'content_types') {
     return 'plugins/content_types';
   }
+}
+
+/**
+ * Implements hook_og_permission().
+ */
+function oa_users_og_permission() {
+  return array(
+    'add external user' => array(
+      'title' => t('Add External User'),
+      'description' => t('Allows a member to add users to the site and a space, group, or team simultaneously.'),
+      'default role' => array(OG_ADMINISTRATOR_ROLE),
+    ),
+  );
 }
 
 /**
@@ -102,6 +124,10 @@ function oa_users_build_user_details($user, $image_style = 'oa_small_thumbnail')
  * Implements hook_oa_users_picture().
  */
 function oa_users_oa_users_picture($account = NULL, $image_style = 'oa_small_thumbnail', $url = FALSE) {
+  if (isset($account) && !isset($account->field_user_picture)) {
+    // Ensure full user is loaded if needed.
+    $account = user_load($account->uid);
+  }
   if (isset($account) && !empty($account->field_user_picture)) {
     $picture = $account->field_user_picture[LANGUAGE_NONE][0];
     $image = array(

@@ -5,9 +5,9 @@ core = 7.x
 hidden = TRUE
 dependencies[] = oa_access
 
-; Information added by Drupal.org packaging script on 2015-07-08
-version = "7.x-2.57"
+; Information added by Drupal.org packaging script on 2015-08-20
+version = "7.x-2.58"
 core = "7.x"
 project = "oa_core"
-datestamp = "1436386444"
+datestamp = "1440085125"
 

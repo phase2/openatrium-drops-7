@@ -46,6 +46,23 @@ function oa_core_section_access($row, $spaces, $account) {
 }
 
 /**
+ * Implements hook_og_subgroups_is_parent_private_alter().
+ * Handle special Atrium case where a private Group Parent does not make a public
+ * space private.  Only having a private SPACE Parent makes a public space private.
+ * @param $result
+ * @param $entity_type
+ * @param $entity
+ */
+function oa_core_og_subgroups_is_parent_private_alter(&$result, $entity_type, $entity) {
+  if ($result && ($entity_type == 'node')) {
+    if ($entity->type == OA_GROUP_TYPE) {
+      // A Private parent GROUP does not make the child space private
+      $result = FALSE;
+    }
+  }
+}
+
+/**
  * Implements hook_node_grants().
  * Define node access grant realm for Open Atrium sections
  */
@@ -443,6 +460,10 @@ function oa_core_og_membership_insert($og_membership) {
  * $data['accessors']['users'] list of users that can access
  */
 function oa_core_visibility_data($node) {
+  $static = &drupal_static(__FUNCTION__, array());
+  if (!empty($static[$node->nid])) {
+    return $static[$node->nid];
+  }
   $data = array();
   $data['published'] = !empty($node->status);
   $data['archived'] = FALSE;
@@ -453,15 +474,19 @@ function oa_core_visibility_data($node) {
   if ($node->type == OA_SPACE_TYPE || $node->type == OA_GROUP_TYPE) {
     $visibility = field_get_items('node', $node, 'group_access');
     $data['public'] = empty($visibility[0]['value']);
-    if (!$data['public']) {
-      $data['accessors']['group'] = array(
-        'links' => _oa_core_build_visibility_links('node', $node, 'oa_parent_space', OA_GROUP_TYPE),
-        'label' => t('Groups'),
-      );
-      $data['accessors']['space'] = array(
-        'links' => _oa_core_build_visibility_links('node', $node, 'oa_parent_space', OA_SPACE_TYPE),
-        'label' => t('Spaces'),
-      );
+    if (!$data['public'] && ($ids = og_subgroups_parents_load('node', $node->nid)) && !empty($ids['node'])) {
+      if ($groups = array_filter(oa_core_get_titles($ids['node'], 'oa_group', 'title', array('link'), TRUE, 0))) {
+        $data['accessors']['group'] = array(
+          'links' => $groups['links'],
+          'label' => t('Groups'),
+        );
+      }
+      if ($spaces = array_filter(oa_core_get_titles($ids['node'], 'oa_space', 'title', array('link'), TRUE, 0))) {
+        $data['accessors']['space'] = array(
+          'links' => $spaces['links'],
+          'label' => t('Spaces'),
+        );
+      }
     }
   }
   else {
@@ -515,6 +540,7 @@ function oa_core_visibility_data($node) {
     }
   }
   $data['title'] = $data['public'] ? t('Public') : t('Private');
+  $static[$node->nid] = $data;
   return $data;
 }
 

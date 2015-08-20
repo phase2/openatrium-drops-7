@@ -167,12 +167,36 @@ function _simplified_menu_admin_add_form(&$form, $form_state, $form_id) {
   // function.
   $args = array_slice(func_get_args(), 3);
 
+  // Keep track of all original form children.
+  $original_children = element_children($form);
+
+  // Keep track of whether the original form uses a hierarchical #tree
+  // structure, then unset it temporarily so the new form's #tree can be
+  // determined below.
+  $original_tree = !empty($form['#tree']);
+  unset($form['#tree']);
+
   // First call the form builder function and add the new form to the existing
   // $form array. Note that this will replace any common form elements (e.g.,
   // submit buttons) with ones from the second form, but so far that's exactly
   // what we want for this module.
   $form = call_user_func_array($form_id, array_merge(array($form, &$form_state), $args));
   drupal_alter(array('form', "form_{$form_id}"), $form, $form_state, $form_id);
+
+  // If there is a mismatch between the #tree setting for the original form and
+  // the new form, all the new children should get the correct #tree explicitly
+  // set, so they maintain their original behavior.
+  $new_tree = !empty($form['#tree']);
+  if ($new_tree != $original_tree) {
+    foreach (element_children($form) as $key) {
+      if (!in_array($key, $original_children) && !isset($form[$key]['#tree'])) {
+        $form[$key]['#tree'] = $new_tree;
+      }
+    }
+  }
+
+  // Restore the top-level #tree setting from the original form.
+  $form['#tree'] = $original_tree;
 
   // Now actually build a full copy of the form we're adding, and use it to
   // merge in that form's #validate and #submit handlers to the overall form.

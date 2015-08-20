@@ -89,7 +89,7 @@ function fullcalendar_create_add_form($form, &$form_state, $js, $type) {
     );
   }
   print ajax_render($commands);
-  exit();
+  drupal_exit();
 }
 
 /**

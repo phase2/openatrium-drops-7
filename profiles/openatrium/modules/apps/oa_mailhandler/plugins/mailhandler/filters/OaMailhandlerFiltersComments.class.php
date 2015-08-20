@@ -18,6 +18,10 @@ class OaMailhandlerFiltersComments extends MailhandlerFilters {
     if (!isset($header->in_reply_to)) {
       return FALSE;
     }
+    // Filter out-of-office autoresponders.
+    if (strpos($header->subject, t('Automatic reply:') . ' [') !== FALSE) {
+      return FALSE;
+    }
     $node = oa_mailhandler_get_node_from_subject($header->subject);
     return !empty($node);
   }

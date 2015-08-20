@@ -291,8 +291,9 @@ function _comment_alter_cleanup_arrays(&$a) {
  * @see comment_alter_form_comment_form_alter()
  */
 function _comment_alter_validate_node_fields($form, &$form_state) {
+  $node = clone $form_state['node'];
   foreach ($form_state['values']['comment_alter']['fields'] as $field_name) {
-    field_attach_form_validate('node', $form_state['node'], $form, $form_state, array('field_name' => $field_name));
+    field_attach_form_validate('node', $node, $form, $form_state, array('field_name' => $field_name));
   }
 }
 

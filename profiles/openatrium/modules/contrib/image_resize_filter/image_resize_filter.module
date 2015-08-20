@@ -111,7 +111,7 @@ function image_resize_filter_file_download($uri) {
 }
 
 /**
- * Implements hook_form_[form_id]_alter().
+ * Implements hook_form_FORM_ID_alter().
  */
 function image_resize_filter_form_system_file_system_settings_alter($form, $form_state) {
   $form['#submit'][] = 'image_resize_filter_file_system_settings_submit';
@@ -143,7 +143,7 @@ function image_resize_filter_form($form, &$form_state, $filter, $format, $defaul
     '#title' => t('Resize images stored'),
     '#options' => array('local' => t('Locally'), 'remote' => t('On remote servers (note: this copies <em>all</em> remote images locally)')),
     '#default_value' => $filter->settings['image_locations'],
-    '#description' => t('This option will determine which images will be analyzed for &lt;img&gt; tag differences. Enabling resizing of remote images can have performance impacts, as all images in the filtered text needs to be transfered via HTTP each time the filter cache is cleared.'),
+    '#description' => t('This option will determine which images will be analyzed for &lt;img&gt; tag differences. Enabling resizing of remote images can have performance impacts, as all images in the filtered text needs to be transferred via HTTP each time the filter cache is cleared.'),
   );
 
   $settings['image_resize']['link'] = array(
@@ -174,7 +174,6 @@ function image_resize_filter_form($form, &$form_state, $filter, $format, $defaul
  */
 function theme_image_resize_filter_form($variables) {
   $form = $variables['form'];
-  $format = $form['#format'];
 
   $link = 'link';
   $class = 'link_class';
@@ -239,7 +238,7 @@ function image_resize_filter_get_images($settings, $text) {
   preg_match_all('/((<a [^>]*>)[ ]*)?(<img[^>]*?src[ ]*=[ ]*"([^"]+)"[^>]*>)/i', $text, $matches);
 
   // Loop through matches and find if replacements are necessary.
-  // $matches[0]: All complete image tags and preceeding anchors.
+  // $matches[0]: All complete image tags and preceding anchors.
   // $matches[1]: The anchor tag of each match (if any).
   // $matches[2]: The anchor tag and trailing whitespace of each match (if any).
   // $matches[3]: The complete img tag.
@@ -255,7 +254,7 @@ function image_resize_filter_get_images($settings, $text) {
 
     // Find attributes of this image tag.
     $attribute_matches = array();
-    preg_match_all('/([a-z]+)[ ]*=[ ]*"([^"]*)"/i', $img_tag, $attribute_matches);
+    preg_match_all('/([\w\-]+)[ ]*=[ ]*"([^"]*)"/i', $img_tag, $attribute_matches);
     foreach ($attribute_matches[0] as $key => $match) {
       $attribute = $attribute_matches[1][$key];
       $attribute_value = $attribute_matches[2][$key];
@@ -287,12 +286,11 @@ function image_resize_filter_get_images($settings, $text) {
     }
 
     // Determine if this is a local or remote file.
-    $base_path = base_path();
     $location = 'unknown';
-    if (strpos($src, $base_path) === 0) {
+    if (strpos($src, '/') === 0) {
       $location = 'local';
     }
-    elseif (preg_match('/http[s]?:\/\/' . preg_quote($_SERVER['HTTP_HOST'] . $base_path, '/') . '/', $src)) {
+    elseif (preg_match('/http[s]?:\/\/' . preg_quote($_SERVER['HTTP_HOST'], '/') . '/', $src)) {
       $location = 'local';
     }
     elseif (strpos($src, 'http') === 0) {
@@ -343,21 +341,12 @@ function image_resize_filter_get_images($settings, $text) {
       $style_name = $image_style_matches[1];
       $original_path = $scheme . '://' . $image_style_matches[3];
       if ($style = image_style_load($style_name)) {
-        $derivative_path = image_style_path($style_name, $original_path);
         image_style_create_derivative($style, $original_path, $local_path);
       }
     }
 
     // If this is a remote image, retrieve it to check its size.
     if ($location == 'remote') {
-      // Basic flood prevention on remote images.
-      $resize_threshold = variable_get('image_resize_filter_threshold', 10);
-      if (!flood_is_allowed('image_resize_filter_remote', $resize_threshold, 120)) {
-        drupal_set_message(t('Image resize threshold of @count remote images has been reached. Please use fewer remote images.', array('@count' => $resize_threshold)), 'error', FALSE);
-        continue;
-      }
-      flood_register_event('image_resize_filter_remote', 120);
-
       $result = drupal_http_request($src);
       if ($result->code == 200) {
         $tmp_file = drupal_tempnam('temporary://', 'image_resize_filter_');
@@ -383,16 +372,16 @@ function image_resize_filter_get_images($settings, $text) {
     $actual_height = (int) $image_size[1];
 
     // If either height or width is missing, calculate the other.
-    if (!$attributes['width'] && !$attributes['height']) {
+    if (empty($attributes['width']) && empty($attributes['height'])) {
       $attributes['width'] = $actual_width;
       $attributes['height'] = $actual_height;
     }
-    if (!$attributes['height'] && is_numeric($attributes['width'])) {
-      $ratio = $actual_height/$actual_width;
+    if (empty($attributes['height']) && is_numeric($attributes['width'])) {
+      $ratio = $actual_height / $actual_width;
       $attributes['height'] = (int) round($ratio * $attributes['width']);
     }
-    elseif (!$attributes['width'] && is_numeric($attributes['height'])) {
-      $ratio = $actual_width/$actual_height;
+    elseif (empty($attributes['width']) && is_numeric($attributes['height'])) {
+      $ratio = $actual_width / $actual_height;
       $attributes['width'] = (int) round($ratio * $attributes['height']);
     }
 
@@ -480,7 +469,6 @@ function image_resize_filter_process_images($images, $text, $settings) {
     }
     // Destination and local path are the same if we're just adding attributes.
     elseif (!$image['resize']) {
-      $local_file_path = '';
       $image['destination'] = $image['local_path'];
     }
     else {
@@ -491,14 +479,6 @@ function image_resize_filter_process_images($images, $text, $settings) {
     }
 
     if (!file_exists($image['destination'])) {
-      // Basic flood prevention of resizing.
-      $resize_threshold = variable_get('image_resize_filter_threshold', 10);
-      if (!flood_is_allowed('image_resize_filter_resize', $resize_threshold, 120)) {
-        drupal_set_message(t('Image resize threshold of @count per minute reached. Some images have not been resized. Resave the content to resize remaining images.', array('@count' => floor($resize_threshold / 2))), 'error', FALSE);
-        continue;
-      }
-      flood_register_event('image_resize_filter_resize', 120);
-
       // Create the resize directory.
       $directory = dirname($image['destination']);
       file_prepare_directory($directory, FILE_CREATE_DIRECTORY);
@@ -512,8 +492,16 @@ function image_resize_filter_process_images($images, $text, $settings) {
       // Resize the local image if the sizes don't match.
       elseif ($image['resize']) {
         $res = image_load($image['local_path']);
-        image_resize($res, $image['expected_size']['width'], $image['expected_size']['height']);
-        image_save($res, $image['destination']);
+        if ($res) {
+          // Image loaded successfully; resize
+          image_resize($res, $image['expected_size']['width'], $image['expected_size']['height']);
+          image_save($res, $image['destination']);
+        } else {
+          // Image failed to load - type doesn't match extension or invalid; keep original file
+          $handle = fopen($image['destination'], 'w');
+          fwrite($handle, file_get_contents($image['local_path']));
+          fclose($handle);
+        }
       }
       @chmod($image['destination'], 0664);
     }
@@ -539,8 +527,6 @@ function image_resize_filter_process_images($images, $text, $settings) {
  *   Settings for the input filter.
  */
 function image_resize_filter_image_tag($image = NULL, $settings = NULL) {
-  global $base_url;
-
   $src = file_create_url($image['destination']);
 
   // Strip the http:// from the path if the original did not include it.
@@ -579,7 +565,6 @@ function image_resize_filter_image_tag($image = NULL, $settings = NULL) {
  */
 function theme_image_resize_filter_image($variables) {
   $image = $variables['image'];
-  $settings = $variables['settings'];
 
   $output = '<img' . drupal_attributes($image['attributes']) . ' />';
   if ($image['link']) {
@@ -608,7 +593,7 @@ function image_resize_filter_delete_derivatives($original_uri) {
   $directory = str_replace($path_info['scheme'] . '://', $path_info['scheme'] . '://resize/', $path_info['dirname']);
 
   // Delete all the derivatives.
-  $files = file_scan_directory($directory, '/' . preg_quote($basename, '/') . '-[0-9]+[x][0-9]+\.' . preg_quote($extension, '/') . '/', array('callback' => 'file_unmanaged_delete'));
+  file_scan_directory($directory, '/' . preg_quote($basename, '/') . '-[0-9]+[x][0-9]+\.' . preg_quote($extension, '/') . '/', array('callback' => 'file_unmanaged_delete'));
 
   // Then work up the directories and delete any empty ones.
   $folders = explode('/', $directory);

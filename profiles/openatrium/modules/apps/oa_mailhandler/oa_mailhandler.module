@@ -101,19 +101,16 @@ function oa_mailhandler_mail_alter(&$message) {
   $reply = variable_get('mailcomment_mailbox', variable_get('site_mail', ini_get('sendmail_from')));
   $message['headers']['Reply-To'] = $reply;
 
-  // Add marker text into the message header part taking care of already existing text
+  // Add optional fields to the message to be used in the mail templates.
+
+  // Marker text for replies.
   $insert_reply_text = variable_get('mailcomment_insert_reply_text', 1);
-  $text = variable_get('mailcomment_reply_text', t('((( Reply ABOVE this LINE to POST a COMMENT )))'));
-  $seperator = "<br />\n<br />\n";
-  if ($text && $insert_reply_text) {
-    $prefix = array($text);
-    $prefix[] = $message['body'][0];
-    $body = implode($seperator, $prefix);
-    $message['body'][0] = $body;
+  if ($insert_reply_text && ($separator = variable_get('mailcomment_reply_text', t('((( Reply ABOVE this LINE to POST a COMMENT )))')))) {
+    $message['separator'] = $separator;
   }
 
   $messageid_params['uid'] = $recipient->uid;
-  $message['body'][0] .=  $seperator . "View original post: " . url('mailcomment/redirect/' . mailcomment_build_messageid($messageid_params), array('absolute' => TRUE));
+  $message['footer'] = l(t('View original' . ' ' . node_type_get_name($node)), 'mailcomment/redirect/' . mailcomment_build_messageid($messageid_params), array('absolute' => TRUE));
   if (isset($ancestor_msg_id)) {
     $message['headers']['In-Reply-To'] = $ancestor_msg_id;
   }
@@ -151,6 +148,27 @@ function oa_mailhandler_get_node_from_subject($subject) {
     // verify token security for node
     if (oa_mailhandler_generate_security_token($node) == $token) {
       return $node;
+    }
+  }
+}
+
+/**
+ * Implements hook_notification_users_alter().
+ * @param $bucket
+ * @param $node
+ */
+function oa_mailhandler_notifications_users_alter(&$bucket, $node) {
+  // Prevent out-going notifications from going to same email account as the
+  // Mailhandler inbox being monitored.
+  $emails = array(variable_get('mailcomment_mailbox', '') => TRUE);
+
+  $mailboxes = mailhandler_mailbox_load_all();
+  foreach ($mailboxes as $box) {
+    $emails[$box->settings['name']] = TRUE;
+  }
+  foreach ($bucket as $uid => $user) {
+    if (isset($emails[$user->mail])) {
+      unset($bucket[$uid]);
     }
   }
 }

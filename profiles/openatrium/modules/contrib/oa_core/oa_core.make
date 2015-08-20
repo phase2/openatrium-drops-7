@@ -119,6 +119,7 @@ projects[mimemail][subdir] = contrib
 projects[mimemail][download][type] = git
 projects[mimemail][download][branch] = 7.x-1.x
 projects[mimemail][download][revision] = e742766
+projects[mimemail][patch][1568680] = https://www.drupal.org/files/issues/mimemail-1568680-message-var-for-theming.patch
 
 ; OA Responsive Regions
 projects[oa_responsive_regions][version] = 1.0-beta1
@@ -139,7 +140,7 @@ projects[og_menu_single][version] = 1.0-beta2
 projects[og_menu_single][subdir] = contrib
 
 ; OG Session Context
-projects[og_session_context][version] = 1.0-beta2
+projects[og_session_context][version] = 1.0-beta3
 projects[og_session_context][subdir] = contrib
 
 ; Og Variables

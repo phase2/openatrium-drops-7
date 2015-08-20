@@ -169,7 +169,7 @@ function oa_update_update_projects_alter(&$projects) {
   }
 
   // If using ver versions, pretend to be latest tag.
-  foreach (array('oa_core', 'oa_discussion', 'oa_subspaces') as $module) {
+  foreach (array('oa_core', 'oa_discussion', 'oa_subspaces', 'panopoly_magic') as $module) {
     if (!empty($projects[$module]) && empty($projects[$module]['info']['version']) && ($tag = _oa_update_get_tag($module))) {
       $projects[$module]['info']['version'] = $tag;
     }
@@ -182,15 +182,36 @@ function oa_update_update_projects_alter(&$projects) {
 function _oa_update_get_tag($module) {
   $file = drupal_get_path('module', $module) . '/.git/HEAD';
   if (file_exists($file) && ($contents = file_get_contents($file))) {
-    $tagsdir = drupal_get_path('module', $module) . '/.git/refs/tags';
-    if (strpos($contents, '7.x-2.x') && is_dir($tagsdir) && ($tags = scandir($tagsdir))) {
-      sort($tags);
-      foreach ($tags as $key => $tag) {
-        if (strpos($tag, '7.x-') !== 0) {
-          unset($tags[$key]);
+    for ($i = 2; $i > 0; $i--) {
+      $tagprefix = '7.x-' . $i . '.';
+      if (strpos($contents, $tagprefix . 'x')) {
+        $tagsfile = drupal_get_path('module', $module) . '/.git/packed-refs';
+        if (is_file($tagsfile) && ($tags = file_get_contents($tagsfile))) {
+          $tags = array_filter(explode("\n", $tags));
+          foreach ($tags as $key => $tag) {
+            $pos = strpos($tag, $tagprefix);
+            if (strpos($tag, $tagprefix) === FALSE || strpos($tag, $tagprefix . 'x') !== FALSE) {
+              unset($tags[$key]);
+            }
+            else {
+              $tags[$key] = substr($tag, $pos + strlen($tagprefix));
+            }
+          }
+        }
+        // Add in tagsdir files.
+        $tagsdir = drupal_get_path('module', $module) . '/.git/refs/tags';
+        if (is_dir($tagsdir) && ($tagsdirtags = scandir($tagsdir))) {
+          foreach ($tagsdirtags as $tag) {
+            if (strpos($tag, $tagprefix) === 0) {
+              $tags[] = substr($tag, strlen($tagprefix));
+            }
+          }
+        }
+        sort($tags);
+        if ($tags) {
+          return $tagprefix . array_pop($tags);
         }
       }
-      return array_pop($tags);
     }
   }
 }

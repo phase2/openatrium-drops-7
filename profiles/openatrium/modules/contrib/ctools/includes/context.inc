@@ -1505,7 +1505,7 @@ function ctools_access($settings, $contexts = array()) {
       return TRUE;
     }
     else if (!$pass && $settings['logic'] == 'and') {
-      // Fail if 'and' and htis rule failed.
+      // Fail if 'and' and this rule failed.
       return FALSE;
     }
   }

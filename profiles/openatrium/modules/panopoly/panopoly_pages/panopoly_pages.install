@@ -41,3 +41,26 @@ function panopoly_pages_update_7101() {
   // Apply pathauto setting.
   variable_set('pathauto_node_panopoly_landing_page_pattern', '[node:menu-link:parents:join-path]/[node:title]');
 }
+
+/**
+ * Fix settings on Menu widgets that were customized.
+ */
+function panopoly_pages_update_7102() {
+  // Go through existing panes and update configuration.
+  $result = db_query("SELECT * FROM {panels_pane} WHERE type = 'menu_tree'");
+  $serialized_fields = array('access', 'configuration', 'cache', 'style', 'css', 'extras', 'locks');
+  foreach ($result as $pane) {
+    // Unserialize all the serialized fields.
+    foreach ($serialized_fields as $field) {
+      $pane->$field = unserialize($pane->$field);
+    }
+
+    if (strpos($pane->configuration['parent_mlid'], ':') !== FALSE) {
+      list ($menu_name, $parent_mlid) = explode(':', $pane->configuration['parent_mlid']);
+      $pane->configuration['parent_mlid'] = $parent_mlid;
+
+      // Write back to the database.
+      drupal_write_record('panels_pane', $pane, array('pid'));
+    }
+  }
+}

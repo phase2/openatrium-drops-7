@@ -61,10 +61,8 @@ function oa_config_strongarm() {
       'pages' => '',
     ),
     'theme' => array(
-      'visibility' => '1',
-      'themes' => array(
-        'oa_radix' => 'oa_radix',
-      ),
+      'visibility' => '0',
+      'themes' => array(),
     ),
     'files' => array(
       'types' => array(
@@ -130,6 +128,7 @@ function oa_config_strongarm() {
   $strongarm->name = 'og_context_negotiation_group_context';
   $strongarm->value = array(
     'oa_core_url' => array(),
+    'node' => array(),
     'sessions' => array(),
   );
   $export['og_context_negotiation_group_context'] = $strongarm;
@@ -139,12 +138,13 @@ function oa_config_strongarm() {
   $strongarm->api_version = 1;
   $strongarm->name = 'og_context_providers_weight_group_context';
   $strongarm->value = array(
-    'oa_core_url' => '-11',
-    'sessions' => '-10',
+    'oa_core_url' => '-10',
+    'sessions' => '-8',
     'node' => '-9',
-    'user-edit' => '-8',
-    'user-view' => '-7',
-    'url' => '-6',
+    'user-edit' => '-7',
+    'user-view' => '-6',
+    'url' => '-5',
+    'comment' => '-4',
   );
   $export['og_context_providers_weight_group_context'] = $strongarm;
 
@@ -154,6 +154,13 @@ function oa_config_strongarm() {
   $strongarm->name = 'pathauto_reduce_ascii';
   $strongarm->value = 1;
   $export['pathauto_reduce_ascii'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'panopoly_core_breadcrumb_title';
+  $strongarm->value = 0;
+  $export['panopoly_core_breadcrumb_title'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */

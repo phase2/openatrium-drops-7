@@ -88,7 +88,7 @@ function og_session_context_og_context_handler_sessions() {
   if (!$group && !empty($_SESSION[OG_SESSION_CONTEXT_ID])) {
     $group = $_SESSION[OG_SESSION_CONTEXT_ID];
   }
-  _og_session_context_set_context($group);  // update the session variable
+  og_session_context_set_context($group);  // update the session variable
 
   $gids = FALSE;
   if ($group && ($node = node_load($group)) && node_access('view', $node)) {
@@ -98,12 +98,30 @@ function og_session_context_og_context_handler_sessions() {
   return $gids;
 }
 
+
+/**
+ * Implements hook_exit().
+ */
+function og_session_context_exit($destination = NULL) {
+  // Skip call to context if we have no session.
+  global $user;
+  if (($user->uid == 0) && !drupal_session_started()) {
+    return;
+  }
+
+  // Ensure the latest og_context has been saved to the session.
+  $context = og_context('node');
+  if (!empty($context['gid'])) {
+    og_session_context_set_context($context['gid']);
+  }
+}
+
 /**
  * Determines the og context value for og_session_context_og_context_handler_sessions
  *   by looking the entity's node value or the og_group_ref field value on
  *   space and space content page.
  */
-function _og_session_context_set_context($group) {
+function og_session_context_set_context($group) {
   global $user;
 
   // don't create a session for anonymous users unless session already started

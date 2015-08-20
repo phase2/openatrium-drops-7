@@ -7,9 +7,9 @@ configure = admin/config/development/generate
 files[] = devel_generate.test
 
 
-; Information added by drush on 2015-07-09
-version = "7.x-1.5+9-dev"
+; Information added by drush on 2015-08-20
+version = "7.x-1.5+11-dev"
 core = "7.x"
 project = "devel"
-datestamp = "1436448349"
+datestamp = "1440091443"
 

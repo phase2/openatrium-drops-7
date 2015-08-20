@@ -109,6 +109,9 @@ function oa_comment_preprocess_comment(&$vars) {
       // Convert these comment links to ajax callbacks
       $links[$key] = ctools_modal_text_button($link['title'], 'oa/nojs/' . $link['href'], $link['title']);
     }
+    elseif (!isset($link['href'])) {
+      $links[$key] = !empty($link['html']) ? $link['title'] : check_plain($link['title']);
+    }
     else {
       $links[$key] = l($link['title'], $link['href'], $link);
     }

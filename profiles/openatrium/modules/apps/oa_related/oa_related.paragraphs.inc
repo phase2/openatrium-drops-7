@@ -312,21 +312,22 @@ function oa_related_paragraph_snippet_property_get($entity, array $options, $nam
   if (isset($wrapper->field_snippet_content)) {
     // grab the node.  Do *not* use $wrapper->field_snippet_content->value() since
     // it does not return the proper revision
-    $node = $entity->field_snippet_content[LANGUAGE_NONE][0]['entity'];
-    $view_mode = $wrapper->field_snippet_viewmode->value();
-    if ($view_mode == 'summary') {
-      $body = oa_core_get_summary($node);
-    }
-    else {
-      $body_field = field_get_items('node', $node, 'body');
-      $body = $body_field[0]['safe_value'];
-      if ($view_mode == 'full') {
-        $paragraphs = field_view_field('node', $node, 'field_oa_related');
-        $paragraphs['#label_display'] = 'hidden';
-        $body .= drupal_render($paragraphs);
+    if ($node = $entity->field_snippet_content[LANGUAGE_NONE][0]['entity']) {
+      $view_mode = $wrapper->field_snippet_viewmode->value();
+      if ($view_mode == 'summary') {
+        $body = oa_core_get_summary($node);
       }
+      else {
+        $body_field = field_get_items('node', $node, 'body');
+        $body = $body_field[0]['safe_value'];
+        if ($view_mode == 'full') {
+          $paragraphs = field_view_field('node', $node, 'field_oa_related');
+          $paragraphs['#label_display'] = 'hidden';
+          $body .= drupal_render($paragraphs);
+        }
+      }
+      return $body;
     }
-    return $body;
   }
   return '';
 }

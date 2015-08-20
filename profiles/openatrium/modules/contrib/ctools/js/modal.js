@@ -601,10 +601,14 @@
       $(oldFocus).focus();
     };
 
-    // Move and resize the modalBackdrop and modalContent on resize of the window
-     modalContentResize = function(){
+    // Move and resize the modalBackdrop and modalContent on window resize.
+    modalContentResize = function(){
 
-      // position code lifted from http://www.quirksmode.org/viewport/compatibility.html
+      // Reset the backdrop height/width to get accurate document size.
+      $('#modalBackdrop').css('height', '').css('width', '');
+
+      // Position code lifted from:
+      // http://www.quirksmode.org/viewport/compatibility.html
       if (self.pageYOffset) { // all except Explorer
       var wt = self.pageYOffset;
       } else if (document.documentElement && document.documentElement.scrollTop) { // Explorer 6 Strict

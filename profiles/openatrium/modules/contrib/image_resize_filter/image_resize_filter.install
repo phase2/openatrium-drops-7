@@ -1,17 +1,9 @@
 <?php
 
 /**
- * Implements hook_install().
- */
-function image_resize_filter_install() {
-  drupal_set_message(t('The image resize filter has been installed. Before this does anything, the image resize filter needs to be added to one or more text formats. Visit the <a href="!url">text format administration</a> to set up this filter.', array('!url' => url('admin/config/content/formats'))), 'warning');
-}
-
-/**
  * Implements hook_uninstall().
  */
 function image_resize_filter_uninstall() {
-  drupal_load('module', 'image_resize_filter');
   image_resize_filter_delete_all();
 }
 
@@ -54,7 +46,9 @@ function image_resize_filter_update_6100() {
 function image_resize_filter_update_6101() {
   $ret = array();
 
-  db_query("DELETE FROM {variable} WHERE name LIKE 'image_resize_filter_allowed_difference_%'");
+  db_delete('variable')
+    ->condition('name', 'image_resize_filter_allowed_difference_%', 'LIKE')
+    ->execute();
   $ret[] = array('success' => TRUE, 'query' => t('Image resize allowed difference option removed.'));
 
   return $ret;

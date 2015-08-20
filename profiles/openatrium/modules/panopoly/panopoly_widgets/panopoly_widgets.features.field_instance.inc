@@ -452,7 +452,7 @@ function panopoly_widgets_field_default_field_instances() {
         'label' => 'hidden',
         'module' => 'tablefield',
         'settings' => array(),
-        'type' => 'default',
+        'type' => 'tablefield_default',
         'weight' => 0,
       ),
     ),

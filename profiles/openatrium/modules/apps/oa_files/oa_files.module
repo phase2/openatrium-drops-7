@@ -835,6 +835,11 @@ function oa_files_addmenu_callback($parent = NULL) {
     $return = array(
       'oa_files' => array('node_token' => array('node:' . $node->nid => drupal_get_token('add-node-' . $node->nid))),
       'id' => $node->nid,
+      'additions' => array(
+        'date' => format_date($node->created, 'short'),
+        'modified' => format_date($node->changed, 'short'),
+        'editor' => node_access("update", $node),
+      ),
     );
     print drupal_json_output($return);
   }
