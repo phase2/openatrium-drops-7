@@ -57,19 +57,12 @@ class OaGroupsSelectionHandler implements EntityReference_SelectionHandler {
     $settings = $this->field['settings']['handler_settings'];
 
     $include_space = $settings['include_space'];
-    $all_groups = oa_core_get_all_groups();
+    $all_groups = oa_core_get_all_groups($match, $match_operator, $limit);
     $groups = array_map(create_function('$group', 'return $group->title;'), $all_groups);
 
     $group_options = array();
-    $count = 0;
     foreach ($groups as $nid => $group_name) {
-      $count++;
-      if (!$match || stripos($group_name, $match) !== FALSE) {
-        $group_options[$nid] = $group_name;
-      }
-      if ($limit && $count == $limit) {
-        break;
-      }
+      $group_options[$nid] = $group_name;
     }
 
     if ($space_id = oa_core_get_space_context()) {
@@ -79,7 +72,13 @@ class OaGroupsSelectionHandler implements EntityReference_SelectionHandler {
       }
       // Include current space if configured.
       elseif ($include_space) {
-        $group_options = array($space_id => t('- All space members -')) + $group_options;
+        // NOTE: This title text is ignored and overwritten by select2widget
+        // in select2widget_render_modes().  All that matters is the $space_id.
+        // Current space should be cached.
+        $space = node_load($space_id);
+        if (empty($match) || (stripos($space->title, $match) !== FALSE)) {
+          $group_options = array($space_id => t('- All space members -')) + $group_options;
+        }
       }
     }
 

@@ -378,6 +378,7 @@ function oa_permissions_user_default_permissions() {
     'name' => 'create fieldable basic_file',
     'roles' => array(
       'administrator' => 'administrator',
+      'authenticated user' => 'authenticated user',
       'editor' => 'editor',
     ),
     'module' => 'fieldable_panels_panes',
@@ -388,6 +389,7 @@ function oa_permissions_user_default_permissions() {
     'name' => 'create fieldable image',
     'roles' => array(
       'administrator' => 'administrator',
+      'authenticated user' => 'authenticated user',
       'editor' => 'editor',
     ),
     'module' => 'fieldable_panels_panes',
@@ -398,6 +400,7 @@ function oa_permissions_user_default_permissions() {
     'name' => 'create fieldable map',
     'roles' => array(
       'administrator' => 'administrator',
+      'authenticated user' => 'authenticated user',
       'editor' => 'editor',
     ),
     'module' => 'fieldable_panels_panes',
@@ -408,6 +411,7 @@ function oa_permissions_user_default_permissions() {
     'name' => 'create fieldable quick_links',
     'roles' => array(
       'administrator' => 'administrator',
+      'authenticated user' => 'authenticated user',
       'editor' => 'editor',
     ),
     'module' => 'fieldable_panels_panes',
@@ -418,6 +422,7 @@ function oa_permissions_user_default_permissions() {
     'name' => 'create fieldable spotlight',
     'roles' => array(
       'administrator' => 'administrator',
+      'authenticated user' => 'authenticated user',
       'editor' => 'editor',
     ),
     'module' => 'fieldable_panels_panes',
@@ -428,6 +433,7 @@ function oa_permissions_user_default_permissions() {
     'name' => 'create fieldable table',
     'roles' => array(
       'administrator' => 'administrator',
+      'authenticated user' => 'authenticated user',
       'editor' => 'editor',
     ),
     'module' => 'fieldable_panels_panes',
@@ -438,6 +444,7 @@ function oa_permissions_user_default_permissions() {
     'name' => 'create fieldable text',
     'roles' => array(
       'administrator' => 'administrator',
+      'authenticated user' => 'authenticated user',
       'editor' => 'editor',
     ),
     'module' => 'fieldable_panels_panes',
@@ -448,6 +455,7 @@ function oa_permissions_user_default_permissions() {
     'name' => 'create fieldable video',
     'roles' => array(
       'administrator' => 'administrator',
+      'authenticated user' => 'authenticated user',
       'editor' => 'editor',
     ),
     'module' => 'fieldable_panels_panes',

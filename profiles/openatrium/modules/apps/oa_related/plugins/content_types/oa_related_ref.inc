@@ -38,7 +38,7 @@ function oa_related_ref_render($subtype, $conf, $args, $context) {
 
   $or = db_or();
   $query = db_select('node', 'n');
-  $query->join('field_data_field_oa_related', 'r', "r.entity_id = n.nid");
+  $query->join('field_data_field_oa_related', 'r', "r.entity_id = n.nid AND r.entity_type = 'node'");
   foreach ($fields as $fieldname) {
     $query->leftJoin('field_data_' . $fieldname, $fieldname,
       $fieldname . ".entity_id = r.field_oa_related_value AND " . $fieldname . "." . $fieldname . "_target_id = $nid");

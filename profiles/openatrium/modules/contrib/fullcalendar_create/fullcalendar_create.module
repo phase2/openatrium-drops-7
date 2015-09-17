@@ -20,34 +20,6 @@ function fullcalendar_create_menu() {
   return $items;
 }
 
-function fullcalendar_create_node_edit_wrapper($node, &$form_state) {
-
-  $types = node_type_get_types();
-
-  // This won't override settings already in.
-  $form_state += array(
-    're_render' => FALSE,
-    'no_redirect' => !empty($form_state['ajax']),
-    'title' => t('Create @name', array('@name' => $types[$type]->name)),
-  );
-
-  $task = page_manager_get_task('node_edit');
-
-  // Load the node into a context.
-  ctools_include('context');
-  ctools_include('context-task-handler');
-  $contexts = ctools_context_handler_get_task_contexts($task, '', array($node));
-
-  $arg = array(isset($node->nid) ? $node->nid : $node->type);
-  $output = ctools_context_handler_render($task, '', $contexts, $arg);
-
-  if (!empty($form_state['ajax']) && (!$form_state['executed'] || $form_state['rebuild'])) {
-    return ctools_modal_form_render($form_state, $output);
-  }
-
-  return $output;
-}
-
 /**
  * Form constructor for the hours add form.
  */
@@ -67,13 +39,7 @@ function fullcalendar_create_add_form($form, &$form_state, $js, $type) {
   $form_state['build_info']['args'] = array($node);
   form_load_include($form_state, 'inc', 'node', 'node.pages');
   ctools_include('modal');
-  ctools_include('ajax');
-
   $output = ctools_modal_form_wrapper($type . '_node_form', $form_state);
-// TODO: eventually need to get the node_edit panels page to display
-// Right now this displays correctly but doesn't handle ajax for form submission
-//    $output = fullcalendar_create_node_edit_wrapper($node, $form_state);
-
   if (!$js) {
     return $output;
   }

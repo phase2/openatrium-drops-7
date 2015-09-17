@@ -598,6 +598,14 @@ function oa_toolbar_space_menu_submit($form, &$form_state) {
 }
 
 /**
+ * Implements hook_oa_clone_group_metadata().
+ */
+function oa_toolbar_oa_clone_group_metadata($node, $original_nid) {
+  $old_space_menu = variable_get('oa_space_menu_' . $original_nid, TRUE);
+  variable_set('oa_space_menu_' . $node->nid, $old_space_menu);
+}
+
+/**
  * Implements hook_oa_responsive_regions_positions_alter().
  */
 function oa_toolbar_oa_responsive_regions_positions_alter(&$positions) {

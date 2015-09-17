@@ -1,3 +1,7 @@
+Panopoly Widgets 7.x-1.27, 2015-09-02
+------------------------------
+- No changes since last release.
+
 Panopoly Widgets 7.x-1.26, 2015-08-19
 ------------------------------
 - Panopoly Widgets - support the Title module.

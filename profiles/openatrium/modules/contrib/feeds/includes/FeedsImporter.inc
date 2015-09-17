@@ -271,6 +271,17 @@ class FeedsImporter extends FeedsConfigurable {
     }
     parent::configFormSubmit($values);
   }
+
+  /**
+   * Implements FeedsConfigurable::dependencies().
+   */
+  public function dependencies() {
+    $dependencies = parent::dependencies();
+    foreach ($this->plugin_types as $plugin_type) {
+      $dependencies = array_merge($dependencies, $this->$plugin_type->dependencies());
+    }
+    return $dependencies;
+  }
 }
 
 /**

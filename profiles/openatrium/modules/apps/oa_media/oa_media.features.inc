@@ -91,6 +91,7 @@ function oa_media_views_default_views_alter(&$data) {
           4 => 0,
         ),
       ),
+      'value' => 'All',
     ); /* WAS: '' */
     $data['media_default']->display['media_browser_my_files']->display_options['relationships']['reverse_field_oa_media_node'] = array(
       'id' => 'reverse_field_oa_media_node',

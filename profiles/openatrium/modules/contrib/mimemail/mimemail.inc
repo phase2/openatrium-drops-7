@@ -26,16 +26,18 @@ function mimemail_rfc_headers($headers) {
     // Collapse spaces and get rid of newline characters.
     $value = preg_replace('/(\s+|\n|\r|^\s|\s$)/', ' ', $value);
     // Fold headers if they're too long.
+    // A CRLF may be inserted before any WSP.
+    // @see http://tools.ietf.org/html/rfc2822#section-2.2.3
     if (drupal_strlen($value) > 60) {
       // If there's a semicolon, use that to separate.
       if (count($array = preg_split('/;\s*/', $value)) > 1) {
-        $value = trim(join(";$crlf    ", $array));
+        $value = trim(join(";$crlf ", $array));
       }
       else {
-        $value = wordwrap($value, 50, "$crlf    ", FALSE);
+        $value = wordwrap($value, 50, "$crlf ", FALSE);
       }
     }
-    $header .= "$key: $value$crlf";
+    $header .= $key . ": " . $value . $crlf;
   }
   return trim($header);
 }
@@ -64,8 +66,10 @@ function mimemail_headers($headers, $from = NULL) {
     }
     // This may not work. The MTA may rewrite the Return-Path.
     if (!isset($headers['Return-Path']) || $headers['Return-Path'] == $default_from) {
-      preg_match('/[a-z\d\-\.\+_]+@(?:[a-z\d\-]+\.)+[a-z\d]{2,4}/i', $from, $matches);
-      $headers['Return-Path'] = "<$matches[0]>";
+      // According to IANA the current longest TLD is 23 characters.
+      if (preg_match('/[a-z\d\-\.\+_]+@(?:[a-z\d\-]+\.)+[a-z\d]{2,23}/i', $from, $matches)) {
+        $headers['Return-Path'] = "<$matches[0]>";
+      }
     }
   }
 
@@ -77,7 +81,10 @@ function mimemail_headers($headers, $from = NULL) {
   // Run all headers through mime_header_encode() to convert non-ascii
   // characters to an rfc compliant string, similar to drupal_mail().
   foreach ($headers as $key => $value) {
-    $headers[$key] = mime_header_encode($value);
+    // According to RFC 2047 addresses MUST NOT be encoded.
+    if ($key !== 'From' && $key !== 'Sender') {
+      $headers[$key] = mime_header_encode($value);
+    }
   }
 
   return $headers;
@@ -184,13 +191,22 @@ function _mimemail_file($url = NULL, $content = NULL, $name = '', $type = '', $d
     $file = $content;
   }
 
-  if (isset($file) && (@is_file($file) || $content)) {
+  if (isset($file)) {
+    $is_file = @is_file($file);
+
+    if ($is_file) {
+      $access = user_access('send arbitrary files');
+      $in_public_path = strpos(@drupal_realpath($file), drupal_realpath('public://')) === 0;
+      if (!$in_public_path && !$access) {
+        return $url;
+      }
+    }
 
     if (!$name) {
-      $name = (@is_file($file)) ? basename($file) : 'attachment.dat';
+      $name = $is_file ? basename($file) : 'attachment.dat';
     }
     if (!$type) {
-      $type = ($name) ? file_get_mimetype($name) : file_get_mimetype($file);
+      $type = $is_file ? file_get_mimetype($file) : file_get_mimetype($name);
     }
 
     $id = md5($file) .'@'. $_SERVER['HTTP_HOST'];
@@ -250,7 +266,10 @@ function _mimemail_file($url = NULL, $content = NULL, $name = '', $type = '', $d
  *   - headers: An array that includes some headers for the mail to be sent.
  */
 function mimemail_multipart_body($parts, $content_type = 'multipart/mixed; charset=utf-8', $sub_part = FALSE) {
-  $boundary = md5(uniqid($_SERVER['REQUEST_TIME']));
+  // Control variable to avoid boundary collision.
+  static $part_num = 0;
+
+  $boundary = sha1(uniqid($_SERVER['REQUEST_TIME'], TRUE)) . $part_num++;
   $body = '';
   $headers = array(
     'Content-Type' => "$content_type; boundary=\"$boundary\"",
@@ -310,7 +329,7 @@ function mimemail_multipart_body($parts, $content_type = 'multipart/mixed; chars
       }
 
       if (isset($part['file'])) {
-        $file = (is_file($part['file'])) ? file_get_contents($part['file']) : $part['file'];
+        $file = (@is_file($part['file'])) ? file_get_contents($part['file']) : $part['file'];
         $part_body = chunk_split(base64_encode($file), 76, variable_get('mimemail_crlf', "\n"));
 
       }
@@ -423,35 +442,35 @@ function mimemail_html_body($body, $subject, $plain = FALSE, $plaintext = NULL, 
  *
  * @param string $url
  *   The file path.
+ * @param boolean $to_embed
+ *   (optional) Wheter the URL is used to embed the file. Defaults to NULL.
  *
  * @return string
  *   A processed URL.
  */
-function _mimemail_url($url, $embed_file = NULL) {
+function _mimemail_url($url, $to_embed = NULL) {
   global $base_url;
   $url = urldecode($url);
 
-  // If the URL is absolute or a mailto, return it as-is.
-  if (strpos($url, '://') !== FALSE || preg_match('!(mailto|callto|tel)\:!', $url)) {
-    $url = str_replace(' ', '%20', $url);
-    return $url;
-  }
-  // If the image embedding is disabled, return the absolute URL for the image.
-  elseif (variable_get('mimemail_linkonly', 0) && preg_match('!\.(png|gif|jpg|jpeg)$!i', $url)) {
-    $url = $base_url . $url;
-    $url = str_replace(' ', '%20', $url);
-    return $url;
-  }
+  $to_link = variable_get('mimemail_linkonly', 0);
+  $is_image = preg_match('!\.(png|gif|jpg|jpeg)!i', $url);
+  $is_absolute = file_uri_scheme($url) != FALSE || preg_match('!(mailto|callto|tel)\:!', $url);
 
-  $url = preg_replace('!^' . base_path() . '!', '', $url, 1);
-
-  // If we're processing to embed the file, we're done here so return.
-  if ($embed_file) {
-    return $url;
+  if (!$to_embed) {
+    if ($is_absolute) {
+      return str_replace(' ', '%20', $url);
+    }
   }
-
-  if (!preg_match('!^\?q=*!', $url)) {
-    $strip_clean = TRUE;
+  else {
+    $url = preg_replace('!^' . base_path() . '!', '', $url, 1);
+    if ($is_image) {
+      if ($to_link) {
+        // Exclude images from embedding if needed.
+        $url = file_create_url($url);
+        $url = str_replace(' ', '%20', $url);
+      }
+    }
+    return $url;
   }
 
   $url = str_replace('?q=', '', $url);
@@ -472,9 +491,10 @@ function _mimemail_url($url, $embed_file = NULL) {
   $language = language_default();
 
   // Check for language prefix.
+  $path = trim($path, '/');
   $args = explode('/', $path);
   foreach ($languages as $lang) {
-    if ($args[0] == $lang->prefix) {
+    if (!empty($args) && $args[0] == $lang->prefix) {
       $prefix = array_shift($args);
       $language = $lang;
       $path = implode('/', $args);
@@ -493,7 +513,7 @@ function _mimemail_url($url, $embed_file = NULL) {
   $url = url($path, $options);
 
   // If url() added a ?q= where there should not be one, remove it.
-  if (isset($strip_clean) && $strip_clean) {
+  if (preg_match('!^\?q=*!', $url)) {
     $url = preg_replace('!\?q=!', '', $url);
   }
 

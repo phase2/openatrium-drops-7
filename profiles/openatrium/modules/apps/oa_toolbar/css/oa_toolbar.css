@@ -120,6 +120,7 @@ width: 100%;
 #oa-user-badge .dropdown-menu {
   float: right;
   width: 100%;
+  margin: 0;
 }
 #oa-user-badge .dropdown-menu ul {
   margin: 0;

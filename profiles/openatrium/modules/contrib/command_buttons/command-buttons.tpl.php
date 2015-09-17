@@ -22,7 +22,7 @@
   </li>
 </ul>
 <?php elseif (!empty($items)): ?>
-  <div class="btn-group">
+  <div class="btn-group btn-group-justified">
     <ul class="command-buttons"><?php print implode('', $items); ?></ul>
   </div>
 <?php endif; ?>

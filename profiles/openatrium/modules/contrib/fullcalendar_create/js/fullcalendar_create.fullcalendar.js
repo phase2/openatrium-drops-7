@@ -11,6 +11,7 @@ Drupal.fullcalendar.plugins.fullcalendar_create = {
       location.reload();
     };
 
+    var basepath = Drupal.settings.basePath;
     var options = {};
     if (settings.select) {
       options.selectable = true;
@@ -21,7 +22,7 @@ Drupal.fullcalendar.plugins.fullcalendar_create = {
 
         var ajax = new Drupal.ajax('main', fullcalendar.$calendar[0], {
           event: 'fullcalendar_create_add_select',
-          url: Drupal.settings.basePath + 'fullcalendar_create/ajax/add/' + settings.node_type,
+          url: basepath + 'fullcalendar_create/ajax/add/' + settings.node_type,
           submit: {
             fullcalendar_create_start_date: $.fullCalendar.formatDate(startDate, 'u'),
             fullcalendar_create_end_date: $.fullCalendar.formatDate(endDate, 'u'),
@@ -42,7 +43,7 @@ Drupal.fullcalendar.plugins.fullcalendar_create = {
 
         var ajax = new Drupal.ajax('main', fullcalendar.$calendar[0], {
           event: 'fullcalendar_create_add_click',
-          url: Drupal.settings.basePath + 'fullcalendar_create/ajax/add/' + settings.node_type,
+          url: basepath + 'fullcalendar_create/ajax/add/' + settings.node_type,
           submit: {
             fullcalendar_create_start_date: $.fullCalendar.formatDate(date, 'u'),
             fullcalendar_create_date_field: settings.date_field

@@ -36,10 +36,20 @@
     attach: function(context, settings) {
       // Tweak the WYSIWYG selector on text fields
       $('form .format-toggle', context).each(function () {
-        var hasLabel = $(this).parents('.text-format-wrapper').find('.form-type-textarea:visible label');
+        var parent = $(this).parents('.text-format-wrapper');
+        var hasLabel = parent.find('.form-type-textarea:visible label');
         var visible = hasLabel.is(':visible') && !hasLabel.hasClass('element-invisible');
+        var hasDescription = parent.find('.description');
+        if (hasDescription.length > 0) {
+          hasDescription.insertAfter(hasLabel);
+        }
         if (visible) {
-          $(this).css('top', '-25px');
+          if (hasDescription.length > 0) {
+            $(this).insertAfter(hasDescription);
+            $(this).addClass('has-description');
+            hasDescription.addClass('has-wysiwyg');
+            $(this).css('top', (hasDescription.height() - $(this).height() + 20) + 'px');
+          }
         }
       });
     }

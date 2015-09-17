@@ -403,6 +403,9 @@ textarea,
 .field-widget-text-textarea-with-summary, .field-widget-text-textarea {
   .text-format-wrapper {
     position: relative;
+    .form-type-textarea {
+      position: relative;
+    }
   }
   .format-toggle {
     position: absolute;
@@ -411,18 +414,16 @@ textarea,
     label {
       display: none;
     }
+    &.has-description {
+      top: 0;
+    }
   }
   .description {
+    margin-top: 0;
     margin-bottom: 10px;
-  }
-}
-
-form.node-form {
-  .field-name-body {
-    margin-top: 30px;
-    .description {
-      position: absolute;
-      top: -30px;
+    &.has-wysiwyg {
+      margin-right: 110px;
+      margin-bottom: 5px;
     }
   }
 }

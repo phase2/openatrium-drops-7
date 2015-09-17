@@ -13,6 +13,7 @@ projects[ctools][patch][2023705] = http://drupal.org/files/2023705-ctools-autosu
 projects[ctools][patch][2448989] = https://www.drupal.org/files/issues/2448989-ctools-from_field_children-8.patch
 projects[ctools][patch][2483415] = https://www.drupal.org/files/issues/ctools-more_than_one_comment_pager-2483415-1.patch
 projects[ctools][patch][2493041] = https://www.drupal.org/files/issues/ctools-n2493041-3.patch
+projects[ctools][patch][2555469] = https://www.drupal.org/files/issues/2555469-ctools-comments-node_tag_new-2.patch
 
 projects[panels][version] = 3.5
 projects[panels][subdir] = contrib
@@ -30,7 +31,7 @@ projects[panelizer][download][revision] = 6b76359
 projects[panelizer][patch][2514068] = https://www.drupal.org/files/issues/2514068-panelizer-cache_key-2.patch
 projects[panelizer][patch][1549608] = https://www.drupal.org/files/issues/1549608-panelizer-cache-24.patch
 
-projects[fieldable_panels_panes][version] = 1.6
+projects[fieldable_panels_panes][version] = 1.7
 projects[fieldable_panels_panes][subdir] = contrib
 
 projects[pm_existing_pages][version] = 1.4

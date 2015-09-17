@@ -46,3 +46,7 @@ projects[drupal][patch][2492993] = https://www.drupal.org/files/issues/2492993-d
 
 ; Fix invalid headers with image styles
 projects[drupal][patch][1891228] = https://www.drupal.org/files/issues/image_system-can_create_invalid_headers-1891228-16.patch
+
+; Fixes an issue where _registry_check_code() gets called early in the bootstrap process. Stills throws a warning but
+; keeps it from throwing a fatal.
+projects[drupal][patch][412808] = https://www.drupal.org/files/issues/drupal-registry_fix-412808-32.patch

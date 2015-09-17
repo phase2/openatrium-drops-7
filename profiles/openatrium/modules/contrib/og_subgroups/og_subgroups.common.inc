@@ -392,6 +392,8 @@ function _og_subgroups_load_multiple_cid($type, $group_type, $group_id, $filter)
  *  The type of entity.
  * @param $group_id
  *  The id of the entity.
+ * @param $filter
+ *   Boolean value for whether to return only groups that allow for inheritance.
  * @param $fetch_all
  *   Fetch all including grandchildren and below.
  * @param $include_current

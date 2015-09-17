@@ -1,3 +1,8 @@
+Panopoly Core 7.x-1.27, 2015-09-02
+---------------------------
+- Update to fieldable_panels_panes version 1.7 for SA-CONTRIB-2015-145.
+- Move jQuery version from strongarm to defaultconfig so it can be overridden.
+
 Panopoly Core 7.x-1.26, 2015-08-19
 ---------------------------
 - Revert "Issue #2474563 by mglaman: Need ctools patch for calling node_view

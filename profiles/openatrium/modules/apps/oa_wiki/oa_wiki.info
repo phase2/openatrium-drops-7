@@ -69,9 +69,9 @@ features_exclude[variable][comment_oa_wiki_page] = comment_oa_wiki_page
 features_exclude[variable][comment_preview_oa_wiki_page] = comment_preview_oa_wiki_page
 features_exclude[variable][comment_subject_field_oa_wiki_page] = comment_subject_field_oa_wiki_page
 
-; Information added by Drupal.org packaging script on 2015-07-08
-version = "7.x-2.33"
+; Information added by Drupal.org packaging script on 2015-09-14
+version = "7.x-2.34"
 core = "7.x"
 project = "oa_wiki"
-datestamp = "1436366048"
+datestamp = "1442240644"
 

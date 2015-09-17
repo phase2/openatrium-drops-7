@@ -87,7 +87,7 @@ class OgSubspacesSelectionHandler extends EntityReference_SelectionHandler_Gener
 
     if (!empty($results[$entity_type])) {
       // call the OA helper function to get the title of nodes quickly
-      $titles = oa_core_get_titles(array_keys($results[$entity_type]), '', '', array('id', 'title', 'type'));
+      $titles = oa_core_get_titles(array_keys($results[$entity_type]), '', '', array('id', 'title', 'type'), TRUE, $limit);
       if (!empty($titles['titles'])) {
         foreach ($titles['titles'] as $key => $title) {
           $options[$titles['types'][$key]][$titles['ids'][$key]] = $title;

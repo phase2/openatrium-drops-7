@@ -34,6 +34,7 @@ class oa_coreSmoke extends oa_coreBaseWebTest {
       'type' => 'oa_section',
       'field_oa_section' => array(LANGUAGE_NONE => array(array('tid' => current($terms)->tid)))
     ));
+    oa_messages_shutdown_send_messages();
 
     $this->drupalGet('node/' . $space->nid);
     $this->assertPattern('/\<h2 class="pane-title">\s*Recent Activity\s*\<\/h2>/',  t('Recent Activity widget visible on space'));

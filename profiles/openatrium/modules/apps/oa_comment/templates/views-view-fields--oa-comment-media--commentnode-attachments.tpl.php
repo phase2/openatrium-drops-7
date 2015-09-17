@@ -43,7 +43,7 @@
         </div>
         <div class="row">
           <div class="pull-right filename">
-            <?php print $filename . '&nbsp;&nbsp;' . $thread_link; ?>
+            <?php print $download_link . '&nbsp;&nbsp;' . $thread_link; ?>
           </div>
         </div>
       </div>

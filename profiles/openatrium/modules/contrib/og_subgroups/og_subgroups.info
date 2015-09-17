@@ -9,10 +9,11 @@ files[] = og_subgroups.module
 
 ; Test files.
 files[] = og_subgroups.test
+files[] = plugins/views/og_subgroups_plugin_argument_default_user_groups.inc
 
-; Information added by Drupal.org packaging script on 2014-12-11
-version = "7.x-2.0-beta1"
+; Information added by Drupal.org packaging script on 2015-09-11
+version = "7.x-2.0-beta2"
 core = "7.x"
 project = "og_subgroups"
-datestamp = "1418319397"
+datestamp = "1441984740"
 

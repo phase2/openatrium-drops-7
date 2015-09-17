@@ -83,6 +83,7 @@ function oa_media_features_override_default_overrides() {
         4 => 0,
       ),
     ),
+    'value' => 'All',
   );
   $overrides["views_view.media_default.display|media_browser_my_files|display_options|relationships|reverse_field_oa_media_node"] = array(
     'id' => 'reverse_field_oa_media_node',

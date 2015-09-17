@@ -673,12 +673,59 @@ function fieldable_panels_panes_ctools_plugin_directory($owner, $plugin_type) {
 }
 
 /**
+ * Check if the user has 'update' access for an FPP object.
+ *
+ * @param mixed $argument
+ *
+ * @return bool
+ *   Whether or not the user has access to update an FPP object.
+ */
+function fieldable_panels_panes_check_access_update($argument) {
+  // If the argument is empty, either an empty string or an empty array, then
+  // CTools is most likely processing a deleted FPP.
+  if (empty($argument)) {
+    return FALSE;
+  }
+
+  // If the argument passed in as an array, try looking for an 'entity_id'
+  // element, it should contain the ID of the item that's needed.
+  $id = '';
+  if (is_array($argument)) {
+    if (isset($argument['entity_id'])) {
+      $id = $argument['entity_id'];
+    }
+    else {
+      $id = '';
+    }
+  }
+  else {
+    $id = $argument;
+  }
+
+  // The id should be in the format 'fpid:123', 'vid:123' or 'vuuid:123'.
+  if (empty($id) || strpos($id, ':') === FALSE) {
+    return FALSE;
+  }
+
+  // Try loading the FPP via the ID.
+  $entity = fieldable_panels_panes_load_from_subtype_force($id);
+
+  // If either the FPP couldn't be loaded, or the user does not have 'update'
+  // access to the FPP, then the visitor does not have access.
+  if (empty($entity) || !fieldable_panels_panes_access('update', $entity)) {
+    return FALSE;
+  }
+
+  // Getting to this point means that the visitor does have access to edit the
+  // FPP.
+  return TRUE;
+}
+
+/**
  * Implement CTools access form caching callback: get.
  */
 function fieldable_panels_panes_ctools_access_get($argument) {
-  list($op, $fpid) = explode(':', $argument);
-  $entity = fieldable_panels_panes_load($fpid);
-  if (empty($entity) || !fieldable_panels_panes_access('update', $entity)) {
+  if (!fieldable_panels_panes_check_access_update($argument)) {
     return;
   }
 
@@ -698,9 +745,7 @@ function fieldable_panels_panes_ctools_access_get($argument) {
  * Implement CTools access form caching callback: set.
  */
 function fieldable_panels_panes_ctools_access_set($argument, $access) {
-  list($op, $fpid) = explode(':', $argument);
-  $entity = fieldable_panels_panes_load($fpid);
-  if (empty($entity) || !fieldable_panels_panes_access('update', $entity)) {
+  if (!fieldable_panels_panes_check_access_update($argument)) {
     return;
   }
 
@@ -712,9 +757,7 @@ function fieldable_panels_panes_ctools_access_set($argument, $access) {
  * Implement CTools access form caching callback: get.
  */
 function fieldable_panels_panes_ctools_access_clear($argument) {
-  list($op, $fpid) = explode(':', $argument);
-  $entity = fieldable_panels_panes_load($fpid);
-  if (empty($entity) || !fieldable_panels_panes_access('update', $entity)) {
+  if (!fieldable_panels_panes_check_access_update($argument)) {
     return;
   }
 
@@ -795,6 +838,76 @@ function fieldable_panels_panes_load($fpid, $vid = NULL) {
 
   $entities = fieldable_panels_panes_load_multiple(array($fpid), $conditions);
   return !empty($entities) ? reset($entities) : FALSE;
+}
+
+/**
+ * Properly load the FPP entity via its subtype.
+ *
+ * @param string $subtype_name
+ *   A string combining an indicator of the type of ID, e.g. 'fpid', 'vid' or
+ *   'vuuid', and an integer ID, separated by a colon; e.g. "fpid:123".
+ *
+ * @return object
+ *   The requested FPP object.
+ */
+function fieldable_panels_panes_load_from_subtype($subtype_name) {
+  ctools_include('content');
+  $plugin = ctools_get_content_type('fieldable_panels_pane');
+
+  // Next, check to see how the subtype is configured.
+  $subtype_info = ctools_content_get_subtype($plugin, $subtype_name);
+
+  // This means we're probably in the process of creating a new one.
+  if (isset($subtype_info['bundle'])) {
+    return fieldable_panels_panes_create(array('bundle' => $subtype_info['bundle']));
+  }
+
+  // And try it this way.
+  if (isset($subtype_info['entity_id'])) {
+    return fieldable_panels_panes_load_from_subtype_force($subtype_info['entity_id']);
+  }
+
+  // Finally, try this:
+  return fieldable_panels_panes_load_from_subtype_force($subtype_name);
+}
+
+/**
+ * Properly load the entity via $subtype_name.
+ *
+ * @param string $subtype_name
+ *   A string combining an indicator of the type of ID, e.g. 'fpid', 'vid' or
+ *   'vuuid', and an integer ID, separated by a colon; e.g. "fpid:123".
+ *
+ * @return object
+ *   The requested FPP object.
+ */
+function fieldable_panels_panes_load_from_subtype_force($subtype_name) {
+  $object = NULL;
+
+  // Split the string up into the object type and the ID.
+  list($type, $id) = explode(':', $subtype_name);
+
+  // UUID integration.
+  if ($type == 'uuid' && module_exists('uuid')) {
+    $ids = entity_get_id_by_uuid('fieldable_panels_pane', array($id));
+    if ($object = entity_load('fieldable_panels_pane', $ids)) {
+      $object = reset($object);
+    }
+  }
+
+  // If the type is 'vid' then a specific FPP revision is being requested.
+  elseif ($type == 'vid') {
+    $fpid = db_query('SELECT fpid FROM {fieldable_panels_panes_revision} WHERE vid = :vid', array(':vid' => $id))->fetchField();
+    $object = fieldable_panels_panes_load($fpid, $id);
+  }
+
+  // The remaining scenario is that it's a regular FPP id, i.e. an "fpid", so
+  // just load the object.
+  else {
+    $object = fieldable_panels_panes_load($id);
+  }
+
+  return $object;
 }
 
 /**

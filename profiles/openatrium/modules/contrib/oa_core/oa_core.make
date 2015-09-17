@@ -54,13 +54,9 @@ projects[diff][subdir] = contrib
 projects[features_template][version] = 1.0-beta2
 projects[features_template][subdir] = contrib
 
-; Feeds - latest dev needed by date_ical v3.1
-projects[feeds][version] = 2.x-dev
+; Feeds
+projects[feeds][version] = 2.0-beta1
 projects[feeds][subdir] = contrib
-projects[feeds][download][type] = git
-projects[feeds][download][branch] = 7.x-2.x
-projects[feeds][download][revision] = a8468a
-projects[feeds][patch][2223853] = http://drupal.org/files/issues/2223853-fix_installing_taxonomy_module-7_0.patch
 projects[feeds][patch][2127787] = https://www.drupal.org/files/issues/2127787-feeds-feed_nid-3.patch
 
 ; SimplePie library used by Feeds
@@ -114,12 +110,10 @@ projects[message_subscribe][subdir] = contrib
 projects[message_subscribe][patch][2094129] = http://drupal.org/files/message_subscribe_empty_array_2094129_1.patch
 
 ; MimeMail
-projects[mimemail][version] = 1.x-dev
+projects[mimemail][version] = 1.0-beta4
 projects[mimemail][subdir] = contrib
-projects[mimemail][download][type] = git
-projects[mimemail][download][branch] = 7.x-1.x
-projects[mimemail][download][revision] = e742766
 projects[mimemail][patch][1568680] = https://www.drupal.org/files/issues/mimemail-1568680-message-var-for-theming.patch
+projects[mimemail][patch][2552613] = https://www.drupal.org/files/issues/mimemail_broken_images_urls-2552613-9.patch
 
 ; OA Responsive Regions
 projects[oa_responsive_regions][version] = 1.0-beta1
@@ -167,6 +161,7 @@ projects[paragraphs][subdir] = contrib
 projects[paragraphs][patch][2399883] = https://www.drupal.org/files/issues/2394313-paragraphs-node_clone-9.patch
 projects[paragraphs][patch][2458801] = https://www.drupal.org/files/issues/paragraphs-instructions_setting-2458801-9.patch
 projects[paragraphs][patch][2481627] = https://www.drupal.org/files/issues/paragraphs-modal_targets_wrong_id-2481627-3.patch
+projects[paragraphs][patch][2560601] = https://www.drupal.org/files/issues/2560601-paragraphs-join_extra-2.patch
 
 ; Real Name
 projects[realname][version] = 1.2

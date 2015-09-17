@@ -1,3 +1,7 @@
+Panopoly Admin 7.x-1.27, 2015-09-02
+----------------------------
+- No changes since last release.
+
 Panopoly Admin 7.x-1.26, 2015-08-19
 ----------------------------
 - Multilingual options for menu does not work.

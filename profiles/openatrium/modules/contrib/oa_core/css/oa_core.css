@@ -11,6 +11,10 @@
   padding: 6px 12px;
 }
 
+.pane-node-links {
+  clear: both;
+}
+
 .widget-preview iframe {
   max-width: 100%;
 }
@@ -26,6 +30,11 @@
 
 .node-teaser .submitted {
   font-style: italic;
+}
+
+.select2-drop {
+  /* need drop-down menu to be above any popup dialogs like views */
+  z-index: 10002;
 }
 
 #modal-content .widget-preview-title {

@@ -31,8 +31,6 @@ function ctools_node_comments_content_type_render($subtype, $conf, $panel_args, 
   }
   else if ($node->comment) {
     $block->content = ctools_comment_render($node, $conf);
-    // Update the history table, stating that this user viewed this node.
-    node_tag_new($node);
   }
 
   return $block;

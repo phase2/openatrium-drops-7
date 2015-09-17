@@ -1,3 +1,0 @@
-This is a sandbox module.
-
-We have applied one patch: https://www.drupal.org/files/issues/2550419-full_calendar-exit-2.patch

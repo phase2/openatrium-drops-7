@@ -38,3 +38,17 @@ function og_subgroups_views_pre_render(&$view) {
     ));
   }
 }
+
+/**
+ * Implements hook_views_plugins().
+ */
+function og_subgroups_views_plugins() {
+  return array(
+    'argument default' => array(
+      'og_subgroups_user_groups' => array(
+        'title' => t('The OG groups and subgroups of the logged in user'),
+        'handler' => 'og_subgroups_plugin_argument_default_user_groups',
+      ),
+    ),
+  );
+}

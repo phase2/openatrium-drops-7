@@ -409,8 +409,8 @@ function oa_clone_prepare($original_node, $space_nid = NULL, $section_nid = NULL
 function oa_clone_save($node, $original_node = NULL) {
   $original_node = is_object($original_node) ? $original_node : node_load($original_node);
   node_save($node);
-  if ($original_node && !empty($node->{OA_SPACE_FIELD}[LANGUAGE_NONE][0]['target_id'])) {
-    $_SESSION['oa_clone_map'][$node->{OA_SPACE_FIELD}[LANGUAGE_NONE][0]['target_id']][$node->nid] = $original_node->nid;
+  if ($original_node) {
+    $_SESSION['oa_clone_map'][$node->nid] = $original_node->nid;
   }
   if (module_exists('rules') && !empty($original_node)) {
     rules_invoke_event('clone_node', $node, $original_node);
@@ -782,12 +782,14 @@ function oa_clone_batch_og_menu_clone($space, $original_space_nid, &$context) {
   if ($mlid = og_menu_single_get_link_mlid('node', $original_space_nid)) {
     $link = menu_link_load($mlid);
     $tree = _menu_build_tree(OG_MENU_SINGLE_MENU_NAME, array('expanded' => array($mlid), 'min_depth' => $link['depth']+1));
-    if (!empty($tree['tree']) && !empty($_SESSION['oa_clone_map'][$space->nid])) {
-      _oa_clone_og_menu_traverse_tree($tree, $new_mlid, $_SESSION['oa_clone_map'][$space->nid]);
+    if (!empty($tree['tree'])) {
+      $_SESSION['oa_clone_map'][$space->nid] = $original_space_nid;
+      _oa_clone_og_menu_traverse_tree($tree, $new_mlid, $_SESSION['oa_clone_map']);
     }
   }
-  unset($_SESSION['oa_clone_map'][$space->nid]);
+  unset($_SESSION['oa_clone_map']);
 }
+
 /**
  * Clones the node links of the og menu.
  */
@@ -796,25 +798,7 @@ function _oa_clone_og_menu_traverse_tree(&$tree, $plid, $map) {
     foreach ($tree['node_links'] as $nid => $links) {
       foreach ($links as $mlid => $link) {
         if ($new_nid = array_search($nid, $map)) {
-          $new_link = array();
-          $keep = array(
-            'link_title',
-            'menu_name',
-            'module',
-            'hidden',
-            'external',
-            'expanded',
-            'weight',
-            'customized',
-          );
-          foreach ($keep as $key) {
-            if (isset($link[$key])) {
-              $new_link[$key] = $link[$key];
-            }
-          }
-          $new_link['plid'] = $plid;
-          $new_link['link_path'] = 'node/' . $new_nid;
-          menu_link_save($new_link);
+          $new_link = _oa_clone_clone_menu_link($link, $plid, $new_nid);
           $tree['tree'][$mlid]['new_link'] = $new_link;
         }
       }
@@ -822,6 +806,11 @@ function _oa_clone_og_menu_traverse_tree(&$tree, $plid, $map) {
   }
   if (!empty($tree['tree'])) {
     foreach ($tree['tree'] as $tree_mlid => $info) {
+      if (empty($info['new_link']['mlid'])) {
+        // manual link to non-node, so copy as is
+        $new_link = _oa_clone_clone_menu_link($info['link'], $plid);
+        $tree['tree'][$tree_mlid]['new_link'] = $new_link;
+      }
       if (!empty($info['new_link']['mlid'])
         && ($child_tree =  _menu_build_tree(OG_MENU_SINGLE_MENU_NAME, array('expanded' => array($tree_mlid), 'min_depth' => $info['link']['depth']+1)))) {
         $tree['tree'][$tree_mlid]['below'] = $child_tree;
@@ -829,6 +818,38 @@ function _oa_clone_og_menu_traverse_tree(&$tree, $plid, $map) {
       }
     }
   }
+}
+
+/**
+ * Create a copy of a menu link
+ * @param $old_link
+ */
+function _oa_clone_clone_menu_link($old_link, $new_plid, $new_nid = NULL) {
+  $new_link = array();
+  $keep = array(
+    'link_title',
+    'menu_name',
+    'module',
+    'hidden',
+    'external',
+    'expanded',
+    'weight',
+    'customized',
+  );
+  foreach ($keep as $key) {
+    if (isset($old_link[$key])) {
+      $new_link[$key] = $old_link[$key];
+    }
+  }
+  $new_link['plid'] = $new_plid;
+  if (!empty($new_nid)) {
+    $new_link['link_path'] = 'node/' . $new_nid;
+  }
+  else {
+    $new_link['link_path'] = $old_link['link_path'];
+  }
+  menu_link_save($new_link);
+  return $new_link;
 }
 
 /**
@@ -949,7 +970,10 @@ function oa_clone_batch_clone_group_metadata($node, $original_nid, &$context) {
   // Clone OG permissions.
   $permissions = og_role_permissions($original_roles);
   foreach (og_roles('node', $node->type, $node->nid) as $rid => $name) {
-    og_role_change_permissions($rid, $permissions[$original_role_map[$name]]);
+    // Only clone custom permissions.
+    if ($rid != $original_role_map[$name]) {
+      og_role_change_permissions($rid, $permissions[$original_role_map[$name]]);
+    }
   }
 
   // Allow other modules to copy group metadata too.

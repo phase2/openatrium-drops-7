@@ -7,9 +7,9 @@ files[] = views_load_more.views.inc
 files[] = views_plugin_pager_load_more.inc
 
 
-; Information added by drush on 2015-08-20
+; Information added by drush on 2015-09-17
 version = "7.x-1.1+23-dev"
 core = "7.x"
 project = "views_load_more"
-datestamp = "1440091453"
+datestamp = "1442509851"
 

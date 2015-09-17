@@ -372,7 +372,6 @@ function oa_comment_find_paragraph_ids($nid) {
   if (!isset($ids[$nid])) {
     $ids[$nid] = array('node' => array(), 'comment' => array());
     $node = node_load($nid);  // drupal has this cached
-    $paragraph_ids = array();
     if (!empty($node) && ($paragraphs = field_get_items('node', $node, 'field_oa_related'))) {
       foreach ($paragraphs as $item) {
         $ids[$nid]['node'][] = $item['value'];
@@ -399,8 +398,6 @@ function oa_comment_find_paragraph_ids($nid) {
  * Implements hook_views_pre_build().
  */
 function oa_comment_views_pre_build(&$view) {
-  // Because of some unexplicable business logic, we should remove all
-  // attachments from all views on Mondays.
   // (This alter could be done later in the execution process as well.)
   if ($view->name == 'oa_comment_media' && !empty($view->args[0])) {
     $ids = oa_comment_find_paragraph_ids($view->args[0]);
@@ -421,8 +418,8 @@ function oa_comment_views_pre_build(&$view) {
  * Implements hook_views_query_alter().
  */
 function oa_comment_views_query_alter(&$view, &$query) {
-  // If using aggragation, sort handler is ignored.
-  // Aggragation is done after views query alter and there is basically no
+  // If using aggregation, sort handler is ignored.
+  // Aggregation is done after views query alter and there is basically no
   // way to customize how it is done, so we add in a tag here to alter the dbtng
   // query. This is very fragile :(
   foreach (array_values($view->sort) as $key => $sort) {
@@ -494,5 +491,6 @@ function oa_comment_preprocess_views_view_fields(&$vars) {
          ? $vars['row']->field_oa_related_paragraphs_item_nid
          : $vars['row']->field_oa_media_file_managed_1_nid);
     $vars['thread_link'] = l('#' . $vars['thread'], 'node/' . $nid, $options);
+    $vars['download_link'] = l(t('download'), 'file/' . $vars['row']->fid);
   }
 }

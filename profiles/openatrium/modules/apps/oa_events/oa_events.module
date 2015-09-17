@@ -518,10 +518,12 @@ function oa_events_message_view($entity, $view_mode, $langcode) {
         $account = user_load($entity->uid);
         $attendee = &drupal_static('oa_event_message_attendee');
         $attendee = $account->mail;
-        $view->live_preview = TRUE;
+        // Turn off live_preview to prevent <pre> tags and check_plain and
+        // various other side effects of view previews
+        $view->live_preview = FALSE;
         $entity->email_attachments[] = array(
           'filecontent' => $view->preview($display_id, array($node->nid)),
-          'filename' => 'export-' . $node->nid . '.ics',
+          'filename' => 'event-' . $node->nid . '.ics',
           'filemime' => 'text/calendar',
         );
       }
@@ -536,6 +538,10 @@ function oa_events_message_view($entity, $view_mode, $langcode) {
 function oa_events_date_ical_export_vcalendar_alter($vcalendar, $view) {
   if (drupal_static('oa_event_message_attendee')) {
     $vcalendar->setMethod('REQUEST');
+    // Temporarily enable live_preview to prevent headers from being sent
+    // Because date_ical preview() uses this in it's render() function to send
+    // headers instead of doing it more properly in a theme like Views does.
+    $view->live_preview = TRUE;
   }
 }
 
@@ -549,3 +555,13 @@ function oa_events_date_ical_export_vevent_alter($vevent, $view, $event) {
   }
 }
 
+/**
+ * Implements hook_date_ical_export_post_render().
+ */
+function oa_events_date_ical_export_post_render($output, $view) {
+  if (drupal_static('oa_event_message_attendee')) {
+    // Disable live preview again
+    // See oa_events_date_ical_export_vcalendar_alter() above
+    $view->live_preview = FALSE;
+  }
+}

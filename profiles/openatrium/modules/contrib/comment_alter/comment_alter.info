@@ -6,9 +6,9 @@ dependencies[] = diff (3.x)
 files[] = comment_alter.test
 
 
-; Information added by drush on 2015-08-20
+; Information added by drush on 2015-09-17
 version = "7.x-1.0-rc4+17-dev"
 core = "7.x"
 project = "comment_alter"
-datestamp = "1440091445"
+datestamp = "1442509845"
 

@@ -84,6 +84,10 @@ function mimemail_admin_settings() {
     '#default_value' => variable_get('mimemail_format', filter_fallback_format()),
     '#access' => count($formats) > 1,
     '#attributes' => array('class' => array('filter-list')),
+    '#description' => t('The filter set that will be applied to the message body.
+      If you are using Mime Mail as default mail sytem, make sure to enable
+      "Convert line breaks into HTML" and "Convert URLs into links" with a long
+      enough maximum length for e.g. password reset URLs!'),
   );
 
   $form['mimemail']['advanced'] = array(
@@ -101,7 +105,7 @@ function mimemail_admin_settings() {
   $form['mimemail']['advanced']['mimemail_key'] = array(
     '#type' => 'textfield',
     '#title' => t('Message validation string'),
-    '#default_value' => variable_get('mimemail_key', md5(rand())),
+    '#default_value' => variable_get('mimemail_key', drupal_random_key()),
     '#required' => TRUE,
     '#description' => t('This string will be used to validate incoming messages. It can be anything, but must be used on both sides of the transfer.'),
   );

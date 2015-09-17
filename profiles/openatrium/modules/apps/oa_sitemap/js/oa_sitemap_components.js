@@ -78,7 +78,7 @@ angular.module('oaSitemapComponents', ['oaSitemapFilters',])
     /**
      * This defines a reusable add button.
      */
-    .directive('oaSitemapAdd', function() {
+    .directive('oaSitemapAdd', ['$timeout', function($timeout) {
     return {
       transclude: true,
       scope: {
@@ -96,8 +96,13 @@ angular.module('oaSitemapComponents', ['oaSitemapFilters',])
         newTitle: '&',
       },
       templateUrl: oaSitemapAngularTemplate('oa-sitemap-add'),
-      replace: true
+      replace: true,
+      link: function link($scope, element, attrs) {
+        $timeout(function() {
+          $scope.$emit('oaSitemapRefresh');
+        }, 0);
+      }
     };
-    })
+    }])
 
 }(jQuery));

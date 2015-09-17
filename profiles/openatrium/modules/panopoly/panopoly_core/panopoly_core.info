@@ -46,6 +46,7 @@ features[defaultconfig][] = strongarm:date_format_panopoly_day
 features[defaultconfig][] = strongarm:date_format_panopoly_time
 features[defaultconfig][] = strongarm:date_format_short
 features[defaultconfig][] = strongarm:field_bundle_settings_taxonomy_term__panopoly_categories
+features[defaultconfig][] = strongarm:jquery_update_jquery_version
 features[defaultconfig][] = strongarm:panelizer_defaults_taxonomy_term_panopoly_categories
 features[defaultconfig][] = strongarm:panels_page_allowed_layouts
 features[defaultconfig][] = strongarm:panels_page_allowed_types
@@ -66,7 +67,6 @@ features[panelizer_defaults][] = taxonomy_term:panopoly_categories:default:defau
 features[panelizer_defaults][] = taxonomy_term:panopoly_categories:default:featured
 features[taxonomy][] = panopoly_categories
 features[variable][] = ctools_content_all_views
-features[variable][] = jquery_update_jquery_version
 features[variable][] = page_manager_node_edit_disabled
 features[variable][] = page_manager_node_view_disabled
 features[variable][] = page_manager_term_view_disabled
@@ -74,9 +74,9 @@ features[variable][] = panelizer_taxonomy_term:panopoly_categories_allowed_layou
 features[variable][] = panelizer_taxonomy_term:panopoly_categories_allowed_types_default
 features[views_view][] = panopoly_taxonomy
 
-; Information added by Drupal.org packaging script on 2015-08-20
-version = "7.x-1.26"
+; Information added by Drupal.org packaging script on 2015-09-02
+version = "7.x-1.27"
 core = "7.x"
 project = "panopoly_core"
-datestamp = "1440033854"
+datestamp = "1441223664"
 

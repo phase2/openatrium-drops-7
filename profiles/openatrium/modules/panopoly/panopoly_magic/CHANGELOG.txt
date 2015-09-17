@@ -1,3 +1,7 @@
+Panopoly Magic 7.x-1.27, 2015-09-02
+----------------------------
+- No changes since last release.
+
 Panopoly Magic 7.x-1.26, 2015-08-19
 ----------------------------
 - Live preview after image upload breaks Spotlight (regression).

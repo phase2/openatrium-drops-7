@@ -1,3 +1,7 @@
+Panopoly Theme 7.x-1.27, 2015-09-02
+----------------------------
+- No changes since last release.
+
 Panopoly Theme 7.x-1.26, 2015-08-19
 ----------------------------
 - Accordion style setting "-1" on active doesn't work with jquery ui => 1.9.

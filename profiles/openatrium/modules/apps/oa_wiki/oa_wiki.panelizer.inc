@@ -135,7 +135,7 @@ function oa_wiki_panelizer_defaults() {
   $pane->configuration = array(
     'override_title' => FALSE,
     'override_title_text' => '',
-    'build_mode' => 'page_manager',
+    'build_mode' => 'full',
     'identifier' => '',
     'link' => TRUE,
     'context' => 'panelizer',

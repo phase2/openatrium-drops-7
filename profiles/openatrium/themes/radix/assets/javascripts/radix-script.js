@@ -42,12 +42,8 @@
       });
     });
 
-    // Show first tab by default.
-    // Ignore the "primary" tabs on the node edit page.
+    // Show tab matching page path by default.
     if ($.fn.tab) {
-      var tabs = $('.nav-tabs').not('.primary');
-      tabs.children('li').first().find('a').tab('show');
-
       if (hash = window.location.hash) {
         $('.nav-tabs > li > a[href$="' + hash + '"]').tab('show');
       }

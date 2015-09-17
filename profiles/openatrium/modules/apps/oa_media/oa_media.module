@@ -221,3 +221,112 @@ function oa_media_file_default_displays_alter(&$default_displays) {
   }
 
 }
+
+/**
+ * Implements hook_views_query_alter().
+ */
+function oa_media_views_query_alter(&$view, &$query) {
+  if (($query->base_table == 'file_managed') && (!empty($view->filter['og_group_ref_target_id']->options['exposed']))) {
+    // Modify file views with space filters to handle media attached to nodes and paragraphs
+
+    // Ensure we have a relationship between og_membership and oa_media file
+    if (!empty($query->table_queue['field_oa_media_file_managed__og_membership'])) {
+      // Table already exists because user is probably filtering on space already
+      $og_membership[] = 'field_oa_media_file_managed__og_membership';
+    }
+    else {
+      // If og_membership not present, then add it
+      $join = new views_join();
+      $join->construct('og_membership', 'field_oa_media_file_managed', 'nid', 'etid', array(
+        array('field' => 'entity_type', 'value' => 'node'),
+      ));
+      $og_membership[] = $query->ensure_table('og_membership', 'field_oa_media_file_managed', $join);
+    }
+
+    // PART ONE: Add a relationship to check for media in oa_related fields
+    if (module_exists('oa_related')) {
+      // First, relate files stored in paragraph items
+      $join = new views_join();
+      $join->construct('field_data_field_oa_media', 'file_managed', 'fid', 'field_oa_media_fid', array(
+        array('field' => 'entity_type', 'value' => 'paragraphs_item'),
+        array('field' => 'deleted', 'value' => '0'),
+      ));
+      $paragraph = $query->add_relationship('paragraph_media', $join, 'field_data_field_oa_media', 'file_managed');
+
+      // Next, grab the oa_related node field for those paragraphs
+      $join = new views_join();
+      $join->construct('field_data_field_oa_related', $paragraph, 'entity_id', 'field_oa_related_value', array(
+        array('field' => 'entity_type', 'value' => 'node'),
+      ));
+      $related_node = $query->add_relationship('related_node', $join, 'field_data_field_oa_related', $paragraph);
+
+      // Finally, grab the og_membership of the node associated with the oa_related field
+      $join = new views_join();
+      $join->construct('og_membership', $related_node, 'entity_id', 'etid', array(
+        array('field' => 'entity_type', 'value' => 'node'),
+      ));
+      $og_membership[] = $query->ensure_table('og_membership', $related_node, $join);
+
+      // PART TWO: Add a relationship to check for media in oa_related fields in comments
+      if (module_exists('oa_comment')) {
+        // First, grab the oa_related comment fields for the above paragraphs
+        $join = new views_join();
+        $join->construct('field_data_field_oa_related', $paragraph, 'entity_id', 'field_oa_related_value', array(
+          array('field' => 'entity_type', 'value' => 'comment'),
+        ));
+        $related_comment = $query->add_relationship('related_comment', $join, 'field_data_field_oa_related', $paragraph);
+
+        // Next, grab the comment associated with the oa_related field
+        $join = new views_join();
+        $join->construct('comment', $related_comment, 'entity_id', 'cid');
+        $comment_node = $query->add_relationship('comment_node', $join, 'comment', $related_comment);
+
+        // Finally, grab the og_membership of the node associated with the comment
+        $join = new views_join();
+        $join->construct('og_membership', $comment_node, 'nid', 'etid', array(
+          array('field' => 'entity_type', 'value' => 'node'),
+        ));
+        $og_membership[] = $query->ensure_table('og_membership', $comment_node, $join);
+      }
+    }
+
+    // Now update the filters for the various og_membership relationships
+    if (!empty($view->exposed_raw_input['og_group_ref_target_id'])
+      && is_numeric($view->exposed_raw_input['og_group_ref_target_id'])) {
+
+      // user is filtering on group, so alter the existing where condition
+      $gid = $view->exposed_raw_input['og_group_ref_target_id'];
+      $group = $query->set_where_group('AND');
+      foreach ($query->where[1]['conditions'] as $key => $condition) {
+        // If the field is 'og_membership.gid' or an alias for the same column.
+        $column = 'og_membership.gid';
+        if (!empty($condition['field'])
+          && is_string($condition['field'])
+          && ($condition['field'] === $column
+            || substr($condition['field'], -strlen($column)-2) === "__{$column}")) {
+
+          // Move the condition to our new where group.
+          // Loop through all og_membership relations
+          $new_condition = db_or();
+          foreach ($og_membership as $table) {
+            $new_condition->condition("{$table}.gid", $gid);
+          }
+          $query->add_where($group, $new_condition);
+          unset($query->where[1]['conditions'][$key]);
+          break;
+        }
+      }
+    }
+    else {
+      // view not filtered, but ensure only media assigned to a group is shown
+      $new_condition = db_or();
+      // Loop through all og_membership relations
+      foreach ($og_membership as $table) {
+        $new_condition->condition("{$table}.gid", NULL, 'IS NOT NULL');
+      }
+      $group = $query->set_where_group('AND');
+      $query->add_where($group, $new_condition);
+    }
+  }
+}
+

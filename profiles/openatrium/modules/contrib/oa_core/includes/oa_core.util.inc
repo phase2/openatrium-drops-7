@@ -970,14 +970,25 @@ function oa_core_space_sections($gid, $status = NULL, $bypass_access_check = FAL
 /**
  * Return a list of all Groups
  *
+ * @param $match string for autocomplete lookup
+ * @param $match_operator string for autocomplete lookup
+ * @param $limit int number to limit, or zero for no limit
  * @return
- *    An array of Groups, keyed by the group nid.
+ *    An array of group nid, title, keyed by the group nid.
  */
-function oa_core_get_all_groups() {
+function oa_core_get_all_groups($match = NULL, $match_operator = 'CONTAINS', $limit = 0) {
   $query = db_select('node', 'n');
   $query->fields('n', array('nid', 'title'))
       ->condition('n.type', OA_GROUP_TYPE)
       ->addTag('node_access');
+  if (!empty($match)) {
+    $match = ($match_operator == 'CONTAINS') ? '%' . $match . '%' : $match;
+    $match = ($match_operator == 'STARTS_WITH') ? '%' . $match : $match;
+    $query->condition('n.title', $match, 'LIKE');
+  }
+  if (!empty($limit)) {
+    $query->range(0, $limit);
+  }
   return $query->execute()->fetchAllAssoc('nid');
 }
 

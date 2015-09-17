@@ -19,9 +19,9 @@ features[page_manager_pages][] = oa_sitemap
 features[page_manager_pages][] = sitemap_old
 features[page_manager_pages][] = space_sitemap
 
-; Information added by Drupal.org packaging script on 2015-06-19
-version = "7.x-2.7"
+; Information added by Drupal.org packaging script on 2015-09-14
+version = "7.x-2.8"
 core = "7.x"
 project = "oa_sitemap"
-datestamp = "1434726781"
+datestamp = "1442240058"
 
