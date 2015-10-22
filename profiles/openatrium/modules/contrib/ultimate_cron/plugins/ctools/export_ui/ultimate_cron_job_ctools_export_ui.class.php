@@ -5,6 +5,11 @@
  */
 
 class ultimate_cron_job_ctools_export_ui extends ctools_export_ui {
+  /**
+   * Accumulator for jobs that are behind.
+   * @var integer
+   */
+  protected $jobs_behind = 0;
 
   /**
    * Access handler for an operation on a specific item.
@@ -207,7 +212,7 @@ class ultimate_cron_job_ctools_export_ui extends ctools_export_ui {
     $header = array(
       t('Started'),
       t('Duration'),
-      t('User'),
+      t('Launched by'),
       t('Initial message'),
       t('Message'),
       t('Status'),

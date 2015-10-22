@@ -63,7 +63,9 @@ class Drupal_Apachesolr_Facetapi_Widget_DateRangeWidget extends FacetapiWidgetLi
         }
       }
       // Always display label for avoid problem from issue #2016601.
-      $item['#markup'] = $item['label'];
+      if (!empty($item['label'])) {
+        $item['#markup'] = $item['label'];
+      }
     }
 
     // Render the links.

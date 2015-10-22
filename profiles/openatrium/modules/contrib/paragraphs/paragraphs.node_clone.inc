@@ -2,11 +2,11 @@
 
 /**
  * @file
- * Holds relevant functions for paragraph's node clone intragration.
+ * Holds relevant functions for paragraph's node clone integration.
  */
 
 /**
- * Implements hook_node_clone_alter().
+ * Implements hook_clone_node_alter().
  */
 function paragraphs_clone_node_alter(&$node, $context) {
   foreach (field_info_fields() as $field_name => $field) {
@@ -28,14 +28,16 @@ function paragraphs_form_node_form_alter(&$form, &$form_state, $form_id) {
     // Go through all fields.
     foreach ($form_state['field'] as &$field_config) {
       $language = key($field_config);
-      // Only find fields containing field_collections.
+      // Only find fields containing paragraphs items.
       if (isset($field_config[$language]['field']['type']) && ($field_config[$language]['field']['type'] == 'paragraphs')) {
-        // Unset the item_id and revision_id of each field_collection item so
+        // Unset the item_id and revision_id of each paragraphs item so
         // that new items are created on save.
         foreach ($field_config as $language => $items) {
-          foreach ($items['entity'] as $paragraph_item) {
-            $paragraph_item->item_id = NULL;
-            $paragraph_item->revision_id = NULL;
+          if (isset($items['entity']) && count($items['entity'])) {
+            foreach ($items['entity'] as $paragraph_item) {
+              $paragraph_item->item_id = NULL;
+              $paragraph_item->revision_id = NULL;
+            }
           }
         }
       }
@@ -44,7 +46,7 @@ function paragraphs_form_node_form_alter(&$form, &$form_state, $form_id) {
 }
 
 /**
- * Clone a Field Collection. Helper function for hook_node_clone_alter().
+ * Clone a Paragraphs item. Helper function for hook_clone_node_alter().
  */
 function paragraphs_clone_items($entity_type, &$entity, $field_name, $language = LANGUAGE_NONE) {
   $entity_wrapper = entity_metadata_wrapper($entity_type, $entity);
@@ -57,6 +59,8 @@ function paragraphs_clone_items($entity_type, &$entity, $field_name, $language =
 
   foreach ($old_items as $old_item) {
     list( , , $bundle) = entity_extract_ids('paragraphs_item', $old_item);
+
+    /* @var $new_item ParagraphsItemEntity */
     $new_item = entity_create('paragraphs_item', array('bundle' => $bundle, 'field_name' => $field_name));
     $new_item->setHostEntity($entity_type, $entity, $language);
 
@@ -66,7 +70,7 @@ function paragraphs_clone_items($entity_type, &$entity, $field_name, $language =
         $new_item->{$new_field_name} = $old_item->{$new_field_name};
         $field_info = field_info_field($new_field_name);
         if ($field_info['type'] == 'paragraphs') {
-          paragraphs_clone_items('field_collection_item', $new_item, $new_field_name, $language);
+          paragraphs_clone_items('paragraphs_item', $new_item, $new_field_name, $language);
         }
       }
     }

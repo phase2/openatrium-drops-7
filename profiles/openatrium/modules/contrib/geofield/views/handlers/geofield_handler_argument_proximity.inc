@@ -79,18 +79,18 @@ class geofield_handler_argument_proximity extends views_handler_argument {
     // altered by other modules.
     drupal_alter('geofield_handler_argument_proximity', $this, $lat_lon_dist);
 
+    $table = $this->ensure_my_table() ? $this->table_alias : $this->table;
     $haversine_args = array(
       'earth_radius' => $this->options['proximity']['radius_unit'],
       'origin_latitude'  => $lat_lon_dist['latitude'],
       'origin_longitude' => $lat_lon_dist['longitude'],
-      'destination_latitude'  => $this->table . '.' . $this->definition['field_name'] . '_lat',
-      'destination_longitude' => $this->table . '.' . $this->definition['field_name'] . '_lon',
+      'destination_latitude'  => $table . '.' . $this->definition['field_name'] . '_lat',
+      'destination_longitude' => $table . '.' . $this->definition['field_name'] . '_lon',
     );
     $formula = geofield_haversine($haversine_args);
     $operator = ($this->options['proximity']['operation'] == 'gt') ? '>' : '<';
     $where = $formula . $operator . $lat_lon_dist['distance'];
 
-    $this->ensure_my_table();
     $this->query->add_where_expression(0, $where);
   }
 
@@ -198,12 +198,13 @@ class geofield_handler_argument_proximity extends views_handler_argument {
   }
 
   private function getDefaultLatLonDist() {
-    return $default_arg = $this->get_default_argument()
+    $default_arg = $this->get_default_argument();
+    return $default_arg
       ? array_filter(preg_split(GEOFIELD_PROXIMITY_REGEXP_PATTERN, $default_arg))
       : array();
   }
 
-  private function getDefaultDist() {
+  public function getDefaultDist() {
     if (!empty($this->options['proximity']['default_radius'])) {
       return $this->options['proximity']['default_radius'];
     }

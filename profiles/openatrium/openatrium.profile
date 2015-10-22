@@ -11,19 +11,19 @@ include_once 'install_from_db/install_from_db.profile';
  * Implements hook_appstore_stores_info().
  */
 function openatrium_apps_servers_info() {
- $info =  drupal_parse_info_file(dirname(__file__) . '/openatrium.info');
- return array(
-   'openatrium' => array(
-     'title' => 'OpenAtrium',
-     'description' => "Apps for the OpenAtrium distribution",
-     // @CHANGE this to -stable for stable releases.
-     'manifest' => 'http://appserver.openatrium.com/app/query/openatrium-development',
-     'profile' => 'openatrium',
-     'profile_version' => isset($info['version']) ? $info['version'] : '7.x-2.x-dev',
-     'server_name' => !empty($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : '',
-     'server_ip' => !empty($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : '',
-   ),
- );
+  $info =  drupal_parse_info_file(dirname(__file__) . '/openatrium.info');
+  $version = !empty($info['version']) ? 'openatrium-stable' : 'openatrium-development';
+  return array(
+    'openatrium' => array(
+      'title' => 'OpenAtrium',
+      'description' => "Apps for the OpenAtrium distribution",
+      'manifest' => 'http://appserver.openatrium.com/app/query/' . $version,
+      'profile' => 'openatrium',
+      'profile_version' => isset($info['version']) ? $info['version'] : '7.x-2.x-dev',
+      'server_name' => !empty($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : '',
+      'server_ip' => !empty($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : '',
+    ),
+  );
 }
 
 /**

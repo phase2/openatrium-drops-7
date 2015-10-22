@@ -1717,3 +1717,27 @@ function oa_user_access($group_type, $gid, $string, $account = NULL, $skip_alter
   return reset($access);
 }
 
+/**
+ * Helper function to return a file object that represents the default site banner.
+ */
+function oa_core_get_banner_default() {
+  global $base_url;
+  $filename = module_invoke_all('oa_core_banner_default');
+  if (!empty($filename)) {
+    $filename = current($filename);
+    $uri = $base_url . '/' . $filename;
+  }
+  else {
+    $uri = theme_get_setting('logo');
+    $filename = str_replace($base_url .'/', '', $uri);
+  }
+  if (file_exists($filename)) {
+    $site_file = new stdClass();
+    $site_file->uri = $uri;
+    $info = image_get_info($filename);
+    $site_file->metadata['height'] = $info['height'];
+    $site_file->metadata['width'] = $info['width'];
+    return $site_file;
+  }
+  return NULL;
+}

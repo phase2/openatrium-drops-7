@@ -161,12 +161,14 @@ function oa_files_treeview_render($subtype, $conf, $args, $context) {
     $allownew = $allowfiles;
     // use Space Menu for tree
     $plid = og_menu_single_get_active_plid();
-    if (!empty($conf['og_menu_single_parent'])) {
-      $plid = $conf['og_menu_single_parent'];
-      if ($plid === 'auto') {
-        $result = module_invoke_all('og_menu_single_menu_parent', $conf);
+    if (isset($conf['og_menu_single_parent']) && ($conf['og_menu_single_parent'] == 'auto')) {
+      $result = module_invoke_all('og_menu_single_menu_parent', $conf);
+      if (!empty($result)) {
         $plid = reset($result);
       }
+    }
+    else if (!empty($conf['og_menu_single_parent'])) {
+      $plid = $conf['og_menu_single_parent'];
     }
 
     drupal_add_js(array('oa_files' => array('node_token' => array('undefined' => drupal_get_token('add-node-undefined')))), 'setting');

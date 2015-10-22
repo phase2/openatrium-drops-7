@@ -316,8 +316,13 @@ function geofield_field_load($entity_type, $entities, $field, $instances, $langc
       foreach ($items[$id] as $delta => $item) {
         if (!empty($item['geom'])) {
           $raw_geom = unpack('H*', $item['geom']);
-          $geom = $reader->readHEX($raw_geom[1]);
-          $items[$id][$delta]['geom'] = $writer->write($geom);
+          try {
+            $geom = $reader->readHEX($raw_geom[1]);
+            $items[$id][$delta]['geom'] = $writer->write($geom);
+          }
+          catch (Exception $e) {
+            watchdog(WATCHDOG_ERROR, 'Cannot render poorly formatted WKB value %message', array('%message' => $e->getMessage()));
+          }
         }
       }
     }

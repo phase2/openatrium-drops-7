@@ -75,26 +75,38 @@ function geofield_proximity_views_handlers() {
     'manual' => array(
       'name' => t('Manually Enter Point'),
       'class' => 'geofieldProximityManual',
+      'module' => 'geofield',
+      'path' => 'views/proximity_plugins',
     ),
     'entity_from_url' => array(
       'name' => t('Entity From URL'),
       'class' => 'geofieldProximityEntityURL',
+      'module' => 'geofield',
+      'path' => 'views/proximity_plugins',
     ),
     'current_user' => array(
       'name' => t('Current User'),
       'class' => 'geofieldProximityCurrentUser',
+      'module' => 'geofield',
+      'path' => 'views/proximity_plugins',
     ),
     'other_geofield' => array(
       'name' => t('Other Geofield'),
       'class' => 'geofieldProximityOtherGeofield',
+      'module' => 'geofield',
+      'path' => 'views/proximity_plugins',
     ),
     'exposed_geofield_filter' => array(
       'name' => t('Exposed Geofield Proximity Filter'),
       'class' => 'geofieldProximityExposedFilter',
+      'module' => 'geofield',
+      'path' => 'views/proximity_plugins',
     ),
     'contextual_geofield_filter' => array(
       'name' => t('Contextual Geofield Proximity Filter'),
       'class' => 'geofieldProximityContextualFilter',
+      'module' => 'geofield',
+      'path' => 'views/proximity_plugins',
     ),
   );
 
@@ -102,6 +114,8 @@ function geofield_proximity_views_handlers() {
     $handlers['geocoder'] = array(
       'name' => t('Geocoded Location'),
       'class' => 'geofieldProximityGeocoder',
+      'module' => 'geofield',
+      'path' => 'views/proximity_plugins',
     );
   }
 
@@ -118,8 +132,8 @@ function geofield_proximity_views_handlers() {
 
 function geofield_proximity_load_plugin($plugin) {
   $handlers = module_invoke_all('proximity_views_handlers');
-  module_load_include('inc', 'geofield', 'views/proximity_plugins/geofieldProximityManual');
-  module_load_include('inc', 'geofield', 'views/proximity_plugins/' . $handlers[$plugin]['class']);
+  //module_load_include('inc', 'geofield', 'views/proximity_plugins/geofieldProximityManual');
+  module_load_include('inc', $handlers[$plugin]['module'], $handlers[$plugin]['path'] . '/' . $handlers[$plugin]['class']);
   if (class_exists($handlers[$plugin]['class'])) {
     return new $handlers[$plugin]['class'];
   }

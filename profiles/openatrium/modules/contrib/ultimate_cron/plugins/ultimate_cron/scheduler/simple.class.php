@@ -8,8 +8,21 @@
  * Simple scheduler.
  */
 class UltimateCronSimpleScheduler extends UltimateCronCrontabScheduler {
+  public $default_rule = '*/15+@ * * * *';
   public $presets = array(
     '* * * * *' => 60,
+    '*/15+@ * * * *' => 900,
+    '*/30+@ * * * *' => 1800,
+    '0+@ * * * *' => 3600,
+    '0+@ */3 * * *' => 10800,
+    '0+@ */6 * * *' => 21600,
+    '0+@ */12 * * *' => 43200,
+    '0+@ 0 * * *' => 86400,
+    '0+@ 0 * * 0' => 604800,
+  );
+
+  public $catch_up = array(
+    '* * * * *' => 600,
     '*/15+@ * * * *' => 900,
     '*/30+@ * * * *' => 1800,
     '0+@ * * * *' => 3600,
@@ -25,8 +38,17 @@ class UltimateCronSimpleScheduler extends UltimateCronCrontabScheduler {
    */
   public function defaultSettings() {
     return array(
-      'rules' => array('*/15+@ * * * *'),
+      'rules' => array($this->default_rule),
     ) + parent::defaultSettings();
+  }
+
+  /**
+   * Get default settings.
+   */
+  public function getDefaultSettings($job = NULL) {
+    $settings = parent::getDefaultSettings($job);
+    $settings['catch_up'] = $this->catch_up[isset($settings['rules'][0]) ? $settings['rules'][0] : $this->default_rule];
+    return $settings;
   }
 
   /**

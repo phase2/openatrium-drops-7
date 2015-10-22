@@ -15,12 +15,12 @@ class MessageSubscribeContextTest extends DrupalWebTestCase {
       'name' => 'Get context',
       'description' => 'Get context from an entity.',
       'group' => 'Message subscribe',
-      'dependencies' => array('og')
+      'dependencies' => array('og'),
     );
   }
 
   function setUp() {
-    parent::setUp('message_subscribe', 'og', 'taxonomy');
+    parent::setUp('message_subscribe', 'taxonomy', 'og');
 
     $user1 = $this->drupalCreateUser();
     $user2 = $this->drupalCreateUser();
@@ -228,22 +228,15 @@ class MessageSubscribeSubscribersTest extends DrupalWebTestCase {
    * Test getting the subscribers list.
    */
   function testGetSubscribers() {
-    $message = message_create('foo', array());
+    $message = message_create('foo', array('uid' => $this->user1->uid));
 
     $node = $this->node;
-    $user1 = $this->user1;
     $user2 = $this->user2;
 
     $uids = message_subscribe_get_subscribers('node', $node, $message);
 
     // Assert subscribers data.
     $expected_uids = array(
-      $user1->uid => array(
-        'notifiers' => array(),
-        'flags' => array(
-          'subscribe_node',
-        ),
-      ),
       $user2->uid => array(
         'notifiers' => array(),
         'flags' => array(
@@ -285,9 +278,9 @@ class MessageSubscribeSubscribersTest extends DrupalWebTestCase {
    * Testing the exclusion of the entity author from the subscribers lists.
    */
   function testGetSubscribersExcludeSelf() {
-    // Test the affect of the variable when set to TRUE.
-    variable_set('message_subscribe_notify_own_actions', TRUE);
-    $message = message_create('foo', array());
+    // Test the affect of the variable when set to FALSE (do not notify self).
+    variable_set('message_subscribe_notify_own_actions', FALSE);
+    $message = message_create('foo', array('uid' => $this->user1->uid));
 
     $node = $this->node;
     $user1 = $this->user1;
@@ -307,8 +300,8 @@ class MessageSubscribeSubscribersTest extends DrupalWebTestCase {
     );
     $this->assertEqual($uids, $expected_uids, 'All subscribers except for the triggering user were fetched.');
 
-    // Test the affect of the variable when set to FALSE.
-    variable_set('message_subscribe_notify_own_actions', FALSE);
+    // Test the affect of the variable when set to TRUE (Notify self).
+    variable_set('message_subscribe_notify_own_actions', TRUE);
 
     $uids = message_subscribe_get_subscribers('node', $node, $message);
 
@@ -335,6 +328,9 @@ class MessageSubscribeSubscribersTest extends DrupalWebTestCase {
    * Assert subscribers list is entity-access aware.
    */
   function testEntityAccess() {
+    // Make sure we are notifying ourselves for this test.
+    variable_set('message_subscribe_notify_own_actions', TRUE);
+
     $message = message_create('foo', array());
 
     $node = $this->node;
@@ -360,9 +356,9 @@ class MessageSubscribeSubscribersTest extends DrupalWebTestCase {
 
 
 /**
- * Test getting subscribes from context.
+ * Test queue integration.
  */
-class MessageSubscribeAdvancedQueueTest extends DrupalWebTestCase {
+class MessageSubscribeQueueTest extends DrupalWebTestCase {
 
   public static function getInfo() {
     return array(
@@ -384,21 +380,24 @@ class MessageSubscribeAdvancedQueueTest extends DrupalWebTestCase {
     // Create a dummy message-type.
     $message_type = message_type_create('foo', array('message_text' => array(LANGUAGE_NONE => array(array('value' => 'Example text.')))));
     $message_type->save();
-  }
-
-  function testAdvancedQueue() {
-    $user1 = $this->drupalCreateUser();
 
     // Create node-type.
     $type = $this->drupalCreateContentType();
     $node_type = $type->type;
 
     // Create node.
+    $user1 = $this->drupalCreateUser();
     $settings = array();
     $settings['type'] = $node_type;
     $settings['uid'] = $user1->uid;
-    $node = $this->drupalCreateNode($settings);
+    $this->node = $this->drupalCreateNode($settings);
+  }
 
+  /**
+   * Test base queue processing logic.
+   */
+  function testQueue() {
+    $node = $this->node;
     $message = message_create('foo', array());
 
     $subscribe_options = array();
@@ -444,5 +443,32 @@ class MessageSubscribeAdvancedQueueTest extends DrupalWebTestCase {
     $item = $queue->claimItem();
     $this->assertNotEqual($item_id, $item->item_id, 'Queue item was updated.');
     $this->assertEqual($item->data['subscribe_options']['last uid'], 3, 'Last processed user ID was updated.');
+  }
+
+  /**
+   * Test cron-based queue handling. These are very basic checks that ensure
+   * the cron worker callback functions as expected. No formal subscription
+   * processing is triggered here.
+   */
+  function testQueueCron() {
+    $node = $this->node;
+    $message = message_create('foo', array());
+    $queue = DrupalQueue::get('message_subscribe');
+
+    // Start with a control case.
+    message_subscribe_send_message('node', $node, $message, array(), array());
+    $this->assertEqual($queue->numberOfItems(), 1, 'Message item 1 added to queue.');
+    $this->cronRun();
+    $this->assertEqual($queue->numberOfItems(), 0, 'Message item 1 processed by cron.');
+
+    // Now try a case where the message entity is deleted before any related
+    // queue items can be processed.
+    message_subscribe_send_message('node', $node, $message, array(), array());
+    $this->assertEqual($queue->numberOfItems(), 1, 'Message item 2 added to queue.');
+    $message->delete();
+    // Assert message was deleted.
+    $this->assertFalse(message_load($message->mid), 'Message entity deleted.');
+    $this->cronRun();
+    $this->assertEqual($queue->numberOfItems(), 0, 'Message item 2 processed by cron.');
   }
 }

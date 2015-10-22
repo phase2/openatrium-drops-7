@@ -7,8 +7,9 @@ core = 7.x
 
 projects[ctools][version] = 1.8
 projects[ctools][subdir] = contrib
-projects[ctools][patch][1910608] = https://www.drupal.org/files/issues/views_content-ajax-1910608-29.patch
-projects[ctools][patch][1901106] = https://www.drupal.org/files/issues/1901106-ctools-views_content-override-ajax-30.patch
+projects[ctools][patch][2209775] = https://www.drupal.org/files/issues/ctools-readd_access_callback_params-2209775-24.patch
+projects[ctools][patch][1910608] = https://www.drupal.org/files/issues/views_content-keyword-substitution-1910608-33.patch
+projects[ctools][patch][1901106] = https://www.drupal.org/files/issues/1901106-ctools-views_content-override-ajax-34.patch
 projects[ctools][patch][2023705] = http://drupal.org/files/2023705-ctools-autosubmit-2_0.patch
 projects[ctools][patch][2448989] = https://www.drupal.org/files/issues/2448989-ctools-from_field_children-8.patch
 projects[ctools][patch][2483415] = https://www.drupal.org/files/issues/ctools-more_than_one_comment_pager-2483415-1.patch
@@ -33,6 +34,8 @@ projects[panelizer][patch][1549608] = https://www.drupal.org/files/issues/154960
 
 projects[fieldable_panels_panes][version] = 1.7
 projects[fieldable_panels_panes][subdir] = contrib
+projects[fieldable_panels_panes][patch][2562717] = https://www.drupal.org/files/issues/fpp-empty-admin-title-2562717-2.patch
+projects[fieldable_panels_panes][patch][2381433] = https://www.drupal.org/files/issues/fieldable_panels_panes_patch-2381433-1_0.patch
 
 projects[pm_existing_pages][version] = 1.4
 projects[pm_existing_pages][subdir] = contrib
@@ -109,8 +112,9 @@ projects[link][subdir] = contrib
 
 projects[apps][version] = 1.0
 projects[apps][subdir] = contrib
+projects[apps][patch][2367191] = https://www.drupal.org/files/issues/apps_page_load_is_slow-2367191-5.patch
 
-projects[features][version] = 2.6
+projects[features][version] = 2.7
 projects[features][subdir] = contrib
 
 projects[strongarm][version] = 2.0
@@ -140,7 +144,7 @@ projects[migrate_extras][subdir] = "contrib"
 ; jQuery Update was moved to Panopoly Core, but is left in Panopoly Admin's
 ; .make file to retain a stable 1.x branch of Panopoly. See the following URL
 ; for more information: http://drupal.org/node/2492811
-projects[jquery_update][version] = 2.6
+projects[jquery_update][version] = 2.7
 projects[jquery_update][subdir] = contrib
 
 ; Recommended Modules
@@ -150,7 +154,7 @@ projects[devel][subdir] = contrib
 projects[distro_update][version] = 1.0-beta4
 projects[distro_update][subdir] = contrib
 
-projects[features_override][version] = 2.0-rc2
+projects[features_override][version] = 2.0-rc3
 projects[features_override][subdir] = contrib
 
 projects[uuid][version] = 1.0-alpha6

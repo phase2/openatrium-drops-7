@@ -1,3 +1,8 @@
+Panopoly Theme 7.x-1.28, 2015-10-21
+----------------------------
+- Don't rebuild accordions on AJAX requests.
+- Convert accordion "heightAuto" to "heightStyle" for jQuery UI >= 1.9.
+
 Panopoly Theme 7.x-1.27, 2015-09-02
 ----------------------------
 - No changes since last release.

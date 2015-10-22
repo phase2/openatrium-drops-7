@@ -103,19 +103,22 @@ function message_subscribe_ui_tab_title($account, $flag_name = NULL) {
     // We are inside /message-subscribe so get the first flag.
     $flag_name = key(message_subscribe_flag_get_flags());
   }
-
   $flag = flag_get_flag($flag_name);
 
-  $entity_type = FLAG_API_VERSION == 3 ? $flag->entity_type : $flag->content_type;
+  $count = 0;
+  // Get the message subscribe count from the page view.
+  if ($view = message_subscribe_ui_get_view($account, $flag_name)) {
+    $view->get_total_rows = TRUE;
+    $view->preview();
+    $count = $view->total_rows;
+  }
 
-  $flaggings = flag_get_user_flags($entity_type, NULL, $account->uid);
-
-  $count = !empty($flaggings[$flag_name]) ? count($flaggings[$flag_name]) : 0;
   $params = array(
     '@flag' => $flag->title,
     '@count' => $count,
     '@name' => format_username($account),
   );
+
   return $account->uid == $user->uid ? t('@flag you follow (@count)', $params) : t('@flag @name follows (@count)', $params);
 }
 
@@ -136,6 +139,22 @@ function message_subscribe_ui_tab($account, $flag_name = NULL) {
     $flag_name = key(message_subscribe_flag_get_flags());
   }
 
+  $view = message_subscribe_ui_get_view($account, $flag_name);
+  return $view ? $view->preview() : '';
+}
+
+/**
+ * API Call to grab the view object of a message subscribe page.
+ *
+ * @param $account
+ *   The user object.
+ * @param $flag_name
+ *   The message subscribe flag.
+ *
+ * @return bool|view
+ *   The view, or FALSE if the view was not found
+ */
+function message_subscribe_ui_get_view($account, $flag_name) {
   $flag = flag_get_flag($flag_name);
 
   $entity_type = FLAG_API_VERSION == 3 ? $flag->entity_type : $flag->content_type;
@@ -146,9 +165,9 @@ function message_subscribe_ui_tab($account, $flag_name = NULL) {
   if (!$view = views_get_view($view_name)) {
     // View doesn't exist.
     $params = array('%name' => $view_name);
-    watchdog('message_sbuscribe', t('View %name does not exist.'), $params);
-    return drupal_set_message(t('There View %name does not exist.', $params), 'error');
-    return '';
+    watchdog('message_subscribe', 'View %name does not exist.', $params);
+    drupal_set_message(t('There View %name does not exist.', $params), 'error');
+    return FALSE;
   }
   $view->set_display($display_id);
   $view->set_arguments(array($account->uid));
@@ -165,8 +184,9 @@ function message_subscribe_ui_tab($account, $flag_name = NULL) {
     $rel_flag = flag_get_flag($relationship['flag']);
     if (empty($rel_flag) || (isset($rel_flag->status) && $rel_flag->status === FALSE)) {
       $params = array('%name' => $relationship['flag']);
-      watchdog('message_sbuscribe', t('Flag %name is not setup corrcetly. It is probably disabled or have no bundles configured.'), $params);
-      return drupal_set_message(t('Flag %name is not setup corrcetly. It is probably disabled or have no bundles configured.', $params), 'error');
+      watchdog('message_subscribe', 'Flag %name is not setup correctly. It is probably disabled or have no bundles configured.', $params);
+      drupal_set_message(t('Flag %name is not setup correctly. It is probably disabled or have no bundles configured.', $params), 'error');
+      return FALSE;
     }
 
     // Indicate we need to set the relationship.
@@ -187,7 +207,5 @@ function message_subscribe_ui_tab($account, $flag_name = NULL) {
       $view->display_handler->set_option('relationships', $relationships);
     }
   }
-
-
-  return $view->preview();
+  return $view;
 }

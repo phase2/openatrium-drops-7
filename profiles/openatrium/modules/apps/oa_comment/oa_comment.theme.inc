@@ -101,6 +101,13 @@ function oa_comment_preprocess_comment(&$vars) {
         'oa-pullout-left',
       ),
       'title' => t('Copy this link to share.')), 'fragment' => 'comment-' . $comment->cid));
+
+  // Remove Reply link if comments are not threaded
+  $threaded = variable_get('comment_default_mode_' . $vars['node']->type, COMMENT_MODE_THREADED);
+  if (!$threaded) {
+    unset($vars['content']['links']['comment']['#links']['comment-reply']);
+  }
+
   // Action links for each comment.
   // @todo Figure out how do add delete confirm_form in modal.
   $links = array();

@@ -232,6 +232,10 @@ function _wysiwyg_filter_clear_messages() {
  */
 function wysiwyg_filter_filter_wysiwyg_settings_validate($form, &$form_state) {
   $values =& $form_state['values']['filters']['wysiwyg']['settings'];
+  // Don't validate disabled filters.
+  if (empty($form_state['values']['filters']['wysiwyg']['status'])) {
+    return;
+  }
 
   // *** validate valid_elements ***
   // Check elements against hardcoded backlist.

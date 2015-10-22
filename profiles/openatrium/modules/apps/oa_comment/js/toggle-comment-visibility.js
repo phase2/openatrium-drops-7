@@ -65,15 +65,21 @@
       });
 
       // Target the <p> tag so we can click on links, images, etc inside a 'paragraph comment' and it won't close the comment.
-      $('.accordion-toggle .oa-list-header .oa-comment-reply-body p:not(.oa-list-header-processed)', context).addClass('oa-list-header-processed').click(function() {
-        // This is targeting '.oa-list-header'
-        $(this).parents('.oa-list-header').eq(0).toggleClass('oa-comment-hide');
-        // This is targeting '.oa-list-header'
-        if ($(this).parents('.oa-list-header').eq(0).hasClass('oa-comment-is-new') && !$(this.parents('.oa-list-header').eq(0).hasClass('oa-comment-new-processed'))) {
+      $('.accordion-toggle .oa-list-header .oa-comment-reply-body:not(.oa-list-header-processed)', context).addClass('oa-list-header-processed').click(function(event) {
+        var skipTags = ['A', 'IMG'];
+        var target = $(event.target).prop('tagName');
+        // Don't expand/collapse if original click as on a link or image/
+        // Note, do not just use stopPropogation as images need to support colorbox popups
+        if (skipTags.indexOf(target) < 0) {
           // This is targeting '.oa-list-header'
-          $(this).parents('.oa-list-header').eq(0).addClass('oa-comment-new-processed');
-          // This is targeting '.accordion'
-          $(this).parents('.accordion').eq(0).find('.new-marker').empty();
+          $(this).parents('.oa-list-header').eq(0).toggleClass('oa-comment-hide');
+          // This is targeting '.oa-list-header'
+          if ($(this).parents('.oa-list-header').eq(0).hasClass('oa-comment-is-new') && !$(this.parents('.oa-list-header').eq(0).hasClass('oa-comment-new-processed'))) {
+            // This is targeting '.oa-list-header'
+            $(this).parents('.oa-list-header').eq(0).addClass('oa-comment-new-processed');
+            // This is targeting '.accordion'
+            $(this).parents('.accordion').eq(0).find('.new-marker').empty();
+          }
         }
       });
 

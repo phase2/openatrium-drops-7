@@ -1,0 +1,151 @@
+/* CSS for oa-login branding */
+
+body.oa-login,
+body.oa-login #main-wrapper,
+body.oa-login #main-wrapper #main {
+  background: #E5EBE6;
+}
+
+body.oa-login #main-wrapper {
+  min-height: inherit;
+}
+
+body.oa-login div.region-content {
+  margin-top: 20px;
+  min-height: 376px;
+}
+
+body.oa-login div.region-content .panel-pane {
+  font-family: 'Source Sans Pro', sans-serif;
+  text-align: center;
+  box-sizing: border-box;
+  background: white;
+  width: 40%;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  min-height: 420px;
+  margin-left: auto;
+  margin-right: auto;
+  border: 1px solid #ccc;
+  /* needed to keep the sprout background behind the content */
+  position: relative;
+  z-index: 1;
+}
+
+body.oa-login div.region-content .panel-pane h2 {
+  font-family: 'Source Sans Pro', sans-serif;
+  background: #008EB0;
+  -webkit-border-top-left-radius: 5px;
+  -webkit-border-top-right-radius: 5px;
+  -moz-border-radius-topleft: 5px;
+  -moz-border-radius-topright: 5px;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  text-align: center;
+  color: #FFF;
+  text-transform: uppercase;
+  padding: 20px 0;
+  font-size: 20px;
+  margin: 0;
+  letter-spacing: 0.1em;
+  line-height: normal;
+  font-weight: 300;
+}
+
+body.oa-login div.content {
+  margin-top: 20px;
+  min-height: 466px;
+  position: relative;
+}
+body.oa-login div.content .oa-pane {
+  border: 0;
+}
+body.oa-login div.content .oa-pane .panel-pane {
+  background-color: white;
+}
+body.oa-login div.content .oa-pane .panel-pane h3 {
+  text-transform: uppercase;
+  font-weight: normal;
+  font-size: 26px;
+}
+body.oa-login div.content .oa-pane .panel-pane input.form-text {
+  width: 95%;
+}
+body.oa-login div.content .oa-pane .panel-pane .form-type-password {
+  margin-bottom: 0;
+}
+body.oa-login div.content .oa-pane .panel-pane input {
+  margin-bottom: 0;
+}
+
+body.oa-login div.content .oa-pane .panel-pane .password-reset {
+  font-size: 90%;
+  color: #777;
+}
+
+body.oa-login div.content .oa-pane .form-actions {
+  background-color: transparent;
+}
+
+body.oa-login div.content .oa-pane .form-actions input {
+  text-transform: uppercase;
+  font-size: 16px;
+  letter-spacing: 0.04em;
+}
+
+body.oa-login #user-login-panel .oa-pane {
+  padding-top: 150px;
+  position: relative;
+  background: url('images/atrium_color.png') no-repeat top center;
+}
+
+@media only screen and (max-width: 768px) {
+  body.oa-login div.region-content,
+  body.oa-login #user-login-panel .oa-pane,
+  body.oa-login div.content {
+    background-image: none;
+  }
+  body.oa-login #user-login-panel .oa-pane {
+    padding-top: 0;
+  }
+  body.oa-login div.region-content .panel-pane {
+    width: 94%;
+    margin-left: 3%;
+    margin-right: 3%;
+    margin-bottom: 1em;
+    min-height: 200px;
+  }
+}
+
+@media only screen and (max-width: 980px) {
+  body.oa-login div.region-content,
+  body.oa-login #user-login-panel .oa-pane,
+  body.oa-login div.content {
+    background-image: none;
+  }
+  body.oa-login #user-login-panel .oa-pane {
+    padding-top: 0;
+  }
+  body.oa-login div.region-content .panel-pane {
+    width: 94%;
+    margin-left: 3%;
+    margin-right: 3%;
+    margin-bottom: 1em;
+    min-height: 200px;
+  }
+}
+
+@media only screen and (min-width: 981px) {
+  body.oa-login #footer {
+    overflow: inherit;
+    margin-top: 150px;
+  }
+  body.oa-login #mini-panel-oa_footer_panel .row:nth-child(1) {
+    background: url(images/evolution.png) no-repeat right bottom -15px;
+    height: 250px;
+    width: 100%;
+    position: absolute;
+    top: -268px;
+  }
+}

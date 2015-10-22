@@ -300,6 +300,11 @@ function _ultimate_cron_plugin_load_all($type, $reset = FALSE) {
   if (!$reset && isset($cache[$type])) {
     return $cache[$type];
   }
+  if ($reset) {
+    drupal_static_reset('ctools_plugins');
+    drupal_static_reset('ctools_plugin_setup');
+  }
+
   ctools_include('plugins');
   $plugin_infos = ctools_get_plugins('ultimate_cron', $type);
   $plugins = array();
@@ -798,6 +803,26 @@ function ultimate_cron_help($path, $arg) {
 }
 
 /**
+ * Implements hook_modules_enabled().
+ */
+function ultimate_cron_modules_enabled() {
+  // Clear ctools pluin cache for ultimate and rebuild menu,
+  // so that Ultimate Cron won't end up in an inconsistent state.
+  cache_clear_all('plugins:ultimate_cron:', 'cache', TRUE);
+  menu_rebuild();
+}
+
+/**
+ * Implements hook_modules_disabled().
+ */
+function ultimate_cron_modules_disabled() {
+  // Clear ctools pluin cache for ultimate and rebuild menu,
+  // so that Ultimate Cron won't end up in an inconsistent state.
+  cache_clear_all('plugins:ultimate_cron:', 'cache', TRUE);
+  menu_rebuild();
+}
+
+/**
  * Implements hook_menu().
  */
 function ultimate_cron_menu() {
@@ -871,13 +896,18 @@ function ultimate_cron_menu() {
  */
 function ultimate_cron_menu_alter(&$items) {
   // Relocate ctools export ui to main tab.
-  $items['admin/config/system/cron'] = $items['admin/config/system/cron/jobs'];
-  $items['admin/config/system/cron/jobs'] = array(
-    'title' => 'Jobs',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-    'weight' => 20,
-  );
-  unset($items['admin/config/system/cron']['type']);
+  // During install, the cTools export ui menu entries may not have been setup.
+  // If so, skip this part and assume that the menu will be rebuild after
+  // install is complete.
+  if (isset($items['admin/config/system/cron/jobs'])) {
+    $items['admin/config/system/cron'] = $items['admin/config/system/cron/jobs'];
+    $items['admin/config/system/cron/jobs'] = array(
+      'title' => 'Jobs',
+      'type' => MENU_DEFAULT_LOCAL_TASK,
+      'weight' => 20,
+    );
+    unset($items['admin/config/system/cron']['type']);
+  }
 
   // Steal the core cron run.
   $steal = &$items['admin/reports/status/run-cron'];
@@ -1472,7 +1502,7 @@ function ultimate_cron_plugin_crontab_element_validate_rule($element, &$form_sta
   $rules = array();
   $value = $element['#value'];
   if (!empty($value)) {
-    $rules = explode(',', $value);
+    $rules = explode(';', $value);
     $rules = array_map('trim', $rules);
   }
   foreach ($rules as $rule) {

@@ -10,7 +10,7 @@ define('ULTIMATE_CRON_DATABASE_LOGGER_CLEANUP_METHOD_RETAIN', 3);
 
 class UltimateCronDatabaseLogger extends UltimateCronLogger {
   public $options = array();
-  public $log_entry_class = 'UltimateCronDatabaseLogEntry';
+  public $log_entry_class = '\UltimateCronDatabaseLogEntry';
 
   /**
    * Constructor.
@@ -272,7 +272,7 @@ class UltimateCronDatabaseLogger extends UltimateCronLogger {
         ->fields('l')
         ->condition('l.lid', $lock_id)
         ->execute()
-        ->fetchObject('UltimateCronDatabaseLogEntry', array($name, $this));
+        ->fetchObject($this->log_entry_class, array($name, $this));
     }
     else {
       $log_entry = db_select('ultimate_cron_log', 'l')
@@ -283,13 +283,13 @@ class UltimateCronDatabaseLogger extends UltimateCronLogger {
         ->orderBy('l.end_time', 'DESC')
         ->range(0, 1)
         ->execute()
-        ->fetchObject('UltimateCronDatabaseLogEntry', array($name, $this));
+        ->fetchObject($this->log_entry_class, array($name, $this));
     }
     if ($log_entry) {
       $log_entry->finished = TRUE;
     }
     else {
-      $log_entry = new UltimateCronDatabaseLogEntry($name, $this);
+      $log_entry = new $this->log_entry_class($name, $this);
     }
     return $log_entry;
   }

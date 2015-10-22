@@ -23,9 +23,9 @@ files[] = plugins/views/panelizer_plugin_row_panelizer_node_view.inc
 files[] = panelizer.test
 
 
-; Information added by drush on 2015-09-17
+; Information added by drush on 2015-10-22
 version = "7.x-3.2-beta1+41-dev"
 core = "7.x"
 project = "panelizer"
-datestamp = "1442509837"
+datestamp = "1445532454"
 

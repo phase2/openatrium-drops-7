@@ -25,9 +25,9 @@ features[variable][] = user_picture_style
 features_exclude[field_base][field_user_about] = field_user_about
 features_exclude[field_base][field_user_picture] = field_user_picture
 
-; Information added by Drupal.org packaging script on 2015-09-17
-version = "7.x-2.60"
+; Information added by Drupal.org packaging script on 2015-10-20
+version = "7.x-2.62"
 core = "7.x"
 project = "oa_core"
-datestamp = "1442502792"
+datestamp = "1445362254"
 

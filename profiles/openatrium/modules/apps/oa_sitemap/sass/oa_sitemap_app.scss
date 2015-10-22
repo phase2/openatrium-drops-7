@@ -1,6 +1,6 @@
 @import "compass";
 
-$sitemapBackground: #E6F8FD;
+$sitemapBackground: #E5EBE6;
 
 body.oa-sitemap-full {
   background: $sitemapBackground;
@@ -9,9 +9,6 @@ body.oa-sitemap-full {
     #main {
       background: $sitemapBackground;
     }
-  }
-  .oa-sitemap {
-    background: $sitemapBackground url(../images/clouds.png) no-repeat center top;
   }
 }
 
@@ -95,6 +92,10 @@ body.oa-sitemap-full {
       background: #095a8b;
       color: white;
     }
+  }
+
+  .select2-container.form-control {
+    background-color: transparent;
   }
 
   .oa-sitemap-full {
@@ -348,13 +349,12 @@ body.oa-sitemap-full {
   .oa-sitemap-help {
     position: relative;
     margin-bottom: 20px;
-    margin-top: 75px;
     > div {
       background: #32c0ec;
       color: white;
       padding: 10px 20px;
       border-radius: 8px;
-      font-family: Roboto, sans-serif;
+      font-family: 'Source Sans Pro', sans-serif;
       font-size: 16px;
       font-weight: 300;
       padding-right: 240px;

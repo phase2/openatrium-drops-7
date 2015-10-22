@@ -118,6 +118,7 @@ function oa_sections_og_menu_single_menu_parent($conf) {
         }
       }
     }
+    return $plid;
   }
 }
 

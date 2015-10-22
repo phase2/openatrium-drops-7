@@ -1,0 +1,55 @@
+body.front .content .pane-oa-home-default {
+  font-family: 'Source Sans Pro', sans-serif;
+}
+
+.pane-oa-home-default .hero h1 {
+   font-family: 'Source Sans Pro', sans-serif;
+}
+
+.pane-oa-home-default .hero h2 {
+  font-family: 'Droid Serif', serif;
+}
+
+.pane-oa-home-default .hero h3 {
+  background: url(images/bg-hero-line.png) no-repeat center top;
+  font-family: 'Droid Serif',serif;
+}
+
+.pane-oa-home-default .module-header h4,
+.pane-oa-home-default .modules .block h2 {
+  font-family: 'Source Sans Pro', sans-serif;
+}
+
+.pane-oa-home-default a.icon-got-issues {
+  background: url(images/discussions.png) no-repeat center center;
+  }
+
+.pane-oa-home-default a.icon-got-issues:hover {
+  }
+
+.pane-oa-home-default a.icon-documentation{
+  background: url(images/documentation.png) no-repeat center center;
+  }
+
+.pane-oa-home-default a.icon-documentation:hover {
+  }
+
+.pane-oa-home-default a.icon-pros{
+  background: url(images/best_in_class.png) no-repeat center center;
+  }
+
+.pane-oa-home-default a.icon-pros:hover {
+  }
+
+@media only screen and (min-width: 981px) {
+  body.front #footer {
+    margin-top: 150px;
+  }
+  body.front #mini-panel-oa_footer_panel .row:nth-child(1) {
+    background: url(images/evolution.png) no-repeat right bottom -15px;
+    height: 250px;
+    width: 100%;
+    position: absolute;
+    top: -268px;
+  }
+}

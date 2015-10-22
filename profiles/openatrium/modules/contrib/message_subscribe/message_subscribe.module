@@ -26,7 +26,12 @@
  *   - "last uid": The last user ID to query.
  *   - "uids": Array of user IDs to be processed. Setting this, will cause
  *     skipping message_subscribe_get_subscribers() to get the subscribed
- *     users.
+ *     users. For example:
+ *     $subscribe_options['uids'] = array(
+ *       1 => array(
+ *        'notifiers' => array('email'),
+ *       ),
+ *     );
  *   - "range": The number of items to fetch in the query.
  *   - "end time": The timestamp of the time limit for the function to
  *     execute. Defaults to FALSE, meaning there is no time limitation.
@@ -35,7 +40,7 @@
  *     worker. see message_subscribe_queue_worker().
  *   - "entity access": Determine if access to view the entity should be applied
  *     when getting the list of subscribed users. Defaults to TRUE.
- *   - "notify_own_actions": Determines if the user that created the entity
+ *   - "notify message owner": Determines if the user that created the entity
  *      gets notified of their own action. If TRUE the author will get notified.
  *      Defaults to FALSE.
  * @param $context
@@ -54,12 +59,12 @@
  *   );
  * @endcode
  *
- * @return
+ * @return Message
  *   The message object.
  */
 function message_subscribe_send_message($entity_type, $entity, Message $message, $notify_options = array(), $subscribe_options = array(), $context = array()) {
   $use_queue = isset($subscribe_options['use queue']) ? $subscribe_options['use queue'] : variable_get('message_subscribe_use_queue', FALSE);
-  $notify_own_actions = isset($subscribe_options['notify_own_actions']) ? $subscribe_options['notify_own_actions'] : variable_get('message_subscribe_notify_own_actions', FALSE);
+  $notify_message_owner = isset($subscribe_options['notify message owner']) ? $subscribe_options['notify message owner'] : variable_get('message_subscribe_notify_own_actions', FALSE);
 
   // Save message by default.
   $subscribe_options += array(
@@ -72,7 +77,7 @@ function message_subscribe_send_message($entity_type, $entity, Message $message,
     'use queue' => $use_queue,
     'queue' => FALSE,
     'entity access' => TRUE,
-    'notify_own_actions' => $notify_own_actions,
+    'notify message owner' => $notify_message_owner,
   );
 
   if (empty($message->mid) && $subscribe_options['save message']) {
@@ -204,7 +209,7 @@ function message_subscribe_send_message($entity_type, $entity, Message $message,
  */
 function message_subscribe_get_subscribers($entity_type, $entity, Message $message, $subscribe_options = array(), &$context = array()) {
   $context = $context ? $context : message_subscribe_get_basic_context($entity_type, $entity, $subscribe_options, $context);
-  $notify_own_actions = isset($subscribe_options['notify_own_actions']) ? $subscribe_options['notify_own_actions'] : variable_get('message_subscribe_notify_own_actions', FALSE);
+  $notify_message_owner = isset($subscribe_options['notify message owner']) ? $subscribe_options['notify message owner'] : variable_get('message_subscribe_notify_own_actions', FALSE);
 
   $uids = array();
   // We don't use module_invoke_all() is we want to retain the array keys,
@@ -214,7 +219,7 @@ function message_subscribe_get_subscribers($entity_type, $entity, Message $messa
     $result = $function($message, $subscribe_options, $context);
     foreach ($result as $uid => $values) {
       // See if the author of the entity gets notified.
-      if ($notify_own_actions && $entity->uid == $uid) {
+      if (!$notify_message_owner && $message->uid == $uid) {
         continue;
       }
 
@@ -428,7 +433,7 @@ function message_subscribe_message_subscribe_get_subscribers(Message $message, $
 /**
  * Get Message subscribe related flags.
  *
- * Return Flags realted to message subscribe using a name convention --
+ * Return Flags related to message subscribe using a name convention --
  * the flag name should start with "subscribe_".
  *
  * @param $content_type
@@ -436,7 +441,7 @@ function message_subscribe_message_subscribe_get_subscribers(Message $message, $
  * @param $content_subtype
  *   Optional. The node type for which to load the flags.
  * @param $account
- *   Optional. The user accont to filter available flags. If not set, all
+ *   Optional. The user account to filter available flags. If not set, all
  *   flags for will this node will be returned.
  * @param $reset
  *   Optional. Reset the internal query cache.
@@ -695,7 +700,10 @@ function message_subscribe_queue_worker($data, $end_time = FALSE) {
   extract($data);
 
   $entity = entity_load_single($entity_type, $entity_id);
-  $message = message_load($mid);
+  if (!$message = message_load($mid)) {
+    // Abort if the message has been deleted to avoid errors.
+    return;
+  }
   $subscribe_options['queue'] = TRUE;
 
   message_subscribe_send_message($entity_type, $entity, $message, $notify_options, $subscribe_options, $context);

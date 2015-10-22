@@ -1,3 +1,14 @@
+Panopoly Core 7.x-1.28, 2015-10-21
+---------------------------
+- Update to Drupal 7.41 for SA-CORE-2015-004 and jquery_update for SA-
+  CONTRIB-2015-158.
+- Missing file access checks for private files attached to Fieldable Panel
+  Panes.
+- Can't distinguish reusable content without admin title when previews are in
+  single mode.
+- CTools "Undefined index: access callback in
+  ctools_entity_from_field_context()".
+
 Panopoly Core 7.x-1.27, 2015-09-02
 ---------------------------
 - Update to fieldable_panels_panes version 1.7 for SA-CONTRIB-2015-145.

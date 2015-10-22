@@ -2,7 +2,7 @@ api = 2
 core = 7.x
 
 ; Colorbox
-projects[colorbox][version] = 2.8
+projects[colorbox][version] = 2.10
 projects[colorbox][subdir] = contrib
 
 projects[media_colorbox][version] = 1.x-dev

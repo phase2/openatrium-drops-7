@@ -62,6 +62,18 @@ function theme_panopoly_theme_panopoly_accordion_style_render_region($vars) {
       $settings_js['accordion'][$region_id]['options']['active'] = (int)$settings_js['accordion'][$region_id]['options']['active'];
     }
   }
+  if (empty($settings_js['accordion'][$region_id]['options']['heightStyle'])) {
+    if (!empty($settings_js['accordion'][$region_id]['options']['fillSpace'])) {
+      $settings_js['accordion'][$region_id]['options']['heightStyle'] = 'fill';
+    }
+    else if (!empty($settings_js['accordion'][$region_id]['options']['clearStyle'])) {
+      $settings_js['accordion'][$region_id]['options']['heightStyle'] = 'content';
+    }
+    else {
+      $settings_js['accordion'][$region_id]['options']['heightStyle'] = 'auto';
+    }
+  }
+  unset($settings_js['accordion'][$region_id]['options']['fillSpace'], $settings_js['accordion'][$region_id]['options']['clearStyle'], $settings_js['accordion'][$region_id]['options']['autoHeight']);
   drupal_add_js($settings_js, 'setting');
   return $output;
 }
@@ -73,18 +85,25 @@ function panopoly_theme_panopoly_accordion_style_settings_form($style_settings) 
     '#description' => t('Set to -1 if you want no pane active'),  
     '#default_value' => (isset($style_settings['active'])) ? $style_settings['active'] : 0,
   );
-  $form['autoHeight'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Set to autoheight'),  
-    '#return_value' => 1,  
-    '#default_value' => (isset($style_settings['autoHeight'])) ? $style_settings['autoHeight'] : 1,
+  $height_options = array(
+    'auto' => t('All panels will be set to the height of the tallest panel.'),
+    'fill' => t('Expand to the available height based on the accordion\'s parent height.'),
+    'content' => t('Each panel will be only as tall as its content.'),
   );
-  $form['clearStyle'] = array(
-    '#type' => 'checkbox',
-    '#description' => t("If set, clears height and overflow styles after finishing animations. This enables accordions to work with dynamic content. Won't work together with autoHeight."),
-    '#title' => t('Clear heights after animation'),  
-    '#return_value' => 1,  
-    '#default_value' => (isset($style_settings['clearStyle'])) ? $style_settings['clearStyle'] : 0,
+  if ($style_settings['fillSpace']) {
+    $height_default = 'fill';
+  }
+  else if ($style_settings['clearStyle']) {
+    $height_default = 'content';
+  }
+  else {
+    $height_default = 'auto';
+  }
+  $form['heightStyle'] = array(
+    '#type' => 'radios',
+    '#title' => t('Set accordion height style'),
+    '#options' => $height_options,
+    '#default_value' => (isset($style_settings['heightStyle'])) ? $style_settings['heightStyle'] : $height_default,
   );
   $form['collapsible'] = array(
     '#type' => 'checkbox',
@@ -98,12 +117,6 @@ function panopoly_theme_panopoly_accordion_style_settings_form($style_settings) 
     '#title' => t('The event on which to trigger the accordion.'),  
     '#options' => array('click' => t('On click'), 'mouseover' => t('On mouse over')),
     '#default_value' => (isset($style_settings['event'])) ? $style_settings['event'] : 'click',
-  );
-  $form['fillSpace'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('If set, the accordion completely fills the height of the parent element. Overrides autoheight.'),  
-    '#return_value' => TRUE,
-    '#default_value' => (isset($style_settings['event'])) ? $style_settings['event'] : FALSE,
   );
   $form['navigation'] = array(
     '#type' => 'checkbox',

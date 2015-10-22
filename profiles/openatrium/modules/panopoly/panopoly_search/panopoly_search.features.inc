@@ -39,7 +39,7 @@ function panopoly_search_default_search_api_index() {
     "item_type" : "node",
     "options" : {
       "index_directly" : 1,
-      "cron_limit" : "50",
+      "cron_limit" : "20",
       "fields" : {
         "author" : { "type" : "integer", "entity_type" : "user" },
         "body:summary" : { "type" : "text" },
@@ -157,7 +157,7 @@ function panopoly_search_default_search_api_index() {
     "item_type" : "node",
     "options" : {
       "index_directly" : 1,
-      "cron_limit" : "50",
+      "cron_limit" : "20",
       "fields" : {
         "author" : { "type" : "integer", "entity_type" : "user" },
         "body:summary" : { "type" : "text" },

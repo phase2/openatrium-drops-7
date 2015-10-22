@@ -11,9 +11,8 @@ projects[backports][subdir] = contrib
 projects[module_filter][version] = 2.0
 projects[module_filter][subdir] = contrib
 
-projects[simplified_menu_admin][version] = 1.0-beta2
+projects[simplified_menu_admin][version] = 1.0
 projects[simplified_menu_admin][subdir] = contrib
-projects[simplified_menu_admin][patch][1256700] = https://www.drupal.org/files/issues/simplified_menu_admin-form-hierarchy-not-preserved-1256700-13.patch
 
 projects[date_popup_authored][version] = 1.x-dev
 projects[date_popup_authored][subdir] = contrib
@@ -51,7 +50,7 @@ projects[admin_menu][subdir] = contrib
 ; jQuery Update was moved to Panopoly Core, but is left in Panopoly Admin's
 ; .make file to retain a stable 1.x branch of Panopoly. See the following URL
 ; for more information: http://drupal.org/node/2492811
-projects[jquery_update][version] = 2.6
+projects[jquery_update][version] = 2.7
 projects[jquery_update][subdir] = contrib
 
 ; Libraries

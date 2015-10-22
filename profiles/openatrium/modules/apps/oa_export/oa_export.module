@@ -1,0 +1,263 @@
+<?php
+
+require_once('oa_export.batch.export.inc');
+require_once('oa_export.module.export.inc');
+require_once('oa_export.form.import.inc');
+require_once('formats/json.inc');
+require_once('oa_export.file.inc');
+require_once('oa_export.formats.inc');
+require_once('oa_export.fields.export.inc');
+
+define('OA_EXPORT_DEFAULT_MODULE_PATH', 'sites/all/modules');
+define('BLUEPRINT_SPACE', 'field_oa_clone_space');
+define('OA_EXPORT_FILES', 'files');
+define('OA_EXPORT_DIR', 'oa_export');
+define('OA_EXPORT_TEMP_DIR', '_tmp_oa_export');
+define('OA_EXPORT_REDIRECT', 'admin/structure/taxonomy/space_type');
+define('OA_EXPORT_JSON_FILE', 'entities');
+
+/**
+ * Implements hook_menu().
+ */
+function oa_export_menu() {
+  return array(
+    'blueprint/download/%taxonomy_term' => array(
+      'title' => 'Blueprint Download',
+      'access callback' => 'user_access',
+      'access arguments' => array('download blueprint'),
+      'page callback' => 'oa_export_batch_export',
+      'page arguments' => array(2),
+      'type' => MENU_CALLBACK,
+    ),
+    'blueprint/export/%taxonomy_term' => array(
+      'title' => 'Blueprint Export',
+      'description' => 'Exports you blueprint to a module.',
+      'access callback' => 'user_access',
+      'access arguments' => array('export blueprint'),
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('oa_export_generate_module_form', 2),
+      'type' => MENU_CALLBACK,
+    ),
+    'blueprint/import' => array(
+      'title' => 'Blueprint Import',
+      'access callback' => 'user_access',
+      'access arguments' => array('import blueprint'),
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('oa_export_blueprint_import_form'),
+      'type' => MENU_LOCAL_ACTION,
+    ),
+    'oa_export/download' => array(
+      'title' => 'Blueprint Download',
+      'access callback' => 'user_access',
+      'access arguments' => array('export blueprint'),
+      'page callback' => 'oa_export_batch_file_download_finished_redirect',
+    ),
+  );
+}
+
+/**
+ * Implements hook_permission().
+ */
+function oa_export_permission() {
+  return array(
+    'download blueprint' => array(
+      'title' => t('Blueprint Download'),
+      'description' => t('This role will be allowed to download blueprints to an archived file.'),
+    ),
+    'export blueprint' => array(
+      'title' => t('Blueprint Export'),
+      'description' => t('This role will be allowed to export a blueprints to a modules.'),
+    ),
+    'import blueprint' => array(
+      'title' => t('Blueprint Import'),
+      'description' => t('This role will be allowed to import blueprints.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function oa_export_theme($existing, $type, $theme, $path) {
+  return array(
+    'blueprint_download_page' => array(
+      'render element' => 'content',
+      'template' => 'blueprint-download-page',
+      'path' => drupal_get_path('module', 'oa_export') . '/theme',
+    ),
+  );
+}
+
+/**
+ * Implements hook_preprocess_blueprint_download().
+ */
+function oa_export_preprocess_blueprint_download_page(&$variables) {
+  // Path to download files, if needed.
+  $variables['download_path'] = $_SESSION['oa_export']['download_path'];
+  // Path to send user back to.
+  $variables['download_redirect'] = OA_EXPORT_REDIRECT;
+}
+
+/**
+ * Implements hook_menu_local_tasks_alter().
+ *
+ * Add a 'Import Blueprint' button.
+ */
+function oa_export_menu_local_tasks_alter(&$data, $router_item, $root_path) {
+  if ($_GET['q'] === 'admin/structure/taxonomy/space_type') {
+    $item = menu_get_item('blueprint/import');
+    // Change the title for this button.
+    $item['title'] = t('Import Blueprint');
+    $data['actions']['output'][] = array(
+      '#theme' => 'menu_local_action',
+      '#link' => $item,
+    );
+  }
+}
+
+/**
+ * Implements hook_preprocess_table().
+ *
+ * Adds an export header and download links for blueprints.
+ *
+ * @param array $vars
+ */
+function oa_export_preprocess_table(&$vars) {
+  if ($_GET['q'] == 'admin/structure/taxonomy/space_type') {
+    $rows = &$vars['rows'];
+    // Add an export link for each term.
+    foreach ($rows as $key => &$row) {
+      list(,$tid) = explode(':', $key);
+      // Add the download link to the last element in the data array.
+      $last_key = array_keys($row['data']);
+      $end = end($last_key);
+      $row['data'][$end] .= ' ' . l(t('download'), 'blueprint/download/' . $tid);
+      $row['data'][$end] .= ' ' . l(t('export'), 'blueprint/export/' . $tid);
+    }
+  }
+}
+
+/**
+ * Gets the contents of the json file and decodes it.
+ *
+ * @param $path
+ *   The real/absolute path to our json file.
+ * @return array|object
+ *   The object or array created.
+ */
+function oa_export_import_decode_data($path) {
+  if ($json = file_get_contents($path)) {
+    return oa_export_json_import($json);
+  }
+  else {
+    drupal_set_message(t('Error getting the contents of %path.', array('%path' => $path)));
+  }
+}
+
+/**
+ * Finds all comments for a given node.
+ *
+ * @param int $nid
+ *   The node id you want to find comments for.
+ * @return mixed
+ *   The comment ids.
+ */
+function oa_export_get_comments($nid) {
+  if (module_exists('comment')) {
+    $comments = db_select('comment', 'c')
+      ->fields('c', array('cid', 'nid'))
+      ->condition('nid', $nid, '=')
+      ->execute()
+      ->fetchAllKeyed();
+
+    return array_keys($comments);
+  }
+  else {
+    return array();
+  }
+}
+
+/**
+ * Helper function to export the object representing the file and a copy of the
+ * actual file to our exports directory.
+ *
+ * @param object $file
+ */
+function oa_export_file($file) {
+  // This is the actual path to the file.
+  $file_source = drupal_realpath($file->uri);
+  // We only copy the file if it doesn't exist.
+  if (!file_exists($_SESSION['oa_export']['files_directory'] . '/' . $file->filename)) {
+    // Make sure the directory is the one we created.
+    if (oa_export_validate_directory()) {
+      // Copy the file to our export directory.
+      $new_file = file_unmanaged_copy($file_source, $_SESSION['oa_export']['files_directory']);
+      if (!$new_file) {
+        // @todo: Throw error here.
+      }
+    }
+  }
+}
+
+function oa_export_validate_directory() {
+  if (file_exists($_SESSION['oa_export']['files_directory'])) {
+    return TRUE;
+  }
+  else {
+    return FALSE;
+  }
+}
+
+function oa_export_remove_missing_entity($entity, $entity_type, $field_name, &$results) {
+  list($entity_id) = entity_extract_ids($entity_type, $entity);
+  $field_info = field_info_field($field_name);
+  if (isset($results['export'][$entity_type . ':' . $entity_id])) {
+    $results['export'][$entity_type . ':' . $entity_id]->{$field_name} = array();
+    // Set a message to notify that the entity was missing.
+    $results['messages'][] = t(
+      "The <strong>!type</strong>, for field <strong>!field</strong> could not be found. The '!type' entity (!entity_id) titled <strong>'!label'</strong> was exported without it.", array(
+        '!type' => $field_info['type'],
+        '!field' => $field_name,
+        '!entity_id' => $entity_id,
+        '!type' => $entity_type,
+        '!label' => entity_label($entity_type, $entity),
+      )
+    );
+  }
+  $entity->{$field_name} = array();
+}
+
+/**
+ * Implements hook_oa_import_remove_entity_alter().
+ */
+function oa_export_oa_import_remove_entity_alter($entities) {
+  foreach ($entities as $key => $entity) {
+    list($type,$id) = explode(':', $key);
+    if ($type == 'taxonomy_term') {
+//      unset($entities[$type . ':' . $id]);
+    }
+  }
+}
+
+/**
+ * Removes a directory recusively and if provided will direct the user to a new destination.
+ *
+ * @param string $directory
+ *   The full path the directory to remove.
+ * @param string $goto
+ *   A relative path to send the user to.
+ */
+function oa_export_cleanup($directory = NULL, $goto = NULL) {
+
+  // Get rid of our session variables.
+  unset($_SESSION['oa_export']);
+
+  if (isset($directory)) {
+    // Remove the directory and all its contents.
+    oa_export_remove_directory($directory);
+  }
+  if (isset($goto)) {
+    // Send the user somewhere else.
+    drupal_goto($goto);
+  }
+}

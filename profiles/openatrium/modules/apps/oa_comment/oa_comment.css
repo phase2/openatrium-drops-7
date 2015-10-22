@@ -18,7 +18,7 @@ form.comment-form .comment-reply-post-button input.form-submit {
 }
 
 form.comment-form .reply-comment-parent {
-  padding: 0 5% 1em;
+  padding: 0 150px 1em 5em;
 }
 
 form.comment-form .text-format-wrapper .clearfix:after {

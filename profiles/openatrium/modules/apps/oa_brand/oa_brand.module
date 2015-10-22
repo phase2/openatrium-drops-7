@@ -1,0 +1,91 @@
+<?php
+/**
+ * @file
+ * Code for the Open Atrium Home feature.
+ */
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function oa_brand_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'ctools' && $plugin_type == 'content_types') {
+    return 'plugins/content_types';
+  }
+}
+
+/**
+ * Implements hook_theme_registry_alter().
+ *
+ * Look for any tpl files in this module that override other templates.
+ */
+function oa_brand_theme_registry_alter(&$theme_registry) {
+  // Defined path to current module.
+  $module_path = drupal_get_path('module', 'oa_brand');
+
+  // Find all .tpl.php files in this module's folder recursively.
+  $template_file_objects = drupal_find_theme_templates($theme_registry, '.tpl.php', $module_path);
+
+  // Itterate through all found template file objects.
+  foreach ($template_file_objects as $key => $template_file_object) {
+    // If the template has not already been overridden by a theme.
+    if (!preg_match('#/themes/#', $theme_registry[$key]['theme path'])) {
+      // Alter the theme path and template elements.
+      $theme_registry[$key]['theme path'] = $module_path;
+      $theme_registry[$key] = array_merge($theme_registry[$key], $template_file_object);
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_page().
+ *
+ * Add specific css to certain pages.
+ */
+function oa_brand_preprocess_page(&$vars) {
+  global $base_url;
+  if (arg(0) === 'user') {
+    $base = parse_url($base_url);
+    drupal_add_css($base['scheme'] . '://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,600,700', array('type' => 'external'));
+    drupal_add_css(drupal_get_path('module', 'oa_brand') . '/oa_brand_login.css');
+  }
+}
+
+/**
+ * Implements hook_oa_core_brand().
+ */
+function oa_brand_oa_core_brand() {
+  global $base_url;
+  $base = parse_url($base_url);
+  drupal_add_css(drupal_get_path('module', 'oa_brand') . '/oa_brand.css');
+  drupal_add_css($base['scheme'] . '://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,600,700', array('type' => 'external'));
+  drupal_add_css($base['scheme'] . '://fonts.googleapis.com/css?family=Droid+Serif', array('type' => 'external'));
+}
+
+/**
+ * Implements hook_oa_core_logo().
+ */
+function oa_brand_oa_core_banner_default() {
+  return drupal_get_path('module', 'oa_brand') . '/images/atrium.png';
+}
+
+/**
+ * Implements hook_oa_core_add_panes().
+ */
+function oa_brand_oa_core_add_panes() {
+  $info = array();
+  $info['oa_footer_panel']['acef9208-6753-4fee-8b2b-834b2ed0909a'] = array(
+    'panel' => 'footer',
+    'type' => 'oa_brand_powered_by',
+    'subtype' => 'oa_brand_powered_by',
+    'configuration' => array(
+      'override_title' => 0,
+      'override_title_text' => '',
+    ),
+    'position' => 1,
+    'css' => array(
+      'css_id' => '',
+      'css_class' => 'pull-right',
+    ),
+  );
+  return $info;
+}

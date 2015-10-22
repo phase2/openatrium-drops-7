@@ -49,7 +49,7 @@ class UltimateCronGeneralSettings extends UltimateCronSettings {
    */
   public function defaultSettings() {
     return array(
-      'nodejs' => TRUE,
+      'nodejs' => module_exists('nodejs'),
     );
   }
 

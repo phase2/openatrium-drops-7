@@ -1,0 +1,19 @@
+name = Open Atrium Brand
+description = Default Branding for Open Atrium
+core = 7.x
+package = Open Atrium
+dependencies[] = ctools
+dependencies[] = oa_core
+apps[screenshots][] = app/screenshot.png
+apps[logo] = app/logo.png
+apps[author] = Phase2 Technology
+apps[author_url] = http://www.phase2technology.com/
+apps[server] = openatrium
+apps[package] = Core addons
+
+; Information added by Drupal.org packaging script on 2015-10-20
+version = "7.x-2.0-rc2"
+core = "7.x"
+project = "oa_brand"
+datestamp = "1445353444"
+

@@ -312,8 +312,6 @@ function oa_appearance_node_update($node) {
  *   - text (string): The banner text.
  */
 function oa_appearance_get_space_banner($space_id, $banner_position) {
-  global $base_url;
-
   $static_cache =& drupal_static(__FUNCTION__, array());
   $static_cache_key = $space_id . ':' . $banner_position;
 
@@ -395,10 +393,7 @@ function oa_appearance_get_space_banner($space_id, $banner_position) {
             }
             elseif (variable_get('oa_banner_default', TRUE)) {
               // Use the default banner image.
-              $site_file = new stdClass();
-              $site_file->uri = $base_url . '/' . drupal_get_path('module', 'oa_widgets') . '/openatrium-powered.png';
-              $site_file->metadata['height'] = 43;
-              $site_file->metadata['width'] = 161;
+              $site_file = oa_core_get_banner_default();
             }
             if ($site_file) {
               $banner['image'] = array(

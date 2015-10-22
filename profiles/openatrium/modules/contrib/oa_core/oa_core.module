@@ -2033,6 +2033,47 @@ function oa_core_default_page_manager_handlers_alter(&$data) {
 }
 
 /**
+ * Implements hook_default_panels_mini_alter().
+ * $data['node_edit_panel_context']->conf['display']->content
+ */
+function oa_core_default_panels_mini_alter(&$data) {
+  $info = module_invoke_all('oa_core_add_panes');
+  foreach ($info as $panelizer => $panes) {
+    if (isset($data[$panelizer]->display)) {
+      foreach ($panes as $uuid => $pane) {
+        $pid = 'new-' . $uuid;
+        if (empty($pane)) {
+          if (isset($data[$panelizer]->display->content[$pid])) {
+            unset($data[$panelizer]->display->content[$pid]);
+          }
+        }
+        else {
+          $pane = $pane + array(
+              'shown' => TRUE,
+              'access' => array(),
+              'configuration' => array(),
+              'cache' => array(),
+              'style' => array(
+                'settings' => NULL,
+              ),
+              'css' => array(),
+              'extras' => array(),
+              'position' => 9,
+              'locks' => array(),
+              'uuid' => $uuid,
+              'pid' => $pid,
+            );
+          if (isset($data[$panelizer])) {
+            $data[$panelizer]->display->content[$pid] = (object) $pane;
+          }
+        }
+      }
+    }
+  }
+  _oa_core_panelizer_sort($data);
+}
+
+/**
  * Helper function to put panes in correct order using the position property
  * For Panelizer objects
  * @param $data

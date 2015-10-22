@@ -210,6 +210,9 @@ function oa_toolbar_get_jump_links($base, $url_query = array()) {
     ->condition('v.machine_name', $vocab_name);
   $terms = $query->execute()->fetchAllKeyed();
 
+  // Allow altering the terms that are shown via jump links.
+  drupal_alter('oa_toolbar_jump_links', $terms);
+
   if (count($terms) > 1) {
     $links = array();
     foreach ($terms as $tid => $name) {
@@ -298,7 +301,7 @@ function template_preprocess_oa_toolbar(&$vars) {
         if (count($parents) > 1) {
           $list = oa_core_truncate_list($parents, 15);
           foreach ($list as $nid => $title) {
-            $list[$nid] = check_plain($title);
+            $list[$nid] = l($title, 'node/' . $nid);
           }
           $vars['parent_list'] = theme('item_list', array(
             'items' => $list,

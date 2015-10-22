@@ -226,6 +226,7 @@ function oa_media_file_default_displays_alter(&$default_displays) {
  * Implements hook_views_query_alter().
  */
 function oa_media_views_query_alter(&$view, &$query) {
+  $in_wysiwyg = (isset($_GET['id']) && ($_GET['id'] == 'media_wysiwyg'));
   if (($query->base_table == 'file_managed') && (!empty($view->filter['og_group_ref_target_id']->options['exposed']))) {
     // Modify file views with space filters to handle media attached to nodes and paragraphs
 
@@ -317,7 +318,7 @@ function oa_media_views_query_alter(&$view, &$query) {
         }
       }
     }
-    else {
+    else if (!$in_wysiwyg) {
       // view not filtered, but ensure only media assigned to a group is shown
       $new_condition = db_or();
       // Loop through all og_membership relations

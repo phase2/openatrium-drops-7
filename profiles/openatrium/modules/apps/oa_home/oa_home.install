@@ -1,0 +1,16 @@
+<?php
+
+/**
+ * @file
+ * Provides functions that run on (un)install and update for oa_home.
+ */
+
+/**
+ * Enable oa_brand.
+ */
+function oa_home_update_7200() {
+  $enable = array(
+    'oa_brand',
+  );
+  module_enable($enable);
+}

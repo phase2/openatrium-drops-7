@@ -1,3 +1,10 @@
+Panopoly Admin 7.x-1.28, 2015-10-21
+----------------------------
+- Update to Drupal 7.41 for SA-CORE-2015-004 and jquery_update for SA-
+  CONTRIB-2015-158.
+- Remove question mark from Enable/Disable link on pane library.
+- Update to simplified_menu_admin 1.0.
+
 Panopoly Admin 7.x-1.27, 2015-09-02
 ----------------------------
 - No changes since last release.

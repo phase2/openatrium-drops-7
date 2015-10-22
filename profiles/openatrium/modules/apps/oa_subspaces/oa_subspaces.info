@@ -39,9 +39,9 @@ files[] = tests/oa_subspacesPermission.test
 files[] = tests/oa_subspacesSectionAccess.test
 project path = profiles/openatrium/modules/features
 
-; Information added by Drupal.org packaging script on 2015-09-14
-version = "7.x-2.33"
+; Information added by Drupal.org packaging script on 2015-10-21
+version = "7.x-2.35"
 core = "7.x"
 project = "oa_subspaces"
-datestamp = "1442240956"
+datestamp = "1445442258"
 

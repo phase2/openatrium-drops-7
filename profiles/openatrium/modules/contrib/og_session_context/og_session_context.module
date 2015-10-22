@@ -103,6 +103,8 @@ function og_session_context_og_context_handler_sessions() {
  * Implements hook_exit().
  */
 function og_session_context_exit($destination = NULL) {
+  // This can be called before Drupal sessions are bootstrapped
+  require_once DRUPAL_ROOT . '/' . variable_get('session_inc', 'includes/session.inc');
   // Skip call to context if we have no session.
   global $user;
   if (($user->uid == 0) && !drupal_session_started()) {

@@ -10,13 +10,14 @@
  * - $action_links: Submit buttons.
  */
 ?>
-<?php if (isset($comment_parent)): ?>
-<div class="reply-comment-parent row col-md-12">
-  <?php print $comment_parent; ?>
-</div>
-<?php endif; ?>
 
 <div class="row">
+  <?php if (isset($comment_parent)): ?>
+    <div class="reply-comment-parent col-md-12">
+      <?php print $comment_parent; ?>
+    </div>
+  <?php endif; ?>
+
   <div class="comment-form col-md-12">
     <?php print $comment_form; ?>
   </div>

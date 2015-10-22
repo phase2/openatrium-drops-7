@@ -305,6 +305,8 @@ function oa_messages_ajax_load_notification_methods($form, &$form_state) {
 }
 
 /**
+ *  Implements hook_oa_settings_form().
+ *
  * Add plugin-specific configuration to main Open Atrium settings form
  * @param $form_state
  * @param return array - array of subforms render array

@@ -62,6 +62,9 @@ function paragraphs_field_formatter_settings_summary($field, $instance, $view_mo
     if (!empty($entity_type['view modes'][$settings['view_mode']]['label'])) {
       $output[] =  t('View mode: @mode', array('@mode' => $entity_type['view modes'][$settings['view_mode']]['label']));
     }
+    else {
+      $output[] = ' ';
+    }
   }
 
   return implode('<br>', $output);
@@ -89,9 +92,11 @@ function paragraphs_field_formatter_view($entity_type, $entity, $field, $instanc
       $element['#attributes']['class'][] = drupal_clean_css_identifier('paragraphs-items');
       $element['#attributes']['class'][] = drupal_clean_css_identifier('paragraphs-items-view-mode-' . $view_mode);
       $element['#attributes']['class'][] = drupal_clean_css_identifier('paragraphs-items-field-' . $instance['field_name']);
+      $element['#view_mode'] = $view_mode;
 
       foreach ($items as $delta => $item) {
         if ($paragraph = paragraphs_field_get_entity($item)) {
+          $paragraph->setHostEntity($entity_type, $entity, $langcode);
           if (entity_access('view', 'paragraphs_item', $paragraph)) {
             $element[$delta]['entity'] = $paragraph->view($view_mode);
           }

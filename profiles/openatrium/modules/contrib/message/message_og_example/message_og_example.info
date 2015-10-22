@@ -21,9 +21,9 @@ package = "Message"
 php = "5.2.4"
 
 
-; Information added by drush on 2015-09-17
-version = "7.x-1.9+3-dev"
+; Information added by drush on 2015-10-22
+version = "7.x-1.10-dev"
 core = "7.x"
 project = "message"
-datestamp = "1442509855"
+datestamp = "1445532470"
 

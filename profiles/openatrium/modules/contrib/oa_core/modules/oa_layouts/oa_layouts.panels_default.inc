@@ -171,31 +171,6 @@ function oa_layouts_default_panels_mini() {
   $pane->uuid = '39727060-3c1c-4478-ac3f-fa1a0800ad6f';
   $display->content['new-39727060-3c1c-4478-ac3f-fa1a0800ad6f'] = $pane;
   $display->panels['footer'][0] = 'new-39727060-3c1c-4478-ac3f-fa1a0800ad6f';
-  $pane = new stdClass();
-  $pane->pid = 'new-acef9208-6753-4fee-8b2b-834b2ed0909a';
-  $pane->panel = 'footer';
-  $pane->type = 'oa_widgets_powered_by';
-  $pane->subtype = 'oa_widgets_powered_by';
-  $pane->shown = TRUE;
-  $pane->access = array();
-  $pane->configuration = array(
-    'override_title' => 0,
-    'override_title_text' => '',
-  );
-  $pane->cache = array();
-  $pane->style = array(
-    'settings' => NULL,
-  );
-  $pane->css = array(
-    'css_id' => '',
-    'css_class' => 'pull-right',
-  );
-  $pane->extras = array();
-  $pane->position = 1;
-  $pane->locks = array();
-  $pane->uuid = 'acef9208-6753-4fee-8b2b-834b2ed0909a';
-  $display->content['new-acef9208-6753-4fee-8b2b-834b2ed0909a'] = $pane;
-  $display->panels['footer'][1] = 'new-acef9208-6753-4fee-8b2b-834b2ed0909a';
   $display->hide_title = PANELS_TITLE_NONE;
   $display->title_pane = '0';
   $mini->display = $display;

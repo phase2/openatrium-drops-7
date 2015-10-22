@@ -738,7 +738,7 @@ function _panopoly_admin_general_panes_get_status($plugin_name, $category_name, 
   if ($status == 'enable') {
     $link = array(
       '#type' => 'link',
-      '#title' => t('Disable?'),
+      '#title' => t('Disable'),
       '#href' => 'admin/panopoly/panes/pane/disable/' . $category_name . '/' . $plugin_name . '/' . drupal_get_token($plugin_name),
       '#ajax' => array(
         'wrapper' => 'panopoly-admin-pane-response-' . $category_name . '-' . str_replace(':', '_', $plugin_name),
@@ -751,7 +751,7 @@ function _panopoly_admin_general_panes_get_status($plugin_name, $category_name, 
   else {
     $link = array(
       '#type' => 'link',
-      '#title' => t('Enable?'),
+      '#title' => t('Enable'),
       '#href' => 'admin/panopoly/panes/pane/enable/' . $category_name . '/' . $plugin_name . '/' . drupal_get_token($plugin_name),
       '#ajax' => array(
         'wrapper' => 'panopoly-admin-pane-response-' . $category_name . '-' . str_replace(':', '_', $plugin_name),

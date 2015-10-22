@@ -171,3 +171,24 @@ function panopoly_search_update_7007() {
     return t('All items in the search indexes have been queued for reindexing.');
   }
 }
+
+/**
+ * Throttle unneeded indexing by core search. Update index options to
+ * process fewer items per cron run.
+ */
+function panopoly_search_update_7008() {
+  if (module_exists('search_api')) {
+    variable_set('search_cron_limit', '10');
+    foreach (search_api_index_load_multiple(array('database_node_index', 'node_index')) as $index) {
+      // If the index configuration is stored in the database, also update it
+      // there. Only update it if it matches the previous default.
+      if ($index->status & EXPORT_IN_DATABASE) {
+        $options = $index->options;
+        if ($options['cron_limit'] == "50") {
+          $options['cron_limit'] = "20";
+          $index->update(array('options' => $options));
+        }
+      }
+    }
+  }
+}

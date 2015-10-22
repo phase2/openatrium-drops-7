@@ -52,5 +52,12 @@ function panopoly_search_strongarm() {
   );
   $export['search_api_facets_search_ids'] = $strongarm;
 
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'search_cron_limit';
+  $strongarm->value = '10';
+  $export['search_cron_limit'] = $strongarm;
+
   return $export;
 }

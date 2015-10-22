@@ -42,7 +42,7 @@
       .otherwise({
         redirectTo:'/'
       });
-  })
+  });
 
   app.controller("oaSitemapController", function(allSpaces, $scope, $timeout, $location, $routeParams, SpacesService, nodeService, SectionsService) {
 
@@ -118,7 +118,7 @@
       return breadcrumbs;
     }
 
-    function returnSpacePosition (spaces, index) {
+    function returnSpacePosition(spaces, index) {
       for (var i in spaces) {
         if (spaces[i].nid == index) {
           return parseInt(i);
@@ -401,20 +401,24 @@
         case 'oa_section':
           var parentID = node.og_group_ref.und[0].target_id;
           if (allSpaces[parentID]) {
-            allSpaces[parentID].sections.push({
-              'title': node.title,
-              'nid': node.nid,
-              'parent_id': parentID,
-              'type': 'oa_section',
-              'url': Drupal.settings.basePath + 'node/' + node.nid,
-              'url_edit': Drupal.settings.basePath + 'node/' + node.nid + '/edit',
-              'visibility': (!node.field_oa_group_ref || node.field_oa_group_ref.length == 0) &&
+            // only add section if it hasn't already been added.
+            // since this event handler can get called multiple times.
+            if (returnSpacePosition(allSpaces[parentID].sections, node.nid) == -1) {
+              allSpaces[parentID].sections.push({
+                'title': node.title,
+                'nid': node.nid,
+                'parent_id': parentID,
+                'type': 'oa_section',
+                'url': Drupal.settings.basePath + 'node/' + node.nid,
+                'url_edit': Drupal.settings.basePath + 'node/' + node.nid + '/edit',
+                'visibility': (!node.field_oa_group_ref || node.field_oa_group_ref.length == 0) &&
                 (!node.field_oa_team_ref || node.field_oa_team_ref.length == 0) &&
                 (!node.field_oa_user_ref || node.field_oa_user_ref.length == 0),
-              'admin': allSpaces[parentID].admin,
-              'icon_id': node.field_oa_section.und[0].tid,
-              'token': node.node_token,
-            });
+                'admin': allSpaces[parentID].admin,
+                'icon_id': node.field_oa_section.und[0].tid,
+                'token': node.node_token
+              });
+            }
             $scope.$apply()
           }
           break;
@@ -434,11 +438,11 @@
             'new_section': (parentID == 0) ? allSpaces[parentID].new_space : allSpaces[parentID].new_section,
             'sections': [],
             'subspaces': {},
-            'token': node.node_token,
+            'token': node.node_token
           };
           allSpaces[parentID].subspaces[node.nid] = node.nid;
           $scope.dropDownSelects = returnDropDownSelects($scope.topID, $scope.topDropdown);
-          $scope.$apply()
+          $scope.$apply();
           break;
       }
     });
@@ -471,7 +475,8 @@
         }
       }
     }
-  }
+  };
+
   // This reorders drupal.behaviours so select2widget comes after us.
   if (Drupal.behaviors.select2widget) {
     var save_behaviour = Drupal.behaviors.select2widget;

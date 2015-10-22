@@ -148,6 +148,11 @@ class UltimateCronQueueSettings extends UltimateCronTaggedSettings {
    * Implements hook_cron_alter().
    */
   public function cron_alter(&$jobs) {
+    if (!variable_get($this->key . '_enabled', TRUE)) {
+      unset($jobs['ultimate_cron_plugin_settings_queue_cleanup']);
+      return;
+    }
+
     $new_jobs = array();
     foreach ($jobs as $job) {
       if (!$this->isValid($job)) {
@@ -172,6 +177,45 @@ class UltimateCronQueueSettings extends UltimateCronTaggedSettings {
       }
     }
     $jobs += $new_jobs;
+    $jobs['ultimate_cron_plugin_settings_queue_cleanup']->settings += array(
+      'scheduler' => array(),
+    );
+    $jobs['ultimate_cron_plugin_settings_queue_cleanup']->settings['scheduler'] += array(
+      'crontab' => array(),
+      'simple' => array(),
+    );
+    $jobs['ultimate_cron_plugin_settings_queue_cleanup']->settings['scheduler']['crontab'] += array(
+      'rules' => array('* * * * *'),
+    );
+    $jobs['ultimate_cron_plugin_settings_queue_cleanup']->settings['scheduler']['simple'] += array(
+      'rules' => array('* * * * *'),
+    );
+  }
+
+  /**
+   * Cleanup job for queue plugin.
+   */
+  public function cleanup() {
+    // Make sure we don't stumble upon system cron job.
+    $job = _ultimate_cron_job_load('system_cron');
+    if ($job && !$job->lock()) {
+      return;
+    }
+
+    // This comes from system.module's system_cron().
+    // We do not want to run system_cron every 1 minute, but we need to
+    // keep the expire values fresh in the queue table.
+    // Reset expired items in the default queue implementation table. If that's
+    // not used, this will simply be a no-op.
+    db_update('queue')
+      ->fields(array(
+        'expire' => 0,
+      ))
+      ->condition('expire', 0, '<>')
+      ->condition('expire', REQUEST_TIME, '<')
+      ->execute();
+
+    $job->unlock();
   }
 
   /**

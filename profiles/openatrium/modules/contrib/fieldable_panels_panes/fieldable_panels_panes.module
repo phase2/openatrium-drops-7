@@ -1370,3 +1370,12 @@ function fieldable_panels_panes_entity_uri_callback($entity) {
     'options' => array(),
   );
 }
+
+/**
+ * Implements hook_file_download_access().
+ */
+function fieldable_panels_panes_file_download_access($field, $entity_type, $entity) {
+  if ($entity_type == 'fieldable_panels_pane') {
+    return entity_access('view', $entity_type, $entity);
+  }
+}

@@ -112,8 +112,8 @@ function message_subscribe_email_message_subscribe_get_subscribers_alter(&$uids,
     return;
   }
 
-  $flags = message_subscribe_email_flag_get_flags();
-  if (empty($flags)) {
+  if (!$flags = message_subscribe_email_flag_get_flags()) {
+    // No subscribe email related flags.
     return;
   }
 

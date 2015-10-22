@@ -8,11 +8,8 @@ projects[advagg][version] = 2.6
 projects[advagg][subdir] = contrib
 
 ; Chosen
-projects[chosen][version] = 2.x-dev
+projects[chosen][version] = 2.0-beta4
 projects[chosen][subdir] = contrib
-projects[chosen][download][type] = git
-projects[chosen][download][branch] = 7.x-2.x
-projects[chosen][download][revision] = c48c8a
 
 libraries[chosen][download][type] = "get"
 libraries[chosen][download][url] = "https://github.com/harvesthq/chosen/releases/download/1.0.0/chosen_v1.0.0.zip"
@@ -45,6 +42,7 @@ projects[date_facets][subdir] = contrib
 projects[date_facets][download][type] = git
 projects[date_facets][download][branch] = 7.x-1.x
 projects[date_facets][download][revision] = 9037608
+projects[date_facets][patch][2430581] = https://www.drupal.org/files/issues/date_facets_no_labels-2430581-1.patch
 
 ; Diff
 projects[diff][version] = 3.2
@@ -66,12 +64,10 @@ libraries[simplepie][download][filename] = simplepie.compiled.php
 libraries[simplepie][directory_name] = simplepie
 
 ; Flag
-projects[flag][version] = 2.x-dev
+projects[flag][version] = 2.2
 projects[flag][subdir] = contrib
 projects[flag][download][type] = git
-projects[flag][download][branch] = 7.x-2.x
-projects[flag][download][revision] = b8d94e
-projects[flag][patch][471212] = http://drupal.org/files/471212-14-flag-all-bundles.patch
+projects[flag][download][branch] = 7.x-2.2
 projects[flag][patch][2027091] = http://drupal.org/files/flag-default-flags-alter-hook-2027091-03.patch
 
 ; HTML Mail
@@ -88,11 +84,10 @@ projects[mailsystem][version] = 2.34
 projects[mailsystem][subdir] = contrib
 
 ; Message
-projects[message][version] = 1.x-dev
+projects[message][version] = 1.10
 projects[message][subdir] = contrib
 projects[message][download][type] = git
-projects[message][download][branch] = 7.x-1.x
-projects[message][download][revision] = 3bbdd5e
+projects[message][download][branch] = 7.x-1.10
 projects[message][patch][2046591] = http://drupal.org/files/message-token_replace-2046591-1.patch
 projects[message][patch][2040735] = http://drupal.org/files/message.target_bundles.2040735-3.patch
 
@@ -105,9 +100,8 @@ projects[message_notify][version] = 2.5
 projects[message_notify][subdir] = contrib
 
 ; Message Subscribe
-projects[message_subscribe][version] = 1.0-rc1
+projects[message_subscribe][version] = 1.0-rc2
 projects[message_subscribe][subdir] = contrib
-projects[message_subscribe][patch][2094129] = http://drupal.org/files/message_subscribe_empty_array_2094129_1.patch
 
 ; MimeMail
 projects[mimemail][version] = 1.0-beta4
@@ -134,7 +128,7 @@ projects[og_menu_single][version] = 1.0-beta2
 projects[og_menu_single][subdir] = contrib
 
 ; OG Session Context
-projects[og_session_context][version] = 1.0-beta3
+projects[og_session_context][version] = 1.0-beta4
 projects[og_session_context][subdir] = contrib
 
 ; Og Variables
@@ -156,9 +150,8 @@ projects[panels_customerror][version] = 1.0
 projects[panels_customerror][subdir] = contrib
 
 ; Paragraphs
-projects[paragraphs][version] = 1.0-beta6
+projects[paragraphs][version] = 1.0-rc4
 projects[paragraphs][subdir] = contrib
-projects[paragraphs][patch][2399883] = https://www.drupal.org/files/issues/2394313-paragraphs-node_clone-9.patch
 projects[paragraphs][patch][2458801] = https://www.drupal.org/files/issues/paragraphs-instructions_setting-2458801-9.patch
 projects[paragraphs][patch][2481627] = https://www.drupal.org/files/issues/paragraphs-modal_targets_wrong_id-2481627-3.patch
 projects[paragraphs][patch][2560601] = https://www.drupal.org/files/issues/2560601-paragraphs-join_extra-2.patch
@@ -175,6 +168,7 @@ projects[reference_option_limit][download][branch] = 7.x-1.x
 projects[reference_option_limit][download][revision] = 0ea5303
 projects[reference_option_limit][patch][1986532] = https://www.drupal.org/files/issues/1986532-reference_option_limit-og-7.patch
 projects[reference_option_limit][patch][1986526] = http://drupal.org/files/1986526_reference_option_limit_12.patch
+
 
 ; Select 2 Widget
 ; projects[select2widget][version] = 2.7
@@ -194,17 +188,14 @@ libraries[select2][directory_name] = "select2"
 libraries[select2][destination] = "libraries"
 
 ; Variable
-projects[variable][version] = 2.3
+projects[variable][version] = 2.5
 projects[variable][subdir] = contrib
 
 ; Views Load More
-projects[views_load_more][version] = 1.x-dev
+projects[views_load_more][version] = 1.5
 projects[views_load_more][subdir] = contrib
-projects[views_load_more][download][type] = git
-projects[views_load_more][download][branch] = 7.x-1.x
-projects[views_load_more][download][revision] = 28de384
 
 ; Ultimate Cron
-projects[ultimate_cron][version] = 2.0-beta7
+projects[ultimate_cron][version] = 2.0-rc1
 projects[ultimate_cron][subdir] = contrib
 

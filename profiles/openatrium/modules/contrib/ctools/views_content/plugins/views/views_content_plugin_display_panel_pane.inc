@@ -634,6 +634,12 @@ class views_content_plugin_display_panel_pane extends views_plugin_display {
       if (isset($current_exposed['op'])) {
         $exposed_input['op'] = $current_exposed['op'];
       }
+
+      foreach ($exposed_input as $filter_name => $filter_value) {
+        if (!is_array($filter_value)) {
+          $exposed_input[$filter_name] = ctools_context_keyword_substitute($filter_value, array(), $contexts);
+        }
+      }
       $this->view->set_exposed_input($exposed_input);
     }
   }

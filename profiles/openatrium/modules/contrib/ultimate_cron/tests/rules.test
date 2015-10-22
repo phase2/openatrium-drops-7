@@ -7,10 +7,10 @@
  */
 class UltimateCronRulesUnitTestCase extends DrupalUnitTestCase {
   function setUp() {
-    parent::setUp('ultimate_cron');
-    module_load_include('module', 'ultimate_cron');
-    include_once drupal_get_path('module', 'ultimate_cron') . '/ultimate_cron.plugin.inc';
-    include_once drupal_get_path('module', 'ultimate_cron') . '/plugins/ultimate_cron/scheduler/crontab.class.php';
+    parent::setUp();
+    include_once __DIR__ . '/../CronRule.class.php';
+    include_once __DIR__ . '/../ultimate_cron.plugin.inc';
+    include_once __DIR__ . '/../plugins/ultimate_cron/scheduler/crontab.class.php';
   }
 
   public static function getInfo() {
@@ -26,6 +26,38 @@ class UltimateCronRulesUnitTestCase extends DrupalUnitTestCase {
     $message = array();
     $cron = CronRule::factory($rule, $_SERVER['REQUEST_TIME']);
     return $cron->getIntervals();
+  }
+
+  private function runTestNext($options) {
+    // Setup values
+    $options['rules'] = is_array($options['rules']) ? $options['rules'] : array($options['rules']);
+    $options['catch_up'] = isset($options['catch_up']) ? $options['catch_up'] : 86400 * 365; // @todo Adapting Elysia Cron test cases with a catchup of 1 year
+    // Generate result message
+    $message = array();
+    foreach ($options['rules'] as $rule) {
+      $cron = CronRule::factory($rule, strtotime($options['now']));
+      $intervals = $cron->getIntervals();
+      $parsed_rule = '';
+      foreach ($intervals as $key => $value) {
+        $parsed_rule .= "$key: " . implode(',', $value) . "\n";
+      }
+
+      $last_scheduled = $cron->getLastSchedule();
+      $message[] = "<span title=\"$parsed_rule\">$rule</span> @ " . date('Y-m-d H:i:s', $last_scheduled);
+
+      $start = microtime(TRUE);
+      $time = $cron->getNextSchedule();
+      $end = microtime(TRUE);
+
+      $next_schedule = !isset($next_schedule) || $time < $next_schedule ? $time : $next_schedule;
+    }
+    $message[] = 'now      @ ' . $options['now'];
+    $message[] = 'catch-up @ ' . $options['catch_up'];
+    $message[] = ($options['result'] ? '' : 'not ') . 'expected to run';
+
+    $result = date('Y-m-d H:i:s', $next_schedule);
+
+    return array($options['result'] == $result, implode('<br/>', $message));
   }
 
   private function runTest($options) {
@@ -298,6 +330,13 @@ class UltimateCronRulesUnitTestCase extends DrupalUnitTestCase {
     $result = $this->runTest(array('result' => FALSE, 'rules' => '59+1 12 * * *'              , 'last_run' => '2008-01-01 12:00:00', 'now' => '2008-01-03 13:00:00', 'catch_up' => 1));
     $this->assertTRUE($result[0], $result[1]);
     $result = $this->runTest(array('result' => FALSE, 'rules' => '59+1 12 * * *'              , 'last_run' => '2008-01-01 12:00:00', 'now' => '2008-01-03 13:01:00', 'catch_up' => 1));
+    $this->assertTRUE($result[0], $result[1]);
+  }
+
+  function testNextSchedule() {
+    $result = $this->runTestNext(array('result' => '2015-12-05 16:50:00', 'rules' => '50 16 6 12 6'               , 'now' => '2014-12-31 16:51:00'));
+    $this->assertTRUE($result[0], $result[1]);
+    $result = $this->runTestNext(array('result' => '2014-12-05 17:50:00', 'rules' => '50 * * * *'               , 'now' => '2014-12-05 16:51:00'));
     $this->assertTRUE($result[0], $result[1]);
   }
 }

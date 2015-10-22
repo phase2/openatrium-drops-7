@@ -67,7 +67,7 @@ function og_subgroups_og_fields_info() {
     'description' => t('Determines how permissions are given for inherited for inherited users.'),
     'entity' => array('node'),
     'field' => array(
-      'field_name' => OG_USER_INHERITANCE_PERMISSION_CHILD,
+      'field_name' => OG_USER_INHERITANCE_PERMISSION_FIELD,
       'no_ui' => TRUE,
       'type' => 'list_boolean',
       'cardinality' => 1,
@@ -261,7 +261,7 @@ function _og_subgroups_check_access(&$perms, $context, $group_type, $id, $user_g
   // Check only one level at a time due to permission inheritance field.
   if ($parent_groups = og_subgroups_intersect_groups(og_subgroups_parents_load($group_type, $id, TRUE, FALSE), $user_groups)) {
     foreach ($parent_groups as $parent_group_type => $ids) {
-      // Find all groups that ahve inheritence set to child (assume inherit
+      // Find all groups that have inheritance set to child (assume inherit
       // [default] otherwise).
       $child_inheritence = _og_subgroups_get_field_matching($parent_group_type, $ids, OG_USER_INHERITANCE_PERMISSION_FIELD, OG_USER_INHERITANCE_PERMISSION_CHILD);
       foreach ($ids as $parent_group_id) {

@@ -12597,7 +12597,7 @@ fieldset .panel-body {
 
 /* line 73, ../../../../../../../../lib/gems/1.9.1/gems/compass_radix-3.0.13/stylesheets/compass_radix/_form.scss */
 html.js input.form-autocomplete {
-  background: url('../images/throbber.gif?1441978321') no-repeat right 8px white !important;
+  background: url('../images/throbber.gif?1444744173') no-repeat right 8px white !important;
 }
 /* line 76, ../../../../../../../../lib/gems/1.9.1/gems/compass_radix-3.0.13/stylesheets/compass_radix/_form.scss */
 html.js input.throbbing {
@@ -13054,138 +13054,6 @@ ol, ul {
     float: right;
   }
 }
-/* line 7, ../sass/base/_page.scss */
-body.oa-login div.region-content {
-  margin-top: 20px;
-  background-image: url("../images/bg-splash.png");
-  background-position: 0 90px;
-  background-repeat: no-repeat;
-  min-height: 376px;
-}
-/* line 13, ../sass/base/_page.scss */
-body.oa-login div.region-content .pane-bundle-text {
-  width: 75%;
-}
-/* line 15, ../sass/base/_page.scss */
-body.oa-login div.region-content .pane-bundle-text h3 {
-  font-size: 60px;
-  font-weight: normal;
-  margin-bottom: 20px;
-}
-/* line 20, ../sass/base/_page.scss */
-body.oa-login div.region-content .pane-bundle-text p {
-  font-size: 120%;
-  line-height: 125%;
-}
-/* line 25, ../sass/base/_page.scss */
-body.oa-login div.region-content .pane-bundle-text:first-child {
-  width: 40%;
-  max-width: 481px;
-  margin-top: 220px;
-  height: 250px;
-  text-align: center;
-}
-@media (max-width: 768px) {
-  /* line 7, ../sass/base/_page.scss */
-  body.oa-login div.region-content {
-    background-image: none;
-  }
-}
-
-/* line 39, ../sass/base/_page.scss */
-body.oa-login div.content {
-  margin-top: 20px;
-  background-image: url("../images/tree-right.png");
-  margin-right: 100px;
-  background-position: top right;
-  background-repeat: no-repeat;
-  min-height: 466px;
-  position: relative;
-}
-/* line 47, ../sass/base/_page.scss */
-body.oa-login div.content .oa-pane {
-  position: absolute;
-  left: 501px;
-  top: 173px;
-  width: 40%;
-  min-width: 300px;
-}
-/* line 53, ../sass/base/_page.scss */
-body.oa-login div.content .oa-pane .panel-pane {
-  background-color: white;
-}
-/* line 55, ../sass/base/_page.scss */
-body.oa-login div.content .oa-pane .panel-pane h3 {
-  text-transform: uppercase;
-  font-weight: normal;
-  font-size: 26px;
-}
-/* line 60, ../sass/base/_page.scss */
-body.oa-login div.content .oa-pane .panel-pane input.form-text {
-  width: 95%;
-}
-/* line 63, ../sass/base/_page.scss */
-body.oa-login div.content .oa-pane .panel-pane .form-type-password {
-  margin-bottom: 0;
-}
-/* line 65, ../sass/base/_page.scss */
-body.oa-login div.content .oa-pane .panel-pane .form-type-password input {
-  margin-bottom: 0;
-}
-/* line 69, ../sass/base/_page.scss */
-body.oa-login div.content .oa-pane .panel-pane .password-reset {
-  font-size: 90%;
-  color: #777;
-}
-@media (min-width: 992px) and (max-width: 1199px) {
-  /* line 39, ../sass/base/_page.scss */
-  body.oa-login div.content {
-    margin-right: 0;
-  }
-  /* line 77, ../sass/base/_page.scss */
-  body.oa-login div.content .oa-pane {
-    left: 0;
-    top: 0;
-    margin-left: auto;
-    margin-right: auto;
-    position: relative;
-  }
-}
-@media (min-width: 768px) and (max-width: 991px) {
-  /* line 39, ../sass/base/_page.scss */
-  body.oa-login div.content {
-    margin-right: 0;
-  }
-  /* line 87, ../sass/base/_page.scss */
-  body.oa-login div.content .oa-pane {
-    left: 0;
-    top: 0;
-    margin-left: auto;
-    margin-right: auto;
-    position: relative;
-  }
-}
-@media (max-width: 768px) {
-  /* line 39, ../sass/base/_page.scss */
-  body.oa-login div.content {
-    background-image: none;
-    margin-right: 0;
-  }
-  /* line 98, ../sass/base/_page.scss */
-  body.oa-login div.content .oa-pane {
-    left: 0;
-    top: 0;
-    margin-left: auto;
-    margin-right: auto;
-    position: relative;
-  }
-}
-
-/* line 108, ../sass/base/_page.scss */
-body.oa-login #user-login-panel .oa-pane {
-  top: 115px;
-}
-
 /* line 7, ../sass/base/_panel.scss */
 .panel-pane {
   position: relative;
@@ -14081,65 +13949,70 @@ ul.links.inline li {
 }
 
 /* line 23, ../sass/components/_menu.scss */
+.dropdown-backdrop {
+  position: static;
+}
+
+/* line 27, ../sass/components/_menu.scss */
 .dropdown-menu > li > a:hover, .dropdown-menu > li > a:focus {
   text-decoration: none;
   color: white;
   background-color: #0081c2;
 }
 
-/* line 34, ../sass/components/_menu.scss */
+/* line 38, ../sass/components/_menu.scss */
 ul.dropdown-menu {
   margin: 0;
 }
-/* line 37, ../sass/components/_menu.scss */
+/* line 41, ../sass/components/_menu.scss */
 ul.dropdown-menu > li > .radio {
   padding: 3px 20px;
   clear: both;
 }
-/* line 40, ../sass/components/_menu.scss */
+/* line 44, ../sass/components/_menu.scss */
 ul.dropdown-menu > li > .radio input {
   margin: 2px 8px 0 0;
   vertical-align: middle;
 }
 
-/* line 48, ../sass/components/_menu.scss */
+/* line 52, ../sass/components/_menu.scss */
 .oa-dropdown {
   display: inline-block;
   margin: 0 0.25em 0 0.25em;
   vertical-align: middle;
 }
-/* line 52, ../sass/components/_menu.scss */
+/* line 56, ../sass/components/_menu.scss */
 .oa-dropdown ul {
   margin: 0.5em 0;
 }
-/* line 54, ../sass/components/_menu.scss */
+/* line 58, ../sass/components/_menu.scss */
 .oa-dropdown ul li {
   margin: 0;
 }
 
-/* line 62, ../sass/components/_menu.scss */
+/* line 66, ../sass/components/_menu.scss */
 #main-menu {
   clear: left;
 }
-/* line 66, ../sass/components/_menu.scss */
+/* line 70, ../sass/components/_menu.scss */
 #main-menu > ul.menu > li > a {
   color: white;
   text-decoration: none;
   text-shadow: 0 1px 0 gray;
 }
-/* line 70, ../sass/components/_menu.scss */
+/* line 74, ../sass/components/_menu.scss */
 #main-menu > ul.menu > li > a:hover {
   text-decoration: none;
   background-color: transparent;
 }
-/* line 74, ../sass/components/_menu.scss */
+/* line 78, ../sass/components/_menu.scss */
 #main-menu > ul.menu > li > a:focus, #main-menu > ul.menu > li > a.active {
   text-decoration: none;
   background-color: transparent;
   -webkit-box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.125);
   box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.125);
 }
-/* line 80, ../sass/components/_menu.scss */
+/* line 84, ../sass/components/_menu.scss */
 #main-menu > ul.menu > li > ul.menu {
   background-color: white;
   border: 1px solid #CCC;
@@ -14150,11 +14023,11 @@ ul.dropdown-menu > li > .radio input {
   -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
 }
-/* line 87, ../sass/components/_menu.scss */
+/* line 91, ../sass/components/_menu.scss */
 #main-menu > ul.menu > li > ul.menu li a {
   color: #333;
 }
-/* line 89, ../sass/components/_menu.scss */
+/* line 93, ../sass/components/_menu.scss */
 #main-menu > ul.menu > li > ul.menu li a:focus, #main-menu > ul.menu > li > ul.menu li a:hover {
   color: white;
   text-decoration: none;
@@ -14168,19 +14041,19 @@ ul.dropdown-menu > li > .radio input {
   background-repeat: repeat-x;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#0085c7', endColorstr='#0074ad', GradientType=0);
 }
-/* line 99, ../sass/components/_menu.scss */
+/* line 103, ../sass/components/_menu.scss */
 #main-menu > ul.menu > li.open > a {
   color: #555;
   background-color: #E5E5E5;
 }
 
-/* line 112, ../sass/components/_menu.scss */
+/* line 116, ../sass/components/_menu.scss */
 #oa-navbar ul.dropdown-menu,
 ul.dropdown-menu,
 .dropdown-menu {
   color: #333333;
 }
-/* line 115, ../sass/components/_menu.scss */
+/* line 119, ../sass/components/_menu.scss */
 #oa-navbar ul.dropdown-menu .item-list h3,
 ul.dropdown-menu .item-list h3,
 .dropdown-menu .item-list h3 {
@@ -14190,20 +14063,20 @@ ul.dropdown-menu .item-list h3,
   padding: 3px 20px;
   line-height: 20px;
 }
-/* line 123, ../sass/components/_menu.scss */
+/* line 127, ../sass/components/_menu.scss */
 #oa-navbar ul.dropdown-menu ul,
 ul.dropdown-menu ul,
 .dropdown-menu ul {
   margin: 0;
 }
-/* line 125, ../sass/components/_menu.scss */
+/* line 129, ../sass/components/_menu.scss */
 #oa-navbar ul.dropdown-menu ul li,
 ul.dropdown-menu ul li,
 .dropdown-menu ul li {
   padding: 0;
   margin: 0;
 }
-/* line 128, ../sass/components/_menu.scss */
+/* line 132, ../sass/components/_menu.scss */
 #oa-navbar ul.dropdown-menu ul li a,
 ul.dropdown-menu ul li a,
 .dropdown-menu ul li a {
@@ -14215,7 +14088,7 @@ ul.dropdown-menu ul li a,
   color: #333333;
   white-space: nowrap;
 }
-/* line 136, ../sass/components/_menu.scss */
+/* line 140, ../sass/components/_menu.scss */
 #oa-navbar ul.dropdown-menu ul li a:hover, #oa-navbar ul.dropdown-menu ul li a:focus, #oa-navbar ul.dropdown-menu ul li a.active,
 ul.dropdown-menu ul li a:hover,
 ul.dropdown-menu ul li a:focus,
@@ -14234,19 +14107,19 @@ ul.dropdown-menu ul li a.active,
   background-repeat: repeat-x;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#0085c7', endColorstr='#0074ad', GradientType=0);
 }
-/* line 141, ../sass/components/_menu.scss */
+/* line 145, ../sass/components/_menu.scss */
 #oa-navbar ul.dropdown-menu ul li a.more-link,
 ul.dropdown-menu ul li a.more-link,
 .dropdown-menu ul li a.more-link {
   text-align: left;
 }
-/* line 145, ../sass/components/_menu.scss */
+/* line 149, ../sass/components/_menu.scss */
 #oa-navbar ul.dropdown-menu ul li .flag-wrapper,
 ul.dropdown-menu ul li .flag-wrapper,
 .dropdown-menu ul li .flag-wrapper {
   padding: 0;
 }
-/* line 147, ../sass/components/_menu.scss */
+/* line 151, ../sass/components/_menu.scss */
 #oa-navbar ul.dropdown-menu ul li .flag-wrapper .flag,
 ul.dropdown-menu ul li .flag-wrapper .flag,
 .dropdown-menu ul li .flag-wrapper .flag {
@@ -14255,41 +14128,41 @@ ul.dropdown-menu ul li .flag-wrapper .flag,
   font-style: italic;
 }
 
-/* line 159, ../sass/components/_menu.scss */
+/* line 163, ../sass/components/_menu.scss */
 .region-footer, #footer {
   overflow: hidden;
 }
-/* line 161, ../sass/components/_menu.scss */
+/* line 165, ../sass/components/_menu.scss */
 .region-footer ul.menu, #footer ul.menu {
   margin-bottom: 0;
 }
-/* line 163, ../sass/components/_menu.scss */
+/* line 167, ../sass/components/_menu.scss */
 .region-footer ul.menu > li, #footer ul.menu > li {
   float: left;
   min-width: 150px;
   list-style: none !important;
 }
-/* line 167, ../sass/components/_menu.scss */
+/* line 171, ../sass/components/_menu.scss */
 .region-footer ul.menu > li > a, #footer ul.menu > li > a {
   font-weight: bold;
   font-size: 14px;
 }
-/* line 172, ../sass/components/_menu.scss */
+/* line 176, ../sass/components/_menu.scss */
 .region-footer ul.menu > li > ul > li, #footer ul.menu > li > ul > li {
   float: none;
 }
-/* line 174, ../sass/components/_menu.scss */
+/* line 178, ../sass/components/_menu.scss */
 .region-footer ul.menu > li > ul > li > a, #footer ul.menu > li > ul > li > a {
   font-weight: normal;
   font-size: 12px;
 }
-/* line 181, ../sass/components/_menu.scss */
+/* line 185, ../sass/components/_menu.scss */
 .region-footer ul.menu a, #footer ul.menu a {
   border: 0;
   display: block;
   padding: 0 5px;
 }
-/* line 185, ../sass/components/_menu.scss */
+/* line 189, ../sass/components/_menu.scss */
 .region-footer ul.menu a:hover, #footer ul.menu a:hover {
   background-color: transparent;
   text-decoration: underline;

@@ -15,7 +15,6 @@ $plugin = array(
  * Render callback.
  */
 function oa_toolbar_oa_navigation_content_type_render($subtype, $conf, $panel_args) {
-  global $base_url;
   $block = new stdClass();
   $block->module = 'oa_toolbar';
 
@@ -42,11 +41,7 @@ function oa_toolbar_oa_navigation_content_type_render($subtype, $conf, $panel_ar
     }
     elseif (variable_get('oa_banner_default', TRUE)) {
       // use default banner image
-      $site_file = new stdClass();
-      $path = drupal_get_path('module', 'oa_widgets');
-      $site_file->uri = $base_url . '/' . $path . '/openatrium-powered.png';
-      $site_file->metadata['height'] = 43;
-      $site_file->metadata['width'] = 161;
+      $site_file = oa_core_get_banner_default();
     }
     if (!empty($site_file)) {
       $vars['height'] = (!empty($site_file->metadata['height'])) ? $site_file->metadata['height'] : 0;

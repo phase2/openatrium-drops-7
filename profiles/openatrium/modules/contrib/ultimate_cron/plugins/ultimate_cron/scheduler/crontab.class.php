@@ -64,13 +64,13 @@ class UltimateCronCrontabScheduler extends UltimateCronScheduler {
     $elements = &$form['settings'][$this->type][$this->name];
     $values = &$form_state['values']['settings'][$this->type][$this->name];
 
-    $rules = is_array($values['rules']) ? implode(',', $values['rules']) : '';
+    $rules = is_array($values['rules']) ? implode(';', $values['rules']) : '';
 
     $elements['rules'] = array(
       '#title' => t("Rules"),
       '#type' => 'textfield',
       '#default_value' => $rules,
-      '#description' => t('Comma separated list of crontab rules.'),
+      '#description' => t('Semi-colon separated list of crontab rules.'),
       '#fallback' => TRUE,
       '#required' => TRUE,
       '#element_validate' => array('ultimate_cron_plugin_crontab_element_validate_rule'),
@@ -101,7 +101,7 @@ class UltimateCronCrontabScheduler extends UltimateCronScheduler {
     $values = &$form_state['values']['settings'][$this->type][$this->name];
 
     if (!empty($values['rules'])) {
-      $rules = explode(',', $values['rules']);
+      $rules = explode(';', $values['rules']);
       $values['rules'] = array_map('trim', $rules);
     }
   }

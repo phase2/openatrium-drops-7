@@ -72,6 +72,11 @@ projects[oa_archive][subdir] = apps
 projects[oa_archive][download][type] = git
 projects[oa_archive][download][branch] = 7.x-2.x
 
+projects[oa_brand][version] = 2.x-dev
+projects[oa_brand][subdir] = apps
+projects[oa_brand][download][type] = git
+projects[oa_brand][download][branch] = 7.x-2.x
+
 projects[oa_clone][version] = 2.x-dev
 projects[oa_clone][subdir] = apps
 projects[oa_clone][download][type] = git

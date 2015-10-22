@@ -98,6 +98,9 @@ class MessageSubscribeEmailSubscribersTest extends MessageSubscribeEmailTestHelp
    * Test getting the subscribers list.
    */
   function testGetSubscribers() {
+    // Make sure we are notifying ourselves for this test.
+    variable_set('message_subscribe_notify_own_actions', TRUE);
+
     $message = message_create('foo');
 
     $node = $this->node;
@@ -163,6 +166,9 @@ class MessageSubscribeEmailNotificationsTest extends MessageSubscribeEmailTestHe
    * Test opting in/out of default email notifications.
    */
   function testEmailNotifications() {
+    // Make sure we are notifying ourselves for this test.
+    variable_set('message_subscribe_notify_own_actions', TRUE);
+
     $message = message_create('foo');
 
     $node = $this->node;
