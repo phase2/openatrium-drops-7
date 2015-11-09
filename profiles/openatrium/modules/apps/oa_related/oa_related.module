@@ -297,7 +297,8 @@ function oa_related_form_node_form_alter(&$form, &$form_state) {
       }
 
       // move Section selection to top of node form so user can confirm it
-      $form[OA_SECTION_FIELD]['#weight'] = $form['body']['#weight'] - 0.5;
+      $section_field_weight = isset($form['body']['#weight']) ? ($form['body']['#weight'] - 0.5) : 0;
+      $form[OA_SECTION_FIELD]['#weight'] = $section_field_weight;
       // and move the field out of any field group
       if (isset($form['#group_children'])) {
         unset($form['#group_children'][OA_SECTION_FIELD]);

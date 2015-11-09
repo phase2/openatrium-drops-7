@@ -137,6 +137,11 @@ function oa_permissions_og_features_default_permissions() {
     ),
   );
 
+  // Exported og permission: 'node:oa_group:view trash content'
+  $permissions['node:oa_group:view trash content'] = array(
+    'roles' => array(),
+  );
+
   // Exported og permission: 'node:oa_group:view trash bin'
   $permissions['node:oa_group:view trash bin'] = array(
     'roles' => array(),
@@ -271,11 +276,14 @@ function oa_permissions_og_features_default_permissions() {
     ),
   );
 
+  // Exported og permission: 'node:oa_space:view trash content'
+  $permissions['node:oa_space:view trash content'] = array(
+    'roles' => array(),
+  );
+
   // Exported og permission: 'node:oa_space:view trash bin'
   $permissions['node:oa_space:view trash bin'] = array(
-    'roles' => array(
-      'administrator member' => 'administrator member',
-    ),
+    'roles' => array(),
   );
 
   return $permissions;

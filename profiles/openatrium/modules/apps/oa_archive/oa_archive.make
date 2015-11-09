@@ -5,4 +5,4 @@ core = 7.x
 
 ; Trash Flag
 projects[trash_flag][subdir] = contrib
-projects[trash_flag][version] = 1.0-beta4
+projects[trash_flag][version] = 1.0-beta5

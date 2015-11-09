@@ -24,6 +24,14 @@
   display: none !important;
 }
 
+/* this fixes an issue in navbar.base.css that uses 15rem */
+@media only screen and (min-width: 16.5em) {
+  .drupal-navbar .navbar-tray-vertical,
+  .drupal-navbar .navbar-tray-vertical > .navbar-lining:before {
+    width: 240px;
+  }
+}
+
 .navbar-static-top .container,
 .navbar-fixed-top .container,
 .navbar-fixed-bottom .container {

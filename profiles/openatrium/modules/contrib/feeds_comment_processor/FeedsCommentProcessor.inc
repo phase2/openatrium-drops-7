@@ -2,155 +2,214 @@
 
 /**
  * @file
- * Class definition of FeedsCommentProcessor.
+ * Contains FeedsCommentProcessor.
  */
-
-// Create or delete FEEDS_COMMENT_BATCH_SIZE at a time.
-define('FEEDS_COMMENT_BATCH_SIZE', 50);
-
-// Deprecated. Use FEEDS_SKIPE_EXISTING, FEEDS_REPLACE_EXISTNG,
-// FEEDS_UPDATE_EXISTING instead.
-define('FEEDS_COMMENT_SKIP_EXISTING', 0);
-define('FEEDS_COMMENT_REPLACE_EXISTING', 1);
-define('FEEDS_COMMENT_UPDATE_EXISTING', 2);
 
 /**
  * Creates comments from feed items.
  */
 class FeedsCommentProcessor extends FeedsProcessor {
+
   /**
-   * Define entity type.
+   * {@inheritdoc}
    */
   public function entityType() {
     return 'comment';
   }
 
   /**
-   * Implements parent::entityInfo().
+   * {@inheritdoc}
    */
   protected function entityInfo() {
     $info = parent::entityInfo();
     $info['label plural'] = t('Comments');
+
     return $info;
   }
 
   /**
-   * Creates a new comment in memory and returns it.
+   * {@inheritdoc}
    */
   protected function newEntity(FeedsSource $source) {
     $comment = new stdClass();
     $comment->cid = 0;
     $comment->pid = 0;
+    $comment->nid = 0;
     $comment->uid = $this->config['author'];
-    $account = user_load($comment->uid);
-    $comment->mail = $account->mail;
-    $comment->name = $account->name;
+    $comment->node_type = $this->bundle();
     $comment->hostname = '127.0.0.1';
-    $comment->created = FEEDS_REQUEST_TIME;
-    $comment->date = FEEDS_REQUEST_TIME;
-    $comment->is_anonymous = 0;
-    $comment->status = 0;
+    $comment->created = REQUEST_TIME;
+    $comment->changed = REQUEST_TIME;
     $comment->language = LANGUAGE_NONE;
-    $comment->comment_body[$comment->language][0]['format'] = $this->config['input_format'];
-    $comment->feeds_comment_item = new stdClass();
-    $comment->feeds_comment_item->id = $this->id;
-    $comment->feeds_comment_item->imported = FEEDS_REQUEST_TIME;
-    $comment->feeds_comment_item->feed_nid = $source->feed_nid;
-    $comment->feeds_comment_item->guid = '';
+    $comment->name = '';
+    $comment->mail = '';
+    $comment->subject = '';
+    $comment->feeds_is_new = TRUE;
+
     return $comment;
   }
 
   /**
-   * Loads an existing comment.
-   */
-  protected function entityLoad(FeedsSource $source, $cid) {
-    return comment_load($cid);
-  }
-
-  /**
-   * Validates a comment.
+   * {@inheritdoc}
    */
   protected function entityValidate($comment) {
-    if (empty($comment->nid)) {
+    if (!$comment->nid) {
       throw new FeedsValidationException(t('Unable to create comment with empty NID.'));
     }
+
+    if ($comment->pid && !comment_load($comment->pid)) {
+      throw new FeedsValidationException(t('Invalid parent comment id.'));
+    }
+
+    $comment->status = empty($comment->status) ? COMMENT_NOT_PUBLISHED : COMMENT_PUBLISHED;
+
+    $this->prepareCommentSubject($comment);
+
+    $comment->mail = valid_email_address($comment->mail) ? $comment->mail : '';
+
+    // If there is a valid user id, populate any default values.
+    if ($comment->uid && $account = user_load($comment->uid)) {
+      $comment->name = $comment->name ? $comment->name : $account->name;
+      $comment->mail = $comment->mail ? $comment->mail : $account->mail;
+
+      // Unpublish comments by users that are not allowed to skip approval.
+      if (!user_access('skip comment approval', $account)) {
+        $comment->status = COMMENT_NOT_PUBLISHED;
+      }
+    }
+    elseif (!$comment->uid && !$comment->name) {
+      $comment->name = variable_get('anonymous', t('Anonymous'));
+    }
   }
 
   /**
-   * Save a comment.
+   * {@inheritdoc}
+   */
+  protected function entitySaveAccess($comment) {
+    if (!$this->config['authorize'] || !$comment->uid) {
+      return;
+    }
+
+    if (!$author = user_load($comment->uid)) {
+      throw new FeedsAccessException(t('User %uid is not a valid user.', array('%uid' => $comment->uid)));
+    }
+
+    if (!user_access('post comments', $author)) {
+      throw new FeedsAccessException(t('User %user is not permitted to post comments.', array('%user' => $author->name)));
+    }
+  }
+
+  /**
+   * {@inheritdoc}
    */
   public function entitySave($comment) {
-    $comment->date = date('r', $comment->created);
-    // Trim the subject if it is too long.
-    if (strlen($comment->subject) > 29) {
-      $comment->subject = truncate_utf8(strip_tags($comment->subject), 29, TRUE);
+    // Mapping an existing cid that does't exist in the database. Force it.
+    if (!empty($comment->feeds_is_new) && $comment->cid) {
+      if (empty($comment->thread)) {
+        $comment->thread = $this->calculateThread($comment);
+      }
+
+      drupal_write_record('comment', $comment);
     }
-    comment_submit($comment);
+
+    // Trick ip_address() to return the ip address mapped to the comment.
+    $prev_ip = ip_address();
+    $ip_address = &drupal_static('ip_address');
+
+    // Set the ip address to the comment hostname.
+    $ip_address = $comment->hostname;
     comment_save($comment);
+
+    // Restore the previous ip.
+    $ip_address = $prev_ip;
   }
 
   /**
-   * Delete multiple comments.
+   * {@inheritdoc}
    */
   protected function entityDeleteMultiple($cids) {
     comment_delete_multiple($cids);
   }
 
   /**
-   * Implement expire().
+   * {@inheritdoc}
    */
   public function expire(FeedsSource $source, $time = NULL) {
+    $state = $source->state(FEEDS_PROCESS_EXPIRE);
+
     if ($time === NULL) {
       $time = $this->expiryTime();
     }
     if ($time == FEEDS_EXPIRE_NEVER) {
       return;
     }
-    $result = db_query_range("SELECT c.cid FROM {comment} c INNER JOIN {feeds_comment_item} fci ON c.cid = fci.cid WHERE fci.id = :id AND c.created < :timestamp", 0, variable_get('feeds_comment_batch_size', FEEDS_COMMENT_BATCH_SIZE), array(':id' => $this->id, ':timestamp' => FEEDS_REQUEST_TIME - $time));
-    while ($comment = db_fetch_object($result)) {
-      comment_delete($comment->cid);
+
+    $select = $this->expiryQuery($source, $time);
+
+    // If there is no total, query it.
+    if (!$state->total) {
+      $state->total = $select->countQuery()->execute()->fetchField();
     }
-    if (db_result(db_query_range("SELECT c.cid FROM {comment} c INNER JOIN {feeds_comment_item} fci ON c.cid = fci.cid WHERE fci.id = :id AND c.created < :timestamp", 0, 1, array(':id' => $this->id, ':timestamp' => FEEDS_REQUEST_TIME - $time)))) {
-      return FEEDS_BATCH_ACTIVE;
+
+    // Delete a batch of entities.
+    $entity_ids = $select->range(0, $this->getLimit())->execute()->fetchCol();
+    if ($entity_ids) {
+      $this->entityDeleteMultiple($entity_ids);
+      $state->deleted += count($entity_ids);
+      $state->progress($state->total, $state->deleted);
     }
-    return FEEDS_BATCH_COMPLETE;
+    else {
+      $state->progress($state->total, $state->total);
+    }
   }
 
   /**
-   * Return expiry time.
+   * {@inheritdoc}
+   */
+  protected function expiryQuery(FeedsSource $source, $time) {
+    // Build base select statement.
+    $select = db_select('comment', 'c');
+    $select->addField('c', 'cid');
+    $select->condition('c.created', REQUEST_TIME - $time, '<');
+
+    $select->join('feeds_item', 'fi', 'c.cid = fi.entity_id');
+
+    $select->condition('fi.entity_type', 'comment');
+    $select->condition('fi.id', $this->id);
+    $select->condition('fi.feed_nid', $source->feed_nid);
+
+    return $select;
+  }
+
+  /**
+   * {@inheritdoc}
    */
   public function expiryTime() {
     return $this->config['expire'];
   }
 
   /**
-   * Override parent::configDefaults().
+   * {@inheritdoc}
    */
   public function configDefaults() {
     $defaults = parent::configDefaults();
-    $defaults['input_format'] = filter_default_format();
     $defaults['expire'] = FEEDS_EXPIRE_NEVER;
     $defaults['author'] = 0;
+    $defaults['authorize'] = TRUE;
+
     return $defaults;
   }
 
   /**
-   * Override parent::configForm().
+   * {@inheritdoc}
    */
   public function configForm(&$form_state) {
-    $form = array();
-    $format_options = array(filter_default_format() => t('Default format'));
-    $formats = filter_formats();
-    foreach ($formats as $format) {
-      $format_options[$format->format] = $format->name;
-    }
-    $form['input_format'] = array(
-      '#type' => 'select',
-      '#title' => t('Input format'),
-      '#description' => t('Select the input format for the comments to be created.'),
-      '#options' => $format_options,
-      '#default_value' => $this->config['input_format'],
-    );
+    $form = parent::configForm($form_state);
+
+    $form['input_format']['#access'] = FALSE;
+
+    $form['bundle']['#title'] = t('Comment type');
+
     $author = user_load($this->config['author']);
     $form['author'] = array(
       '#type' => 'textfield',
@@ -159,30 +218,28 @@ class FeedsCommentProcessor extends FeedsProcessor {
       '#autocomplete_path' => 'user/autocomplete',
       '#default_value' => empty($author->name) ?  'anonymous' : check_plain($author->name),
     );
+
+    $form['authorize'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Authorize'),
+      '#description' => t('Check that the author has permission to create and publish comments.'),
+      '#default_value' => $this->config['authorize'],
+    );
+
     $period = drupal_map_assoc(array(FEEDS_EXPIRE_NEVER, 3600, 10800, 21600, 43200, 86400, 259200, 604800, 604800 * 4, 604800 * 12, 604800 * 24, 31536000), 'feeds_format_expire');
     $form['expire'] = array(
       '#type' => 'select',
       '#title' => t('Expire comments'),
       '#options' => $period,
-      '#description' => t('Select after how much time comments should be deleted. The comment\'s published date will be used for determining the comment\'s age, see Mapping settings.'),
+      '#description' => t("Select after how much time comments should be deleted. The comment's published date will be used for determining the comment's age, see Mapping settings."),
       '#default_value' => $this->config['expire'],
     );
-    $form['update_existing'] = array(
-      '#type' => 'radios',
-      '#title' => t('Update existing comments'),
-      '#description' => t('Select how existing comments should be updated. Existing comments will be determined using mappings that are a "unique target".'),
-      '#options' => array(
-        FEEDS_SKIP_EXISTING => 'Do not update existing comments',
-        FEEDS_REPLACE_EXISTING => 'Replace existing comments',
-        FEEDS_UPDATE_EXISTING => 'Update existing comments (slower than replacing them)',
-      ),
-      '#default_value' => $this->config['update_existing'],
-    );
+
     return $form;
   }
 
   /**
-   * Override parent::configFormValidate().
+   * {@inheritdoc}
    */
   public function configFormValidate(&$values) {
     if ($author = user_load_by_name($values['author'])) {
@@ -194,16 +251,63 @@ class FeedsCommentProcessor extends FeedsProcessor {
   }
 
   /**
-   * Override setTargetElement to operate on a target item that is a comment.
+   * {@inheritdoc}
    */
   public function setTargetElement(FeedsSource $source, $target_comment, $target_element, $value) {
+    $value = is_array($value) ? reset($value) : $value;
+
     switch ($target_element) {
-      case 'comment':
-        $target_comment->comment_body[$target_comment->language][0]['value'] = $value;
+      case 'nid_by_guid':
+        $target_comment->nid = (int) db_select('feeds_item', 'f')
+          ->fields('f', array('entity_id'))
+          ->condition('entity_type', 'node')
+          ->condition('guid', $value)
+          ->range(0, 1)
+          ->execute()
+          ->fetchField();
         break;
-      case 'guid':
-        $target_comment->feeds_comment_item->guid = $value;
+
+      case 'nid_by_title':
+        $target_comment->nid = (int) db_select('node', 'n')
+          ->fields('n', array('nid'))
+          ->condition('title', $value)
+          ->condition('type', substr($this->bundle(), 13))
+          ->range(0, 1)
+          ->execute()
+          ->fetchField();
         break;
+
+      case 'created':
+      case 'changed':
+        $target_comment->$target_element = feeds_to_unixtime($value, REQUEST_TIME);
+        break;
+
+      case 'user_name':
+        if ($account = user_load_by_name($value)) {
+          $target_comment->uid = $account->uid;
+        }
+        break;
+
+      case 'user_mail':
+        if ($account = user_load_by_mail($value)) {
+          $target_comment->uid = $account->uid;
+        }
+        break;
+
+      case 'cid':
+      case 'pid':
+      case 'nid':
+      case 'uid':
+        $target_comment->$target_element = (int) trim($value);
+        break;
+
+      case 'name':
+      case 'mail':
+      case 'hostname':
+      case 'thread':
+        $target_comment->$target_element = trim($value);
+        break;
+
       default:
         parent::setTargetElement($source, $target_comment, $target_element, $value);
         break;
@@ -211,37 +315,61 @@ class FeedsCommentProcessor extends FeedsProcessor {
   }
 
   /**
-   * Return available mapping targets.
+   * {@inheritdoc}
    */
   public function getMappingTargets() {
     $targets = array(
+      'cid' => array(
+         'name' => t('Comment ID'),
+         'description' => t('The Drupal comment cid. NOTE: use this feature with care, comment ids are usually assigned by Drupal.'),
+       ),
       'pid' => array(
         'name' => t('Parent ID'),
         'description' => t('The cid to which this comment is a reply.'),
+      ),
+      'thread' => array(
+        'name' => t('Thread structure'),
+        'description' => t('The thread structure as kept by Drupal in van syntax.'),
       ),
       'nid' => array(
         'name' => t('Node ID'),
         'description' => t('The nid to which this comment is a reply.'),
       ),
+      'nid_by_guid' => array(
+        'name' => t('Node ID by GUID'),
+        'description' => t('The node to which this comment is a reply, looked up by the GUID of a previous import.'),
+      ),
+      'nid_by_title' => array(
+        'name' => t('Node ID by title'),
+        'description' => t('The node to which this comment is a reply, looked up by the title of the node.'),
+      ),
       'uid' => array(
         'name' => t('User ID'),
         'description' => t('The Drupal user ID of the comment author.'),
+      ),
+      'user_name' => array(
+        'name' => t('Username'),
+        'description' => t('The Drupal username of the comment author.'),
+      ),
+      'user_mail' => array(
+        'name' => t('User email'),
+        'description' => t('The email address of the comment author.'),
       ),
       'subject' => array(
         'name' => t('Title'),
         'description' => t('The title of the comment.'),
       ),
-      'comment' => array(
-        'name' => t('Comment'),
-        'description' => t('The comment body.'),
-      ),
       'hostname' => array(
         'name' => t('Hostname'),
-        'description' => t('The author\'s host name.'),
+        'description' => t("The author's host name."),
       ),
       'created' => array(
         'name' => t('Published date'),
-        'description' => t('The UNIX time when a comment has been saved.'),
+        'description' => t('The time when a comment was saved.'),
+      ),
+      'changed' => array(
+        'name' => t('Updated date'),
+        'description' => t('The time when a comment was updated.'),
       ),
       'status' => array(
         'name' => t('Published status'),
@@ -249,51 +377,117 @@ class FeedsCommentProcessor extends FeedsProcessor {
       ),
       'name' => array(
         'name' => t('Name'),
-        'description' => t('The comment author\'s name.'),
+        'description' => t("The comment author's name."),
       ),
       'mail' => array(
         'name' => t('Email'),
-        'description' => t('The comment author\'s e-mail address.'),
+        'description' => t("The comment author's e-mail address."),
       ),
       'homepage' => array(
         'name' => t('Homepage'),
-        'description' => t('The comment author\'s home page address'),
+        'description' => t("The comment author's home page address"),
       ),
-      'guid' => array(
-        'name' => t('GUID'),
-        'description' => t('The external GUID of the comment. E. g. the feed item GUID in the case of a syndication feed. May be unique.'),
-        'optional_unique' => TRUE,
-      ),
-    );
+    ) + parent::getMappingTargets();
 
-    // Let other modules expose mapping targets.
-    self::loadMappers();
-    feeds_alter('feeds_comment_processor_targets', $targets);
+    // @todo Remove this at some point.
+    drupal_alter('feeds_comment_processor_targets', $targets);
+
+    // Detect modern version of Feeds.
+    if (method_exists($this, 'getHookTargets')) {
+      $this->getHookTargets($targets);
+    }
+    else {
+      self::loadMappers();
+      $entity_type = $this->entityType();
+      $bundle = $this->bundle();
+
+      drupal_alter('feeds_processor_targets', $targets, $entity_type, $bundle);
+    }
 
     return $targets;
   }
 
   /**
-   * Get cid of an existing feed item comment if available.
+   * Ensures that a comment subject exists and is valid.
+   *
+   * @param stdClass $comment
+   *   The comment.
    */
-  protected function existingEntityId(FeedsSource $source, FeedsParserResult $result) {
-    if ($cid = parent::existingEntityId($source, $result)) {
-      return $cid;
+  protected function prepareCommentSubject(stdClass $comment) {
+    $comment->subject = truncate_utf8(trim(decode_entities(strip_tags($comment->subject))), 64, TRUE);
+
+    if ($comment->subject !== '') {
+      return;
     }
 
-    // Iterate through all unique targets and test whether they do already
-    // exist in the database.
-    foreach ($this->uniqueTargets($source, $result) as $target => $value) {
-      switch ($target) {
-        case 'guid':
-          $cid = db_query("SELECT cid FROM {feeds_comment_item} WHERE feed_nid = :feed_nid AND id = :id AND guid = :guid", array(':feed_nid' => $source->feed_nid, ':id' => $source->id, ':guid' => $value))->fetchField();
-          break;
-      }
-      if ($cid) {
-        // Return with the first cid found.
-        return $cid;
-      }
+    // The body may be in any format, so:
+    // 1) Filter it into HTML
+    // 2) Strip out all HTML tags
+    // 3) Convert entities back to plain-text.
+    $field = field_info_field('comment_body');
+    $langcode = field_is_translatable('comment', $field) ? entity_language('comment', $comment) : LANGUAGE_NONE;
+    $comment_body = $comment->comment_body[$langcode][0];
+    if (isset($comment_body['format'])) {
+      $comment_text = check_markup($comment_body['value'], $comment_body['format']);
     }
-    return 0;
+    else {
+      $comment_text = check_plain($comment_body['value']);
+    }
+    $comment->subject = truncate_utf8(trim(decode_entities(strip_tags($comment_text))), 29, TRUE);
+    // Edge cases where the comment body is populated only by HTML tags will
+    // require a default subject.
+    if ($comment->subject === '') {
+      $comment->subject = t('(No subject)');
+    }
   }
+
+  /**
+   * Calculates the thread value for a comment.
+   *
+   * @param stdClass $comment
+   *   The comment.
+   *
+   * @return string
+   *   The Drupal thread value.
+   */
+  protected function calculateThread(stdClass $comment) {
+    if ($comment->pid == 0) {
+      // This is a comment with no parent comment (depth 0): we start by
+      // retrieving the maximum thread level.
+      $max = db_query('SELECT MAX(thread) FROM {comment} WHERE nid = :nid', array(':nid' => $comment->nid))->fetchField();
+      // Strip the "/" from the end of the thread.
+      $max = rtrim($max, '/');
+      // We need to get the value at the correct depth.
+      $parts = explode('.', $max);
+      $firstsegment = $parts[0];
+      // Finally, build the thread field for this new comment.
+      return int2vancode(vancode2int($firstsegment) + 1) . '/';
+    }
+    // This is a comment with a parent comment, so increase the part of the
+    // thread value at the proper depth.
+    // Get the parent comment:
+    $parent = comment_load($comment->pid);
+    // Strip the "/" from the end of the parent thread.
+    $parent->thread = rtrim((string) $parent->thread, '/');
+    // Get the max value in *this* thread.
+    $max = db_query("SELECT MAX(thread) FROM {comment} WHERE thread LIKE :thread AND nid = :nid", array(
+      ':thread' => $parent->thread . '.%',
+      ':nid' => $comment->nid,
+    ))->fetchField();
+
+    // First child of this parent.
+    if ($max == '') {
+      return $parent->thread . '.' . int2vancode(0) . '/';
+    }
+
+    // Strip the "/" at the end of the thread.
+    $max = rtrim($max, '/');
+    // Get the value at the correct depth.
+    $parts = explode('.', $max);
+    $parent_depth = count(explode('.', $parent->thread));
+    $last = $parts[$parent_depth];
+    // Finally, build the thread field for this new comment.
+    return $parent->thread . '.' . int2vancode(vancode2int($last) + 1) . '/';
+  }
+
 }

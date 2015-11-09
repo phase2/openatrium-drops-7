@@ -215,7 +215,7 @@ function _install_from_db_cc_all() {
 /**
  * Batch callback for batch database import.
  */
-function _install_from_db_install_db_import($line, $table, &$context) {
+function _install_from_db_install_db_import($lines, $table, &$context) {
   global $conf;
 
   if ($table === 'variable') {
@@ -232,9 +232,11 @@ function _install_from_db_install_db_import($line, $table, &$context) {
   // Do NOT use db_query here as it will mess with the query data, such as the {} in
   // serialized data fields.
   $conn = Database::getConnection('default');
-  $stmt = $conn->prepare($line);
-  $stmt->execute();
-  $stmt->closeCursor();
+  foreach ($lines as $line) {
+    $stmt = $conn->prepare($line);
+    $stmt->execute();
+    $stmt->closeCursor();
+  }
 
   if ($table === 'variable') {
     // restore saved variables
@@ -248,11 +250,11 @@ function _install_from_db_install_db_import($line, $table, &$context) {
  * Read a batch of sql commands (ending in commit)
  * @param $file - name of file to read from
  * @param $table - name of table referenced in sql statements is returned
- * @return - string containing sql commands for a single table.
+ * @return - an array of strings containing sql commands for a single table.
  */
 function _install_from_db_read_sql_batch($file, &$table) {
   $conn = Database::getConnection('default');
-  $line = '';
+  $line = array();
   $table = '';
   $skip = FALSE;
   $skip_tables = array('batch', 'cache', 'sessions', 'queue', 'semaphore', 'users',
@@ -283,7 +285,7 @@ function _install_from_db_read_sql_batch($file, &$table) {
       $newline_prefix = preg_replace('/\ACREATE TABLE/', 'CREATE TABLE IF NOT EXISTS', $newline_prefix);
       if ($skip) {
         // make sure skipped tables are still created
-        $line .= $newline_prefix;
+        $line[] = $newline_prefix;
       }
     }
     if (!empty($newline) && substr($newline, 0, 2) == '--') {
@@ -291,13 +293,13 @@ function _install_from_db_read_sql_batch($file, &$table) {
       $newline_prefix = '';
     }
     if (!$skip && !empty($newline_prefix)) {
-      $line .= $newline_prefix;
+      $line[] = $newline_prefix;
     }
     // block of SQL ends with a commit command.
     if ($newline === 'commit;') {
       // be sure to turn autocommit back on for Drupal batch system and other database
       // queries to work properly
-      $line .= 'set autocommit=1;';
+      $line[] = 'set autocommit=1;';
     }
   }
   if (empty($line) && ($newline === FALSE)) {
@@ -333,14 +335,22 @@ function _install_from_db_read_sql_command_from_file($file, $save_line = '') {
   while (($line = fgets($file)) !== false) {
     $line = trim($line);
     if (empty($out) && !empty($line) && substr($line, 0, 2) == '--') {
-      // return single line comments
+      // return single line comments so we can parse what table this was later
+      return trim($line);
+    }
+    $first2 = substr($line, 0, 2);
+    $first3 = substr($line, 0, 3);
+    // If a line begins with /*! it is a commented inline sql command
+    // only execute lines that don't reference @variables
+    if (empty($out) && ($first3 == '/*!') &&
+      (strpos($line, '= @') === FALSE) && (strpos($line, '=@') === FALSE)) {
       return trim($line);
     }
     // Otherwise, ignore single line comments within a sql statement.
-    if (!empty($line) && substr($line, 0, 2) != '--') {
+    if (!empty($line) && ($first2 != '--') && ($first2 != '/*')) {
       $out .= ' ' . $line;
-      // If a line ends in ; or */ it is a sql command.
-      if (substr($out, strlen($out) - 1, 1) == ';' || substr($out, strlen($out) - 2, 2) == '*/') {
+      // If a line ends in ; it is a sql command.
+      if (substr($out, strlen($out) - 1, 1) == ';') {
         return trim($out);
       }
     }

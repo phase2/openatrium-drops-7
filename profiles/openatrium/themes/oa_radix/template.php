@@ -51,11 +51,7 @@ function oa_radix_js_alter(&$javascript) {
  * Implements hook_libraries_info_alter(&$libraries)().
  */
 function oa_radix_libraries_info_alter(&$libraries) {
-  // prevent duplicate bootstrap css since it's already
-  // compiled into our screen.css from compass_bootstrap via radix theme
-  if (isset($libraries['bootstrap'])) {
-    unset($libraries['bootstrap']['files']['css']);
-  }
+  radix_libraries_info_alter($libraries);
 }
 
 /**

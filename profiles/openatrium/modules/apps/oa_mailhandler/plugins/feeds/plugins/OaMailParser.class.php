@@ -57,7 +57,7 @@ class OaMailParser extends MailhandlerParser {
         $item = array();
       }
       $item['body_text'] = $this->filterBody($item['body_text']);
-      $item['body_html'] = $this->filterBody($item['body_html']);
+      $item['body_html'] = $this->filterBody($item['body_html'], TRUE);
     }
 
     return $result;
@@ -71,7 +71,11 @@ class OaMailParser extends MailhandlerParser {
    * @param $text
    * @return string
    */
-  protected function filterBody($text) {
+  protected function filterBody($text, $html = FALSE) {
+
+    if ($html) {
+      $text = preg_replace('/<!--(.|\s)*?-->/s', '', $text);
+    }
 
     $delimiters = array(
       // HTML email

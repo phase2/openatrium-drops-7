@@ -6,9 +6,9 @@ dependencies[] = ctools
 dependencies[] = oa_core
 dependencies[] = oa_sections
 
-; Information added by Drupal.org packaging script on 2015-10-20
-version = "7.x-2.62"
+; Information added by Drupal.org packaging script on 2015-11-06
+version = "7.x-2.64"
 core = "7.x"
 project = "oa_core"
-datestamp = "1445362254"
+datestamp = "1446838542"
 

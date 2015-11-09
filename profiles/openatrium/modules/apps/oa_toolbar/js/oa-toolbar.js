@@ -49,6 +49,7 @@
         // Show dropdown on hover.
         $(this).unbind('mouseenter');
         $(this).unbind('mouseleave');
+        $(this).unbind('focusin');
       });
     }
   });

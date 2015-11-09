@@ -7,6 +7,37 @@
 include_once 'oa_archive.features.inc';
 
 /**
+ * Implements hook_node_access_records().
+ */
+function oa_archive_node_access_records($node) {
+  if (($flag = flag_load('trash')) && $flag->is_flagged($node->nid)) {
+    $group = oa_core_get_group_from_node($node);
+    $gid = isset($group) ? $group + 1 : $node->status;
+    return array(array(
+      'realm' => 'trash_flag',
+      'gid' => $gid,
+      'grant_view' => $node->status,
+      'grant_update' => 0,
+      'grant_delete' => 0,
+      'priority' => 10000,
+    ));
+  }
+}
+
+/**
+ * Implements hook_node_grants().
+ */
+function oa_archive_node_grants($account, $op) {
+  $grants = array();
+  if ($space_id = oa_core_get_space_context(TRUE)) {
+    if (og_user_access('node', $space_id, "view trash content", $account)) {
+      $grants['trash_flag'] = array($space_id + 1);
+    }
+  }
+  return $grants;
+}
+
+/**
  * Implements hook_node_access().
  *
  * Deny delete access when trash flag is in use.

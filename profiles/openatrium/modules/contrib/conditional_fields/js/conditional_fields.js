@@ -9,14 +9,14 @@
  * @see http://drupal.org/node/1149078
  */
 Drupal.states.Dependent.comparisons['Array'] = function (reference, value) {
-  if (value === null || value === undefined) {
-    return (reference.length == 0) ? true : false;
-  }
-  if (reference.length > value.length) {
+  // Make sure value is an array.
+  if (!(typeof(value) === 'object' && (value instanceof Array))) {
     return false;
   }
-  for (var i in reference) {
-    if ($.inArray(reference[i], value) < 0) {
+  // We iterate through each value provided in the reference. If all of them
+  // exist in value array, we return true. Otherwise return false.
+  for (var key in reference) {
+    if (reference.hasOwnProperty(key) && $.inArray(reference[key], value) < 0) {
       return false;
     }
   }
@@ -63,47 +63,53 @@ Drupal.states.Trigger.states.touched = {
 };
 
 /**
- * These are new states and existing states enhanced with configurable options.
+ * New and existing states enhanced with configurable options.
+ * Event names of states with effects have the following structure:
+ * state:stateName-effectName.
  */
 
-$(document).bind('conditionalFieldsState:visible', function(e) {
+// Visible/Invisible.
+$(document).bind('state:visible-fade', function(e) {
   if (e.trigger) {
-    var animation;
-    if (e.effect.effect == 'fade') {
-      animation = e.value ? 'In' : 'Out';
-    }
-    else if (e.effect.effect == 'slide') {
-      animation = e.value ? 'Down' : 'Up';
-    }
-    $(e.target).closest('.form-item, .form-submit, .form-wrapper')[e.effect.effect + animation](e.effect.options.speed);
+    $(e.target).closest('.form-item, .form-submit, .form-wrapper')[e.value ? 'fadeIn' : 'fadeOut'](e.effect.speed);
   }
-});
-
-/**
- * Empty/Filled state.
- */
-$(document).bind('state:empty', function(e) {});
-$(document).bind('conditionalFieldsState:empty', function(e) {
+})
+.bind('state:visible-slide', function(e) {
+  if (e.trigger) {
+    $(e.target).closest('.form-item, .form-submit, .form-wrapper')[e.value ? 'slideDown' : 'slideUp'](e.effect.speed);
+  }
+})
+// Empty/Filled.
+.bind('state:empty-empty', function(e) {
   if (e.trigger) {
     var field = $(e.target).find('input, select, textarea');
-    if (e.effect.options.reset) {
-      if (typeof oldValue == 'undefined' || field.val() != e.effect.options.value) {
+    if (e.effect.reset) {
+      if (typeof oldValue == 'undefined' || field.val() !== e.effect.value) {
         oldValue = field.val();
       }
-      field.val((e.effect.effect == 'fill' ? e.value : !e.value) ? oldValue : e.effect.options.value);
+      field.val(e.value ? e.effect.value : oldValue);
     }
-    else {
-      if (e.effect.effect == 'fill' && !e.value || e.effect.effect == 'empty' && e.value) {
-        field.val(e.effect.options.value);
-      }
+    else if (e.value) {
+      field.val(e.effect.value);
     }
   }
-});
-
-/**
- * Unchanged state. Do nothing.
- */
-$(document).bind('state:unchanged', function() {});
+})
+.bind('state:empty-fill', function(e) {
+  if (e.trigger) {
+    var field = $(e.target).find('input, select, textarea');
+    if (e.effect.reset) {
+      if (typeof oldValue === 'undefined' || field.val() !== e.effect.value) {
+        oldValue = field.val();
+      }
+      field.val(!e.value ? e.effect.value : oldValue);
+    }
+    else if (!e.value) {
+      field.val(e.effect.value);
+    }
+  }
+})
+// Unchanged state. Do nothing.
+.bind('state:unchanged', function() {});
 
 Drupal.behaviors.conditionalFields = {
   attach: function (context, settings) {
@@ -113,17 +119,20 @@ Drupal.behaviors.conditionalFields = {
       return;
     }
     // Override state change handlers for dependents with special effects.
-    $.each($(document).data('events'), function(i, e) {
-      if (i.substring(0, 6) == 'state:') {
-        var originalHandler = e[0].handler;
-        e[0].handler = function(e) {
+    var eventsData = $.hasOwnProperty('_data') ? $._data(document, 'events') : $(document).data('events');
+    $.each(eventsData, function(i, events) {
+      if (i.substring(0, 6) === 'state:') {
+        var originalHandler = events[0].handler;
+        events[0].handler = function(e) {
           var effect = conditionalFields.effects['#' + e.target.id];
           if (typeof effect !== 'undefined') {
-            $(e.target).trigger({ type : i.replace('state:', 'conditionalFieldsState:'), trigger : e.trigger, value : e.value, effect : effect });
+            var effectEvent = i + '-' + effect.effect;
+            if (typeof eventsData[effectEvent] !== 'undefined') {
+              $(e.target).trigger({ type : effectEvent, trigger : e.trigger, value : e.value, effect : effect.options });
+              return;
+            }
           }
-          else {
-            originalHandler(e);
-          }
+          originalHandler(e);
         }
       }
     });

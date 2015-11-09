@@ -30,9 +30,9 @@ datestamp = "1418635982"
 
 
 
-; Information added by drush on 2015-10-22
+; Information added by drush on 2015-11-09
 version = "7.x-2.7+3-dev"
 core = "7.x"
 project = "select2widget"
-datestamp = "1445532467"
+datestamp = "1447094694"
 

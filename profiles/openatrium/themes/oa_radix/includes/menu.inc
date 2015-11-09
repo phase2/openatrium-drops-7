@@ -31,5 +31,5 @@ function oa_radix_menu_tree__oa_navigation(&$variables) {
  * Implements theme_menu_link__MENU_NAME().
  */
 function oa_radix_menu_link__oa_navigation(&$variables) {
-  return radix_menu_link($variables);
+  return radix_menu_link__dropdown($variables);
 }

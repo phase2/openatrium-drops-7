@@ -6,7 +6,9 @@
 
 require_once dirname(__FILE__) . '/includes/utilities.inc';
 require_once dirname(__FILE__) . '/includes/theme.inc';
+require_once dirname(__FILE__) . '/includes/maintenance.inc';
 require_once dirname(__FILE__) . '/includes/structure.inc';
+require_once dirname(__FILE__) . '/includes/field.inc';
 require_once dirname(__FILE__) . '/includes/form.inc';
 require_once dirname(__FILE__) . '/includes/menu.inc';
 require_once dirname(__FILE__) . '/includes/comment.inc';
@@ -16,9 +18,31 @@ require_once dirname(__FILE__) . '/includes/admin.inc';
 require_once dirname(__FILE__) . '/includes/contrib.inc';
 
 /**
- * Implementation of template_preprocess_html().
+ * Implements template_preprocess_html().
  */
 function radix_preprocess_html(&$variables) {
+  global $base_url;
+
+  // Add Bootstrap JS from CDN if bootstrap library is not installed.
+  if (!module_exists('bootstrap_library')) {
+    $base = parse_url($base_url);
+    $url = $base['scheme'] . '://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js';
+    $jquery_ui_library = drupal_get_library('system', 'ui');
+    $jquery_ui_js = reset($jquery_ui_library['js']);
+    drupal_add_js($url, array(
+      'type' => 'external',
+      // We have to put Bootstrap after jQuery, but before jQuery UI.
+      'group' => JS_LIBRARY,
+      'weight' => $jquery_ui_js['weight'] - 1,
+    ));
+  }
+
+  // Add support for the Modenizr module.
+  // Load modernizr.js only if modernizr module is not present.
+  if (!module_exists('modernizr')) {
+    drupal_add_js(drupal_get_path('theme', 'radix') . '/assets/javascripts/modernizr.js');
+  }
+
   // Add meta for Bootstrap Responsive.
   // <meta name="viewport" content="width=device-width, initial-scale=1.0">
   $element = array(
@@ -52,14 +76,18 @@ function radix_preprocess_html(&$variables) {
  */
 function radix_css_alter(&$css) {
   // Unset some panopoly css.
-  $panopoly_admin_path = drupal_get_path('module', 'panopoly_admin');
-  if (isset($css[$panopoly_admin_path . '/panopoly-admin.css'])) {
-    unset($css[$panopoly_admin_path . '/panopoly-admin.css']);
+  if (module_exists('panopoly_admin')) {
+    $panopoly_admin_path = drupal_get_path('module', 'panopoly_admin');
+    if (isset($css[$panopoly_admin_path . '/panopoly-admin.css'])) {
+      unset($css[$panopoly_admin_path . '/panopoly-admin.css']);
+    }
   }
 
-  $panopoly_magic_path = drupal_get_path('module', 'panopoly_magic');
-  if (isset($css[$panopoly_magic_path . '/css/panopoly-modal.css'])) {
-    unset($css[$panopoly_magic_path . '/css/panopoly-modal.css']);
+  if (module_exists('panopoly_magic')) {
+    $panopoly_magic_path = drupal_get_path('module', 'panopoly_magic');
+    if (isset($css[$panopoly_magic_path . '/css/panopoly-modal.css'])) {
+      unset($css[$panopoly_magic_path . '/css/panopoly-modal.css']);
+    }
   }
 
   // Unset some core css.
@@ -71,19 +99,23 @@ function radix_css_alter(&$css) {
  */
 function radix_js_alter(&$javascript) {
   // Add radix-modal when required.
-  $ctools_modal = drupal_get_path('module', 'ctools') . '/js/modal.js';
-  $radix_modal = drupal_get_path('theme', 'radix') . '/assets/javascripts/radix-modal.js';
-  if (!empty($javascript[$ctools_modal]) && empty($javascript[$radix_modal])) {
-    $javascript[$radix_modal] = array_merge(
-      drupal_js_defaults(), array('group' => JS_THEME, 'data' => $radix_modal));
+  if (module_exists('ctools')) {
+    $ctools_modal = drupal_get_path('module', 'ctools') . '/js/modal.js';
+    $radix_modal = drupal_get_path('theme', 'radix') . '/assets/javascripts/radix-modal.js';
+    if (!empty($javascript[$ctools_modal]) && empty($javascript[$radix_modal])) {
+      $javascript[$radix_modal] = array_merge(
+        drupal_js_defaults(), array('group' => JS_THEME, 'data' => $radix_modal));
+    }
   }
 
   // Add radix-field-slideshow when required.
-  $field_slideshow = drupal_get_path('module', 'field_slideshow') . '/field_slideshow.js';
-  $radix_field_slideshow = drupal_get_path('theme', 'radix') . '/assets/javascripts/radix-field-slideshow.js';
-  if (!empty($javascript[$field_slideshow]) && empty($javascript[$radix_field_slideshow])) {
-    $javascript[$radix_field_slideshow] = array_merge(
-      drupal_js_defaults(), array('group' => JS_THEME, 'data' => $radix_field_slideshow));
+  if (module_exists('field_slideshow')) {
+    $field_slideshow = drupal_get_path('module', 'field_slideshow') . '/field_slideshow.js';
+    $radix_field_slideshow = drupal_get_path('theme', 'radix') . '/assets/javascripts/radix-field-slideshow.js';
+    if (!empty($javascript[$field_slideshow]) && empty($javascript[$radix_field_slideshow])) {
+      $javascript[$radix_field_slideshow] = array_merge(
+        drupal_js_defaults(), array('group' => JS_THEME, 'data' => $radix_field_slideshow));
+    }
   }
 
   // Add radix-progress when required.
@@ -99,20 +131,6 @@ function radix_js_alter(&$javascript) {
  * Implements template_preprocess_page().
  */
 function radix_preprocess_page(&$variables) {
-  global $base_url;
-
-  // Add Bootstrap JS from CDN if bootstrap library is not installed.
-  if (!module_exists('bootstrap_library')) {
-    $base = parse_url($base_url);
-    drupal_add_js($base['scheme'] . '://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js', 'external');
-  }
-
-  // Add support for the Modenizr module.
-  // Load modernizr.js only if modernizr module is not present.
-  if (!module_exists('modernizr')) {
-    drupal_add_js(drupal_get_path('theme', 'radix') . '/assets/javascripts/modernizr.js');
-  }
-
   // Determine if the page is rendered using panels.
   $variables['is_panel'] = FALSE;
   if (module_exists('page_manager') && count(page_manager_get_current_page())) {
@@ -125,15 +143,20 @@ function radix_preprocess_page(&$variables) {
   }
 
   // Theme action links as buttons.
-  foreach ($variables['action_links'] as $key => &$link) {
-    $link['#link']['localized_options']['attributes'] = array('class' => array('btn', 'btn-primary'));
+  if (!empty($variables['action_links'])) {
+    foreach (element_children($variables['action_links']) as $key) {
+      $variables['action_links'][$key]['#link']['localized_options']['attributes'] = array(
+        'class' => array('btn', 'btn-primary', 'btn-sm'),
+      );
+    }
   }
 
   // Add search_form to theme.
   $variables['search_form'] = '';
   if (module_exists('search') && user_access('search content')) {
     $search_box_form = drupal_get_form('search_form');
-    $search_box_form['basic']['keys']['#title'] = '';
+    $search_box_form['basic']['keys']['#title'] = 'Search';
+    $search_box_form['basic']['keys']['#title_display'] = 'invisible';
     $search_box_form['basic']['keys']['#size'] = 20;
     $search_box_form['basic']['keys']['#attributes'] = array('placeholder' => 'Search');
     $search_box_form['basic']['keys']['#attributes']['class'][] = 'form-control';
@@ -145,30 +168,24 @@ function radix_preprocess_page(&$variables) {
   }
 
   // Format and add main menu to theme.
-  $variables['main_menu'] = menu_tree(variable_get('menu_main_links_source', 'main-menu'));
-  $variables['main_menu']['#theme_wrappers'] = array();
+  $variables['main_menu'] = _radix_dropdown_menu_tree(variable_get('menu_main_links_source', 'main-menu'), array(
+    'min_depth' => 1,
+    'max_depth' => 2,
+  ));
 
   // Add a copyright message.
   $variables['copyright'] = t('Drupal is a registered trademark of Dries Buytaert.');
 
   // Display a message if Sass has not been compiled.
-  $theme_path = drupal_get_path('theme', $GLOBALS['theme']);
-  $stylesheet_path = $theme_path . '/assets/stylesheets/screen.css';
-  if (_radix_current_theme() == 'radix') {
-    $stylesheet_path = $theme_path . '/assets/stylesheets/radix-style.css';
-  }
-  elseif (_radix_base_theme() == 'radix') {
-    $stylesheet_path = $theme_path . '/assets/stylesheets/screen.css';
-  }
-  else {
-    // If this isn't radix and it isn't a *direct* sub-theme, then we don't
-    // perform this check (ie. if it's a sub-sub-theme).
-    $stylesheet_path = NULL;
-  }
-  if ($stylesheet_path && !file_exists($stylesheet_path)) {
-    drupal_set_message(t('It looks like %path has not been created yet. Run <code>@command</code> in your theme directory to create it.', array(
-      '%path' => $stylesheet_path,
-      '@command' => 'compass watch',
-    )), 'error');
-  }
+//  $theme_path = drupal_get_path('theme', $GLOBALS['theme']);
+//  $stylesheet_path = $theme_path . '/assets/stylesheets/screen.css';
+//  if (_radix_current_theme() == 'radix') {
+//    $stylesheet_path = $theme_path . '/assets/stylesheets/radix-style.css';
+//  }
+//  if (!file_exists($stylesheet_path)) {
+//    drupal_set_message(t('It looks like %path has not been created yet. Run <code>@command</code> in your theme directory to create it.', array(
+//      '%path' => $stylesheet_path,
+//      '@command' => 'compass watch',
+//    )), 'error');
+//  }
 }

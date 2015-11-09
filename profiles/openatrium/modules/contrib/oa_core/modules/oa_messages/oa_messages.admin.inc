@@ -67,6 +67,11 @@ function oa_messages_oa_user_settings_form_submit($form_state, $user) {
   // Set email type.
   $return['oa_messages']['email_type'] = $form_state['values']['oa_messages']['delivery']['email_type'];
 
+  // Set existing message_notifications value so that values are not lost.
+  if (isset($user->data['oa_messages']['message_notifications'])) {
+    $return['oa_messages']['message_notifications'] = $user->data['oa_messages']['message_notifications'];
+  }
+
   if (isset($form_state['values']['oa_messages']['message_notifications'])) {
     $values = $form_state['values']['oa_messages']['message_notifications'];
 

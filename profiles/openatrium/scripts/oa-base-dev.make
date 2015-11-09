@@ -102,6 +102,11 @@ projects[oa_domains][subdir] = apps
 projects[oa_domains][download][type] = git
 projects[oa_domains][download][branch] = 7.x-2.x
 
+projects[oa_export][version] = 2.x-dev
+projects[oa_export][subdir] = apps
+projects[oa_export][download][type] = git
+projects[oa_export][download][branch] = 7.x-2.x
+
 projects[oa_events_import][version] = 2.x-dev
 projects[oa_events_import][subdir] = apps
 projects[oa_events_import][download][type] = git

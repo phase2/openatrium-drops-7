@@ -54,9 +54,9 @@ features[paragraphs][] = paragraph_text
 features[views_view][] = open_atrium_references_search
 features_exclude[dependencies][media_colorbox] = media_colorbox
 
-; Information added by Drupal.org packaging script on 2015-10-20
-version = "7.x-2.6"
+; Information added by Drupal.org packaging script on 2015-11-06
+version = "7.x-2.8"
 core = "7.x"
 project = "oa_related"
-datestamp = "1445354947"
+datestamp = "1446828243"
 

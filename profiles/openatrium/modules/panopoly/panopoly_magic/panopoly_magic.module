@@ -140,7 +140,8 @@ function panopoly_magic_theme($existing, $type, $theme, $path) {
     'panopoly_magic_preview_link' => array(
       'variables' => array(
         'preview_link' => NULL,
-        'add_link' => NULL
+        'add_link' => NULL,
+        'description' => ''
       ),
     ),
   );
@@ -1556,6 +1557,9 @@ function theme_panopoly_magic_preview_link($vars) {
   $html .= '<div class="' . $classes . '">';
   $html .= $vars['preview_link'];
   $html .= $vars['add_link'];
+  if (!empty($vars['description'])) {
+    $html .= '<div class="help-block">' . $vars['description'] . '</div>';
+  }
   $html .= '</div>';
   return $html;
 }
@@ -1600,6 +1604,7 @@ function panopoly_magic_process_panels_add_content_modal(&$vars) {
         'title' => $legend_title,
         'add_link' => $add_content_link,
         'preview' => $preview,
+        'description' => !empty($content[$title]['description']) ? $content[$title]['description'] : '',
       ));
     }
 
@@ -1615,6 +1620,7 @@ function panopoly_magic_process_panels_add_content_modal(&$vars) {
         $vars['columns'][$which] .= theme('panopoly_magic_preview_link', array(
           'preview_link' => $legend_title,
           'add_link' => $add_content_link,
+          'description' => !empty($content[$title]['description']) ? $content[$title]['description'] : '',
         ));
       }
       else {

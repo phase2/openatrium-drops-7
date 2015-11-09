@@ -25,12 +25,8 @@ projects[conditional_fields][version] = 3.x-dev
 projects[conditional_fields][subdir] = contrib
 projects[conditional_fields][download][type] = git
 projects[conditional_fields][download][branch] = 7.x-3.x
-projects[conditional_fields][download][revision] = cd29b00
-projects[conditional_fields][patch][1982276] = http://drupal.org/files/conditional_fields-typo-in-if-condition-1982276-1.patch
+projects[conditional_fields][download][revision] = 12ab0cb
 projects[conditional_fields][patch][2027307] = https://www.drupal.org/files/issues/2027307-conditional_fields-export-clean-3.patch
-projects[conditional_fields][patch][1916988] = http://drupal.org/files/1916988-conditional-fields-alter-3.patch
-projects[conditional_fields][patch][1542706] = http://drupal.org/files/issues/conditional-fields-1542706-values-not-saving-72.patch
-projects[conditional_fields][patch][2362507] = https://www.drupal.org/files/issues/2362507-conditional_fields-export-1.patch
 
 ; Conditional Style Sheets
 projects[conditional_styles][version] = 2.2

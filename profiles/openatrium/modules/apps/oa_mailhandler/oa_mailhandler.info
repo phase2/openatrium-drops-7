@@ -26,9 +26,9 @@ features[variable][] = mailcomment_import_filter_mode
 features[variable][] = mailcomment_insert_reply_text
 project path = profiles/openatrium/modules/features
 
-; Information added by Drupal.org packaging script on 2015-10-20
-version = "7.x-2.21"
+; Information added by Drupal.org packaging script on 2015-11-06
+version = "7.x-2.23"
 core = "7.x"
 project = "oa_mailhandler"
-datestamp = "1445354082"
+datestamp = "1446841460"
 

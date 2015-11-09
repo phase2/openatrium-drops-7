@@ -35,18 +35,27 @@ function _radix_current_theme() {
 }
 
 /**
- * Returns the current base theme.
+ * Returns a menu built for rendering as a dropdown menu.
  */
-function _radix_base_theme() {
-  $current_theme = _radix_current_theme();
-
-  // Special case to return quickly if theme is radix, since we already
-  // know the answer to this question.
-  if ($current_theme == 'radix') {
-    return NULL;
+function _radix_dropdown_menu_tree($menu_name, $options = array()) {
+  $menu_tree = menu_build_tree($menu_name, $options);
+  $element = menu_tree_output($menu_tree);
+  $element['#theme_wrappers'] = array();
+  foreach (element_children($element) as $mlid) {
+    _radix_dropdown_menu_link_process($element[$mlid]);
   }
+  return $element;
+}
 
-  $themes = list_themes();
-  $theme_object = $themes[$current_theme];
-  return !empty($theme_object->info['base theme']) ? $theme_object->info['base theme'] : NULL;
+/**
+ * Suggest the the menu link to render with a dropdown.
+ */
+function _radix_dropdown_menu_link_process(&$element) {
+  //$element['theme_hook_suggestion'] = 'menu_link__dropdown';
+  $element['#theme'] = 'menu_link__dropdown';
+  if (!empty($element['#below'])) {
+    foreach (element_children($element['#below']) as $mlid) {
+      _radix_dropdown_menu_link_process($element['#below'][$mlid]);
+    }
+  }
 }

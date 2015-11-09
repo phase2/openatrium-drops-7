@@ -25,6 +25,34 @@ function radix_form($variables) {
 }
 
 /**
+ * Implements theme_container().
+ */
+function radix_container($variables) {
+  $element = $variables['element'];
+
+  // Special handling for form elements.
+  if (isset($element['#array_parents'])) {
+    // Assign an html ID.
+    if (!isset($element['#attributes']['id'])) {
+      $element['#attributes']['id'] = $element['#id'];
+    }
+
+    // Remove any set form-control class at this point.
+    // Not needed for form-wrappers.
+    if (!empty($element['#attributes']['class'])) {
+      if (($key = array_search('form-control', $element['#attributes']['class'])) !== false) {
+        unset($element['#attributes']['class'][$key]);
+      }
+    }
+
+    // Add the 'form-wrapper' class.
+    $element['#attributes']['class'][] = 'form-wrapper';
+  }
+
+  return '<div' . drupal_attributes($element['#attributes']) . '>' . $element['#children'] . '</div>';
+}
+
+/**
  * Implements hook_element_info_alter().
  */
 function radix_element_info_alter(&$elements) {
@@ -77,9 +105,16 @@ function _radix_process_input(&$element, &$form_state) {
     'webform_number',
     'number',
   );
-  if (!empty($element['#type']) && (in_array($element['#type'], $types))) {
+
+  // Skip elements with these #theme key.
+  $skip_themes = array(
+    'select_as_checkboxes',
+  );
+
+  if (!empty($element['#type']) && in_array($element['#type'], $types) && (empty($element['#theme']) || !in_array($element['#theme'], $skip_themes))) {
     $element['#attributes']['class'][] = 'form-control';
   }
+
   return $element;
 }
 
@@ -275,6 +310,14 @@ function radix_button($variables) {
     $element['#attributes']['class'][] = 'btn-primary';
   }
 
+  if (!empty($element['#button_icon'])) {
+    $value  = theme('radix_icon', array('icon' => $element['#button_icon']));
+    $value .= ' ';
+    $value .= '<span class="button-text">' . check_plain($element['#value']) . '</span>';
+
+    return '<button' . drupal_attributes($element['#attributes']) . '>' . $value . '</button>';
+  }
+
   return '<input' . drupal_attributes($element['#attributes']) . ' />';
 }
 
@@ -314,7 +357,7 @@ function radix_fieldset($variables) {
   if (!empty($element['#description'])) {
     $output .= '<p class="help-block">' . $element['#description'] . '</p>';
   }
-  $output .= $element['#children'];
+  $output .= render($element['#children']);
   if (isset($element['#value'])) {
     $output .= $element['#value'];
   }

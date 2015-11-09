@@ -124,8 +124,8 @@ function oa_core_get_groups_by_user_access($account = NULL, $include_archived = 
     $states = array(OG_STATE_ACTIVE);
   }
 
-  $cid = oa_core_get_cache_id(OA_CACHE_GROUPS_BY_USER_ACCESS, $uid, $include_archived, array($status, $page, $type, $sort, $limit));
-  if (empty($filter) && ($sort != 'history') && oa_core_get_cache(OA_CACHE_GROUPS_BY_USER_ACCESS, $cid, $result)) {
+  $cid = oa_core_get_cache_id(OA_CACHE_GROUPS_BY_USER_ACCESS, $uid, $include_archived, array($status, $type, $sort, $limit));
+  if (!isset($page) && empty($filter) && ($sort != 'history') && oa_core_get_cache(OA_CACHE_GROUPS_BY_USER_ACCESS, $cid, $result)) {
     return $result;
   }
 

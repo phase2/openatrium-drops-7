@@ -608,7 +608,7 @@ function oa_files_include_js() {
       'enabledPlugins' => array_filter($instance['widget']['settings']['browser_plugins']),
       'schemes' => array_filter($widget_settings['allowed_schemes']),
       'file_directory' => isset($field_settings['file_directory']) ? $field_settings['file_directory'] : '',
-      'file_extensions' => isset($field_settings['file_extensions']) ? $field_settings['file_extensions'] : variable_get('file_entity_default_allowed_extensions', 'jpg jpeg gif png txt doc docx xls xlsx pdf ppt pptx pps ppsx odt ods odp mp3 mov mp4 m4a m4v mpeg avi ogg oga ogv weba webp webm'),
+      'file_extensions' => isset($field_settings['file_extensions']) ? $field_settings['file_extensions'] : variable_get('file_entity_default_allowed_extensions', OA_FILE_EXTENSIONS_DEFAULT),
       'max_filesize' => isset($field_settings['max_filesize']) ? $field_settings['max_filesize'] : 0,
       'uri_scheme' => !empty($field['settings']['uri_scheme']) ? $field['settings']['uri_scheme'] : file_default_scheme(),
       'multiselect' => $multiselect,

@@ -200,6 +200,12 @@ function trash_flag_og_permission() {
     'default role' => array(),
     'restrict access' => TRUE,
   );
+  $perms["view trash content"] = array(
+    'title' => t('View @trashed content', $t_args),
+    'description' => t('Users with this permission will be able to view @trashed content as normal, unless the @trashed content is specifically filtered out.', $t_args),
+    'default role' => array(),
+    'restrict access' => TRUE,
+  );
   $perms["view trash bin"] = array(
     'title' => t('View @trashed listing and content pages', $t_args),
     'description' => t('Users with this permission will be able to view @trashed content in the @trashed listing and the content view pages.', $t_args),
@@ -250,7 +256,7 @@ function trash_flag_node_access_records($node) {
     return array(array(
       'realm' => 'trash_flag',
       'gid' => 1,
-      'grant_view' => 1,
+      'grant_view' => $node->status,
       'grant_update' => 0,
       'grant_delete' => 0,
       'priority' => 10000,

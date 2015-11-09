@@ -50,17 +50,24 @@ function conditional_fields_features_export_render($module_name, $data, $export 
 
     if (isset($dependencies[$entity]) && isset($dependencies[$entity][$bundle])) {
       $info = $dependencies[$entity][$bundle];
+      $delta[$option] = 0;
+
+      // Ensure that dependencies are always exported in the same order to
+      // avoid fake overrides.
+      ksort($info['dependents']);
+
       foreach ($info['dependents'] as $dependent_field_name => $dependees) {
         foreach ($dependees as $dependee) {
           $code[] = '';
-          $code[] = '  $items["' . $option . '"] = array(';
+          $code[] = '  $items["' . $option . ':' . $delta[$option] . '"] = array(';
           $code[] = "    'entity' => '" . $entity . "',";
           $code[] = "    'bundle' => '" . $bundle . "',";
           $code[] = "    'dependent' => '" . $dependent_field_name . "',";
           $code[] = "    'dependee' => '" . $dependee['dependee'] . "',";
-
           $code[] = "    'options' => " . features_var_export($dependee['options'], '    ') . ',';
           $code[] = '  );';
+
+          $delta[$option]++;
         }
       }
     }
@@ -83,11 +90,9 @@ function conditional_fields_features_export_render($module_name, $data, $export 
 function conditional_fields_features_rebuild($module) {
   $defaults = features_get_default('conditional_fields', $module);
 
-  $dependencies = conditional_fields_load_dependencies();
-  $instances = field_info_instances();
-
   if (!empty($defaults)) {
-    $node_types = array();
+    $dependencies = conditional_fields_load_dependencies();
+    $instances = field_info_instances();
     foreach ($defaults as $field) {
       if (isset($dependencies[$field['entity']][$field['bundle']])) {
         foreach ($dependencies[$field['entity']][$field['bundle']] as $dependancy_type => $field_dep_settings) {
@@ -106,8 +111,7 @@ function conditional_fields_features_rebuild($module) {
       $entity_instances = $instances[$field['entity']][$field['bundle']];
       $dependee_id = $entity_instances[$field['dependee']]['id'];
       $dependent_id = $entity_instances[$field['dependent']]['id'];
-      $options = $field['options'];
-      conditional_fields_dependency_insert($dependee_id, $dependent_id, $options);
+      conditional_fields_dependency_insert($dependee_id, $dependent_id, $field['options']);
     }
   }
 }

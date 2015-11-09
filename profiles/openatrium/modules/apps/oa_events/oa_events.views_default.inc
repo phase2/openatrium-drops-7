@@ -1347,7 +1347,7 @@ function oa_events_views_default_views() {
   $handler->display->display_options['style_options']['disable_webcal'] = TRUE;
   $handler->display->display_options['row_plugin'] = 'date_ical';
   $handler->display->display_options['row_options']['date_field'] = 'field_data_field_oa_date.field_oa_date_value';
-  $handler->display->display_options['row_options']['summary_field'] = 'field_data_body.body';
+  $handler->display->display_options['row_options']['summary_field'] = 'default_title';
   $handler->display->display_options['row_options']['location_field'] = 'field_data_field_oa_address.field_oa_address';
   $handler->display->display_options['path'] = 'calendar/%/export.ics';
   $handler->display->display_options['displays'] = array(

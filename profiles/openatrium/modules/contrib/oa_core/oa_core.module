@@ -49,6 +49,14 @@ define('OA_UNPUBLISHED_REALM', 'oa_unpublished');
  * The access realm of unpublished content.
  */
 define('OA_SPACE_CURRENT', 'CURRENT');
+/**
+ * The old default file extension list.
+ */
+define('OA_OLD_FILE_EXTENSIONS_DEFAULT', 'jpg jpeg gif png txt doc docx xls xlsx pdf ppt pptx pps ppsx odt ods odp mp3 mov mp4 m4a m4v mpeg avi ogg oga ogv weba webp webm');
+/**
+ * The new default file extension list.
+ */
+define('OA_FILE_EXTENSIONS_DEFAULT', 'jpg jpeg gif png txt doc docx xls xlsx pdf ppt pptx pps ppsx odt ods odp mp3 mov mp4 m4a m4v mpeg avi ogg oga ogv weba webp webm zip tgz gz key dotx');
 
 /**
  * Implements hook_ctools_plugin_directory().
@@ -537,9 +545,8 @@ function oa_core_form_node_form_alter(&$form, &$form_state, $form_id) {
   if (isset($form['panelizer'])) {
     $form['panelizer']['page_manager']['name']['#title'] = t('Select Layout');
   }
-  // this is a workaround for og not defaulting based on subgroups,
-  // only user direct groups.
-  // handling this for both normal users and admin users
+  // This is a workaround for og not defaulting based on subgroups, only user direct groups.
+  // Handling this for both normal users and admin users.
   $fields = array(OA_SPACE_FIELD);
   if (empty($form['#node']->clone_from_original_nid)) {
     $fields[] = OA_PARENT_SPACE;
@@ -2188,4 +2195,131 @@ function oa_core_collapse_filter($form) {
     }
   }
   return $result;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function oa_core_form_file_entity_settings_form_alter(&$form, &$form_state) {
+  $form['#submit'][] = 'oa_core_file_entity_settings_form_submit';
+}
+
+/**
+ * Submit handler for file_entity_settings_form.
+ * @param $form
+ * @param $form_state
+ */
+function oa_core_file_entity_settings_form_submit($form, $form_state) {
+  if ($form_state['values']['file_entity_default_allowed_extensions'] != $form['file_entity_default_allowed_extensions']['#default_value']) {
+    variable_set('file_entity_default_allowed_extensions', $form_state['values']['file_entity_default_allowed_extensions']);
+    // Update field instances when default file entity extensions is changed.
+    oa_core_update_field_instances($form['file_entity_default_allowed_extensions']['#default_value']);
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function oa_core_form_field_ui_field_edit_form_alter(&$form, &$form_state) {
+  // Make allowed extensions optional and add additional helper text.
+  $field = $form['#field'];
+  $file_fields = array(
+    'fieldable_panels_pane-basic_file-field_basic_file_file',
+    'field_oa_media');
+  if (isset($form['instance']['settings']['file_extensions']) && in_array($field['field_name'], $file_fields)) {
+    $file_extensions = variable_get('file_entity_default_allowed_extensions', OA_FILE_EXTENSIONS_DEFAULT);
+    $form['instance']['settings']['file_extensions']['#description'] .=
+      '<br>Leave blank for default: ' . $file_extensions;
+    $form['instance']['settings']['file_extensions']['#required'] = FALSE;
+    $form['#validate'][] = 'oa_core_field_ui_field_edit_form_validate';
+  }
+}
+
+/**
+ * Submit handler for file_entity_settings_form.
+ * @param $form
+ * @param $form_state
+ */
+function oa_core_field_ui_field_edit_form_validate($form, &$form_state) {
+  if (isset($form_state['values']['instance']['settings']['file_extensions'])) {
+    if (empty($form_state['values']['instance']['settings']['file_extensions'])) {
+      $form_state['values']['instance']['settings']['file_extensions'] = variable_get('file_entity_default_allowed_extensions', OA_FILE_EXTENSIONS_DEFAULT);
+    }
+  }
+}
+
+/**
+ * Helper function to determine if the $extensions match the defaults
+ */
+function _oa_core_is_default_allowed_extensions($extensions) {
+  static $media_extensions = '';
+
+  if (empty($media_extensions)) {
+    // First, compute the normal default file extensions for Media module
+    // See media_update_7213()
+    $media_file_extensions = explode(' ', variable_get('media__file_extensions'));
+    $file_entity_file_extensions = explode(' ', variable_get('file_entity_default_allowed_extensions', 'jpg jpeg gif png txt doc docx xls xlsx pdf ppt pptx pps ppsx odt ods odp mp3 mov mp4 m4a m4v mpeg avi ogg oga ogv weba webp webm'));
+    $combined_file_extensions = array_unique(array_merge($file_entity_file_extensions, $media_file_extensions));
+    $media_extensions = implode(' ', $combined_file_extensions);
+  }
+
+  return (empty($extensions) || ($extensions == $media_extensions) ||
+    ($extensions == PANOPOLY_WIDGETS_FILE_EXTENSIONS_DEFAULT) ||
+    ($extensions == OA_OLD_FILE_EXTENSIONS_DEFAULT));
+}
+
+/**
+ * Implements hook_field_default_field_instances_alter().
+ *
+ * Hook into field_instance_alter to prevent Features from being overridden
+ * by new default file extensions.
+ */
+function oa_core_field_default_field_instances_alter(&$instances) {
+  // Set the default allowed file extensions for file fields.
+  $file_fields = array(
+    'fieldable_panels_pane-basic_file-field_basic_file_file',
+    'field_oa_media');
+  foreach ($instances as $key => $instance) {
+    list($entity_type, $bundle, $fieldname) = explode('-', $key);
+    if (in_array($fieldname, $file_fields)) {
+      $current_extensions = $instance['settings']['file_extensions'];
+      $file_extensions = variable_get('file_entity_default_allowed_extensions', OA_FILE_EXTENSIONS_DEFAULT);
+      if (_oa_core_is_default_allowed_extensions($file_extensions)) {
+        $file_extensions = OA_FILE_EXTENSIONS_DEFAULT;
+      }
+      if (_oa_core_is_default_allowed_extensions($current_extensions)) {
+        $instances[$key]['settings']['file_extensions'] = $file_extensions;
+      }
+    }
+  }
+}
+
+/**
+ * Update file field instances when allowed file extensions variable is changed.
+ *
+ * @param $old_extensions string list of previous default extensions to update
+ */
+function oa_core_update_field_instances($old_extensions = '') {
+  $instances = field_info_instances();
+
+  $file_fields = array(
+    'fieldable_panels_pane-basic_file-field_basic_file_file',
+    'field_oa_media');
+  foreach ($instances as $field_instance) {
+    foreach ($field_instance as $bundle) {
+      foreach ($bundle as $fieldname => $instance) {
+        if (in_array($fieldname, $file_fields)) {
+          $current_extensions = $instance['settings']['file_extensions'];
+          $file_extensions = variable_get('file_entity_default_allowed_extensions', OA_FILE_EXTENSIONS_DEFAULT);
+          if (_oa_core_is_default_allowed_extensions($file_extensions)) {
+            $file_extensions = OA_FILE_EXTENSIONS_DEFAULT;
+          }
+          if (($current_extensions == $old_extensions) || _oa_core_is_default_allowed_extensions($current_extensions)) {
+            $instance['settings']['file_extensions'] = $file_extensions;
+            field_update_instance($instance);
+          }
+        }
+      }
+    }
+  }
 }

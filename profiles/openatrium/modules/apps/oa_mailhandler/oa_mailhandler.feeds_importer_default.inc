@@ -28,9 +28,9 @@ function oa_mailhandler_feeds_importer_default() {
       'config' => array(
         'available_commands' => 'status',
         'authenticate_plugin' => 'MailhandlerAuthenticateDefault',
-        'filter_email' => TRUE,
         'extended_headers' => NULL,
         'require_contextual_nid' => 1,
+        'filter_email' => TRUE,
       ),
     ),
     'processor' => array(
@@ -44,36 +44,40 @@ function oa_mailhandler_feeds_importer_default() {
           ),
           1 => array(
             'source' => 'body_text',
-            'target' => 'comment',
+            'target' => 'comment_body',
             'unique' => FALSE,
+            'format' => 'panopoly_wysiwyg_text',
           ),
           2 => array(
-            'source' => 'body_html',
-            'target' => 'comment',
-            'unique' => FALSE,
-          ),
-          3 => array(
             'source' => 'parent_nid',
             'target' => 'nid',
             'unique' => FALSE,
           ),
-          4 => array(
+          3 => array(
             'source' => 'parent_cid',
             'target' => 'pid',
             'unique' => FALSE,
           ),
-          5 => array(
+          4 => array(
             'source' => 'status',
             'target' => 'status',
             'unique' => FALSE,
           ),
+          5 => array(
+            'source' => 'body_html',
+            'target' => 'comment_body',
+            'unique' => FALSE,
+            'format' => 'panopoly_wysiwyg_text',
+          ),
         ),
         'update_existing' => '0',
         'input_format' => 'panopoly_wysiwyg_text',
-        'skip_hash_check' => FALSE,
-        'bundle' => NULL,
+        'skip_hash_check' => 0,
+        'bundle' => 'comment_node_oa_discussion_post',
         'expire' => '-1',
         'author' => 0,
+        'update_non_existent' => 'skip',
+        'authorize' => 1,
       ),
     ),
     'content_type' => '',

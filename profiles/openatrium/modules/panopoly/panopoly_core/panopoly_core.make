@@ -20,6 +20,7 @@ projects[panels][version] = 3.5
 projects[panels][subdir] = contrib
 projects[panels][patch][2448825] = https://www.drupal.org/files/issues/panels-export-indentation-2448825-1.patch
 projects[panels][patch][2390803] = https://www.drupal.org/files/issues/panels-focus-add-content-tab-2390803-13.patch
+projects[panels][patch][1588212] = https://www.drupal.org/files/issues/panels-1588212-10.patch
 
 projects[panels_breadcrumbs][version] = 2.2
 projects[panels_breadcrumbs][subdir] = contrib

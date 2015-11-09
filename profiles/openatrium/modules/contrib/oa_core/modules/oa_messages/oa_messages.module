@@ -67,7 +67,7 @@ function oa_messages_create($message_type, $entity = NULL, $entity_type = 'node'
   drupal_alter('oa_messages_type', $message_type, $context);
 
   if (!empty($message_type)) {
-    $message = message_create($message_type, array('uid' => $uid, 'timestamp' => time()));
+    $message = message_create($message_type, array('uid' => $uid, 'timestamp' => time()), user_load($uid));
     if (!empty($entity->og_group_ref[LANGUAGE_NONE])) {
       $message->gid = $entity->og_group_ref[LANGUAGE_NONE][0]['target_id'];
     }

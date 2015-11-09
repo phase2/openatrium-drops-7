@@ -380,3 +380,13 @@ function oa_core_update_7233() {
   }
 }
 
+/**
+ * Update default file extensions.
+ */
+function oa_core_update_7235() {
+  $file_extensions = variable_get('file_entity_default_allowed_extensions', '');
+  if (_oa_core_is_default_allowed_extensions($file_extensions)) {
+    variable_set('file_entity_default_allowed_extensions', OA_FILE_EXTENSIONS_DEFAULT);
+  }
+}
+

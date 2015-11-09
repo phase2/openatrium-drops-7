@@ -19,8 +19,8 @@ projects[panopoly_core][patch][2477363] = https://www.drupal.org/files/issues/24
 projects[panopoly_core][patch][2477369] = https://www.drupal.org/files/issues/2477369-panopoly_core-entity-1.patch
 projects[panopoly_core][patch][2477375] = https://www.drupal.org/files/issues/2477375-panopoly_core-entityreference-1.patch
 projects[panopoly_core][patch][2477379] = https://www.drupal.org/files/issues/2477379-panopoly_core-token-1.patch
-projects[panopoly_core][patch][2592731] = https://www.drupal.org/files/issues/2592731-panopoly_core-features-2.patch
 projects[panopoly_core][patch][2592821] = https://www.drupal.org/files/issues/2592821-panopoly_core-apps-2.patch
+projects[panopoly_core][patch][2610366] = https://www.drupal.org/files/issues/2610366-panopoly_core-panels-2.patch
 
 projects[panopoly_images][subdir] = panopoly
 projects[panopoly_images][download][type] = git
@@ -34,6 +34,7 @@ projects[panopoly_theme][download][branch] = 7.x-1.x
 projects[panopoly_magic][subdir] = panopoly
 projects[panopoly_magic][download][type] = git
 projects[panopoly_magic][download][branch] = 7.x-1.x
+projects[panopoly_magic][patch][2611876] = https://www.drupal.org/files/issues/panopoly_magic-add_descriptions_to-2611876-2.patch
 
 projects[panopoly_widgets][subdir] = panopoly
 projects[panopoly_widgets][download][type] = git

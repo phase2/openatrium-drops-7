@@ -22,6 +22,12 @@ function devel_admin_settings() {
         ),
       ),
   );
+  $form['queries']['settings']['devel_show_query_args_first'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show query arguments'),
+    '#default_value' => variable_get('devel_show_query_args_first', FALSE),
+    '#description' => t('Show arguments rather than the query placeholders in the logged query.'),
+  );
   $form['queries']['settings']['devel_query_sort'] = array('#type' => 'radios',
     '#title' => t('Sort query log'),
     '#default_value' =>   variable_get('devel_query_sort', DEVEL_QUERY_SORT_BY_SOURCE),

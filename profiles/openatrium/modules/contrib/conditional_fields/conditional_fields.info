@@ -3,12 +3,14 @@ description = Define dependencies between fields based on their states and value
 core = 7.x
 package = Fields
 
+dependencies[] = system (>=7.14)
 dependencies[] = field
 configure = admin/structure/dependencies
 
 
-; Information added by drush on 2015-10-22
-version = ""
+; Information added by drush on 2015-11-09
+version = "7.x-3.0-alpha2+0-dev"
+core = "7.x"
 project = "conditional_fields"
-datestamp = "1445532473"
+datestamp = "1447094700"
 
