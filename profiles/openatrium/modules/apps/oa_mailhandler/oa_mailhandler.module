@@ -50,7 +50,7 @@ function oa_mailhandler_mail_alter(&$message) {
   }
 
   // Return early if this user doesn't have permission to reply to this message.
-  if ($node->comment != COMMENT_NODE_OPEN || !user_access('post comments', $recipient) || !node_access('view', $node)) {
+  if ($node->comment != COMMENT_NODE_OPEN || !user_access('post comments', $recipient) || !node_access('view', $node, $recipient)) {
     return;
   }
 

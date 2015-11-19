@@ -5,7 +5,7 @@ core = 7.x
 
 ; Panels and Chaos Tools Magic
 
-projects[ctools][version] = 1.8
+projects[ctools][version] = 1.9
 projects[ctools][subdir] = contrib
 projects[ctools][patch][2209775] = https://www.drupal.org/files/issues/ctools-readd_access_callback_params-2209775-24.patch
 projects[ctools][patch][1910608] = https://www.drupal.org/files/issues/views_content-keyword-substitution-1910608-33.patch
@@ -80,6 +80,8 @@ projects[entity][patch][1782134] = http://drupal.org/files/entity-translatable_f
 projects[entity][patch][1788568] = http://drupal.org/files/issues/entity-1788568-21-entity_metadata_wrapper_revisions.patch
 ; fix for recursive entity views
 projects[entity][patch][2407905] = http://drupal.org/files/issues/entity_unsupported_operand-2407905-1.patch
+; fix for comment entity access
+projects[entity][patch][2236229] = https://www.drupal.org/files/issues/add_create_op_to_metadata_comment_access-2236229-1.patch
 
 projects[libraries][version] = 2.2
 projects[libraries][subdir] = contrib
@@ -89,8 +91,9 @@ projects[transliteration][subdir] = contrib
 
 ; Field modules
 
-projects[date][version] = 2.9-rc1
+projects[date][version] = 2.9
 projects[date][subdir] = contrib
+projects[date][patch][2375235] = https://www.drupal.org/files/issues/calendar_pager_broken-2375235-35.patch
 
 projects[entityreference][version] = 1.x-dev
 projects[entityreference][subdir] = contrib
@@ -121,12 +124,8 @@ projects[features][subdir] = contrib
 projects[strongarm][version] = 2.0
 projects[strongarm][subdir] = contrib
 
-projects[defaultconfig][version] = 1.0-alpha9
+projects[defaultconfig][version] = 1.0-alpha11
 projects[defaultconfig][subdir] = contrib
-projects[defaultconfig][patch][2042799] = http://drupal.org/files/default_config_delete_only_if_overriden.patch
-projects[defaultconfig][patch][2043307] = http://drupal.org/files/defaultconfig_include_features_file.patch
-projects[defaultconfig][patch][2008178] = http://drupal.org/files/defaultconfig-rebuild-filters-2008178-4_0.patch
-projects[defaultconfig][patch][1861054] = http://drupal.org/files/fix-defaultconfig_rebuild_all.patch
 projects[defaultconfig][patch][1900574] = http://drupal.org/files/1900574.defaultconfig.undefinedindex_11.patch
 
 projects[defaultcontent][version] = 1.0-alpha9

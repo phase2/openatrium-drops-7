@@ -8,9 +8,9 @@ dependencies[] = field
 configure = admin/structure/dependencies
 
 
-; Information added by drush on 2015-11-09
+; Information added by drush on 2015-11-19
 version = "7.x-3.0-alpha2+0-dev"
 core = "7.x"
 project = "conditional_fields"
-datestamp = "1447094700"
+datestamp = "1447964468"
 

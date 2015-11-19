@@ -1,3 +1,7 @@
+Panopoly Admin 7.x-1.29, 2015-11-18
+----------------------------
+- User base_url for showing site url over permalink field (label).
+
 Panopoly Admin 7.x-1.28, 2015-10-21
 ----------------------------
 - Update to Drupal 7.41 for SA-CORE-2015-004 and jquery_update for SA-

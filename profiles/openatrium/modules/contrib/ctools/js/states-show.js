@@ -33,7 +33,6 @@
   // Show/hide form items by toggling the 'element-invisible' class. This is a
   // more accessible option than the core 'visible' state.
   $(document).bind('state:show', function(e) {
-    console.log(e.value);
     if (e.trigger) {
       var element = $(e.target).closest('.form-item, .form-submit, .form-wrapper');
       element.toggle(e.value);

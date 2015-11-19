@@ -19,23 +19,13 @@
 
   <div class="modules">
 
-  <?php if (!empty($login)): ?>
-    <div class="entry">
-      <div class="module-header"><h4>just getting started?</h4></div><!--/module-header-->
-      <div class="module-content">
-        <a href="http://docs.openatrium.com/" class="icon icon-documentation"></a>
-        <p>Read <a href="http://docs.openatrium.com/">documentation</a> to help you get going with Atrium</a></p>
-      </div><!--/module content-->
-    </div><!--/entry-->
-  <?php else: ?>
-    <div class="entry">
-      <div class="module-header"><h4>got issues?</h4></div><!--/module-header-->
-      <div class="module-content">
-        <a href="https://drupal.org/project/openatrium" class="icon icon-got-issues"></a>
-        <p>Visit the open source <a href="https://drupal.org/project/openatrium">Atrium project</a> at <a href="https://drupal.org">DRUPAL.ORG.</a></p>
-      </div><!--/module content-->
-    </div><!--/entry-->
-  <?php endif; ?>
+  <div class="entry">
+    <div class="module-header"><h4>just getting started?</h4></div><!--/module-header-->
+    <div class="module-content">
+      <a href="http://docs.openatrium.com/" class="icon icon-documentation"></a>
+      <p>Read <a href="http://docs.openatrium.com/">documentation</a> to help you get going with Atrium, or Visit the open source <a href="https://drupal.org/project/openatrium">Atrium project</a> at <a href="https://drupal.org">DRUPAL.ORG.</a></p>
+    </div><!--/module content-->
+  </div><!--/entry-->
 
   <?php if (!empty($login)): ?>
     <div class="user-login">
@@ -43,10 +33,10 @@
     </div>
   <?php else: ?>
     <div class="entry">
-      <div class="module-header"><h4>just getting started?</h4></div><!--/module-header-->
+      <div class="module-header"><h4>Tell us your story!</h4></div><!--/module-header-->
       <div class="module-content">
-        <a href="http://docs.openatrium.com/" class="icon icon-documentation"></a>
-        <p>Read <a href="http://docs.openatrium.com/">documentation</a> to help you get going with Atrium, or Visit the open source <a href="https://drupal.org/project/openatrium">Atrium project</a> at <a href="https://drupal.org">DRUPAL.ORG.</a></p>
+        <a href="http://landing.phase2technology.com/atrium-product-feedback" class="icon icon-got-issues"></a>
+        <p>Help us improve Atrium by <br \> <a href="http://landing.phase2technology.com/atrium-product-feedback">telling us about your site</a>.</p>
       </div><!--/module content-->
     </div><!--/entry-->
   <?php endif; ?>

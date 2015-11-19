@@ -16,7 +16,6 @@ class LinkitProfileUICRUDTestCase extends LinkitTestCase {
      'name' => 'test_profile',
      'admin_title' => 'Test Profile',
      'admin_description' => 'This is a description for the Test Profile.',
-     'profile_type' => LINKIT_PROFILE_TYPE_EDITOR,
    );
 
   /**
@@ -32,6 +31,7 @@ class LinkitProfileUICRUDTestCase extends LinkitTestCase {
 
   function setUp($extra_modules = array()) {
     parent::setUp($extra_modules);
+    $this->profile_defaults['profile_type'] = LINKIT_PROFILE_TYPE_EDITOR;
   }
 
   /**

@@ -20,6 +20,10 @@ body.front .content .pane-oa-home-default {
   font-family: 'Source Sans Pro', sans-serif;
 }
 
+.pane-oa-home-default .module-content p a:hover {
+  text-decoration: underline;
+}
+
 .pane-oa-home-default a.icon-got-issues {
   background: url(images/discussions.png) no-repeat center center;
   }

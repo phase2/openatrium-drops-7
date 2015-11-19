@@ -48,7 +48,8 @@
       modalOptions: {
         opacity: .55,
         background: '#fff'
-      }
+      },
+      modalClass: 'default'
     };
 
     var settings = {};
@@ -97,7 +98,7 @@
     resize();
 
     $('span.modal-title', Drupal.CTools.Modal.modal).html(Drupal.CTools.Modal.currentSettings.loadingText);
-    Drupal.CTools.Modal.modalContent(Drupal.CTools.Modal.modal, settings.modalOptions, settings.animation, settings.animationSpeed);
+    Drupal.CTools.Modal.modalContent(Drupal.CTools.Modal.modal, settings.modalOptions, settings.animation, settings.animationSpeed, settings.modalClass);
     $('#modalContent .modal-content').html(Drupal.theme(settings.throbberTheme)).addClass('ctools-modal-loading');
 
     // Position autocomplete results based on the scroll position of the modal.
@@ -360,8 +361,9 @@
    * @param css obj of css attributes
    * @param animation (fadeIn, slideDown, show)
    * @param speed (valid animation speeds slow, medium, fast or # in ms)
+   * @param modalClass class added to div#modalContent
    */
-  Drupal.CTools.Modal.modalContent = function(content, css, animation, speed) {
+  Drupal.CTools.Modal.modalContent = function(content, css, animation, speed, modalClass) {
     // If our animation isn't set, make it just show/pop
     if (!animation) {
       animation = 'show';
@@ -413,7 +415,7 @@
     if( docHeight < winHeight ) docHeight = winHeight;
 
     // Create our divs
-    $('body').append('<div id="modalBackdrop" style="z-index: 1000; display: none;"></div><div id="modalContent" style="z-index: 1001; position: absolute;">' + $(content).html() + '</div>');
+    $('body').append('<div id="modalBackdrop" class="backdrop-' + modalClass + '" style="z-index: 1000; display: none;"></div><div id="modalContent" class="modal-' + modalClass + '" style="z-index: 1001; position: absolute;">' + $(content).html() + '</div>');
 
     // Get a list of the tabbable elements in the modal content.
     var getTabbableElements = function () {

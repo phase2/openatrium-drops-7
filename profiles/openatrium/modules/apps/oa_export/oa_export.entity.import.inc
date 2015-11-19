@@ -174,30 +174,25 @@ function oa_export_oa_import_entity_paragraphs_item($entity, $key, $imports, &$m
  */
 function oa_export_oa_import_entity_taxonomy_term($entity, $key, $imports, &$map) {
   // Check for an existing vocabulary.
-  $vocab = taxonomy_vocabulary_machine_name_load($entity->vocabulary_machine_name);
-  $vocab_machine_name = !empty($vocab) ? $vocab->machine_name : NULL;
   // See if there are any terms in the vocabulary with the same name.
-  $terms = taxonomy_get_term_by_name($entity->name, $vocab_machine_name);
+  $terms = taxonomy_get_term_by_name($entity->name, $entity->vocabulary_machine_name);
   foreach ($terms as $tid => $term) {
     // We found an existing term.
-    if ($entity->name == $term->name) {
-      // Update the term id
-      $entity->tid = $term->tid;
-      // Just pretend we already imported it.
-      $entity->oa_imported = TRUE;
-      return;
-    }
+    // Update the term id
+    $entity->tid = $term->tid;
+    // Just pretend we already imported it.
+    $entity->oa_imported = TRUE;
+    return;
   }
   // If we didn't find an existing term then create a new one.
   $entity->tid = NULL;
+  $vocab = taxonomy_vocabulary_machine_name_load($entity->vocabulary_machine_name);
   if (empty($vocab)) {
     // Vocabulary doesn't exist, so create it.
     $vocab = new stdClass();
     $vocab->name = $entity->vocabulary_machine_name;
     $vocab->machine_name = $entity->vocabulary_machine_name;
     taxonomy_vocabulary_save($vocab);
-    // Need to load the new vocabulary for its vid.
-    $vocab = taxonomy_vocabulary_machine_name_load($vocab->machine_name);
   }
   // Associate this taxonomy term with the correct vocabulary.
   $entity->vid = $vocab->vid;

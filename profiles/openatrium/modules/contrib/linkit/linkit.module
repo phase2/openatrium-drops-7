@@ -338,7 +338,7 @@ function linkit_element_info_alter(&$types) {
     if (in_array('ckeditor_pre_render_text_format', $types['text_format']['#pre_render'])) {
       $types['text_format']['#pre_render'][] = 'linkit_pre_render_editor_element';
       // Add the linkit library for the editor.
-      drupal_add_library('linkit', 'ckeditor');
+      $types['text_format']['#attached']['library'][] = array('linkit', 'ckeditor');
     }
   }
 
@@ -687,12 +687,12 @@ function linkit_autocomplete(LinkitProfile $profile) {
 
   // Special for link to frontpage.
   if (strpos($search_string, 'front') !== FALSE) {
-    $results = array_merge($results, array(
+    $results[] = array(
       'title' => t('Frontpage'),
       'description' => 'The frontpage for this site.',
       'path' => url('<front>'),
       'group' => t('System'),
-    ));
+    );
   }
 
   // Let the Linkit search plugins do their job.
@@ -1138,14 +1138,14 @@ function linkit_get_insert_plugin_processed_path(LinkitProfile $profile, $uri, $
     switch ($profile->data['insert_plugin']['url_method']) {
       case LINKIT_URL_METHOD_RAW:
         $path = $uri;
-       break;
-     case LINKIT_URL_METHOD_RAW_SLASH:
-       $options['alias'] = TRUE;
-       $path = url($uri, $options);
-       break;
-     case LINKIT_URL_METHOD_ALIAS:
-       $path = url($uri,  $options);
-       break;
+        break;
+      case LINKIT_URL_METHOD_RAW_SLASH:
+        $options['alias'] = TRUE;
+        $path = url($uri, $options);
+        break;
+      case LINKIT_URL_METHOD_ALIAS:
+        $path = url($uri,  $options);
+        break;
     }
 
     return $path;

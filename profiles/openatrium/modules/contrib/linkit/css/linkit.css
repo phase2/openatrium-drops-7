@@ -220,3 +220,7 @@
   border-bottom-right-radius: 3px;
   border-bottom: 1px solid #BFBFBF;
 }
+
+.ui-dialog.ui-front.linkit-wrapper {
+  z-index: 2000;
+}

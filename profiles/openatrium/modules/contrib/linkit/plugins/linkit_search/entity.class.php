@@ -5,7 +5,7 @@
  */
 
 /**
- * Reprecents a Linkit entity search plugin.
+ * Represents a Linkit entity search plugin.
  */
 class LinkitSearchPluginEntity extends LinkitSearchPlugin {
 
@@ -97,13 +97,13 @@ class LinkitSearchPluginEntity extends LinkitSearchPlugin {
    *   The entity label, or FALSE if not found.
    */
   function createLabel($entity) {
-    return check_plain(entity_label($this->plugin['entity_type'], $entity));
+    return entity_label($this->plugin['entity_type'], $entity);
   }
 
    /**
    * Create a search row description.
    *
-   * If there is a "result_description", run it thro token_replace.
+   * If there is a "result_description", run it through token_replace.
    *
    * @param object $data
    *   An entity object that will be used in the token_place function.
@@ -145,7 +145,7 @@ class LinkitSearchPluginEntity extends LinkitSearchPlugin {
         $options['language'] = $languages[$entity->language];
       }
     }
-    // Process the uri with the insert pluing.
+    // Process the uri with the insert plugin.
     $path = linkit_get_insert_plugin_processed_path($this->profile, $uri['path'], $options);
     return $path;
   }
@@ -175,7 +175,7 @@ class LinkitSearchPluginEntity extends LinkitSearchPlugin {
   }
 
   /**
-   * Create a row class to appaned to the search result row.
+   * Create a row class to append to the search result row.
    *
    * @param $entity
    *   The entity object.
@@ -194,7 +194,7 @@ class LinkitSearchPluginEntity extends LinkitSearchPlugin {
     $this->query = new EntityFieldQuery();
     $this->query->entityCondition('entity_type', $this->plugin['entity_type']);
 
-    // Add the default sort on the enity label.
+    // Add the default sort on the entity label.
     $this->query->propertyOrderBy($this->entity_field_label, 'ASC');
   }
 
@@ -240,7 +240,7 @@ class LinkitSearchPluginEntity extends LinkitSearchPlugin {
     $entities = entity_load($this->plugin['entity_type'], $ids);
 
     foreach ($entities AS $entity) {
-      // Check the access againt the definded entity access callback.
+      // Check the access against the defined entity access callback.
       if (entity_access('view', $this->plugin['entity_type'], $entity) === FALSE) {
         continue;
       }
@@ -276,7 +276,7 @@ class LinkitSearchPluginEntity extends LinkitSearchPlugin {
     // Get supported tokens for the entity type.
     $tokens = linkit_extract_tokens($this->plugin['entity_type']);
 
-    // A short description in within the search result for each row.
+    // A short description within the search result for each row.
     $form[$this->plugin['name']]['result_description'] = array(
       '#title' => t('Result description'),
       '#type' => 'textfield',
@@ -286,7 +286,7 @@ class LinkitSearchPluginEntity extends LinkitSearchPlugin {
       '#description' => t('Available tokens: %tokens.', array('%tokens' => implode(', ', $tokens))),
     );
 
-    // If the token module is installed, lets make some fancy stuff with the
+    // If the token module is installed, lets do some fancy stuff with the
     // token chooser.
     if (module_exists('token')) {
       // Unset the regular description if token module is enabled.
@@ -295,17 +295,15 @@ class LinkitSearchPluginEntity extends LinkitSearchPlugin {
       // Display the user documentation of placeholders.
       $form[$this->plugin['name']]['token_help'] = array(
         '#title' => t('Replacement patterns'),
-        '#type' => 'fieldset',
-        '#collapsible' => TRUE,
-        '#collapsed' => TRUE,
+        '#type' => 'markup',
       );
       $form[$this->plugin['name']]['token_help']['help'] = array(
-        '#theme' => 'token_tree',
+        '#theme' => 'token_tree_link',
         '#token_types' => array($this->plugin['entity_type']),
       );
     }
 
-    // If there is bundles, add some default settings features.
+    // If there are bundles, add some default settings features.
     if (count($this->entity_info['bundles']) > 1) {
       $bundles = array();
       // Extract the bundle data.

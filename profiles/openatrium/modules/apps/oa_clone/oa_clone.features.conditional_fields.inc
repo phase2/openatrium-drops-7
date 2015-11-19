@@ -10,7 +10,7 @@
 function oa_clone_conditional_fields_default_fields() {
   $items = array();
 
-  $items["taxonomy_term:space_type"] = array(
+  $items["taxonomy_term:space_type:0"] = array(
     'entity' => 'taxonomy_term',
     'bundle' => 'space_type',
     'dependent' => 'field_oa_node_types',
@@ -44,7 +44,7 @@ function oa_clone_conditional_fields_default_fields() {
     ),
   );
 
-  $items["taxonomy_term:space_type"] = array(
+  $items["taxonomy_term:space_type:0"] = array(
     'entity' => 'taxonomy_term',
     'bundle' => 'space_type',
     'dependent' => 'field_oa_section_layout',
@@ -78,7 +78,7 @@ function oa_clone_conditional_fields_default_fields() {
     ),
   );
 
-  $items["taxonomy_term:space_type"] = array(
+  $items["taxonomy_term:space_type:0"] = array(
     'entity' => 'taxonomy_term',
     'bundle' => 'space_type',
     'dependent' => 'field_oa_clone_space',

@@ -86,9 +86,9 @@ files[] = tests/oa_sectionsNodePrivateAccess.test
 files[] = tests/oa_sectionsNodePublicAccess.test
 files[] = tests/oa_sectionsNodeAccessBase.test
 
-; Information added by Drupal.org packaging script on 2015-11-06
-version = "7.x-2.64"
+; Information added by Drupal.org packaging script on 2015-11-19
+version = "7.x-2.65"
 core = "7.x"
 project = "oa_core"
-datestamp = "1446838542"
+datestamp = "1447959244"
 

@@ -43,7 +43,7 @@ class LinkitSearchPluginNode extends LinkitSearchPluginEntity {
       '#title' => t('Include unpublished nodes'),
       '#type' => 'checkbox',
       '#default_value' => isset($this->conf['include_unpublished']) ? $this->conf['include_unpublished'] : 0,
-      '#description' => t('In order to see unpublished nodes, the user most also have permissions to do so. '),
+      '#description' => t('In order to see unpublished nodes, the user must also have permissions to do so. '),
     );
 
     return $form;

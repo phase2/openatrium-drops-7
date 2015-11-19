@@ -788,6 +788,9 @@ function entity_metadata_comment_access($op, $entity = NULL, $account = NULL) {
   if (user_access('access comments', $account) && $op == 'view') {
     return TRUE;
   }
+  if (user_access('post comments', $account) && $op == 'create') {
+    return TRUE;
+  }
   return FALSE;
 }
 

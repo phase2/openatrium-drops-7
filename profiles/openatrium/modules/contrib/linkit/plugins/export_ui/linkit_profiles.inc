@@ -106,7 +106,6 @@ function _linkit_build_profile_type_form_fields(&$form, LinkitProfile $profile) 
   $form['data']['profile_type'] = array(
     '#type' => 'fieldset',
     '#title' => t('Profile type'),
-    '#description' => t(''),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
     '#tree' => FALSE,
@@ -143,7 +142,6 @@ function _linkit_build_profile_type_form_fields(&$form, LinkitProfile $profile) 
     '#empty_option' => t('- Select one or more text format- '),
     '#default_value' => isset($profile->data['text_formats'])
       ? $profile->data['text_formats'] : array(),
-    '#description' => t('.'),
     '#states' => array(
       'visible' => array(
         // While waiting for https://drupal.org/node/879580 to be commited, we
@@ -294,7 +292,7 @@ function _linkit_build_insert_plugin_form_fields(&$form, LinkitProfile $profile)
     ),
     LINKIT_URL_METHOD_RAW_SLASH => array(
       '#description' => t('This is the default behavior, it will insert paths
-         like %example_link.<br/>These will work <strong>without the need for a input filter</strong>,
+         like %example_link.<br/>These will work <strong>without the need for an input filter</strong>,
          but might fail after moving a site, or on multilingual sites.',
          array('%example_link' => '/node/123')),
     ),
@@ -307,7 +305,7 @@ function _linkit_build_insert_plugin_form_fields(&$form, LinkitProfile $profile)
     $form['data']['insert_plugin']['url_method']['#options'][LINKIT_URL_METHOD_ALIAS] = t('Alias paths');
     $form['data']['insert_plugin']['url_method'][LINKIT_URL_METHOD_ALIAS] = array(
       '#description' => t('This will insert the alias for the result item.
-        <br/>The paths will be runned thru the <em>url()</em> function.', array('%example_link' => 'node/123')),
+        <br/>The paths will be run through the <em>url()</em> function.', array('%example_link' => 'node/123')),
     );
   }
 }
@@ -327,7 +325,7 @@ function _linkit_build_attribute_plugin_form_fields(&$form, LinkitProfile $profi
   $form['data']['attribute_plugins_fieldset'] = array(
     '#type' => 'fieldset',
     '#title' => t('Attributes'),
-    '#description' => t('Attributes is HTML attributes that will be attached to
+    '#description' => t('Attributes are HTML attributes that will be attached to
       the insert plugin.'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
@@ -417,7 +415,7 @@ function _linkit_build_autocomplete_form_fields(&$form, LinkitProfile $profile) 
   $form['data']['autocomplete'] = array(
     '#type' => 'fieldset',
     '#title' => t('Autocomplete options'),
-    '#description' => t('Linkit uses !bac which may be configured with focus on
+    '#description' => t('Linkit uses !bac which may be configured with a focus on
       performance.', array('!bac' => l(t('Better Autocomplete'),
       'https://github.com/betamos/Better-Autocomplete'))),
     '#collapsible' => TRUE,

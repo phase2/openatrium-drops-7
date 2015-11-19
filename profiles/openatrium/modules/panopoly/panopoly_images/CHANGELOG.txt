@@ -1,3 +1,7 @@
+Panopoly Images 7.x-1.29, 2015-11-18
+-----------------------------
+- Tighten up media browser thumbnails.
+
 Panopoly Images 7.x-1.28, 2015-10-21
 -----------------------------
 - Type-o findthe in watchdog() text panopoly_images module.

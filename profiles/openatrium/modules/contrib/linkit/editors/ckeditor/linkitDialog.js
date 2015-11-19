@@ -17,7 +17,7 @@ Drupal.linkit.registerDialogHelper('ckeditor', {
    */
   afterInit : function () {
      var editor = Drupal.settings.linkit.currentInstance.editor;
-     var element = CKEDITOR.plugins.link.getSelectedLink( editor );
+     var element = CKEDITOR.plugins.link.getSelectedLink(editor);
 
     // If we have selected a link element, lets populate the fields in the
     // modal with the values from that link element.

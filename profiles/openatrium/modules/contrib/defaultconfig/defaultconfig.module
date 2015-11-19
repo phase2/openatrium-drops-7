@@ -127,6 +127,12 @@ function defaultconfig_component_rebuild_roles(array $info, $defaults, $module =
 function defaultconfig_component_rebuild_ctools(array $info, $defaults, $module = FALSE) {
   ctools_include('export');
   foreach ($defaults as $name => $default) {
+    // Rebuild page manager pages with special code.
+    if ($info['features component'] == 'page_manager_pages') {
+      defaultconfig_component_rebuild_page_manager_pages($name, $default);
+      continue;
+    }
+
     // Delete any old object if it exists.
     $old_object = ctools_export_crud_load($info['features component'], $name);
     if ($old_object && ($old_object->export_type & EXPORT_IN_DATABASE)) {
@@ -136,6 +142,17 @@ function defaultconfig_component_rebuild_ctools(array $info, $defaults, $module 
     $default->export_type = EXPORT_IN_CODE;
     ctools_export_crud_save($info['features component'], $default);
   }
+}
+
+/**
+ * Specialized rebuild function for page_manager_pages.
+ */
+function defaultconfig_component_rebuild_page_manager_pages($name, $page) {
+  ctools_include('page', 'page_manager', 'plugins/tasks');
+  if (page_manager_page_load($name)) {
+    page_manager_page_delete($page);
+  }
+  page_manager_page_save($page);
 }
 
 /**
@@ -506,7 +523,9 @@ function defaultconfig_modules($component) {
       }
     }
   }
-  return array_merge($defaultconfig_modules, $features_modules);
+  $modules = array_merge($defaultconfig_modules, $features_modules);
+
+  return array_unique($modules);
 }
 
 /**

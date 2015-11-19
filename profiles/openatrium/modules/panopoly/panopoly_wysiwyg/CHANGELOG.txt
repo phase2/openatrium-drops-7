@@ -1,3 +1,7 @@
+Panopoly WYSIWYG 7.x-1.29, 2015-11-18
+------------------------------
+- Update to Linkit 3.4.
+
 Panopoly WYSIWYG 7.x-1.28, 2015-10-21
 ------------------------------
 - Incorporate patch that eases creating new text formats.

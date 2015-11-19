@@ -1,3 +1,8 @@
+Panopoly Widgets 7.x-1.29, 2015-11-18
+------------------------------
+- Patching media for opening multiple media browser popups.
+- Update to Media 2.0-beta1 and File Entity 2.0-beta2.
+
 Panopoly Widgets 7.x-1.28, 2015-10-21
 ------------------------------
 - Text on tabs on Media Browser is lower than it is on other interfaces.

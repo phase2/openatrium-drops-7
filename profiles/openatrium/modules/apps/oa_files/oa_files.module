@@ -614,7 +614,14 @@ function oa_files_include_js() {
       'multiselect' => $multiselect,
     );
     drupal_load('module', 'media_wysiwyg');
-    media_wysiwyg_include_browser_js();
+    if (function_exists('media_wysiwyg_include_browser_js')) {
+      // older versions of Media
+      media_wysiwyg_include_browser_js();
+    }
+    else {
+      drupal_add_library('media', 'media_browser');
+      drupal_add_library('media', 'media_browser_settings');
+    }
     drupal_add_library('system', 'drupal.ajax');
     drupal_add_js(drupal_get_path('module', 'oa_files') . '/js/upload.js');
     drupal_add_js(array('oa_files_media_options' => array('global' => $options), 'oa_files_upload_url' => url('oa-files/upload/multi')), 'setting');
