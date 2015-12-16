@@ -112,7 +112,7 @@ function select2widget_field_widget_form(&$form, &$form_state, $field, $instance
         '#type' => 'select',
         '#default_value' => $default_value,
         // Do not display a 'multiple' select box if there is only one option.
-        '#multiple' => $multiple && count($options) > 1,
+        '#multiple' => $multiple && count($options) >= 1,
         '#options' => $options,
         '#process' => array('select2widget_process_callback', 'ajax_process_form'),
         '#value_key' => $value_key,
@@ -372,8 +372,6 @@ function select2widget_autocomplete_access($field_name, $entity_type, $bundle_na
  * @param $entity_id
  *   Optional; The entity ID the entity-reference field is attached to.
  *   Defaults to ''.
- * @param $string
- *   The label of the entity to query by.
  */
 function select2widget_ajax_callback($field_name, $entity_type, $bundle_name, $entity_id = '') {
   $string = '';
@@ -398,6 +396,8 @@ function select2widget_ajax_callback($field_name, $entity_type, $bundle_name, $e
 
   $type = $field['type'];
   $function = "select2widget_" . $type . '_get_matches';
+
+  drupal_alter('select2widget_get_matches', $function, $field, $instance, $entity_type);
 
   if (function_exists($function)) {
     return $function($field, $instance, $entity_type, $string, $entity_id);

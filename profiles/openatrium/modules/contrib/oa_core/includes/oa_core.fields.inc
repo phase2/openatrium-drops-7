@@ -136,7 +136,7 @@ function _oa_core_select2widget_process_entity_labels($value) {
       }
     }
     elseif (preg_match("/.+\((\d+)\)/", $target_entity, $matches)) {
-      $entity_labels[$matches[1]] = $target_entity;
+      $entity_labels[$matches[1]] = check_plain($target_entity);
     }
     elseif ($target_entity == 'All') {
       $entity_labels['All'] = _oa_core_select2widget_all_label();

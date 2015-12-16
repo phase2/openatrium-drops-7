@@ -104,7 +104,17 @@ function _element_width_validate($element, &$form_state) {
  */
 function select2widget_entity_process_callback($element, &$form_state, $form) {
   // Send Drupal.settings a reference to this form element.
-  $cardinality = $form_state['field'][$element['#field_name']][$element['#language']]['field']['cardinality'];
+  $field_name = $element['#field_name'];
+  $langcode = $element['#language'];
+
+  if (!empty($form_state['field'][$field_name])) {
+    $cardinality = $form_state['field'][$field_name][$langcode]['field']['cardinality'];
+  }
+  else {
+    $parents = array_merge($element['#parents'], array($field_name));
+    $field = drupal_array_get_nested_value($form_state, $parents, $langcode);
+    $cardinality = $field['field']['cardinality'];
+  }
 
   $data['select2widgetajax']['elements'][$element['#id']] = array(
     'id' => $element['#id'],
@@ -298,7 +308,7 @@ function select2widget_entity_validate_field(&$element, &$form_state, $form) {
     }
 
     elseif (preg_match("/.+\((\d+)\)/", $target_entity, $matches)) {
-      $entity_labels[$matches[1]] = $target_entity;
+      $entity_labels[$matches[1]] = check_plain($target_entity);
       $value[] = array('target_id' => $matches[1]);
     }
 

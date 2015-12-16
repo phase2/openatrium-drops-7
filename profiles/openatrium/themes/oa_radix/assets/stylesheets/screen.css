@@ -14108,6 +14108,17 @@ img {
   vertical-align: bottom;
 }
 
+/* line 13, ../sass/components/_elements.scss */
+.field img.panopoly-image-full,
+.field img.panopoly-image-half,
+.field img.panopoly-image-quarter {
+  max-width: 100%;
+  width: auto;
+  height: auto;
+  float: none;
+  margin: 0;
+}
+
 /* line 5, ../sass/layout/_layout.scss */
 html, body {
   height: 100%;

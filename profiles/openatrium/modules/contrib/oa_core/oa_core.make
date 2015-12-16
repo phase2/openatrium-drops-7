@@ -17,7 +17,7 @@ libraries[chosen][directory_name] = "chosen"
 libraries[chosen][destination] = "libraries"
 
 ; Colorizer
-projects[colorizer][version] = 1.7
+projects[colorizer][version] = 1.8
 projects[colorizer][subdir] = contrib
 
 ; Conditional Fields
@@ -167,16 +167,8 @@ projects[reference_option_limit][patch][1986526] = http://drupal.org/files/19865
 
 
 ; Select 2 Widget
-; projects[select2widget][version] = 2.7
+projects[select2widget][version] = 2.9
 projects[select2widget][subdir] = contrib
-projects[select2widget][version] = 2.x-dev
-projects[select2widget][subdir] = contrib
-projects[select2widget][download][type] = git
-projects[select2widget][download][branch] = 7.x-2.x
-projects[select2widget][download][revision] = eb87c27
-projects[select2widget][patch][2404175] = https://www.drupal.org/files/issues/2404175-select2widget-og_complex-2.patch
-projects[select2widget][patch][2503787] = https://www.drupal.org/files/issues/select2widget_add_support_for_og_vocab-2503787-4.patch
-projects[select2widget][patch][2503789] = https://www.drupal.org/files/issues/select2widget_error_from_placeholder-2503789-1.patch
 
 libraries[select2][download][type] = "get"
 libraries[select2][download][url] = "https://github.com/ivaynberg/select2/archive/3.5.2.tar.gz"

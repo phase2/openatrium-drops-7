@@ -8,3 +8,14 @@ img {
   height: auto;
   vertical-align: bottom;
 }
+
+// This used to be in compass_radix to override panopoly_images
+.field img.panopoly-image-full,
+.field img.panopoly-image-half,
+.field img.panopoly-image-quarter {
+  max-width: 100%;
+  width: auto;
+  height: auto;
+  float: none;
+  margin: 0;
+}
