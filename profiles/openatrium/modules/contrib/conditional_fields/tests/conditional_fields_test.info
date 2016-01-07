@@ -7,9 +7,9 @@ files[] = conditional_fields.test
 hidden = TRUE
 
 
-; Information added by drush on 2015-12-16
+; Information added by drush on 2016-01-07
 version = "7.x-3.0-alpha2+0-dev"
 core = "7.x"
 project = "conditional_fields"
-datestamp = "1450290056"
+datestamp = "1452178261"
 

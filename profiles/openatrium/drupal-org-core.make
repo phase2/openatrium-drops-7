@@ -50,3 +50,6 @@ projects[drupal][patch][1891228] = https://www.drupal.org/files/issues/image_sys
 ; Fixes an issue where _registry_check_code() gets called early in the bootstrap process. Stills throws a warning but
 ; keeps it from throwing a fatal.
 projects[drupal][patch][412808] = https://www.drupal.org/files/issues/drupal-registry_fix-412808-32.patch
+
+; Fixes sticky headers are not calculating the column widths properly.
+projects[drupal][patch][2097081] = https://www.drupal.org/files/2097081-fix-sticky-header-column-width-7.x-6.patch

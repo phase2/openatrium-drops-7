@@ -106,7 +106,6 @@ Drupal.tableHeader.prototype.eventhandlerRecalculateStickyHeader = function (eve
     var $that = null;
     var $stickyCell = null;
     var display = null;
-    var cellWidth = null;
     // Resize header and its cell widths.
     // Only apply width to visible table cells. This prevents the header from
     // displaying incorrectly when the sticky header is no longer visible.
@@ -115,12 +114,7 @@ Drupal.tableHeader.prototype.eventhandlerRecalculateStickyHeader = function (eve
       $stickyCell = this.stickyHeaderCells.eq($that.index());
       display = $that.css('display');
       if (display !== 'none') {
-        cellWidth = $that.css('width');
-        // Exception for IE7.
-        if (cellWidth === 'auto') {
-          cellWidth = $that[0].clientWidth + 'px';
-        }
-        $stickyCell.css({'width': cellWidth, 'display': display});
+        $stickyCell.css({'width': $that.outerWidth(true), 'display': display});
       }
       else {
         $stickyCell.css('display', 'none');

@@ -106,7 +106,7 @@ projects[entityreference][patch][1837650] = http://drupal.org/files/issues/entit
 projects[entityreference][patch][1492260] = https://www.drupal.org/files/issues/1492260-54.patch
 
 
-projects[field_group][version] = 1.4
+projects[field_group][version] = 1.5
 projects[field_group][subdir] = contrib
 
 projects[link][version] = 1.3

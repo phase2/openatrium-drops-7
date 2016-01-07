@@ -265,6 +265,7 @@ function template_preprocess_oa_toolbar(&$vars) {
   $space = NULL;
   $space_id = oa_core_get_space_context();
   $node = menu_get_object();
+  oa_core_add_node_class($node);
   $front_panel = drupal_is_front_page() && !(isset($node) && ($node->type == OA_SPACE_TYPE));
 
   if ($front_panel) {
@@ -288,6 +289,7 @@ function template_preprocess_oa_toolbar(&$vars) {
     $title = $space->title;
     $space_type = $space->type;
     $subspace_type_names = ($space_type == OA_SPACE_TYPE) ? t('Subspaces') : t('Subgroups');
+    oa_core_add_node_class($space);
     $vars['space_label'] = check_plain($title);
     $vars['space_url'] = url('node/' . $space_id);
     if (isset($vars['show_parents'])) {
@@ -427,13 +429,14 @@ function template_preprocess_oa_toolbar(&$vars) {
       $section_url = url('node/' . $space_id);
       $items = array();
       // grab the titles of the sections for the current space
-      $sections = oa_core_space_sections($space_id, NODE_PUBLISHED);
+      $sections = oa_core_space_sections($space_id, NODE_PUBLISHED, FALSE, array('field_oa_section|tid'));
       if (!empty($sections)) {
         // check for match with current section id
-        foreach ($sections as $sid => $title) {
-          $items[] = l($title, 'node/' . $sid);
+        foreach ($sections as $sid => $section) {
+          $items[] = l($section->title, 'node/' . $sid);
           if ($sid == $current_section) {
-            $section_name = $title;
+            oa_core_add_taxonomy_class($section->field_oa_section_tid);
+            $section_name = $section->title;
             $section_url = url('node/' . $sid);
           }
         }

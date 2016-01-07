@@ -1741,3 +1741,58 @@ function oa_core_get_banner_default() {
   }
   return NULL;
 }
+
+/**
+ * Helper function to return/add classes to the body tag
+ * @param array $styles
+ */
+function oa_core_body_classes($new_classes = array()) {
+  static $classes = array();
+  if (!empty($new_classes)) {
+    if (!is_array($new_classes)) {
+      $new_classes = array($new_classes);
+    }
+    $classes = array_merge($classes, $new_classes);
+  }
+  return $classes;
+}
+
+/**
+ * Add the node layout as a body class to the page
+ * @param $node
+ */
+function oa_core_add_node_class($node) {
+  if (!empty($node->panelizer['page_manager']->name)) {
+    oa_core_add_layout_class($node->panelizer['page_manager']->name);
+  }
+}
+
+/**
+ * Add the taxonomy layout as a body class to the page
+ * @param $vocab_name
+ * @param $tid
+ */
+function oa_core_add_taxonomy_class($tid) {
+  if ($term = taxonomy_term_load($tid)) {
+    if (!empty($term->field_oa_section_layout[LANGUAGE_NONE][0]['value'])) {
+      oa_core_add_layout_class($term->field_oa_section_layout[LANGUAGE_NONE][0]['value']);
+    }
+  }
+}
+
+/**
+ * Add the given layout name as a body class on the page
+ * @param $name of layout.  The node: part is skipped
+ * @param $prefix optional prefix for the class
+ */
+function oa_core_add_layout_class($name, $prefix = '') {
+  $list = explode(':', $name);
+  $prefix = !empty($prefix) ? $prefix . '-' : '';
+  if (count($list) > 1) {
+    $class_name = $prefix . $list[1];
+    if (count($list) > 2) {
+      $class_name .= '-' . $list[2];
+      oa_core_body_classes(drupal_html_class($class_name));
+    }
+  }
+}

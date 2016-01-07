@@ -1,3 +1,7 @@
+Panopoly Core 7.x-1.30, 2016-01-06
+---------------------------
+- Update field_group to 1.5 for SA-CONTRIB-2016-001.
+
 Panopoly Core 7.x-1.29, 2015-11-18
 ---------------------------
 - Panels patches for Atrium.

@@ -348,6 +348,16 @@ function oa_core_menu_alter(&$items) {
 }
 
 /**
+ * Implements hook_preprocess_html().
+ */
+function oa_core_preprocess_html(&$vars) {
+  $classes = oa_core_body_classes();
+  if (!empty($classes)) {
+    $vars['classes_array'] = empty($vars['classes_array']) ? $classes : array_merge($vars['classes_array'], $classes);
+  }
+}
+
+/**
  * Configuration Form for Open Atrium
  */
 function oa_core_configure_form($form, &$form_state) {

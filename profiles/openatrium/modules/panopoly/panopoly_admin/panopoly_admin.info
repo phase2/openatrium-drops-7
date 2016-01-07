@@ -36,11 +36,10 @@ features[page_manager_handlers][] = node_edit_panel_context
 features[page_manager_pages][] = panopoly_admin_layout_library
 features[page_manager_pages][] = panopoly_admin_page_library
 features[page_manager_pages][] = panopoly_admin_pane_library
-features[variable][] = user_admin_role
 
-; Information added by Drupal.org packaging script on 2015-11-18
-version = "7.x-1.29"
+; Information added by Drupal.org packaging script on 2016-01-07
+version = "7.x-1.30"
 core = "7.x"
 project = "panopoly_admin"
-datestamp = "1447887249"
+datestamp = "1452140063"
 

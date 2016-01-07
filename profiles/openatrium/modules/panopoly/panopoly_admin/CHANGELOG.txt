@@ -1,3 +1,7 @@
+Panopoly Admin 7.x-1.30, 2016-01-06
+----------------------------
+- Default admin role.
+
 Panopoly Admin 7.x-1.29, 2015-11-18
 ----------------------------
 - User base_url for showing site url over permalink field (label).

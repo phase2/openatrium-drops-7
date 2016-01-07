@@ -46,9 +46,9 @@ features_exclude[variable][panelizer_node:oa_section_allowed_layouts] = panelize
 features_exclude[variable][panelizer_node:oa_space_allowed_layouts] = panelizer_node:oa_space_allowed_layouts
 features_exclude[variable][panelizer_node:oa_space_allowed_types] = panelizer_node:oa_space_allowed_types
 
-; Information added by Drupal.org packaging script on 2015-12-16
-version = "7.x-2.67"
+; Information added by Drupal.org packaging script on 2016-01-07
+version = "7.x-2.68"
 core = "7.x"
 project = "oa_core"
-datestamp = "1450287245"
+datestamp = "1452176059"
 

@@ -304,7 +304,17 @@ function devel_load_object($type, $object, $name = NULL) {
 function devel_render_object($type, $object, $name = NULL) {
   $name = isset($name) ? $name : $type;
   $function = $type . '_view';
-  $build = $function($object);
+
+  switch ($function) {
+    case 'comment_view':
+      $node = node_load($object->nid);
+      $build = $function($object, $node);
+      break;
+
+    default:
+      $build = $function($object);
+  }
+
   return kdevel_print_object($build, '$'. $name .'->');
 }
 
