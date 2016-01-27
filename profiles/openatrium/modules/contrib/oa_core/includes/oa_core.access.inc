@@ -188,19 +188,8 @@ function oa_core_node_access_records($node) {
 }
 
 /**
- * Update the node_access_records of the given nodes
- * @param  array $nodes array of nids
- */
-function oa_core_update_access_records($nodes) {
-  drupal_static_reset('oa_core_node_grants');
-  foreach ($nodes as $nid) {
-    $node = node_load($nid);
-    node_access_acquire_grants($node);
-  }
-}
-
-/**
- * Implements hook_node_access()
+ * Implements hook_node_access().
+ *
  * Add proper 'create' access checks that OG doesn't handle
  */
 function oa_core_node_access($node, $op, $account) {
@@ -231,7 +220,8 @@ function oa_core_node_access($node, $op, $account) {
 }
 
 /**
- * Implements hook_node_update
+ * Implements hook_node_update().
+ *
  * if saving a section or space node, update access locks on related content
  */
 function oa_core_node_update($node) {
@@ -239,17 +229,12 @@ function oa_core_node_update($node) {
     // check if group access changed and update space content grants
     $rebuild = module_invoke_all('oa_core_og_content_needs_rebuild', $node);
     if (in_array(TRUE, $rebuild, TRUE)) {
-      // rebuild space content nodes
-      $nodes = db_select('og_membership', 'og')
-        ->fields('og', array('etid'))
-        ->condition('og.entity_type', 'node')
-        ->condition('og.gid', $node->nid)  // all content nodes of this space
-        ->execute()
-        ->fetchCol(0);
-      // clear the static node cache for the space node so correct access
-      // values are tested in hook_node_access_records
-      entity_get_controller('node')->resetCache(array($node->nid));
-      oa_core_update_access_records($nodes);
+      // Get all subgroups for this node.
+      $subgroup_nids = oa_core_get_groups_by_parent($node->nid, $node->type, NULL, FALSE, NULL, TRUE);
+      // Prepare the batch.
+      _oa_core_update_access_records_batch_prepare($subgroup_nids);
+      // Trigger the batch.
+      batch_process();
     }
     oa_core_clear_group_cache($node);
   }
@@ -259,7 +244,7 @@ function oa_core_node_update($node) {
     $is_public  = oa_core_section_is_public($node);
     if ($was_public != $is_public) {
       // rebuild section content nodes
-      $nodes = db_select('field_data_' . OA_SECTION_FIELD, 'n')
+      $nids = db_select('field_data_' . OA_SECTION_FIELD, 'n')
         ->fields('n', array('entity_id'))
         ->condition('n.entity_type', 'node')
         ->condition('n.oa_section_ref_target_id', $node->nid)
@@ -268,8 +253,98 @@ function oa_core_node_update($node) {
       // clear the static node cache for the space node so correct access
       // values are tested in hook_node_access_records
       entity_get_controller('node')->resetCache(array($node->nid));
-      oa_core_update_access_records($nodes);
+      oa_core_update_access_records($nids);
     }
+  }
+}
+
+/**
+ * Update the node_access_records of the given nodes.
+ *
+ * @param array $nids
+ *   Node nids that need updated node grants.
+ */
+function oa_core_update_access_records($nids) {
+  drupal_static_reset('oa_core_node_grants');
+  foreach ($nids as $nid) {
+    $node = node_load($nid);
+    // Clear the static node cache for the space node so correct access
+    // values are tested in hook_node_access_records.
+    entity_get_controller('node')->resetCache(array($nid));
+    // Update the node grants.
+    node_access_acquire_grants($node);
+  }
+}
+
+/**
+ * Set up the batch process to update node records.
+ *
+ * @param array $subgroup_nids
+ *   Nids for all subgroups of the node being updated.
+ */
+function _oa_core_update_access_records_batch_prepare($subgroup_nids) {
+
+  // Define the batch.
+  $batch = array(
+    'title' => t('Updating node access records due to a change in "Group Visibility"'),
+    'init_message' => t('Preparing to update records.'),
+    'operations' => array(array('_oa_core_update_access_records_batch', array($subgroup_nids))),
+    'finished' => '_oa_core_update_access_records_batch_finished',
+  );
+
+  // Set the batch using a helper in case drush is used.
+  oa_core_batch_set($batch);
+}
+
+/**
+ * Batch for updating node access records.
+ *
+ * @param array $subgroup_nids
+ *   Nids for all subgroups of the node being updated.
+ * @param array $context
+ *   Carried over between batches.
+ */
+function _oa_core_update_access_records_batch($subgroup_nids, &$context) {
+  if (empty($context['sandbox']['nids'])) {
+
+    $context['sandbox']['nids'] = $subgroup_nids;
+
+    // These are nids returned from oa_core_get_groups_by_parent().
+    foreach ($subgroup_nids as $nid) {
+      // Get membership nids using the og_group_ref field.
+      $membership_nids = oa_core_get_membership_nodes($nid);
+      // Merge the results.
+      $new_array = array_merge($context['sandbox']['nids'], $membership_nids);
+      // Update the sandbox.
+      $context['sandbox']['nids'] = $new_array;
+    }
+    $context['results'] = count($context['sandbox']['nids']);
+  }
+
+  // Number of nodes updated per pass.
+  $records_per_pass = 25;
+
+  // Define the records to run for this pass.
+  $current_records = array_splice($context['sandbox']['nids'], 0, $records_per_pass);
+
+  // Update the node access records for this pass.
+  oa_core_update_access_records($current_records);
+
+  // We are done when the sandbox nids array is empty.
+  $context['finished'] = empty($context['sandbox']['nids']) ? 1 : 0;
+
+}
+
+/**
+ * Called when the batch is finished.
+ *
+ * @param boolean $success
+ * @param int $results
+ * @param $operations
+ */
+function _oa_core_update_access_records_batch_finished($success, $results, $operations) {
+  if ($success && !empty($results)) {
+    drupal_set_message(t('Updated node access records for @count nodes.', array('@count' => $results)));
   }
 }
 

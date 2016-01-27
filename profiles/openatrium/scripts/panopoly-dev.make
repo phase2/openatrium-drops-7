@@ -29,6 +29,7 @@ projects[panopoly_images][patch][2521968] = https://www.drupal.org/files/issues/
 projects[panopoly_theme][subdir] = panopoly
 projects[panopoly_theme][download][type] = git
 projects[panopoly_theme][download][branch] = 7.x-1.x
+projects[panopoly_theme][patch][2656920] = https://www.drupal.org/files/issues/2656920-panopoly-theme-radix-layouts-2.patch
 
 projects[panopoly_magic][subdir] = panopoly
 projects[panopoly_magic][download][type] = git

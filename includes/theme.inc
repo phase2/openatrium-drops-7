@@ -1325,8 +1325,19 @@ function drupal_find_theme_templates($cache, $extension, $path) {
 
   // Escape the periods in the extension.
   $regex = '/' . str_replace('.', '\.', $extension) . '$/';
+
+  // By default, do not check for files in common special-purpose directories.
+  // The folders here are front-end related and they have been added to avoid
+  // issues with Drupal recursive scanning. In this case, we added node_modules
+  // and bower_components. This also improves performance on frontend builds.
+  $ignore_directories = variable_get('drupal_file_scan_ignore_directories', array(
+    'node_modules',
+    'bower_components',
+  ));
+  $no_mask = '/^(\..*)|' . implode('|', $ignore_directories) . '$/';
+
   // Get a listing of all template files in the path to search.
-  $files = drupal_system_listing($regex, $path, 'name', 0);
+  $files = file_scan_directory($path, $regex, array('key' => 'name', 'nomask' => $no_mask));
 
   // Find templates that implement registered theme hooks and include that in
   // what is returned so that the registry knows that the theme has this

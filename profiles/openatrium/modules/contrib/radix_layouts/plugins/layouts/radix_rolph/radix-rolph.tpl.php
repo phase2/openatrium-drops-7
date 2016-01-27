@@ -22,24 +22,31 @@
     </div>
 
     <div class="row">
-      <div class="col-md-3 radix-layouts-quarter1 panel-panel">
+      <div class="col-md-12 radix-layouts-content panel-panel">
         <div class="panel-panel-inner">
-          <?php print $content['quarter1']; ?>
-        </div>
-      </div>
-      <div class="col-md-3 radix-layouts-quarter2 panel-panel">
-        <div class="panel-panel-inner">
-          <?php print $content['quarter2']; ?>
-        </div>
-      </div>
-      <div class="col-md-3 radix-layouts-quarter3 panel-panel">
-        <div class="panel-panel-inner">
-          <?php print $content['quarter3']; ?>
-        </div>
-      </div>
-      <div class="col-md-3 radix-layouts-quarter4 panel-panel">
-        <div class="panel-panel-inner">
-          <?php print $content['quarter4']; ?>
+
+          <div class="row">
+            <div class="col-md-3 radix-layouts-quarter1 panel-panel">
+              <div class="panel-panel-inner">
+                <?php print $content['quarter1']; ?>
+              </div>
+            </div>
+            <div class="col-md-3 radix-layouts-quarter2 panel-panel">
+              <div class="panel-panel-inner">
+                <?php print $content['quarter2']; ?>
+              </div>
+            </div>
+            <div class="col-md-3 radix-layouts-quarter3 panel-panel">
+              <div class="panel-panel-inner">
+                <?php print $content['quarter3']; ?>
+              </div>
+            </div>
+            <div class="col-md-3 radix-layouts-quarter4 panel-panel">
+              <div class="panel-panel-inner">
+                <?php print $content['quarter4']; ?>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

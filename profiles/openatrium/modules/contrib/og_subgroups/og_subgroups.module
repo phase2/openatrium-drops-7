@@ -154,7 +154,8 @@ function og_subgroups_is_parent_private($group_type, $entity) {
  * Implements hook_node_access_records_alter().
  */
 function og_subgroups_node_access_records_alter(&$grants, $node) {
-  if (!empty($node->status) && og_is_group_type('node', $node->type) && module_exists('og_access')) {
+  if (!empty($node->status) && module_exists('og_access')
+    && (og_is_group_type('node', $node->type) || (variable_get('og_subgroup_private_content', TRUE) && og_is_group_content_type('node', $node->type)))) {
     // Since subgroups are technically group content, they inherit group access.
     // However, that access is only one level deep so we need to redo it.
     $all_parent = og_subgroups_parents_load('node', $node->nid, FALSE, TRUE, FALSE, TRUE);

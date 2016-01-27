@@ -27,7 +27,7 @@
           <?php print $content['sidebar']; ?>
         </div>
       </div>
-      <div class="col-md-8 panel-panel">
+      <div class="col-md-8 radix-layouts-content panel-panel">
         <div class="row">
           <div class="col-md-12 radix-layouts-contentheader panel-panel">
             <div class="panel-panel-inner">

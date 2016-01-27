@@ -174,6 +174,11 @@ projects[oa_search][subdir] = apps
 projects[oa_search][download][type] = git
 projects[oa_search][download][branch] = 7.x-2.x
 
+; projects[oa_site_layout][version] = 2.x-dev
+projects[oa_site_layout][subdir] = apps
+projects[oa_site_layout][download][type] = git
+projects[oa_site_layout][download][branch] = 7.x-2.x
+
 projects[oa_sitemap][version] = 2.x-dev
 projects[oa_sitemap][subdir] = apps
 projects[oa_sitemap][download][type] = git
@@ -221,6 +226,16 @@ projects[oa_radix][version] = 3.x-dev
 projects[oa_radix][download][type] = git
 projects[oa_radix][download][branch] = 7.x-3.x
 
+projects[oa_basetheme][type] = theme
+; projects[oa_basetheme][version] = 2.x-dev
+projects[oa_basetheme][download][type] = git
+projects[oa_basetheme][download][branch] = 7.x-2.x
+
+projects[oa_theme][type] = theme
+; projects[oa_theme][version] = 2.x-dev
+projects[oa_theme][download][type] = git
+projects[oa_theme][download][branch] = 7.x-2.x
+
 ; *********** End Open Atrium Themes *************
 ; ************************************************
 
@@ -248,6 +263,11 @@ projects[oa_angular][version] = 1.x-dev
 projects[oa_angular][subdir] = contrib
 projects[oa_angular][download][type] = git
 projects[oa_angular][download][branch] = 7.x-1.x
+
+projects[oa_responsive_regions][version] = 2.x-dev
+projects[oa_responsive_regions][subdir] = contrib
+projects[oa_responsive_regions][download][type] = git
+projects[oa_responsive_regions][download][branch] = 7.x-2.x
 
 ; *********** End Open Atrium Contrib ************
 ; ************************************************

@@ -8,9 +8,9 @@ files[] = devel.test
 files[] = devel.mail.inc
 
 
-; Information added by drush on 2016-01-07
+; Information added by drush on 2016-01-27
 version = "7.x-1.5+15-dev"
 core = "7.x"
 project = "devel"
-datestamp = "1452178245"
+datestamp = "1453911407"
 

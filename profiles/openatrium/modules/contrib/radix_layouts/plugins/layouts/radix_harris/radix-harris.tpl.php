@@ -20,9 +20,9 @@
         </div>
       </div>
     </div>
-    
+
     <div class="row">
-      <div class="col-md-3 radix-layouts-column1 panel-panel">
+      <div class="col-md-3 radix-layouts-column1 radix-layouts-sidebar panel-panel">
         <div class="panel-panel-inner">
           <?php print $content['column1']; ?>
         </div>
@@ -32,7 +32,7 @@
           <?php print $content['contentmain']; ?>
         </div>
       </div>
-      <div class="col-md-3 radix-layouts-column2 panel-panel">
+      <div class="col-md-3 radix-layouts-column2 radix-layouts-sidebar panel-panel">
         <div class="panel-panel-inner">
           <?php print $content['column2']; ?>
         </div>

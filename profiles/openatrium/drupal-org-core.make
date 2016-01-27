@@ -53,3 +53,6 @@ projects[drupal][patch][412808] = https://www.drupal.org/files/issues/drupal-reg
 
 ; Fixes sticky headers are not calculating the column widths properly.
 projects[drupal][patch][2097081] = https://www.drupal.org/files/2097081-fix-sticky-header-column-width-7.x-6.patch
+
+; Prevent Drupal from scanning node_module and bower_component directories in theme
+projects[drupal][patch][2329453] = https://www.drupal.org/files/issues/ignore_front_end_vendor-2329453-111.patch

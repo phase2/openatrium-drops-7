@@ -22,7 +22,7 @@
     </div>
 
     <div class="row">
-      <div class="col-md-6 radix-layouts-half panel-panel">
+      <div class="col-md-6 radix-layouts-half radix-layouts-content panel-panel">
         <div class="panel-panel-inner">
           <?php print $content['half']; ?>
         </div>

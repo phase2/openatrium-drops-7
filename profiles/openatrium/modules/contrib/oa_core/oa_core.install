@@ -390,3 +390,81 @@ function oa_core_update_7235() {
   }
 }
 
+/**
+ * Update Group and Space node access grants.
+ */
+function oa_core_update_7236(&$sandbox) {
+  // This is the first time through.
+  if (!isset($sandbox['total'])) {
+    // Set a default count.
+    $sandbox['current'] = 0;
+
+    // Finds all private Groups and Spaces.
+    $query = new EntityFieldQuery();
+    $query->entityCondition('entity_type', 'node')
+      ->entityCondition('bundle', array('oa_group', 'oa_space'))
+      ->propertyCondition('status', NODE_PUBLISHED)
+      ->fieldCondition('group_access', 'value', 1)
+      ->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');
+
+    $result = $query->execute();
+
+    if (isset($result['node'])) {
+
+      $sandbox['nids'] = $private_nids = array_keys($result['node']);
+
+      foreach ($private_nids as $nid) {
+        // Get membership nids of the private group using the og_group_ref field.
+        $membership_nids = oa_core_get_membership_nodes($nid);
+        // Merge the results.
+        $new_array = array_merge($sandbox['nids'], $membership_nids);
+        // Update the sandbox.
+        $sandbox['nids'] = $new_array;
+      }
+
+      // Total number of nodes that will be updated.
+      $sandbox['total'] = count($sandbox['nids']);
+    }
+  }
+
+  // Number of nodes we will update per pass.
+  $records_per_pass = 100;
+
+  // Define the records to run for this pass.
+  $current_records = array_splice($sandbox['nids'], 0, $records_per_pass);
+
+  // Store an array of realms before the update.
+  foreach ($current_records as $record) {
+    $realms = db_select('node_access', 'na')
+      ->fields('na', array('realm'))
+      ->condition('na.nid', $record)
+      ->execute()
+      ->fetchCol(0);
+
+    $sandbox['realms'][$record]['before'] = $realms;
+  }
+
+  // Update the node access records for this pass.
+  oa_core_update_access_records($current_records);
+
+  // Store an array of realms after the update.
+  foreach ($current_records as $record) {
+    $realms = db_select('node_access', 'na')
+      ->fields('na', array('realm'))
+      ->condition('na.nid', $record)
+      ->execute()
+      ->fetchCol(0);
+
+    $sandbox['realms'][$record]['after'] = $realms;
+  }
+
+  // We are done when the sandbox nids array is empty.
+  $sandbox['#finished'] = empty($sandbox['nids']) ? 1 : 0;
+  if ($sandbox['#finished'] === 1) {
+    drupal_set_message(t('Total records checked: @count.', array('@count' => $sandbox['total'])));
+  }
+
+  return t('Updated private node access (@count/@max)', array(
+    '@count' => ($sandbox['total'] - count($sandbox['nids'])),
+    '@max' => $sandbox['total']));
+}

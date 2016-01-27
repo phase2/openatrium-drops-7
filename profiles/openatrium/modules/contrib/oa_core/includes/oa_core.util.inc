@@ -1020,6 +1020,34 @@ function oa_core_get_users_for_space($space_id, $state = OG_STATE_ACTIVE) {
 }
 
 /**
+ * Helper to get membership nids for a group.
+ *
+ * @param int $nid
+ *   The nid of the group to find og_membership nodes.
+ * @param bool $loaded
+ *   Whether to return just the nids or fully loaded nodes.
+ *
+ * @return array
+ *   The og_membership nids or fully loaded node objects.
+ */
+function oa_core_get_membership_nodes($nid, $loaded = FALSE) {
+  $nids = db_select('og_membership', 'og')
+    ->fields('og', array('etid'))
+    ->condition('og.entity_type', 'node')
+    ->condition('og.gid', $nid)
+    ->condition('og.field_name', OG_AUDIENCE_FIELD)
+    ->execute()
+    ->fetchCol(0);
+
+  if ($loaded) {
+    return node_load_multiple($nids);
+  }
+  else {
+    return $nids;
+  }
+}
+
+/**
  * Get the users that are in a space, including inherited users.
  *
  * @param int $space_id
@@ -1547,7 +1575,7 @@ function oa_user_access_nids($group_type, $nids, $string, $account = NULL, $skip
 
   // Group manager has all privileges (if variable is TRUE).
   if ($all_lookup && !empty($account->uid) && variable_get('og_group_manager_full_access', TRUE)) {
-    $authored = db_query('SELECT nid FROM {node} WHERE nid in :nids AND uid = :uid', array('nids' => $all_lookup, ':uid' => $account->uid))->fetchCol();
+    $authored = db_query('SELECT nid FROM {node} WHERE nid in (:nids) AND uid = :uid', array(':nids' => $all_lookup, ':uid' => $account->uid))->fetchCol();
     foreach ($authored as $nid) {
       foreach ($strings as $string) {
         $access[$account->uid][$string][$nid] = TRUE;
@@ -1794,5 +1822,26 @@ function oa_core_add_layout_class($name, $prefix = '') {
       $class_name .= '-' . $list[2];
       oa_core_body_classes(drupal_html_class($class_name));
     }
+  }
+}
+
+/**
+ * Wrapper around @see batch_set().
+ *
+ * @param array $batch
+ */
+function oa_core_batch_set(&$batch) {
+  // For Drush.
+  if (drupal_is_cli()) {
+    $batch['progressive'] = FALSE;
+    batch_set($batch);
+    if (function_exists('drush_backend_batch_process')) {
+      // Running via drush, to start the batch processing.
+      drush_backend_batch_process();
+    }
+  }
+  else {
+    // Running interactively via the UI so just set the batch.
+    batch_set($batch);
   }
 }

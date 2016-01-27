@@ -329,7 +329,7 @@ function oa_subspaces_views_query_alter(&$view, &$query) {
     $current_group = $view->exposed_input['og_group_ref_target_id'];
     $extra_groups = array();
     if ($settings['og_subspaces_view_all']) {
-      $extra_groups = array_merge($extra_groups, oa_core_get_groups_by_parent($current_group));
+      $extra_groups = array_merge($extra_groups, oa_core_get_groups_by_parent($current_group, OA_SPACE_TYPE, NULL, FALSE, NULL, TRUE));
     }
     if ($settings['og_subspaces_view_parent']) {
       $extra_groups = array_merge($extra_groups, oa_core_get_parents($current_group, OA_SPACE_TYPE, NULL, FALSE, TRUE));

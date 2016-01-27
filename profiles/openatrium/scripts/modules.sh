@@ -1,29 +1,44 @@
 #!/bin/bash
 # Script to list modules that need to be updated
 #
+main () {
+
 if [ $# -eq 0 ]; then
-  echo "Usage $0 [-d] [-p] [-f] [module]"
+  echo "Usage $0 [-c] [-d] [-p] [-f] [-b branch-name] [module]"
+  echo "  -c change to directory of module"
   echo "  -d shows the current git description"
   echo "  -p pulls the latest code"
   echo "  -r tag a new release of the module"
   echo "  -f force module into local directory"
+  echo "  -b switches to the specified branch (and creates if needed)"
+  echo "     use 'dev' as branch-name to switch to current dev branch"
   echo "  [module] specifies specific module, or if omitted, all modules are processed"
-  exit 1
+  return 1
 fi
-RED="\033[0;31m"
-YELLOW="\033[0;33m"
-NORMAL="\033[0;0m"
+local RED="\033[0;31m"
+local YELLOW="\033[0;33m"
+local NORMAL="\033[0;0m"
 
-CURRENT=`pwd -P`
+local CURRENT=""
+local LOGFILE=""
+local PULL=0
+local DESCRIBE=0
+local FORCE=0
+local RELEASE=0
+local CHANGEDIR=0
+local BRANCH=""
+local opt=""
+
+CURRENT=$(pwd -P)
 LOGFILE="$CURRENT/release.txt"
-PULL=0
-DESCRIBE=0
-FORCE=0
-RELEASE=0
-while getopts ":pdfr" opt; do
+
+while getopts ":pcdfrb:" opt; do
   case $opt in
     p) # pull repo
       PULL=1
+      ;;
+    c) # change dir
+      CHANGEDIR=1
       ;;
     d) # describe
       DESCRIBE=1
@@ -34,6 +49,9 @@ while getopts ":pdfr" opt; do
     r) # release
       RELEASE=1
       ;;
+    b) # branch
+      BRANCH=$OPTARG
+      ;;
     ?)
       echo "Invalid option: -$OPTARG" >&2
       ;;
@@ -41,6 +59,7 @@ while getopts ":pdfr" opt; do
 done
 shift $((OPTIND-1))
 echo 'Checking modules...'
+local submodules=""
 submodules=(
   "oa_core"
   "oa_discussion"
@@ -72,6 +91,8 @@ submodules=(
   "oa_sandbox"
   "oa_search"
   "oa_sitemap"
+  "oa_site_layout"
+  "oa_site_layout_defaults"
   "oa_styles"
   "oa_subspaces"
   "oa_toolbar"
@@ -79,12 +100,17 @@ submodules=(
   "oa_tour_defaults"
   "oa_wizard"
   "oa_radix"
+  "oa_basetheme"
+  "oa_theme"
   "bootstrap_tour"
+  "colorizer"
   "command_buttons"
   "contextual_tabs"
   "oa_angular"
   "openatrium"
 )
+local module=""
+
 TARGET=$1
 # Make sure we have a target directory
 if [ ! -z "$1" ]; then
@@ -97,12 +123,12 @@ do
   TARGET=''
   # first look in local modules dir
   if [ -e modules ]; then
-    TARGET=`find modules -type d -name "$module" -print -quit`
+    TARGET=$(find modules -type d -name "$module" -print -quit)
   fi
   # if not found and not forced, look for other subdirs
   if [ -z $TARGET ]; then
     if [ $FORCE = 0 ]; then
-      TARGET=`find . -type d -name "$module" -print -quit`
+      TARGET=$(find . -type d -name "$module" -print -quit)
     fi
   fi
   if [ ! -e "$TARGET/.git" ]; then
@@ -114,7 +140,7 @@ do
       cd modules
       git clone git@git.drupal.org:project/"$module".git
       cd "$module"
-      TARGET=`pwd -P`
+      TARGET=$(pwd -P)
       cd $CURRENT
     fi
   fi
@@ -133,21 +159,42 @@ do
     fi
 
     if [ $DESCRIBE = 1 ]; then
-      status=`git status --porcelain --untracked-files=no`
-      tag=`git describe --tags`
-      old_tag=`git describe --abbrev=0 --tags`
-      if [ ! "$status" = "" ]; then
+      local stat=""
+      local tag=""
+      local old_tag=""
+      local branch=""
+
+      stat=$(git status --porcelain --untracked-files=no)
+      tag=$(git describe --tag)
+      old_tag=$(git describe --abbrev=0 --tag)
+      branch=$(git rev-parse --abbrev-ref HEAD)
+      if [ ! "$stat" = "" ]; then
         printf "$RED$module: $tag (DIRTY)$NORMAL\n"
       elif [ "$tag" = "$old_tag" ]; then
         echo "$module: $tag"
+      elif [ "$stat" = '' ]; then
+        printf "$YELLOW$module: $tag ($branch)$NORMAL\n"
+      fi
+    fi
+
+    if [ "${BRANCH}" != "" ]; then
+      if [ "${BRANCH}" = "dev" ]; then
+        local old_tag=$(git describe --abbrev=0 --tag)
+        local dev_tag=${old_tag:0:6}
+        git checkout "${dev_tag}x"
       else
-        printf "$YELLOW$module: $tag$NORMAL\n"
+        git branch ${BRANCH} 2>/dev/null
+        git checkout ${BRANCH}
       fi
     fi
 
     if [ $RELEASE = 1 ]; then
-      full_tag=`git describe --tags`
-      old_tag=`git describe --abbrev=0 --tags`
+      local full_tag=""
+      local old_tag=""
+      local new_tag=""
+
+      full_tag=$(git describe --tag)
+      old_tag=$(git describe --abbrev=0 --tag)
       if [ "$full_tag" = "$old_tag" ]; then
         echo "$module $full_tag : no release is needed"
       else
@@ -166,19 +213,31 @@ do
           echo "$module: Tagging with $new_tag"
           git tag $new_tag
           git push origin tag $new_tag
+          local notes=""
           notes=$(drush rn $old_tag $new_tag)
           # use printf instead of echo to handle multiline
           printf "$notes\n"
+          local name=""
           name=$(grep "name =" "$module".info | sed "s/name = //")
           echo "<h4>$name $new_tag</h4>" >> $LOGFILE
           # pull out just the list of changes
           # trick to convert \n to \r so sed sees the entire thing as one line
+          local changes=""
           changes=$(printf "$notes\n" | tr '\n' '\r' | sed 's/.*\(<ul>.*<\/ul>\).*/\1/'  | tr '\r' '\n')
           printf "$changes\n" >> $LOGFILE
           echo "" >> $LOGFILE
         fi
       fi
     fi
+
+    if [ $CHANGEDIR = 1 ]; then
+      break
+    fi
   fi
-  cd $CURRENT
+  if [ $CHANGEDIR = 0 ]; then
+    cd $CURRENT
+  fi
 done
+}
+
+main "$@"
