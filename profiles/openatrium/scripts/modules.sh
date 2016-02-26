@@ -107,6 +107,7 @@ submodules=(
   "command_buttons"
   "contextual_tabs"
   "oa_angular"
+  "oa_responsive_regions"
   "openatrium"
 )
 local module=""

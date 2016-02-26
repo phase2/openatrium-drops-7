@@ -45,7 +45,7 @@ function openatrium_clean_urls_validate($form, &$form_state) {
   // The javascript enables clean urls automatically if they work.
   // Could have just required clean_url, but wanted to customize the error.
   if (empty($form_state['values']['clean_url'])) {
-    form_set_error('clean_url', t('Clean Urls most be available and enabled to use OpenAtrium.'));
+    form_set_error('clean_url', t('Clean Urls must be available and enabled to use OpenAtrium.'));
   }
 }
 

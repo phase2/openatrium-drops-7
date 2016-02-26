@@ -82,6 +82,8 @@ projects[entity][patch][1788568] = http://drupal.org/files/issues/entity-1788568
 projects[entity][patch][2407905] = http://drupal.org/files/issues/entity_unsupported_operand-2407905-1.patch
 ; fix for comment entity access
 projects[entity][patch][2236229] = https://www.drupal.org/files/issues/add_create_op_to_metadata_comment_access-2236229-1.patch
+; fix for simpletext and entity
+projects[entity][patch][2289693] = https://www.drupal.org/files/issues/entity_undefined_entity_get_info-2289693-2.patch
 
 projects[libraries][version] = 2.2
 projects[libraries][subdir] = contrib

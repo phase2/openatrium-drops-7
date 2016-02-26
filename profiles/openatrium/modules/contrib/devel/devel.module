@@ -212,7 +212,7 @@ function devel_menu() {
   // Duplicate path in 2 different menus. See http://drupal.org/node/601788.
   $items['devel/settings'] = array(
     'title' => 'Devel settings',
-    'description' => 'Helper functions, pages, and blocks to assist Drupal developers. The devel blocks can be managed via the <a href="' . url('admin/structure/block') . '">block administration</a> page.',
+    'description' => 'Helper functions, pages, and blocks to assist Drupal developers. The devel blocks can be managed via the <a href="/admin/structure/block">block administration</a> page.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('devel_admin_settings'),
     'access arguments' => array('administer site configuration'),
@@ -221,7 +221,7 @@ function devel_menu() {
   );
   $items['admin/config/development/devel'] = array(
     'title' => 'Devel settings',
-    'description' => 'Helper functions, pages, and blocks to assist Drupal developers. The devel blocks can be managed via the <a href="' . url('admin/structure/block') . '">block administration</a> page.',
+    'description' => 'Helper functions, pages, and blocks to assist Drupal developers. The devel blocks can be managed via the <a href="/admin/structure/block">block administration</a> page.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('devel_admin_settings'),
     'file' => 'devel.admin.inc',

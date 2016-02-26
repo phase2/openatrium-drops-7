@@ -5,9 +5,9 @@ dependencies[] = geophp
 dependencies[] = ctools
 
 
-; Information added by drush on 2016-01-27
+; Information added by drush on 2016-02-26
 version = "7.x-1.2+9-dev"
 core = "7.x"
 project = "geocoder"
-datestamp = "1453911413"
+datestamp = "1456501830"
 
