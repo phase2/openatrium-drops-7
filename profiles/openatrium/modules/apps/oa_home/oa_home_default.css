@@ -2,7 +2,6 @@ body.front {
   background: #E5EBE6;
   padding: 0;
   margin: 0;
-  padding-top: 98px;
 }
 
 body.front #main-wrapper #main,
@@ -50,6 +49,10 @@ body.front .content .pane-oa-home-default {
   z-index: 1;
 }
 
+body.front .content .pane-oa-home-default:after {
+  display: none !important;
+}
+
 body.front #block-system-help {
   display: none;
 }
@@ -69,7 +72,11 @@ body.front #block-system-help {
   width: 1055px;
   margin: 0 auto;
   position: relative;
-  }
+}
+
+.panel-display .oa-responsive-desktop.oa-responsive-region-bottom.oa-responsive-expand.oa-responsive-fixed {
+  z-index: 0;
+}
 
 .pane-oa-home-default .block .content {
   padding: 20px 30px;
@@ -82,7 +89,7 @@ body.front #block-system-help {
     font-weight: normal;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    margin: 60px 0 0;
+    margin: 20px 0 0;
     padding: 0;
     text-align: center;
     text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.22);

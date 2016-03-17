@@ -84,6 +84,36 @@ function oa_appearance_ctools_plugin_directory($owner, $plugin_type) {
 }
 
 /**
+ * Helper function to update the colorizer settings
+ *
+ * @return bool if colorizer css base needed to be updated.
+ */
+function _oa_appearance_update_colorizer() {
+  $result = FALSE;
+  $colorizer = variable_get('colorizer_incfile', '');
+  if (!empty($colorizer)) {
+    $theme = variable_get('theme_default','oa_basetheme');
+    $theme_path = drupal_get_path('theme', $theme) . '/';
+
+    // If theme has changed check to see if colorizer_css needs updating
+    $colorizer_css = variable_get('colorizer_cssfile', '');
+    if (!file_exists(DRUPAL_ROOT . '/' . $theme_path . $colorizer_css)) {
+      if (strpos($colorizer_css, 'assets/css') !== FALSE) {
+        $colorizer_css = str_replace('assets/css', 'assets/stylesheets', $colorizer_css);
+      }
+      else {
+        $colorizer_css = str_replace('assets/stylesheets', 'assets/css', $colorizer_css);
+      }
+      if (file_exists(DRUPAL_ROOT . '/' . $theme_path . $colorizer_css)) {
+        variable_set('colorizer_cssfile', $colorizer_css);
+        $result = TRUE;
+      }
+    }
+  }
+  return $result;
+}
+
+/**
  * Implements hook_og_ui_get_group_admin()
  */
 function oa_appearance_og_ui_get_group_admin($group_type, $gid) {
@@ -441,6 +471,10 @@ function oa_appearance_get_space_banner($space_id, $banner_position) {
 function oa_appearance_get_space_colorizer_instance($base_instance, $space_id) {
   $static_cache =& drupal_static(__FUNCTION__, array());
 
+  if (_oa_appearance_update_colorizer()) {
+    unset($static_cache[$space_id]);
+  }
+
   if (!isset($static_cache[$space_id])) {
     $cid = 'oa_appearance:colorizer:' . $space_id;
     if ($cached_value = cache_get($cid)) {
@@ -478,9 +512,9 @@ function oa_appearance_get_space_colorizer_instance($base_instance, $space_id) {
 }
 
 /**
- * Implements hook_preprocess_page
+ * Implements hook_preprocess_html
  */
-function oa_appearance_preprocess_page(&$vars) {
+function oa_appearance_preprocess_html(&$vars) {
   // add the js for controlling the header height
   drupal_add_js(drupal_get_path('module', 'oa_appearance') . '/oa_appearance.js');
 }

@@ -21,7 +21,7 @@ function oa_discussion_install_section_type() {
       'oa_discussion_post',
     ),
     'layout' => 'node:oa_section:oa_section_discussion',
-    'icon' => 'icon-comments',
+    'icon' => 'fa fa-comments',
   );
   oa_core_create_term('section_type', 'Discussion Section', $params);
 }
@@ -215,3 +215,18 @@ function oa_discussion_update_7105() {
   db_query("UPDATE {panels_pane} SET subtype = 'oa_comment_topics-comment_user_topics' WHERE subtype = 'open_atrium_discussions-discussion_user'");
 }
 
+/**
+ * Update icon to use font-awesome
+ */
+function oa_discussion_update_7106() {
+  $term = taxonomy_get_term_by_name('Discussion Section', 'section_type');
+  if ($term) {
+    $term = current($term);
+    if (!empty($term->field_oa_icon_class[LANGUAGE_NONE][0]['value'])) {
+      if ($term->field_oa_icon_class[LANGUAGE_NONE][0]['value'] == 'icon-comments') {
+        $term->field_oa_icon_class[LANGUAGE_NONE][0]['value'] = 'fa fa-comments';
+        taxonomy_term_save($term);
+      }
+    }
+  }
+}

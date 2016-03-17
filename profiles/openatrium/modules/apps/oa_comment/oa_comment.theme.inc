@@ -8,6 +8,7 @@
  * Implements hook_theme().
  */
 function oa_comment_theme($existing, $type, $theme, $path) {
+  $path = drupal_get_path('module', 'oa_comment') . '/templates';
   $views = array(
     'oa_comment_topics' => array(
       'comment_topics',
@@ -20,41 +21,124 @@ function oa_comment_theme($existing, $type, $theme, $path) {
   );
   $theme = array();
   foreach ($views as $view_name => $displays) {
-    foreach ($displays as $display) {
-      $key = 'views_view_fields__' . $view_name . '__' . $display;
-      $filename = str_replace('_', '-', $key);
+    $key = 'views_view_fields__' . $view_name;
+    $filename = str_replace('_', '-', $key);
+    if (file_exists($path . '/' . $filename . '.tpl.php')) {
+      // We found a general template for this entire view.
       $theme[$key] = array(
-        'template'  => $filename,
+        'template' => $filename,
         'base hook' => 'views_view_fields',
         'preprocess functions' => array(
           'template_preprocess',
           'template_preprocess_views_view_fields',
           'oa_core_preprocess_views_view_fields',
         ),
-        'arguments' => array('view' => NULL, 'options' => NULL, 'row' => NULL),
-        'path' => drupal_get_path('module', 'oa_comment') . '/templates',
+        'arguments' => array(
+          'view' => NULL,
+          'options' => NULL,
+          'row' => NULL
+        ),
+        'path' => $path,
       );
     }
+    else {
+      // Otherwise check for specific display templates.
+      foreach ($displays as $display) {
+        $key = 'views_view_fields__' . $view_name . '__' . $display;
+        $filename = str_replace('_', '-', $key);
+        if (file_exists($path . '/' . $filename . '.tpl.php')) {
+          $theme[$key] = array(
+            'template' => $filename,
+            'base hook' => 'views_view_fields',
+            'preprocess functions' => array(
+              'template_preprocess',
+              'template_preprocess_views_view_fields',
+              'oa_core_preprocess_views_view_fields',
+            ),
+            'arguments' => array(
+              'view' => NULL,
+              'options' => NULL,
+              'row' => NULL
+            ),
+            'path' => $path,
+          );
+        }
+      }
+    }
   }
+
   // Provide theme implementation for comments.
   $theme['oa_comment__comment'] = array(
     'template' => 'oa-comment--comment',
     'render element' => 'elements',
-    'path' => $path . '/templates',
+    'path' => $path,
   );
   $theme['oa_comment__comment_wrapper'] = array(
     'template' => 'oa-comment--comment-wrapper',
     'render element' => 'elements',
-    'path' => $path . '/templates',
+    'path' => $path,
   );
   // Provide a theme implementation for the comment form.
   $theme['comment_form'] = array(
     'template' => 'oa-comment--comment-form',
     'render element' => 'form',
-    'path' => $path . '/templates',
+    'path' => $path,
   );
 
   return $theme;
+}
+
+/**
+ * Filter comment body for things like signature and blank lines
+ *
+ * Install text filters on comment body field if you want this stripped on
+ * save, but here we just strip on display
+ *
+ * @param $text
+ * @return string
+ */
+function oa_comment_filter_body($text) {
+  // Remove signatures
+  $strip_body_pattern = variable_get('oa_comment_strip_sig', '-- ');
+  if (!empty($strip_body_pattern)) {
+    $sig_index = strpos($text, $strip_body_pattern . "\n");
+    if ($sig_index !== FALSE) {
+      $text = drupal_substr($text, 0, $sig_index);
+    }
+    $sig_index = strpos($text, $strip_body_pattern . "<br>");
+    if ($sig_index !== FALSE) {
+      $text = drupal_substr($text, 0, $sig_index);
+    }
+  }
+
+  // Remove > at beginning of replies
+  $lines = explode("\n", $text);
+  foreach ($lines as $i => $line) {
+    $lines[$i] = ltrim($line, '> ');
+  }
+  $text = implode("\n", $lines);
+
+  // add any needed closing tags.
+  $text = _filter_htmlcorrector($text);
+
+  // Convert line breaks and ensure text has <p> tags
+  $text = _filter_autop($text);
+
+  // add any needed closing tags.
+  $text = _filter_htmlcorrector($text);
+
+  // Remove leading and trailing <br> tags
+  $text = preg_replace('/^\s*(?:<br\s*\/?\s*>)+|(?:<br\s*\/?\s*>)+\s*$/i', '', $text);
+  $text = preg_replace('/(?:<br\s*\/?\s*>)+\s*<\/div>/i', '</div>', $text);
+  $text = preg_replace('/(?:<br\s*\/?\s*>)+\s*<\/p>/i', '</p>', $text);
+
+  // Remove empty spans
+  $text = preg_replace('/<span[^>]*>(&nbsp;|\s)*<\/span>/ui', '', $text);
+
+  // Remove empty paragraphs
+  $text = preg_replace('/<p[^>]*>(&nbsp;|\s|<br[^>]*>)*<\/p>/ui', '', $text);
+
+  return $text;
 }
 
 /**
@@ -92,15 +176,20 @@ function oa_comment_preprocess_comment(&$vars) {
     $vars['paragraphs'] = render($vars['elements']['field_oa_related']);
   }
   // Get the user picture.
-  $user_details = oa_users_build_user_details(user_load($comment->uid));
+  $user_details = oa_users_build_user_details(user_load($comment->uid), 'oa_medium_thumbnail');
   $vars['user_picture'] = $user_details['picture'];
-  $vars['body'] = (!empty($comment->comment_body[LANGUAGE_NONE][0]['safe_value'])) ? $comment->comment_body[LANGUAGE_NONE][0]['safe_value'] : NULL;
+  $vars['body'] = (!empty($comment->comment_body[LANGUAGE_NONE][0]['safe_value']))
+    ? oa_comment_filter_body($comment->comment_body[LANGUAGE_NONE][0]['safe_value'])
+    : NULL;
   $vars['comment_link'] = l(t('#!comment_id', array('!comment_id' => $vars['thread'])), 'node/' . $vars['node']->nid, array(
     'attributes' => array(
       'class' => array(
         'oa-pullout-left',
       ),
-      'title' => t('Copy this link to share.')), 'fragment' => 'comment-' . $comment->cid));
+      'title' => t('Copy this link to share.'),
+    ),
+    'fragment' => 'comment-' . $comment->cid)
+  );
 
   // Remove Reply link if comments are not threaded
   $threaded = variable_get('comment_default_mode_' . $vars['node']->type, COMMENT_MODE_THREADED);

@@ -1,0 +1,63 @@
+// Styles for User pages
+// --------------------------------------------------
+
+.user-info {
+  font-size: 15px;
+  color: #a4a8ab;
+  margin-bottom: 10px;
+  a {
+    color: #2a2c37;
+    font-weight: bold;
+  }
+}
+
+.user-picture img,
+.user-badge img {
+  border-bottom-left-radius: 50%;
+  border-bottom-right-radius: 50%;
+  border-top-left-radius: 50%;
+  border-top-right-radius: 50%;
+  border: 1px solid #eee;
+}
+
+.content .pane-user-field-user-picture {
+  img {
+    border: 1px solid #ddd;
+    padding-bottom: 0;
+    margin-bottom: 15px;
+    background: white;
+  }
+}
+
+.oa-list .pull-left img {
+  margin-right: 0;
+}
+
+.btn-inverse.user-badge img {
+  border: 1px solid transparent;
+}
+
+.view-oa-team-list .user-badge {
+  background-color: transparent;
+  border: none;
+  img {
+    margin-right: 0;
+  }
+}
+
+.oa-comment .user-picture {
+  margin-top: 14px;
+  img {
+    height: 40px;
+    width: 40px;
+  }
+}
+
+.oa-list .user-picture img {
+  max-height: 40px;
+  max-width: 40px;
+}
+
+.indented {
+  margin-left: 50px;
+}

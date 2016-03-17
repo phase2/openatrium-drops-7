@@ -29,12 +29,17 @@ function oa_notifications_node_form_notifications_render($subtype, $conf, $panel
     return;
   }
 
+  $node = $context->data;
+
   $block = new stdClass();
 
-  $block->title = t('Notifications');
+  $block->title = in_array($node->type, array(OA_SPACE_TYPE, OA_GROUP_TYPE, OA_SECTION_TYPE))
+    ? t('Default Notifications')
+    : t('Notifications');
   $block->module = t('oa_notifications');
   $block->delta = 'oa-notifications';
 
+  drupal_add_js(drupal_get_path('module', 'oa_notifications') . '/oa_notifications.js');
   if (isset($context->form)) {
     if (isset($context->form['oa_notifications'])) {
       $form = $context->form['oa_notifications'];

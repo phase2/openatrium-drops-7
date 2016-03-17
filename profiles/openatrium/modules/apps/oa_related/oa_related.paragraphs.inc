@@ -5,21 +5,22 @@
  */
 
 /**
- * Implements HOOK_oa_paragraph_media_alter()
+ * Render function for the paragraph_media bundle.
  */
-function oa_related_oa_paragraph_media_alter(&$vars) {
-  $layout = !empty($vars['field_image_alignment'][0]['value']) ? $vars['field_image_alignment'][0]['value'] : 'none';
+function oa_related_oa_paragraph_media_render(&$vars, $bundle, $field_name, $value) {
+
+  $layout = isset($value) ? $value : 'none';
 
   // For images, add a class pull-LAYOUT where LAYOUT is the layout config value.
   $vars['classes_array'][] = drupal_html_class('pull-' . $layout);
-  // update caption titles and any display properties as needed
+  // Update caption titles and any display properties as needed.
   if (isset($vars['content']['field_oa_media']['#items'])) {
     for ($i = 0; $i < count($vars['content']['field_oa_media']['#items']); $i++) {
       $item = &$vars['content']['field_oa_media'][$i];
       switch ($layout) {
         case 'full':
         case 'grid2':
-          // for large images we need to change the view mode to fetch original image sizes
+          // For large images we need to change the view mode to fetch original image sizes.
           if ($vars['field_oa_media'][$i]['type'] == 'image') {
             $item['#display_settings']['file_view_mode'] = 'default';
           }
@@ -29,9 +30,10 @@ function oa_related_oa_paragraph_media_alter(&$vars) {
           $item['#display_settings']['file_view_mode'] = 'default';
           break;
       }
-      // set the title based on the image alt/title or filename
+      // Set the title based on the image alt/title or filename.
       $item['#title'] = !empty($vars['field_oa_media'][$i]['alt']) ? $vars['field_oa_media'][$i]['alt'] :
         (!empty($vars['field_oa_media'][$i]['title']) ? $vars['field_oa_media'][$i]['title'] : $vars['field_oa_media'][$i]['filename']);
+      $vars['theme_hook_suggestions'][] = 'oa_related_paragraphs_media_render';
     }
   }
   switch ($layout) {
@@ -42,7 +44,7 @@ function oa_related_oa_paragraph_media_alter(&$vars) {
       if ($layout == 'table') {
         $header = array('', t('Title'), t('Filename'), t('Size'));
       }
-      // render all the images in the paragraph item
+      // Render all the images in the paragraph item.
       $view = field_view_field('paragraphs_item', $vars['paragraphs_item'], 'field_oa_media', 'default');
       // now loop through the media and build the table
       for ($i = 0; $i < count($vars['content']['field_oa_media']['#items']); $i++) {
@@ -84,62 +86,105 @@ function oa_related_oa_paragraph_media_alter(&$vars) {
         '#header' => $header,
         '#rows' => $rows,
       );
-      unset($vars['content']['field_oa_media']);
+      $vars['theme_hook_suggestions'][] = 'oa_related_paragraphs_media_render';
+      break;
+
+    case 'left':
+    case 'right':
+    case 'grid3':
+    case 'grid4':
+    case 'grid5':
+      $vars['theme_hook_suggestions'][] = 'oa_related_paragraphs_media_render';
       break;
   }
-  unset($vars['content']['field_image_alignment']);
 }
 
 /**
- * Implements HOOK_oa_paragraph_text_alter()
+ * Render function for the paragraph_text bundle.
  */
-function oa_related_oa_paragraph_text_alter(&$vars) {
-  // Handle alignment for paragraph text.
-  if (!empty($vars['field_paragraph_layout'][0]['value']) && !empty($vars['field_paragraph_text'][0]['value'])) {
-    if (is_numeric($vars['field_paragraph_layout'][0]['value'])) {
-      $vars['classes_array'][] = drupal_html_class('oa-columns-' . $vars['field_paragraph_layout'][0]['value']);
-    }
-    else {
-      $vars['classes_array'][] = drupal_html_class('oa-callout-' . $vars['field_paragraph_layout'][0]['value']);
-      $vars['classes_array'][] = drupal_html_class('oa-callout');
-    }
-  }
-  unset($vars['content']['field_paragraph_layout']);
-}
+function oa_related_oa_paragraph_text_render(&$vars, $bundle, $field_name, $value) {
 
-/**
- * Implements HOOK_oa_paragraph_snippet_alter()
- */
-function oa_related_oa_paragraph_snippet_alter(&$vars) {
-  // For snippets, pull the body field of the referenced entity
-  if (!empty($vars['field_snippet_content'][0]['entity'])) {
-    $wrapper = entity_metadata_wrapper('paragraphs_item', $vars['paragraphs_item']);
-    $body = $wrapper->snippet_body->value();
-    $vars['content']['field_snippet_content'] = array(
-      '#markup' => $body,
-    );
-    if (!empty($vars['field_paragraph_layout'][0]['value']) && !empty($body)) {
-      if (is_numeric($vars['field_paragraph_layout'][0]['value'])) {
-        $vars['classes_array'][] = drupal_html_class('oa-columns-' . $vars['field_paragraph_layout'][0]['value']);
-      } else {
-        $vars['classes_array'][] = drupal_html_class('oa-callout-' . $vars['field_paragraph_layout'][0]['value']);
-        $vars['classes_array'][] = drupal_html_class('oa-callout');
+  $value = isset($value) ? $value : '_none';
+
+  switch ($value) {
+    case '2':
+    case '3':
+    case '4':
+    case 'full':
+    case 'left':
+    case 'right':
+      // Handle alignment for paragraph text.
+      if (isset($value) && !empty($vars['field_paragraph_text'][0]['value'])) {
+        if (is_numeric($value)) {
+          $vars['classes_array'][] = drupal_html_class('oa-columns-' . $value);
+        }
+        else {
+          $vars['classes_array'][] = drupal_html_class('oa-callout-' . $value);
+          $vars['classes_array'][] = drupal_html_class('oa-callout');
+        }
       }
-    }
-    if (!empty($vars['field_snippet_showtitle'][0]['value'])) {
-      $title = $wrapper->snippet_title->value();
-      $node = $wrapper->field_snippet_content->value();
-      $vars['content']['title'] = array(
-        '#markup' => '<h3 class="oa_snippet_title">' . l($title, 'node/' . $node->nid) . '</h3>',
-        '#weight' => -9,
-      );
-    }
+      break;
+
+    case '_none':
+      break;
   }
-  unset($vars['content']['field_paragraph_lock_revision']);
-  unset($vars['content']['field_paragraph_layout']);
-  unset($vars['content']['field_snippet_showtitle']);
-  unset($vars['content']['field_snippet_title_override']);
-  unset($vars['content']['field_snippet_viewmode']);
+  $vars['oa_related_text'] = render($vars['content']['field_paragraph_text']);
+  $vars['theme_hook_suggestions'][] = 'oa_related_paragraphs_text_render';
+}
+
+/**
+ * Render function for the paragraph_snippet bundle.
+ */
+function oa_related_oa_paragraph_snippet_render(&$vars, $bundle, $field_name, $value) {
+
+  $value = isset($value) ? $value : '_none';
+
+  switch ($value) {
+    case '2':
+    case '3':
+    case '4':
+    case 'full':
+    case 'left':
+    case 'right':
+    case '_none':
+      // For snippets, pull the body field of the referenced entity
+      if (!empty($vars['field_snippet_content'][0]['entity'])) {
+        $wrapper = entity_metadata_wrapper('paragraphs_item', $vars['paragraphs_item']);
+        $body = $wrapper->snippet_body->value();
+        $snippet_body = array('#markup' => $body);
+
+        // Render the body.
+        $vars['snippet_body'] = render($snippet_body);
+
+        if ($value != '_none') {
+          if (is_numeric($value)) {
+            $vars['classes_array'][] = drupal_html_class('oa-columns-' . $value);
+          }
+          else {
+            $vars['classes_array'][] = drupal_html_class('oa-callout-' . $value);
+            $vars['classes_array'][] = drupal_html_class('oa-callout');
+          }
+        }
+
+        if (isset($wrapper->field_snippet_showtitle)) {
+          $show = $wrapper->field_snippet_showtitle->value();
+          if ($show) {
+            $title = $wrapper->snippet_title->value();
+            $node = $wrapper->field_snippet_content->value();
+
+            $snippet_title = array(
+              '#markup' => '<h3 class="oa_snippet_title">' . l($title, 'node/' . $node->nid) . '</h3>',
+              '#weight' => -9,
+            );
+
+            // Rendered the title.
+            $vars['snippet_title'] = render($snippet_title);
+          }
+        }
+        $vars['theme_hook_suggestions'][] = 'oa_related_paragraphs_snippet_render';
+      }
+      break;
+  }
 }
 
 /**
@@ -164,154 +209,175 @@ function oa_related_make_icons($node, $file) {
 }
 
 /**
- * Implements HOOK_oa_paragraph_content_alter()
+ * Render function for the paragraph_content bundle.
  */
-function oa_related_oa_paragraph_content_alter(&$vars) {
-  $layout = !empty($vars['field_oa_content_layout'][0]['value']) ? $vars['field_oa_content_layout'][0]['value'] : 'table';
-
-  switch ($layout) {
-    case 'table':
-      if (!empty($vars['field_oa_related_content'])) {
-        // For related files, convert to a table of links with file size info
-        $icon_directory = variable_get('file_icon_directory', drupal_get_path('module', 'file') . '/icons');
-        $rows = array();
-        $header = array('', t('Document'), t('Download'), t('Size'), t('Modified'), '');
-        foreach ($vars['field_oa_related_content'] as $key => $item) {
-          $node = $item['entity'];
-          $file = isset($node->field_oa_media[LANGUAGE_NONE][0]) ? (object)$node->field_oa_media[LANGUAGE_NONE][0] : NULL;
-          $icons = oa_related_make_icons($node, $file);
-
-          if (!empty($node->field_oa_media[LANGUAGE_NONE])) {
-            foreach ($node->field_oa_media[LANGUAGE_NONE] as $index => $field) {
-              $file = (object)$field;
-              $icon = file_icon_url($file);
-              $uri = file_entity_download_uri($file);
-              if (node_access('view', $node)) {
-                $rows[] = array(
-                  theme('image', array('path' => $icon)),
-                  l($node->title, 'node/' . $node->nid),
-                  l($file->filename, $uri['path'], $uri['options']),
-                  format_size($file->filesize),
-                  array('data' => format_date($node->changed, 'short'), 'class' => 'oa-table-noborder'),
-                  array('data' => implode('&nbsp', $icons), 'class' => 'oa-table-actions oa-table-noborder'),
-                );
-              }
-            }
-          } else {
-            $rows[] = array(
-              theme('image', array('path' => url($icon_directory . '/application-octet-stream.png'))),
-              array(
-                'data' => l($node->title, 'node/' . $node->nid),
-                'colspan' => 3
-              ),
-              format_date($node->changed, 'short'),
-              array('data' => implode('&nbsp', $icons), 'class' => 'oa-table-actions oa-table-noborder'),
-            );
-          }
-        }
-        $vars['content']['field_oa_related_content'] = array(
-          '#theme' => 'table',
-          '#header' => $header,
-          '#rows' => $rows,
-        );
-      }
-      break;
-    case 'preview':
-      if (!empty($vars['field_oa_related_content'])) {
-        $rows = array();
-        $icon_directory = variable_get('file_icon_directory', drupal_get_path('module', 'file') . '/icons');
-        foreach ($vars['field_oa_related_content'] as $key => $item) {
-          $row = array();
-          $node = $item['entity'];
-          if (node_access('view', $node)) {
-            $body = oa_core_get_summary($node);
-            $output = '<h4 class="oa-table-title">' . l($node->title, 'node/' . $node->nid) . '</h4>' . $body;
-
-            $files = array();
-            if (isset($node->field_oa_media)) {
-              $files = field_view_field('node', $node, 'field_oa_media', 'featured');
-            }
-            $file = NULL;
-            if (!empty($files['#items'])) {
-              $file = (object)$files['#items'][0];
-              $row[] = array('data' => $files, 'width' => '258');
-              $row[] = array('data' => $output, 'class' => 'oa-table-body oa-table-noborder');
-            } else {
-              $row[] = array('data' => $output, 'class' => 'oa-table-body oa-table-noborder', 'colspan' => 2);
-            }
-
-            $icons = oa_related_make_icons($node, $file);
-            $row[] = array(
-              'data' => implode('&nbsp', $icons),
-              'class' => 'oa-table-actions oa-table-noborder'
-            );
-
-            $rows[] = $row;
-          }
-        }
-
-        $vars['content']['field_oa_related_content'] = array(
-          '#theme' => 'table',
-          '#rows' => $rows,
-        );
-      }
-      break;
-    case 'list':
-      if (!empty($vars['field_oa_related_content'])) {
-        $items = array();
-        foreach ($vars['field_oa_related_content'] as $key => $item) {
-          $node = $item['entity'];
-          if (node_access('view', $node)) {
-            $items[] = l($node->title, 'node/' . $node->nid);
-          }
-        }
-        $vars['content']['field_oa_related_content'] = array(
-          '#theme' => 'item_list',
-          '#items' => $items,
-          '#type' => 'ul',
-        );
-      }
-      break;
-    case 'full':
-      if (!empty($vars['field_oa_related_content'])) {
-        $title = count($vars['field_oa_related_content']) == 1
-          ? t('Related') . ' ' . node_type_get_name($vars['field_oa_related_content'][0]['entity'])
-          : $vars['content']['field_oa_related_content']['#title'];
-        foreach ($vars['field_oa_related_content'] as $key => $item) {
-          $node = $item['entity'];
-          if (node_access('view', $node)) {
+function oa_related_oa_paragraph_content_render(&$vars, $bundle, $field_name, $value) {
+  if (!isset($value)) {
+    // This means - None - has been selected. Don't render anything we just use this
+    // as a entity reference without a display.
+    $vars['oa_related_content'] = '';
+  }
+  else {
+    switch ($value) {
+      case 'table':
+        if (!empty($vars['field_oa_related_content'])) {
+          // For related files, convert to a table of links with file size info
+          $icon_directory = variable_get('file_icon_directory', drupal_get_path('module', 'file') . '/icons');
+          $rows = array();
+          $header = array('', t('Document'), t('Download'), t('Size'), t('Modified'), '');
+          foreach ($vars['field_oa_related_content'] as $key => $item) {
+            $node = $item['entity'];
             $file = isset($node->field_oa_media[LANGUAGE_NONE][0]) ? (object)$node->field_oa_media[LANGUAGE_NONE][0] : NULL;
             $icons = oa_related_make_icons($node, $file);
-            if ($key > 0) {
-              $vars['content']['paragraph_file_' . $key . 'rule']['#markup'] = '<hr>';
-              $vars['content']['paragraph_file_' . $key . 'rule']['#weight'] = $key + 0.5;
-            }
-            if (!empty($icons)) {
-              $vars['content']['paragraph_file_' . $key . 'icons'] = array(
-                '#prefix' => '<div class="oa-table-actions pull-right">',
-                '#markup' => implode('&nbsp', $icons),
-                '#suffix' => '</div>',
-                '#weight' => $key + 0.75,
+
+            if (!empty($node->field_oa_media[LANGUAGE_NONE])) {
+              foreach ($node->field_oa_media[LANGUAGE_NONE] as $index => $field) {
+                $file = (object)$field;
+                $icon = file_icon_url($file);
+                $uri = file_entity_download_uri($file);
+                if (node_access('view', $node)) {
+                  $rows[] = array(
+                    theme('image', array('path' => $icon)),
+                    l($node->title, 'node/' . $node->nid),
+                    l($file->filename, $uri['path'], $uri['options']),
+                    format_size($file->filesize),
+                    array('data' => format_date($node->changed, 'short'), 'class' => 'oa-table-noborder'),
+                    array('data' => implode('&nbsp', $icons), 'class' => 'oa-table-actions oa-table-noborder'),
+                  );
+                }
+              }
+            } else {
+              $rows[] = array(
+                theme('image', array('path' => url($icon_directory . '/application-octet-stream.png'))),
+                array(
+                  'data' => l($node->title, 'node/' . $node->nid),
+                  'colspan' => 3
+                ),
+                format_date($node->changed, 'short'),
+                array('data' => implode('&nbsp', $icons), 'class' => 'oa-table-actions oa-table-noborder'),
               );
             }
-            $vars['content']['paragraph_file_' . $key] = node_view($node, 'featured');
-            $vars['content']['paragraph_file_' . $key]['#weight'] = $key + 1;
           }
-          unset($vars['content']['field_oa_related_content'][$key]);
+
+          $element = array(
+            '#theme' => 'table',
+            '#header' => $header,
+            '#rows' => $rows,
+          );
+
+          $vars['oa_related_content'] = render($element);
         }
-        $vars['content']['field_oa_related_content']['#title'] = $title;
-        $vars['content']['field_oa_related_content']['#weight'] = -1;
-      }
-      break;
+        $vars['theme_hook_suggestions'][] = 'oa_related_paragraphs_content_render';
+        break;
+
+      case 'preview':
+        if (!empty($vars['field_oa_related_content'])) {
+          $rows = array();
+          $icon_directory = variable_get('file_icon_directory', drupal_get_path('module', 'file') . '/icons');
+          foreach ($vars['field_oa_related_content'] as $key => $item) {
+            $row = array();
+            $node = $item['entity'];
+            if (node_access('view', $node)) {
+              $body = oa_core_get_summary($node);
+              $output = '<h3 class="oa-table-title">' . l($node->title, 'node/' . $node->nid) . '</h3>' . $body;
+
+              $files = array();
+              if (isset($node->field_oa_media)) {
+                $files = field_view_field('node', $node, 'field_oa_media', 'featured');
+              }
+              $file = NULL;
+              if (!empty($files['#items'])) {
+                $file = (object)$files['#items'][0];
+                $row[] = array('data' => $files, 'width' => '258');
+                $row[] = array('data' => $output, 'class' => 'oa-table-body oa-table-noborder');
+              } else {
+                $row[] = array('data' => $output, 'class' => 'oa-table-body oa-table-noborder', 'colspan' => 2);
+              }
+
+              $icons = oa_related_make_icons($node, $file);
+              $row[] = array(
+                'data' => implode('&nbsp', $icons),
+                'class' => 'oa-table-actions oa-table-noborder'
+              );
+
+              $rows[] = $row;
+            }
+          }
+
+          $element = array(
+            '#theme' => 'table',
+            '#rows' => $rows,
+          );
+
+          $vars['oa_related_content'] = render($element);
+        }
+        $vars['theme_hook_suggestions'][] = 'oa_related_paragraphs_content_render';
+        break;
+
+      case 'list':
+        if (!empty($vars['field_oa_related_content'])) {
+          $items = array();
+          foreach ($vars['field_oa_related_content'] as $key => $item) {
+            $node = $item['entity'];
+            if (node_access('view', $node)) {
+              $items[] = l($node->title, 'node/' . $node->nid);
+            }
+          }
+
+          $element = array(
+            '#theme' => 'item_list',
+            '#items' => $items,
+            '#type' => 'ul',
+          );
+
+          $vars['oa_related_content'] = render($element);
+        }
+        $vars['theme_hook_suggestions'][] = 'oa_related_paragraphs_content_render';
+        break;
+
+      case 'full':
+        if (!empty($vars['field_oa_related_content'])) {
+          $title = count($vars['field_oa_related_content']) == 1
+            ? t('Related') . ' ' . node_type_get_name($vars['field_oa_related_content'][0]['entity'])
+            : $vars['content']['field_oa_related_content']['#title'];
+          foreach ($vars['field_oa_related_content'] as $key => $item) {
+            $node = $item['entity'];
+            if (node_access('view', $node)) {
+              $file = isset($node->field_oa_media[LANGUAGE_NONE][0]) ? (object)$node->field_oa_media[LANGUAGE_NONE][0] : NULL;
+              if ($key > 0) {
+                $vars['multiple_content'] = TRUE;
+              }
+
+              $icons = oa_related_make_icons($node, $file);
+              if (!empty($icons)) {
+                $oa_icons = array(
+                  '#prefix' => '<div class="oa-table-actions pull-right">',
+                  '#markup' => implode('&nbsp', $icons),
+                  '#suffix' => '</div>',
+                  '#weight' => $key + 0.75,
+                );
+
+                $vars['oa_related_content'][$key]['icons'] = render($oa_icons);
+              }
+
+              $node_view = node_view($node, 'featured');
+              $node_view['#weight'] = $key + 1;
+              $vars['oa_related_content'][$key]['node'] = render($node_view);
+            }
+          }
+          $vars['title'] = $title;
+        }
+        $vars['theme_hook_suggestions'][] = 'oa_related_paragraphs_content_render';
+        break;
+    }
   }
-  unset($vars['content']['field_oa_content_layout']);
 }
 
 function oa_related_paragraph_snippet_property_get($entity, array $options, $name, $entity_type, &$context) {
   $wrapper = entity_metadata_wrapper($entity_type, $entity);
   if (isset($wrapper->field_snippet_content)) {
-    // grab the node.  Do *not* use $wrapper->field_snippet_content->value() since
-    // it does not return the proper revision
+    // Grab the node.  Do *not* use $wrapper->field_snippet_content->value() since
+    // it does not return the proper revision.
     if ($node = $entity->field_snippet_content[LANGUAGE_NONE][0]['entity']) {
       $view_mode = $wrapper->field_snippet_viewmode->value();
       if ($view_mode == 'summary') {

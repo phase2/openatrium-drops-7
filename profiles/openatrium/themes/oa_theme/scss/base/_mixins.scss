@@ -1,0 +1,17 @@
+// Mixins
+// -----------------------------------------------------------------------------
+
+// Clearfix - DO NOT REMOVE
+// Includes the has-layout part from compass without the overflow hidden
+// and the pseudo classes from bootstrap, otherwise all drop menus get clipped.
+@mixin clearfix {
+  @include has-layout;
+  &:before,
+  &:after {
+    content: " "; // 1
+    display: table; // 2
+  }
+  &:after {
+    clear: both;
+  }
+}

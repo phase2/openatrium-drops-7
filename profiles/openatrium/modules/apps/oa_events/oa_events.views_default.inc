@@ -215,7 +215,7 @@ function oa_events_views_default_views() {
   $handler->display->display_options['fields']['field_oa_address']['id'] = 'field_oa_address';
   $handler->display->display_options['fields']['field_oa_address']['table'] = 'field_data_field_oa_address';
   $handler->display->display_options['fields']['field_oa_address']['field'] = 'field_oa_address';
-  $handler->display->display_options['fields']['field_oa_address']['label'] = '';
+  $handler->display->display_options['fields']['field_oa_address']['label'] = 'Where';
   $handler->display->display_options['fields']['field_oa_address']['alter']['text'] = '[field_oa_address]
 [field_oa_event_link]';
   $handler->display->display_options['fields']['field_oa_address']['element_label_colon'] = FALSE;
@@ -1302,7 +1302,7 @@ function oa_events_views_default_views() {
   $handler = $view->new_display('panel_pane', 'Weekly Calendar', 'oa_calendar_week');
   $handler->display->display_options['defaults']['style_plugin'] = FALSE;
   $handler->display->display_options['style_plugin'] = 'fullcalendar';
-  $handler->display->display_options['style_options']['defaultView'] = 'agendaWeek';
+  $handler->display->display_options['style_options']['defaultView'] = 'basicWeek';
   $handler->display->display_options['style_options']['left'] = 'title';
   $handler->display->display_options['style_options']['center'] = '';
   $handler->display->display_options['style_options']['right'] = 'today prev,next';
@@ -1310,7 +1310,7 @@ function oa_events_views_default_views() {
   $handler->display->display_options['style_options']['timeformatMonth'] = 'h(:mm)t';
   $handler->display->display_options['style_options']['columnformatDay'] = 'dddd, MMM d, yyyy';
   $handler->display->display_options['style_options']['theme'] = FALSE;
-  $handler->display->display_options['style_options']['contentHeight'] = 480;
+  $handler->display->display_options['style_options']['contentHeight'] = 200;
   $handler->display->display_options['style_options']['fullcalendar_create']['node_type'] = 'oa_event';
   $handler->display->display_options['style_options']['fullcalendar_options']['firstHour'] = 8;
   $handler->display->display_options['defaults']['style_options'] = FALSE;

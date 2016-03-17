@@ -7,10 +7,10 @@
  */
 ?>
 <?php if ($tours): ?>
-  <ul id="oa_tours">
-    <li class="dropdown btn-group">
+  <ul class="oa-tours">
+    <li class="dropdown <?php print $direction;?> <?php print $alignment;?> btn-group">
       <a class="dropdown-toggle btn <?php print $oa_toolbar_btn_class; ?>" id="tours-dropdown" data-toggle="dropdown" href="#" title="<?php print $title?>">
-        <i class="icon-question-sign"></i><span class="element-invisible"><?php print t('Site Tours');?></span>
+        <i class="<?php print $icon_class; ?>"></i><span class="element-invisible"><?php print t('Site Tours');?></span>
       </a>
       <ul class="dropdown-menu" role="menu" aria-labelledby="space-dropdown">
         <li class="dropdown-column">

@@ -1,0 +1,79 @@
+<?php
+/**
+ * @file
+ * Installation, update and uninstall hooks for Panels Everywhere.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function panels_everywhere_uninstall() {
+  // Delete the variables.
+  variable_del('panels_everywhere_head_title_include_name');
+  variable_del('panels_everywhere_head_title_include_slogan');
+  variable_del('panels_everywhere_head_title_separator');
+  variable_del('panels_everywhere_provide_sample');
+  variable_del('panels_everywhere_site_template_enabled');
+  variable_del('panels_everywhere_site_template_enabled_admin');
+  variable_del('panels_everywhere_site_template_per_theme');
+  foreach (list_themes() as $theme_name => $theme) {
+    variable_del('panels_everywhere_override_theme_' . $theme_name);
+  }
+
+  // Delete the variant(s).
+  // Steps:
+  // 1. Query {page_manager_handlers} for any records with 'task' ==
+  //   'site_template'.
+  $templates = db_select('page_manager_handlers', 'h')
+    ->fields('h')
+    ->condition('task', 'site_template')
+    ->execute();
+  foreach ($templates as $site_template) {
+    // 2. Extract the 'conf' field using unserialize(), obtain the 'did' value.
+    $site_template->conf = unserialize($site_template->conf);
+
+    // 3. Delete the display referenced above.
+    panels_delete_display($site_template->conf['did']);
+
+    // 4. Delete the site template record.
+    db_delete('page_manager_handlers')
+      ->condition('task', 'site_template')
+      ->condition('did', $site_template->did)
+      ->execute();
+  }
+
+  drupal_set_message(t('Removed the Panels Everywhere site templates.'));
+}
+
+/**
+ * Implementations of hook_update_N().
+ */
+
+/**
+ * The site_template variants should not use the IPE, so change them to use the
+ * standard render pipeline.
+ */
+function panels_everywhere_update_7100() {
+  $table = 'page_manager_handlers';
+  $handlers = db_select($table, 'h')
+    ->fields('h')
+    ->condition('task', 'site_template')
+    ->execute();
+  $converted = 0;
+  if (!empty($handlers)) {
+    foreach($handlers as $handler) {
+      if (!empty($handler->conf)) {
+        $handler->conf = unserialize($handler->conf);
+        if (is_array($handler->conf) && isset($handler->conf['pipeline']) && $handler->conf['pipeline'] == 'ipe') {
+          $handler->conf['pipeline'] = 'standard';
+          drupal_write_record($table, $handler, array('did'));
+          $converted++;
+          drupal_set_message(t('Converted the @display site template to use the standard renderer.', array('@display' => $handler->conf['title'])));
+        }
+      }
+    }
+  }
+  if (empty($converted)) {
+    drupal_set_message(t('No Panels Everywhere displays needed to have their settings updated.'));
+  }
+}

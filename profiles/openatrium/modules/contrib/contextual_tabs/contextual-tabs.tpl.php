@@ -9,8 +9,13 @@
   <?php foreach ($buttons as $button): ?>
   <?php if (!empty($button['link'])): ?>
   <li>
-    <a class="btn btn-small btn-sm btn-default" href="<?php print $button['link'];?>" title="<?php print $button['title'];?>">
-      <i class="<?php print $button['icon'];?>"></i>&nbsp;<?php print $button['title'];?>
+    <a class="btn <?php print $btn_class; ?>" href="<?php print $button['link'];?>" title="<?php print $button['title'];?>">
+      <?php if (!empty($button['icon'])): ?>
+        <i class="<?php print $button['icon'];?>"></i>
+      <?php endif; ?>
+      <?php if ($show_captions): ?>
+        &nbsp;<?php print $button['title'];?>
+      <?php endif; ?>
     </a>
   </li>
   <?php elseif (!empty($button['render'])): ?>
@@ -20,9 +25,9 @@
   <?php endif; ?>
   <?php endforeach; ?>
   <?php if (!empty($links)): ?>
-    <li class="dropdown btn-group">
-      <a class="dropdown-toggle btn btn-small btn-sm btn-default" id="contextual-dropdown" data-toggle="dropdown" href="#" title="<?php print $title?>">
-        <i class="icon-cog"></i><span><?php print t('Configure');?></span>
+    <li class="dropdown <?php print $direction;?> <?php print $alignment;?> btn-group">
+      <a class="dropdown-toggle btn <?php print $btn_class; ?>" id="contextual-dropdown" data-toggle="dropdown" href="#" title="<?php print $title?>">
+        <i class="<?php print $icon_class;?>"></i><span><?php print $menu_caption;?></span>
       </a>
       <ul class="dropdown-menu" role="menu" aria-labelledby="contextual-dropdown">
         <li class="dropdown-column"><?php print $links; ?></li>

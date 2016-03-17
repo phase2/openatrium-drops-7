@@ -12,26 +12,40 @@ $plugin = array(
   'category' => array(t('OA Admin'), -9),
   'edit form' => 'oa_widgets_content_visibility_edit_form',
   'render callback' => 'oa_widgets_content_visibility_render',
-  'required context' => new ctools_context_required(t('Node'), 'node'),
+  'required context' => new ctools_context_optional(t('Node'), 'node'),
+  'defaults' => array(
+    'mode' => '',
+  ),
 );
 
 /**
  * Render callback for the content visibility panel.
  */
 function oa_widgets_content_visibility_render($subtype, $conf, $args, $context = NULL) {
-  if (!isset($context->data)) {
-    return;
-  }
-  if (!variable_get('oa_show_visibility_panel', TRUE)) {
+  $node = isset($context->data) ? $context->data : menu_get_object();
+
+  if (!isset($node->type)) {
     return;
   }
   $block = new stdClass();
-  $block->title = t('Content Visibility');
 
-  $node = $context->data;
   $vars = oa_core_visibility_data($node);
 
-  $block->content = theme('oa_widgets_content_visibility', $vars);
+  if (empty($conf['mode'])) {
+    // Visibility block
+    if (!variable_get('oa_show_visibility_panel', TRUE)) {
+      return;
+    }
+    $block->title = t('Content Visibility');
+    $block->content = theme('oa_widgets_content_visibility', $vars);
+  }
+  else {
+    // Visibility button
+    $vars['oa_toolbar_btn_class'] = 'btn-small btn-sm btn-default';
+    $vars['direction'] = 'dropup';
+    $block->title = '';
+    $block->content = theme('oa_widgets_visibility_toolbar', $vars);
+  }
   return $block;
 }
 
@@ -39,6 +53,18 @@ function oa_widgets_content_visibility_render($subtype, $conf, $args, $context =
  * Custom edit form to allow users to enable/disable selectable content types
  */
 function oa_widgets_content_visibility_edit_form($form, &$form_state) {
+  $conf = $form_state['conf'];
+
+  $form['mode'] = array(
+    '#type' => 'select',
+    '#options' => array(
+      '' => 'Panel',
+      'btn' => 'Button',
+    ),
+    '#title' => 'Mode',
+    '#default_value' => $conf['mode'],
+  );
+
   return $form;
 }
 

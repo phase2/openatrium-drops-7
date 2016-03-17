@@ -28,17 +28,22 @@
   <div class='oa-event-header'>
     <div class='oa-event-icon'>
       <?php
-        if (!empty($field_oa_media)) {
-          print $field_oa_media;
-        }
-        else {
-          print $field_oa_date_1;
-        }
+      if (!empty($field_oa_media)) {
+        print $field_oa_media;
+      }
+      else {
+        print $field_oa_date_1;
+      }
       ?>
     </div>
     <div class='oa-event-details'>
       <?php print $field_oa_date; ?>
-      <?php print $field_oa_address; ?>
+      <div class='oa-event-location'>
+        <span class='oa-event-label'>
+          <?php print t('Where'); ?>:
+        </span>
+        <span class="oa-event-item"><?php print $field_oa_address; ?></span>
+      </div>
     </div>
   </div>
   <div class='oa-event-description'>

@@ -1,0 +1,69 @@
+Panels Everywhere 7.x-1.0-rc2, 2015-01-17
+-----------------------------------------
+#2408973 by DamienMcKenna: Require recent versions of CTools, Panels.
+#1082010 by DamienMcKenna, mattyoung: Make head title controllable, themable.
+By DamienMcKenna: Don't repeat the 'IPE can't be used' message.
+#1266214 by DamienMcKenna: hook_uninstall() now removes all site templates and
+  variables.
+#2349583 by DamienMcKenna, slv_, emattias: Don't fail if the Taxonomy module is
+  not enabled.
+#1959130 by tstoeckler: Didn't work if the admin theme and default theme were
+  the same.
+By DamienMcKenna: Verify system message variables exist before printing them.
+#2346255 by DamienMcKenna, magicmyth: Wrong method of outputting system help.
+#1255228 by EclipseGc: Don't load the sample variant if it's not wanted.
+#1550294 by logaritmisk: Load the correct context on term_view page_manager
+  pages.
+#1985576 by jherencia: Ensure that the CTools context plugins are loaded.
+#1992820 by zterry95: Fixed the arguments of hook_ctools_render_alter().
+#1850050 by jherencia: Make original theme list data available.
+#1678138 by anon: Use new CTools function for outputting the action links.
+#1918756 by lpalgarvio: Removed some extra remnants of the defunct search box.
+By DamienMcKenna: Minor tidying of the tpl.php files.
+#962122 by stevector, Letharion: hook_panels_everywhere_contexts_alter was
+  named incorrectly.
+By DamienMcKenna: Minor syntax adjustments in the admin form.
+#967690 by jwilson3: Don't output the tabs if there are none.
+#1230100 by DamienMcKenna: Don't allow the IPE be used with site templates.
+#1266214 by DamienMcKenna: Delete all custom variables on uninstall.
+#2241889 by DamienMcKenna: Added some troubleshooting tips for recovering should
+  the 'Page content' pane not be added to the display and the site effectively
+  become inoperable.
+#1687872 by DamienMcKenna, exiled_hammer: Don't theme the navigation menus if
+  there's nothing to output.
+#2030157 by DamienMcKenna: Removed the search_box header variable, it's no
+  longer supported by D7 core.
+#1363378 by tim.plunkett: Allow menus to be controlled by theme settings.
+By DamienMcKenna: README.txt and CHANGELOG.txt updates.
+
+
+Panels Everywhere 7.x-1.0-rc1, 2012-04-22
+-----------------------------------------
+#1528424 by jherencia: Panels Everywhere needs to drupal_render() content
+  sometimes.
+By jherencia: Adding an isset check to avoid notices on empty pages.
+
+
+Panels Everywhere 7.x-1.0-beta1, 2011-09-13
+-------------------------------------------
+Minor updates to the README file, mostly to make it more updated to D7.
+Altering two old D6 clear-block's to D7 clearfix's.
+#1196710 by Kars-T: local tasks are not rendered.
+
+
+Panels Everywhere 7.x-1.0-alpha1, 2011-05-13
+--------------------------------------------
+#1089860 by Letharion: Saving the settings on the everywhere admin page.
+By Letharion: Pushed too soon. Fixing spelling mistake.
+By Letharion: Two strict warning fixes.
+By Letharion: Removing use of old taxonomy_get_term in favor of
+  taxononmy_term_load, the old function is no more in D7.
+By Letharion: Strict warning fix.
+By Letharion: Replacing a left over call to drupal_clone() with just clone().
+#1089460 by Letharion: Fix strict warning in pane messages content type.
+By merlinofchaos: Make sure tabs are rendered.
+By merlinofchaos: Update for fixes to hook_ctools_render_alter.
+By merlinofchaos: Page template no longer used in PE D7.
+By merlinofchaos: Significant cleanup.
+By merlinofchaos: Fix header pane to at least not totally suck with Bartik.
+By merlinofchaos: Initial port to Drupal 7.

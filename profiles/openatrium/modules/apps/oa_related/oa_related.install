@@ -10,3 +10,10 @@
 function oa_related_update_7101() {
   features_template_revert();
 }
+
+/**
+ * Revert 'field_base' so it will use our 'allowed_values_function'.
+ */
+function oa_related_update_7102() {
+  features_revert(array('oa_related' => array('field_base')));
+}

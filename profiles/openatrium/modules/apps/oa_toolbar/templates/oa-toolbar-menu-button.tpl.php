@@ -7,8 +7,14 @@
  */
 ?>
 
-<div id="toolbar-menu-button" class="toggle-tray btn <?php print $oa_toolbar_btn_class; ?>">
-  <span><?php print t('Admin'); ?></span>
+<div id="toolbar-menu-button" class="toggle-tray <?php print $oa_toolbar_btn_class; ?>">
+  <?php if (!empty($icon)): ?>
+    <i class="<?php print $icon;?>"></i>
+  <?php endif; ?>
+  <span><?php print $caption; ?></span>
+  <?php if (!empty($show_caret)): ?>
+    <span class="caret"></span>
+  <?php endif; ?>
 </div>
 
 

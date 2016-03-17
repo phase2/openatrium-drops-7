@@ -6,6 +6,14 @@
  */
 
 /**
+ * Implements hook_install().
+ */
+function oa_home_install() {
+  // set initial home page
+  variable_set('site_frontpage', 'home');
+}
+
+/**
  * Enable oa_brand.
  */
 function oa_home_update_7200() {

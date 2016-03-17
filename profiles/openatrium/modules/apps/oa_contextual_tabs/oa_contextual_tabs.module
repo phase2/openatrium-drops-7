@@ -27,6 +27,28 @@ function oa_contextual_tabs_menu() {
 }
 
 /**
+ * Implements hook_ctools_plugin_directory
+ */
+function oa_contextual_tabs_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'ctools' && $plugin_type == 'content_types') {
+    return 'plugins/content_types';
+  }
+}
+
+/**
+ * Implements hook_theme()
+ */
+function oa_contextual_tabs_theme() {
+  $path = drupal_get_path('module', 'oa_contextual_tabs') . '/templates';
+  return array(
+    'oa_space_config' => array(
+      'template' => 'oa-space-config',
+      'path' => $path,
+    ),
+  );
+}
+
+/**
  * Implements hook_contextual_tabs_alter().
  *
  * Add the visibility widget button
@@ -37,16 +59,139 @@ function oa_contextual_tabs_contextual_tabs_alter(&$data) {
     if (isset($node->type)) {
       $vars = oa_core_visibility_data($node);
       $vars['oa_toolbar_btn_class'] = 'btn-small btn-sm btn-default';
-      $data['buttons'][] = array(
+      $data['buttons']['visibility'] = array(
         'render' => theme('oa_widgets_visibility_toolbar', $vars),
       );
     }
   }
+
+  // move the IPE buttons into contextual tabs
+  if (module_exists('panels_ipe') && variable_get('oa_contextual_move_ipe', FALSE)) {
+    $buttons = &drupal_static('panels_ipe_toolbar_buttons', array());
+    if (!empty($buttons)) {
+      foreach ($buttons as $key => $ipe_buttons) {
+        foreach ($ipe_buttons as $id => $button) {
+          unset($button['#prefix']);
+          unset($button['#suffix']);
+          if (!empty($button['#id'])) {
+            $button['#id'] .= '-1';
+          }
+          array_unshift($data['links'], drupal_render($button));
+        }
+      }
+      oa_core_body_classes('oa-process-ipe');
+    }
+  }
+
+  // Ensure any link to the node itself gets /view added
+  // Forces document nodes to show node view instead of redirect to file
   if (!empty($data['buttons'])) {
     foreach ($data['buttons'] as $index => $button) {
       if (!empty($button['link'])) {
         if (preg_match('#^/node/\d+$#', $button['link'])) {
           $data['buttons'][$index]['link'] .= '/view';
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_contextual_tabs_tasks_alter().
+ */
+function oa_contextual_tabs_contextual_tabs_tasks_alter(&$links) {
+  // In auto mode, remove tasks that were shown in the space_config widget
+  $filter = variable_get('oa_contextual_restrict', 1);
+  $allowed_map = array();
+  $removed_map = array();
+  if ($filter == 1) {
+    $allowed_links = oa_contextual_tabs_task_links();
+    if (!empty($allowed_links)) {
+      foreach ($allowed_links as $link) {
+        $allowed_map[$link['path']] = $link;
+      }
+    }
+  }
+  if (arg(0) == 'node' && (arg(2) == '' || (arg(2) == 'view'))) {
+    $removed_map['node/%/view'] = TRUE;
+  }
+  if (!empty($allowed_map)) {
+    foreach ($links as $index => $link) {
+      if (!isset($allowed_map[$link['path']])) {
+        unset($links[$index]);
+      }
+      if (isset($removed_map[$link['path']])) {
+        unset($links[$index]);
+      }
+    }
+  }
+}
+
+/**
+ * Return matching admin links
+ * @param $links modified to remove matching/non-matching links
+ * @param $filter name of variable containing filter list
+ * @param $blacklist TRUE if $filter is blacklist (remove matching links),
+ *   FALSE if $filter is whitelist (remove non-matching links).
+ * @return array of links removed
+ */
+function oa_contextual_tabs_filter_links(&$links, $filter = '', $blacklist = TRUE) {
+  $result = array();
+  if (!empty($filter)) {
+    $allowed = variable_get($filter, '');
+    if (!empty($allowed) && !empty($links)) {
+      foreach ($links as $id => $link) {
+        // use path instead of href to handle /user/% as /user/%/activity case
+        $matched = drupal_match_path($link['path'], $allowed);
+        if ((!$matched && !$blacklist) || ($matched && $blacklist)) {
+          $result[$id] = $link;
+          unset($links[$id]);
+        }
+      }
+    }
+  }
+  return $result;
+}
+
+/**
+ * Get/Set current list of cached space admin links
+ * @param  array $links optional list of links to save
+ * @return array cached links
+ */
+function oa_contextual_tabs_task_links($links = NULL) {
+  $task_links = &drupal_static(__FUNCTION__);
+  if (isset($links)) {
+    $task_links = $links;
+  }
+  if (!isset($task_links)) {
+    $task_links = array();
+    menu_local_tasks();
+  }
+  return $task_links;
+}
+
+/**
+ * Implements hook_menu_local_tasks_alter().
+ */
+function oa_contextual_tabs_menu_local_tasks_alter(&$data, $router_item, $root_path) {
+  // Remove admin pages from list
+  $links = array();
+  if (!empty($data['tabs'][0]['output'])) {
+    foreach ($data['tabs'][0]['output'] as $key => $link) {
+      $links[$key] = $link['#link'];
+    }
+    // Save links in static cache so other modules can use it
+    oa_contextual_tabs_task_links($links);
+
+    // Remove links not allowed in contextual tabs
+    $pages = variable_get('contextual_tabs_pages', '');
+    $current = current_path();
+    if (!drupal_match_path($current, $pages)) {
+      $filter = variable_get('oa_contextual_restrict', 1);
+      if ($filter > 1) {
+        $remove_links = oa_contextual_tabs_filter_links($links, 'oa_tasks_contextual', ($filter != 2));
+        foreach ($remove_links as $key => $link) {
+          unset($data['tabs'][0]['output'][$key]);
         }
       }
     }
@@ -93,7 +238,7 @@ function oa_contextual_tabs_oa_settings_form(&$form_state) {
   $form = array();
   $form['oa_show_visibility'] = array(
     '#type' => 'checkbox',
-    '#title' => 'Show visibility button',
+    '#title' => t('Show visibility button'),
     '#default_value' => variable_get('oa_show_visibility', TRUE),
   );
 
@@ -101,5 +246,52 @@ function oa_contextual_tabs_oa_settings_form(&$form_state) {
     'caption' => t('Privacy'),
     'form' => $form,
   );
+
+  $form = array();
+  $form['oa_contextual_move_ipe'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Move IPE buttons to contextual tabs'),
+    '#description' => t('If enabled, move the Customize Page and Change Layout buttons into the contextual tabs'),
+    '#default_value' => variable_get('oa_contextual_move_ipe', FALSE),
+  );
+  $form['oa_contextual_restrict'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Altering contextual tabs tasks'),
+    '#description' => t('Select option for changing the contextual tabs task list.'),
+    '#default_value' => variable_get('oa_contextual_restrict', 1),
+    '#type' => 'select',
+    '#options' => array (
+      0 => 'Disabled.  Do not change contextual tabs.',
+      1 => 'Auto.  Remove tasks shown in other widgets from contextual tabs.',
+      2 => 'WhiteList.  Only show tasks in contextual tabs listed below.',
+      3 => 'BlackList.  Remove tasks shown in list given below.'
+    ),
+  );
+  $form['oa_tasks_contextual'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Contextual tab tasks'),
+    '#description' => t('List of task links to show/remove in the contextual tabs. One path per line.  Can include * wildcard.'),
+    '#default_value' => variable_get('oa_tasks_contextual', ''),
+  );
+
+  $form['oa_space_config_pages'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Space config tasks'),
+    '#description' => t('List of task links to always show in the space config menu.  Can include * wildcard.'),
+    '#default_value' => variable_get('oa_space_config_pages', ''),
+  );
+
+  $form['oa_user_config_pages'] = array(
+    '#type' => 'textarea',
+    '#title' => t('User config tasks'),
+    '#description' => t('List of task links to always show in the user login menu.  Can include * wildcard.'),
+    '#default_value' => variable_get('oa_user_config_pages', ''),
+  );
+
+  $forms[] = array(
+    'caption' => t('Contextual Tabs'),
+    'form' => $form,
+  );
+
   return $forms;
 }

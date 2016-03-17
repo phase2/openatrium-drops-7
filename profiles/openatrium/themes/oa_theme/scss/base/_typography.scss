@@ -1,0 +1,189 @@
+// Typography
+// -----------------------------------------------------------------------------
+
+body {
+  font-family: 'Open Sans', sans-serif;
+}
+
+.mceContentBody {
+  &, p, ol, ul {
+    font-family: 'Open Sans', sans-serif;
+    line-height: 1.5em;
+    color: #60616d;
+    font-size: 16px;
+    margin: 0;
+    // enforce consistent paragraph and list spacing in the main content area
+    margin-bottom: 1em !important;
+  }
+}
+
+.pane-page-content {
+  .field-type-text-with-summary .field-item,
+  .field-type-text-long .field-item,
+  .paragraphs-item-paragraph-snippet,
+  .paragraphs-item-paragraph-content,
+  .oa-event-description,
+  .oa-news-body {
+    p, ol, ul {
+      margin: 0;
+      // enforce consistent paragraph and list spacing in the main content area
+      margin-bottom: 1em !important;
+    }
+    &, p, ol, ul {
+      font-family: 'Open Sans', sans-serif;
+      line-height: 1.5em;
+      color: #60616d;
+      font-size: 18px;
+    }
+    h1, h2, h3, h4, h5 {
+      font-family: 'Open Sans', sans-serif;
+    }
+  }
+  .paragraphs-item-paragraph-content {
+    font-size: 14px;
+  }
+  .entity-paragraphs-item {
+    margin-bottom: 1em;
+  }
+  .panel-panel-inner > .panel-pane.pane-node-field-oa-related {
+    padding-top: 0;
+  }
+  .pane-node-comments .oa-list .oa-comment-reply-body,
+  .pane-content #comments .oa-list .oa-comment-reply-body,
+  .oa-comment-reply-body {
+    font-family: 'Open Sans', sans-serif;
+    line-height: 1.5em;
+    color: #60616d;
+    font-size: 15px;
+    margin: 0 0 10px 0;
+    p {
+      font-family: 'Open Sans', sans-serif;
+      font-size: 15px;
+      margin: 0 0 1em 0;
+    }
+    .user-info, .links {
+      font-size: 13px;
+      font-family: 'Open Sans', sans-serif;
+    }
+  }
+}
+
+h1 {
+  font-size: 44px;
+  letter-spacing: -.03em;
+  margin: 10px 0 20px 0;
+  color: #2a2c37;
+  line-height: 1.1em;
+}
+
+h2 {
+  text-transform: uppercase;
+  font-size: 20px;
+  margin: 0 0 0.8em 0;
+  letter-spacing: .04em;
+  font-weight: bold;
+  background-image: none;
+}
+.oa-pane .pane-title {
+  text-transform: uppercase;
+  font-size: 20px;
+  margin: 0 0 0.8em 0;
+  padding: 0;
+  letter-spacing: .04em;
+  font-weight: bold;
+  background-image: none;
+}
+
+.radix-layouts-sidebar {
+  opacity: 0.85;
+  h2, h3 {
+    text-transform: uppercase;
+    font-size: 16px;
+    padding: 0;
+    letter-spacing: .04em;
+    font-weight: bold;
+    background-image: none;
+  }
+  h3 {
+    font-size: 14px;
+    margin: 5px 0;
+  }
+  .pane-title {
+    font-size: 16px;
+    border-top: 1px solid #DADADC;
+    margin: 0 -15px 0.8em;
+    padding: 10px 15px 5px;
+  }
+  .field-type-text-with-summary .field-item p {
+    font-size: 14px;
+  }
+  .group-content li {
+    font-size: 14px;
+  }
+}
+
+h3 {
+  font-weight: 800;
+  font-size: 18px;
+  margin: 0 0 1em 0;
+}
+
+.view-oa-team-list h3 a {
+  color: #777;
+  text-transform: uppercase;
+  font-weight: normal;
+}
+
+h4 {
+  text-transform: uppercase;
+  font-size: 16px;
+  margin: 0 0 1em 0;
+  letter-spacing: .04em;
+}
+
+.entity-paragraphs-item .field-label-heading .field-label {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
+}
+
+.radix-layouts-sidebar {
+  color: #60616d;
+  font-size: 15px;
+}
+
+.group-header {
+  margin-top: 0;
+  h3, h4 {
+    font-size: 12px;
+    line-height: 1.1;
+    color: #6D7074;
+    font-weight: bold;
+    font-style: normal;
+    text-transform: uppercase;
+    border-top: 4px solid #EAEAEA;
+    margin-bottom: 0;
+    padding-top: 1.3em;
+    padding-bottom: 1.3em;
+  }
+}
+
+.view-content table > caption {
+  font-size: 12px;
+  line-height: 1.1;
+  color: #6D7074;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 1.3em;
+}
+
+.oa-responsive-region .fa {
+  margin-right: 0;
+}
+
+.more-link {
+  font-family: 'Open Sans', sans-serif;
+  font-style: italic;
+  font-size: 15px;
+}

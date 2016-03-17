@@ -7,7 +7,6 @@
 $plugin = array(
   'title' => t('Open Atrium Navigation'),
   'description' => t('The Open Atrium main menu navigation.'),
-  'single' => TRUE,
   'category' => array(t('OA Admin'), -9),
 );
 

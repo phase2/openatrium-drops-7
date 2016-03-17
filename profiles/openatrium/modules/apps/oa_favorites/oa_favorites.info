@@ -16,9 +16,9 @@ features[flag][] = favorite_space
 stylesheets[all][] = oa_favorites.css
 project path = sites/all/modules/contrib/oa_core/modules
 
-; Information added by Drupal.org packaging script on 2015-10-20
-version = "7.x-2.2"
+; Information added by Drupal.org packaging script on 2016-03-17
+version = "7.x-2.4"
 core = "7.x"
 project = "oa_favorites"
-datestamp = "1445354070"
+datestamp = "1458239075"
 

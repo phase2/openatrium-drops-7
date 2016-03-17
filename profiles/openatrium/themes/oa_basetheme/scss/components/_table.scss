@@ -1,0 +1,16 @@
+//
+// Styles for Tables
+// --------------------------------------------------
+
+table th.checkbox, table td.checkbox {
+  display: table-cell;
+}
+table td > div.form-type-checkbox {
+  text-align: center;
+}
+
+// fix for sticky headers, which are broken due to the z-index of OA's navbar
+table.sticky-header {
+  // setting the z-index of the sticky header to 1 more than the OA navbar
+  z-index: 1001;
+}

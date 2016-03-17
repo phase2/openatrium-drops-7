@@ -40,13 +40,13 @@
       var spaceTypeSelector = $(settings.oaCoreSpaceTypeSelector, context),
           spaceType = spaceTypeSelector.length ? spaceTypeSelector.val() : settings.oaCoreSpaceType;
 
-      if (spaceType && settings.oaCoreSpaceTypeOptions[spaceType]) {
+      if (spaceType && settings.oaCoreSpaceTypeOptions["tid" + spaceType]) {
         // Trigger the 'oaCoreSpaceTypeChange' event which other modules can
         // respond to.
         $.event.trigger({
           type: 'oaCoreSpaceTypeChange',
           spaceType: spaceType,
-          options: settings.oaCoreSpaceTypeOptions[spaceType],
+          options: settings.oaCoreSpaceTypeOptions["tid" + spaceType],
           override: $('input:[name="field_oa_section_override[und]"]:checked', context).length
         });
       }

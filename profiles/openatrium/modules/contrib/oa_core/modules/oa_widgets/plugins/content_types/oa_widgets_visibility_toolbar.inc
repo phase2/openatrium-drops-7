@@ -26,7 +26,6 @@ function oa_widgets_visibility_toolbar_render($subtype, $conf, $args, $context =
   $block->title = '';
 
   $vars = oa_core_visibility_data($node);
-  $vars['oa_toolbar_btn_class'] = variable_get('oa_toolbar_style', 0) ? '' : 'btn-inverse';
   $block->content = theme('oa_widgets_visibility_toolbar', $vars);
   return $block;
 }

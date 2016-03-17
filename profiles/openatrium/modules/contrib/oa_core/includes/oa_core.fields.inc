@@ -95,8 +95,9 @@ function oa_core_exposed_og_group_ref_fix_cardinality($element, &$form_state, $f
 function oa_core_select2widget_entity_validate_field(&$element, &$form_state, $form) {
   // Legacy support, empty means current.
   if (!empty($element['#convert_empty_to_current']) && empty($element['#value'])) {
-    // If filter is on an admin view, default to show All spaces
-    if (isset($form_state['view']->tag) && ($form_state['view']->tag == 'admin')) {
+    // If filter is on an admin view or user view, default to show All spaces
+    if ((isset($form_state['view']->tag) && ($form_state['view']->tag == 'admin')) ||
+      isset($form_state['view']->argument['user'])) {
       $element['#value'] = _oa_core_select2widget_all_label();
     }
     else {

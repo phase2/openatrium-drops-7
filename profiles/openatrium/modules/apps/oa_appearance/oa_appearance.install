@@ -1,0 +1,33 @@
+<?php
+/**
+ * @file
+ * Provides install hooks for oa_appearance
+ */
+
+/**
+ * Implements hook_install().
+ */
+function oa_appearance_install() {
+  _oa_appearance_config_colorizer();
+}
+
+/**
+ * Helper function to set the colorizer settings
+ */
+function _oa_appearance_config_colorizer() {
+  $theme = variable_get('theme_default','oa_basetheme');
+  $theme_path = drupal_get_path('theme', $theme) . '/';
+
+  $colorizer = variable_get('colorizer_incfile', '');
+  if (empty($colorizer)) {
+    // set initial values
+    variable_set('colorizer_incfile', 'colorizer.inc');
+    if (file_exists(DRUPAL_ROOT . '/' . $theme_path . 'assets/css/colorizer.css')) {
+      variable_set('colorizer_cssfile', 'assets/css/colorizer.css');
+    }
+    elseif (file_exists(DRUPAL_ROOT . '/' . $theme_path . 'assets/stylesheets/colorizer.css')) {
+      variable_set('colorizer_cssfile', 'assets/stylesheets/colorizer.css');
+    }
+    variable_set('colorizer_previewfile', 'templates/colorizer.htm');
+  }
+}

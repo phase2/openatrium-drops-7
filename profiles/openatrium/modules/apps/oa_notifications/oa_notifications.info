@@ -6,6 +6,7 @@ dependencies[] = ctools
 dependencies[] = flag
 dependencies[] = oa_core
 dependencies[] = page_manager
+stylesheets[all][] = oa_notifications.css
 apps[screenshots][] = app/screenshot.png
 apps[logo] = app/logo.png
 apps[author] = Phase2 Technology
@@ -14,12 +15,13 @@ apps[server] = openatrium
 apps[package] = Core addons
 features[ctools][] = page_manager:pages_default:1
 features[features_api][] = api:2
+features[flag][] = subscribe_section_content
 features[page_manager_pages][] = user_subscribed_content
 project path = sites/all/modules/contrib
 
-; Information added by Drupal.org packaging script on 2015-10-20
-version = "7.x-2.26"
+; Information added by Drupal.org packaging script on 2016-03-17
+version = "7.x-2.28"
 core = "7.x"
 project = "oa_notifications"
-datestamp = "1445354646"
+datestamp = "1458239354"
 

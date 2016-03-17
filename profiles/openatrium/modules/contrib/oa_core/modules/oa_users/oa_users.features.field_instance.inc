@@ -10,7 +10,7 @@
 function oa_users_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'user-user-field_user_display_name'
+  // Exported field_instance: 'user-user-field_user_display_name'.
   $field_instances['user-user-field_user_display_name'] = array(
     'bundle' => 'user',
     'default_value' => NULL,
@@ -54,7 +54,7 @@ function oa_users_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'user-user-og_user_node'
+  // Exported field_instance: 'user-user-og_user_node'.
   $field_instances['user-user-og_user_node'] = array(
     'bundle' => 'user',
     'default_value' => NULL,

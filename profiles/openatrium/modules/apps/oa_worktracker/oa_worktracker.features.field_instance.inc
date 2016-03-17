@@ -10,7 +10,8 @@
 function oa_worktracker_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'comment-comment_node_oa_worktracker_task-comment_body'
+  // Exported field_instance:
+  // 'comment-comment_node_oa_worktracker_task-comment_body'.
   $field_instances['comment-comment_node_oa_worktracker_task-comment_body'] = array(
     'bundle' => 'comment_node_oa_worktracker_task',
     'default_value' => NULL,
@@ -43,7 +44,8 @@ function oa_worktracker_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'message-oa_worktracker_task_update-field_oa_comment_ref'
+  // Exported field_instance:
+  // 'message-oa_worktracker_task_update-field_oa_comment_ref'.
   $field_instances['message-oa_worktracker_task_update-field_oa_comment_ref'] = array(
     'bundle' => 'oa_worktracker_task_update',
     'default_value' => NULL,
@@ -125,7 +127,8 @@ function oa_worktracker_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'message-oa_worktracker_task_update-field_oa_message_section'
+  // Exported field_instance:
+  // 'message-oa_worktracker_task_update-field_oa_message_section'.
   $field_instances['message-oa_worktracker_task_update-field_oa_message_section'] = array(
     'bundle' => 'oa_worktracker_task_update',
     'default_value' => NULL,
@@ -204,7 +207,8 @@ function oa_worktracker_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'message-oa_worktracker_task_update-field_oa_message_space'
+  // Exported field_instance:
+  // 'message-oa_worktracker_task_update-field_oa_message_space'.
   $field_instances['message-oa_worktracker_task_update-field_oa_message_space'] = array(
     'bundle' => 'oa_worktracker_task_update',
     'default_value' => NULL,
@@ -283,7 +287,8 @@ function oa_worktracker_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'message-oa_worktracker_task_update-field_oa_message_text'
+  // Exported field_instance:
+  // 'message-oa_worktracker_task_update-field_oa_message_text'.
   $field_instances['message-oa_worktracker_task_update-field_oa_message_text'] = array(
     'bundle' => 'oa_worktracker_task_update',
     'default_value' => NULL,
@@ -363,7 +368,8 @@ function oa_worktracker_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'message-oa_worktracker_task_update-field_oa_node_ref'
+  // Exported field_instance:
+  // 'message-oa_worktracker_task_update-field_oa_node_ref'.
   $field_instances['message-oa_worktracker_task_update-field_oa_node_ref'] = array(
     'bundle' => 'oa_worktracker_task_update',
     'default_value' => NULL,
@@ -442,7 +448,7 @@ function oa_worktracker_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-oa_worktracker_task-body'
+  // Exported field_instance: 'node-oa_worktracker_task-body'.
   $field_instances['node-oa_worktracker_task-body'] = array(
     'bundle' => 'oa_worktracker_task',
     'default_value' => NULL,
@@ -493,7 +499,7 @@ function oa_worktracker_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-oa_worktracker_task-field_oa_media'
+  // Exported field_instance: 'node-oa_worktracker_task-field_oa_media'.
   $field_instances['node-oa_worktracker_task-field_oa_media'] = array(
     'bundle' => 'oa_worktracker_task',
     'comment_alter' => 1,
@@ -573,7 +579,8 @@ function oa_worktracker_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-oa_worktracker_task-field_oa_worktracker_assigned_to'
+  // Exported field_instance:
+  // 'node-oa_worktracker_task-field_oa_worktracker_assigned_to'.
   $field_instances['node-oa_worktracker_task-field_oa_worktracker_assigned_to'] = array(
     'bundle' => 'oa_worktracker_task',
     'comment_alter' => 1,
@@ -624,7 +631,8 @@ function oa_worktracker_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-oa_worktracker_task-field_oa_worktracker_priority'
+  // Exported field_instance:
+  // 'node-oa_worktracker_task-field_oa_worktracker_priority'.
   $field_instances['node-oa_worktracker_task-field_oa_worktracker_priority'] = array(
     'bundle' => 'oa_worktracker_task',
     'comment_alter' => 1,
@@ -674,7 +682,8 @@ function oa_worktracker_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-oa_worktracker_task-field_oa_worktracker_task_status'
+  // Exported field_instance:
+  // 'node-oa_worktracker_task-field_oa_worktracker_task_status'.
   $field_instances['node-oa_worktracker_task-field_oa_worktracker_task_status'] = array(
     'bundle' => 'oa_worktracker_task',
     'comment_alter' => 1,
@@ -724,7 +733,8 @@ function oa_worktracker_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-oa_worktracker_task-field_oa_worktracker_task_type'
+  // Exported field_instance:
+  // 'node-oa_worktracker_task-field_oa_worktracker_task_type'.
   $field_instances['node-oa_worktracker_task-field_oa_worktracker_task_type'] = array(
     'bundle' => 'oa_worktracker_task',
     'comment_alter' => 1,
@@ -774,7 +784,7 @@ function oa_worktracker_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-oa_worktracker_task-oa_section_ref'
+  // Exported field_instance: 'node-oa_worktracker_task-oa_section_ref'.
   $field_instances['node-oa_worktracker_task-oa_section_ref'] = array(
     'bundle' => 'oa_worktracker_task',
     'comment_alter' => 1,
@@ -829,7 +839,7 @@ function oa_worktracker_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-oa_worktracker_task-og_group_ref'
+  // Exported field_instance: 'node-oa_worktracker_task-og_group_ref'.
   $field_instances['node-oa_worktracker_task-og_group_ref'] = array(
     'bundle' => 'oa_worktracker_task',
     'comment_alter' => 0,
@@ -916,6 +926,50 @@ function oa_worktracker_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'node-oa_worktracker_task-og_vocabulary'.
+  $field_instances['node-oa_worktracker_task-og_vocabulary'] = array(
+    'bundle' => 'oa_worktracker_task',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'hidden',
+        'module' => 'og_vocab',
+        'settings' => array(
+          'concatenate' => 1,
+        ),
+        'type' => 'og_vocab',
+        'weight' => 14,
+      ),
+      'featured' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'og_vocabulary',
+    'label' => 'OG vocabulary',
+    'required' => FALSE,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'module' => 'og_vocab',
+      'settings' => array(),
+      'type' => 'og_vocab_complex',
+      'weight' => 21,
+    ),
+  );
+
   // Translatables
   // Included for use with string extractors like potx.
   t('Assigned to');
@@ -925,6 +979,7 @@ function oa_worktracker_field_default_field_instances() {
   t('Description');
   t('Groups audience');
   t('Node');
+  t('OG vocabulary');
   t('Priority');
   t('Section');
   t('Space');

@@ -36,8 +36,10 @@
       $(function() {
         $('.toggle-comment-visibility').each(function() {
           // This will get all '.oa-list-header divs that belong with the correct 'toggle'.
-          var replies = ($(this).siblings('.pane-content').length > 0) ? $(this).siblings('.pane-content').children('.oa-list') : $(this).siblings('.oa-list');
-          replies = replies.children().children().children('div');
+          var replies = ($(this).siblings('.pane-content').length > 0)
+            ? $(this).siblings('.pane-content').find('.oa-list')
+            : $(this).siblings('.oa-list');
+          replies = replies.find('.oa-list-header');
           $(this).on('click', function(event) {
             event.preventDefault();
             // $replies.collapse(expand ? 'show' : 'hide');

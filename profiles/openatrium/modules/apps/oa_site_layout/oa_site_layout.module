@@ -1,0 +1,151 @@
+<?php
+
+/**
+ * @file
+ * Provides hook implementations and functionality for oa_site_layout.
+ */
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function oa_site_layout_ctools_plugin_directory($module, $plugin) {
+  return 'plugins/' . $plugin;
+}
+
+/**
+ * Implement hook_theme()
+ */
+function oa_site_layout_theme() {
+  $theme = array();
+  $path = drupal_get_path('module', 'oa_site_layout') . '/theme';
+  $base = array(
+    'file' => 'theme.inc',
+    'path' => $path,
+  );
+  $theme['pane_oa_tabs'] = array(
+      'variables' => array(),
+      'template' => 'pane-oa-tabs',
+    ) + $base;
+  $theme['pane_oa_help'] = array(
+      'variables' => array(),
+      'template' => 'pane-oa-help',
+    ) + $base;
+  $theme['pane_oa_action_links'] = array(
+      'variables' => array(),
+      'template' => 'pane-oa-action-links',
+    ) + $base;
+  $theme['pane_oa_messages'] = array(
+      'variables' => array(),
+      'template' => 'pane-oa-messages',
+    ) + $base;
+  $theme['pane_oa_breadcrumb'] = array(
+      'variables' => array(),
+      'template' => 'pane-oa-breadcrumb',
+    ) + $base;
+  $theme['pane_oa_title'] = array(
+      'variables' => array(),
+      'template' => 'pane-oa-title',
+    ) + $base;
+  $theme['pane_oa_form_actions'] = array(
+      'variables' => array(),
+      'template' => 'pane-oa-form-actions',
+    ) + $base;
+
+  return $theme;
+}
+
+/**
+ * Implements hook_init().
+ */
+function oa_site_layout_init() {
+  $space_id = oa_core_get_space_context();
+  // Need to use variable_realm_get instead of variable_get_value because
+  // we are early and variables are not set up yet.
+  $layout_name = variable_realm_get('og', 'node_' . $space_id, 'oa_layouts_layout_name');
+  if (!empty($layout_name)) {
+    $templates = panels_everywhere_get_site_templates();
+    foreach ($templates as $key => $name) {
+      if (strtolower($name) == strtolower($layout_name)) {
+        panels_everywhere_set_site_template($key);
+      }
+    }
+    if (in_array($layout_name, $templates)) {
+    }
+  }
+}
+
+/**
+ * Implements hook_panels_pane_content_alter().
+ *
+ */
+function oa_site_layout_panels_pane_content_alter($content, $pane, $args, $context) {
+  if ($pane->type == 'page_content') {
+    // remove the title from page_content.  Add a separate pane_oa_title to get the title
+    $content->title = '';
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function oa_site_layout_form_alter(&$form, &$form_state, $form_id) {
+  $form['#after_build'][] = 'oa_site_layout_form_after_build';
+}
+
+/**
+ * Callback for inspecting the form after it is build
+ * @param $form
+ * @param $form_state
+ * @return mixed
+ */
+function oa_site_layout_form_after_build($form, &$form_state) {
+  // Need to communicate the current form actions to the oa_form_actions.inc pane.
+  // Hate to use a Global, but no better way.
+  if (!empty($form['#node_edit_form'])) {
+    $GLOBALS['oa_site_layout_actions'] = isset($form['actions']) ? $form['actions'] : '';
+  }
+  return $form;
+}
+
+/**
+ * Implements hook_panels_post_render().
+ *
+ * @param $panels_display
+ * @param $renderer
+ */
+function oa_site_layout_panels_post_render($panels_display, $renderer) {
+  foreach ($panels_display->content as $pane) {
+    if ($pane->type == 'pane_oa_title') {
+      // determine if pane_oa_title is in the display
+      // but it didn't get rendered cause of access rules.
+      if (!isset($renderer->rendered['panes'][$pane->pid])) {
+        $GLOBALS['oa_hide_page_title'] = TRUE;
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_page_alter().
+ *
+ * @param $page
+ */
+function oa_site_layout_page_alter(&$page) {
+  // Remove help block from page itself.
+  // Add help via the pane-oa-help pane.
+  unset($page['content']['system_help']);
+}
+
+/**
+ * Implements hook_panels_pre_render().
+ *
+ * @param $display
+ * @param $renderer
+ */
+function oa_site_layout_panels_pre_render($display, $renderer) {
+  // Ensure title is calculated first so any pane_oa_title gets the correct title.
+  $title = $display->get_title();
+  if (!empty($title)) {
+    drupal_set_title($title, PASS_THROUGH);
+  }
+}

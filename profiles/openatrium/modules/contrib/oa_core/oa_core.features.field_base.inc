@@ -10,7 +10,7 @@
 function oa_core_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'field_oa_media'
+  // Exported field_base: 'field_oa_media'.
   $field_bases['field_oa_media'] = array(
     'active' => 1,
     'cardinality' => -1,
@@ -33,7 +33,7 @@ function oa_core_field_default_field_bases() {
     'type' => 'file',
   );
 
-  // Exported field_base: 'field_oa_section_layout'
+  // Exported field_base: 'field_oa_section_layout'.
   $field_bases['field_oa_section_layout'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -55,7 +55,7 @@ function oa_core_field_default_field_bases() {
     'type' => 'list_text',
   );
 
-  // Exported field_base: 'field_oa_section_override'
+  // Exported field_base: 'field_oa_section_override'.
   $field_bases['field_oa_section_override'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -80,7 +80,7 @@ function oa_core_field_default_field_bases() {
     'type' => 'list_boolean',
   );
 
-  // Exported field_base: 'field_oa_space_type'
+  // Exported field_base: 'field_oa_space_type'.
   $field_bases['field_oa_space_type'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -107,7 +107,7 @@ function oa_core_field_default_field_bases() {
     'type' => 'taxonomy_term_reference',
   );
 
-  // Exported field_base: 'group_access'
+  // Exported field_base: 'group_access'.
   $field_bases['group_access'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -133,7 +133,7 @@ function oa_core_field_default_field_bases() {
     'type' => 'list_boolean',
   );
 
-  // Exported field_base: 'group_group'
+  // Exported field_base: 'group_group'.
   $field_bases['group_group'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -158,7 +158,7 @@ function oa_core_field_default_field_bases() {
     'type' => 'list_boolean',
   );
 
-  // Exported field_base: 'oa_other_spaces_ref'
+  // Exported field_base: 'oa_other_spaces_ref'.
   $field_bases['oa_other_spaces_ref'] = array(
     'active' => 1,
     'cardinality' => -1,
@@ -198,7 +198,7 @@ function oa_core_field_default_field_bases() {
     'type' => 'entityreference',
   );
 
-  // Exported field_base: 'oa_section_ref'
+  // Exported field_base: 'oa_section_ref'.
   $field_bases['oa_section_ref'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -233,7 +233,7 @@ function oa_core_field_default_field_bases() {
     'type' => 'entityreference',
   );
 
-  // Exported field_base: 'og_group_ref'
+  // Exported field_base: 'og_group_ref'.
   $field_bases['og_group_ref'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -274,7 +274,7 @@ function oa_core_field_default_field_bases() {
     'type' => 'entityreference',
   );
 
-  // Exported field_base: 'og_roles_permissions'
+  // Exported field_base: 'og_roles_permissions'.
   $field_bases['og_roles_permissions'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -299,7 +299,7 @@ function oa_core_field_default_field_bases() {
     'type' => 'list_boolean',
   );
 
-  // Exported field_base: 'og_vocabulary'
+  // Exported field_base: 'og_vocabulary'.
   $field_bases['og_vocabulary'] = array(
     'active' => 1,
     'cardinality' => -1,

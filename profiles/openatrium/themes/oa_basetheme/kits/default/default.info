@@ -1,0 +1,29 @@
+name        = {{Name}}
+description = {{Description}}
+screenshot  = screenshot.png
+core        = 7.x
+
+; Base - OA Basetheme
+base theme  = oa_basetheme
+hidden = true
+
+; Regions
+regions[content] = Content
+
+; Panels
+plugins[panels][layouts] = panels/layouts
+plugins[panels][styles] = panels/styles
+
+; CSS - General
+stylesheets[all][]     = assets/css/{{machine_name}}.style.css
+stylesheets[print][]   = assets/css/print.css
+
+; Javascript
+scripts[] = assets/js/{{machine_name}}.script.min.js
+
+; Information added by Drupal.org packaging script on 2016-03-17
+version = "7.x-2.1"
+core = "7.x"
+project = "oa_basetheme"
+datestamp = "1458239665"
+

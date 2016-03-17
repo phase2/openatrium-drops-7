@@ -41,6 +41,7 @@ function oa_home_default_render($subtype, $conf, $args, $context = NULL) {
     $vars['username'] = $name;
   }
   $block->content = theme('oa_home_default', $vars);
+  oa_core_body_classes('oa-home');
   return $block;
 }
 

@@ -1,0 +1,66 @@
+//
+// Layout
+// Styles for Apps
+// ---
+
+#app-wrapper {
+  .app-description {
+    font-size: 16px;
+    h2 {
+      font-size: 24px;
+    }
+  }
+  .screenshot-shadow {
+    display: none;
+  }
+  .app-logo-small {
+    margin-right: 15px;
+  }
+  h1 {
+    margin-top: 0;
+  }
+}
+
+#apps-list {
+  h2 {
+    width: auto;
+    margin-bottom: 0.5em;
+    text-transform: none;
+    font-weight: normal;
+    font-size: 20px;
+    line-height: 0.8;
+  }
+  ul.vertical-tabs-list {
+    margin: -1px 0 -1px -15em;
+  }
+  .item-list ul li {
+    height: 120px;
+    padding-left: 110px;
+    position: relative;
+  }
+  .fieldset-wrapper {
+    overflow: visible !important;
+  }
+  div.vertical-tabs {
+    margin-top: 0;
+    .vertical-tabs-panes {
+      padding: 0;
+    }
+  }
+  .app-teaser {
+    width: 100%;
+    padding-right: 0;
+    .app-action {
+      background: transparent;
+      width: auto;
+      margin-right: 5px;
+      @extend .btn;
+      @extend .btn-default;
+    }
+  }
+  .app-logo {
+    position: absolute;
+    left: 10px;
+  }
+}
+

@@ -1,0 +1,27 @@
+<?php
+/**
+ * @file
+ * Code for the OA Site Layout install.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function oa_site_layout_install() {
+  _oa_site_layout_defaults();
+}
+
+/**
+ * Set default variables for panels everywhere
+ */
+function _oa_site_layout_defaults() {
+  variable_set('panels_everywhere_head_title_include_name', FALSE);
+  variable_set('panels_everywhere_head_title_include_slogan', FALSE);
+}
+
+/**
+ * Remove site name from page titles
+ */
+function oa_site_layout_update_7201() {
+  _oa_site_layout_defaults();
+}

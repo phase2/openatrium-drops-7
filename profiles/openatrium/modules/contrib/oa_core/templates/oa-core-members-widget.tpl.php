@@ -61,12 +61,13 @@
                   <?php print $item['title']; ?>
                 </div>
               <?php elseif (empty($item['uid'])): ?>
-                <div class='oa-pull-left user-badge'>
-                  <?php print $item['picture']; ?>
-                  <?php print $item['title']; ?>
+                <div class='oa-pull-left dropdown oa-dropdown btn-group'>
+                  <div class="dropdown-toggle btn oa-pull-left user-badge">
+                    <?php print $item['picture']; ?>
+                    <?php print $item['title']; ?>
+                  </div>
                 </div>
-              <?php
-              else: ?>
+              <?php else: ?>
                 <div class="oa-pull-left dropdown oa-dropdown btn-group">
                   <div class="dropdown-toggle btn oa-pull-left user-badge"
                        data-toggle="dropdown">

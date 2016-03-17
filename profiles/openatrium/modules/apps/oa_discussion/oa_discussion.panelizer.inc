@@ -72,7 +72,7 @@ function oa_discussion_panelizer_defaults() {
   $pane->shown = TRUE;
   $pane->access = array();
   $pane->configuration = array(
-    'align' => '1',
+    'align' => '0',
     'label' => 1,
     'return' => 'Finish',
     'cancel' => 'Cancel',
@@ -80,11 +80,15 @@ function oa_discussion_panelizer_defaults() {
     'override_title' => 0,
     'override_title_text' => '',
     'override_title_heading' => 'h2',
-    'form_build_id' => 'form-YGnL_6qh1gPG-dhlc1KwXNgMgdhBk-uFQF9f8LwemVA',
-    'form_token' => '8YTbwsFFJjryaxS8biQyqmDKZMu52T9ZxBM5xrUmltw',
+    'form_build_id' => 'form-qKg4KcSf7VuHM5ffY6pV_5tXwVlSs3-NfI1MTAAjctw',
+    'form_token' => '7mY1E1RH_d8YoFnu99LjqKZa1oqJB_tFj9lmvnHmIuo',
     'form_id' => 'oa_user_submitted_form',
     'op' => 'Finish',
     'date' => '0',
+    'node_title' => 1,
+    'picture' => 0,
+    'image_style' => 'oa_medium_thumbnail',
+    'hide_author' => 0,
   );
   $pane->cache = array();
   $pane->style = array(

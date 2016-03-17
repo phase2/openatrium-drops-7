@@ -1,10 +1,26 @@
-#oa-navbar .pane-oa-tour-custom-pane ul.dropdown-menu ul li a.active {
+.oa-navbar .pane-oa-tour-custom-pane ul.dropdown-menu ul li a.active {
   background: #FFF;
   font-style: normal;
   color: #333;
 }
-#oa-navbar .pane-oa-tour-custom-pane ul.dropdown-menu ul li a.active-trail,
-#oa-navbar .pane-oa-tour-custom-pane ul.dropdown-menu ul li a.active:hover {
+.oa-navbar .pane-oa-tour-custom-pane ul.dropdown-menu ul li a.active-trail,
+.oa-navbar .pane-oa-tour-custom-pane ul.dropdown-menu ul li a.active:hover {
   background: #0081C2;
   color: white;
+}
+.pull-right .oa-tours {
+  margin: 0 5px 0 0;
+}
+.pull-left .oa-tours {
+  margin: 0 0 0 5px;
+}
+
+.pane-oa-tour-custom-pane .align-right li {
+  text-align: right;
+}
+
+.pane-oa-tour-custom-pane .align-right .dropdown-menu {
+  left: auto;
+  right: 0;
+  margin-bottom: 0;
 }

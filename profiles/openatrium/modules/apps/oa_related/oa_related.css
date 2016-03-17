@@ -229,6 +229,10 @@ h3.oa_snippet_title {
   padding-right: 20px;
 }
 
+.paragraphs-item-paragraph-content .table {
+  margin-bottom: 0;
+}
+
 .paragraphs-item-paragraph-content hr {
   margin-top: 0;
 }

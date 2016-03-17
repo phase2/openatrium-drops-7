@@ -1,7 +1,7 @@
 <div class="oa-sitemap" ng-cloak ondragstart="return false;" ondrop="return false;">
   <div class="oa-sitemap-header clearfix">
     <div class="oa-sitemap-title pull-left">
-      <h3>{{title}}</h3>
+      <h2>{{title}}</h2>
     </div>
     <div class="oa-sitemap-search pull-right btn-group">
       <button class="oa-sitemap-search-toggle btn btn-default dropdown-toggle" data-toggle="dropdown">{{currentSpace.title}} <span class="caret"></span></button>
@@ -29,9 +29,6 @@
       <img class="pull-left oa-sitemap-helpicon" ng-src="{{basePath}}/images/section.png">
       <div ng-bind-html="sectionHelp"></div>
     </div>
-    <div class="oa-sitemap-caret">
-      <img ng-src="{{basePath}}/images/triangle.png">
-    </div>
   </div>
   <ul class="oa-sitemap-breadcrumbs">
     <li class="oa-sitemap-breadcrumb" ng-repeat="breadcrumb in breadcrumbs.slice().reverse()">
@@ -39,7 +36,7 @@
     </li>
   </ul>
   <div id="oa-sitemap-top" class="oa-carousel-container">
-    <div class="oa-space-header">
+    <div class="oa-space-header navbar-inner">
       <button class="prev" ng-show="prevSpace" ng-click="goToSpace(prevSpace.nid)" ng-drop="true" ng-drop-success="onDropOnSpace($data,prevSpace.nid)">{{ prevSpace.title }}</button>
       <div class="dropdown">
         <a class="oa-space-title" data-toggle="dropdown" href ng-drop="true" ng-drop-success="onDropOnSpace($data,spaces[currentSlide].nid)">{{spaces[currentSlide].title}}</a>

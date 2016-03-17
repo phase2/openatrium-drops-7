@@ -255,10 +255,14 @@ function oa_core_get_space_home_context() {
 
 /**
  * Returns the current section id context
+ * @param $node optional current page node
  * @return int Section ID
  */
-function oa_core_get_section_context() {
-  if (defined('OA_SESSION_SECTION') && isset($_SESSION[OA_SESSION_SECTION])) {
+function oa_core_get_section_context($node = NULL) {
+  if (isset($node) && ($node->type == OA_SECTION_TYPE)) {
+    return $node->nid;
+  }
+  elseif (defined('OA_SESSION_SECTION') && isset($_SESSION[OA_SESSION_SECTION])) {
     return $_SESSION[OA_SESSION_SECTION];
   }
   else {
@@ -319,7 +323,7 @@ function oa_core_get_parents_with_titles($nid, $bundle = OA_SPACE_TYPE, $status 
  *   The NID of the Space or Group to check.
  * @param string|NULL $bundle
  *   (optional) The node type (default: OA_SPACE_TYPE). If NULL is passed, it
- *   will include all node types.
+ *   will include all node types.  Can also be an array of types.
  * @param int|NULL $status
  *   (optional) If specified, the node status (ex. NODE_PUBLISHED or
  *   NODE_NOT_PUBLISHED) to look for. If not specified, it return
@@ -343,7 +347,7 @@ function oa_core_get_parents($nid, $bundle = OA_SPACE_TYPE, $status = NULL, $inc
  *   The NID of the Space or Group to check.
  * @param string|NULL $bundle
  *   (optional) The node type (default: OA_SPACE_TYPE). If NULL is passed, it
- *   will include all node types.
+ *   will include all node types.  Can also be an array of types.
  * @param int|NULL $status
  *   (optional) If specified, the node status (ex. NODE_PUBLISHED or
  *   NODE_NOT_PUBLISHED) to look for. If not specified, it return
@@ -365,11 +369,22 @@ function oa_core_get_nids_title_matching($nids, $bundle = OA_SPACE_TYPE, $status
   }
   sort($nids);
   $cid = implode(':', $nids);
+  if (is_array($bundle)) {
+    $cid .= implode(':', $bundle);
+  }
+  elseif (!empty($bundle)) {
+    $cid .= ':' . $bundle;
+  }
   $cache = &drupal_static(__FUNCTION__, array());
   if (!isset($cache[$cid])) {
     $query = db_select('node', 'n');
     if ($bundle) {
-      $query->condition('n.type', $bundle);
+      if (is_array($bundle)) {
+        $query->condition('n.type', $bundle, 'IN');
+      }
+      else {
+        $query->condition('n.type', $bundle);
+      }
     }
     if (isset($status)) {
       $query->condition('n.status', $status);
@@ -1006,7 +1021,7 @@ function oa_core_get_all_groups($match = NULL, $match_operator = 'CONTAINS', $li
  * @return array
  *   An associative array of fully loaded user objects, keyed by user id.
  */
-function oa_core_get_users_for_space($space_id, $state = OG_STATE_ACTIVE) {
+function oa_core_get_users_for_space($space_id, $state = OG_STATE_ACTIVE, $sort = FALSE) {
   $query = db_select('og_membership', 'og')
     ->fields('og', array('etid'))
     ->condition('og.entity_type', 'user')
@@ -1015,6 +1030,10 @@ function oa_core_get_users_for_space($space_id, $state = OG_STATE_ACTIVE) {
     ->condition('og.gid', $space_id);
   $query->join('users', 'u', 'u.uid = og.etid');
   $query->condition('u.status', 1);
+  if (!empty($sort)) {
+    $query->join('realname', 'n', 'n.uid = og.etid');
+    $query->orderBy('n.realname');
+  }
   $uids = $query->execute()->fetchCol();
   return user_load_multiple($uids);
 }
@@ -1181,6 +1200,11 @@ function oa_core_sort_users_by_name($u1, $u2) {
  * Helper to return last word of a string
  */
 function oa_core_get_last_word($string) {
+  // Strip any text in parens or brackets
+  // Also strip any title ending in period, like PhD.
+  // Also strip roman numerals I, II, IV, etc
+  $string = preg_replace('/([\(\[].*[\)\]]|\s[^\s]+\.$|\s[IV]+)/', '', $string);
+  $string = trim($string);
   return ($pos =  strrpos($string, ' ')) ?  substr($string, $pos + 1) : $string;
 }
 
@@ -1439,6 +1463,7 @@ function oa_core_replace_tags($str, $tags) {
  * but includes consistent options for removing tags needed by OA2
  */
 function oa_core_trim_text($value, $more_link = '', $max_length = NULL) {
+  $trimmed = FALSE;
   // Remove and replace some HTML tags
   $value = oa_core_replace_tags($value, array(
     'h1' => 'h4',
@@ -1467,16 +1492,19 @@ function oa_core_trim_text($value, $more_link = '', $max_length = NULL) {
 
     // Remove scraps of HTML entities from the end of a strings
     $value = rtrim(preg_replace('/(?:<(?!.+>)|&(?!.+;)).*$/us', '', $value));
+    $value .= '…';
 
+    $trimmed = TRUE;
+  }
+  // add any needed closing tags.
+  $value = _filter_htmlcorrector($value);
+
+  if ($trimmed) {
     if (!empty($more_link)) {
-      $value .= ' <span class="more-link">' .
-        '(' . l(t('more…'), $more_link) . ')' . '</span> ';
-    }
-    else {
-      $value .= '…';
+      $value .= '<span class="more-link">' .
+        l(t('more…'), $more_link) . '</span>';
     }
   }
-  $value = _filter_htmlcorrector($value);
 
   return $value;
 }
@@ -1844,4 +1872,27 @@ function oa_core_batch_set(&$batch) {
     // Running interactively via the UI so just set the batch.
     batch_set($batch);
   }
+}
+
+/**
+ * Helper to combine multiple calls in OA to features_template_revert() to
+ * just a single call.
+ */
+function oa_core_features_template_revert() {
+  if (!variable_get('oa_core_template_revert', FALSE)) {
+    variable_set('oa_core_template_revert', TRUE);
+    drupal_register_shutdown_function('oa_core_revert_template', 'oa_core_template_revert');
+  }
+}
+
+/**
+ * This is called when all modules, using oa_core_features_template_revert(),
+ * have registered for a template revert.
+ *
+ * @param string $variable
+ *   Variable name to delete.
+ */
+function oa_core_revert_template($variable) {
+  features_template_revert();
+  variable_delete($variable);
 }

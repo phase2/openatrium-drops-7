@@ -1,0 +1,406 @@
+// Styles for panels and panes.
+// --------------------------------------------------
+
+.content .radix-layouts-content .panel-pane {
+  padding: 2em 0 0;
+}
+
+.pane-oa-footer-panel .radix-layouts-content {
+  padding-top: 1em;
+}
+
+.oa_visibility_toolbar {
+  ul {
+    padding: 5px 10px;
+  }
+  i {
+    vertical-align: middle;
+  }
+}
+
+// Determine which panel panes to add a big border after to simulate a
+// separation between panes
+// We don't want to do this on content pages, only IPE pages
+// or specific panes that support the .inner-pane class (oa-pane)
+.content .radix-layouts-content .inner-pane > .panel-pane,
+body.panels-ipe .content .radix-layouts-content .panels-ipe-portlet-content > .panel-pane,
+.content .radix-layouts-content .panel-pane.pane-views-panes {
+  border-right: 1px solid #E4E3E6;
+  margin-right: -20px;
+  padding-right: 20px;
+  &:after {
+    content: " ";
+    display: block;
+    border-bottom: 2em solid #F0F0F3;
+    margin: 2em -21px 0;
+    border-top: 1px solid #E4E3E6;
+  }
+}
+
+@include breakpoint('md') {
+  .content .radix-layouts-content .inner-pane > .panel-pane,
+  body.panels-ipe .content .radix-layouts-content .panels-ipe-portlet-content > .panel-pane,
+  .content .radix-layouts-content .panel-pane.pane-views-panes {
+    margin-right: -40px;
+    padding-right: 40px;
+    &:after {
+      margin: 2em -41px 0;
+    }
+  }
+}
+
+.oa-pane {
+  border: none;
+}
+
+.pane-oa-toolbar-theme-panel {
+  padding-top: 12px;
+  height: 67px;
+}
+
+.oa-navbar .panel-panel .pane-oa-navigation {
+  display: inline-block;
+  width: auto;
+  background: transparent !important;
+  padding: 0 0 5px 10px;
+  max-height: 80px;
+  img.oa-site-banner-img {
+    margin-right: 10px;
+  }
+  .oa-menu-banner {
+    margin-top: -5px;
+  }
+  ul.menu {
+    > li {
+      .caret {
+        margin-left: 4px;
+      }
+      .dropdown-menu {
+        background-color: #FFF;
+        > li {
+          > a {
+            color: #333;
+            &:hover {
+              color: white;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@include breakpoint('xs') {
+  .oa-banner {
+    display: none;
+  }
+}
+
+.navbar .panel-panel ul.oa_toolbar.oa-space-nav {
+  h3 > a {
+    font-weight: bold;
+    padding: 3px 10px;
+    margin: -3px -10px;
+    display: block;
+    font-size: 14px;
+    &:hover, &:active {
+      text-decoration: none;
+    }
+  }
+  li.btn-group ul.dropdown-menu {
+    li {
+      &.btn-group {
+        &.oa-no-separator:after {
+          display: none !important;
+        }
+      }
+      &.oa-hierarchy {
+        ul {
+          margin-left: 10px;
+        }
+        h3 {
+          text-transform: uppercase;
+          font-weight: normal;
+          padding-bottom: 0;
+          margin-top: 2px;
+          font-style: italic;
+          border: none;
+        }
+      }
+    }
+  }
+}
+body.oa-main-menu {
+  .navbar .panel-panel .pane-oa-space-nav {
+    padding-left: 20px;
+    border-left: 2px solid rgba(255, 255, 255, 0.3) !important;
+  }
+}
+@include breakpoint('xs') {
+  body.oa-main-menu {
+    .navbar .panel-panel .pane-oa-space-nav {
+      padding-left: 0;
+      padding-top: 7px;
+      border-left: none !important;
+    }
+  }
+}
+// Mobile spaces menu
+.oa-navbar #oa-navbar-spaces .oa-space-nav {
+  height: 36px;
+  width: 100%;
+  >li:first-child >ul.dropdown-menu {
+    // Show spaces submenu dropdown in mobile menu
+    display: block;
+    top: 34px;
+    width: 100%;
+  }
+  >li {
+    width: auto;
+    position: static;
+  }
+  .oa-separator {
+    width: auto;
+    border-left: 1px solid #76BF72;
+    height: 24px;
+    margin-top: 5px;
+  }
+}
+
+.pane-oa-separator {
+  border-left: 2px solid rgba(255,255,255,0.3) !important;
+  padding-left: 15px;
+  height: 42px;
+}
+
+.pane-oa-recent {
+  .flag-favorite-space > a {
+    text-align: left;
+    border: none;
+    margin-top: 1em;
+    font-family: serif;
+    font-size: 13px;
+  }
+}
+
+.pane-oa-edit-minipanel {
+  .radix-layouts-sidebar {
+    position: absolute;
+    bottom: 0;
+  }
+}
+
+body.oa-home .pane-oa-edit-minipanel {
+  display: none;
+}
+
+.btn.btn-circle {
+  @include border-radius(50% 50% 50% 50%);
+  display: inline-block;
+  padding: 8px;
+}
+
+.pane-oa-admin-minipanel {
+  .btn:hover {
+    color: white !important;
+    border-color: gray !important;
+    background: #555 !important;
+  }
+}
+
+.pane-oa-edit-minipanel {
+  .pane-add-space-content .btn-circle {
+    border-radius: 22px;
+    padding-right: 15px;
+    i {
+      vertical-align: middle;
+    }
+  }
+  .btn {
+    background-color: rgb(42,45,55);
+    opacity: .65;
+    color: #FFF;
+    &.btn-primary {
+      background-color: #49B544;
+      opacity: 1;
+    }
+    > i {
+      font-size: 24px;
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+    }
+    &:hover {
+      background-color: #FFF;
+      opacity: .95;
+      color: #2a2c37;
+      border-color: rgb(42,45,55);
+      box-shadow: 0px 0px 15px 0px rgba(0,0,0,0.59);
+    }
+  }
+}
+
+// Remove processed IPE buttons that are moved to contextual tabs
+body.oa-process-ipe #panels-ipe-control-container {
+  a.panels-ipe-startedit,
+  a.panels-ipe-change-layout {
+    display: none;
+  }
+}
+
+.pane-oa-event-detail-event-details {
+  .oa-event-header {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 14px;
+    margin-bottom: 2em;
+    color: #60616d;
+    p {
+      font-size: 14px;
+      margin-bottom: 0 !important;
+      font-family: 'Open Sans', sans-serif;
+    }
+  }
+  .oa-event-description {
+    clear: both;
+  }
+  &.panel-pane:after {
+    display: none !important;
+  }
+}
+
+.pane-node-field-oa-related {
+  .addthisevent-drop {
+    display: none;
+  }
+  .panel-pane:after {
+    display: none !important;
+  }
+  .radix-layouts-sidebar {
+    background: transparent !important;
+  }
+  .more-link {
+    float: right;
+  }
+  .oa-callout {
+    background-color: #F7F7F7;
+    border-color: #C1C1C1;
+  }
+}
+
+.pane-oa-event-list-oa-events-upcoming-small {
+  .oa-event-date-wrapper {
+    font-size: 10px;
+  }
+}
+
+.fullcalendar .fc-today {
+  background-color: #CEF4CD;
+}
+
+.oa-navbar .toolbar-search form {
+  input {
+    padding-right: 25px;
+  }
+  .btn-group {
+    .btn.dropdown-toggle {
+      position: absolute;
+      left: -30px;
+      background: transparent;
+      border: none;
+      &:hover, &:active {
+        .caret {
+          border-top-color: #333;
+          border-bottom-color: #333;
+        }
+      }
+    }
+    ul.dropdown-menu {
+      right: 40px;
+      left: auto;
+    }
+  }
+}
+
+@include breakpoint('xs') {
+  #oa-navbar-search {
+    .toolbar-search {
+      width: calc(100% - 50px);
+      text-align: right;
+      input.search-text {
+        width: calc(100% - 46px);
+      }
+    }
+  }
+}
+
+.pane-oa-notifications-pane,
+.pane-node-form-oa-notifications {
+  .form-item-oa-notifications-notify-list-combined {
+    label {
+      font-size: 12px;
+      font-weight: normal;
+      font-style: italic;
+    }
+  }
+  .form-item-oa-notifications-skip-notify {
+    font-size: 12px;
+    color: #777;
+  }
+  .flag-wrapper {
+    margin-bottom: 1em;
+  }
+  .flag-message {
+    font-size: 13px;
+    font-style: italic;
+  }
+}
+
+.pane-oa-comment-media-commentnode-attachments {
+  .attachments {
+    padding: 0;
+    border-bottom: none;
+  }
+  .views-row {
+    margin-bottom: 5px;
+    padding: 10px;
+    background: #F4F4F4;
+    border: 1px solid #E6E6E8;
+    img {
+      margin-right: 10px;
+    }
+    .user-info {
+      font-size: 13px;
+      margin-bottom: 0;
+      font-style: italic;
+      a {
+        font-weight: normal;
+      }
+    }
+    .comment-label > a {
+      margin-left: 0;
+    }
+    .file-info {
+      text-transform: uppercase;
+    }
+    .filename {
+      i {
+        color: #40A13A;
+      }
+    }
+    .oa-media-document .oa-description {
+      clear: both;
+    }
+  }
+}
+
+.oa-navbar .panel-panel .panel-pane {
+  // set consistent min height to help wrapping elements on smaller screens
+  min-height: 45px;
+}
+
+.oa-navbar .pull-left #oa-user-badge {
+  margin-right: 8px;
+}
+.oa-navbar .pull-right #oa-user-badge {
+  margin-left: 8px;
+}

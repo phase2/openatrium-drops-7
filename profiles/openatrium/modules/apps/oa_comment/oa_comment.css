@@ -6,6 +6,11 @@
   font-size: 1.2em;
 }
 
+.oa-comment .oa-user-picture img {
+  height: 30px;
+  width: 30px;
+}
+
 form.comment-form .comment-reply-post-button {
   position: relative;
   bottom: 65px;
@@ -151,4 +156,14 @@ table.comment-alter-diff {
 
 .accordion-toggle .oa-list-header .oa-comment-reply-body p {
   cursor: pointer;
+}
+
+.indented .indented .indented .indented .indented {
+  margin-left: 0;
+}
+
+@media (max-width: 768px) {
+  .indented {
+    margin-left: 0 !important;
+  }
 }

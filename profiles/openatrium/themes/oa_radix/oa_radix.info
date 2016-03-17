@@ -21,6 +21,7 @@ plugins[panels][styles] = panels/styles
 ; CSS - General
 stylesheets[all][]     = assets/stylesheets/screen.css
 stylesheets[all][]     = assets/stylesheets/font-awesome.min.css
+stylesheets[all][]     = assets/stylesheets/font-awesome32.min.css
 stylesheets[print][]   = assets/stylesheets/print.css
 
 ; CSS - Conditional
@@ -30,9 +31,9 @@ stylesheets-conditional[IE 8][all][] = assets/stylesheets/ie8.css
 ; Javascript
 scripts[] = assets/javascripts/script.js
 
-; Information added by Drupal.org packaging script on 2015-12-16
-version = "7.x-3.24"
+; Information added by Drupal.org packaging script on 2016-03-03
+version = "7.x-3.25"
 core = "7.x"
 project = "oa_radix"
-datestamp = "1450282465"
+datestamp = "1457038458"
 

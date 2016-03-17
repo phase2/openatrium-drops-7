@@ -10,9 +10,15 @@
 ?>
 <?php if ($use_dropdowns): ?>
 <ul class="command-button-wrapper">
-  <li class="dropdown btn-group">
-    <a class="dropdown-toggle <?php print $wrapper_class; ?>" data-toggle="dropdown" title="<?php print $label; ?>" href="#"><?php print $label; ?>
-      <span class="caret"></span>
+  <li class="dropdown btn-group <?php print $direction; ?>">
+    <a class="dropdown-toggle <?php print $wrapper_class; ?>" data-toggle="dropdown" title="<?php print $btn_title; ?>" href="#">
+      <?php if (!empty($icon)): ?>
+        <i class="<?php print $icon;?>"></i>
+      <?php endif; ?>
+      <?php print $label; ?>
+      <?php if (!empty($show_caret)): ?>
+        <span class="caret"></span>
+      <?php endif; ?>
     </a>
     <?php if (!empty($items)):?>
       <ul class="command-buttons dropdown-menu">

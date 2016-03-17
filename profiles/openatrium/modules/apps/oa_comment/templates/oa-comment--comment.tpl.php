@@ -67,42 +67,47 @@
  */
 ?>
 <div class='oa-list oa-comment well clearfix'>
+  <div class="user-picture pull-left">
+    <span><?php print $user_picture; ?></span>
+  </div>
   <div class="accordion" id="oa-reply-accordion-<?php print $comment->cid; ?>">
     <div class="accordion-toggle">
-      <span id="comment-link"><?php print $comment_link; ?></span>
       <div class="oa-list-header <?php print $status; ?> oa-description <?php print ($comment->new > 0) ? 'oa-comment-is-new' : 'oa-comment-hide' ?>">
-        <div class='oa-pull-right comment-created-date'>
+        <div class="oa-comment-reply-body">
+          <i class="pull-right fa fa-angle-down"></i>
           <div class="user-info">
+            <?php print t('By') . " $author"; ?>
+            <?php print t(' on '); ?>
+            <span class="oa-date"> <?php print $created; ?></span>
+            <span class="comment-label"><?php print $comment_link; ?></span>
             <?php if ($status == 'comment-unpublished'): ?>
-              <span class="unpublished"><span class="marker">unpublished</span></span>
+              <span class="label mark-unpublished"><span class="marker">unpublished</span></span>
             <?php endif; ?>
             <?php if ($comment->new > 0): ?>
-              <span class="new-marker"><span class="marker">new</span></span>
+              <span class="label mark-new"><span class="marker">new</span></span>
             <?php endif; ?>
-            <?php print $created; ?>&nbsp;
-            <?php print t('by') . " $author"; ?>
-            <?php print $user_picture; ?>
-            </div>
-        </div>
-        <div class="oa-comment-reply-body">
+          </div>
           <?php if (isset($body) && strip_tags($body)): ?>
             <?php print $body; ?>
           <?php else: ?>
             <?php print $title; ?>
           <?php endif; ?>
-          <div class="oa-comment-extra">
           <?php
             unset($content['links']);
             unset($content['comment_body']);
-            print drupal_render($content);
+            $content_extra = trim(drupal_render($content));
           ?>
-          </div>
+          <?php if (!empty($content_extra)): ?>
+            <div class="oa-comment-extra">
+              <?php print $content_extra; ?>
+            </div>
+          <?php endif; ?>
           <?php if ($show_links): ?>
-          <div class="links">
-            <?php foreach ($comment_links as $key => $link): ?>
-              <?php print $link; ?>
-            <?php endforeach; ?>
-          </div>
+            <div class="links">
+              <?php foreach ($comment_links as $key => $link): ?>
+                <?php print $link; ?>
+              <?php endforeach; ?>
+            </div>
           <?php endif; ?>
         </div>
       </div>

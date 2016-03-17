@@ -32,6 +32,11 @@
   font-style: italic;
 }
 
+.oa-users-submitted .oa-user-picture img {
+  height: 30px;
+  width: 30px;
+}
+
 .select2-drop {
   /* need drop-down menu to be above any popup dialogs like views */
   z-index: 10002;
@@ -95,4 +100,8 @@
 
 .pane-node-field-oa-media .field-item {
   margin-bottom: 5px;
+}
+
+.panels-dnd .oa-layout-fluid {
+  float: left;
 }

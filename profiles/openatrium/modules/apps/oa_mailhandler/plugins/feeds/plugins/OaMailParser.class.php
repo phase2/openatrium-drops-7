@@ -80,6 +80,8 @@ class OaMailParser extends MailhandlerParser {
     $delimiters = array(
       // HTML email
       "<blockquote.+?cite=.+?>.+?<\/blockquote>",
+      // Remove HTML signatures
+      "<div.+?class.+?moz-signature.+?>.+?<\/div>",
     );
 
     // NOTE the "s" option to allow . to include newlines

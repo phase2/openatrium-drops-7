@@ -148,6 +148,15 @@ class OgSubspacesSelectionHandler extends EntityReference_SelectionHandler_Gener
     if ($field_mode == 'default') {
       $group_type = $this->field['settings']['target_type'];
       $user_groups = oa_core_get_groups_by_user(NULL, $group_type);
+
+      if ($this->field['field_name'] == 'oa_parent_space') {
+        // Let existing parent field be valid.
+        $parents = oa_core_get_parents($this->entity->nid);
+        foreach ($parents as $parent) {
+          $user_groups[$parent] = $parent;
+        }
+      }
+
       $result = array_intersect($ids, $user_groups);
       return $result;
     }

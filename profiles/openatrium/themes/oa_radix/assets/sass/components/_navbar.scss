@@ -48,6 +48,24 @@
 
 #oa-navbar {
   position: fixed;
+}
+
+.navbar {
+  .fa {
+    vertical-align: middle;
+    font-size: 16px;
+  }
+  .caret {
+    vertical-align: middle;
+    margin: 0;
+    border-top: 4px solid $white;
+    border-right: 4px solid transparent;
+    border-left: 4px solid transparent;
+  }
+}
+
+.oa-navbar {
+  overflow: visible;
   top: 0;
   min-height: 44px;
   .navbar-inner {
@@ -72,6 +90,7 @@
     }
     .pane-oa-navigation {
       width: 100%;
+      min-height: 54px;
       border-bottom: 1px solid #676767;
       padding: 5px $gridGutterWidth 0;
       background-color: #003853;
@@ -182,7 +201,7 @@
       }
     }
     .pane-oa-favorites-favorites-button {
-      ul#oa_favorites {
+      ul.oa-favorites {
         margin: 0;
         padding: 0;
         li {
@@ -191,7 +210,7 @@
       }
     }
     .pane-oa-tour-custom-pane {
-      ul#oa_tours {
+      ul.oa-tours {
         margin: 0;
         padding: 0;
         li {
@@ -233,20 +252,8 @@
       li {
         margin: 0;
       }
-      .btn {
-        position: relative;
-        text-indent: -9999em;
-        line-height: 2px;
-        .caret {
-          background: transparent url("../images/navbar-icons.png") no-repeat 2px -1px;
-          margin: 0;
-          width: 18px;
-          height: 18px;
-          border: 0;
-          display: block;
-        }
-      }
     }
+
     .pane-oa-space-banner {
       clear: both;
       padding-bottom: 0;
@@ -260,9 +267,6 @@
         #user-badge-dropdown {
           overflow: hidden;
           img {
-            width: auto;
-            height: 29px;
-            margin: -5px -12px -5px 5px;
           }
         }
       }
@@ -273,7 +277,7 @@
 // Open Atrium Navbar
 // --------------------------------------------------
 
-body.admin-menu #oa-navbar {
+body.admin-menu .oa-navbar {
   top: 25px;
 }
 
@@ -327,7 +331,7 @@ body.admin-menu #oa-navbar {
 //OA Mobile Menu Makeover
 // --------------------------------------------------
 @media (max-width: 767px) {
-  #oa-navbar {
+  .oa-navbar {
     .dropdown-menu {
       float: left;
       position: static;

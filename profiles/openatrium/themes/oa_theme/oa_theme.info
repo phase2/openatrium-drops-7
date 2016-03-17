@@ -1,0 +1,29 @@
+name        = Open Atrium Modern Theme
+description = A theme based on OA Basetheme.
+screenshot  = screenshot.png
+core        = 7.x
+
+; Base - OA Basetheme
+base theme  = oa_basetheme
+
+
+; Regions
+regions[content] = Content
+
+; Panels
+plugins[panels][layouts] = panels/layouts
+plugins[panels][styles] = panels/styles
+
+; CSS - General
+stylesheets[all][]     = assets/css/oa_theme.style.css
+stylesheets[print][]   = assets/css/print.css
+
+; Javascript
+scripts[] = js/oa_theme.script.js
+
+; Information added by Drupal.org packaging script on 2016-03-17
+version = "7.x-2.1"
+core = "7.x"
+project = "oa_theme"
+datestamp = "1458239688"
+

@@ -270,6 +270,7 @@ function devel_generate_terms($records, $vocabs, $maxlength = 12) {
     $term->format = filter_fallback_format();
     $term->weight = mt_rand(0, 10);
     $term->language = LANGUAGE_NONE;
+    $term->devel_generate = TRUE;
 
     // Populate all core fields on behalf of field.module
     module_load_include('inc', 'devel_generate', 'devel_generate.fields');

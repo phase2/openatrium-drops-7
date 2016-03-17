@@ -352,6 +352,9 @@ function oa_core_menu_alter(&$items) {
  */
 function oa_core_preprocess_html(&$vars) {
   $classes = oa_core_body_classes();
+  if (!empty($GLOBALS['oa_hide_page_title'])) {
+    $classes[] = 'oa-no-page-title';
+  }
   if (!empty($classes)) {
     $vars['classes_array'] = empty($vars['classes_array']) ? $classes : array_merge($vars['classes_array'], $classes);
   }
@@ -566,7 +569,7 @@ function oa_core_form_node_form_alter(&$form, &$form_state, $form_id) {
       && isset($form[$field_name][LANGUAGE_NONE][0]['default'])
       && empty($form[$field_name][LANGUAGE_NONE][0]['default']['#default_value'])
       && ($group = node_load($form['#node']->{$field_name}[LANGUAGE_NONE][0]['target_id']))
-      && (!isset($form[$field_name][LANGUAGE_NONE][0]['admin'])
+      && (!isset($form[$field_name][LANGUAGE_NONE][0]['admin']['#default_value'])
         || ($form[$field_name][LANGUAGE_NONE][0]['admin']['#default_value'] == $group->title . ' (' . $group->nid . ')'
         // This will return both user groups and subspaces, is cached.
         && in_array($group->nid, oa_core_get_groups_by_user(NULL, 'node'))))
@@ -1442,6 +1445,7 @@ function oa_core_tokens($type, $tokens, array $data = array(), array $options = 
     $space = field_get_items('node', $node, OA_SPACE_FIELD);
     $section_id = !empty($section[0]['target_id']) ? $section[0]['target_id'] : 0;
     $space_id = !empty($space[0]['target_id']) ? $space[0]['target_id'] : 0;
+    $default_path_alias = variable_get('oa_default_path_alias', 'content');
     if ($section_id && node_load($section_id)) {
       $path = drupal_get_path_alias('node/' . $section_id);
       if (module_exists('pathauto') && preg_match('#^node/(\d+)#', $path)) {
@@ -1461,12 +1465,12 @@ function oa_core_tokens($type, $tokens, array $data = array(), array $options = 
       if (!empty($path)) {
         $replacements[$original] = $path;
         if ($node->type != OA_SECTION_TYPE) {
-          $replacements[$original] .= '/content';
+          $replacements[$original] .= "/{$default_path_alias}";
         }
       }
     }
     else {
-      $replacements[$original] = 'content';
+      $replacements[$original] = $default_path_alias;
     }
   }
   return $replacements;
@@ -1631,10 +1635,15 @@ function _oa_core_setup_node_space_type(&$form, $type = 'space_type', $field_nam
   $form['panelizer']['#access'] = TRUE;
 
   $options = oa_core_get_space_type_options($type);
+  // Need to change array to string key for javascript
+  $js_options = array();
+  foreach ($options as $tid => $item) {
+    $js_options['tid' . $tid] = $item;
+  }
 
   $form['#attached']['js'][] = array(
     'data' => array(
-      'oaCoreSpaceTypeOptions' => $options,
+      'oaCoreSpaceTypeOptions' => $js_options,
       'oaCoreSpaceTypeSelector' => $selector,
       'oaCoreSpaceType' => $space_type,
     ),
@@ -1969,9 +1978,8 @@ function oa_core_process_exposed_group_input($filter) {
  * Implements hook_panelizer_defaults_override_alter().
  */
 function oa_core_panelizer_defaults_override_alter(&$data) {
+  drupal_alter('oa_core_layout', $data);
   // Add any custom widgets coming from Atrium plugins
-  // Change layout from radix_phelan to selby_flipped
-  _oa_core_change_panel_layout($data, 'user:user:default', 'selby_flipped', 'contentheader', array('column2' => 'sidebar'));
   $info = module_invoke_all('oa_core_add_panes');
   foreach ($info as $panelizer => $panes) {
     if (isset($data[$panelizer]->display)) {
@@ -2013,6 +2021,7 @@ function oa_core_panelizer_defaults_override_alter(&$data) {
  * $data['node_edit_panel_context']->conf['display']->content
  */
 function oa_core_default_page_manager_handlers_alter(&$data) {
+  drupal_alter('oa_core_layout', $data);
   $info = module_invoke_all('oa_core_add_panes');
   foreach ($info as $panelizer => $panes) {
     if (isset($data[$panelizer]->conf['display'])) {
@@ -2054,6 +2063,7 @@ function oa_core_default_page_manager_handlers_alter(&$data) {
  * $data['node_edit_panel_context']->conf['display']->content
  */
 function oa_core_default_panels_mini_alter(&$data) {
+  drupal_alter('oa_core_layout', $data);
   $info = module_invoke_all('oa_core_add_panes');
   foreach ($info as $panelizer => $panes) {
     if (isset($data[$panelizer]->display)) {

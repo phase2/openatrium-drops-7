@@ -87,6 +87,7 @@ submodules=(
   "oa_media"
   "oa_messages_digest"
   "oa_notifications"
+  "oa_project"
   "oa_related"
   "oa_sandbox"
   "oa_search"

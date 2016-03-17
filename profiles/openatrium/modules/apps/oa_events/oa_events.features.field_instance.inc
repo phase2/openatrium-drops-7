@@ -10,7 +10,7 @@
 function oa_events_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-oa_event-body'
+  // Exported field_instance: 'node-oa_event-body'.
   $field_instances['node-oa_event-body'] = array(
     'bundle' => 'oa_event',
     'default_value' => NULL,
@@ -74,7 +74,7 @@ function oa_events_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-oa_event-field_oa_address'
+  // Exported field_instance: 'node-oa_event-field_oa_address'.
   $field_instances['node-oa_event-field_oa_address'] = array(
     'bundle' => 'oa_event',
     'default_value' => NULL,
@@ -133,7 +133,7 @@ http://www.whitehouse.gov/',
     ),
   );
 
-  // Exported field_instance: 'node-oa_event-field_oa_date'
+  // Exported field_instance: 'node-oa_event-field_oa_date'.
   $field_instances['node-oa_event-field_oa_date'] = array(
     'bundle' => 'oa_event',
     'comment_alter' => 0,
@@ -201,7 +201,7 @@ http://www.whitehouse.gov/',
     ),
   );
 
-  // Exported field_instance: 'node-oa_event-field_oa_geo_location'
+  // Exported field_instance: 'node-oa_event-field_oa_geo_location'.
   $field_instances['node-oa_event-field_oa_geo_location'] = array(
     'bundle' => 'oa_event',
     'deleted' => 0,
@@ -272,7 +272,7 @@ http://www.whitehouse.gov/',
     ),
   );
 
-  // Exported field_instance: 'node-oa_event-field_oa_media'
+  // Exported field_instance: 'node-oa_event-field_oa_media'.
   $field_instances['node-oa_event-field_oa_media'] = array(
     'bundle' => 'oa_event',
     'default_value' => array(),
@@ -364,7 +364,7 @@ http://www.whitehouse.gov/',
     ),
   );
 
-  // Exported field_instance: 'node-oa_event-oa_other_spaces_ref'
+  // Exported field_instance: 'node-oa_event-oa_other_spaces_ref'.
   $field_instances['node-oa_event-oa_other_spaces_ref'] = array(
     'bundle' => 'oa_event',
     'comment_alter' => 0,
@@ -445,7 +445,7 @@ http://www.whitehouse.gov/',
     ),
   );
 
-  // Exported field_instance: 'node-oa_event-oa_section_ref'
+  // Exported field_instance: 'node-oa_event-oa_section_ref'.
   $field_instances['node-oa_event-oa_section_ref'] = array(
     'bundle' => 'oa_event',
     'default_value' => NULL,
@@ -512,7 +512,7 @@ http://www.whitehouse.gov/',
     ),
   );
 
-  // Exported field_instance: 'node-oa_event-og_group_ref'
+  // Exported field_instance: 'node-oa_event-og_group_ref'.
   $field_instances['node-oa_event-og_group_ref'] = array(
     'bundle' => 'oa_event',
     'comment_alter' => 0,
@@ -613,7 +613,7 @@ http://www.whitehouse.gov/',
     ),
   );
 
-  // Exported field_instance: 'node-oa_event-og_vocabulary'
+  // Exported field_instance: 'node-oa_event-og_vocabulary'.
   $field_instances['node-oa_event-og_vocabulary'] = array(
     'bundle' => 'oa_event',
     'default_value' => NULL,
@@ -688,6 +688,7 @@ http://www.whitehouse.gov/');
   t('OG vocabulary');
   t('Section');
   t('Select a list of additional Spaces that this piece of content should be visible in. This <em>doesn\'t</em> affect access control - users in the other Spaces must have access to see this content in it\'s main Space for it to be visible to them at all.');
+  t('Type');
   t('Visible in other Spaces');
 
   return $field_instances;

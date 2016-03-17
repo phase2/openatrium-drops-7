@@ -1,5 +1,5 @@
 <div class="oa-section" ng-drag="{{dragDrop}}" ng-drag-data="section" ng-drag-id="1">
-  <h4 class="oa-section-title dropdown" ng-drop="true" ng-drop-id="[1]" ng-drop-success="onDropOnSection($data,$index,section,$event)">
+  <h3 class="oa-section-title dropdown" ng-drop="true" ng-drop-id="[1]" ng-drop-success="onDropOnSection($data,$index,section,$event)">
     <div class="oa-section-icon {{sectionClass(section)}}" ng-bind-html="icons[section.icon_id]"></div>
     <a ng-hide="section.editorEnabled" class="oa-section-link {{section.class}}" data-toggle="dropdown" href="#">{{section.title}}</a>
     <ul class="dropdown-menu" role="menu">
@@ -16,5 +16,5 @@
         <a href ng-click="restoreTitle({node : section})">{{ 'Cancel' | drupalt}}</a>.
       </div>
     </div>
-  </h4>
+  </h3>
 </div>

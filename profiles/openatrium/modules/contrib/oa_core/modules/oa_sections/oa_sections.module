@@ -147,7 +147,9 @@ function oa_sections_query_entityreference_alter($query) {
 
     // A space is active, limit to sections in that space.
     if ($value = _oa_sections_get_current_selected_space($entity)) {
-      $query->join('og_membership', 'omrol', 'node.nid = omrol.etid and omrol.entity_type = :entity_type AND omrol.field_name = :field_name AND omrol.gid = :target_id', array(':target_id' => $value, ':entity_type' => 'node', ':field_name' => 'og_group_ref'));
+      $query->join('og_membership', 'omrol',
+        'node.nid = omrol.etid and omrol.entity_type = :entity_type AND omrol.field_name = :field_name AND omrol.gid = :target_id',
+        array(':target_id' => $value, ':entity_type' => 'node', ':field_name' => 'og_group_ref'));
     }
     // Don't want to show all sections ever, so zero it out.
     else {

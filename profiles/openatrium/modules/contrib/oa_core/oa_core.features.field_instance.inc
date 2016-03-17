@@ -10,7 +10,7 @@
 function oa_core_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-oa_group-body'
+  // Exported field_instance: 'node-oa_group-body'.
   $field_instances['node-oa_group-body'] = array(
     'bundle' => 'oa_group',
     'default_value' => NULL,
@@ -61,7 +61,7 @@ function oa_core_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-oa_group-field_featured_image'
+  // Exported field_instance: 'node-oa_group-field_featured_image'.
   $field_instances['node-oa_group-field_featured_image'] = array(
     'bundle' => 'oa_group',
     'deleted' => 0,
@@ -129,7 +129,7 @@ function oa_core_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-oa_group-group_access'
+  // Exported field_instance: 'node-oa_group-group_access'.
   $field_instances['node-oa_group-group_access'] = array(
     'bundle' => 'oa_group',
     'default_value' => array(
@@ -187,7 +187,7 @@ function oa_core_field_default_field_instances() {
     'widget_type' => 'options_select',
   );
 
-  // Exported field_instance: 'node-oa_group-group_group'
+  // Exported field_instance: 'node-oa_group-group_group'.
   $field_instances['node-oa_group-group_group'] = array(
     'bundle' => 'oa_group',
     'default_value' => array(
@@ -251,7 +251,7 @@ function oa_core_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-oa_group-og_roles_permissions'
+  // Exported field_instance: 'node-oa_group-og_roles_permissions'.
   $field_instances['node-oa_group-og_roles_permissions'] = array(
     'bundle' => 'oa_group',
     'default_value' => array(
@@ -311,7 +311,7 @@ function oa_core_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-oa_space-body'
+  // Exported field_instance: 'node-oa_space-body'.
   $field_instances['node-oa_space-body'] = array(
     'bundle' => 'oa_space',
     'default_value' => NULL,
@@ -362,7 +362,7 @@ function oa_core_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-oa_space-field_featured_image'
+  // Exported field_instance: 'node-oa_space-field_featured_image'.
   $field_instances['node-oa_space-field_featured_image'] = array(
     'bundle' => 'oa_space',
     'deleted' => 0,
@@ -430,7 +430,7 @@ function oa_core_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-oa_space-field_oa_section_override'
+  // Exported field_instance: 'node-oa_space-field_oa_section_override'.
   $field_instances['node-oa_space-field_oa_section_override'] = array(
     'bundle' => 'oa_space',
     'default_value' => array(
@@ -479,7 +479,7 @@ function oa_core_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-oa_space-field_oa_space_type'
+  // Exported field_instance: 'node-oa_space-field_oa_space_type'.
   $field_instances['node-oa_space-field_oa_space_type'] = array(
     'bundle' => 'oa_space',
     'default_value' => array(
@@ -533,7 +533,7 @@ function oa_core_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-oa_space-group_access'
+  // Exported field_instance: 'node-oa_space-group_access'.
   $field_instances['node-oa_space-group_access'] = array(
     'bundle' => 'oa_space',
     'default_value' => array(
@@ -590,7 +590,7 @@ function oa_core_field_default_field_instances() {
     'widget_type' => 'options_select',
   );
 
-  // Exported field_instance: 'node-oa_space-group_group'
+  // Exported field_instance: 'node-oa_space-group_group'.
   $field_instances['node-oa_space-group_group'] = array(
     'bundle' => 'oa_space',
     'default_value' => array(
@@ -655,7 +655,7 @@ function oa_core_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-oa_space-og_roles_permissions'
+  // Exported field_instance: 'node-oa_space-og_roles_permissions'.
   $field_instances['node-oa_space-og_roles_permissions'] = array(
     'bundle' => 'oa_space',
     'default_value' => array(
@@ -715,7 +715,8 @@ function oa_core_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'taxonomy_term-space_type-field_oa_section_layout'
+  // Exported field_instance:
+  // 'taxonomy_term-space_type-field_oa_section_layout'.
   $field_instances['taxonomy_term-space_type-field_oa_section_layout'] = array(
     'bundle' => 'space_type',
     'default_value' => NULL,

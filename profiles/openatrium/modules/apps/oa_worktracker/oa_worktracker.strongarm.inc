@@ -42,7 +42,7 @@ function oa_worktracker_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'comment_oa_worktracker_task';
-  $strongarm->value = '2';
+  $strongarm->value = 2;
   $export['comment_oa_worktracker_task'] = $strongarm;
 
   $strongarm = new stdClass();

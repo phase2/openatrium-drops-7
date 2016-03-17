@@ -1,0 +1,25 @@
+name = Project
+description = Project template
+core = 7.x
+package = Other
+dependencies[] = ctools
+dependencies[] = oa_export
+dependencies[] = oa_layouts
+dependencies[] = panelizer
+apps[screenshots][] = app/screenshot.png
+apps[logo] = app/logo.png
+apps[author] = Phase2 Technology
+apps[author_url] = http://www.phase2technology.com/
+apps[server] = openatrium
+apps[package] = Core addons
+features[ctools][] = panelizer:panelizer:1
+features[ctools][] = strongarm:strongarm:1
+features[features_api][] = api:2
+features[panelizer_defaults][] = node:oa_space:space_project
+
+; Information added by Drupal.org packaging script on 2016-03-17
+version = "7.x-2.1"
+core = "7.x"
+project = "oa_project"
+datestamp = "1458239357"
+

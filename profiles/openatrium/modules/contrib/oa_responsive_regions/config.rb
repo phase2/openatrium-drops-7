@@ -3,11 +3,11 @@ environment = :production
 
 # Set this to the root of your project when deployed:
 http_path = "/"
-css_dir = "assets/stylesheets"
-sass_dir = "assets/sass"
-images_dir = "assets/images"
-fonts_dir = "assets/fonts"
-javascripts_dir = "assets/javascripts"
+css_dir = "css"
+sass_dir = "sass"
+images_dir = "images"
+fonts_dir = "fonts"
+javascripts_dir = "js"
 
 # You can select your preferred output style here (can be overridden via the command line):
 # output_style = :expanded or :nested or :compact or :compressed

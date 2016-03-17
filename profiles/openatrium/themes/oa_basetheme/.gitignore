@@ -1,0 +1,10 @@
+# Ignore SASS files
+/.sass-cache
+.DS_Store
+/extensions/compass_radix
+*.codekit
+.idea
+assets/*/*.map
+bower_components
+node_modules
+pattern_lab/public

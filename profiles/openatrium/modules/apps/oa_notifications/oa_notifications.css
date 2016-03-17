@@ -1,0 +1,98 @@
+.notifications > ul {
+  margin: 0;
+}
+
+.pane-oa-notifications-pane .flag-subscribe-section-content {
+  margin-bottom: 1em;
+}
+
+.notifications li > .remove-link {
+  float: right;
+  display: none;
+}
+
+.notifications li {
+  margin-left: -10px;
+  padding: 2px 10px;
+  height: 28px;
+}
+
+.notifications li > i {
+  display: inline-block;
+  width: 24px;
+  text-align: center;
+}
+
+.notifications li img {
+  vertical-align: middle;
+  height: 24px;
+  width: 24px;
+}
+
+.notifications a {
+  font-size: 14px;
+}
+
+.notifications li:hover {
+  background-color: #D5D5D5;
+}
+
+.notifications li:hover > .remove-link {
+  display: inline;
+}
+
+.notifications .oa-user-blocked {
+  text-decoration: line-through;
+}
+
+#notification-details {
+  font-size: 12px;
+}
+
+.oa-notify-details {
+  height: 28px;
+}
+
+.oa-notify-details input {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  margin: 0 0 0 18px;
+  padding: 0 10px;
+  color: #0071B3;
+  font-style: italic;
+  font-size: 12px;
+}
+
+.oa-notify-details input:hover {
+  background-color: #D5D5D5;
+  text-decoration: underline;
+}
+
+.oa-notify-item.oa-notify-detail {
+  margin-left: 24px;
+}
+
+.pane-oa-notifications-pane .flag-wrapper {
+  display: inline-block;
+}
+
+.pane-oa-notifications-pane .follow-description {
+  display: inline-block;
+}
+
+.pane-oa-notifications-pane .flag-message {
+  display: inline-block !important;
+  position: relative;
+  top: 0;
+  width: auto;
+}
+
+#notify-list label {
+  font-weight: normal;
+}
+
+.oa-notify-details {
+  /* hide/show is handled in javascript */
+  display: none;
+}

@@ -17,10 +17,10 @@ function oa_favorites_flag_default_flags() {
     'types' => array(
       0 => 'oa_space',
     ),
-    'flag_short' => 'Favorite',
+    'flag_short' => 'Mark as Favorite',
     'flag_long' => 'Mark Space as Favorite',
     'flag_message' => 'Favorited!',
-    'unflag_short' => 'Remove Favorite',
+    'unflag_short' => 'Remove as Favorite',
     'unflag_long' => 'Unmark Space as Favorite',
     'unflag_message' => 'Unfavorited!',
     'unflag_denied_text' => '',

@@ -7,7 +7,6 @@
 $plugin = array(
   'title' => t('Open Atrium Space Menu'),
   'description' => t('The Open Atrium space-specific navigation menu.'),
-  'single' => TRUE,
   'category' => array(t('OA Admin'), -9),
 );
 
@@ -22,15 +21,24 @@ function oa_toolbar_oa_space_menu_content_type_render($subtype, $conf, $panel_ar
     return;
   }
 
+  $space_id = oa_core_get_space_context();
+  $space_id = $space_id ? oa_core_get_group_from_node($space_id) : NULL;
+  if ($space_id && ($space = node_load($space_id)) && node_access('view', $space)) {
+    // We can view this space.
+  }
+  else {
+    $space_id = NULL;
+  }
+
+  if (empty($space_id) || !variable_get('oa_space_menu_' . $space_id, TRUE)) {
+    return;
+  }
+
   $vars = array();
   if (module_exists('oa_appearance')) {
-    $space_id = oa_core_get_space_context();
-    $space_id = $space_id ? oa_core_get_group_from_node($space_id) : NULL;
-    if ($space_id && ($space = node_load($space_id)) && node_access('view', $space)) {
-      $field = field_get_items('node', $space, OA_SPACE_BANNER_POSITION);
-    }
-    $show_space = (!empty($field[0]['value']) && ($field[0]['value'] == OA_SPACE_BANNER_SPACE_MENU));
-    if ($show_space) {
+    $field = field_get_items('node', $space, OA_SPACE_BANNER_POSITION);
+    $show_space_banner = (!empty($field[0]['value']) && ($field[0]['value'] == OA_SPACE_BANNER_SPACE_MENU));
+    if ($show_space_banner) {
       $space_picture = field_get_items('node', $space, 'field_oa_banner');
       if (!empty($space_picture)) {
         $space_picture = array_shift($space_picture);
@@ -46,6 +54,10 @@ function oa_toolbar_oa_space_menu_content_type_render($subtype, $conf, $panel_ar
             'class' => array('oa-banner-img')
           ),
         ));
+        $vars['banner'] = l($vars['banner'], 'node/' . $space_id, array('html' => true));
+      }
+      else {
+        $show_space_banner = FALSE;
       }
     }
   }
@@ -137,6 +149,25 @@ function oa_toolbar_oa_space_menu_content_type_render($subtype, $conf, $panel_ar
   }
 
   $vars['menu'] = (!empty($space_menu->content)) ? $space_menu->content : '';
+  if (!$show_space_banner && variable_get('oa_space_menu_home_' . $space_id, TRUE) && (!empty($space_menu->content)) && $space_id) {
+    $title = t('Space home');
+    $field = field_get_items('node', $space, 'field_oa_space_type');
+    if (!empty($field[0]['tid'])) {
+      $space_type = $field[0]['tid'];
+      $term = taxonomy_term_load($space_type);
+      $title = ($term->name != 'Default') ? $term->name . ' ' . t('home') : $title;
+    }
+    $class = ($node == $space) ? 'active' : '';
+    $home_link = array(
+      '#theme' => 'menu_link__oa_navigation',
+      '#title' => '<i class="fa fa-home"></i>' . $title,
+      '#href' => url('node/' . $space_id),
+      '#localized_options' => array('html' => true),
+      '#below' => array(),
+      '#attributes' => array('class' => array($class)),
+    );
+    array_unshift($vars['menu'], $home_link);
+  }
   $block = new stdClass();
   $block->module = 'oa_toolbar';
   $block->content = theme('oa_space_menu', $vars);

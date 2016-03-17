@@ -11,13 +11,13 @@
   <form action="search/site" method="post">
     <div class="input-append">
       <input type="text" class="search-text form-control" name="search_text">
-      <div class="btn-group">
+      <div class="btn-group dropdown">
         <button type="submit" class="btn submit <?php print $oa_toolbar_btn_class; ?>">
           <i class="icon-search"></i><span class="element-invisible"><?php print t('Search Button');?></span>
         </button>
-        <button class="btn dropdown-toggle <?php print $oa_toolbar_btn_class; ?>" data-toggle="dropdown">
+        <a class="btn dropdown-toggle <?php print $oa_toolbar_btn_class; ?>" data-toggle="dropdown">
           <i class="caret"></i><span class="element-invisible"><?php print t('Search Options');?></span>
-        </button>
+        </a>
         <ul class="dropdown-menu options radio">
         <?php $checked = TRUE; ?>
         <?php foreach ($options as $option => $label): ?>

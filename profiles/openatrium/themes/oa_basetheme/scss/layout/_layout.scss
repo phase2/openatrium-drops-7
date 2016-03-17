@@ -1,0 +1,62 @@
+//
+// Layout
+// Styles for main layout
+// --------------------------------------------------
+html, body {
+  height: 100%;
+}
+
+body {
+  @include breakpoint('md') {
+  }
+  @include breakpoint('sm') {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  @include breakpoint('xs') {
+  }
+  #main-wrapper {
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+  }
+  #footer {
+    margin: 36px 0 0 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #CCC;
+    background-color: #003853;
+    border-top: 1px solid #e5e5e5;
+    > .container {
+      min-height: 100px;
+      padding: 18px 0;
+      @include box-sizing("border-box");
+    }
+  }
+  .container-fluid #footer {
+    margin-left: -15px;
+    margin-right: -15px;
+  }
+}
+
+ol, ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 10px 25px;
+}
+
+.display-block{
+  display:block;
+}
+
+/* remove padding of outermost main content region */
+#main .container-fluid:first-of-type {
+  padding-left: 0;
+  padding-right: 0;
+  margin-right: 0;
+  margin-left: 0;
+}
+
+.oa_basetheme-layouts-contentheader {
+  margin-bottom: 1em;
+}

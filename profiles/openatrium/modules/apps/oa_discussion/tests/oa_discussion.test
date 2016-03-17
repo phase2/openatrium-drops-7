@@ -21,7 +21,7 @@ class oa_discussion extends oa_coreBaseWebTest {
     $group_key = "og_group_ref[$langcode][0][default]";
     $body_key = "body[$langcode][0][value]";
     $body_comment_key = "comment_body[und][0][value]";
-    $notifications_key = "oa_notifications[notifications][user]";
+    $notifications_key = "oa_notifications[notify_list][notification_add]";
 
     extract($this->createOaSpaceAndUsers(array(), 
       array('create oa_space content', 'create oa_section content', 'edit any oa_section content', 'create oa_discussion_post content', 'edit any oa_discussion_post content')));
@@ -37,7 +37,7 @@ class oa_discussion extends oa_coreBaseWebTest {
       $section_key => $section->nid,
       $group_key => $space->nid,
       $body_key => $this->randomName(26),
-      $notifications_key => $space_admin->uid,
+      $notifications_key => 'user:' . $space_admin->uid,
     );
     $this->drupalPost('node/add/oa-discussion-post', $edit, t('Publish'));
     // Email has only "created" message 
@@ -63,11 +63,11 @@ class oa_discussion extends oa_coreBaseWebTest {
       'title' => $this->randomName(16),
       $group_key => $space->nid,
       $body_key => $this->randomName(26),
-      $notifications_key => $space_admin->uid,
+      $notifications_key => 'user:' . $space_admin->uid,
     );
     $this->drupalPost('node/add/oa-discussion-post', $edit, t('Publish'));
     // Create email.
-    $this->assertTrue(count(variable_get('drupal_test_email_collector', array())) == 3, 'Email collector has six emails. ' . count(variable_get('drupal_test_email_collector', array())));
+    $this->assertTrue(count(variable_get('drupal_test_email_collector', array())) == 3, 'Email collector has three emails. ' . count(variable_get('drupal_test_email_collector', array())));
 
     $discussion_no_section = $this->drupalGetNodeByTitle($edit['title']);
     $this->drupalGet('node/' . $discussion_no_section->nid);
@@ -76,7 +76,7 @@ class oa_discussion extends oa_coreBaseWebTest {
     );
     $this->drupalPost('node/' . $discussion_no_section->nid, $second_comment_edit, t('Save'));
     // Replied to email.
-    $this->assertTrue(count(variable_get('drupal_test_email_collector', array())) == 4, 'Email collector has seven emails. ' . count(variable_get('drupal_test_email_collector', array())));
+    $this->assertTrue(count(variable_get('drupal_test_email_collector', array())) == 4, 'Email collector has four emails. ' . count(variable_get('drupal_test_email_collector', array())));
 
     $this->assertText($discussion_no_section->body[LANGUAGE_NONE][0]['value'], 'Node body of discussion appears.');
     $this->assertText($second_comment_edit[$body_comment_key], 'Comment on discussion appears.');

@@ -1,17 +1,14 @@
-#oa_favorites {
-  margin: 10px 0 0 0;
-}
-#oa_favorites h3 {
+.oa-favorites h3 {
   white-space: nowrap;
 }
-.pull-right #oa_favorites {
-  margin-right: 5px;
+.pull-right .oa-favorites {
+  margin: 0 5px 0 0;
 }
-.pull-left #oa_favorites {
-  margin-left: 5px;
+.pull-left .oa-favorites {
+  margin: 0 0 0 5px;
 }
 /* styles for flag button in favorites dropdown */
-#oa_favorites .flag {
+.oa-favorites .flag {
   width: 100%;
   border: none;
   background: none;
@@ -27,17 +24,17 @@
   text-shadow: none;
   text-align: left;
 }
-#oa_favorites .oa-is-favorite .icon-star {
+.oa-favorites .oa-is-favorite .icon-star {
   color: gold;
 }
-#oa_favorites .flag:hover {
+.oa-favorites .flag:hover {
   color: white;
   background-color: #08c;
 }
 /* hide flag throbber to clean up dropdown */
-#oa_favorites .flag-throbber {
+.oa-favorites .flag-throbber {
   display: none;
 }
-#oa_favorites .flag-wrapper {
+.oa-favorites .flag-wrapper {
   padding: 0 5px;
 }

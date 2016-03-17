@@ -1,14 +1,15 @@
 .oa-event-date-wrapper {
-  height: 70px;
-  width: 70px;
+  height: 5em;
+  width: 5em;
   margin: 5px;
   border: 1px solid #AAA;
   background: #F6F7FC;
   float: left;
+  font-size: 14px;
 }
 
 .oa-event-date-month-wrapper {
-  height: 1.5em;
+  height: 1.4em;
   background: #4791FF;
   margin: 2px;
 }
@@ -20,16 +21,22 @@
   display: block;
   text-align: center;
   font-size: 1em;
-  font-weight: bold;
+  font-weight: normal;
   color: #FFFFFF;
 }
 
 
-.oa-event-date-day-wrapper {
-}
-
 .oa-event-label {
   font-weight: bold;
+  float: left;
+  height: 0;
+}
+
+.oa-event-item {
+  display: inline-block;
+  font-size: 1em;
+  padding-left: 8ex;
+  line-height: 1.4em;
 }
 
 .oa-event-date-day {
@@ -39,12 +46,21 @@
   text-align: center;
 }
 
-.oa-event-description .addthisevent-drop {
+.oa-event-day,
+.oa-event-time {
+  white-space: nowrap;
+}
+
+.oa-event .addthisevent-drop {
   margin: 10px;
   float: right;
   position: absolute;
   right: 0px;
   top: 0px;
+}
+
+.oa-event-location .field-content {
+  display: inline-block;
 }
 
 .oa-event-description .flag-subscribe-section-content {

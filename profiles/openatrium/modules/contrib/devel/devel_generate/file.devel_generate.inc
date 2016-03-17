@@ -24,6 +24,7 @@ function _file_devel_generate($object, $field, $instance, $bundle) {
         $file->filemime = file_get_mimetype($file->uri);
         // @todo Randomize file owner.
         $file->uid = 1;
+        $file->devel_generate = TRUE;
         $file = file_save($file);
       }
       else {

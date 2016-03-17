@@ -1,0 +1,133 @@
+/***********/
+/* Toolbar */
+/***********/
+
+.oa-toolbar-style button {
+  background: transparent;
+}
+
+.oa-toolbar-style ul {
+  margin: 0;
+}
+
+.oa-toolbar-style .col-md-12 {
+  padding: 0;
+}
+
+.oa-toolbar-style.navbar {
+  margin-bottom: 0;
+  min-height: 34px;
+  border: none;
+  border-radius: 0;
+}
+
+.oa-toolbar-style ul.oa_toolbar li.btn-group ul.dropdown-menu li h3 {
+  font-size: 1.2em;
+  margin: 0;
+}
+
+.oa-toolbar-style ul.oa_toolbar li.btn-group ul.dropdown-menu li a.more-link {
+  font-style: italic;
+  font-size: 0.9em;
+}
+
+.oa-fullwidth {
+  margin-left: -15px;
+  margin-right: -15px;
+}
+
+.navbar-fixed-top.oa-fullwidth, .navbar-fixed-bottom.oa-fullwidth {
+  position: fixed;
+  right: 0;
+  left: 0;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.oa-fluid {
+  margin-right: auto;
+  margin-left: auto;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+.oa-horizontal-slice .panel-pane > .pane-content > ul {
+  margin: 0;
+}
+
+.oa-hidden {
+  visibility: hidden;
+}
+
+.oa-layout-fluid,
+#main-wrapper.oa-layout-fluid {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.oa-layout-fluid .container.row > .panel-panel {
+  padding: 0;
+}
+
+@media (min-width: 768px) {
+  #main-wrapper.oa-layout-fluid {
+    max-width: 750px;
+  }
+}
+
+@media (min-width: 992px) {
+  #main-wrapper.oa-layout-fluid {
+    max-width: 970px;
+  }
+}
+
+@media (min-width: 1200px) {
+  #main-wrapper.oa-layout-fluid {
+    max-width: 1170px;
+  }
+}
+
+.oa-site-layout .row > .panel-panel {
+  min-height: 0;
+}
+
+#main {
+  position: relative;
+}
+
+.oa-site-layout #main-wrapper {
+  margin-bottom: 0;
+}
+
+/* Flexbox for main site layout */
+.oa-site-layout {
+  height: 100%
+}
+
+.oa-flex-column {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-flow: column;
+  flex-flow: column;
+  height: 100%;
+}
+
+.oa-flex-column > .row {
+  flex: none;
+}
+
+.oa-flex-column > .oa-flex-grow {
+  flex: 1 0 auto;
+}
+
+.pane-pane-oa-title {
+  overflow: hidden;
+}
+
+ul.oa-form-actions {
+  margin-top: 5px;
+}
+
+.oa-form-actions li {
+  display: inline-block;
+}

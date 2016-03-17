@@ -9,9 +9,9 @@ dependencies[] = feeds_ui
 dependencies[] = entityreference
 
 
-; Information added by drush on 2016-02-26
+; Information added by drush on 2016-03-17
 version = "7.x-1.1+4-dev"
 core = "7.x"
 project = "entityreference"
-datestamp = "1456501771"
+datestamp = "1458243364"
 

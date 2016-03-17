@@ -6,7 +6,7 @@
  * $spaces_favorite - Rendered list for space favorites.
  */
 ?>
-<ul id="oa_favorites">
+<ul class="oa-favorites">
   <li class="dropdown btn-group">
     <a class="dropdown-toggle btn <?php print $oa_toolbar_btn_class; ?>" id="favorites-dropdown" data-toggle="dropdown" href="#" title="<?php print $title?>">
       <i class="icon-star"></i><span class="element-invisible"><?php print t('Favorites');?></span>

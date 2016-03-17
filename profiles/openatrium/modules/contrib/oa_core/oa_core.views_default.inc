@@ -461,17 +461,6 @@ function oa_core_views_default_views() {
     3 => 0,
     4 => 0,
   );
-  /* Filter criterion: Content: Type */
-  $handler->display->display_options['filters']['type_1']['id'] = 'type_1';
-  $handler->display->display_options['filters']['type_1']['table'] = 'node';
-  $handler->display->display_options['filters']['type_1']['field'] = 'type';
-  $handler->display->display_options['filters']['type_1']['operator'] = 'not in';
-  $handler->display->display_options['filters']['type_1']['value'] = array(
-    'oa_group' => 'oa_group',
-    'oa_section' => 'oa_section',
-    'oa_space' => 'oa_space',
-    'oa_team' => 'oa_team',
-  );
   /* Filter criterion: Content: Groups audience (og_group_ref:target_id) */
   $handler->display->display_options['filters']['og_group_ref_target_id']['id'] = 'og_group_ref_target_id';
   $handler->display->display_options['filters']['og_group_ref_target_id']['table'] = 'og_membership';

@@ -210,6 +210,21 @@ function oa_users_user_categories() {
 }
 
 /**
+ * Implements hook_oa_core_layout_alter().
+ */
+function oa_users_oa_core_layout_alter(&$data) {
+  if (isset($data['user:user:default'])) {
+    // Change layout from radix_phelan to radix_selby
+    _oa_core_change_panel_layout($data, 'user:user:default', 'radix_selby', 'contentheader', array('column2' => 'sidebar'));
+    $data['user:user:default']->display->title = '%user:name';
+    if (isset($data['user:user:default']->display->content['new-23b1f4f1-cda8-42ca-880a-afc2ae92f3e9'])) {
+      $data['user:user:default']->display->content['new-23b1f4f1-cda8-42ca-880a-afc2ae92f3e9']->position = 1;
+      $data['user:user:default']->display->content['new-23b1f4f1-cda8-42ca-880a-afc2ae92f3e9']->configuration['formatter_settings']['image_style'] = 'panopoly_image_quarter';
+    }
+  }
+}
+
+/**
  * Implements hook_oa_core_add_panes().
  */
 function oa_users_oa_core_add_panes() {
@@ -239,10 +254,10 @@ function oa_users_oa_core_add_panes() {
       'settings' => NULL,
       'style' => 'oa_styles_oa_pane',
     ),
-    'position' => 1,
+    'position' => 0,
   );
   $info['user:user:default']['d3a2a9fb-f88a-4730-bfab-c36f4e0af395'] = array(
-    'panel' => 'contentheader',
+    'panel' => 'sidebar',
     'type' => 'entity_field',
     'subtype' => 'user:field_user_about',
     'configuration' => array(
@@ -256,7 +271,7 @@ function oa_users_oa_core_add_panes() {
       'override_title' => 0,
       'override_title_text' => '',
     ),
-    'position' => 0,
+    'position' => 2,
   );
   // Remove the profile widget added by panopoly
   $info['user:user:default']['d76e85cd-4625-4a52-a17b-e5c65e1a0247'] = array();
@@ -268,6 +283,7 @@ function oa_users_oa_core_add_panes() {
  * Implements hook_theme()
  */
 function oa_users_theme() {
+  $path = drupal_get_path('module', 'oa_users') . '/templates';
   return array(
     'oa_users_submitted' => array(
       'template'  => 'oa-users-submitted',
@@ -279,7 +295,11 @@ function oa_users_theme() {
         'onlabel'  => '',
         'bylabel'  => '',
       ),
-      'path' => drupal_get_path('module', 'oa_users') . '/templates',
+      'path' => $path,
+    ),
+    'oa_members_toolbar' => array(
+      'template'  => 'oa-members-toolbar',
+      'path' => $path,
     ),
   );
 }

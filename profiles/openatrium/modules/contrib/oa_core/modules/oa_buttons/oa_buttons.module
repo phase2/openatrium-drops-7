@@ -295,6 +295,13 @@ function oa_buttons_og_membership_delete($og_membership) {
 }
 
 /**
+ * Implements hook_og_role_change_permissions().
+ */
+function oa_buttons_og_role_change_permissions($role, $grant, $revoke) {
+  oa_buttons_clear_section_button_cache();
+}
+
+/**
  * Clear the button cache for the given group
  * @param null $gid.  If NULL, use current space context.  If 0, clear all groups
  */

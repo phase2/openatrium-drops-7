@@ -49,11 +49,18 @@ body.front .content .pane-oa-home-default {
   body.front #footer {
     margin-top: 150px;
   }
-  body.front #mini-panel-oa_footer_panel .row:nth-child(1) {
+  body.front #mini-panel-oa_footer_panel > .container-fluid > .row:nth-child(1) {
     background: url(images/evolution.png) no-repeat right bottom -15px;
     height: 250px;
     width: 100%;
     position: absolute;
     top: -268px;
   }
+  body.front .oa-layout-footer #mini-panel-oa_footer_panel .row:nth-child(1) {
+    top: -250px;
+  }
+}
+
+body.front .pane-page-content .radix-layouts-content > .panel-panel-inner {
+  background: transparent !important;
 }

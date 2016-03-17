@@ -1,0 +1,113 @@
+// Page Layout
+// -----------------------------------------------------------------------------
+
+.page-admin .pane-page-content {
+  padding: 20px 20px;
+  border-right: 1px solid #E4E3E6;
+  border-bottom: 1px solid #E4E3E6;
+}
+
+.breadcrumb {
+  margin-bottom: 10px;
+}
+
+#main-wrapper #main {
+  margin: 0 0 30px 0;
+}
+
+@include breakpoint('md') {
+  #main-wrapper.oa-layout-fluid {
+    max-width: 95%;
+    #main {
+      width: auto;
+    }
+  }
+}
+
+body.oa-home .pane-page-content .radix-layouts-content > .panel-panel-inner {
+  background-color: transparent;
+}
+
+body #footer {
+  margin: 0 -15px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #CCC;
+  background-color: #003853;
+  border-top: 1px solid #e5e5e5;
+}
+
+body.oa-no-page-title #main-wrapper #main {
+  padding: 40px 0;
+}
+
+.panel-display .oa-responsive-desktop.oa-responsive-region-left {
+  .btn {
+    color: white;
+    &:hover {
+      color: #5bbd5b;
+      box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    }
+    &.btn-circle {
+      width: 36px;
+      height: 36px;
+      margin-left: 2px;
+      padding: 7px;
+    }
+  }
+}
+
+// move tray's parent off edge of screen to avoid flicker
+.oa-layout-sidebar1 {
+  width: 42px;
+  left: -50;
+}
+
+.navbar-tray {
+  box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.59);
+}
+
+.navbar .oa-responsive-regions-toggle-left {
+  position: fixed;
+  padding: 0 10px;
+  left: 0;
+  top: 16px;
+  &.btn {
+    color: #DDD;
+    background: transparent;
+    border-color: transparent;
+    z-index: 1001;
+    &.btn-circle {
+      width: 36px;
+      height: 36px;
+      padding: 3px;
+      margin-left: 2px;
+    }
+  }
+  .fa {
+    font-size: 2em;
+    margin-right: 0;
+  }
+}
+@include breakpoint('xs') {
+  .navbar .oa-responsive-regions-toggle-left {
+    top: 8px;
+  }
+}
+
+body.oa-responsive-region-left-on {
+  .navbar .oa-navbar {
+    .oa-responsive-regions-toggle-left {
+      &.btn.btn-circle:hover,
+      &.btn.btn-circle:active {
+        box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+        background: transparent !important;
+        border-color: gray;
+      }
+    }
+  }
+}
+
+#toolbar-menu-button.btn-circle {
+  padding: 7px 10px;
+}

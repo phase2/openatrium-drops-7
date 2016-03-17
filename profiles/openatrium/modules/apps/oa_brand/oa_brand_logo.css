@@ -3,7 +3,8 @@
   background: url("images/atrium.png") no-repeat 105px 0px;
   width: 231px;
   height: 53px;
-  padding: 27px 10px 0 10px;
+  font-size: 12px;
+  padding: 24px 10px 0 10px;
   text-transform: uppercase;
   letter-spacing: 1px;
 }

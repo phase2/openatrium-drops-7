@@ -53,16 +53,6 @@
             }
           }
         });
-        if ($delta_height > 0) {
-          var $total_height = $height + $delta_height;
-          $('body').css('padding-top', $total_height + 'px');
-          if (typeof(Drupal.displace) != "undefined") {
-            Drupal.displace();  // recalculate offsets
-          }
-          else {
-            $oa_navbar.height($total_height);
-          }
-        }
       }
     }
   };
@@ -78,12 +68,6 @@
         $(this).removeClass('oa-banner-hidden');
       });
     }
-    if (($oa_navbar.length) && (typeof(Drupal.displace) == "undefined")) {
-      $height = $oa_navbar.height();
-      $('body').css('padding-top', $height + 'px');
-    }
-    // this is needed to allow bootstrap tour to display correctly
-    $(window).trigger('resize');
   });
 
 }(jQuery));

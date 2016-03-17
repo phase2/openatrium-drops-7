@@ -7,13 +7,13 @@
 }
 .oa-banner-text {
   display: inline-block;
-  margin: 15px 5px 10px 30px;
+  margin: 10px 5px 10px 30px;
   font-size: 40px;
-  line-height: 40px;
+  line-height: 1em;
   font-weight: bold;
 }
 .oa-banner-slogan {
-  margin: 30px 30px 10px 5px;
+  margin: 25px 30px 10px 5px;
   font-size: 25px;
   font-style: italic;
   float: right;
@@ -40,8 +40,8 @@
   opacity : 1; filter: alpha(opacity=100);
 }
 .oa-banner-img {
-  vertical-align: top;
-  margin: 5px 10px;
+  vertical-align: bottom;
+  margin: 13px 10px;
 }
 .oa-banner-overlay-img {
   vertical-align: bottom;
@@ -50,7 +50,7 @@
 .oa-menu-banner img {
   vertical-align: baseline;
 }
-#oa-navbar .panel-panel .pane-oa-space-banner {
+.panel-panel .pane-oa-space-banner {
   padding-top: 0;
 }
 /* Farbtastic tweaks */

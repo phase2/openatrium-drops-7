@@ -1,0 +1,268 @@
+body,
+body.overlay {
+  color: @text;
+  background-color:@bg;
+}
+.comment .comment-arrow {
+  border-color: @bg;
+}
+
+#main-wrapper #main {
+  background-color:transparent;
+}
+
+.page-admin .pane-page-content {
+  background-color:@contentareabg;
+}
+
+/* try to target the main content region when inside a panel layout */
+.pane-page-content .radix-layouts-content > .panel-panel-inner {
+  background-color:@contentareabg;
+}
+
+.pane-page-content .radix-layouts-sidebar {
+  background-color:@sidebar;
+}
+
+#page,
+#main-wrapper,
+#main-menu-links li a.active,
+#main-menu-links li.active-trail a {
+  background: @bg;
+}
+.tabs ul.primary li a.active {
+  background-color: @bg;
+}
+.tabs ul.primary li.active a {
+  background-color: @bg;
+  border-bottom: 1px solid @bg;
+}
+.form-actions {
+  background-color: @contentareabg;
+}
+a {
+  color: @link;
+}
+a:hover,
+a:focus {
+  color: @linkhover;
+}
+a:active {
+  color: @linkactive;
+}
+
+ul#oa_breadcrumb .btn:hover,
+a.dropdown-toggle.btn:hover,
+.btn:hover,
+.oa-navbar ul.dropdown-menu ul li a:hover,
+.oa-navbar ul.dropdown-menu ul li a:focus,
+.oa-navbar ul.dropdown-menu ul li a.active,
+ul.dropdown-menu ul li a:hover,
+ul.dropdown-menu ul li a:focus,
+ul.dropdown-menu ul li a.active,
+.dropdown-menu > li > a:hover,
+.dropdown-menu > li > a:focus,
+.dropdown-menu ul li a:hover,
+.dropdown-menu ul li a:focus,
+.dropdown-menu ul li a.active,
+ul.dropdown-menu > li > .radio:hover,
+ul.dropdown-menu > li > .radio:active,
+.navbar-inverse .navbar-toggle:hover,
+.navbar-inverse .navbar-toggle:focus {
+  background: @headerbg;
+  color: @titleslogan;
+}
+
+.oa-event-date-month-wrapper {
+  background: @headerbg;
+  color: @titleslogan;
+}
+
+ul.dropdown-menu .item-list h4,
+ul.dropdown-menu .item-list h5 {
+  color: @heading;
+}
+
+h2, h3, h4, h5 {
+  color: @heading;
+}
+
+.oa-date {
+  color: @heading;
+}
+
+.radix-layouts-sidebar h2,
+.radix-layouts-sidebar h3,
+.radix-layouts-sidebar h4,
+.radix-layouts-sidebar h5 {
+  color: @sidebarheadertext;
+}
+
+#header,
+.navbar-inner,
+.navbar-inverse,
+.navbar-inverse .navbar-inner {
+  background-color: @bottom;
+  background-image: -moz-linear-gradient(top, @top, @bottom);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(@top), to(@bottom));
+  background-image: -webkit-linear-gradient(top, @top, @bottom);
+  background-image: -o-linear-gradient(top, @top, @bottom);
+  background-image: linear-gradient(to bottom, @top, @bottom);
+  border: none;
+  box-shadow: none;
+  color: @titleslogan;
+}
+.oa-navbar .btn,
+.navbar-inverse .btn:hover,
+.navbar-inverse .btn:active,
+.oa-navbar.navbar-inverse .btn.btn-inverse,
+.oa-navbar.navbar-inverse .btn-group > .btn .dropdown-toggle,
+.oa-navbar.navbar-inverse #oa-user-badge .user-badge {
+  background-color: @toolbarbtn;
+  background-image: -moz-linear-gradient(top, @bottom, @toolbarbtn);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(@bottom), to(@toolbarbtn));
+  background-image: -webkit-linear-gradient(top, @bottom, @toolbarbtn);
+  background-image: -o-linear-gradient(top, @bottom, @toolbarbtn);
+  background-image: linear-gradient(to bottom, @bottom, @toolbarbtn);
+  box-shadow: none;
+  border-color: @toolbarborder;
+}
+.navbar .btn,
+.navbar-inverse .btn.btn-inverse,
+.navbar .btn-group > .btn .dropdown-toggle {
+  color: @toolbartext;
+}
+.oa-space-menu .navbar-inner {
+  background-image: none;
+  background-color: @menubg;
+  color: @menutext;
+}
+.navbar .oa-space-menu .nav li.first {
+  margin-left: 2px;
+}
+.navbar .oa-space-menu .nav li.active {
+  background: @menutabs;
+  border-top-left-radius: .75em;
+  border-top-right-radius: .75em;
+  border-bottom: 1px solid @menutabs;
+}
+.navbar .oa-space-menu .nav li.active a {
+  color: @menuttabsactivetext;
+}
+.navbar .oa-space-menu .nav li > a {
+  color: @menutext;
+}
+.navbar-inverse .nav > li > a,
+.navbar .nav > li > a {
+  color: @toolbartext;
+  background-color: transparent !important;
+}
+.navbar .nav > .active > a,
+.navbar .nav > .active > a:focus {
+  color: @linkactive;
+}
+.navbar .nav > .active > a:hover,
+.navbar .nav > li > a:hover {
+  color: @linkhover;
+}
+.oa-navbar ul#oa_breadcrumb a.dropdown-toggle.btn.btn-inverse,
+.oa-navbar .panel-panel .oa-space-nav li.btn-group a.dropdown-toggle.btn.btn-inverse,
+.oa-navbar a.dropdown-toggle.btn {
+  background-color: @toolbarbtn;
+}
+.oa-navbar .panel-panel .panel-pane {
+  border-color: @toolbarborder;
+}
+.navbar-inverse ul#oa_breadcrumb .btn.btn-inverse .caret,
+.navbar-inverse .panel-panel .oa-space-nav li.btn-group a.dropdown-toggle.btn.btn-inverse .caret,
+.navbar .caret {
+  border-top: 6px solid @toolbartext;
+  border-right: 6px solid transparent;
+  border-left: 6px solid transparent;
+}
+#oa-navbar-admin li a {
+  color: @toolbartext;
+  background-color: transparent !important;
+}
+.sidebar .block {
+  background-color: @sidebar;
+  border-color: @sidebarborders;
+}
+.pane-oa-footer-panel.oa-navbar,
+#page-wrapper,
+#footer-wrapper,
+body #footer {
+  background-color: @footer;
+}
+
+.pane-oa-footer-panel.oa-navbar,
+#page-wrapper a,
+#footer-wrapper a,
+body #footer a {
+  color: @toolbartext;
+}
+
+.region-header,
+.region-header a,
+.region-header li a.active,
+#name-and-slogan,
+#name-and-slogan a,
+#secondary-menu-links li a {
+  color: @titleslogan;
+}
+.oa-banner-overlay,
+.oa-banner-slogan-overlay {
+  color: @titleslogan;
+}
+.oa-banner-text,
+.oa-banner-slogan {
+  color: @titleslogan;
+}
+.radix-layouts-sidebar .oa-pane .pane-title {
+  color: @sidebarheadertext;
+  background-color: @sidebar;
+  background-image: -moz-linear-gradient(top, @sidebartopbg, @sidebarbottombg);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(@sidebartopbg), to(@sidebarbottombg));
+  background-image: -webkit-linear-gradient(top, @sidebartopbg, @sidebarbottombg);
+  background-image: -o-linear-gradient(top, @sidebartopbg, @sidebarbottombg);
+  background-image: linear-gradient(to bottom, @sidebartopbg, @sidebarbottombg);
+}
+.radix-layouts-sidebar .oa-pane .panel-pane,
+.oa-callout {
+  color: @sidebartext;
+  background-color: @sidebar;
+  border-color: @sidebarborders;
+}
+.radix-layouts-sidebar .oa-pane {
+  border-color: @sidebarborders;
+}
+.oa-navbar .panel-panel .pane-oa-navigation,
+.oa-navbar .panel-panel .pane-oa-mobile,
+.oa-navbar .panel-panel .pane-oa-space-banner,
+.pane-oa-space-banner .oa-banner-nostretch {
+  background-color: @headerbg;
+}
+.oa-navbar .panel-panel .pane-oa-navigation .dropdown-menu,
+.oa-navbar .panel-panel .pane-oa-mobile .dropdown-menu {
+  background-color: @headerbg;
+}
+
+.oa-navbar .panel-panel .pane-oa-navigation li > a,
+.oa-navbar .panel-panel .pane-oa-mobile li > a,
+.oa-navbar .panel-panel .pane-oa-space-banner li > a,
+.pane-oa-space-banner li > a {
+  color: @titleslogan;
+}
+
+#oa-navbar-spaces ul.dropdown-menu .item-list h3 {
+  color: @titleslogan;
+}
+.navbar .flag.btn {
+  background: transparent;
+}
+
+.content .radix-layouts-content .inner-pane > .panel-pane:after,
+body.panels-ipe .content .radix-layouts-content .panels-ipe-portlet-content > .panel-pane:after,
+.content .radix-layouts-content .panel-pane.pane-views-panes:after {
+  border-bottom: 2em solid @bg;
+}

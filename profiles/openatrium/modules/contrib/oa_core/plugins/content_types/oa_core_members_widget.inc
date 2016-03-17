@@ -61,7 +61,9 @@ function oa_core_members_widget_render($subtype, $conf, $args, $context = NULL) 
     $blocked = oa_core_get_users_for_space($space->nid, OG_STATE_BLOCKED);
   }
 
-  $members = empty($conf['hide_owner']) || empty($conf['hide_members']) ? oa_core_get_users_for_space($space->nid) : array();
+  $members = empty($conf['hide_owner']) || empty($conf['hide_members'])
+    ? oa_core_get_users_for_space($space->nid, OG_STATE_ACTIVE, TRUE)
+    : array();
   uasort($members, 'oa_core_sort_users_by_name');
   $owners = array();
   if (empty($conf['hide_owner'])) {

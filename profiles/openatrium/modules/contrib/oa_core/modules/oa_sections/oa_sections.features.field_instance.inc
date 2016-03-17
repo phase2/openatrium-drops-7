@@ -659,7 +659,7 @@ function oa_sections_field_default_field_instances() {
     'bundle' => 'section_type',
     'default_value' => array(
       0 => array(
-        'value' => 0,
+        'value' => 1,
       ),
     ),
     'deleted' => 0,

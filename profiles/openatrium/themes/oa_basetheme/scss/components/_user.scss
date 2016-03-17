@@ -1,0 +1,95 @@
+//
+// User
+// Styles for User pages
+// --------------------------------------------------
+
+// User spaces page
+// --------------------------------------------------
+.pane-oa-user-spaces-full {
+  .views-row {
+    border: 1px solid #DDD;
+    border-bottom: none;
+  }
+  .views-row-odd {
+    background: $tableBackgroundAccent;
+  }
+  .views-row-first {
+    @include border-top-radius(5px);
+  }
+  .views-row-last {
+    border-bottom: 1px solid #DDD;
+    @include border-bottom-radius(5px);
+  }
+
+  .space-container {
+    padding: 5px;
+  }
+  .space-details {
+    .picture {
+      margin-right: 20px;
+      height: 120px;
+      width: 120px;
+      img {
+        width: 100%;
+      }
+    }
+  }
+  .accordion {
+    padding: 10px;
+    margin: 0;
+  }
+}
+
+// User panes
+// --------------------------------------------------
+.pane-oa-core-members-widget,
+.pane-oa-teams-members {
+  h5 {
+    margin-top: 0;
+  }
+  .btn-group {
+    margin: 0 5px 10px 0;
+    width: 200px;
+    position: relative;
+  }
+  .label,
+  .user-badge {
+    margin: 0 5px 10px 0;
+    border: 1px solid transparent;
+  }
+  #tab-members {
+    padding-top: 1em;
+  }
+  img.oa-small-thumbnail {
+    height: 30px;
+    width: 30px;
+  }
+  .dropdown-toggle.user-badge {
+    width: 100%;
+    text-align: left;
+    margin: 0;
+    border: 1px solid transparent;
+    a {
+      overflow: hidden;
+      display: inline-block;
+      width: calc(100% - 30px);
+    }
+    i {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: none;
+    }
+    &:hover {
+      border: 1px solid #ccc;
+      background: #eee;
+      i {
+        display: block;
+        color: #333;
+      }
+    }
+  }
+  .member-dropdown {
+    position: relative;
+  }
+}

@@ -66,7 +66,12 @@ function oa_core_get_cache_id($cache_name, $id = NULL, $include_archived = FALSE
     }
 
     foreach ($args as $arg) {
-      $cid .= '_' . (!empty($arg) ? $arg : '');
+      if (!empty($arg) && is_array($arg)) {
+        $cid .= '_' . implode(':', $arg);
+      }
+      else {
+        $cid .= '_' . (!empty($arg) ? $arg : '');
+      }
     }
   }
 

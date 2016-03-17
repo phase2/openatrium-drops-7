@@ -35,6 +35,7 @@ function oa_space_banner_render($subtype, $conf, $args, $context = NULL) {
   $vars = array();
 
   $vars['banner_class'] = ($position == 1) ? 'oa-banner-before' : 'oa-banner-after';
+  $vars['banner_class'] .= (!empty($banner['stretch'])) ? ' oa-banner-stretch' : ' oa-banner-nostretch';
   $vars['banner'] = !empty($banner['image']) ? theme('image', $banner['image']) : '';
   $vars['width'] = isset($banner['image']['width']) && !empty($banner['stretch']) ? $banner['image']['width'] : 0;
   $vars['height'] = isset($banner['image']['height']) ? $banner['image']['height'] : 0;

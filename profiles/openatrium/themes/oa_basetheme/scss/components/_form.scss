@@ -1,0 +1,445 @@
+//
+// Layout
+// Styles for Forms
+// --------------------------------------------------
+
+//Fix Bootstrap 3 checkboxes
+.radio input[type="radio"], .checkbox input[type="checkbox"] {
+  position: relative;
+  padding: 0;
+  margin: 0 5px 0 -20px;
+}
+.radio label, .checkbox label {
+  padding: 0 5px 0 20px;
+  margin: 0;
+}
+
+fieldset .chosen-fieldset-wrapper {
+  overflow: visible !important;
+}
+
+//Fix Rewrite Content fields in Views
+#views-ui-config-item-form fieldset .form-control {
+  height: auto;
+}
+
+#views-ui-config-item-form fieldset .collapsible {
+  float: none;
+}
+
+// General form styles
+// --------------------------------------------------
+form {
+  .form-item {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    &.checkbox, &.radio {
+      padding-left: 0;
+    }
+  }
+  .btn {
+    width: auto;
+    height: inherit;
+    text-shadow: none;
+  }
+  .button {
+    &.fake-ok,
+    &.fake-cancel {
+      @extend .btn;
+      display: inline-block;
+      max-width: 60px;
+      margin-right: 5px;
+    }
+    &.fake-ok {
+      @extend .btn-primary;
+    }
+  }
+  .form-actions {
+    border: 0;
+    padding: 0;
+    .btn {
+      margin-bottom: 10px;
+    }
+  }
+  fieldset.collapsible legend a.fieldset-title {
+    display: inline-block;
+    width: 90%;
+  }
+  .form-control.form-wrapper {
+    height: auto;
+  }
+}
+
+#main form input.btn {
+  margin-right: 5px;
+}
+
+#main form input.paragraphs-add-more-submit.btn {
+  margin-right: 0;
+}
+
+.views-exposed-form .views-exposed-widget .form-submit {
+  margin-top: 1.6em;
+}
+
+a.mceButton {
+  @include box-sizing(content-box);
+}
+
+.media-widget>a {
+  @extend .btn;
+  @extend .btn-default;
+  background-color: #eee;
+}
+
+.label {
+  font-weight: normal;
+  background-color: #ddd;
+  color: #333;
+  font-size: 90%;
+  a {
+    font-weight: normal;
+  }
+}
+
+input[type="text"],
+input[type="password"],
+.ui-autocomplete-input,
+textarea,
+.uneditable-input {
+  padding: 0 6px;
+  color: #555555;
+  font-size: 14px;
+}
+
+// Media Browser
+// --------------------------------------------------
+#media-browser-tabset {
+  h1 {
+    font-size: 16px;
+  }
+  a.button,
+  input.form-submit {
+    @extend .btn;
+    @extend .btn-primary;
+  }
+}
+
+#modalContent .modal-content {
+  // override compass-radix !important for removing modal shadow
+  @include box-shadow(0 5px 15px rgba(0, 0, 0, 0.5) !important);
+}
+
+// Undo media browser button styles from panopoly admin
+// --------------------------------------------------
+.modal-title {
+  font-size: 24px;
+}
+#modal-content .form-submit,
+#media-browser-tabset a.button,
+#media-browser-tabset form a.button,
+#media-browser-tabset input.form-submit,
+#media-browser-tabset form input.form-submit,
+#modal-content #edit-cancel {
+  @extend .btn;
+  height: auto;
+  font-weight: normal;
+  display: inline-block;
+  &:hover {
+    color: white;
+    background-color: #0044cc;
+    background-image: none;
+  }
+}
+
+#modal-content .form-submit,
+#media-browser-tabset input.form-submit,
+#media-browser-tabset form input.form-submit {
+  @extend .btn-primary;
+}
+
+#modal-content {
+  .form-item {
+    clear: both;
+  }
+  .form-submit {
+    @include box-shadow(none);
+    margin-bottom: 0;
+  }
+}
+
+#media-tabs-wrapper ul.ui-tabs-nav {
+  margin-bottom: 0;
+}
+
+#media-browser-tabset {
+  .views-exposed-form {
+    .views-submit-button {
+      margin-top: 30px;
+    }
+    .views-exposed-widget {
+      margin-right: 0;
+    }
+  }
+  #edit-filename-wrapper {
+    width: 200px;
+  }
+  form select {
+    width: 100%;
+  }
+  input.form-file,
+  span.file {
+    margin-right: 10px;
+  }
+}
+
+// Node edit form
+// --------------------------------------------------
+#node-edit {
+  #edit-title {
+    width: 100%;
+  }
+
+  .burr-flipped-sidebar .panel-pane,
+  .burr-flipped .sidebar .panel-pane {
+    border: 0;
+    border-bottom: 1px solid #e3e3e3;
+    margin-bottom: 0;
+    padding: 15px;
+    background: transparent;
+    @include box-shadow(none);
+    @include border-radius(0);
+    .pane-content {
+      padding: 0;
+    }
+  }
+  .panel-pane {
+    &.pane-node-field-oa-group-ref,
+    &.pane-node-field-oa-team-ref,
+    &.pane-node-field-oa-user-ref {
+      @include border-radius(0);
+      @include box-shadow(none);
+    }
+    &.pane-node-field-oa-group-ref {
+      margin-bottom: 0;
+      border-bottom: 0;
+    }
+    &.pane-node-field-oa-team-ref {
+      margin-bottom: 0;
+      margin-top: 0;
+      border-bottom: 0;
+      border-top: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+    &.pane-node-field-oa-user-ref {
+      border-top: 0;
+      margin-top: 0;
+    }
+  }
+  .container-inline-date {
+    .date-padding {
+      padding: 0;
+    }
+    .form-item-date-time,
+    .form-item-date-date {
+      padding-bottom: 0.5em;
+    }
+  }
+  .form-actions {
+    background: transparent;
+    input {
+      @include box-shadow(none);
+      @extend .btn-primary;
+      &:hover {
+        color: white;
+        background-color: #0044cc;
+        background-image: none;
+      }
+    }
+  }
+}
+
+// Views exposed form
+// --------------------------------------------------
+.views-exposed-form {
+  .well {
+    padding: 0 1em 1em 1em;
+  }
+  .filter-btn {
+    position: absolute;
+    top: 0px;
+    right: 10px;
+  }
+}
+
+.oa-pane .views-exposed-form .filter-btn {
+  top: 10px;
+}
+
+.view-filters form {
+  margin: 0;
+}
+
+.views-exposed-widget.views-submit-button {
+  padding-right: 5px;
+}
+
+// Discussion quick reply
+// --------------------------------------------------
+#oa-discussion-reply-form {
+  position: relative;
+  .form-item {
+    margin: 0;
+  }
+  input#edit-subject {
+    width: 75%;
+  }
+  .field-name-field-oa-discussion-media {
+    position: relative;
+    .tabledrag-toggle-weight-wrapper {
+      position: absolute;
+      top: 0;
+      right: 0;
+      margin: 10px;
+    }
+    .media-item {
+      img {
+        display: block;
+        margin: auto;
+        width: auto;
+      }
+      .file a {
+        display: none;
+      }
+    }
+  }
+  #edit-submit {
+    position: absolute;
+    bottom: 2px;
+    right: 0;
+  }
+}
+
+.checkbox-table {
+  .center {
+    text-align: center;
+  }
+  .form-type-checkbox,
+  .space-label {
+    margin: 0.4em 0;
+  }
+}
+
+.chosen-container {
+  height: auto;
+  border: 0;
+  padding: 0;
+  max-width: 100%;
+}
+
+//OA-messages form
+#oa-users-settings-form {
+  .container-fluid {
+    &.header {
+      background-color: #dedede;
+      clear: both;
+      height: 25px;
+      padding: 3px 0;
+    }
+    border-bottom: 2px solid #dedede;
+    margin: 5px auto;
+    padding-right:0;
+    padding-left:0;
+  }
+  .col-sm-6 {
+    .panel-heading {
+      display: block;
+      float: none;
+      line-height: 40px;
+      background: none;
+      padding: 0;
+    }
+  }
+  div.column3 div.form-type-checkboxes {
+    margin-left: -54%;
+  }
+  .collapsible {
+    &.form-wrapper {
+      .fieldset-wrapper {
+        overflow: visible !important;
+        padding:0;
+      }
+      border:none;
+      @include box-shadow(none);
+    }
+  }
+  input[type="text"] {
+    width:auto;
+  }
+  .panel-title > a {
+    color: #0071B3;
+    font-size:18px;
+  }
+  div.column2 div.chosen-container {
+    margin: 8px 0;
+    padding:0;
+  }
+}
+
+// Vertical tabs
+.oa-vertical-tabs {
+  background: #eee;
+  padding: 10px 10px;
+  div.vertical-tabs {
+    margin-top: 0;
+    margin-bottom: 0;
+    background-color: white;
+    .vertical-tabs-panes {
+      padding: 0;
+    }
+    ul.vertical-tabs-list {
+      li {
+        margin-top: -1px;
+      }
+      margin-top: 0;
+    }
+  }
+}
+
+// Moving WYSIWYG to top of body fields
+.field-widget-text-textarea-with-summary, .field-widget-text-textarea {
+  .text-format-wrapper {
+    position: relative;
+    .form-type-textarea {
+      position: relative;
+    }
+  }
+  .format-toggle {
+    position: absolute;
+    top: -50px;
+    right: 0;
+    label {
+      display: none;
+    }
+    &.has-description {
+      top: 0;
+    }
+  }
+  .description {
+    margin-top: 0;
+    margin-bottom: 10px;
+    &.has-wysiwyg {
+      margin-right: 110px;
+      margin-bottom: 5px;
+    }
+  }
+}
+
+form.comment-form {
+  .format-toggle {
+    label {
+      font-size: 1em;
+    }
+  }
+}

@@ -31,7 +31,6 @@ features[panelizer_defaults][] = node:oa_space:default:featured
 features[panelizer_defaults][] = node:oa_space:space_description
 features[panels_mini][] = default_section_sidebar
 features[panels_mini][] = oa_footer_panel
-features[panels_mini][] = oa_toolbar_panel
 features[panels_mini][] = section_sidebar_top
 features[panels_renderer_pipeline][] = ipe_node_access
 features[variable][] = panelizer_defaults_node_oa_group
@@ -46,9 +45,9 @@ features_exclude[variable][panelizer_node:oa_section_allowed_layouts] = panelize
 features_exclude[variable][panelizer_node:oa_space_allowed_layouts] = panelizer_node:oa_space_allowed_layouts
 features_exclude[variable][panelizer_node:oa_space_allowed_types] = panelizer_node:oa_space_allowed_types
 
-; Information added by Drupal.org packaging script on 2016-01-27
-version = "7.x-2.69"
+; Information added by Drupal.org packaging script on 2016-03-17
+version = "7.x-2.71"
 core = "7.x"
 project = "oa_core"
-datestamp = "1453910365"
+datestamp = "1458239983"
 

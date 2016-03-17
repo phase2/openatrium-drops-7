@@ -231,10 +231,17 @@ function oa_core_node_update($node) {
     if (in_array(TRUE, $rebuild, TRUE)) {
       // Get all subgroups for this node.
       $subgroup_nids = oa_core_get_groups_by_parent($node->nid, $node->type, NULL, FALSE, NULL, TRUE);
-      // Prepare the batch.
-      _oa_core_update_access_records_batch_prepare($subgroup_nids);
-      // Trigger the batch.
-      batch_process();
+      $batch = batch_get();
+      // Don't do nested batch
+      if (empty($batch)) {
+        // Prepare the batch.
+        _oa_core_update_access_records_batch_prepare($subgroup_nids);
+        // Trigger the batch.
+        batch_process();
+      }
+      else {
+        oa_core_update_access_records($subgroup_nids);
+      }
     }
     oa_core_clear_group_cache($node);
   }
@@ -526,6 +533,21 @@ function oa_core_og_membership_insert($og_membership) {
 }
 
 /**
+ * Determine true privacy of a space by checking node grants
+ * @param $node object or nid
+ * @return TRUE if space is private
+ */
+function oa_core_get_group_privacy($node) {
+  $nid = is_numeric($node) ? $node : $node->nid;
+  $query = db_select('node_access', 'n')
+    ->fields('n', array('grant_view'))
+    ->condition('nid', $nid)
+    ->condition('realm', 'all');
+  $result = $query->execute()->fetchcol(0);
+  return empty($result);
+}
+
+/**
  * Utility function to return visibility data for a given node
  * $data['public'] TRUE if node is public, FALSE if private
  * $data['title'] either "Public" or "Private"
@@ -548,7 +570,10 @@ function oa_core_visibility_data($node) {
   }
   if ($node->type == OA_SPACE_TYPE || $node->type == OA_GROUP_TYPE) {
     $visibility = field_get_items('node', $node, 'group_access');
-    $data['public'] = empty($visibility[0]['value']);
+    $data['space_public'] = empty($visibility[0]['value']);
+
+    $private = oa_core_get_group_privacy($node);
+    $data['public'] = !$private;
     if (!$data['public'] && ($ids = og_subgroups_parents_load('node', $node->nid)) && !empty($ids['node'])) {
       if ($groups = array_filter(oa_core_get_titles($ids['node'], 'oa_group', 'title', array('link'), TRUE, 0))) {
         $data['accessors']['group'] = array(
@@ -587,22 +612,27 @@ function oa_core_visibility_data($node) {
     }
     else {
       $visibility = field_get_items('node', $space_node, 'group_access');
-      $data['public'] = (($section_node->type != OA_SECTION_TYPE) || oa_core_section_is_public($section_node))
-        && empty($visibility[0]['value']);
+      $data['space_public'] = empty($visibility[0]['value']);
+
+      $private = oa_core_get_group_privacy($space_reference_field[0]['target_id']);
+      $data['public'] = ((($section_node->type != OA_SECTION_TYPE) || oa_core_section_is_public($section_node))
+        && !$private);
 
       if (!$data['public']) {
-
         $spaces = _oa_core_build_visibility_links('node', $section_node, OA_GROUP_FIELD, OA_SPACE_TYPE);
-        if (!empty($visibility[0]['value']) || !empty($spaces)) {
+        if ($private || !empty($spaces)) {
           $data['accessors']['space'] = array(
             'links' => $spaces + _oa_core_build_visibility_links('node', $section_node, OA_SPACE_FIELD, OA_SPACE_TYPE),
             'label' => t('Spaces'),
           );
         }
-        $data['accessors']['group'] = array(
-          'links' => _oa_core_build_visibility_links('node', $section_node, OA_GROUP_FIELD, OA_GROUP_TYPE),
-          'label' => t('Groups'),
-        );
+        $spaces = _oa_core_build_visibility_links('node', $section_node, OA_GROUP_FIELD, OA_GROUP_TYPE);
+        if ($private || !empty($spaces)) {
+          $data['accessors']['group'] = array(
+            'links' => $spaces + _oa_core_build_visibility_links('node', $section_node, OA_SPACE_FIELD, OA_GROUP_TYPE),
+            'label' => t('Groups'),
+          );
+        }
         $data['accessors']['teams'] = array(
           'links' => _oa_core_build_visibility_links('node', $section_node, OA_TEAM_FIELD),
           'label' => t('Teams'),
@@ -624,20 +654,40 @@ function oa_core_visibility_data($node) {
  */
 function _oa_core_build_visibility_links($type, $node, $field, $bundle = '') {
   $links = array();
-  $values = field_get_items('node', $node, $field);
-  if (!empty($values)) {
-    $links = array();
-    foreach ($values as $value) {
-      if ($type == 'node') {
-        $value_node = node_load($value['target_id']);
-        if (!empty($value_node) && ((empty($bundle) || ($bundle == $value_node->type)))) {
-          $links[] = l($value_node->title, "node/" . $value_node->nid);
-        }
+  $nids = array();
+  if ($field == OA_SPACE_FIELD) {
+    // Get all parent spaces instead of just direct parent
+    $spaces = field_get_items('node', $node, $field);
+    if (!empty($spaces)) {
+      $space = current($spaces);
+      $nids = oa_core_get_parents($space['target_id'], $bundle, NODE_PUBLISHED, FALSE, TRUE);
+      // Add current space to list
+      if ($bundle == OA_SPACE_TYPE) {
+        $nids[] = $space['target_id'];
       }
-      elseif ($type == 'user') {
-        $user = user_load($value['target_id']);
-        $user_name = format_username($user);
-        $links[] = l($user_name, "user/" . $user->uid);
+    }
+  }
+  else {
+    $values = field_get_items('node', $node, $field);
+    if (!empty($values)) {
+      foreach ($values as $value) {
+        $nids[] = $value['target_id'];
+      }
+    }
+  }
+  if (!empty($nids)) {
+    if ($type == 'node') {
+      $titles = oa_core_get_titles($nids, $bundle);
+      $links = $titles['links'];
+    }
+    elseif ($type == 'user') {
+      $links = array();
+      $query = db_select('realname', 'u');
+      $query->fields('u', array('uid', 'realname'))
+        ->condition('u.uid', $nids, 'IN');
+      $users = $query->execute()->fetchAllAssoc('uid');
+      foreach ($users as $uid => $user) {
+        $links[] = l($user->realname, "user/" . $uid);
       }
     }
   }

@@ -6,6 +6,7 @@
 
 include_once 'oa_related.features.inc';
 include_once 'oa_related.paragraphs.inc';
+include_once 'oa_related.paragraphs.info.inc';
 include_once 'oa_related.theme.inc';
 
 define('PARAGRAPH_ADD_MORE_BUNDLE', 'add_more_bundle_');
@@ -34,6 +35,30 @@ function oa_related_theme($existing, $type, $theme, $path) {
     'template' => 'oa-related-ref',
     'variables' => array(),
     'path' => $path,
+  );
+  $theme['oa_related_paragraphs_media_render'] = array(
+    'path' => $path,
+    'base hook' => 'entity',
+    'template' => 'oa-related-paragraphs-media-render',
+    'render element' => 'element',
+  );
+  $theme['oa_related_paragraphs_text_render'] = array(
+    'path' => $path,
+    'base hook' => 'entity',
+    'template' => 'oa-related-paragraphs-text-render',
+    'render element' => 'element',
+  );
+  $theme['oa_related_paragraphs_content_render'] = array(
+    'path' => $path,
+    'base hook' => 'entity',
+    'template' => 'oa-related-paragraphs-content-render',
+    'render element' => 'element',
+  );
+  $theme['oa_related_paragraphs_snippet_render'] = array(
+    'path' => $path,
+    'base hook' => 'entity',
+    'template' => 'oa-related-paragraphs-snippet-render',
+    'render element' => 'element',
   );
 
   // Get all of the paragraph types.
@@ -316,19 +341,22 @@ function oa_related_form_node_form_alter(&$form, &$form_state) {
  * Implements hook_features_template_info().
  */
 function oa_related_features_template_info() {
-  $content_types = oa_related_get_content_types();
-  $data = array();
-  foreach ($content_types as $content_type => $present) {
-    // Only have an entry if this will exist or needs to be deleted.
-    if ($present || field_info_instance('node', 'field_oa_related', $content_type) && node_type_get_type($content_type)) {
-      $data[] = array(
-        'plugin' => 'field_instance',
-        'template' => 'oa_related_field_default_field_instances_template',
-        'deleted' => empty($present),
-        'entity_type' => 'node',
-        'bundle_type' => $content_type,
-        'field' => 'field_oa_related',
-      );
+  $data = &drupal_static(__FUNCTION__);
+  if (empty($data)) {
+    $content_types = oa_related_get_content_types();
+    $data = array();
+    foreach ($content_types as $content_type => $present) {
+      // Only have an entry if this will exist or needs to be deleted.
+      if ($present || field_info_instance('node', 'field_oa_related', $content_type) && node_type_get_type($content_type)) {
+        $data[] = array(
+          'plugin' => 'field_instance',
+          'template' => 'oa_related_field_default_field_instances_template',
+          'deleted' => empty($present),
+          'entity_type' => 'node',
+          'bundle_type' => $content_type,
+          'field' => 'field_oa_related',
+        );
+      }
     }
   }
   return $data;
@@ -493,11 +521,51 @@ function oa_related_settings_submit($form, &$form_state) {
 
 /**
  * Implements hook_preprocess_HOOK().
- * Preprocess theme variables for various paragraph item types
+ *
+ * Pre-process theme variables for various paragraph item types.
  */
 function oa_related_preprocess_entity(&$vars) {
   if ($vars['entity_type'] == 'paragraphs_item') {
-    drupal_alter('oa_' . $vars['paragraphs_item']->bundle, $vars);
+    $field_name = NULL;
+    $info = oa_related_get_paragraph_field_info();
+    $value = NULL;
+    $paragraph_wrapper = entity_metadata_wrapper('paragraphs_item', $vars['paragraphs_item']);
+    $vars['oa_related_content'] = '';
+
+    foreach ($info as $field_name => $bundle) {
+      foreach ($bundle as $bundle_name => $data) {
+        if ($paragraph_wrapper->bundle->value() == $bundle_name) {
+          if (isset($paragraph_wrapper->$field_name)) {
+            $value = $paragraph_wrapper->$field_name->value();
+          }
+          if (isset($data['render callback'])) {
+            if (is_array($data['render callback'])) {
+              foreach ($data['render callback'] as $function) {
+                if (function_exists($function)) {
+                  // Call the function that will allow pre-processing for this layout selection.
+                  $function($vars, $bundle_name, $field_name, $value);
+                  // This allows other modules to alter the '$variables' array after we are done with it. If you want to
+                  // completely override it then use drupal_alter: "hook_oa_related_field_info_alter()" and
+                  // replace the 'render callback'.
+                  drupal_alter($function, $vars, $bundle_name, $field_name, $value);
+                }
+              }
+            }
+            else {
+              $function = $data['render callback'];
+              if (function_exists($function)) {
+                // Call the function that will allow pre-processing for this layout selection.
+                $function($vars, $bundle_name, $field_name, $value);
+                // This allows other modules to alter the '$variables' array after we are done with it. If you want to
+                // completely override it then use drupal_alter: "hook_oa_related_field_info_alter()" and
+                // replace the 'render callback'.
+                drupal_alter($function, $vars, $bundle_name, $field_name, $value);
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }
 
@@ -579,6 +647,76 @@ function oa_related_template_modules_enabled($modules) {
       break;
     }
   }
+}
+
+/**
+ * Helper function to define allowed values for fields on a paragraph entity used to control the layout.
+ *
+ * This function is used in place of adding allowed values for those fields in the UI.
+ *
+ * @param array $field
+ *   The field the values will be applied to.
+ * @param array $instance
+ *   The field instance.
+ * @param string $entity_type
+ *   The machine name of the paragraph entity.
+ * @param object $entity
+ *   The paragraphs item entity.
+ * @param bool $cacheable
+ *
+ * @return array
+ */
+function oa_related_paragraphs_field_allowed_values($field, $instance, $entity_type, $entity, $cacheable) {
+  $cache = cache_get(__FUNCTION__ . ':' . $instance['field_name'] . ':' . $instance['bundle'], 'cache_field');
+  if (!$cache) {
+    // Get information from all modules about this field. The field name does matter, there could be two fields on the
+    // same bundle that allow different options.
+    $info = oa_related_get_paragraph_field_info();
+
+    $values = array();
+
+    foreach ($info as $field_name => $bundle) {
+      if ($field_name == $instance['field_name']) {
+        foreach ($bundle as $name => $data) {
+          $values = $data['allowed values'];
+          // Allow any module to alter these options.
+          drupal_alter('oa_related_' . $field_name . '_' . $name . '_values', $values);
+        }
+      }
+    }
+    cache_set(__FUNCTION__ . ':' . $instance['field_name'] . ':' . $instance['bundle'], $values, 'cache_field');
+    return $values;
+  }
+  else {
+    if (!empty($cache->data)) {
+      return $cache->data;
+    }
+  }
+}
+
+/**
+ * Helper function used to cache data returned by hook_oa_related_field_info().
+ *
+ * @return array
+ */
+function oa_related_get_paragraph_field_info() {
+  $info = &drupal_static(__FUNCTION__);
+  if (empty($info)) {
+    $cache = cache_get(__FUNCTION__);
+    if (!$cache) {
+      // Get information from all modules about this field. The field name does matter, there could be two fields on the
+      // same bundle that allow different options.
+      $info = module_invoke_all('oa_related_field_info');
+      drupal_alter('oa_related_field_info', $info);
+      return $info;
+    }
+    else {
+      if (!empty($cache->data)) {
+        return $cache->data;
+      }
+    }
+  }
+  return $info;
 }
 
 /**

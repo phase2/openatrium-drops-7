@@ -5,6 +5,7 @@ package = Open Atrium
 project = oa_contextual_tabs
 dependencies[] = contextual_tabs
 dependencies[] = ctools
+dependencies[] = defaultconfig
 dependencies[] = strongarm
 apps[screenshots][] = app/screenshot.png
 apps[logo] = app/logo.png
@@ -13,15 +14,20 @@ apps[author_url] = http://www.phase2technology.com/
 apps[server] = openatrium
 apps[package] = Core addons
 features[ctools][] = strongarm:strongarm:1
+features[defaultconfig][] = strongarm:oa_contextual_move_ipe
+features[defaultconfig][] = strongarm:oa_contextual_restrict
+features[defaultconfig][] = strongarm:oa_space_config_pages
+features[defaultconfig][] = strongarm:oa_tasks_contextual
+features[defaultconfig][] = strongarm:oa_user_config_pages
 features[features_api][] = api:2
 features[variable][] = contextual_tabs_extract
 features[variable][] = contextual_tabs_pages
 features[variable][] = contextual_tabs_visilibity
 project path = sites/all/modules/contrib/oa_core/modules
 
-; Information added by Drupal.org packaging script on 2015-10-20
-version = "7.x-2.29"
+; Information added by Drupal.org packaging script on 2016-03-17
+version = "7.x-2.31"
 core = "7.x"
 project = "oa_contextual_tabs"
-datestamp = "1445353454"
+datestamp = "1458239065"
 

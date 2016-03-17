@@ -1,0 +1,28 @@
+<?php
+/**
+* @file
+* Install, update and uninstall functions.
+*/
+
+/**
+* Implements hook_install().
+*/
+function oa_project_install() {
+  // Call our update hook.
+  oa_project_update_7000();
+}
+
+/**
+* Implements hook_update_N().
+* Imports a blueprint.
+*/
+function oa_project_update_7000() {
+  // Check for the export file.
+  $module = 'oa_project';
+  $path = drupal_get_path('module', $module) . '/' . OA_EXPORT_DIR;
+  if (file_exists($path . '/' . OA_EXPORT_JSON_FILE . '.json')) {
+    // Start the import.
+    oa_export_batch_import($path, 'module');
+  }
+}
+

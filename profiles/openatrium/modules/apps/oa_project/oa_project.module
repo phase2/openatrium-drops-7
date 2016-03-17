@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Project feature.
+ */
+
+include_once 'oa_project.features.inc';

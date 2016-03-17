@@ -1,0 +1,18 @@
+<?php
+/**
+ * @file
+ * oa_contextual_tabs.install
+ */
+
+include_once 'oa_contextual_tabs.features.defaultconfig.inc';
+
+/**
+ * Set default variables for contextual_tabs.
+ */
+function oa_contextual_tabs_update_7201() {
+  $vars = oa_contextual_tabs_defaultconfig_strongarm();
+  foreach ($vars as $name => $var) {
+    variable_set($name, $var->value);
+  }
+}
+

@@ -17,7 +17,7 @@ libraries[chosen][directory_name] = "chosen"
 libraries[chosen][destination] = "libraries"
 
 ; Colorizer
-projects[colorizer][version] = 1.8
+projects[colorizer][version] = 1.10
 projects[colorizer][subdir] = contrib
 
 ; Conditional Fields
@@ -104,10 +104,6 @@ projects[mimemail][version] = 1.0-beta4
 projects[mimemail][subdir] = contrib
 projects[mimemail][patch][1568680] = https://www.drupal.org/files/issues/mimemail-1568680-message-var-for-theming.patch
 projects[mimemail][patch][2552613] = https://www.drupal.org/files/issues/mimemail_broken_images_urls-2552613-9.patch
-
-; OA Responsive Regions
-projects[oa_responsive_regions][version] = 1.0-beta1
-projects[oa_responsive_regions][subdir] = contrib
 
 ; Organic Groups
 projects[og][version] = 2.7

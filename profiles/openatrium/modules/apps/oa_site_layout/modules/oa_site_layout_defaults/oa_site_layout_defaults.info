@@ -1,0 +1,32 @@
+name = Open Atrium Site Layout Defaults
+description = Contains the default panels layouts for the OA Site Layout module
+core = 7.x
+package = Open Atrium
+dependencies[] = ctools
+dependencies[] = defaultconfig
+dependencies[] = oa_responsive_regions
+dependencies[] = oa_site_layout
+dependencies[] = page_manager
+dependencies[] = strongarm
+apps[screenshots][] = app/screenshot.png
+apps[logo] = app/logo.png
+apps[author] = Phase2 Technology
+apps[author_url] = http://www.phase2technology.com/
+apps[server] = openatrium
+apps[package] = Core addons
+features[ctools][] = page_manager:pages_default:1
+features[ctools][] = strongarm:strongarm:1
+features[defaultconfig][] = strongarm:oa_show_visibility_panel
+features[features_api][] = api:2
+features[page_manager_handlers][] = site_template__atrium-modern
+features[page_manager_handlers][] = site_template__panel_context_a4d57c32-e3d0-4611-96eb-3777dd5d594e
+features[variable][] = panels_everywhere_site_template_enabled
+features[variable][] = panels_everywhere_site_template_enabled_admin
+features[variable][] = panels_everywhere_site_template_per_theme
+
+; Information added by Drupal.org packaging script on 2016-03-17
+version = "7.x-2.1"
+core = "7.x"
+project = "oa_site_layout"
+datestamp = "1458239655"
+

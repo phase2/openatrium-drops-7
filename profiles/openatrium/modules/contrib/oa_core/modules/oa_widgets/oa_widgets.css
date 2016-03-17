@@ -1,15 +1,20 @@
-#oa_visibility_toolbar {
+.oa_visibility_toolbar {
   margin: 0;
   margin-top: 10px;
 }
-#contextual-tabs #oa_visibility_toolbar {
+.oa_visibility_toolbar .dropdown-menu {
+  min-width: 22em;
+  font-size: 12px;
+}
+
+#contextual-tabs .oa_visibility_toolbar {
   margin-top: 0px;
   padding: 0;
 }
-.pull-right #oa_visibility_toolbar {
+.pull-right .oa_visibility_toolbar {
   margin-right: 5px;
 }
-.pull-left #oa_visibility_toolbar {
+.pull-left .oa_visibility_toolbar {
   margin-left: 5px;
 }
 .oa-visibility-private {
@@ -38,7 +43,7 @@
 }
 .oa-visibility-header {
   background-color: #F2F2F2;
-  margin: 15px 0 5px 0;
+  margin: 1em 0 0.25em 0;
   padding: 3px 10px;
 }
 .oa-visibility-list {

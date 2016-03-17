@@ -22,6 +22,13 @@ function contextual_tabs_menu() {
 }
 
 /**
+ * Implements hook_ctools_plugin_directory().
+ */
+function contextual_tabs_ctools_plugin_directory($module, $plugin) {
+  return 'plugins/' . $plugin;
+}
+
+/**
  * Configuration Form for Open Atrium
  */
 function contextual_tabs_config_form($form, &$form_state) {
@@ -75,15 +82,17 @@ function _contextual_tabs_links($new_tabs_links = array()) {
   if (count($new_tabs_links)) {
     $tabs_links = $new_tabs_links;
   }
+  drupal_alter('contextual_tabs_tasks', $tabs_links);
   return $tabs_links;
 }
 
 /**
- * Implements hook_preprocess_page().
+ * Render the contextual tab buttons
  */
-function contextual_tabs_preprocess_page(&$variables) {
+function contextual_tabs_render($conf = array()) {
   $pages = variable_get('contextual_tabs_pages', '');
   $current = current_path();
+  $output = '';
   if (!drupal_match_path($current, $pages)) {
     $tabs_links = _contextual_tabs_links();
     $current_link = NULL;
@@ -121,6 +130,7 @@ function contextual_tabs_preprocess_page(&$variables) {
       $caption = strtolower(trim($caption));
       $url = trim($url);
       if (!in_array($caption, $processed) && isset($link_by_name[$caption]) &&
+        (!empty($icon) || empty($conf['hide_captions'])) &&
         (empty($url) || drupal_match_path($current, $url))) {
         $id = $link_by_name[$caption];
         $key = 'link-' . $id;
@@ -139,11 +149,22 @@ function contextual_tabs_preprocess_page(&$variables) {
       'buttons' => $buttons,
       'links' => $links,
       );
+
     drupal_alter('contextual_tabs', $data);
 
-    $build = array(
+    if (!empty($conf['prevent_alter'])) {
+      $data['buttons'] = $buttons;
+    }
+
+    $vars = array(
       'title' => t('Configure'),
       'buttons' => $data['buttons'],
+      'alignment' => !empty($conf['alignment']) ? 'align-right' : '',
+      'show_captions' => !empty($conf['hide_captions']) ? FALSE : TRUE,
+      'direction' => !empty($conf['direction']) ? 'dropup' : '',
+      'menu_caption' => !empty($conf['menu_caption']) ? check_plain($conf['menu_caption']) : t('Configure'),
+      'icon_class' => !empty($conf['icon_class']) ? check_plain($conf['icon_class']) : 'icon-cog',
+      'btn_class' => !empty($conf['btn_class']) ? check_plain($conf['btn_class']) : 'btn-small btn-sm btn-default',
     );
 
     // remove links with empty data
@@ -154,13 +175,22 @@ function contextual_tabs_preprocess_page(&$variables) {
     }
 
     if (!empty($data['links'])) {
-      $build['links'] = theme('item_list', array(
+      $vars['links'] = theme('item_list', array(
         'items' => $data['links'],
         'type' => 'ul',
       ));
     }
-    unset($variables['tabs']['#primary']);
-    $variables['primarytabs'] = theme('contextual_tabs', $build);
+
+    $output = theme('contextual_tabs', $vars);
   }
+  return $output;
 }
 
+/**
+ * Implements hook_preprocess_page().
+ */
+function contextual_tabs_preprocess_page(&$variables) {
+  $tabs = contextual_tabs_render();
+  unset($variables['tabs']['#primary']);
+  $variables['primarytabs'] = $tabs;
+}

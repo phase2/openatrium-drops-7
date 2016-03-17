@@ -10,7 +10,7 @@
 function oa_discussion_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'message-oa_reply-field_oa_message_section'
+  // Exported field_instance: 'message-oa_reply-field_oa_message_section'.
   $field_instances['message-oa_reply-field_oa_message_section'] = array(
     'bundle' => 'oa_reply',
     'default_value' => NULL,
@@ -93,7 +93,7 @@ function oa_discussion_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'message-oa_reply-field_oa_message_space'
+  // Exported field_instance: 'message-oa_reply-field_oa_message_space'.
   $field_instances['message-oa_reply-field_oa_message_space'] = array(
     'bundle' => 'oa_reply',
     'default_value' => NULL,
@@ -176,7 +176,7 @@ function oa_discussion_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'message-oa_reply-field_oa_message_text'
+  // Exported field_instance: 'message-oa_reply-field_oa_message_text'.
   $field_instances['message-oa_reply-field_oa_message_text'] = array(
     'bundle' => 'oa_reply',
     'default_value' => NULL,
@@ -256,7 +256,7 @@ function oa_discussion_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'message-oa_reply-field_oa_node_ref'
+  // Exported field_instance: 'message-oa_reply-field_oa_node_ref'.
   $field_instances['message-oa_reply-field_oa_node_ref'] = array(
     'bundle' => 'oa_reply',
     'default_value' => NULL,
@@ -339,7 +339,7 @@ function oa_discussion_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-oa_discussion_post-body'
+  // Exported field_instance: 'node-oa_discussion_post-body'.
   $field_instances['node-oa_discussion_post-body'] = array(
     'bundle' => 'oa_discussion_post',
     'default_value' => NULL,
@@ -390,7 +390,7 @@ function oa_discussion_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-oa_discussion_post-field_oa_media'
+  // Exported field_instance: 'node-oa_discussion_post-field_oa_media'.
   $field_instances['node-oa_discussion_post-field_oa_media'] = array(
     'bundle' => 'oa_discussion_post',
     'default_value' => array(),
@@ -450,26 +450,25 @@ function oa_discussion_field_default_field_instances() {
           'media_internet' => 'media_internet',
           'upload' => 'upload',
         ),
-        'manualcrop_crop_info' => TRUE,
-        'manualcrop_default_crop_area' => TRUE,
-        'manualcrop_enable' => FALSE,
-        'manualcrop_inline_crop' => FALSE,
+        'manualcrop_crop_info' => 1,
+        'manualcrop_default_crop_area' => 1,
+        'manualcrop_enable' => 0,
+        'manualcrop_inline_crop' => 0,
         'manualcrop_instant_crop' => FALSE,
-        'manualcrop_instant_preview' => TRUE,
-        'manualcrop_keyboard' => TRUE,
-        'manualcrop_maximize_default_crop_area' => FALSE,
+        'manualcrop_instant_preview' => 1,
+        'manualcrop_keyboard' => 1,
+        'manualcrop_maximize_default_crop_area' => 0,
         'manualcrop_require_cropping' => array(),
         'manualcrop_styles_list' => array(),
         'manualcrop_styles_mode' => 'include',
-        'manualcrop_thumblist' => FALSE,
-        'progress_indicator' => 'throbber',
+        'manualcrop_thumblist' => 0,
       ),
       'type' => 'media_generic',
       'weight' => 5,
     ),
   );
 
-  // Exported field_instance: 'node-oa_discussion_post-oa_section_ref'
+  // Exported field_instance: 'node-oa_discussion_post-oa_section_ref'.
   $field_instances['node-oa_discussion_post-oa_section_ref'] = array(
     'bundle' => 'oa_discussion_post',
     'default_value' => NULL,
@@ -524,7 +523,7 @@ function oa_discussion_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-oa_discussion_post-og_group_ref'
+  // Exported field_instance: 'node-oa_discussion_post-og_group_ref'.
   $field_instances['node-oa_discussion_post-og_group_ref'] = array(
     'bundle' => 'oa_discussion_post',
     'default_value' => NULL,
@@ -607,7 +606,7 @@ function oa_discussion_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-oa_discussion_post-og_vocabulary'
+  // Exported field_instance: 'node-oa_discussion_post-og_vocabulary'.
   $field_instances['node-oa_discussion_post-og_vocabulary'] = array(
     'bundle' => 'oa_discussion_post',
     'default_value' => NULL,

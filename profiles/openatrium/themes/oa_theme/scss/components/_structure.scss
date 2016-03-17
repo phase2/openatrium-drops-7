@@ -1,0 +1,120 @@
+// Styles for Tables
+// --------------------------------------------------
+
+.table-bordered {
+  border: 1px solid #e7e7e7 !important;
+}
+
+.table-bordered > tbody > tr > td {
+  border: none;
+  border-top: 1px solid #ddd;
+}
+
+.table > thead > tr > th,
+.sticky-header > thead > tr > th {
+  background: #e0e0e0;
+  text-transform: uppercase;
+  font-size: 13px;
+}
+
+.table > thead > tr > th.active {
+  background: #e0e0e0;
+}
+
+.table-bordered > thead > tr > th,
+.sticky-header > thead > tr > th {
+  border-bottom: 2px solid #ddd;
+  border: 3px solid white;
+  &:first-child {
+    border-left: none;
+  }
+  &:last-child {
+    border-right: none;
+  }
+}
+
+table td > div.form-type-checkbox,
+table th > div.form-type-checkbox {
+  text-align: center;
+}
+
+tr.even, tr.odd {
+  border-bottom: none;
+}
+
+// Styles for Tabs, Messages, ..etc
+// --------------------------------------------------
+
+.pane-content {
+  position: relative;
+}
+
+.oa-pane .pane-content {
+  position: relative;
+  padding: 0;
+  .oa-list {
+    margin: 0;
+  }
+}
+
+.oa-pane.inner-pane .panel-pane {
+  padding-bottom: 1em;
+}
+
+/* try to target the main content region when inside a panel layout */
+.pane-page-content .radix-layouts-content {
+  > .panel-panel-inner {
+    padding: 0 20px 20px 20px;
+    border-right: 1px solid #E4E3E6;
+    border-bottom: 1px solid #E4E3E6;
+  }
+  .oa-pane.inner-pane .panel-pane {
+    padding-bottom: 0;
+    padding-top: 1.5em;
+  }
+}
+body.panels-ipe .pane-page-content .radix-layouts-content > .panel-panel-inner {
+  border-right: none;
+  border-bottom: none;
+  padding: 0 20px;
+}
+
+@include breakpoint('md') {
+  .pane-page-content .radix-layouts-content {
+    > .panel-panel-inner {
+      padding: 0 40px 20px 40px;
+    }
+  }
+  body.panels-ipe .pane-page-content .radix-layouts-content > .panel-panel-inner {
+    padding: 0 40px;
+  }
+}
+
+.oa-list {
+  &.well {
+    background: transparent;
+    border: none;
+  }
+}
+
+.oa-list-header {
+  padding-top: 0;
+}
+
+.group-content {
+  > li {
+    border-top: 1px solid #EAEAEA;
+    padding: 10px 0;
+  }
+}
+
+.radix-layouts-sidebar {
+  .group-content li {
+    padding: 5px 0;
+  }
+}
+
+.oa-list-category {
+  text-align: right;
+  margin-left: 10px;
+}

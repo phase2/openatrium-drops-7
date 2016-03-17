@@ -3,3 +3,16 @@
 .view-oa-user-search .oa-pull-left img {
   width: 90px;
 }
+
+.toolbar-search .form-control {
+  width: auto;
+}
+
+.toolbar-search .btn {
+  background: transparent;
+}
+
+.toolbar-search form .btn {
+  clear: none;
+}
+

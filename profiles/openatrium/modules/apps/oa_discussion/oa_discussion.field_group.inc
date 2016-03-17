@@ -23,9 +23,8 @@ function oa_discussion_field_group_info() {
     'label' => 'Access',
     'weight' => '10',
     'children' => array(
-      0 => 'oa_parent',
-      1 => 'oa_section_ref',
-      2 => 'og_group_ref',
+      0 => 'oa_section_ref',
+      1 => 'og_group_ref',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(

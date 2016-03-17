@@ -41,10 +41,15 @@ function openatrium_install_tasks(&$install_state) {
       'oa_media',
       'oa_messages_digest',
       'oa_notifications',
+// Currently having problems with oa_project enabling during install
+// So leave this off for now
+//      'oa_project',
       'oa_related',
       'oa_sandbox',
       'oa_search',
       'oa_sitemap',
+      'oa_site_layout',
+      'oa_site_layout_defaults',
       'oa_styles',
       'oa_subspaces',
       'oa_toolbar',
@@ -179,10 +184,10 @@ function openatrium_install() {
  * Set the default theme.
  */
 function _openatrium_set_up_theme() {
-  $theme = 'oa_radix';
+  $theme = 'oa_theme';
   theme_enable(array($theme));
   variable_set('theme_default', $theme);
-  theme_disable(array('responsive_bartik', 'bartik'));
+  theme_disable(array('responsive_bartik', 'bartik', 'oa_radix'));
 }
 
 /**

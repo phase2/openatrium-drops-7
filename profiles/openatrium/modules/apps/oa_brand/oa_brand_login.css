@@ -137,15 +137,23 @@ body.oa-login #user-login-panel .oa-pane {
 }
 
 @media only screen and (min-width: 981px) {
+  body.oa-login .pane-page-content {
+    max-width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+  }
   body.oa-login #footer {
     overflow: inherit;
     margin-top: 150px;
   }
-  body.oa-login #mini-panel-oa_footer_panel .row:nth-child(1) {
+  body.front .oa-layout-footer #mini-panel-oa_footer_panel .row:nth-child(1) {
+    top: -268px;
+  }
+  body.oa-login #mini-panel-oa_footer_panel > .container-fluid > .row:nth-child(1) {
     background: url(images/evolution.png) no-repeat right bottom -15px;
     height: 250px;
     width: 100%;
     position: absolute;
-    top: -268px;
+    top: -250px;
   }
 }

@@ -1,0 +1,96 @@
+// Styles for comment.
+// --------------------------------------------------
+
+.oa-reply-icon {
+  display: inline;
+}
+
+.oa-reply-text {
+  display: none;
+}
+
+#comments {
+  margin-top: 0;
+}
+
+.oa-list.oa-comment {
+  .accordion-toggle {
+    border-bottom: 1px solid #DDD;
+    padding-bottom: 15px;
+  }
+  .oa-list-header {
+  }
+  .links {
+    float: left;
+    color: #a4a8ab;
+    text-transform: uppercase;
+    font-size: 11px;
+    margin-left: -5px;
+  }
+  .comment-label .oa-pullout-left {
+    position: static;
+    border: none;
+    display: inline-block;
+    padding: 3px 3px;
+    background: #D6F5D6;
+    margin-left: 5px;
+    color: #a4a8ab;
+    font-size: 10px;
+    font-weight: normal;
+    height: auto;
+    min-width: 0;
+    border-bottom-left-radius: 20%;
+    border-bottom-right-radius: 20%;
+    border-top-left-radius: 20%;
+    border-top-right-radius: 20%;
+    line-height: 1em;
+  }
+}
+
+.comment-label > a {
+  display: inline-block;
+  padding: 3px 3px;
+  background: #D6F5D6;
+  margin-left: 5px;
+  color: #a4a8ab;
+  font-size: 10px;
+  font-weight: normal;
+  height: auto;
+  min-width: 0;
+  border-bottom-left-radius: 20%;
+  border-bottom-right-radius: 20%;
+  border-top-left-radius: 20%;
+  border-top-right-radius: 20%;
+  line-height: 1em;
+}
+
+.pane-node-comments .oa-list .oa-comment-hide,
+.pane-content #comments .oa-list .oa-comment-hide {
+  height: 64px;
+}
+
+td.views-field-comment-count {
+  position: relative;
+  text-align: center;
+  span {
+    z-index: 2;
+    position: relative;
+    display: inline-block;
+    color: white;
+    width: 2em;
+    text-align: center;
+    margin: 0 3px;
+    font-size: 12px;
+  }
+  &:after {
+    content: "\f075";
+    font-family: FontAwesome;
+    position: absolute;
+    z-index: 1;
+    left: 50%;
+    font-size: 25px;
+    top: 1px;
+    margin: 0 3px 0 -12px;
+    color: rgba(64, 64, 64, 0.7);
+  }
+}

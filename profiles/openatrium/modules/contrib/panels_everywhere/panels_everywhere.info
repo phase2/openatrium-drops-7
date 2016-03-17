@@ -1,0 +1,16 @@
+name = Panels everywhere
+description = Allow your site to use Panels instead of Blocks to lay out your pages.
+package = "Panels"
+core = 7.x
+
+; Requires recent releases of both CTools and Panels.
+dependencies[] = panels (>=3.4)
+dependencies[] = ctools (>=1.4)
+dependencies[] = page_manager
+
+; Information added by Drupal.org packaging script on 2015-01-17
+version = "7.x-1.0-rc2"
+core = "7.x"
+project = "panels_everywhere"
+datestamp = "1421524381"
+

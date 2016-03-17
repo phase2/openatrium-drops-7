@@ -158,9 +158,13 @@ projects[oa_notifications][subdir] = apps
 projects[oa_notifications][download][type] = git
 projects[oa_notifications][download][branch] = 7.x-2.x
 
+projects[oa_project][version] = 2.x-dev
+projects[oa_project][subdir] = apps
+projects[oa_project][download][type] = git
+projects[oa_project][download][branch] = 7.x-2.x
+
 projects[oa_related][version] = 2.x-dev
 projects[oa_related][subdir] = apps
-projects[oa_related][type] = module
 projects[oa_related][download][type] = git
 projects[oa_related][download][branch] = 7.x-2.x
 
@@ -248,6 +252,11 @@ projects[bootstrap_tour][version] = 2.x-dev
 projects[bootstrap_tour][subdir] = contrib
 projects[bootstrap_tour][download][type] = git
 projects[bootstrap_tour][download][branch] = 7.x-2.x
+
+projects[colorizer][version] = 1.x-dev
+projects[colorizer][subdir] = contrib
+projects[colorizer][download][type] = git
+projects[colorizer][download][branch] = 7.x-1.x
 
 projects[command_buttons][version] = 1.x-dev
 projects[command_buttons][subdir] = contrib

@@ -17,9 +17,9 @@ features[features_api][] = api:2
 features[field_base][] = field_bootstrap_tour_spaces
 features[field_instance][] = bootstrap_tour-bootstrap_tour-field_bootstrap_tour_spaces
 
-; Information added by Drupal.org packaging script on 2015-10-20
-version = "7.x-2.4"
+; Information added by Drupal.org packaging script on 2016-03-03
+version = "7.x-2.5"
 core = "7.x"
 project = "oa_tour"
-datestamp = "1445355545"
+datestamp = "1457038452"
 

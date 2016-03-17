@@ -1,12 +1,18 @@
 <?php
 
-require_once('oa_export.batch.export.inc');
-require_once('oa_export.module.export.inc');
-require_once('oa_export.form.import.inc');
-require_once('formats/json.inc');
-require_once('oa_export.file.inc');
-require_once('oa_export.formats.inc');
-require_once('oa_export.fields.export.inc');
+require_once 'batch/oa_export.batch.export.inc';
+require_once 'batch/oa_export.batch.import.inc';
+require_once 'entity/oa_export.entity.export.inc';
+require_once 'entity/oa_export.entity.import.inc';
+require_once 'fields/oa_export.fields.export.inc';
+require_once 'fields/oa_export.fields.import.inc';
+require_once 'menus/oa_export.menus.export.inc';
+require_once 'menus/oa_export.menus.import.inc';
+require_once 'module/oa_export.module.export.inc';
+require_once 'form/oa_export.form.import.inc';
+require_once 'formats/json.inc';
+require_once 'formats/oa_export.file.inc';
+require_once 'formats/oa_export.formats.inc';
 
 define('OA_EXPORT_DEFAULT_MODULE_PATH', 'sites/all/modules');
 define('BLUEPRINT_SPACE', 'field_oa_clone_space');

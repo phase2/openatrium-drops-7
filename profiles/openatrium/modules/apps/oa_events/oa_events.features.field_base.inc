@@ -10,7 +10,7 @@
 function oa_events_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'field_oa_address'
+  // Exported field_base: 'field_oa_address'.
   $field_bases['field_oa_address'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -29,7 +29,7 @@ function oa_events_field_default_field_bases() {
     'type' => 'text_long',
   );
 
-  // Exported field_base: 'field_oa_date'
+  // Exported field_base: 'field_oa_date'.
   $field_bases['field_oa_date'] = array(
     'active' => 1,
     'cardinality' => -1,
@@ -59,7 +59,7 @@ function oa_events_field_default_field_bases() {
     'type' => 'datestamp',
   );
 
-  // Exported field_base: 'field_oa_geo_location'
+  // Exported field_base: 'field_oa_geo_location'.
   $field_bases['field_oa_geo_location'] = array(
     'active' => 1,
     'cardinality' => 1,

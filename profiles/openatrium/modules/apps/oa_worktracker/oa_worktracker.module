@@ -500,13 +500,6 @@ function oa_worktracker_strongarm_alter(&$data) {
 }
 
 /**
- * Form callback for the apps configuration form.
- */
-function oa_worktracker_apps_configure_form($form, &$form_state) {
-  return variable_group_form($form, $form_state, 'oa_worktracker');
-}
-
-/**
  * Allowed values callback for 'Priority', 'Status' and 'Type'.
  */
 function oa_worktracker_allowed_values_callback($field, $instance, $entity_type, $entity, &$cachable) {
@@ -664,22 +657,6 @@ function oa_worktracker_oa_related_allowed_default() {
 }
 
 /**
- * Implements hook_oa_settings_form().
- */
-function oa_worktracker_oa_settings_form(&$form_state) {
-  $forms = array();
-
-  $form = array();
-  $form = variable_group_form($form, $form_state, 'oa_worktracker');
-  $form['#after_build'][] = 'oa_worktracker_oa_settings_form_process';
-  $forms[] = array(
-    'caption' => t('Worktracker'),
-    'form' => $form,
-  );
-  return $forms;
-}
-
-/**
  * Callback for settings form #after_build
  * Ensure variable.form.inc is loaded when submitting config form
  */
@@ -728,7 +705,7 @@ function oa_worktracker_oa_core_add_panes() {
       'view_mode' => 'teaser',
       'widget_title' => 'Your Tasks',
     ),
-    'position' => 3,
+    'position' => 0,
   );
   return $info;
 }

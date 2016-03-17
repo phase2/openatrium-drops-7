@@ -12,7 +12,7 @@
 ?>
 <?php if (!empty($oa_toolbar_panel)): ?>
   <div class="responsive-panels-region responsive-panels-region-top">
-    <div id="oa-navbar" class="navbar <?php print !empty($oa_toolbar_class) ? $oa_toolbar_class : ''; ?> <?php print !empty($oa_toolbar_sticky) ? $oa_toolbar_sticky : ''; ?>">
+    <div id="oa-navbar" class="oa-navbar navbar <?php print !empty($oa_toolbar_class) ? $oa_toolbar_class : ''; ?> <?php print !empty($oa_toolbar_sticky) ? $oa_toolbar_sticky : ''; ?>">
       <div class="navbar-inner">
         <?php if (!empty($mobile_buttons)): ?>
           <?php print $mobile_buttons; ?>
@@ -20,6 +20,17 @@
         <?php print $oa_toolbar_panel; ?>
       </div>
     </div>
+    <?php if (!empty($oa_toolbar_sticky)): ?>
+      <?php /* Repeat fixed toolbar to handle top of page offset */ ?>
+      <div class="oa-navbar navbar oa-hidden <?php print !empty($oa_toolbar_class) ? $oa_toolbar_class : ''; ?>">
+        <div class="navbar-inner">
+          <?php if (!empty($mobile_buttons)): ?>
+            <?php print $mobile_buttons; ?>
+          <?php endif; ?>
+          <?php print $oa_toolbar_panel; ?>
+        </div>
+      </div>
+    <?php endif; ?>
     <?php if (!empty($oa_banner)): ?>
       <?php print $oa_banner; ?>
     <?php endif; ?>
@@ -99,9 +110,11 @@
         <div class="col-md-12 inner">
           <?php if (!empty($primarytabs)): ?><?php print $primarytabs; ?><?php endif; ?>
           <a id="main-content"></a>
-          <?php print render($title_prefix); ?>
-          <?php if ($title): ?><h1 class="title" id="page-title"><?php print $title; ?></h1><?php endif; ?>
-          <?php print render($title_suffix); ?>
+          <?php if (empty($GLOBALS['oa_hide_page_title'])): ?>
+            <?php print render($title_prefix); ?>
+            <?php if ($title): ?><h1 class="title" id="page-title"><?php print $title; ?></h1><?php endif; ?>
+            <?php print render($title_suffix); ?>
+          <?php endif; ?>
           <?php if (!empty($tabs['#primary']) || !empty($tabs['#secondary'])): ?><div class="tabs main-tabs"><?php print render($tabs); ?></div><?php endif; ?>
           <?php print render($page['help']); ?>
           <?php if ($action_links): ?><ul class="action-links"><?php print render($action_links); ?></ul><?php endif; ?>

@@ -26,6 +26,7 @@ function oa_toolbar_search_settings_form($form, &$form_state) {
  * Renders the widget.
  */
 function oa_toolbar_search_pane_render($subtype, $conf, $args, $context) {
+  drupal_add_css(drupal_get_path('module', 'oa_search') . '/oa_search.css');
   $block = new stdClass();
   $block->content = array(
     '#theme' => 'oa_toolbar_search',

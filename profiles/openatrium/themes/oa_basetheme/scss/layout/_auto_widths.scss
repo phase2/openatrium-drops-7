@@ -1,0 +1,21 @@
+.col-xs-auto{
+  width:auto;
+}
+@media (min-width: $mobileMin) {
+  .col-sm-auto{
+    width:auto;
+  }
+}
+@media (min-width: $tabletMin) {
+  .col-md-auto{
+    width:auto;
+  }
+}
+@media (min-width: $desktopMin) {
+  .col-lg-auto{
+    width:auto;
+  }
+}
+
+
+

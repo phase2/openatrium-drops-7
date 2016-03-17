@@ -68,7 +68,7 @@ angular.module('oaSitemapComponents', ['oaSitemapFilters',])
       },
       controller: function($scope, $element, $attrs) {
         $scope.sectionClass = function(section) {
-          return (section.visibility) ? 'oa-border-green' : 'oa-border-red';
+          return (section.visibility) ? 'oa-icon-green' : 'oa-icon-red';
         };
       },
       templateUrl: oaSitemapAngularTemplate('oa-section-box'),

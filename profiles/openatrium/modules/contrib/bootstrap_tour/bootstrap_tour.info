@@ -11,9 +11,9 @@ dependencies[] = inline_entity_form
 
 files[] = includes/bootstrap_tour.controller.inc
 
-; Information added by Drupal.org packaging script on 2015-07-08
-version = "7.x-2.4"
+; Information added by Drupal.org packaging script on 2016-03-03
+version = "7.x-2.5"
 core = "7.x"
 project = "bootstrap_tour"
-datestamp = "1436367564"
+datestamp = "1457039045"
 

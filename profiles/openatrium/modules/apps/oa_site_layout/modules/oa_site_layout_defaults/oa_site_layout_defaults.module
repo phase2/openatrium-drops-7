@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Open Atrium Site Layout Defaults feature.
+ */
+
+include_once 'oa_site_layout_defaults.features.inc';

@@ -27,30 +27,19 @@ function oa_layouts_strongarm_alter(&$data) {
     if (!in_array('oa_layouts_minipanel_footer', $data['variable_realm_list_og']->value)) {
       $data['variable_realm_list_og']->value[] = 'oa_layouts_minipanel_footer';
     }
+    if (!in_array('oa_layouts_layout_name', $data['variable_realm_list_og']->value)) {
+      $data['variable_realm_list_og']->value[] = 'oa_layouts_layout_name';
+    }
   }
 }
 
-/**
- * Form callback for the apps configuration form.
- */
-function oa_layouts_apps_configure_form($form, &$form_state) {
-  return variable_group_form($form, $form_state, 'oa_layouts');
-}
-
-/**
- * Implements hook_oa_settings_form().
- */
-function oa_layouts_oa_settings_form(&$form_state) {
-  $forms = array();
-
-  $form = array();
-  $form = variable_group_form($form, $form_state, 'oa_layouts');
-  $form['#after_build'][] = 'oa_layouts_oa_settings_form_process';
-  $forms[] = array(
-    'caption' => t('Page Layout'),
-    'form' => $form,
-  );
-  return $forms;
+function oa_layouts_form_variable_realm_edit_variables_form_alter(&$form, $form_state) {
+  if (module_exists('panels_everywhere')) {
+    $form['variables']['oa_layouts']['#access'] = FALSE;
+  }
+  else {
+    $form['variables']['oa_site_layout']['#access'] = FALSE;
+  }
 }
 
 /**

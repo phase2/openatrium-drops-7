@@ -13,23 +13,24 @@
  */
 ?>
 <div id="oa-user-badge">
-  <div class="dropdown oa-dropdown btn-group oa-pull-right">
+  <div class="dropdown oa-dropdown btn-group">
     <?php if (user_is_logged_in()): ?>
       <div
-        class="dropdown-toggle btn clearfix oa-pull-right user-badge <?php print $oa_toolbar_btn_class; ?>"
+        class="dropdown-toggle btn clearfix user-badge <?php print $oa_toolbar_btn_class; ?>"
         id="user-badge-dropdown" data-toggle="dropdown">
-        <?php print $realname; ?>
+        <span><?php print $realname; ?></span>
         <?php print $picture; ?>
       </div>
-      <div class="dropdown-menu" role="menu" aria-labelledby="section-dropdown">
+      <div class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="section-dropdown">
         <?php
         // Sort the links by 'weight' before rendering them.
         uasort($links['#links'], 'drupal_sort_weight');
         print render($links);
         ?>
+        <?php print $other_links; ?>
       </div>
     <?php else: ?>
-      <a href="<?php print $login; ?>" class="btn clearfix oa-pull-right user-badge <?php print $oa_toolbar_btn_class; ?>"><?php print t('Login'); ?></a>
+      <a href="<?php print $login; ?>" class="btn clearfix user-badge <?php print $oa_toolbar_btn_class; ?>"><?php print t('Login'); ?></a>
     <?php endif; ?>
   </div>
 </div>

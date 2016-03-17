@@ -5,9 +5,9 @@ core = 7.x
 
 stylesheets[all][] = contextual_tabs.css
 
-; Information added by Drupal.org packaging script on 2015-02-20
-version = "7.x-1.0-beta5"
+; Information added by Drupal.org packaging script on 2016-03-03
+version = "7.x-1.0-beta6"
 core = "7.x"
 project = "contextual_tabs"
-datestamp = "1424466183"
+datestamp = "1457039347"
 

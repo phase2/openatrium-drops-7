@@ -51,7 +51,11 @@ function oa_radix_js_alter(&$javascript) {
  * Implements hook_libraries_info_alter(&$libraries)().
  */
 function oa_radix_libraries_info_alter(&$libraries) {
-  radix_libraries_info_alter($libraries);
+  $radix_path = drupal_get_path('theme', 'radix');
+  if ($radix_path) {
+    require_once(DRUPAL_ROOT . '/' . $radix_path . '/includes/contrib.inc');
+    radix_libraries_info_alter($libraries);
+  }
 }
 
 /**

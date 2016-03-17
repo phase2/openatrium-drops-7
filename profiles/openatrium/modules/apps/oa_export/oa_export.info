@@ -3,9 +3,19 @@ description = Allows exporting/importing of a blueprint.
 core = 7.x
 package = Open Atrium
 
-; Information added by Drupal.org packaging script on 2015-11-19
-version = "7.x-2.0-beta4"
+apps[screenshots][] = app/screenshot.png
+apps[logo] = app/logo.png
+apps[author] = Phase2 Technology
+apps[author_url] = http://www.phase2technology.com/
+apps[server] = openatrium
+apps[package] = Core addons
+
+dependencies[] = oa_core
+dependencies[] = oa_clone
+
+; Information added by Drupal.org packaging script on 2016-03-17
+version = "7.x-2.1"
 core = "7.x"
 project = "oa_export"
-datestamp = "1447959553"
+datestamp = "1458239069"
 

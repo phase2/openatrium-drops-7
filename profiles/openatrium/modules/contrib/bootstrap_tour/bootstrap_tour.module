@@ -208,7 +208,7 @@ function bootstrap_tour_run_tour($id, $force = FALSE) {
 
   $tour = bootstrap_tour_load($id);
 
-  if (!bootstrap_tour_access($tour) && empty($tour->steps)) {
+  if (!bootstrap_tour_access($tour) || empty($tour->steps)) {
     bootstrap_tour_cleanup();
     return;
   }

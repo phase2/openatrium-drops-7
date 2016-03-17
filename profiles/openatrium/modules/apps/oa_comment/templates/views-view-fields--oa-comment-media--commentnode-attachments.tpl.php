@@ -28,34 +28,24 @@
  */
 
 ?>
-<div class="oa-media-list clearfix attachments">
-  <div class="row">
-    <div class="col-xs-12">
-      <div class="col-xs-6 pull-left">
-        <?php print $rendered; ?>
-      </div>
-      <div class="col-xs-6">
-        <div class="row">
-          <div class="pull-right user-badge">
-            <?php print $name; ?>
-            <?php print $picture; ?>
-          </div>
-        </div>
-        <div class="row">
-          <div class="pull-right filename">
-            <?php print $download_link . '&nbsp;&nbsp;' . $thread_link; ?>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <?php if (isset($subject)): ?>
-    <div class="oa-list-header">
-      <?php print $subject; ?>
-    </div>
-    <?php endif; ?>
+<div class="oa-media-list clearfix attachments <?php print $download_class; ?>">
+  <div class="pull-right filename">
+    <a href="<?php print $download_url; ?>" title="<?php print t('Download ') . $download_filename; ?>"><i class="fa fa-paperclip"></i></a>
   </div>
-  <?php if ($count > 1): ?>
-    <hr>
-  <?php endif; ?>
+  <div class="pull-left">
+    <?php print $rendered; ?>
+  </div>
+  <div class="oa-description">
+    <span class="file-info">
+      <?php print $download_type; ?>&nbsp;
+      <?php print $download_size; ?>
+    </span>
+    <span class="user-info">
+      <?php print t(' by '); ?>
+      <?php print (!empty(strip_tags($name))) ? $name : $name_4; ?>
+    </span>
+  </div>
+  <div class="comment-label">
+    <?php print $thread_link; ?>
+  </div>
 </div>

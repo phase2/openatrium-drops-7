@@ -1,0 +1,27 @@
+//
+// Base HTML elements
+// --------------------------------------------------
+
+// This used to be in panopoly_images but was removed and told to put into theme
+img {
+  max-width: 100%;
+  height: auto;
+  vertical-align: bottom;
+}
+
+// This used to be in compass_radix to override panopoly_images
+.field img.panopoly-image-full,
+.field img.panopoly-image-half,
+.field img.panopoly-image-quarter {
+  max-width: 100%;
+  width: auto;
+  height: auto;
+  float: none;
+  margin: 0;
+}
+
+.btn {
+  /* Bootstrap ends up with a calculated value of 1.42857
+     We need to round this to prevent cascaded rounding errors */
+  line-height: 1.5em;
+}

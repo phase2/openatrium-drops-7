@@ -1,0 +1,42 @@
+// @file
+// SASS partials import
+// -----------------------------------------------------------------------------
+
+// Bootstrap global partials.
+// -----------------------------------------------------------------------------
+// Core variables and mixins
+@import "bootstrap/variables";
+@import "bootstrap/mixins";
+
+// Bootswatch partial
+// -----------------------------------------------------------------------------
+@import "bootswatch/variables";
+
+// Compass mixins for backward compatibility.
+// -----------------------------------------------------------------------------
+@import "compass";
+
+// oa_theme global partials.
+// -----------------------------------------------------------------------------
+@import "base/variables";
+@import "radix/mixins";
+@import "base/mixins";
+@import "base/helpers";
+
+// Bootstrap Full
+// -----------------------------------------------------------------------------
+//@import "bootstrap_full/bootstrap_imports";
+
+// Bootswatch
+// -----------------------------------------------------------------------------
+@import "bootswatch/bootswatch";
+
+// Radix partials, uncomment if needed.
+// -----------------------------------------------------------------------------
+//@import "radix/radix_imports";
+
+// {{Name}} partials
+// -----------------------------------------------------------------------------
+@import "base/typography";
+@import "layout/**/*";
+@import "components/**/*";
