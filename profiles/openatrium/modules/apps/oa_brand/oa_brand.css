@@ -60,7 +60,3 @@ body.front .content .pane-oa-home-default {
     top: -250px;
   }
 }
-
-body.front .pane-page-content .radix-layouts-content > .panel-panel-inner {
-  background: transparent !important;
-}

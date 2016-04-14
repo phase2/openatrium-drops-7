@@ -135,7 +135,7 @@ function oa_basetheme_menu_link__dropdown($variables) {
   }
 
   // Fix for active class.
-  if (($element['#href'] == current_path() || ($element['#href'] == '<front>' && drupal_is_front_page())) && (empty($element['#localized_options']['language']) || $element['#localized_options']['language']->language == $language_url->language)) {
+  if ((url($element['#href']) == current_path() || ($element['#href'] == '<front>' && drupal_is_front_page())) && (empty($element['#localized_options']['language']) || $element['#localized_options']['language']->language == $language_url->language)) {
     $element['#attributes']['class'][] = 'active';
   }
 

@@ -21,9 +21,9 @@ stylesheets[print][]   = assets/css/print.css
 ; Javascript
 scripts[] = js/oa_theme.script.js
 
-; Information added by Drupal.org packaging script on 2016-03-17
-version = "7.x-2.1"
+; Information added by Drupal.org packaging script on 2016-04-14
+version = "7.x-2.2"
 core = "7.x"
 project = "oa_theme"
-datestamp = "1458239688"
+datestamp = "1460652085"
 

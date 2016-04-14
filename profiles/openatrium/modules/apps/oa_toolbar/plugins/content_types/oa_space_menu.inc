@@ -161,7 +161,7 @@ function oa_toolbar_oa_space_menu_content_type_render($subtype, $conf, $panel_ar
     $home_link = array(
       '#theme' => 'menu_link__oa_navigation',
       '#title' => '<i class="fa fa-home"></i>' . $title,
-      '#href' => url('node/' . $space_id),
+      '#href' => 'node/' . $space_id,
       '#localized_options' => array('html' => true),
       '#below' => array(),
       '#attributes' => array('class' => array($class)),

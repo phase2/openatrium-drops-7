@@ -1,5 +1,5 @@
 name = Open Atrium Markdown
-description = Provides a markdown filter for Open Atrium. Warning: switching between markdown and wysiwyg fiter formats may cause issues.
+description = Provides a markdown filter for Open Atrium. Warning: switching between markdown and wysiwyg filter formats may cause issues.
 core = 7.x
 package = Open Atrium
 dependencies[] = features
@@ -13,9 +13,9 @@ apps[package] = Core addons
 features[features_api][] = api:2
 features[filter][] = markdown
 
-; Information added by Drupal.org packaging script on 2015-10-20
-version = "7.x-2.1"
+; Information added by Drupal.org packaging script on 2016-04-14
+version = "7.x-2.2"
 core = "7.x"
 project = "oa_markdown"
-datestamp = "1445354351"
+datestamp = "1460652028"
 

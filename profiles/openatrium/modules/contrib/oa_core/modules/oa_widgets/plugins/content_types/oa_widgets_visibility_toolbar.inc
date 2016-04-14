@@ -22,6 +22,10 @@ function oa_widgets_visibility_toolbar_render($subtype, $conf, $args, $context =
   if (!isset($node->type)) {
     return;
   }
+  if (!variable_get('oa_show_visibility_toolbar', TRUE)) {
+    return;
+  }
+
   $block = new stdClass();
   $block->title = '';
 

@@ -27,7 +27,6 @@ function oa_theme_preprocess_html(&$variables) {
   global $base_url;
   // Add the needed fonts from google
   $base = parse_url($base_url);
-  drupal_add_css(drupal_get_path('module', 'oa_brand') . '/oa_brand.css');
   drupal_add_css($base['scheme'] . '://fonts.googleapis.com/css?family=Open+Sans:400,700,300', array('type' => 'external'));
 
   // determine if page title is being displayed

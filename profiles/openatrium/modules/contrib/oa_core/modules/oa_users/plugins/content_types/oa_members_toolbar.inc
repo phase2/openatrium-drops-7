@@ -43,7 +43,7 @@ function oa_users_oa_members_toolbar_render($subtype, $conf, $args, $context = N
       foreach ($users as $index => $member) {
         $link = array(
           'title' => $member->name,
-          'href' => url('user/' . $member->uid),
+          'href' => 'user/' . $member->uid,
         );
         $roles = og_get_user_roles('node', $space->nid, $member->uid);
         if (in_array(OG_ADMINISTRATOR_ROLE, $roles) || $member->uid == $space->uid) {
@@ -58,14 +58,14 @@ function oa_users_oa_members_toolbar_render($subtype, $conf, $args, $context = N
       if (drupal_valid_path($member_url)) {
         $links[] = array(
           'title' => t('Member list'),
-          'href' => $vars['member_url'],
+          'href' => $member_url,
         );
       }
       $url = 'group/node/' . $space_id . '/admin/people';
       if (drupal_valid_path($url)) {
         $links[] = array(
           'title' => t('Bulk manage'),
-          'href' => url($url),
+          'href' => $url,
         );
       }
 

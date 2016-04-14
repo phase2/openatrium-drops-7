@@ -95,7 +95,7 @@ function oa_contextual_tabs_oa_space_config_render($subtype, $conf, $args, $cont
           $router = menu_get_item(trim($new_path));
           $link = array(
             'title' => $router['title'],
-            'href' => url($new_path),
+            'href' => $new_path,
           );
           $admin_links[] = $link;
         }

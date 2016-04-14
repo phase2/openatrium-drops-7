@@ -47,9 +47,9 @@ features_exclude[variable][comment_oa_team] = comment_oa_team
 features_exclude[variable][comment_preview_oa_team] = comment_preview_oa_team
 features_exclude[variable][comment_subject_field_oa_team] = comment_subject_field_oa_team
 
-; Information added by Drupal.org packaging script on 2016-03-17
-version = "7.x-2.71"
+; Information added by Drupal.org packaging script on 2016-04-14
+version = "7.x-2.72"
 core = "7.x"
 project = "oa_core"
-datestamp = "1458239983"
+datestamp = "1460652089"
 

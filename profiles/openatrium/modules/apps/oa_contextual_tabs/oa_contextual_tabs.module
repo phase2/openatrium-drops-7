@@ -238,7 +238,7 @@ function oa_contextual_tabs_oa_settings_form(&$form_state) {
   $form = array();
   $form['oa_show_visibility'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Show visibility button'),
+    '#title' => t('Show visibility button in contextual tabs/tasks'),
     '#default_value' => variable_get('oa_show_visibility', TRUE),
   );
 

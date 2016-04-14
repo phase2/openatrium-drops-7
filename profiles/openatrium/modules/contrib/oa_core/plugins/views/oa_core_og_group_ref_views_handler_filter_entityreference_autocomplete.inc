@@ -37,10 +37,18 @@ class oa_core_og_group_ref_views_handler_filter_entityreference_autocomplete ext
     $id = 'NULL';
     $admin_form = !empty($form_state['form_id']) && $form_state['form_id'] == 'views_ui_config_item_form';
     $autocomplete_path = ($admin_form ? 'oacoreselect2widgetpanes' : 'oacoreselect2widget') .'/ajax/' . $field['field_name'] . '/' . $instance['entity_type'] . '/' . $instance['bundle'] . '/' . $id . '?field_mode=all';
-    $entity_labels = is_string($saved_value) ? _oa_core_select2widget_process_entity_labels($saved_value) : array();
+
+    if (variable_get('oa_core_group_reference_default_current', TRUE)) {
+      $entity_labels = is_string($saved_value) ? _oa_core_select2widget_process_entity_labels($saved_value) : array();
+      $default_value = $saved_value == OA_SPACE_CURRENT ? OA_SPACE_CURRENT : implode(', ', $entity_labels);
+    }
+    else {
+      $default_value = _oa_core_select2widget_all_label();
+    }
+
     $form['value'] = array(
       '#type' => 'textfield',
-      '#default_value' => $saved_value == OA_SPACE_CURRENT ? OA_SPACE_CURRENT : implode(', ', $entity_labels),
+      '#default_value' => $default_value,
       '#autocomplete_path' => $autocomplete_path,
       '#element_validate' => array('oa_core_select2widget_entity_validate_field'),
       '#settings' => $instance['widget']['settings'],
@@ -53,7 +61,7 @@ class oa_core_og_group_ref_views_handler_filter_entityreference_autocomplete ext
       '#entity_type' => 'node',
       '#field' => $field,
       '#field_parents' => array(),
-      '#convert_empty_to_current' => TRUE,
+      '#convert_empty_to_current' => variable_get('oa_core_group_reference_default_current', TRUE),
       '#oa_core_select2_set_value' => TRUE,
     ) + $form['value'];
     $form['value']['#settings']['select2widgetajax']['min_char'] = 0;

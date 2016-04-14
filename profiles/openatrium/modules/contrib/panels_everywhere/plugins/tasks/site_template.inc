@@ -82,6 +82,13 @@ function panels_everywhere_site_template_get_base_contexts($task, $subtask, $pla
     // this.
     if ($page) {
       $node = _panels_everywhere_find_context($page['contexts'], 'node');
+      // If the node object is a node form then blank out the context and
+      // replace it with a generic object. This is to work around a limitation
+      // in Panels and may introduce regressions.
+      if ($form_context = ctools_context_get_form(array($node))) {
+        $node = ctools_context_create_empty('node');
+      }
+
       $account = _panels_everywhere_find_context($page['contexts'], 'user');
 
       // We're already including the logged in user. We don't want that to
@@ -94,6 +101,12 @@ function panels_everywhere_site_template_get_base_contexts($task, $subtask, $pla
       // This context will only be loaded if the Taxonomy module is loaded.
       if ($load_taxonomy) {
         $term = _panels_everywhere_find_context($page['contexts'], 'entity:taxonomy_term');
+        // If the term object is a term form then blank out the context and
+        // replace it with a generic object. This is to work around a limitation
+        // in Panels and may introduce regressions.
+        if ($form_context = ctools_context_get_form(array($term))) {
+          $term = ctools_context_create_empty('entity:taxonomy_term');
+        }
       }
     }
     else {

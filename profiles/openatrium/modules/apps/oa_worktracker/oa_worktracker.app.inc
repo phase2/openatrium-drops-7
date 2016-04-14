@@ -20,7 +20,6 @@ function oa_worktracker_apps_app_info() {
   );
 
   return array(
-    'configure form' => 'oa_worktracker_apps_configure_form',
     'og permissions' => $permissions,
   );
 }

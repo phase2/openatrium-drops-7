@@ -587,7 +587,7 @@ function template_preprocess_oa_user_badge(&$vars) {
             $router = menu_get_item(trim($new_path));
             $link = array(
               'title' => $router['title'],
-              'href' => url($new_path),
+              'href' => $new_path,
             );
             $links[] = $link;
           }

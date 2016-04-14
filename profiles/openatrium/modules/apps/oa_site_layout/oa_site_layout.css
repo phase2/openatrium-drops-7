@@ -114,10 +114,12 @@
 
 .oa-flex-column > .row {
   flex: none;
+  -webkit-flex: none;
 }
 
 .oa-flex-column > .oa-flex-grow {
   flex: 1 0 auto;
+  -webkit-flex: 1 0 auto;
 }
 
 .pane-pane-oa-title {
