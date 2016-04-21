@@ -174,6 +174,9 @@ function oa_core_oa_section_ref_process($element, &$form_state, &$complete_form)
       $group_ref = !is_array($element['#og_group_ref']) ? array($element['#og_group_ref']) : $element['#og_group_ref'];
       $group_ref_key = implode('--', $group_ref);
       $value = drupal_array_get_nested_value($form_state['input'], $group_ref);
+      if (is_null($value)) {
+        $value = drupal_array_get_nested_value($form_state['values'], $group_ref);
+      }
     }
     else {
       $value = -1;
@@ -272,7 +275,7 @@ function oa_core_oa_section_ref_replace($form, $form_state) {
     return $return;
   }
   // Replace the section element.
-  $section_element = _oa_core_oa_section_ref_process_find_element($form, $form_state['oa_section_ref_replace'][$field_name_triggering]['parents']);
+  $section_element = &_oa_core_oa_section_ref_process_find_element($form, $form_state['oa_section_ref_replace'][$field_name_triggering]['parents']);
   $return['#commands'][] = ajax_command_replace('#' . $section_element['#ajax_id'] . '-replace', render($section_element));
   return $return;
 }
@@ -282,13 +285,16 @@ function oa_core_oa_section_ref_replace($form, $form_state) {
  */
 function &_oa_core_oa_section_ref_process_find_element(&$form, $parents) {
   foreach (element_children($form) as $key) {
-    if (isset($form[$key]['#parents']) && $form[$key]['#parents'] == $parents) {
-      return $form[$key];
+    if (isset($form[$key]['#parents']) && $form[$key]['#parents'] === $parents) {
+      $element = &$form[$key];
+      return $element;
     }
     if ($element = &_oa_core_oa_section_ref_process_find_element($form[$key], $parents)) {
       return $element;
     }
   }
+  $element = NULL;
+  return $element;
 }
 
 /**

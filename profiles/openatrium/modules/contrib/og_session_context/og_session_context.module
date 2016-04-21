@@ -91,7 +91,9 @@ function og_session_context_og_context_handler_sessions() {
   og_session_context_set_context($group);  // update the session variable
 
   $gids = FALSE;
-  if ($group && ($node = node_load($group)) && node_access('view', $node)) {
+  // don't call node_load or check node access because this can be called
+  // early during batch processing
+  if ($group) {
     $gids['node'][0] = $group;
   }
 

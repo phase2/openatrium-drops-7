@@ -66,6 +66,22 @@ function oa_search_rebuild_index() {
 }
 
 /**
+ * Queue the indexes to be re-indexed.
+ */
+function oa_search_queue_reindex() {
+  if (module_exists('search_api')) {
+    $server = search_api_server_load('database_server');
+    if ($server) {
+      foreach (array('database_node_index', 'user_index') as $database_index) {
+        if ($index = search_api_index_load($database_index)) {
+          $index->reindex();
+        }
+      }
+    }
+  }
+}
+
+/**
  * Re-build the panopoly search index.
  */
 function oa_search_update_7002() {
@@ -84,4 +100,11 @@ function oa_search_update_7003() {
  */
 function oa_search_update_7201() {
   oa_search_rebuild_index();
+}
+
+/**
+ * Re-build the panopoly search index.
+ */
+function oa_search_update_7202() {
+  oa_search_queue_reindex();
 }

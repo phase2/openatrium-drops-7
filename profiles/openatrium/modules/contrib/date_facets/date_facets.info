@@ -9,9 +9,9 @@ files[] = lib/Drupal/Search/Facetapi/QueryType/DateRangeQueryType.php
 files[] = lib/Drupal/SearchApi/Facetapi/QueryType/DateRangeQueryType.php
 
 
-; Information added by drush on 2016-04-14
+; Information added by drush on 2016-04-21
 version = "7.x-1.0-beta2+15-dev"
 core = "7.x"
 project = "date_facets"
-datestamp = "1460660262"
+datestamp = "1461239640"
 

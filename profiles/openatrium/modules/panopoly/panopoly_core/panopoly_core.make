@@ -119,7 +119,7 @@ projects[apps][version] = 1.0
 projects[apps][subdir] = contrib
 projects[apps][patch][2367191] = https://www.drupal.org/files/issues/apps_page_load_is_slow-2367191-5.patch
 
-projects[features][version] = 2.9
+projects[features][version] = 2.10
 projects[features][subdir] = contrib
 
 projects[strongarm][version] = 2.0

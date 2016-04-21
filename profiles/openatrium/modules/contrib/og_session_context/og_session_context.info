@@ -7,9 +7,9 @@ php = 5.1
 dependencies[] = og
 dependencies[] = og_context
 
-; Information added by Drupal.org packaging script on 2015-10-06
-version = "7.x-1.0-beta4"
+; Information added by Drupal.org packaging script on 2016-04-19
+version = "7.x-1.0"
 core = "7.x"
 project = "og_session_context"
-datestamp = "1444161840"
+datestamp = "1461076742"
 
