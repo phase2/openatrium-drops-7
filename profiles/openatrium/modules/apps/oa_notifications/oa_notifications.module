@@ -91,16 +91,17 @@ function oa_notifications_theme() {
  *   An array of users keyed by uid.
  */
 function oa_notifications_get_notifications($node, $notifications = NULL) {
-  $bucket = &drupal_static(__FUNCTION__);
+  $cache = &drupal_static(__FUNCTION__);
 
   // See if notifications should be skipped.
   if (oa_notification_skip()) {
     return array();
   }
+  $nid = isset($node) ? $node->nid : 0;
 
-  if (!isset($bucket)) {
+  if (!isset($cache[$nid])) {
     $bucket = array();
-    $gid = oa_core_get_space_context();
+    $gid = isset($node) ? oa_core_get_group_from_node($node) : oa_core_get_space_context();
     if (!isset($notifications)) {
       $notifications = oa_notifications_load_multiple($node);
     }
@@ -151,9 +152,10 @@ function oa_notifications_get_notifications($node, $notifications = NULL) {
       // Allow modules to alter users.
       drupal_alter('notifications_users', $bucket, $node);
     }
+    $cache[$nid] = $bucket;
   }
 
-  return $bucket;
+  return $cache[$nid];
 }
 
 /**

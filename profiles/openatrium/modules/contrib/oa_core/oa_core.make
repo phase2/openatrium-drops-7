@@ -106,14 +106,16 @@ projects[mimemail][patch][1568680] = https://www.drupal.org/files/issues/mimemai
 projects[mimemail][patch][2552613] = https://www.drupal.org/files/issues/mimemail_broken_images_urls-2552613-9.patch
 
 ; Organic Groups
-projects[og][version] = 2.7
+projects[og][version] = 2.9
 projects[og][subdir] = contrib
 ; Related to Entity Reference revisions patch (1837650)
 projects[og][patch][2363599] = http://drupal.org/files/issues/og-2363599-1-infinite-loop-entityreference-revisions-load.patch
 ; For select2widget configuration
 projects[og][patch][2403619] = https://www.drupal.org/files/issues/2403619-og_widget_settings-1.patch
 ; Fix group manager regranted default
-projects[og][patch][2411041] = https://www.drupal.org/files/issues/2411041-og-og_is_member-4-2.7-do-not-test.patch
+projects[og][patch][2411041] = https://www.drupal.org/files/issues/2411041-og-og_is_member-5-12.patch
+; Prevent infinite loops in og_context
+projects[og][patch][2717489] = https://www.drupal.org/files/issues/og_context_infinite_loop-2717489-10.patch
 
 ; Og menu single
 projects[og_menu_single][version] = 1.0-beta2

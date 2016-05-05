@@ -16,9 +16,9 @@ features[features_overrides][] = filter.panopoly_wysiwyg_text.filters|wysiwyg|se
 features[features_overrides][] = wysiwyg.panopoly_wysiwyg_text.settings|buttons|advlist
 features[features_overrides][] = wysiwyg.panopoly_wysiwyg_text.settings|buttons|table
 
-; Information added by Drupal.org packaging script on 2016-04-21
-version = "7.x-2.73"
+; Information added by Drupal.org packaging script on 2016-05-04
+version = "7.x-2.75"
 core = "7.x"
 project = "oa_core"
-datestamp = "1461235726"
+datestamp = "1462381380"
 

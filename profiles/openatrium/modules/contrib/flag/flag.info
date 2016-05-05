@@ -16,9 +16,9 @@ files[] = includes/flag_plugin_argument_validate_flaggability.inc
 files[] = tests/flag.test
 
 
-; Information added by drush on 2016-04-21
+; Information added by drush on 2016-05-05
 version = "7.x-2.2-dev"
 core = "7.x"
 project = "flag"
-datestamp = "1461239635"
+datestamp = "1462463259"
 
