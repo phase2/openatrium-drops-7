@@ -10,9 +10,9 @@ features[features_api][] = api:2
 features[variable][] = variable_realm_list_og
 project path = sites/all/modules/contrib/oa_core/modules
 
-; Information added by Drupal.org packaging script on 2016-05-04
-version = "7.x-2.75"
+; Information added by Drupal.org packaging script on 2016-06-16
+version = "7.x-2.76"
 core = "7.x"
 project = "oa_core"
-datestamp = "1462381380"
+datestamp = "1466088084"
 

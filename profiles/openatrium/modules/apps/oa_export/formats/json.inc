@@ -50,6 +50,12 @@ function drupal_json_pretty_print($var) {
 
 /**
  * Export callback.
+ *
+ * @param array $export
+ *   An array of multiple entities and their dependencies.
+ *
+ * @return string
+ *   A json object.
  */
 function oa_export_json_export($export) {
   return drupal_json_pretty_print(oa_export_json_encode_objects($export));
@@ -80,6 +86,12 @@ function oa_export_json_import($code_string) {
 
 /**
  * Recursively convert arrays back to objects.
+ *
+ * @param array $array
+ *   An array that contains arrays which may contain a special key we set in the export.
+ *
+ * @return array
+ *   An array with all objects, that were converted to arrays in the export, converted back to objects.
  */
 function oa_export_json_decode_objects($array) {
   if (is_array($array)) {

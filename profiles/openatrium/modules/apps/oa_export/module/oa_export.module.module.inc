@@ -19,7 +19,7 @@
 function oa_export_create_new_module_file($form, $form_state) {
   $filename = $form['#module_file'];
   // If the module doesn't exist we just add a comment to the .module file.
-  $output = "<?php\n/**\n* @file\n* Drupal needs this blank file.\n*/\n";
+  $output = "<?php\n/**\n * @file\n * Drupal needs this blank file.\n */\n";
 
   // Write to the file.
   if (file_put_contents($filename, $output, FILE_APPEND) === FALSE) {

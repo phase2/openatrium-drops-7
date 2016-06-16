@@ -118,8 +118,19 @@ function oa_wiki_form_alter(&$form, &$form_state, $form_id) {
  * Normal destination redirect logic applies still.
  */
 function oa_wiki_redirect_to_view_submit($form, &$form_state) {
-  if (!empty($form_state['nid']) && !empty($form_state['redirect']) && 'node/' .  $form_state['nid'] == $form_state['redirect']) {
-    $form_state['redirect'] .= '/view';
+  global $user;
+
+  if (!empty($form_state['nid']) && !empty($form_state['redirect'])) {
+    if ('node/' . $form_state['nid'] == $form_state['redirect']) {
+      $form_state['redirect'] .= '/view';
+    }
+
+    // don't create a session for anonymous users unless session already started
+    // needed to allow Varnish to cache anonymous pages
+    if (($user->uid != 0) || drupal_session_started()) {
+      // Track the original redirect just in case we loose it on multiple calls to oa_wiki_init().
+      $_SESSION['oa_wiki']['redirects'][$form_state['nid']] = $form_state['redirect'];
+    }
   }
 }
 
@@ -128,9 +139,14 @@ function oa_wiki_redirect_to_view_submit($form, &$form_state) {
  */
 function oa_wiki_init() {
   if (module_exists('oa_files') && arg(0) == 'node' && is_numeric(arg(1)) && !arg(2) && ($node = menu_get_object()) && $node->type == 'oa_wiki_page') {
-    if (($path = oa_wiki_node_uri($node)) && $path['path'] != $_GET['q']) {
-      node_tag_new($node);
-      drupal_goto($path['path']);
+    if (!empty($_SESSION['oa_wiki']['redirects'][arg(1)])) {
+      unset($_SESSION['oa_wiki']['redirects'][arg(1)]);
+    }
+    elseif ($node->status == 1) {
+      if (($path = oa_wiki_node_uri($node)) && $path['path'] != $_GET['q']) {
+        node_tag_new($node);
+        drupal_goto($path['path']);
+      }
     }
   }
 }

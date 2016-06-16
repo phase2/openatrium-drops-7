@@ -72,18 +72,17 @@ function oa_worktracker_oa_messages_type_alter(&$message_type, $context) {
  * Implements hook_comment_insert().
  */
 function oa_worktracker_comment_insert($comment) {
-  $langcode = $comment->language;
-
-  if ($comment->node_type == 'comment_node_oa_worktracker_task') {
+  $node = node_load($comment->nid);
+  if (isset($node) && $node->type == 'oa_worktracker_task') {
     // If we changed the 'Assigned to' field we need to add a notification for
     // that user. It has to be done here, because hook_node_presave() actually
     // comes AFTER hook_comment_insert().
+    $langcode = $comment->language;
     $assigned_to = !empty($comment->field_oa_worktracker_assigned_to[$langcode][0]['target_id']) ?
       $comment->field_oa_worktracker_assigned_to[$langcode][0]['target_id'] : NULL;
     if ($assigned_to) {
-      $node = node_load($comment->nid);
       if (module_exists('oa_notifications')) {
-        oa_notifications_add($node->nid, 'user', $assigned_to);
+        oa_notifications_add($comment->nid, 'user', $assigned_to);
       }
     }
 

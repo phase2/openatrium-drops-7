@@ -1172,6 +1172,7 @@ function oa_core_get_group_from_node($node, $allowed_types = array(OA_SPACE_TYPE
     ->fields('f', array('gid'))
     ->condition('f.etid', $nid)
     ->condition('f.group_type', 'node')
+    ->condition('f.entity_type', 'node')
     ->condition('f.field_name', OA_SPACE_FIELD)
     ->condition('n.type', $allowed_types, 'IN')
     ->execute()

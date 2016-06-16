@@ -191,6 +191,8 @@ function contextual_tabs_render($conf = array()) {
  */
 function contextual_tabs_preprocess_page(&$variables) {
   $tabs = contextual_tabs_render();
-  unset($variables['tabs']['#primary']);
+  if (!empty($tabs)) {
+    unset($variables['tabs']['#primary']);
+  }
   $variables['primarytabs'] = $tabs;
 }

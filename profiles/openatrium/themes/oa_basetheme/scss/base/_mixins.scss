@@ -15,7 +15,7 @@
     @media (min-width: $mobileMin) and (max-width: $mobileMax) { @content; }
   }
   @else if $point == xs {
-    @media (max-width: $mobileMin)  { @content; }
+    @media (max-width: $mobileMin - 1)  { @content; }
   }
 }
 

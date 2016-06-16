@@ -8,6 +8,7 @@ core = 7.x
 projects[ctools][version] = 1.9
 projects[ctools][subdir] = contrib
 projects[ctools][patch][2209775] = https://www.drupal.org/files/issues/ctools-readd_access_callback_params-2209775-24.patch
+projects[ctools][patch][2607626] = https://www.drupal.org/files/issues/ctools-close-modal-2607626-5.patch
 projects[ctools][patch][1910608] = https://www.drupal.org/files/issues/views_content-keyword-substitution-1910608-33.patch
 projects[ctools][patch][1901106] = https://www.drupal.org/files/issues/1901106-ctools-views_content-override-ajax-34.patch
 projects[ctools][patch][2023705] = http://drupal.org/files/2023705-ctools-autosubmit-2_0.patch
@@ -45,14 +46,13 @@ projects[fape][subdir] = contrib
 
 ; Views Magic
 
-projects[views][version] = 3.11
+projects[views][version] = 3.14
 projects[views][subdir] = contrib
 projects[views][patch][2037469] = http://drupal.org/files/views-exposed-sorts-2037469-1.patch
-projects[views][patch][1036962] = http://drupal.org/files/issues/views-ajax-nginx-1036962-71.patch
 projects[views][patch][1979926] = http://drupal.org/files/1979926-views-reset_fetch_data-2.patch
 projects[views][patch][1735096] = https://www.drupal.org/files/issues/1735096-views-multiple-instance-exposed-form-15.patch
 projects[views][patch][2411922] = https://www.drupal.org/files/issues/2411922-views-group_name-3.patch
-projects[views][patch][2473389] = https://www.drupal.org/files/issues/2473389-views-exta-args-3.patch
+projects[views][patch][2473389] = https://www.drupal.org/files/issues/2473389-views-exta-args-5.patch
 
 projects[views_autocomplete_filters][version] = 1.2
 projects[views_autocomplete_filters][subdir] = contrib

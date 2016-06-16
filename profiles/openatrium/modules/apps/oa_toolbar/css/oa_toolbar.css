@@ -113,7 +113,7 @@ width: 100%;
   display: flex;
   flex-wrap: nowrap;
 }
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .dropdown-menu > .oa-multicolumn {
     flex-wrap: wrap;
   }
@@ -191,7 +191,7 @@ width: 100%;
 }
 
 /** Space Nav toolbar Mobile **/
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .oa-space-nav .oa-space-list {
     padding-left: 0;
   }

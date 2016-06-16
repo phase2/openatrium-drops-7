@@ -146,7 +146,7 @@ function oa_mailhandler_get_node_from_subject($subject) {
     $node = node_load($nid);
 
     // verify token security for node
-    if (oa_mailhandler_generate_security_token($node) == $token) {
+    if (isset($node) && oa_mailhandler_generate_security_token($node) == $token) {
       return $node;
     }
   }

@@ -25,9 +25,9 @@ features[features_api][] = api:2
 features[panelizer_defaults][] = node:oa_section:oa_section_files
 features_exclude[variable][panelizer_node:oa_section_allowed_layouts] = panelizer_node:oa_section_allowed_layouts
 
-; Information added by Drupal.org packaging script on 2016-03-03
-version = "7.x-2.16"
+; Information added by Drupal.org packaging script on 2016-06-16
+version = "7.x-2.17"
 core = "7.x"
 project = "oa_files"
-datestamp = "1457037637"
+datestamp = "1466088035"
 

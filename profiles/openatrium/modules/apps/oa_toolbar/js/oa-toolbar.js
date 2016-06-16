@@ -81,7 +81,7 @@ document.documentElement.className = 'js';
     if (!$use_mouseover) {
       unbindMouse('.radix-dropdown-processed');
     }
-    else if ($(document).width() <= 768) {
+    else if ($(document).width() < 768) {
       unbindMouse('.radix-dropdown-processed');
     }
     else {

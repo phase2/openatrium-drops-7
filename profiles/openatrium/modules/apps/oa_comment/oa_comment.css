@@ -105,7 +105,7 @@ form.comment-form .text-format-wrapper .clearfix:after {
 }
 
 /*Hide the date on comments when on xs screen.*/
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .comment-created-date {
     display: none;
   }
@@ -162,7 +162,7 @@ table.comment-alter-diff {
   margin-left: 0;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .indented {
     margin-left: 0 !important;
   }

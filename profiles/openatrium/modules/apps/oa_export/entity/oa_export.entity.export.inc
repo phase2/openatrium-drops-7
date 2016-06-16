@@ -56,7 +56,7 @@ function oa_export_oa_export_entity_node($entity, &$results) {
   unset($entity->name);
   unset($entity->picture);
   unset($entity->data);
-  $results['export']['node:' . $entity->nid] = $entity;
+  $results['export']['node:' . $entity->nid] = _oa_export_remove_recursion($entity);
 }
 
 /**
@@ -69,7 +69,7 @@ function oa_export_oa_export_entity_node($entity, &$results) {
  *   the batch process.
  */
 function oa_export_oa_export_entity_paragraphs_item($entity, &$results) {
-  $results['export']['paragraphs_item:' . $entity->item_id] = $entity;
+  $results['export']['paragraphs_item:' . $entity->item_id] = _oa_export_remove_recursion($entity);
 }
 
 /**
@@ -84,7 +84,8 @@ function oa_export_oa_export_entity_paragraphs_item($entity, &$results) {
 function oa_export_oa_export_entity_taxonomy_term($entity, &$results) {
   // Make a copy of the taxonomy entity here so we can unset the field to
   // prevent recursive space blueprint export.
-  $results['export']['taxonomy_term:' . $entity->tid] = clone $entity;
+  // _oa_export_remove_recursion does a copy
+  $results['export']['taxonomy_term:' . $entity->tid] = _oa_export_remove_recursion($entity);
 
   // Remove the space reference for now so it doesn't get exported yet.
   // We don't want recursive blueprints exported.
@@ -101,7 +102,7 @@ function oa_export_oa_export_entity_taxonomy_term($entity, &$results) {
  *   the batch process.
  */
 function oa_export_oa_export_entity_comment($entity, &$results) {
-  $results['export']['comment:' . $entity->cid] = $entity;
+  $results['export']['comment:' . $entity->cid] = _oa_export_remove_recursion($entity);
 }
 
 /**
@@ -118,6 +119,7 @@ function oa_export_oa_export_entity_comment($entity, &$results) {
  */
 function oa_export_oa_export_entity_file($entity, &$results) {
   // Add the file to the export.
-  $results['export']['file:' . $entity->fid] = $entity;
-  oa_export_file($entity);
+  $file = _oa_export_remove_recursion($entity);
+  $results['export']['file:' . $entity->fid] = $file;
+  oa_export_file($file);
 }

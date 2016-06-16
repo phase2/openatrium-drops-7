@@ -217,8 +217,13 @@ function oa_export_oa_import_field_image($entity_type, $entity, $field_name, $ke
           $entity->{$field_name}[$language][$delta]['fid'] = $new_id;
           // Mark file as being used by entity.
           list($entity_id) = entity_extract_ids($entity_type, $entity);
-          $file = file_load($new_id);
-          file_usage_add($file, 'oa_export', $entity_type, $entity_id);
+          if ($file = file_load($new_id)) {
+            file_usage_add($file, 'oa_export', $entity_type, $entity_id);
+          }
+          else {
+            watchdog('oa_export', 'The file with id:%id on the field:%field could not be loaded. Please contact your site administrator', array('%id' => $new_id, '%field' => $field_name));
+            drupal_set_message(t('he file with id:%id on the field:%field could not be loaded. More information is available in the system log.', array('%id' => $new_id, '%field' => $field_name)), 'error');
+          }
         }
       }
     }

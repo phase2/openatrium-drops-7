@@ -94,8 +94,11 @@ function oa_export_batch_export_operations(&$batch, $blueprint) {
   $batch['operations'][] = array('_oa_export_batch_export_blueprint', array($blueprint, $space));
 
   // Entities that are sub groups of the space.
-  // @todo: CHECK ARGS AND MAYBE ADD SUBSPACES? TRY CREATING TWO DIRECTORIES: PREVIOUS/LAST TO STORE IDS OF THE EXPORT/IMPORT TO KEEP FROM HAVING DUPLICATE CONTENT CREATED
-  $groups = oa_core_get_groups_by_parent($space->nid, NULL);
+  //
+  // @todo: Possibly create two directories: previous/last to store ids of the
+  // export/import which might allow us to re-create exports without duplicate
+  // content.
+  $groups = oa_core_get_groups_by_parent($space->nid, NULL, NULL, FALSE, NULL, TRUE);
 
   // Iterate over the sub groups.
   foreach ($groups as $id) {

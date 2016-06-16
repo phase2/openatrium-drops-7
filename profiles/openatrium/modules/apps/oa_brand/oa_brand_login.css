@@ -107,7 +107,7 @@ body.oa-login #user-login-panel .oa-pane {
   background: url('images/atrium_color.png') no-repeat top center;
 }
 
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 767px) {
   body.oa-login div.region-content,
   body.oa-login #user-login-panel .oa-pane,
   body.oa-login div.content {

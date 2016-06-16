@@ -34,7 +34,7 @@ body.oa-sandbox #main-wrapper {
   text-decoration: none;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   #oa-sandbox-indicator {
     width: 15px;
   }

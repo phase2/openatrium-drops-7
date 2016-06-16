@@ -344,7 +344,7 @@
 }
 
 /* Mobile settings */
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 767px) {
   .oa-files-wide .oa-files-leaf .tree-label span {
     width: 100%;
     margin-right: -95px;

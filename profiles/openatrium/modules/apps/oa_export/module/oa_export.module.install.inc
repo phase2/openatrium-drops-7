@@ -141,9 +141,9 @@ function oa_export_find_latest_update_hook_schema($module_name, $filename) {
  */
 function oa_export_write_hook_install($filename, $module_name, $version, $reset = FALSE) {
   $output = '';
-  $output .= "<?php\n/**\n* @file\n* Install, update and uninstall functions.\n*/\n";
+  $output .= "<?php\n/**\n * @file\n * Install, update and uninstall functions.\n */\n";
   $output .= "\n";
-  $output .= "/**\n* Implements hook_install().\n*/\n";
+  $output .= "/**\n * Implements hook_install().\n */\n";
   $output .= "function {$module_name}_install() {\n";
   $output .= "  // Call our update hook.\n";
   $output .= "  {$module_name}_update_{$version}();\n";
@@ -179,7 +179,7 @@ function oa_export_write_hook_install($filename, $module_name, $version, $reset 
  */
 function oa_export_write_update_hook($filename, $module_name, $version) {
   $output = "";
-  $output .= "\n/**\n* Implements hook_update_N().\n* Imports a blueprint.\n*/\n";
+  $output .= "\n/**\n * Implements hook_update_N().\n *\n * Imports a blueprint.\n */\n";
   $output .= "function {$module_name}_update_{$version}() {\n";
   $output .= "  // Check for the export file.\n";
   $output .= "  \$module = '" . $module_name . "';\n";

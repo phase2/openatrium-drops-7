@@ -7,7 +7,7 @@ body {
 }
 
 /* Hide widgets marked as moving to mobile menus on mobile breakpoint */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .navbar .oa-navbar div[class*="-mobile-menu"] {
     display: none;
   }
@@ -61,7 +61,7 @@ $positions: (top, right, left, bottom);
     }
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 767px) {
     .btn.oa-responsive-mobile.oa-responsive-regions-toggle-#{$position} {
       display: inline-block;
     }
@@ -209,7 +209,7 @@ ul.dropdown-menu.oa-mobile-expanded {
   width: 100%;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .oa-responsive-regions-mobile {
     &.sm {
       display: inline-block;

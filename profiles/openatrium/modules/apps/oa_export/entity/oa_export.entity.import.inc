@@ -6,11 +6,10 @@
  * Imports entities.
  */
 
-//require_once '../fields/oa_export.fields.import.inc';
-//require_once '../menus/oa_export.menus.import.inc';
-
 /**
  * Helper function to import entities.
+ *
+ * This is what handles importing anything associated with the entity.
  *
  * @param string $entity_type
  *   The type of entity, e.g., 'node', 'taxonomy_term', etc.
@@ -53,25 +52,12 @@ function oa_export_entity_import($entity_type, $entity, $key, $imports, &$map) {
         $map[$key] = $entity_id;
       }
     }
-    // If the entity is panelized then we need to prepare the panelizer for import.
-    if (isset($entity->panelizer)) {
-      foreach ($entity->panelizer as $view_mode => &$panelizer) {
-        // Only import custom displays.
-        if (!isset($panelizer->name) || empty($panelizer->name)) {
-          if (isset($panelizer->revision_id)) {
-            $panelizer->revision_id = NULL;
-          }
-          if (isset($panelizer->entity_id)) {
-            $panelizer->entity_id = NULL;
-          }
-          if (is_numeric($panelizer->did)) {
-            $panelizer->did = 'new';
-          }
-          $panelizer->display_is_modified = TRUE;
-        }
-      }
-    }
+
+    // PANELIZER: If the entity is panelized then we need to prepare the panelizer for import.
+    oa_export_entity_panelizer_import($entity, $key, $imports, $map);
+
     // If the entity if fieldable check for fields that may need to be imported.
+    // FIELDS: If the entity if fieldable check for fields that may need to be imported.
     if (entity_type_is_fieldable($entity_type)) {
       oa_export_entity_fields_import($entity_type, $entity, $key, $imports, $map);
     }
@@ -283,10 +269,11 @@ function oa_export_oa_import_entity_file(&$entity, $key, $imports, &$map) {
   $filename = drupal_basename($entity->uri);
 
   // Find the actual file we need to import.
-  $file_contents = file_get_contents(realpath($file_location . DIRECTORY_SEPARATOR . $filename));
+  $file_contents = file_get_contents(realpath(oa_export_file_full_path($file_location, $filename)));
 
   // Save the file by the same name to its new location. This calls file_save() for us.
-  if ($new_file = file_save_data($file_contents, $destination . $filename)) { // FILE_EXISTS_REPLACE
+  if (file_prepare_directory($destination, FILE_CREATE_DIRECTORY || FILE_MODIFY_PERMISSIONS)
+    && $new_file = file_save_data($file_contents, oa_export_file_full_path($destination, $filename))) {
     // Copy any fields from the import into the new file
     oa_export_copy_field_data($entity, $new_file);
     $entity = $new_file;
@@ -294,8 +281,53 @@ function oa_export_oa_import_entity_file(&$entity, $key, $imports, &$map) {
 
     // Add the imported file to our map.
     $map[$key] = $entity->fid;
+  }
+  else {
+    watchdog('oa_export', 'The file %file could not be saved because the destination %destination is invalid. This may be related to a permissions issue. Please contact your site administrator', array('%file' => $entity->uri, '%destination' => $destination));
+    drupal_set_message(t('The file %file could not be saved, because the destination is invalid. More information is available in the system log.', array('%file' => $entity->uri)), 'error');
+  }
+  // This will stop the file from trying to be saved a second time.
+  $entity->oa_imported = TRUE;
+}
 
-    // This will stop the file from being saved a second time.
-    $entity->oa_imported = TRUE;
+/**
+ * Looks for panelizers in an entity.
+ *
+ * @param object $entity
+ * @param string $key
+ * @param array $imports
+ * @param array $map
+ */
+function oa_export_entity_panelizer_import($entity, $key, $imports, &$map) {
+
+  // If the entity is panelized then we need to prepare the panelizer for import.
+  if (isset($entity->panelizer)) {
+    foreach ($entity->panelizer as $view_mode => &$panelizer) {
+      // Only import custom displays.
+      if (!isset($panelizer->name) || empty($panelizer->name)) {
+        if (isset($panelizer->revision_id)) {
+          $panelizer->revision_id = NULL;
+        }
+        if (isset($panelizer->entity_id)) {
+          $panelizer->entity_id = NULL;
+        }
+        if (is_numeric($panelizer->did)) {
+          $panelizer->did = 'new';
+        }
+        $panelizer->display_is_modified = TRUE;
+
+        // There's a possibility that a pane could be referencing a custom
+        // piece of content. An example of this would be referencing a node
+        // via its nid. This will allow a module to define a hook to handle
+        // ensuring the old nid is replaced with the new nid.
+        foreach ($panelizer->display->content as $pid => &$content) {
+          // Let other modules handle customizing the import further.
+          foreach (module_implements('oa_import_panelizer_' . $content->type) as $module) {
+            $function = $module . '_oa_import_panelizer_' . $content->type;
+            $function($content, $key, $imports, $map);
+          }
+        }
+      }
+    }
   }
 }

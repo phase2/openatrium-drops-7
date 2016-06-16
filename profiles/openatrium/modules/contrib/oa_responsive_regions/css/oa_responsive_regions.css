@@ -3,7 +3,7 @@ body {
 }
 
 /* Hide widgets marked as moving to mobile menus on mobile breakpoint */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .navbar .oa-navbar div[class*="-mobile-menu"] {
     display: none;
   }
@@ -47,7 +47,7 @@ body.oa-responsive-region-top-on .panel-display .oa-responsive-desktop.oa-respon
   position: fixed;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .btn.oa-responsive-mobile.oa-responsive-regions-toggle-top {
     display: inline-block;
   }
@@ -139,7 +139,7 @@ body.oa-responsive-region-right-on .panel-display .oa-responsive-desktop.oa-resp
   position: fixed;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .btn.oa-responsive-mobile.oa-responsive-regions-toggle-right {
     display: inline-block;
   }
@@ -234,7 +234,7 @@ body.oa-responsive-region-left-on .panel-display .oa-responsive-desktop.oa-respo
   position: fixed;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .btn.oa-responsive-mobile.oa-responsive-regions-toggle-left {
     display: inline-block;
   }
@@ -331,7 +331,7 @@ body.oa-responsive-region-bottom-on .panel-display .oa-responsive-desktop.oa-res
   position: fixed;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .btn.oa-responsive-mobile.oa-responsive-regions-toggle-bottom {
     display: inline-block;
   }
@@ -461,7 +461,7 @@ ul.dropdown-menu.oa-mobile-expanded {
   width: 100%;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .oa-responsive-regions-mobile.sm {
     display: inline-block;
   }
