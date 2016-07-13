@@ -570,10 +570,10 @@ function oa_core_visibility_data($node) {
   }
   if ($node->type == OA_SPACE_TYPE || $node->type == OA_GROUP_TYPE) {
     $visibility = field_get_items('node', $node, 'group_access');
-    $data['space_public'] = empty($visibility[0]['value']);
 
     $private = oa_core_get_group_privacy($node);
     $data['public'] = !$private;
+    $data['space_public_in_private'] = $private && empty($visibility[0]['value']);
     if (!$data['public'] && ($ids = og_subgroups_parents_load('node', $node->nid)) && !empty($ids['node'])) {
       if ($groups = array_filter(oa_core_get_titles($ids['node'], 'oa_group', 'title', array('link'), TRUE, 0))) {
         $data['accessors']['group'] = array(
@@ -611,8 +611,9 @@ function oa_core_visibility_data($node) {
       $data['public'] = TRUE;
     }
     else {
+      $space_private = oa_core_get_group_privacy($space_node);
       $visibility = field_get_items('node', $space_node, 'group_access');
-      $data['space_public'] = empty($visibility[0]['value']);
+      $data['space_public_in_private'] = $space_private && empty($visibility[0]['value']);
 
       $private = oa_core_get_group_privacy($space_reference_field[0]['target_id']);
       $data['public'] = ((($section_node->type != OA_SECTION_TYPE) || oa_core_section_is_public($section_node))

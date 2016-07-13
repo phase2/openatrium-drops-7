@@ -12,7 +12,7 @@ projects[devel][subdir] = contrib
 
 ; Coder
 projects[coder][type] = module
-projects[coder][version] = 2.0-beta2
+projects[coder][version] = 2.6
 projects[coder][subdir] = contrib
 
 ; Simpletest clone

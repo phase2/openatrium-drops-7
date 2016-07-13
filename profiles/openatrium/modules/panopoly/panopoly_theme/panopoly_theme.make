@@ -8,7 +8,7 @@ projects[radix_layouts][version] = 3.4
 projects[radix_layouts][subdir] = contrib
 projects[radix_layouts][patch][2656890] = https://www.drupal.org/files/issues/radix-layouts-selby-2656890-2.patch
 projects[radix_layouts][patch][26568901] = https://www.drupal.org/files/issues/radix-layouts-selby-flipped-2656890-2.patch
-projects[radix_layouts][patch][2656908] = https://www.drupal.org/files/issues/radix-layouts-content-area-2656908-2.patch
+projects[radix_layouts][patch][2656908] = https://www.drupal.org/files/issues/radix-layouts-content-area-2656908-3.patch
 
 
 ; Summon the Power of Respond.js

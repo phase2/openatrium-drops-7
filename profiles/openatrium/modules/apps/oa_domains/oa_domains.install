@@ -1,0 +1,21 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function oa_domains_install() {
+  oa_domains_revert_space_domain_field();
+}
+
+/**
+ * Revert field_base and field_instance on OA Domains.
+ *
+ * This ensures that the 'field_oa_space_domain' field exists.
+ */
+function oa_domains_revert_space_domain_field() {
+  // If there isn't an instance of the field on a space, revert features.
+  $instance = field_info_instance('node', 'field_oa_space_domain', 'oa_space');
+  if (empty($instance)) {
+    features_revert(array('oa_domains' => array('field_instance', 'field_base')));
+  }
+}

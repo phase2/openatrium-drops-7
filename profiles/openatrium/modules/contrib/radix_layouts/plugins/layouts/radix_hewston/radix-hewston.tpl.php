@@ -35,29 +35,22 @@
     </div>
 
     <div class="row">
-      <div class="col-md-12 radix-layouts-content panel-panel">
+      <div class="col-md-4 radix-layouts-column1 radix-layouts-content panel-panel">
         <div class="panel-panel-inner">
-
-          <div class="row">
-            <div class="col-md-4 radix-layouts-column1 panel-panel">
-              <div class="panel-panel-inner">
-                <?php print $content['column1']; ?>
-              </div>
-            </div>
-            <div class="col-md-4 radix-layouts-column2 panel-panel">
-              <div class="panel-panel-inner">
-                <?php print $content['column2']; ?>
-              </div>
-            </div>
-            <div class="col-md-4 radix-layouts-column3 panel-panel">
-              <div class="panel-panel-inner">
-                <?php print $content['column3']; ?>
-              </div>
-            </div>
-          </div>
+          <?php print $content['column1']; ?>
+        </div>
+      </div>
+      <div class="col-md-4 radix-layouts-column2 radix-layouts-content panel-panel">
+        <div class="panel-panel-inner">
+          <?php print $content['column2']; ?>
+        </div>
+      </div>
+      <div class="col-md-4 radix-layouts-column3 radix-layouts-content panel-panel">
+        <div class="panel-panel-inner">
+          <?php print $content['column3']; ?>
         </div>
       </div>
     </div>
   </div>
-  
+
 </div><!-- /.hewston -->

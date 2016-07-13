@@ -34,5 +34,6 @@ function oa_archive_views_default_views_alter(&$data) {
     $data['trash_flag_bin']->display['page_1']->display_options['menu']['title'] = 'Show Archive'; /* WAS: 'Trash Bin' */
     $data['trash_flag_bin']->display['page_1']->display_options['path'] = 'node/%/archive'; /* WAS: 'node/%/trash-bin' */
     $data['trash_flag_bin']->display['page']->display_options['path'] = 'archive'; /* WAS: 'trash-bin' */
+    unset($data['trash_flag_bin']->display['default']->display_options['filters']);
   }
 }

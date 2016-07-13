@@ -234,6 +234,9 @@ function oa_media_views_query_alter(&$view, &$query) {
     if (!empty($query->table_queue['field_oa_media_file_managed__og_membership'])) {
       // Table already exists because user is probably filtering on space already
       $og_membership[] = 'field_oa_media_file_managed__og_membership';
+
+      // This should be a left join or the results will not show for paragraphs.
+      $query->table_queue['field_oa_media_file_managed__og_membership']['join']->type = "LEFT";
     }
     else {
       // If og_membership not present, then add it

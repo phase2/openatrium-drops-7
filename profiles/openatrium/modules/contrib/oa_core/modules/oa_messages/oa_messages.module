@@ -655,7 +655,8 @@ function oa_messages_preprocess_mimemail_message(&$variables) {
  * Implements hook_form_FORM_ID_alter().
  */
 function oa_messages_form_views_content_views_panes_content_type_edit_form_alter(&$form, &$form_state, $form_id) {
-  if (isset($form_state['conf']['view_mode']) && ($form_state['conf']['view_mode'] == 'teaser')) {
+  if (isset($form_state['view']) && ($form_state['view']->base_table == 'message')
+    && isset($form_state['conf']['view_mode']) && ($form_state['conf']['view_mode'] == 'teaser')) {
     // Message entities don't have teaser view mode.
     // Set to full to avoid Illegal argument error.
     $form_state['conf']['view_mode'] = 'full';

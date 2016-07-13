@@ -41,7 +41,7 @@
     <?php endforeach ?>
   </p>
   <?php endif; ?>
-  <?php if (!empty($space_public)): ?>
+  <?php if (!empty($space_public_in_private)): ?>
     <p class="alert alert-danger"><em><?php print t('Space is marked as PUBLIC within a PRIVATE parent.'); ?></em></p>
   <?php endif; ?>
 <?php endif ?>
