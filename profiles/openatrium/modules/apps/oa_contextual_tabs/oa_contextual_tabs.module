@@ -54,8 +54,8 @@ function oa_contextual_tabs_theme() {
  * Add the visibility widget button
  */
 function oa_contextual_tabs_contextual_tabs_alter(&$data) {
+  $node = menu_get_object();
   if (module_exists('oa_widgets') && variable_get('oa_show_visibility', TRUE)) {
-    $node = menu_get_object();
     if (isset($node->type)) {
       $vars = oa_core_visibility_data($node);
       $vars['oa_toolbar_btn_class'] = 'btn-small btn-sm btn-default';
@@ -70,6 +70,16 @@ function oa_contextual_tabs_contextual_tabs_alter(&$data) {
     $buttons = &drupal_static('panels_ipe_toolbar_buttons', array());
     if (!empty($buttons)) {
       foreach ($buttons as $key => $ipe_buttons) {
+        // Filter IPE buttons based on Panelizer permissions
+        if (isset($node->type)) {
+          $handler = panelizer_entity_plugin_get_handler('node');
+          if ($handler && !$handler->access_admin($node, 'content')) {
+            unset($ipe_buttons['panels-ipe-startedit']);
+          }
+          if ($handler && !$handler->access_admin($node, 'layout')) {
+            unset($ipe_buttons['panels-ipe-change-layout']);
+          }
+        }
         foreach ($ipe_buttons as $id => $button) {
           unset($button['#prefix']);
           unset($button['#suffix']);

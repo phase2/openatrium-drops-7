@@ -58,6 +58,9 @@ class PanelizerEntityNode extends PanelizerEntityDefault {
     return $retval;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   function get_default_display($bundle, $view_mode) {
     $display = parent::get_default_display($bundle, $view_mode);
     // Add the node title to the display since we can't get that automatically.
@@ -225,6 +228,7 @@ class PanelizerEntityNode extends PanelizerEntityDefault {
       'base' => array('node'),
       'path' => $path,
       'uses options' => TRUE,
+      'module' => 'panelizer',
       'type' => 'normal',
       'register theme' => FALSE,
       'name' => 'panelizer_node_view',

@@ -58,6 +58,8 @@ function oa_worktracker_default_page_manager_handlers() {
   $display->cache = array();
   $display->title = '';
   $display->uuid = '25b12fdd-d883-4d28-8872-4cc1f30091c6';
+  $display->storage_type = 'page_manager';
+  $display->storage_id = 'node_edit_panel_context_task';
   $display->content = array();
   $display->panels = array();
   $pane = new stdClass();

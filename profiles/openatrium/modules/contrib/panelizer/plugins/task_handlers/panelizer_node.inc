@@ -84,7 +84,7 @@ $plugin = array(
 function _panelizer_panelizer_task_get_context($handler, $contexts) {
   $contexts = ctools_context_handler_get_handler_contexts($contexts, $handler);
 
-  if (isset($handler->conf['context']) && !empty($contexts[$handler->conf['context']])) {
+  if (isset($handler->conf['context']) && is_string($handler->conf['context']) && !empty($contexts[$handler->conf['context']])) {
     return $contexts[$handler->conf['context']];
   }
 
@@ -137,11 +137,14 @@ function panelizer_panelizer_task_contextual_link($handler, $plugin, $contexts, 
 
   $entity = &$context->data;
 
-  if (empty($entity->panelizer['page_manager'])) {
+  // Only show links for this view mode.
+  $view_mode = 'page_manager';
+
+  if (empty($entity->panelizer[$view_mode])) {
     return FALSE;
   }
 
-  $panelizer = $entity->panelizer['page_manager'];
+  $panelizer = $entity->panelizer[$view_mode];
   // One of these two will always be set.
   $entity_type = !empty($panelizer->entity_type) ? $panelizer->entity_type : $panelizer->panelizer_type;
 
@@ -157,58 +160,63 @@ function panelizer_panelizer_task_contextual_link($handler, $plugin, $contexts, 
     }
 
     $bits[] = 'panelizer';
-    $bits[] = 'page_manager';
+    $bits[] = $view_mode;
 
     $base_path = implode('/', $bits);
-    if ($entity_handler->panelizer_access('settings', $entity, 'page_manager')) {
+    if ($entity_handler->panelizer_access('settings', $entity, $view_mode)) {
       $links['settings'] = array(
         'title' => t("Edit custom display settings"),
         'href' => "$base_path/settings",
       );
     }
-    if ($entity_handler->panelizer_access('context', $entity, 'page_manager')) {
+    if ($entity_handler->panelizer_access('context', $entity, $view_mode)) {
       $links['context'] = array(
         'title' => t('Edit custom display contexts'),
         'href' => "$base_path/context",
       );
     }
-    if ($entity_handler->panelizer_access('layout', $entity, 'page_manager')) {
+    if ($entity_handler->panelizer_access('layout', $entity, $view_mode)) {
       $links['layout'] = array(
         'title' => t('Edit custom display layout'),
         'href' => "$base_path/layout",
       );
     }
-    if ($entity_handler->panelizer_access('content', $entity, 'page_manager')) {
+    if ($entity_handler->panelizer_access('content', $entity, $view_mode)) {
       $links['content'] = array(
         'title' => t('Edit custom display content'),
         'href' => "$base_path/content",
       );
     }
 
-    $template_base_path = 'admin/structure/panelizer/node/' . $bundle . '.' . $panelizer->view_mode;
-    if ($entity_handler->panelizer_access('settings', $entity, 'page_manager')) {
-      $links['default_settings'] = array(
-        'title' => t('Edit default display settings'),
-        'href' => "$template_base_path/settings",
-      );
-    }
-    if ($entity_handler->panelizer_access('context', $entity, 'page_manager')) {
-      $links['default_context'] = array(
-        'title' => t('Edit default display contexts'),
-        'href' => "$template_base_path/context",
-      );
-    }
-    if ($entity_handler->panelizer_access('layout', $entity, 'page_manager')) {
-      $links['default_layout'] = array(
-        'title' => t('Edit default display layout'),
-        'href' => "$template_base_path/layout",
-      );
-    }
-    if ($entity_handler->panelizer_access('content', $entity, 'page_manager')) {
-      $links['default_content'] = array(
-        'title' => t('Edit default display content'),
-        'href' => "$template_base_path/content",
-      );
+    // Work out what the default display is called.
+    $default_display_name = $entity_handler->get_default_display_default_name($bundle, $view_mode);
+    // If the default display is defined, add links to edit it.
+    if (!empty($default_display_name)) {
+      $template_base_path = "admin/structure/types/manage/{$bundle}/panelizer/{$view_mode}/{$default_display_name}";
+      if ($entity_handler->panelizer_access('settings', $entity, $view_mode)) {
+        $links['default_settings'] = array(
+          'title' => t('Edit default display settings'),
+          'href' => "$template_base_path/settings",
+        );
+      }
+      if ($entity_handler->panelizer_access('context', $entity, $view_mode)) {
+        $links['default_context'] = array(
+          'title' => t('Edit default display contexts'),
+          'href' => "$template_base_path/context",
+        );
+      }
+      if ($entity_handler->panelizer_access('layout', $entity, $view_mode)) {
+        $links['default_layout'] = array(
+          'title' => t('Edit default display layout'),
+          'href' => "$template_base_path/layout",
+        );
+      }
+      if ($entity_handler->panelizer_access('content', $entity, $view_mode)) {
+        $links['default_content'] = array(
+          'title' => t('Edit default display content'),
+          'href' => "$template_base_path/content",
+        );
+      }
     }
   }
 

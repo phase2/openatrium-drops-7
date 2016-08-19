@@ -1,36 +1,35 @@
 <?php
-
 /**
  * @file
- * Test integration for the panelizer module.
+ * Test the admin functionality for Panelizer.
  */
-
-class PanelizerTestHelper extends DrupalWebTestCase {
-  function setUp(array $modules = array()) {
-    $modules[] = 'ctools';
-    $modules[] = 'panels';
-    $modules[] = 'panelizer';
-    parent::setUp($modules);
-  }
-}
 
 /**
  * Test file administration page functionality.
  */
-class PanelizerAdminTestCase extends PanelizerTestHelper {
+class PanelizerAdminTest extends PanelizerTestHelper {
+
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Panelizer administration',
       'description' => 'Test panelizer administration page functionality.',
       'group' => 'Panelizer',
-      'dependencies' => array('ctools', 'panels'),
     );
   }
 
+  /**
+   * {@inheritdoc}
+   */
   function setUp(array $modules = array()) {
     parent::setUp();
 
-    $admin_user = $this->drupalCreateUser(array('administer panelizer'));
+    $perms = array(
+      'administer panelizer',
+    );
+    $admin_user = $this->drupalCreateUser($perms);
     $this->drupalLogin($admin_user);
   }
 
@@ -122,70 +121,5 @@ class PanelizerAdminTestCase extends PanelizerTestHelper {
       }
     }
   }
-}
 
-/**
- * Verifies panelizer configuration options for panelized entity type bundles.
- */
-class PanelizerEntityBundleConfigurationTestCase extends PanelizerTestHelper {
-  public static function getInfo() {
-    return array(
-      'name' => 'Panelizer entity bundle configuration',
-      'description' => 'Test entity bundle configuration settings.',
-      'group' => 'Panelizer',
-      'dependencies' => array('ctools', 'panels'),
-    );
-  }
-
-  function setUp(array $modules = array()) {
-    parent::setUp();
-
-    $web_user = $this->drupalCreateUser(array('create page content', 'administer content types', 'bypass node access', 'administer panelizer'));
-    $this->drupalLogin($web_user);
-  }
-
-  /**
-   * Verify that the "Basic page" content type can be panelized.
-   */
-  function testPageConfiguration() {
-    // Panelize "Basic page" content type.
-    $edit = array();
-    $edit['panelizer[status]'] = TRUE;
-    $this->drupalPost('admin/structure/types/manage/page', $edit, t('Save content type'));
-
-    // Create a node.
-    $edit = array();
-    $langcode = LANGUAGE_NONE;
-    $edit["title"] = $this->randomName(8);
-    $edit["body[$langcode][0][value]"] = $this->randomName(16);
-    $this->drupalPost('node/add/page', $edit, t('Save'));
-
-    // Check that the post has been panelized.
-    $node = $this->drupalGetNodeByTitle($edit["title"]);
-    $this->assertLink('Customize display', 0, 'The customize display link appears on the page');
-    $this->assertLinkByHref('node/' . $node->nid . '/panelizer', 0, 'A link to customize the node appears on the page');
-
-    // Allow panelization of the "Default" view mode.
-    $edit = array();
-    $edit['panelizer[view modes][default][status]'] = TRUE;
-    $this->drupalPost('admin/structure/types/manage/page', $edit, t('Save content type'));
-
-    // Check that the view mode can be panelized.
-    $this->drupalGet('node/' . $node->nid . '/panelizer');
-    $this->assertText('Default');
-    $this->assertLink('panelize', 0, 'The panelize link for the default view mode appears on the page');
-    $this->assertLinkByHref('node/' . $node->nid . '/panelizer/default', 0, 'A link to panelize the default view mode appears on the page');
-
-    // Verify that the view mode is not currently panelized.
-    $this->drupalGet('node/' . $node->nid . '/panelizer/default');
-    $this->assertRaw(t('This %entity is not currently panelized.', array('%entity' => 'Node')));
-
-    // Panelize the view mode.
-    $this->drupalPost(NULL, array(), t('Panelize it!'));
-
-    // Check that the view mode has been panelized.
-    $this->drupalGet('node/' . $node->nid);
-    $elements = $this->xpath('//div[contains(@class,:class)]', array(':class' => 'panelizer-view-mode'));
-    $this->assertEqual(count($elements), 1, 'The node is panelized.');
-  }
 }

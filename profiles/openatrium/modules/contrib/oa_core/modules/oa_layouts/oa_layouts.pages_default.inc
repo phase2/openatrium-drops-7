@@ -58,6 +58,8 @@ function oa_layouts_default_page_manager_handlers() {
   $display->cache = array();
   $display->title = '';
   $display->uuid = '563a3f84-c66d-4903-a574-105c0a2c1c73';
+  $display->storage_type = 'page_manager';
+  $display->storage_id = 'node_edit_panel_context_2';
   $display->content = array();
   $display->panels = array();
   $pane = new stdClass();
@@ -511,6 +513,8 @@ function oa_layouts_default_page_manager_handlers() {
   $display->cache = array();
   $display->title = '';
   $display->uuid = '9d735f0b-9d0a-47a9-842d-8610092c1ed2';
+  $display->storage_type = 'page_manager';
+  $display->storage_id = 'node_edit_panel_context_4';
   $display->content = array();
   $display->panels = array();
   $pane = new stdClass();

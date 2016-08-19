@@ -248,7 +248,7 @@ function oa_toolbar_get_jump_links($base, $url_query = array()) {
   if (count($terms) > 1) {
     $links = array();
     foreach ($terms as $tid => $name) {
-      if (oa_core_get_taxonomy_term_access($tid)) {
+      if (oa_core_get_taxonomy_term_access($tid, NULL, $vocab_name)) {
         $links[] = array(
           'title' => t('Create new @type', array('@type' => $name)),
           'href' => "node/add/{$node_type}/$tid",

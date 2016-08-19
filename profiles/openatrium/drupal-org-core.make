@@ -50,3 +50,6 @@ projects[drupal][patch][2097081] = https://www.drupal.org/files/2097081-fix-stic
 
 ; Prevent Drupal from scanning node_module and bower_component directories in theme
 projects[drupal][patch][2329453] = https://www.drupal.org/files/issues/ignore_front_end_vendor-2329453-111.patch
+
+; Issues with "required, multiple" fields in forms.
+projects[drupal][patch][980144] = https://www.drupal.org/files/issues/d7-issues_with_required-980144-76.patch

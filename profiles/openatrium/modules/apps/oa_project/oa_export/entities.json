@@ -139,7 +139,7 @@
                 "no_blocks": "0",
                 "css_id": "",
                 "css": "",
-                "pipeline": "ipe_node_access",
+                "pipeline": "ipe",
                 "contexts": [],
                 "relationships": [],
                 "did": null,
@@ -2676,7 +2676,7 @@
                 "no_blocks": false,
                 "css_id": "",
                 "css": "",
-                "pipeline": "ipe_node_access",
+                "pipeline": "ipe",
                 "contexts": [],
                 "relationships": [],
                 "access": [],
@@ -3089,7 +3089,7 @@
                 "no_blocks": false,
                 "css_id": "",
                 "css": "",
-                "pipeline": "ipe_node_access",
+                "pipeline": "ipe",
                 "contexts": [],
                 "relationships": [
                     {
@@ -3517,7 +3517,7 @@
                 "no_blocks": false,
                 "css_id": "",
                 "css": "",
-                "pipeline": "ipe_node_access",
+                "pipeline": "ipe",
                 "contexts": [],
                 "relationships": [
                     {

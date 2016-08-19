@@ -82,9 +82,9 @@ features_exclude[variable][panelizer_node:oa_discussion_post_allowed_layouts] = 
 features_exclude[variable][panelizer_node:oa_discussion_post_allowed_types] = panelizer_node:oa_discussion_post_allowed_types
 files[] = tests/oa_discussion.test
 
-; Information added by Drupal.org packaging script on 2016-03-17
-version = "7.x-2.40"
+; Information added by Drupal.org packaging script on 2016-08-18
+version = "7.x-2.41"
 core = "7.x"
 project = "oa_discussion"
-datestamp = "1458238742"
+datestamp = "1471541520"
 

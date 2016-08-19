@@ -237,7 +237,7 @@ function panelizer_default_settings_page($handler, $bundle, $name, $view_mode) {
 
   $panelizer = $handler->get_default_panelizer_object($bundle, $name);
   if (empty($panelizer)) {
-    return MENU_NOT_FOUND;
+    return t('No default display has been configured for this view mode.');
   }
 
   $form_state = array(
@@ -296,10 +296,16 @@ function panelizer_default_context_page($handler, $bundle, $name, $view_mode) {
     $bundle .= '.' . $view_mode;
   }
 
+  // Verify there's a Panelizer display available.
+  $panelizer = $handler->get_default_panelizer_object($bundle, $name);
+  if (empty($panelizer)) {
+    return t('No default display has been configured for this view mode.');
+  }
+
   $cache_key = implode(':', array($handler->entity_type, $bundle, $name));
   $panelizer = panelizer_context_cache_get('default', $cache_key);
   if (empty($panelizer)) {
-    return MENU_NOT_FOUND;
+    return t('No default display has been configured for this view mode.');
   }
 
   $form_state = array(
@@ -347,7 +353,7 @@ function panelizer_default_layout_page($handler, $bundle, $name, $view_mode, $st
 
   $panelizer = $handler->get_default_panelizer_object($bundle, $name);
   if (empty($panelizer)) {
-    return MENU_NOT_FOUND;
+    return t('No default display has been configured for this view mode.');
   }
 
   $display = $panelizer->display;
@@ -396,9 +402,8 @@ function panelizer_default_access_page($handler, $bundle, $name, $view_mode) {
 
   $panelizer = $handler->get_default_panelizer_object($bundle, $name);
   if (empty($panelizer)) {
-    return MENU_NOT_FOUND;
+    return t('No default display has been configured for this view mode.');
   }
-
   $argument = $name;
 
   ctools_include('context-access-admin');
@@ -458,7 +463,7 @@ function panelizer_default_content_page($handler, $bundle, $name, $view_mode) {
 
   $panelizer = $handler->get_default_panelizer_object($bundle, $name);
   if (empty($panelizer)) {
-    return MENU_NOT_FOUND;
+    return t('No default display has been configured for this view mode.');
   }
 
   $cache_key = implode(':', array('panelizer', 'default', $handler->entity_type, $bundle, $name));

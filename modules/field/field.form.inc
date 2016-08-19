@@ -213,14 +213,20 @@ function field_multiple_value_form($field, $instance, $langcode, $items, &$form,
         '#language' => $langcode,
         '#field_parents' => $parents,
         '#columns' => array_keys($field['columns']),
-        // For multiple fields, title and description are handled by the wrapping table.
-        '#title' => $multiple ? '' : $title,
-        '#description' => $multiple ? '' : $description,
+        '#title' => $title,
+        '#description' => $description,
         // Only the first widget should be required.
         '#required' => $delta == 0 && $instance['required'],
         '#delta' => $delta,
         '#weight' => $delta,
       );
+      // For multiple fields, title and description are handled by the wrapping
+      // table.
+      if ($multiple) {
+        $element['#title'] = $title . ' ' . t('(value @number)', array('@number' => $delta + 1));
+        $element['#title_display'] = 'invisible';
+        $element['#description'] = '';
+      }
       if ($element = $function($form, $form_state, $field, $instance, $langcode, $items, $delta, $element)) {
         // Input field for the delta (drag-n-drop reordering).
         if ($multiple) {

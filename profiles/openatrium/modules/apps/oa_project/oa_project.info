@@ -17,9 +17,9 @@ features[ctools][] = strongarm:strongarm:1
 features[features_api][] = api:2
 features[panelizer_defaults][] = node:oa_space:space_project
 
-; Information added by Drupal.org packaging script on 2016-03-17
-version = "7.x-2.1"
+; Information added by Drupal.org packaging script on 2016-08-18
+version = "7.x-2.2"
 core = "7.x"
 project = "oa_project"
-datestamp = "1458239357"
+datestamp = "1471541953"
 

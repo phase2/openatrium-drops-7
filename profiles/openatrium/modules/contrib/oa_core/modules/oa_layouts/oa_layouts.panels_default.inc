@@ -40,6 +40,8 @@ function oa_layouts_default_panels_mini() {
   $display->cache = array();
   $display->title = '';
   $display->uuid = '3d1931ce-af4b-436d-b1f7-3101b7d40c2a';
+  $display->storage_type = 'panels_mini';
+  $display->storage_id = 'default_section_sidebar';
   $display->content = array();
   $display->panels = array();
   $pane = new stdClass();
@@ -134,6 +136,8 @@ function oa_layouts_default_panels_mini() {
   $display->cache = array();
   $display->title = '';
   $display->uuid = 'c94dbbdc-f52c-491e-bde7-a61c98b5cbd3';
+  $display->storage_type = 'panels_mini';
+  $display->storage_id = 'oa_footer_panel';
   $display->content = array();
   $display->panels = array();
   $pane = new stdClass();
@@ -206,6 +210,8 @@ function oa_layouts_default_panels_mini() {
   $display->cache = array();
   $display->title = '';
   $display->uuid = '9f0c0534-ba65-4249-bb78-180cd3e7aa44';
+  $display->storage_type = 'panels_mini';
+  $display->storage_id = 'section_sidebar_top';
   $display->content = array();
   $display->panels = array();
   $pane = new stdClass();

@@ -217,8 +217,11 @@ function panelizer_add_revision_info_form(&$form, &$form_state) {
   }
 }
 
+/**
+ * Form submission callback for panelizer_add_revision_info_form().
+ */
 function panelizer_add_revision_info_form_submit(&$form, &$form_state) {
-  $entity = $form_state['entity'];
+  $entity = &$form_state['entity'];
   if (!empty($form_state['use revisions'])) {
     $entity->revision = $form_state['values']['revision'];
     $entity->log = $form_state['values']['log'];

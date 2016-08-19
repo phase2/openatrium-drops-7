@@ -60,6 +60,8 @@ function oa_events_default_page_manager_handlers() {
   $display->cache = array();
   $display->title = '';
   $display->uuid = '8605550b-4162-4696-a270-f21c10c146d1';
+  $display->storage_type = 'page_manager';
+  $display->storage_id = 'node_edit_panel_context_7';
   $display->content = array();
   $display->panels = array();
   $pane = new stdClass();

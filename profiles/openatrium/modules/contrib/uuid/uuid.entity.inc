@@ -407,10 +407,6 @@ function entity_get_id_by_uuid($entity_type, $uuids, $revision = FALSE) {
     return array();
   }
   $info = entity_get_info($entity_type);
-  // Some contrib entities has no support for UUID, let's skip them.
-  if (empty($info['uuid'])) {
-    return array();
-  }
   // Find out what entity keys to use.
   if (!$revision) {
     $table = $info['base table'];
@@ -457,10 +453,6 @@ function entity_get_uuid_by_id($entity_type, $ids, $revision = FALSE) {
     return array();
   }
   $info = entity_get_info($entity_type);
-  // Some contrib entities has no support for UUID, let's skip them.
-  if (empty($info['uuid'])) {
-    return array();
-  }
   // Find out what entity keys to use.
   if (!$revision) {
     $table = $info['base table'];

@@ -13,14 +13,20 @@ function oa_news_panelizer_defaults() {
   $panelizer = new stdClass();
   $panelizer->disabled = FALSE; /* Edit this to true to make a default panelizer disabled initially */
   $panelizer->api_version = 1;
-  $panelizer->name = 'node:oa_section:oa_section_news';
   $panelizer->title = 'Document Section';
   $panelizer->panelizer_type = 'node';
   $panelizer->panelizer_key = 'oa_section';
-  $panelizer->no_blocks = FALSE;
+  $panelizer->access = array();
+  $panelizer->view_mode = 'page_manager';
+  $panelizer->name = 'node:oa_section:oa_section_news';
   $panelizer->css_id = '';
+  $panelizer->css_class = '';
   $panelizer->css = '';
-  $panelizer->pipeline = 'ipe_node_access';
+  $panelizer->no_blocks = FALSE;
+  $panelizer->title_element = 'H2';
+  $panelizer->link_to_entity = TRUE;
+  $panelizer->extra = array();
+  $panelizer->pipeline = 'ipe';
   $panelizer->contexts = array();
   $panelizer->relationships = array(
     0 => array(
@@ -32,12 +38,6 @@ function oa_news_panelizer_defaults() {
       'id' => 1,
     ),
   );
-  $panelizer->access = array();
-  $panelizer->view_mode = 'page_manager';
-  $panelizer->css_class = '';
-  $panelizer->title_element = 'H2';
-  $panelizer->link_to_entity = TRUE;
-  $panelizer->extra = array();
   $display = new panels_display();
   $display->layout = 'radix_burr_flipped';
   $display->layout_settings = array();
@@ -54,6 +54,8 @@ function oa_news_panelizer_defaults() {
   $display->cache = array();
   $display->title = '';
   $display->uuid = '4da17148-a7a9-4da8-a9bf-ef168121174a';
+  $display->storage_type = 'panelizer_default';
+  $display->storage_id = 'node:oa_section:oa_section_news';
   $display->content = array();
   $display->panels = array();
   $pane = new stdClass();

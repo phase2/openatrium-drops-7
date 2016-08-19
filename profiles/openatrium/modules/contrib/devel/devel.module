@@ -1723,11 +1723,13 @@ function devel_timer() {
   return t_safe(' Page execution time was @time ms.', array('@time' => $time));
 }
 
-/**
- * An alias for drupal_debug().
- */
-function dd($data, $label = NULL) {
-  return drupal_debug($data, $label);
+if (!function_exists('dd')) {
+  /**
+   * An alias for drupal_debug().
+   */
+  function dd($data, $label = NULL) {
+    return drupal_debug($data, $label);
+  }
 }
 
 /**

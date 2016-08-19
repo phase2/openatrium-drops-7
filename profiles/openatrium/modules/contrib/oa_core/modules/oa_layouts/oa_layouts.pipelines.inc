@@ -14,8 +14,8 @@ function oa_layouts_default_panels_renderer_pipeline() {
   $pipeline->disabled = FALSE; /* Edit this to true to make a default pipeline disabled initially */
   $pipeline->api_version = 1;
   $pipeline->name = 'ipe_node_access';
-  $pipeline->admin_title = 'In-Place Editor (node access)';
-  $pipeline->admin_description = 'Allows users who can edit current node to update and rearrange the content while viewing this panel.';
+  $pipeline->admin_title = 'In-Place Editor (node access) DEPRECATED';
+  $pipeline->admin_description = 'DEPRECATED: Use normal In-Place-Editor pipeline';
   $pipeline->weight = 0;
   $pipeline->settings = array(
     'renderers' => array(
@@ -23,10 +23,11 @@ function oa_layouts_default_panels_renderer_pipeline() {
         'access' => array(
           'plugins' => array(
             0 => array(
-              'name' => 'node_access_current_node',
+              'name' => 'perm',
               'settings' => array(
-                'op' => 'update',
+                'perm' => 'use panels in place editing',
               ),
+              'context' => 'logged-in-user',
             ),
           ),
           'logic' => 'and',

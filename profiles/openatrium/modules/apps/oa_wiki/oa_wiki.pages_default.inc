@@ -60,6 +60,8 @@ function oa_wiki_default_page_manager_handlers() {
   $display->cache = array();
   $display->title = '';
   $display->uuid = '664920a8-9a8b-404e-beb4-5d42a6f3e2ad';
+  $display->storage_type = 'page_manager';
+  $display->storage_id = 'node_edit_panel_context_6';
   $display->content = array();
   $display->panels = array();
   $pane = new stdClass();

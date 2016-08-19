@@ -17,23 +17,20 @@ projects[ctools][patch][2483415] = https://www.drupal.org/files/issues/ctools-mo
 projects[ctools][patch][2493041] = https://www.drupal.org/files/issues/ctools-n2493041-3.patch
 projects[ctools][patch][2555469] = https://www.drupal.org/files/issues/2555469-ctools-comments-node_tag_new-2.patch
 
-projects[panels][version] = 3.5
+projects[panels][version] = 3.6
 projects[panels][subdir] = contrib
-projects[panels][patch][2448825] = https://www.drupal.org/files/issues/panels-export-indentation-2448825-1.patch
-projects[panels][patch][2390803] = https://www.drupal.org/files/issues/panels-focus-add-content-tab-2390803-13.patch
-projects[panels][patch][1588212] = https://www.drupal.org/files/issues/panels-1588212-10.patch
-projects[panels][patch][2405733] = https://www.drupal.org/files/issues/panels-ipe-remove-debug-2405733-1.patch
+projects[panels][patch][2785915] = https://www.drupal.org/files/issues/panels-storage-backcompat-2785915-18.patch
+projects[panels][patch][2785917] = https://www.drupal.org/files/issues/panels-underscores-in-ids-2785917-4.patch
 
 projects[panels_breadcrumbs][version] = 2.2
 projects[panels_breadcrumbs][subdir] = contrib
 
-projects[panelizer][version] = 3.x-dev
+projects[panelizer][version] = 3.3
 projects[panelizer][subdir] = contrib
-projects[panelizer][download][type] = git
-projects[panelizer][download][branch] = 7.x-3.x
-projects[panelizer][download][revision] = 6b76359
-projects[panelizer][patch][2514068] = https://www.drupal.org/files/issues/2514068-panelizer-cache_key-2.patch
-projects[panelizer][patch][1549608] = https://www.drupal.org/files/issues/1549608-panelizer-cache-24.patch
+projects[panelizer][patch][1549608] = https://www.drupal.org/files/issues/panelizer-n1549608-26.patch
+projects[panelizer][patch][2785883] = https://www.drupal.org/files/issues/panelizer-n2785883-4.patch
+projects[panelizer][patch][2785945] = https://www.drupal.org/files/issues/panelizer-panels-storage-backcompat-2785945-2.patch
+projects[panelizer][patch][2786471] = https://www.drupal.org/files/issues/panelizer_undefined_language-2786471-6.patch
 
 projects[fieldable_panels_panes][version] = 1.10
 projects[fieldable_panels_panes][subdir] = contrib
@@ -58,6 +55,7 @@ projects[views_autocomplete_filters][version] = 1.2
 projects[views_autocomplete_filters][subdir] = contrib
 projects[views_autocomplete_filters][patch][2374709] = http://www.drupal.org/files/issues/views_autocomplete_filters-cache-2374709-2.patch
 projects[views_autocomplete_filters][patch][2317351] = http://www.drupal.org/files/issues/views_autocomplete_filters-content-pane-2317351-4.patch
+projects[views_autocomplete_filters][patch][2404893] = https://www.drupal.org/files/issues/2404893-grammar_correction-11.patch
 
 projects[views_bulk_operations][version] = 3.3
 projects[views_bulk_operations][subdir] = contrib
@@ -160,4 +158,3 @@ projects[features_override][subdir] = contrib
 
 projects[uuid][version] = 1.0-alpha6
 projects[uuid][subdir] = contrib
-projects[uuid][patch][2356305] = https://www.drupal.org/files/issues/2356305-5.patch

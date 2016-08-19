@@ -100,9 +100,9 @@ features_exclude[variable][comment_oa_event] = comment_oa_event
 features_exclude[variable][comment_preview_oa_event] = comment_preview_oa_event
 features_exclude[variable][comment_subject_field_oa_event] = comment_subject_field_oa_event
 
-; Information added by Drupal.org packaging script on 2016-03-03
-version = "7.x-2.40"
+; Information added by Drupal.org packaging script on 2016-08-18
+version = "7.x-2.41"
 core = "7.x"
 project = "oa_events"
-datestamp = "1457037273"
+datestamp = "1471541527"
 

@@ -58,6 +58,8 @@ function oa_discussion_default_page_manager_handlers() {
   $display->cache = array();
   $display->title = '';
   $display->uuid = 'edb2450e-22df-4403-95d3-d6a0c5b2ee79';
+  $display->storage_type = 'page_manager';
+  $display->storage_id = 'node_edit_panel_context_5';
   $display->content = array();
   $display->panels = array();
   $pane = new stdClass();

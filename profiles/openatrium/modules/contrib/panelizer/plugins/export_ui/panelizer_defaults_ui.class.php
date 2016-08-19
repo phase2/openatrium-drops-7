@@ -127,7 +127,7 @@ class panelizer_defaults_ui extends ctools_export_ui {
   // Simplest way to override the drupal_goto from parent.
   // Why isn't delete using the redirect system everything else is?
   function delete_page($js, $input, $item) {
-    $clone = clone($item);
+    $clone = clone $item;
     // Change the name into the title so the form shows the right value.
     // @todo file a bug against CTools to use admin title if available.
     $clone->name = $clone->title;
