@@ -1,5 +1,4 @@
 The following patches have been applied to this project:
-- https://www.drupal.org/files/issues/2786243-panopoly_core-panelizer-5.patch
 - https://www.drupal.org/files/issues/2477347-panopoly_core-views-4.patch
 - https://www.drupal.org/files/issues/2477363-panopoly_core-ctools-17.patch
 - https://www.drupal.org/files/issues/2477369-panopoly_core-entity-5.patch

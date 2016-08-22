@@ -8,9 +8,9 @@ configure = admin/structure/webform/flags
 files[] = flag.install
 files[] = flag_actions.module
 
-; Information added by drush on 2016-08-18
+; Information added by drush on 2016-08-22
 version = "7.x-2.2-dev"
 core = "7.x"
 project = "flag"
-datestamp = "1471553504"
+datestamp = "1471886860"
 

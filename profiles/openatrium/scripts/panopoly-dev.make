@@ -13,7 +13,6 @@ core = 7.x
 projects[panopoly_core][subdir] = panopoly
 projects[panopoly_core][download][type] = git
 projects[panopoly_core][download][branch] = 7.x-1.x
-projects[panopoly_core][patch][2786243] = https://www.drupal.org/files/issues/2786243-panopoly_core-panelizer-5.patch
 projects[panopoly_core][patch][2477347] = https://www.drupal.org/files/issues/2477347-panopoly_core-views-4.patch
 projects[panopoly_core][patch][2477363] = https://www.drupal.org/files/issues/2477363-panopoly_core-ctools-17.patch
 projects[panopoly_core][patch][2477369] = https://www.drupal.org/files/issues/2477369-panopoly_core-entity-5.patch

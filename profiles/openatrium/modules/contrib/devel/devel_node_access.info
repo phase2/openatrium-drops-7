@@ -7,9 +7,9 @@ configure = admin/config/development/devel
 tags[] = developer
 
 
-; Information added by drush on 2016-08-18
+; Information added by drush on 2016-08-22
 version = "7.x-1.5+21-dev"
 core = "7.x"
 project = "devel"
-datestamp = "1471553456"
+datestamp = "1471886800"
 
