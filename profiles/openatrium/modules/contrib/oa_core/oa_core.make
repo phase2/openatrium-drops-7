@@ -8,7 +8,7 @@ projects[advagg][version] = 2.6
 projects[advagg][subdir] = contrib
 
 ; Chosen
-projects[chosen][version] = 2.0-beta4
+projects[chosen][version] = 2.0
 projects[chosen][subdir] = contrib
 
 libraries[chosen][download][type] = "get"
@@ -33,12 +33,8 @@ projects[conditional_styles][version] = 2.2
 projects[conditional_styles][subdir] = contrib
 
 ; Date Facets
-projects[date_facets][version] = 1.x-dev
+projects[date_facets][version] = 1.0
 projects[date_facets][subdir] = contrib
-projects[date_facets][download][type] = git
-projects[date_facets][download][branch] = 7.x-1.x
-projects[date_facets][download][revision] = 9037608
-projects[date_facets][patch][2430581] = https://www.drupal.org/files/issues/date_facets_no_labels-2430581-1.patch
 
 ; Diff
 projects[diff][version] = 3.2
@@ -62,8 +58,6 @@ libraries[simplepie][directory_name] = simplepie
 ; Flag
 projects[flag][version] = 2.2
 projects[flag][subdir] = contrib
-projects[flag][download][type] = git
-projects[flag][download][branch] = 7.x-2.2
 projects[flag][patch][2027091] = http://drupal.org/files/flag-default-flags-alter-hook-2027091-03.patch
 
 ; HTML Mail
@@ -80,10 +74,8 @@ projects[mailsystem][version] = 2.34
 projects[mailsystem][subdir] = contrib
 
 ; Message
-projects[message][version] = 1.10
+projects[message][version] = 1.12
 projects[message][subdir] = contrib
-projects[message][download][type] = git
-projects[message][download][branch] = 7.x-1.10
 projects[message][patch][2046591] = http://drupal.org/files/message-token_replace-2046591-1.patch
 projects[message][patch][2040735] = http://drupal.org/files/message.target_bundles.2040735-3.patch
 
@@ -151,8 +143,12 @@ projects[paragraphs][patch][2481627] = https://www.drupal.org/files/issues/parag
 projects[paragraphs][patch][2560601] = https://www.drupal.org/files/issues/2560601-paragraphs-join_extra-2.patch
 
 ; Real Name
-projects[realname][version] = 1.2
+projects[realname][version] = 1.3
 projects[realname][subdir] = contrib
+
+; References Dialog
+projects[references_dialog][version] = 1.0-beta2
+projects[references_dialog][subdir] = contrib
 
 ; Reference Option Limit
 projects[reference_option_limit][version] = 1.x-dev
@@ -182,6 +178,6 @@ projects[views_load_more][version] = 1.5
 projects[views_load_more][subdir] = contrib
 
 ; Ultimate Cron
-projects[ultimate_cron][version] = 2.0-rc1
+projects[ultimate_cron][version] = 2.0
 projects[ultimate_cron][subdir] = contrib
 

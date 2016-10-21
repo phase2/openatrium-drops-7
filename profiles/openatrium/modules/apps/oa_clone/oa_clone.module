@@ -295,6 +295,10 @@ function oa_clone_form_oa_space_node_form_alter(&$form, &$form_state) {
     if (isset($form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['admin'])) {
       $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['admin']['#default_value'] = '';
       $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['admin']['#init'] = array();
+      foreach ($node->{OA_PARENT_SPACE}[LANGUAGE_NONE] as $delta => $target) {
+        $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['admin'][$delta]['target_id']['#default_value'] = '';
+        $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['admin'][$delta]['target_id']['#init'] = array();
+      }
     }
     if (isset($form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default'])) {
       $form[OA_PARENT_SPACE][LANGUAGE_NONE][0]['default']['#default_value'] = '';
@@ -517,7 +521,6 @@ function oa_clone_node_presave($node) {
     && $wrapper->field_oa_clone_enabled->value() && ($clone_node = $wrapper->field_oa_clone_space->value())
     ) {
     module_load_include('inc', 'clone', 'clone.pages');
-    $clone_node->oa_clone_bypass_access_check = TRUE;
     $clone_node_prepared = _clone_node_prepare($clone_node, TRUE);
     $context = array('method' => 'prepopulate', 'original_node' => $clone_node);
     drupal_alter('clone_node', $clone_node_prepared, $context);
@@ -544,6 +547,7 @@ function oa_clone_node_presave($node) {
         $node->{$field_name} = $clone_node_prepared->{$field_name};
       }
     }
+    $node->oa_clone_bypass_access_check = TRUE;
     $node->oa_clone_alter_batch = TRUE;
   }
 }
@@ -638,7 +642,7 @@ function _oa_clone_batch_space(&$batch, $space, $original_space_nid) {
     if (!empty($associated_entities)) {
       foreach ($associated_entities as $original_subspace_nid) {
         $not_orphan[$original_subspace_nid] = $original_subspace_nid;
-        if ($clone_subspace = oa_clone($original_subspace_nid, $space->nid, NULL, $bypass_access_check)) {
+        if ($original_subspace_nid != $space->nid && $clone_subspace = oa_clone($original_subspace_nid, $space->nid, NULL, $bypass_access_check)) {
           _oa_clone_batch_space($batch, $clone_subspace, $original_subspace_nid);
         }
       }

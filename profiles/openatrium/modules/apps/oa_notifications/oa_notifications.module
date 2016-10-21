@@ -632,7 +632,8 @@ function oa_notifications_form_fields(&$form, &$form_state, $node) {
     ),
     '#prefix' => '<div id="skip-notify-div">',
     '#suffix' => '</div>',
-    '#access' => !$using_defaults && (!empty($form_state['want form']) || _oa_notification_show_skip($node)),
+    '#access' => !empty($form_state['want form']) || _oa_notification_show_skip($node),
+    '#default_value' => $using_defaults,
   );
 }
 

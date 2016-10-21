@@ -26,8 +26,11 @@ function oa_related_preprocess_paragraphs_field_multiple_value_form(&$vars) {
         // Changes the #value to an icon and sets the 'title' to the old #value.
         // We are using unicode since this is an <input>.
         $vars['element']['add_more'][$bundle]['#attributes']['title'][] = isset($info['title']) ? $info['title'] : $vars['element']['add_more'][$bundle]['#value'];
-        $vars['element']['add_more'][$bundle]['#value'] = isset($info['icon']) ? $info['icon'] : $vars['element']['add_more'][$bundle]['#value'];
-        $vars['element']['add_more'][$bundle]['#attributes']['class'][] = 'paragraphs-add-mode-button';
+        if (isset($info['icon'])) {
+          $vars['element']['add_more'][$bundle]['#value'] = $info['icon'];
+          $vars['element']['add_more'][$bundle]['#attributes']['class'][] = 'paragraphs-add-mode-button';
+        }
+        $vars['element']['#title'] = isset($info['element_title']) ? $info['element_title'] : '';
       }
     }
   }

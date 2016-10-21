@@ -251,7 +251,12 @@ function references_dialog_form_field_ui_field_edit_form_alter(&$form, $form_sta
   if (array_key_exists($form['instance']['widget']['type']['#value'], references_dialog_widgets())) {
     $field = $form['#field'];
     $instance = field_info_instance($form['instance']['entity_type']['#value'], $form['instance']['field_name']['#value'], $form['instance']['bundle']['#value']);
-    $form['instance']['widget']['settings'] += references_dialog_settings_form($field, $instance);
+    if (isset($form['instance']['widget']['settings'])) {
+      $form['instance']['widget']['settings'] += references_dialog_settings_form($field, $instance);
+    }
+    else {
+      $form['instance']['widget']['settings'] = references_dialog_settings_form($field, $instance);
+    }
   }
 }
 
@@ -454,7 +459,7 @@ function references_dialog_init() {
  */
 function references_dialog_search_view($view_name, $display_name, $attachable) {
   $args = func_get_args();
-  $args = array_splice($args, 2);
+  $args = array_slice($args, 3);
   $view = views_get_view($view_name);
   // Find the entity that matches our base table.
   $entities = entity_get_info();
@@ -693,4 +698,121 @@ function references_dialog_get_admin_path($entity_type, $op, $bundle = NULL, $en
  */
 function theme_references_dialog_links($variables) {
   return theme('links', array('links' => $variables['links'], 'attributes' => array('class' => array('references-dialog-links'))));
+}
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function references_dialog_field_widget_info() {
+  return array(
+    'references_dialog_term_reference' => array(
+      'label'       => t('Autocomplete term widget for References Dialog'),
+      'field types' => array('taxonomy_term_reference'),
+      'settings'    => array(
+        'size' => 60,
+        'autocomplete_path' => 'taxonomy/autocomplete',
+        'autocomplete_match' => 'starts_with',
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_settings_form().
+ */
+function references_dialog_field_widget_settings_form($field, $instance) {
+  $widget   = $instance['widget'];
+  $defaults = field_info_widget_settings($widget['type']);
+  $settings = array_merge($defaults, $widget['settings']);
+
+  $form = array();
+  if ($widget['type'] == 'references_dialog_term_reference') {
+    $form['autocomplete_match'] = array(
+      '#type'             => 'select',
+      '#title'            => t('Autocomplete matching'),
+      '#default_value'    => $settings['autocomplete_match'],
+      '#options'          => array(
+        'starts_with'     => t('Starts with'),
+        'contains'        => t('Contains'),
+      ),
+      '#description'      => t('Select the method used to collect autocomplete suggestions. Note that <em>Contains</em> can cause performance issues on sites with thousands of nodes.'),
+    );
+    $form['size'] = array(
+      '#type'             => 'textfield',
+      '#title'            => t('Size of textfield'),
+      '#default_value'    => $settings['size'],
+      '#element_validate' => array('_element_validate_integer_positive'),
+      '#required'         => TRUE,
+    );
+  }
+  return $form;
+}
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function references_dialog_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  switch ($instance['widget']['type']) {
+    case 'references_dialog_term_reference':
+      if (isset($items[$delta]['tid'])) {
+        $term = taxonomy_term_load($items[$delta]['tid']);
+        $value = $term->name;
+      }
+      else {
+        $value = NULL;
+      }
+      $element += array(
+        '#type' => 'textfield',
+        '#default_value' => $value,
+        '#autocomplete_path' => $instance['widget']['settings']['autocomplete_path'] . '/' . $field['field_name'],
+        '#size' => $instance['widget']['settings']['size'],
+        '#maxlength' => NULL,
+        '#element_validate' => array('references_dialog_term_reference_autocomplete_validate'),
+      );
+      break;
+  }
+
+  return array('tid' => $element);
+}
+
+/**
+ * Form element validate handler for taxonomy term autocomplete element.
+ */
+function references_dialog_term_reference_autocomplete_validate($element, &$form_state) {
+  // Autocomplete widgets do not send their tids in the form, so we must detect
+  // them here and process them independently.
+  $value = NULL;
+  if ($element['#value']) {
+    $term = FALSE;
+    $field = field_widget_field($element, $form_state);
+    $instance = field_widget_instance($element, $form_state);
+    // Check whether we have an explicit "[tid:n]" input.
+    preg_match('/^(?:\s*|(.*) )?\[\s*tid\s*:\s*(\d+)\s*\]$/', $element['#value'], $matches);
+    if (!empty($matches)) {
+      // Explicit tid.
+      list(, $term_name, $tid) = $matches;
+      if (!empty($term_name)) {
+        $term = taxonomy_term_load($tid);
+      }
+    }
+    else {
+      // Collect candidate vocabularies.
+      $vocabularies = array();
+      foreach ($field['settings']['allowed_values'] as $tree) {
+        if ($vocabulary = taxonomy_vocabulary_machine_name_load($tree['vocabulary'])) {
+          $vocabularies[$vocabulary->vid] = $vocabulary;
+        }
+      }
+      if ($possibilities = taxonomy_term_load_multiple(array(), array('name' => trim($element['#value']), 'vid' => array_keys($vocabularies)))) {
+        $term = array_pop($possibilities);
+      }
+    }
+    if ($term) {
+      $value = $term->tid;
+    }
+    else {
+      form_error($element, t('%name: found no valid post for this value.', array('%name' => $instance['label'])));
+    }
+  }
+  form_set_value($element, $value, $form_state);
 }

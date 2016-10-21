@@ -51,6 +51,17 @@ a:active {
   color: @linkactive;
 }
 
+/* only affect links in block, body, and related content titles */
+h2.pane-title a,
+h3.pane-title a,
+.field-name-field-oa-related h2 a,
+.field-name-field-oa-related h3 a,
+.field-name-body h2 a,
+.field-name-body h3 a {
+  color: inherit;
+  text-decoration: underline;
+}
+
 ul#oa_breadcrumb .btn:hover,
 a.dropdown-toggle.btn:hover,
 .btn:hover,

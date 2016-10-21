@@ -974,6 +974,29 @@ This is a list of all the values from the <code><b><?php echo realpath($ini_file
   <ul class="krumo-node">
   <?php
 
+  if ($_is_object && get_class($data) != 'stdClass') {
+    // this part for protected/private properties only
+    $refl = new ReflectionClass($data);
+    foreach ($refl->getProperties() as $property) {
+      $k = $property->getName();
+      if ($k === $_recursion_marker || $property->isPublic()) {
+        continue;
+      }
+
+      // add key indicators
+      if ($property->isProtected()) {
+        $k .= ':protected';
+      }
+      elseif ($property->isPrivate()) {
+        $k .= ':private';
+      }
+
+      $property->setAccessible(TRUE);
+      $v = $property->getValue($data);
+      krumo::_dump($v, $k);
+    }
+  }
+
   // keys ?
   //
   $keys = ($_is_object)

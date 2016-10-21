@@ -119,6 +119,8 @@ function oa_messages_create($message_type, $entity = NULL, $entity_type = 'node'
           format_plural(count($subscribe_options['uids']), '1 user', '@count users'));
       }
     }
+
+    return $message;
   }
 }
 
@@ -183,7 +185,12 @@ function oa_messages_determine_user_notifiers($user, $entity, $message, $notifie
 
   if (!empty($entity->{OA_SPACE_FIELD}[LANGUAGE_NONE][0]['target_id'])) {
     $space_id = $entity->{OA_SPACE_FIELD}[LANGUAGE_NONE][0]['target_id'];
+  }
+  else {
+    $space_id = oa_core_get_group_from_node($entity);
+  }
 
+  if (isset($space_id)) {
     // If no settings have been saved, set defaults.
     if (empty($settings[$space_id])) {
       foreach ($notifiers as $notifier) {
@@ -300,6 +307,22 @@ function oa_messages_entity_update($entity, $type) {
 
   $update = TRUE;
   $update = (isset($entity->title) && $entity->title !== $entity->original->title) ? TRUE : FALSE;
+
+  $node_published = FALSE;
+  $node_unpublished = FALSE;
+
+  if (isset($entity->status)) {
+   $node_published = ($entity->status == 1 && $entity->original->status == 0);
+   $node_unpublished = ($entity->status == 0 && $entity->original->status == 1);
+  }
+
+  if ($node_published && variable_get('oa_messages_publish_notifications', FALSE)) {
+   $update = TRUE;
+  }
+
+  if ($node_unpublished && variable_get('oa_messages_unpublish_notifications', FALSE)) {
+   $update = TRUE;
+  }
 
   if (!$update && module_exists('diff')) {
     module_load_include('inc', 'diff', 'diff.diff');

@@ -128,14 +128,19 @@ function og_subgroups_get_users_group($entity_type = 'node', $entity = NULL, $st
  *   The entity type.
  * @param $entity
  *   The entity object or entity ID.
+ * @param $groups_only
+ *   If only group entities should be returned. Huge performance gain
+ *   and used internally by this module, but is FALSE by default for legacy
+ *   reasons.
  *
  * @return
  *  An array with the entities' entity type as the key, and array - keyed by
  *  the OG membership ID and the Entity ID as the value. If nothing found,
  *  then an empty array.
  */
-function og_subgroups_get_associated_entities($entity_type, $entity, $fields = array()) {
+function og_subgroups_get_associated_entities($entity_type, $entity, $fields = array(), $groups_only = FALSE) {
   $cache = &drupal_static(__FUNCTION__, array());
+  $groups_only_key = $groups_only ? 'groups' : 'all';
   if (is_object($entity)) {
     // Get the entity ID.
     list($id) = entity_extract_ids($entity_type, $entity);
@@ -143,11 +148,13 @@ function og_subgroups_get_associated_entities($entity_type, $entity, $fields = a
   else {
     $id = is_numeric($entity) ? $entity : 0;
   }
-  if (isset($cache[$entity_type][$id])) {
+  if (isset($cache[$entity_type][$id][$groups_only_key])) {
     // Return cached values.
-    return $cache[$entity_type][$id];
+    return $cache[$entity_type][$id][$groups_only_key];
   }
-  $cache[$entity_type][$id] = array();
+  $cache[$entity_type][$id][$groups_only_key] = array();
+
+  // Create base query for all content and groups only.
   $query = db_select('og_membership')
   ->condition('entity_type', 'user', '!=')
   ->condition('group_type', $entity_type, '=')
@@ -155,15 +162,38 @@ function og_subgroups_get_associated_entities($entity_type, $entity, $fields = a
   if ($fields || ($fields !== FALSE && $fields = variable_get('og_subgroups_default_fields_' . $entity_type, array()))) {
     $query->condition('field_name', $fields, 'IN');
   }
+
+  // Groups only query.
+  if ($groups_only) {
+    // Get all group bundles of this entity type in an array.
+    $group_all_bundles = og_get_all_group_bundle();
+    $group_bundles = isset($group_all_bundles[$entity_type]) ? array_keys($group_all_bundles[$entity_type]) : array();
+    // Return early if there are no group bundles in this entity type.
+    if (empty($group_bundles)) {
+      return $cache[$entity_type][$id][$groups_only_key];
+    }
+
+    // Gather scheme information from the entity to be used in the query.
+    $entity_info = entity_get_info($entity_type);
+    $entity_table = $entity_info['base table'];
+    $entity_key_id = $entity_info['entity keys']['id'];
+    $entity_key_bundle = $entity_info['entity keys']['bundle'];
+
+    // Add entity bundle condition using known group bundles.
+    $query->join($entity_table, 'entity', "etid = entity.{$entity_key_id}");
+    $query->condition("entity.{$entity_key_bundle}", $group_bundles, 'IN');
+  }
+
+  // Add fields and execute. Store results to cache.
   $query->fields('og_membership', array('entity_type', 'id', 'etid'));
   $result = $query->execute();
   if ($result) {
     // Get the group ID from the group membership.
     foreach ($result as $og_membership) {
-      $cache[$entity_type][$id][$og_membership->entity_type][$og_membership->id] = $og_membership->etid;
+      $cache[$entity_type][$id][$groups_only_key][$og_membership->entity_type][$og_membership->id] = $og_membership->etid;
     }
   }
-  return $cache[$entity_type][$id];
+  return $cache[$entity_type][$id][$groups_only_key];
 }
 
 /**
@@ -210,7 +240,8 @@ function og_subgroups_get_potentional_parents($entity_type, $fields = array()) {
  */
 function _og_subgroups_get_inherited_users($group_type, $group_id, $states = array(OG_STATE_ACTIVE)) {
   $inherited_users = array();
-  foreach (og_subgroups_parents_load($group_type, $group_id) as $parent_type => $parent_ids) {
+  $parents = og_subgroups_parents_load($group_type, $group_id);
+  foreach ($parents as $parent_type => $parent_ids) {
     foreach ($parent_ids as $parent_id) {
       $users = og_subgroups_get_users_group($parent_type, $parent_id, $states);
       foreach ($users['user'] as $membership_id => $uid) {
@@ -468,7 +499,7 @@ function og_subgroups_children_load_multiple($groups, $filter = TRUE, $fetch_all
         else {
           $group_cache[$cid] = array();
 
-          foreach (og_subgroups_get_associated_entities($group_type, $group_id) as $entity_type => $entity_ids) {
+          foreach (og_subgroups_get_associated_entities($group_type, $group_id, array(), TRUE) as $entity_type => $entity_ids) {
             $group_cache[$cid][$entity_type] = drupal_map_assoc($entity_ids);
           }
           cache_set($cid, $group_cache[$cid]);

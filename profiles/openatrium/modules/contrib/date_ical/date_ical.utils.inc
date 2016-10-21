@@ -14,12 +14,12 @@
 function _date_ical_get_repeat_dates($field_name, $repeat_data, $item, $source) {
   module_load_include('inc', 'date_api', 'date_api_ical');
   $field_info = field_info_field($field_name);
-  
+
   $rrule_values = _date_ical_parse_repeat_rule($repeat_data['RRULE']);
   //$exrule_values = _date_ical_parse_repeat_rule($repeat_data['EXRULE']);
   $rdates = _date_ical_parse_repeat_dates($repeat_data['RDATE']);
   $exdates = _date_ical_parse_repeat_dates($repeat_data['EXDATE']);
-  
+
   // By the time we get here, the start and end dates have been
   // adjusted back to UTC, but we want localtime dates to do
   // things like '+1 Tuesday', so adjust back to localtime.
@@ -40,7 +40,7 @@ function _date_ical_get_repeat_dates($field_name, $repeat_data, $item, $source) 
   }
   $duration = $start->difference($end);
   $start_datetime = date_format($start, DATE_FORMAT_DATETIME);
-  
+
   if (!empty($rrule_values['UNTIL']['datetime'])) {
     // The spec says that UNTIL must be in UTC, but not all feed creators
     // follow that rule. If the user specified that he wanted to overcome this
@@ -50,7 +50,7 @@ function _date_ical_get_repeat_dates($field_name, $repeat_data, $item, $source) 
       // Change the parsed UNTIL from UTC to $timezone, so that the
       // date_ical_date() won't convert it.
       $rrule_values['UNTIL']['tz'] = $timezone;
-      
+
       // Convert the unparsed UNTIL to UTC, since the Date code will use it.
       // It may currently have a Z on it, but only because iCalcreator blindly
       // adds one to DATETIME-type UNTILs if it's not there.
@@ -81,7 +81,7 @@ function _date_ical_get_repeat_dates($field_name, $repeat_data, $item, $source) 
     // No UNTIL and no COUNT? This is an illegal RRULE.
     return array();
   }
-  
+
   // Convert the EXDATE and RDATE values to datetime strings.
   // Even though exdates and rdates can be specified to the second, Date
   // Repeat's code checks them by comparing them to the date value only.
@@ -95,9 +95,9 @@ function _date_ical_get_repeat_dates($field_name, $repeat_data, $item, $source) 
     $date = date_ical_date($rdate, $timezone);
     $additions[] = date_format($date, 'Y-m-d');
   }
-  
+
   // TODO: EXRULEs.
-  
+
   $date_repeat_compatible_rrule = "{$repeat_data['RRULE']}\n{$repeat_data['RDATE']}\n{$repeat_data['EXDATE']}";
   $calculated_dates = date_repeat_calc($date_repeat_compatible_rrule, $start_datetime, $final_repeat_datetime, $exceptions, $timezone, $additions);
   $repeat_dates = array();
@@ -131,7 +131,7 @@ function _date_ical_get_repeat_dates($field_name, $repeat_data, $item, $source) 
  */
 function _date_ical_parse_repeat_rule($repeat_rule_string) {
   module_load_include('inc', 'date_api', 'date_api_ical');
-  
+
   $repeat_rule_string = preg_replace('/(R|EX)RULE.*:/', '', $repeat_rule_string);
   $items = array('DATA' => $repeat_rule_string);
   foreach (explode(';', $repeat_rule_string) as $recur_val) {
@@ -140,7 +140,7 @@ function _date_ical_parse_repeat_rule($repeat_rule_string) {
     if (empty($key) || empty($value)) {
       continue;
     }
-    
+
     // The following keys never have multiple values.
     if (in_array($key, array('UNTIL', 'FREQ', 'INTERVAL', 'COUNT', 'WKST'))) {
       if ($key == 'UNTIL') {
@@ -152,7 +152,7 @@ function _date_ical_parse_repeat_rule($repeat_rule_string) {
       // The rest can be multi-value csv strings.
       $value = explode(',', $value);
     }
-    
+
     $items[$key] = $value;
   }
   return $items;
@@ -171,10 +171,10 @@ function _date_ical_parse_repeat_rule($repeat_rule_string) {
  */
 function _date_ical_parse_repeat_dates($repeat_date_string) {
   module_load_include('inc', 'date_api', 'date_api_ical');
-  
+
   $properties = explode("\n", str_replace("\r\n", "\n", $repeat_date_string));
   $parsed_dates = array();
-  
+
   foreach ($properties as $property) {
     $matches = array();
     if (preg_match('/(R|EX)DATE([^:]*):(.*)/', $property, $matches)) {

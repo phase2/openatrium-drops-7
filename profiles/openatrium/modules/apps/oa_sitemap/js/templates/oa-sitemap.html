@@ -80,7 +80,7 @@
       </section>
 
       <section class="oa-subspaces">
-        <oa-space-box ng-repeat="space_index in space.subspaces track by $index" ng-if="allSpaces[space_index] != undefined"
+        <oa-space-box ng-repeat="space_index in space.subspaces | orderSpacesBy: 'title':allSpaces track by $index" ng-if="allSpaces[space_index] != undefined"
           drag-drop="dragDrop"
           space="allSpaces[space_index]"
           delete-space="deleteSpace(space)"

@@ -59,10 +59,34 @@ function clone_menu() {
   return $items;
 }
 
-function clone_token_to_arg($arg = NULL, $map = NULL, $index = NULL) {
+/**
+ * Implements a to_arg function for the clone local action.
+ *
+ * @param string $arg
+ *   The current argument value.
+ * @param array $map
+ *   The path arguments.
+ *
+ * @return string
+ *   Either 'confirm' or a CSRF token.
+ */
+function clone_token_to_arg($arg, $map) {
   // Supply CSRF token if needed.
+  return clone_get_token($map[1]);
+}
+
+/**
+ * Get the token that needs to be added to the clone link.
+ *
+ * @param int $nid
+ *   The node ID of the node to be cloned
+ *
+ * @return string
+ *   Either 'confirm' or a CSRF token.
+ */
+function clone_get_token($nid) {
   if (variable_get('clone_nodes_without_confirm', FALSE)) {
-    return drupal_get_token('clone_access_cloning');
+    return drupal_get_token('clone_access_cloning-' . $nid);
   }
   return 'confirm';
 }
@@ -71,7 +95,7 @@ function clone_access_cloning($node, $check_token = FALSE, $token = FALSE) {
   global $user;
   // Check CSRF token if needed.
   if ($check_token) {
-    if (!$token || $token !== clone_token_to_arg()) {
+    if (!$token || $token !== clone_get_token($node->nid)) {
       return FALSE;
     }
   }
@@ -163,7 +187,12 @@ function clone_form_node_form_alter(&$form, $form_state, $form_id) {
  * Implements hook_form_FORM_ID_alter().
  */
 function clone_form_node_admin_content_alter(&$form, $form_state, $form_id) {
-  $destination = drupal_get_destination();
+  if (variable_get('clone_method', 'prepopulate') == 'prepopulate') {
+    $destination = drupal_get_destination();
+  }
+  else {
+    $destination = array();
+  }
   // The property attribute changes in the $form array depending on the user role.
   $property = isset($form['admin']['nodes']['#options']) ? '#options' : '#rows';
   if (empty($form['admin']['nodes'][$property])) {
@@ -173,9 +202,25 @@ function clone_form_node_admin_content_alter(&$form, $form_state, $form_id) {
   foreach ($form['admin']['nodes'][$property] as $nid => &$row) {
     $node = node_load($nid);
     if (clone_access_cloning($node)) {
+      // The structure of this form is different if there is just 1 or more
+      // than one operation.
+      if (!isset($row['operations']['data']['#links'])) {
+        $row['operations']['data']['#links'] = array();
+        $row['operations']['data']['#attributes']['class'] = array('links', 'inline');
+        $row['operations']['data']['#theme'] = 'links__node_operations';
+        if (isset($row['operations']['data']['#title'])) {
+          $title = $row['operations']['data']['#title'];
+          $row['operations']['data']['#links'][$title] = array(
+            'title' => $title,
+            'href' => $row['operations']['data']['#href'],
+            'query' => $row['operations']['data']['#options']['query'],
+          );
+          unset($row['operations']['data']['#type']);
+        }
+      }
       $row['operations']['data']['#links']['clone'] = array(
         'title' => t('clone'),
-        'href' => 'node/' . $nid . '/clone/' . clone_token_to_arg(),
+        'href' => 'node/' . $nid . '/clone/' . clone_get_token($nid),
         'query' => $destination,
       );
     }
@@ -230,7 +275,7 @@ function clone_action_clone($original_node, $context) {
       }
     }
     // Let other modules do special fixing up.
-    $context = array('method' => 'action', 'original_node' => $original_node);
+    $context = array('method' => 'action', 'original_node' => $original_node, 'clone_context' => $val);
     drupal_alter('clone_node', $node, $context);
     node_save($node);
     if (module_exists('rules')) {

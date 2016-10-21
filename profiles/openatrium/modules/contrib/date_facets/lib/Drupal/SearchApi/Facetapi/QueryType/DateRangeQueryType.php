@@ -78,14 +78,19 @@ class Drupal_SearchApi_Facetapi_QueryType_DateRangeQueryType extends SearchApiFa
       // Build the markup for the facet's date ranges.
       $build = date_facets_get_ranges_render_arrays($ranges);
 
+      $ranges_timestamps = array();
+      foreach ($ranges as $key => $item) {
+        list($start, $end) = $this->generateRange($item);
+        $ranges_timestamps[$key] = array('start' => $start, 'end' => $end);
+      }
+
       // Calculate values by facet.
       foreach ($values as $value) {
         $value['filter'] = str_replace('"', '', $value['filter']);
 
-        foreach ($ranges as $key => $item) {
-          list($start, $end) = $this->generateRange($item);
-          $future_interval = ($item['date_range_end_op'] == '+' && $start <= $value['filter'] && $value['filter'] <= $end);
-          $past_interval = $item['date_range_start_op'] == '-' && $start <= $value['filter'] && $value['filter'] <= $end;
+        foreach ($ranges_timestamps as $key => $interval) {
+          $future_interval = ($item['date_range_end_op'] == '+' && $interval['start'] <= $value['filter'] && $value['filter'] <= $interval['end']);
+          $past_interval = $item['date_range_start_op'] == '-' && $interval['start'] <= $value['filter'] && $value['filter'] <= $interval['end'];
           if ($future_interval || $past_interval) {
             $build[$key]['#count'] += $value['count'];
           }

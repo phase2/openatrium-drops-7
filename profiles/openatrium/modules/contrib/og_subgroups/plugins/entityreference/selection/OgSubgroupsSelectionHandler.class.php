@@ -151,3 +151,4 @@ class OgSubgroupsSelectionHandler extends OgSelectionHandler {
     }
     return $ids;
   }
+}

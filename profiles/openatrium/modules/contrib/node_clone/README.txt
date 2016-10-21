@@ -34,7 +34,10 @@ especially if you are using a complex (non-core) field or custom node type,
 you should evaluate this module on a test site with a copy of your database
 before attempting to use it on a live site. On the settings page you may choose
 node types to be omitted from the cloning mechanism - no users will be able
-to clone a node of an omitted type.
+to clone a node of an omitted type. For example, if you use Field Collections,
+you may need to also enable the extra Field Collection Node Clone module from
+https://www.drupal.org/project/field_collection_node_clone Otherwise, the cloned
+node will reference the items in the original field collection.
 
 This module makes no attempt to respect field-level permissions set via
 the Field Permissions module, or any other module that implements

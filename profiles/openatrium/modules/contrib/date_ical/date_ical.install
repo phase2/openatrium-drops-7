@@ -9,10 +9,10 @@
  */
 function date_ical_requirements($phase) {
   $requirements = array();
-  
+
   // Ensure translations don't break at install time.
   $t = get_t();
-  
+
   if ($phase == 'runtime') {
     if (!function_exists('libraries_detect')) {
       $requirements['date_ical'] = array(
@@ -26,7 +26,7 @@ function date_ical_requirements($phase) {
       // Return immediately, since we can't even attempt to determine if iCalcreator is installed.
       return $requirements;
     }
-    
+
     $library = libraries_detect('iCalcreator');
     if ($library && !empty($library['installed'])) {
       $requirements['date_ical'] = array(
@@ -46,7 +46,7 @@ function date_ical_requirements($phase) {
       );
     }
   }
-  
+
   return $requirements;
 }
 
@@ -73,7 +73,7 @@ function date_ical_update_7300() {
   // Drupal attempts to instantiate the old feeds plugin classes.
   registry_rebuild();
   cache_clear_all('plugins:feeds:plugins', 'cache');
-  
+
   // Update all the importers which used DateIcalIcalcreatorParser to use
   // DateiCalFeedsParser instead.
   $importer_data = ctools_export_load_object('feeds_importer', 'all');
@@ -81,7 +81,7 @@ function date_ical_update_7300() {
     $importer = feeds_importer($key);
     $importer_config = $importer->getConfig();
     $needs_update = ($importer_config['parser']['plugin_key'] == 'DateIcalIcalcreatorParser');
-    
+
     $processor = $importer->processor;
     $processor_config = $processor->getconfig();
     // Also update importers which use the new parser, but have un-capitalized
@@ -91,18 +91,18 @@ function date_ical_update_7300() {
         && !empty($processor_config['mappings'][0]['source'])) {
       $needs_update = (strtoupper($processor_config['mappings'][0]['source']) != $processor_config['mappings'][0]['source']);
     }
-    
+
     if ($needs_update) {
       $importer->setPlugin('DateiCalFeedsParser');
-      
+
       // Source keys are now capitalized, so we need to update the mappings.
       foreach ($processor_config['mappings'] as &$mapping) {
         $mapping['source'] = strtoupper($mapping['source']);
       }
       $processor->setConfig($processor_config);
-      
+
       $importer->save();
-      
+
       // When this importer object got created, a warning was issued about its
       // parser plugin being missing. We corrected that warning above, so we
       // should clear it out to avoid potential confusion.

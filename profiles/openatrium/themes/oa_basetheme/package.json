@@ -6,7 +6,7 @@
     "start": "gulp compile && gulp",
     "compile": "gulp compile",
     "test": "gulp validate",
-    "postinstall": "find node_modules/ -name '*.info' -type f -delete && bower install"
+    "postinstall": "find node_modules/ -name '*.info' -type f -delete && bower install --allow-root"
   },
   "dependencies": {
     "babel-preset-es2015": "^6.3.13",

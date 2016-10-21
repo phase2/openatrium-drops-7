@@ -187,7 +187,7 @@ function _oa_buttons_get_space_command_buttons($node, &$buttons, $all = FALSE) {
   _oa_buttons_get_node_command_buttons($node, $buttons);
 
   if ($node->type == 'oa_space') {
-    $sections = oa_core_space_sections($node->nid);
+    $sections = oa_core_space_sections($node->nid, NODE_PUBLISHED);
     if (count($sections)) {
       // If we are within a section only show the buttons for this specific section.
       if (!$all && ($section = oa_core_get_section_context())) {

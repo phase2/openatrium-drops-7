@@ -155,6 +155,7 @@ function oa_related_oa_paragraph_snippet_render(&$vars, $bundle, $field_name, $v
 
         // Render the body.
         $vars['snippet_body'] = render($snippet_body);
+        $vars['snippet_title'] = '';
 
         if ($value != '_none') {
           if (is_numeric($value)) {

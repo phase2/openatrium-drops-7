@@ -7,7 +7,7 @@ core = 7.x
 ; ******************** RELEASE *******************
 
 projects[oa_core][subdir] = contrib
-projects[oa_core][version] = 2.79
+projects[oa_core][version] = 2.80
 
 ; ************************************************
 ; ************* Open Atrium Builtin Apps *********
@@ -16,13 +16,13 @@ projects[oa_discussion][subdir] = apps
 projects[oa_discussion][version] = 2.41
 
 projects[oa_events][subdir] = apps
-projects[oa_events][version] = 2.41
+projects[oa_events][version] = 2.42
 
 projects[oa_wiki][subdir] = apps
 projects[oa_wiki][version] = 2.40
 
 projects[oa_worktracker][subdir] = apps
-projects[oa_worktracker][version] = 2.9
+projects[oa_worktracker][version] = 2.10
 
 ; ******** End Open Atrium Builtin Apps **********
 ; ************************************************
@@ -44,10 +44,10 @@ projects[oa_appearance][subdir] = apps
 projects[oa_archive][version] = 2.4
 projects[oa_archive][subdir] = apps
 
-projects[oa_brand][version] = 2.4
+projects[oa_brand][version] = 2.5
 projects[oa_brand][subdir] = apps
 
-projects[oa_clone][version] = 2.9
+projects[oa_clone][version] = 2.11
 projects[oa_clone][subdir] = apps
 
 projects[oa_comment][version] = 2.10
@@ -74,7 +74,7 @@ projects[oa_favorites][subdir] = apps
 projects[oa_files][version] = 2.18
 projects[oa_files][subdir] = apps
 
-projects[oa_home][version] = 2.4
+projects[oa_home][version] = 2.5
 projects[oa_home][subdir] = apps
 
 projects[oa_htmlmail][version] = 2.1
@@ -93,30 +93,30 @@ projects[oa_messages_digest][version] = 2.1
 projects[oa_messages_digest][subdir] = apps
 
 projects[oa_notifications][subdir] = apps
-projects[oa_notifications][version] = 2.30
+projects[oa_notifications][version] = 2.31
 
 projects[oa_project][version] = 2.2
 projects[oa_project][subdir] = apps
 
-projects[oa_related][version] = 2.10
+projects[oa_related][version] = 2.12
 projects[oa_related][subdir] = apps
 
 projects[oa_sandbox][version] = 2.2
 projects[oa_sandbox][subdir] = apps
 
-projects[oa_search][version] = 2.8
+projects[oa_search][version] = 2.9
 projects[oa_search][subdir] = apps
 
 projects[oa_site_layout][version] = 2.2
 projects[oa_site_layout][subdir] = apps
 
-projects[oa_sitemap][version] = 2.11
+projects[oa_sitemap][version] = 2.12
 projects[oa_sitemap][subdir] = apps
 
 projects[oa_styles][version] = 2.1
 projects[oa_styles][subdir] = apps
 
-projects[oa_subspaces][version] = 2.36
+projects[oa_subspaces][version] = 2.37
 projects[oa_subspaces][subdir] = apps
 
 projects[oa_toolbar][version] = 2.13
@@ -139,10 +139,10 @@ projects[oa_wizard][subdir] = apps
 ; ************** Open Atrium Themes **************
 
 projects[oa_basetheme][type] = theme
-projects[oa_basetheme][version] = 2.3
+projects[oa_basetheme][version] = 2.4
 
 projects[oa_theme][type] = theme
-projects[oa_theme][version] = 2.3
+projects[oa_theme][version] = 2.4
 
 projects[oa_radix][type] = theme
 projects[oa_radix][version] = 3.25
@@ -174,7 +174,7 @@ projects[panopoly_images][patch][2521968] = https://www.drupal.org/files/issues/
 
 projects[panopoly_theme][version] = 1.40
 projects[panopoly_theme][subdir] = panopoly
-projects[panopoly_theme][patch][2656920] = https://www.drupal.org/files/issues/2656920-panopoly-theme-radix-layouts-3.patch
+projects[panopoly_theme][patch][2656920] = https://www.drupal.org/files/issues/2656920-panopoly-theme-radix-layouts-4.patch
 
 projects[panopoly_magic][version] = 1.40
 projects[panopoly_magic][subdir] = panopoly
@@ -199,6 +199,7 @@ projects[panopoly_wysiwyg][subdir] = panopoly
 
 projects[panopoly_search][version] = 1.40
 projects[panopoly_search][subdir] = panopoly
+projects[panopoly_search][patch][2790595] = https://www.drupal.org/files/issues/solrphpclient_cannot_be-2790595-10.patch
 
 ; ***************** End Panopoly *****************
 ; ************************************************

@@ -78,10 +78,10 @@
       // Add render references dialog, so that we know that we should be in a
       // dialog.
       href += (href.indexOf('?') > -1 ? '&' : '?') + 'render=references-dialog';
-      // Get the current window size and do 75% of the width and 90% of the height.
+      // Get the current window size and do 75% of the width and 75% of the height.
       // @todo Add settings for this so that users can configure this by themselves.
       var window_width = $window.width() / 100*75;
-      var window_height = $window.height() / 100*90;
+      var window_height = $window.height() / 100*75;
       this.open_dialog = $('<iframe class="references-dialog-iframe" src="' + href + '"></iframe>').dialog({
         width: window_width,
         height: window_height,
@@ -89,7 +89,7 @@
         resizable: false,
         position: ['center', 50],
         title: title,
-        close: function () { Drupal.ReferencesDialog.dialog_open = false; }
+        close: function () { Drupal.ReferencesDialog.dialog_open = false; $('body').removeClass('references-dialog-no-scroll'); }
       }).width(window_width-10).height(window_height);
       $window.bind('resize scroll', function () {
         // Move the dialog the main window moves.
@@ -100,6 +100,7 @@
         }
       });
       this.dialog_open = true;
+      $('body').addClass('references-dialog-no-scroll');
     }
   }
 
@@ -110,7 +111,7 @@
   Drupal.ReferencesDialog.setDimensions = function () {
     if (typeof Drupal.ReferencesDialog == 'object') {
       var window_width = $window.width() / 100*75;
-      var window_height = $window.height() / 100*90;
+      var window_height = $window.height() / 100*75;
       this.open_dialog.
         dialog('option', 'width', window_width).
         dialog('option', 'height', window_height).

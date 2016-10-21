@@ -54,8 +54,9 @@ class og_subgroups_plugin_argument_default_user_groups extends views_plugin_argu
     // and return them concatenated.
     $gids = og_get_groups_by_user(NULL, $this->options['group_type']);
     $sub_gids = og_subgroup_user_groups_load($user);
-    if (is_array($gids) && isset($sub_gids['node'])) {
-      $total_gids = $gids + $sub_gids['node'];
+    if (is_array($gids) || isset($sub_gids['node'])) {
+      $total_gids = !empty($sub_gids['node']) ? $gids + $sub_gids['node'] : $gids;
+      
       if (!empty($total_gids)) {
         return implode($this->options['glue'], $total_gids);
       }

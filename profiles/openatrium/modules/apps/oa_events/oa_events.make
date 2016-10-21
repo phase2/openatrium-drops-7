@@ -29,7 +29,7 @@ projects[colors][patch][1814972] = http://drupal.org/files/og-7.x-2.x_0.patch
 projects[colors][patch][2044395] = http://drupal.org/files/colors-entityreference_taxonomy-2044395-1.patch
 
 ; Date ICal
-projects[date_ical][version] = 3.5
+projects[date_ical][version] = 3.9
 projects[date_ical][subdir] = contrib
 
 ; GeoPHP

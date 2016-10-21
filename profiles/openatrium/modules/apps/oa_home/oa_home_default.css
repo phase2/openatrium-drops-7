@@ -120,9 +120,8 @@ body.front #block-system-help {
   padding: 15px 25px;
 }
 
-.pane-oa-home-default .hero h3 {
+.pane-oa-home-default .hero .create-btn {
   text-align: center;
-  color: #fd4e88;
   font-weight: 100;
   padding: 30px 0 30px 0;
   margin: 22px 0 0 0;

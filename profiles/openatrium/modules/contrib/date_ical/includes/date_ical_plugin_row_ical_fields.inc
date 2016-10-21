@@ -9,7 +9,7 @@
  * A Views plugin which builds an iCal VEVENT from a views row with Fields.
  */
 class date_ical_plugin_row_ical_fields extends views_plugin_row {
-  
+
   /**
    * Set up the options for the row plugin.
    */
@@ -22,7 +22,7 @@ class date_ical_plugin_row_ical_fields extends views_plugin_row {
     $options['additional_settings']['skip_blank_dates'] = array('default' => FALSE);
     return $options;
   }
-  
+
   /**
    * Build the form for setting the row plugin's options.
    */
@@ -32,7 +32,7 @@ class date_ical_plugin_row_ical_fields extends views_plugin_row {
     $date_field_labels = $this->get_date_field_candidates($all_field_labels);
     $date_field_label_options = array_merge(array('first_available' => t('First populated Date field')), $date_field_labels);
     $text_field_label_options = array_merge(array('' => t('- None -')), $all_field_labels);
-    
+
     $form['instructions'] = array(
       // The surrounding <div> ensures that the settings dialog expands.
       '#prefix' => '<div style="font-size: 90%">',
@@ -88,7 +88,7 @@ class date_ical_plugin_row_ical_fields extends views_plugin_row {
       '#default_value' => $this->options['additional_settings']['skip_blank_dates'],
     );
   }
-  
+
   /**
    * Set up the environment for the render() function.
    */
@@ -101,13 +101,13 @@ class date_ical_plugin_row_ical_fields extends views_plugin_row {
     }
     $this->repeated_dates = array();
   }
-  
+
   /**
    * Returns an Event array row in the query with index: $row->index.
    */
   public function render($row) {
     $date_field_name = $this->options['date_field'];
-    
+
     // If this view is set to use the first populated date field, check each
     // field in the row to find the first non-NULL Date field.
     if ($date_field_name == 'first_available') {
@@ -123,7 +123,7 @@ class date_ical_plugin_row_ical_fields extends views_plugin_row {
         }
       }
     }
-    
+
     // Fetch the event's date information.
     try {
       if ($date_field_name == 'first_available') {
@@ -147,10 +147,10 @@ class date_ical_plugin_row_ical_fields extends views_plugin_row {
         throw $e;
       }
     }
-    
+
     // Create the event by starting with the date array from this row.
     $event = $date;
-    
+
     $entity = $row->_field_data[$this->view->base_field]['entity'];
     $entity_type = $row->_field_data[$this->view->base_field]['entity_type'];
     // Add the CREATED, LAST-MODIFIED, and URL components based on the entity.
@@ -170,7 +170,7 @@ class date_ical_plugin_row_ical_fields extends views_plugin_row {
     $uri = entity_uri($entity_type, $entity);
     $uri['options']['absolute'] = TRUE;
     $event['url'] = url($uri['path'], $uri['options']);
-    
+
     // Generate a unique ID for this event by emulating the way the Date module
     // creates a Date ID.
     if (isset($row->{"field_data_{$date_field_name}_delta"})) {
@@ -193,7 +193,7 @@ class date_ical_plugin_row_ical_fields extends views_plugin_row {
     global $base_url;
     $domain = preg_replace('#^https?://#', '', $base_url);
     $event['uid'] = "calendar.$entity_id.$date_field_name.$date_field_delta@$domain";
-    
+
     // Because of the way that Date implements repeating dates, we're going to
     // be given a separate view result for each repeat. We only want to
     // render a VEVENT (with an RRULE) for the first instance of that date, so
@@ -208,12 +208,12 @@ class date_ical_plugin_row_ical_fields extends views_plugin_row {
         return FALSE;
       }
     }
-    
+
     // Retrieve the rendered text fields.
     $text_fields['summary'] = $this->get_field($row->index, $this->options['title_field']);
     $text_fields['description'] = $this->get_field($row->index, $this->options['description_field']);
     $text_fields['location'] = $this->get_field($row->index, $this->options['location_field']);
-    
+
     // Allow other modules to alter the rendered text fields before they get
     // sanitized for iCal-compliance. This is most useful for fields of type
     // "Content: Rendered Node", which are likely to have complex HTML.
@@ -224,16 +224,16 @@ class date_ical_plugin_row_ical_fields extends views_plugin_row {
       'options' => $this->options,
     );
     drupal_alter('date_ical_export_html', $text_fields, $this->view, $context);
-    
+
     // Sanitize the text fields for iCal compliance, and add them to the event.
     $event['summary'] = date_ical_sanitize_text($text_fields['summary']);
     $event['location'] = date_ical_sanitize_text($text_fields['location']);
     $event['description'] = date_ical_sanitize_text($text_fields['description']);
-    
+
     // Allow other modules to alter the event object before it gets passed to
     // the style plugin to be converted into an iCal VEVENT.
     drupal_alter('date_ical_export_raw_event', $event, $this->view, $context);
-    
+
     return $event;
   }
 
@@ -254,15 +254,15 @@ class date_ical_plugin_row_ical_fields extends views_plugin_row {
     $rrule = NULL;
     $delta = 0;
     $is_date_field = FALSE;
-    
+
     // Fetch the date field value.
     $date_field_value = $this->view->style_plugin->get_field_value($row->index, $date_field_name);
-    
+
     // Handle date fields.
     if (isset($date_field_value[$delta]) && is_array($date_field_value[$delta])) {
       $is_date_field = TRUE;
       $date_field = $date_field_value[$delta];
-      
+
       $start = new DateObject($date_field['value'], $date_field['timezone_db']);
       if (!empty($date_field['value2'])) {
         $end = new DateObject($date_field['value2'], $date_field['timezone_db']);
@@ -270,7 +270,7 @@ class date_ical_plugin_row_ical_fields extends views_plugin_row {
       else {
         $end = clone $start;
       }
-      
+
       if (isset($date_field['rrule'])) {
         $rrule = $date_field['rrule'];
       }
@@ -285,41 +285,41 @@ class date_ical_plugin_row_ical_fields extends views_plugin_row {
       $title = strip_tags($this->view->style_plugin->get_field($row->index, $this->options['title_field']));
       throw new BlankDateFieldException(t("The row %title has a blank date. An iCal entry cannot be created for it.", array('%title' => $title)));
     }
-    
+
     // Set the display timezone to whichever tz is stored for this field.
     // If there isn't a stored TZ, use the site default.
     $timezone = isset($date_field['timezone']) ? $date_field['timezone'] : date_default_timezone(FALSE);
     $dtz = new DateTimeZone($timezone);
     $start->setTimezone($dtz);
     $end->setTimezone($dtz);
-    
+
     $granularity = 'second';
     if ($is_date_field) {
       $granularity_settings = $this->view->field[$date_field_name]->field_info['settings']['granularity'];
       $granularity = date_granularity_precision($granularity_settings);
     }
-    
+
     // Check if the start and end dates indicate that this is an All Day event.
     $all_day = date_is_all_day(
       date_format($start, DATE_FORMAT_DATETIME),
       date_format($end, DATE_FORMAT_DATETIME),
       $granularity
     );
-    
+
     if ($all_day) {
       // According to RFC 2445 (clarified in RFC 5545) the DTEND value is
       // non-inclusive. When dealing with All Day values, they are DATEs rather
       // than DATETIMEs, so we need to add a day to conform to RFC.
       $end->modify("+1 day");
     }
-    
+
     $date = array(
       'start' => $start,
       'end' => $end,
       'all_day' => $all_day,
       'rrule' => $rrule,
     );
-    
+
     return $date;
   }
 
@@ -339,7 +339,7 @@ class date_ical_plugin_row_ical_fields extends views_plugin_row {
     $field_candidates = array();
     // These are Date, Date (ISO format), and Date (Unix timestamp).
     $date_fields = array('datetime', 'date', 'datestamp');
-    
+
     foreach ($view_fields as $alias => $label) {
       $handler_class = get_class($handlers[$alias]);
       if ($handler_class == 'views_handler_field_date'

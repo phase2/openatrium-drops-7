@@ -54,10 +54,6 @@ function date_facets_associate_widget(array &$facet_info) {
  *
  * Just added a basic functionality.
  * Might need to be expanded for more functionality.
- *
- * @param array $values
- * @param array $options
- * @return array
  */
 function _date_facets_api_facet_create_label(array $values, array $options) {
   $map = array();
@@ -71,7 +67,7 @@ function _date_facets_api_facet_create_label(array $values, array $options) {
 
   // Loop through all the values to create a map.
   // Pull the correct display value from the range definitions.
-  foreach ($values as $key => $value) {
+  foreach ($values as $value) {
     $map[$value] = $ranges[$value]['#markup'];
   }
 
@@ -80,9 +76,6 @@ function _date_facets_api_facet_create_label(array $values, array $options) {
 
 /**
  * Returns configured ranges or default range if none are configured.
- *
- * @param string $facet_name
- * @return array
  */
 function date_facets_get_ranges($facet_name, $index_id) {
   $ranges = array();
@@ -116,9 +109,18 @@ function date_facets_get_ranges_render_arrays($ranges) {
 
   uasort($ranges, 'drupal_sort_weight');
   foreach ($ranges as $range_data) {
+    $markup = $range_data['label'];
+    // Translate through i18n if it's possible.
+    if (function_exists('i18n_string_translate')) {
+      $markup = i18n_string_translate(
+        array('date_facets', 'facet_label', $range_data['machine_name'], 'label'),
+        $markup
+      );
+    }
+
     $build[$range_data['machine_name']] = $range_data + array(
       '#count' => NULL,
-      '#markup' => t(check_plain($range_data['label'])),
+      '#markup' => $markup,
     );
   }
 
@@ -226,6 +228,24 @@ function date_facets_tabledrag_form_validate($form, &$form_state) {
 }
 
 /**
+ * Submit callback for the facet settings form.
+ */
+function date_facets_facet_settings_form_submit($form, $form_state) {
+  if (!empty($form_state['values']['widget'])) {
+    // Update i18n_strings only when one of date facets widgets is active.
+    if (in_array($form_state['values']['widget'], array('date_range', 'date_range_checkboxes'))) {
+      // Update the i18n string if need.
+      if (function_exists('i18n_string_update')) {
+        foreach ($form_state['values']['ranges'] as $key => $range) {
+          $name = array('date_facets', 'facet_label', $range['machine_name'], 'label');
+          i18n_string_update($name, $range['label']);
+        }
+      }
+    }
+  }
+}
+
+/**
  * Date range machine name existence check.
  * @TODO: Make this actually work.
  */
@@ -304,3 +324,17 @@ function date_facets_default_ranges() {
   );
 }
 
+/**
+ * Implements hook_i18n_string_info().
+ */
+function date_facets_i18n_string_info() {
+  $groups['date_facets'] = array(
+    'title' => t('Date facets'),
+    'description' => t('Translatable date facets: label.'),
+    // This group doesn't have strings with format.
+    'format' => FALSE,
+    // This group can list all strings.
+    'list' => TRUE,
+  );
+  return $groups;
+}

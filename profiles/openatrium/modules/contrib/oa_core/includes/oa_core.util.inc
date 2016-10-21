@@ -425,12 +425,14 @@ function oa_core_get_nids_title_matching($nids, $bundle = OA_SPACE_TYPE, $status
  * @param int|NULL $account
  *   (optional) user to control node acess.  If Null, use current user
  * @param bool $subspaces
- *   determine if subspaces are also fetched, or if just top level children are fetched
+ *   (optional) determine if subspaces are also fetched, or if just top level children are fetched
+ * @param bool $inheritance
+ *   (optional) if TRUE, only return subspaces that have inheritance enabled
  *
  * @return array
  *   Array of children NIDs.
  */
-function oa_core_get_groups_by_parent($nids, $bundle = OA_SPACE_TYPE, $status = NULL, $include_archived = FALSE, $account = NULL, $subspaces = FALSE) {
+function oa_core_get_groups_by_parent($nids, $bundle = OA_SPACE_TYPE, $status = NULL, $include_archived = FALSE, $account = NULL, $subspaces = FALSE, $inheritance = TRUE) {
 
   if ($nids == 0) {
     return oa_core_get_top_parents($bundle, $status, $include_archived, $account);
@@ -499,10 +501,17 @@ function oa_core_get_groups_by_parent($nids, $bundle = OA_SPACE_TYPE, $status = 
     $query->fields('f', array('gid'));
     $query->condition('f.etid', $nids, 'NOT IN');
     $query->join('field_data_og_user_inheritance', 'inh', "inh.entity_id = f.gid && f.group_type = 'node'");
-    $query->condition('inh.og_user_inheritance_value', 1);
-    $all_parents = $query->execute()->fetchAll();
+    $query->fields('inh', array('og_user_inheritance_value'));
+    $result = $query->execute()->fetchAll();
+
     // to get a list of all subspaces, we can now loop through the list of all parents recursively
     // to build our children list
+    $all_parents = array();
+    foreach ($result as $parent) {
+      if (!$inheritance || $parent->og_user_inheritance_value == 1) {
+        $all_parents[$parent->gid][] = $parent->nid;
+      }
+    }
     $result = _oa_core_get_all_children($all_parents, $nids);
   }
   else {
@@ -518,18 +527,10 @@ function oa_core_get_groups_by_parent($nids, $bundle = OA_SPACE_TYPE, $status = 
 /**
  * Helper function to return children of a list of parents.
  *
- * @param $all_parents array of nid,gid for all spaces
+ * @param $all_parents array of sub-space nids keyed by space id for all spaces
  * @param $nids array an array of parents we want children for
  */
-function _oa_core_get_all_children(&$all_parents, $nids, &$processed = NULL) {
-  if (!isset($processed)) {
-    $processed = array();
-    $save = $all_parents;
-    $all_parents = array();
-    foreach ($save as $parent) {
-      $all_parents[$parent->gid][] = $parent->nid;
-    }
-  }
+function _oa_core_get_all_children($all_parents, $nids, &$processed = array()) {
   $processed = array_merge($nids, $processed);
   $result = array();
   $children = array();
@@ -1225,7 +1226,7 @@ function oa_core_entity_build_display($entity, $id, $space, $subpage = '') {
       $display['title'] = l($entity->title, 'node/' . $entity->nid . $subpage);
     }
     else {
-      $display['title'] = t('A @type', array('@type' => array('@type' => node_type_get_name($entity->type))));
+      $display['title'] = t('A @type', array('@type' => node_type_get_name($entity->type)));
     }
     $display['picture'] = '';
     $display['uid'] = 0;

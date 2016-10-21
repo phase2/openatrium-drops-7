@@ -230,7 +230,7 @@ function oa_core_node_update($node) {
     $rebuild = module_invoke_all('oa_core_og_content_needs_rebuild', $node);
     if (in_array(TRUE, $rebuild, TRUE)) {
       // Get all subgroups for this node.
-      $subgroup_nids = oa_core_get_groups_by_parent($node->nid, $node->type, NULL, FALSE, NULL, TRUE);
+      $subgroup_nids = oa_core_get_groups_by_parent($node->nid, $node->type, NULL, FALSE, NULL, TRUE, FALSE);
       $batch = batch_get();
       // Don't do nested batch
       if (empty($batch)) {

@@ -14,8 +14,15 @@ body {
   font-family: 'Open Sans', sans-serif;
 }
 
-.mceContentBody, .mceContentBody p, .mceContentBody ol, .mceContentBody ul {
+p, ol, ul {
   font-family: 'Open Sans', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Open Sans', sans-serif;
+}
+
+.mceContentBody, .mceContentBody p, .mceContentBody ol, .mceContentBody ul {
   line-height: 1.5em;
   color: #60616d;
   font-size: 16px;
@@ -64,39 +71,9 @@ body {
 .pane-page-content .oa-news-body p,
 .pane-page-content .oa-news-body ol,
 .pane-page-content .oa-news-body ul {
-  font-family: 'Open Sans', sans-serif;
   line-height: 1.5em;
   color: #60616d;
   font-size: 18px;
-}
-
-.pane-page-content .field-type-text-with-summary .field-item h1, .pane-page-content .field-type-text-with-summary .field-item h2, .pane-page-content .field-type-text-with-summary .field-item h3, .pane-page-content .field-type-text-with-summary .field-item h4, .pane-page-content .field-type-text-with-summary .field-item h5,
-.pane-page-content .field-type-text-long .field-item h1,
-.pane-page-content .field-type-text-long .field-item h2,
-.pane-page-content .field-type-text-long .field-item h3,
-.pane-page-content .field-type-text-long .field-item h4,
-.pane-page-content .field-type-text-long .field-item h5,
-.pane-page-content .paragraphs-item-paragraph-snippet h1,
-.pane-page-content .paragraphs-item-paragraph-snippet h2,
-.pane-page-content .paragraphs-item-paragraph-snippet h3,
-.pane-page-content .paragraphs-item-paragraph-snippet h4,
-.pane-page-content .paragraphs-item-paragraph-snippet h5,
-.pane-page-content .paragraphs-item-paragraph-content h1,
-.pane-page-content .paragraphs-item-paragraph-content h2,
-.pane-page-content .paragraphs-item-paragraph-content h3,
-.pane-page-content .paragraphs-item-paragraph-content h4,
-.pane-page-content .paragraphs-item-paragraph-content h5,
-.pane-page-content .oa-event-description h1,
-.pane-page-content .oa-event-description h2,
-.pane-page-content .oa-event-description h3,
-.pane-page-content .oa-event-description h4,
-.pane-page-content .oa-event-description h5,
-.pane-page-content .oa-news-body h1,
-.pane-page-content .oa-news-body h2,
-.pane-page-content .oa-news-body h3,
-.pane-page-content .oa-news-body h4,
-.pane-page-content .oa-news-body h5 {
-  font-family: 'Open Sans', sans-serif;
 }
 
 .pane-page-content .paragraphs-item-paragraph-content {
@@ -114,7 +91,6 @@ body {
 .pane-page-content .pane-node-comments .oa-list .oa-comment-reply-body,
 .pane-page-content .pane-content #comments .oa-list .oa-comment-reply-body,
 .pane-page-content .oa-comment-reply-body {
-  font-family: 'Open Sans', sans-serif;
   line-height: 1.5em;
   color: #60616d;
   font-size: 15px;
@@ -124,7 +100,6 @@ body {
 .pane-page-content .pane-node-comments .oa-list .oa-comment-reply-body p,
 .pane-page-content .pane-content #comments .oa-list .oa-comment-reply-body p,
 .pane-page-content .oa-comment-reply-body p {
-  font-family: 'Open Sans', sans-serif;
   font-size: 15px;
   margin: 0 0 1em 0;
 }
@@ -135,7 +110,6 @@ body {
 .pane-page-content .oa-comment-reply-body .user-info,
 .pane-page-content .oa-comment-reply-body .links {
   font-size: 13px;
-  font-family: 'Open Sans', sans-serif;
 }
 
 h1 {
@@ -218,7 +192,6 @@ h4 {
 }
 
 .entity-paragraphs-item .field-label-heading .field-label {
-  font-family: 'Open Sans', sans-serif;
   font-size: 14px;
 }
 
@@ -260,7 +233,6 @@ h4 {
 }
 
 .more-link {
-  font-family: 'Open Sans', sans-serif;
   font-style: italic;
   font-size: 15px;
 }
@@ -1345,5 +1317,3 @@ body.panels-ipe .pane-page-content .radix-layouts-content > .panel-panel-inner {
   float: right;
   font-size: 14px;
 }
-
-/*# sourceMappingURL=oa_theme.style.css.map */

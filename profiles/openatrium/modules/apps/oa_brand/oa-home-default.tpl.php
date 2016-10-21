@@ -11,9 +11,9 @@
     <h1><span>Team.</span> Work.</h1>
     <h2>Welcome <?php if (!empty($username)) {print '<span>' . $username . '</span>'; } ?> to Atrium!</h2>
     <?php if (!empty($login)): ?>
-      <h3></h3>
+      <div class="create-btn"></div>
     <?php else: ?>
-      <h3><a href="<?php print url('sitemap'); ?>" class="btn btn-lg btn-success">Create Content</a></h3>
+      <div class="create-btn"><a href="<?php print url('sitemap'); ?>" class="btn btn-lg btn-success">Create Content</a></div>
     <?php endif; ?>
   </div><!--/hero-->
 

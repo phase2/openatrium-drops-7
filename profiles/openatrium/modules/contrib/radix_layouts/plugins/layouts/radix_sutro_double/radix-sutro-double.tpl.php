@@ -35,7 +35,7 @@
     </div>
 
     <div class="row">
-      <div class="col-md-12 radix-layouts-middle panel-panel">
+      <div class="col-md-12 radix-layouts-middle radix-layouts-content panel-panel">
         <div class="panel-panel-inner">
           <?php print $content['middle']; ?>
         </div>

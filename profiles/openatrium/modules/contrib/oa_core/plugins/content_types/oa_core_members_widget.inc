@@ -193,7 +193,7 @@ function oa_core_members_widget_render($subtype, $conf, $args, $context = NULL) 
         t('Inherited teams') => $inherited_teams,
       );
     }
-    if (user_access('create ' . OA_TEAM_TYPE . ' content', $user)) {
+    if (og_user_access('node', $space->nid, 'create ' . OA_TEAM_TYPE . ' content')) {
       $tabs['teams']['global_links'][] = array(
         'title' => t('Create New Team'),
         'url'   => url('node/add/' . str_replace('_', '-', OA_TEAM_TYPE)),

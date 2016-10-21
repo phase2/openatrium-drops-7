@@ -25,6 +25,12 @@ function clone_settings($form, &$form_state) {
     '#default_value' => (int)variable_get('clone_nodes_without_confirm', 0),
     '#options' => array(t('Require confirmation (recommended)'), t('Bypass confirmation')),
     '#description' => t('A new node may be saved immediately upon clicking the "clone" link when viewing a node, bypassing the normal confirmation form.'),
+    '#states' => array(
+      // Only show this field when the clone method is save-edit.
+      'visible' => array(
+        ':input[name="clone_method"]' => array('value' => 'save-edit'),
+      ),
+    ),
   );
   $form['basic']['clone_menu_links'] = array(
     '#type' => 'radios',
@@ -64,7 +70,7 @@ function clone_settings($form, &$form_state) {
     '#title' => t('Omitted content types'),
     '#default_value' => variable_get('clone_omitted', array()),
     '#options' => $types,
-    '#description' => t('Select any node types which should <em>never</em> be cloned. Typically you should will want to select here all node types for which cloning fails (e.g. image nodes).'),
+    '#description' => t('Select any node types which should <em>never</em> be cloned. In other words, all node types where cloning will fail.'),
   );
 
   return system_settings_form($form);
@@ -138,6 +144,21 @@ function clone_node_clone_menu_link($node) {
       $link['menu_name'] = $old_link['menu_name'];
       $link['weight'] = $old_link['weight'];
       $link['module'] = $old_link['module'];
+      // Use the value -1 because it casts to boolean TRUE in function
+      // menu_form_node_form_alter() in menu.module so the node form checkbox
+      // is selected, but in function menu_link_save() no existing link will
+      // match.
+      $link['mlid'] = -1;
+      $link['has_children'] = 0;
+      $link['hidden'] = $old_link['hidden'];
+      $link['customized'] = $old_link['customized'];
+      $link['options'] = $old_link['options'];
+      $link['expanded'] = $old_link['expanded'];
+      $link['description'] = $old_link['description'];
+      $link['language'] = isset($old_link['language']) ? $old_link['language'] : NULL;
+      // This is needed to get the link saved in function menu_node_save() when
+      // using the save-edit method.
+      $link['enabled'] = TRUE;
       return $link;
     }
   }

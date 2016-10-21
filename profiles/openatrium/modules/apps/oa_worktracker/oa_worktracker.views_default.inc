@@ -523,6 +523,7 @@ function oa_worktracker_views_default_views() {
       'label' => 'Section',
     ),
   );
+  $handler->display->display_options['inherit_panels_path'] = '1';
 
   /* Display: Section information */
   $handler = $view->new_display('panel_pane', 'Section information', 'section_info');
@@ -593,6 +594,7 @@ function oa_worktracker_views_default_views() {
       'label' => 'Content',
     ),
   );
+  $handler->display->display_options['inherit_panels_path'] = '1';
 
   /* Display: Attachments */
   $handler = $view->new_display('panel_pane', 'Attachments', 'attachments');
@@ -663,6 +665,7 @@ function oa_worktracker_views_default_views() {
   $handler->display->display_options['arguments']['nid']['summary']['number_of_records'] = '0';
   $handler->display->display_options['arguments']['nid']['summary']['format'] = 'default_summary';
   $handler->display->display_options['arguments']['nid']['summary_options']['items_per_page'] = '25';
+  $handler->display->display_options['inherit_panels_path'] = '1';
 
   /* Display: User tasks */
   $handler = $view->new_display('panel_pane', 'User tasks', 'user_tasks');
@@ -973,6 +976,7 @@ function oa_worktracker_views_default_views() {
       'label' => 'User',
     ),
   );
+  $handler->display->display_options['inherit_panels_path'] = '1';
   $export['oa_worktracker'] = $view;
 
   return $export;

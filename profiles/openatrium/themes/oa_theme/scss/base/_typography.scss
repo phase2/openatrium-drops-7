@@ -5,9 +5,16 @@ body {
   font-family: 'Open Sans', sans-serif;
 }
 
+p, ol, ul {
+  font-family: 'Open Sans', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Open Sans', sans-serif;
+}
+
 .mceContentBody {
   &, p, ol, ul {
-    font-family: 'Open Sans', sans-serif;
     line-height: 1.5em;
     color: #60616d;
     font-size: 16px;
@@ -30,13 +37,9 @@ body {
       margin-bottom: 1em !important;
     }
     &, p, ol, ul {
-      font-family: 'Open Sans', sans-serif;
       line-height: 1.5em;
       color: #60616d;
       font-size: 18px;
-    }
-    h1, h2, h3, h4, h5 {
-      font-family: 'Open Sans', sans-serif;
     }
   }
   .paragraphs-item-paragraph-content {
@@ -51,19 +54,16 @@ body {
   .pane-node-comments .oa-list .oa-comment-reply-body,
   .pane-content #comments .oa-list .oa-comment-reply-body,
   .oa-comment-reply-body {
-    font-family: 'Open Sans', sans-serif;
     line-height: 1.5em;
     color: #60616d;
     font-size: 15px;
     margin: 0 0 10px 0;
     p {
-      font-family: 'Open Sans', sans-serif;
       font-size: 15px;
       margin: 0 0 1em 0;
     }
     .user-info, .links {
       font-size: 13px;
-      font-family: 'Open Sans', sans-serif;
     }
   }
 }
@@ -142,7 +142,6 @@ h4 {
 }
 
 .entity-paragraphs-item .field-label-heading .field-label {
-  font-family: 'Open Sans', sans-serif;
   font-size: 14px;
 }
 
@@ -183,7 +182,6 @@ h4 {
 }
 
 .more-link {
-  font-family: 'Open Sans', sans-serif;
   font-style: italic;
   font-size: 15px;
 }

@@ -5,14 +5,14 @@
  */
 
 class DateiCalFeedsParser extends FeedsParser {
-  
+
   /**
    * Implements FeedsParser::getMappingSources().
    */
   public function getMappingSources() {
     return parent::getMappingSources() + self::getiCalMappingSources();
   }
-  
+
   /**
    * Implements FeedsParser::parse().
    */
@@ -22,10 +22,10 @@ class DateiCalFeedsParser extends FeedsParser {
       throw new DateIcalException(t('Unable to load the iCalcreator library. Please ensure that it is properly installed.'));
     }
     $state = $source->state(FEEDS_PARSE);
-    
+
     // Read the iCal feed into memory.
     $ical_feed_contents = $fetcher_result->getRaw();
-    
+
     // Parse the feed into an iCalcreator vcalendar object.
     $calendar = new vcalendar();
     if ($calendar->parse($ical_feed_contents) === FALSE) {
@@ -33,41 +33,41 @@ class DateiCalFeedsParser extends FeedsParser {
       $url = $source->config[$plugin]['source'];
       throw new DateIcalException(t('Parsing the data from %url failed. Please ensure that this URL leads to a valid iCal feed.', array('%url' => $url)));
     }
-    
+
     // Total hack to get around iCalcreator's mistreatment of UID "0".
     if (empty($calendar->components[0]->uid) || empty($calendar->components[0]->uid['value'])) {
       $calendar->components[0]->uid = array('value' => 'zero', 'params' => NULL);
     }
-    
+
     // Allow modules to alter the vcalendar object before we interpret it.
     $context = array(
       'source' => $source,
       'fetcher_result' => $fetcher_result,
     );
     drupal_alter('date_ical_import_vcalendar', $calendar, $context);
-    
+
     // We've got a vcalendar object created from the feed data. Now we need to
     // convert that vcalendar into an array of Feeds-compatible data arrays.
     // ParserVcalendar->parse() does that.
     require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'date_ical') . '/libraries/ParserVcalendar.inc';
     $parser = new ParserVcalendar($calendar, $source, $fetcher_result, $source->getConfigFor($this));
-    
+
     // Using the stored progress pointer (or 0 if it's not set),
     // determine which section of the feed to parse, then parse it.
     $offset = isset($state->pointer) ? $state->pointer : 0;
     $limit = $source->importer->getLimit();
     $rows = $parser->parse($offset, $limit);
-    
+
     // Report progress.
     $state->total = $parser->getTotalComponents();
     // We need to add 1 to the index of the last parsed componenent so that
     // the subsequent batch starts on the first unparsed component.
     $state->pointer = $parser->getLastComponentParsed() + 1;
     $state->progress($state->total, $state->pointer);
-    
+
     return new FeedsParserResult($rows);
   }
-  
+
   /**
    * Defines the default configuration settings for an actual import.
    */
@@ -78,7 +78,7 @@ class DateiCalFeedsParser extends FeedsParser {
       'skip_days' => $this->config['skip_days'],
     );
   }
-  
+
   /**
    * Defines the default settings shown on the configuration form.
    */
@@ -90,7 +90,7 @@ class DateiCalFeedsParser extends FeedsParser {
       'skip_days' => NULL,
     );
   }
-  
+
   /**
    * Builds the configuration form.
    */
@@ -133,7 +133,7 @@ class DateiCalFeedsParser extends FeedsParser {
     );
     return $form;
   }
-  
+
   /**
    * Validation handler for configForm.
    */
@@ -145,7 +145,7 @@ class DateiCalFeedsParser extends FeedsParser {
       $source_config['skip_days'] = NULL;
     }
   }
-  
+
   /**
    * Creates the list of mapping sources offered by DateiCalFeedsParser.
    */
@@ -210,10 +210,10 @@ class DateiCalFeedsParser extends FeedsParser {
       'description' => t('The CATEGORIES property. Catagories that describe the event, which can be imported into taxonomy terms.'),
       'date_ical_parse_handler' => 'parseMultivalueProperty',
     );
-    
+
     // Allow other modules to add custom source fields.
     drupal_alter('date_ical_mapping_sources', $sources);
-    
+
     return $sources;
   }
 }

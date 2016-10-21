@@ -327,6 +327,20 @@ function oa_messages_oa_settings_form(&$form_state) {
     '#default_value' => variable_get('oa_messages_notifications', TRUE),
   );
 
+  $form['oa_messages_publish_notifications'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Enable notifications for Publishing content',
+    '#description' => 'If off, no notifications will be sent for Publish status change of content with no other changes (affects the system only if Enable Notifications is checked).',
+    '#default_value' => variable_get('oa_messages_publish_notifications', FALSE),
+  );
+
+  $form['oa_messages_unpublish_notifications'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Enable notifications for Un-publishing content',
+    '#description' => 'If off, no notifications will be sent for Un-publish status change of content with no other changes (affects the system only if Enable Notifications is checked).',
+    '#default_value' => variable_get('oa_messages_unpublish_notifications', FALSE),
+  );
+
   $forms[] = array(
     'caption' => t('Notifications'),
     'form' => $form,

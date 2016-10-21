@@ -10,7 +10,7 @@ body.front .content .pane-oa-home-default {
   font-family: 'Droid Serif', serif;
 }
 
-.pane-oa-home-default .hero h3 {
+.pane-oa-home-default .hero .create-btn {
   background: url(images/bg-hero-line.png) no-repeat center top;
   font-family: 'Droid Serif',serif;
 }

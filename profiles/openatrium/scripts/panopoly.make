@@ -25,7 +25,7 @@ projects[panopoly_images][patch][2521968] = https://www.drupal.org/files/issues/
 
 projects[panopoly_theme][version] = 1.40
 projects[panopoly_theme][subdir] = panopoly
-projects[panopoly_theme][patch][2656920] = https://www.drupal.org/files/issues/2656920-panopoly-theme-radix-layouts-3.patch
+projects[panopoly_theme][patch][2656920] = https://www.drupal.org/files/issues/2656920-panopoly-theme-radix-layouts-4.patch
 
 projects[panopoly_magic][version] = 1.40
 projects[panopoly_magic][subdir] = panopoly
@@ -50,6 +50,7 @@ projects[panopoly_wysiwyg][subdir] = panopoly
 
 projects[panopoly_search][version] = 1.40
 projects[panopoly_search][subdir] = panopoly
+projects[panopoly_search][patch][2790595] = https://www.drupal.org/files/issues/solrphpclient_cannot_be-2790595-10.patch
 
 ; ***************** End Panopoly *****************
 ; ************************************************

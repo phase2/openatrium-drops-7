@@ -6,12 +6,6 @@
  */
 
 /**
- * The version number of the current release. This is inserted into the PRODID
- * value of the iCal feeds created by Date iCal, for debugging purposes.
- */
-define('DATE_ICAL_VERSION', '3.5');
-
-/**
  * Exception class for generic exceptions thrown by this module.
  */
 class DateIcalException extends Exception {}
@@ -121,10 +115,10 @@ function date_ical_preprocess_node(&$variables) {
     $variables['page'] = TRUE;
     $variables['title_prefix'] = '';
     $variables['title_suffix'] = '';
-    
+
     // We don't want to see the author information in our feed.
     $variables['display_submitted'] = FALSE;
-    
+
     // Comments and links don't belong in an iCal feed.
     if (isset($variables['content']['comments'])) {
       unset($variables['content']['comments']);
@@ -174,7 +168,7 @@ function date_ical_libraries_info() {
       'php' => array('iCalcreator.class.php'),
     ),
   );
-  
+
   return $libraries;
 }
 
@@ -231,14 +225,14 @@ function date_ical_sanitize_text($text = '') {
   // HTML tags may get converted to &lt; and such by the View code, so we need
   // to convert them back to HTML so we can remove them with strip_tags().
   $text = decode_entities($text);
-  
+
   // Convert <p> tags to double newlines.
   $text = trim(preg_replace("/<p.*?>/i", "\n\n", $text));
   // Separate heading tags from the text around them in both directions.
   $text = trim(preg_replace("/<\\?h\d.*?>/i", "\n\n", $text));
   // Add a newline for each <div>.
   $text = trim(preg_replace("/<div.*?>/i", "\n", $text));
-  
+
   // Strip the remaining HTML.
   $text = strip_tags($text);
   // Remove newlines added at the beginning.
@@ -260,15 +254,15 @@ function date_ical_sanitize_text($text = '') {
  *   Newer versions of Feeds send this value as an array containing the string.
  */
 function date_ical_feeds_set_rrule($source, $entity, $target, $repeat_rule) {
-  if (empty($repeat_rule)) {
-    // Don't alter the entity if there's no repeat rule.
-    return;
-  }
-
   if (is_array($repeat_rule)) {
     // Newer versions of Feeds return $repeat_rule as an array containing the
     // string we returned from ParseVcalendar::parseRepeatProperty().
     $repeat_rule = reset($repeat_rule);
+  }
+
+  if (empty($repeat_rule)) {
+    // Don't alter the entity if there's no repeat rule.
+    return;
   }
 
   // $target looks like <field_name>:rrule, but we only need <field_name>.
@@ -278,10 +272,10 @@ function date_ical_feeds_set_rrule($source, $entity, $target, $repeat_rule) {
     array('RRULE', 'RDATE', 'EXRULE', 'EXDATE'),
     explode('|', $repeat_rule)
   );
-  
+
   module_load_include('inc', 'date_ical', 'date_ical.utils');
   // This "loop" is really just to make sure we get the right array keys. It
-  // souldn't ever execute more than once.
+  // shouldn't ever execute more than once.
   foreach ($entity->{$field_name} as $lang => $date_values) {
     $values = _date_ical_get_repeat_dates($field_name, $repeat_data, $date_values[0], $source);
     foreach ($values as $key => $value) {
@@ -296,7 +290,7 @@ function date_ical_feeds_set_rrule($source, $entity, $target, $repeat_rule) {
 function date_ical_get_location_fields($base = 'node', $reset = FALSE) {
   static $fields = array();
   $empty = array('name' => array(), 'alias' => array());
-  
+
   if (empty($fields[$base]) || $reset) {
     $cid = 'date_ical_location_fields_' . $base;
     if (!$reset && $cached = cache_get($cid, 'cache_views')) {
@@ -326,10 +320,10 @@ function _date_ical_get_location_fields($base = 'node') {
   if (empty($base)) {
     $base = 'node';
   }
-  
+
   $cid = 'date_ical_location_fields_' . $base;
   cache_clear_all($cid, 'cache_views');
-  
+
   // Iterate over all the fields that Views knows about.
   $all_fields = date_views_views_fetch_fields($base, 'field');
   $fields = array();
@@ -338,7 +332,7 @@ function _date_ical_get_location_fields($base = 'node') {
     $tmp = explode('.', $name);
     $field_name = $tmp[1];
     $table_name = $tmp[0];
-    
+
     // Skip unsupported field types and fields that weren't defined through
     // the Field module.
     $info = field_info_field($field_name);
@@ -348,12 +342,14 @@ function _date_ical_get_location_fields($base = 'node') {
       'text_with_summary',
       'node_reference',
       'addressfield',
-      'location'
+      'location',
+      'node_reference',
+      'taxonomy_term_reference',
     );
     if (!$info || !in_array($info['type'], $supported_location_fields)) {
       continue;
     }
-    
+
     // Build an array of the field info that we'll need.
     $alias = str_replace('.', '_', $alias);
     $fields['name'][$name] = array(
@@ -362,14 +358,14 @@ function _date_ical_get_location_fields($base = 'node') {
       'field_name' => $field_name,
       'type' => $info['type'],
     );
-    
+
     // These are here only to make this $field array conform to the same format
     // as the one returned by _date_views_fields(). They're probably not needed,
     // but I thought that consistency would be a good idea.
     $fields['name'][$name]['real_field_name'] = $field_name;
     $fields['alias'][$alias] = $fields['name'][$name];
   }
-  
+
   cache_set($cid, $fields, 'cache_views');
   return $fields;
 }

@@ -25,3 +25,12 @@ ul.references-dialog-links li a.edit-dialog {
 ul.references-dialog-links li a.search-dialog {
   background: url('../img/search.png') left no-repeat;
 }
+
+.references-dialog-no-scroll { overflow: hidden; }
+
+/**
+ * Deal with shortcuts bar/navbar and other similar toolbars.
+ */
+.ui-front {
+  z-index: 1000 !important;
+}

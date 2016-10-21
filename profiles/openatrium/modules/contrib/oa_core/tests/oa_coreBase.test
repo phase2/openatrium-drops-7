@@ -97,6 +97,11 @@ abstract class oa_coreBaseUnitTest extends DrupalUnitTestCase {
   protected function enableModule($name) {
     $modules = module_list();
     $modules[$name] = $name;
+    // Transform the list into the format expected as input to module_list().
+    foreach ($modules as &$module) {
+      $module = array('filename' => drupal_get_filename('module', $module));
+    }
+    unset($module);
     module_list(TRUE, FALSE, FALSE, $modules);
   }
 

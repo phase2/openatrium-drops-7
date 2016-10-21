@@ -139,5 +139,8 @@ function oa_search_add_js() {
       'space' => $space_title,
     ),
   ), 'setting');
+  global $language ;
+  $lang_prefix = $language->prefix ;
+  drupal_add_js(array('sitelang' => $lang_prefix ), 'setting');
   drupal_add_js(drupal_get_path('module', 'oa_search') . '/js/oa_search.js');
 }

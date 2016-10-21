@@ -5,9 +5,9 @@ core = 7.x
 files[] = views/views_handler_field_node_link_clone.inc
 configure = admin/config/content/clone
 
-; Information added by  packaging script on 2013-12-04
-version = "7.x-1.0-rc2"
+; Information added by Drupal.org packaging script on 2015-11-19
+version = "7.x-1.0"
 core = "7.x"
 project = "node_clone"
-datestamp = "1386176910"
+datestamp = "1447900441"
 

@@ -10,7 +10,7 @@
  */
 function date_ical_views_plugins() {
   $includes_path = drupal_get_path('module', 'date_ical') . '/includes';
-  
+
   $data = array(
     'module' => 'date_ical',
     'style' => array(
@@ -48,6 +48,6 @@ function date_ical_views_plugins() {
       ),
     ),
   );
-  
+
   return $data;
 }
