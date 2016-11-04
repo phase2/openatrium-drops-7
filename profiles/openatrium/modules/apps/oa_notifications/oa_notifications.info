@@ -3,7 +3,7 @@ description = Adds notification functionality to Open Atrium
 core = 7.x
 package = Open Atrium
 dependencies[] = ctools
-dependencies[] = flag
+dependencies[] = flag (3.x)
 dependencies[] = oa_core
 dependencies[] = page_manager
 stylesheets[all][] = oa_notifications.css
@@ -19,9 +19,9 @@ features[flag][] = subscribe_section_content
 features[page_manager_pages][] = user_subscribed_content
 project path = sites/all/modules/contrib
 
-; Information added by Drupal.org packaging script on 2016-10-21
-version = "7.x-2.31"
+; Information added by Drupal.org packaging script on 2016-11-03
+version = "7.x-2.32"
 core = "7.x"
 project = "oa_notifications"
-datestamp = "1477054995"
+datestamp = "1478194190"
 

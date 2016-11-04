@@ -7,7 +7,7 @@ core = 7.x
 ; ******************** RELEASE *******************
 
 projects[oa_core][subdir] = contrib
-projects[oa_core][version] = 2.80
+projects[oa_core][version] = 2.81
 
 ; ************************************************
 ; ************* Open Atrium Builtin Apps *********
@@ -16,13 +16,13 @@ projects[oa_discussion][subdir] = apps
 projects[oa_discussion][version] = 2.41
 
 projects[oa_events][subdir] = apps
-projects[oa_events][version] = 2.42
+projects[oa_events][version] = 2.43
 
 projects[oa_wiki][subdir] = apps
 projects[oa_wiki][version] = 2.40
 
 projects[oa_worktracker][subdir] = apps
-projects[oa_worktracker][version] = 2.10
+projects[oa_worktracker][version] = 2.11
 
 ; ******** End Open Atrium Builtin Apps **********
 ; ************************************************
@@ -32,7 +32,7 @@ projects[oa_worktracker][version] = 2.10
 ; ************* Open Atrium Core Addon Apps ******
 ; (Local optional apps that included by default)
 
-projects[oa_admin][version] = 2.2
+projects[oa_admin][version] = 2.3
 projects[oa_admin][subdir] = apps
 
 projects[oa_analytics][version] = 2.3
@@ -41,7 +41,7 @@ projects[oa_analytics][subdir] = apps
 projects[oa_appearance][version] = 2.7
 projects[oa_appearance][subdir] = apps
 
-projects[oa_archive][version] = 2.4
+projects[oa_archive][version] = 2.5
 projects[oa_archive][subdir] = apps
 
 projects[oa_brand][version] = 2.5
@@ -50,7 +50,7 @@ projects[oa_brand][subdir] = apps
 projects[oa_clone][version] = 2.11
 projects[oa_clone][subdir] = apps
 
-projects[oa_comment][version] = 2.10
+projects[oa_comment][version] = 2.11
 projects[oa_comment][subdir] = apps
 
 projects[oa_contextual_tabs][version] = 2.33
@@ -68,7 +68,7 @@ projects[oa_export][subdir] = apps
 projects[oa_events_import][subdir] = apps
 projects[oa_events_import][version] = 2.27
 
-projects[oa_favorites][version] = 2.4
+projects[oa_favorites][version] = 2.5
 projects[oa_favorites][subdir] = apps
 
 projects[oa_files][version] = 2.18
@@ -93,7 +93,7 @@ projects[oa_messages_digest][version] = 2.1
 projects[oa_messages_digest][subdir] = apps
 
 projects[oa_notifications][subdir] = apps
-projects[oa_notifications][version] = 2.31
+projects[oa_notifications][version] = 2.32
 
 projects[oa_project][version] = 2.2
 projects[oa_project][subdir] = apps
@@ -119,7 +119,7 @@ projects[oa_styles][subdir] = apps
 projects[oa_subspaces][version] = 2.37
 projects[oa_subspaces][subdir] = apps
 
-projects[oa_toolbar][version] = 2.13
+projects[oa_toolbar][version] = 2.14
 projects[oa_toolbar][subdir] = apps
 
 projects[oa_tour][version] = 2.5

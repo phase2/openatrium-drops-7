@@ -20,7 +20,7 @@ function oa_notifications_flag_default_flags() {
   $flags = array();
   // Exported flag: "Section Content Subscribe".
   $flags['subscribe_section_content'] = array(
-    'content_type' => 'node',
+    'entity_type' => 'node',
     'title' => 'Section Content Subscribe',
     'global' => 0,
     'types' => array(),
@@ -32,26 +32,18 @@ function oa_notifications_flag_default_flags() {
     'unflag_message' => 'UnFollowed',
     'unflag_denied_text' => '',
     'link_type' => 'toggle',
-    'roles' => array(
-      'flag' => array(
-        0 => 2,
-      ),
-      'unflag' => array(
-        0 => 2,
-      ),
-    ),
     'weight' => 0,
+    'show_in_links' => array(),
+    'show_as_field' => FALSE,
     'show_on_form' => 0,
     'access_author' => '',
-    'show_on_page' => 0,
-    'show_on_teaser' => 0,
     'show_contextual_link' => FALSE,
     'i18n' => 0,
+    'api_version' => 3,
     'module' => 'oa_notifications',
     'locked' => array(
       0 => 'name',
     ),
-    'api_version' => 2,
   );
   return $flags;
 

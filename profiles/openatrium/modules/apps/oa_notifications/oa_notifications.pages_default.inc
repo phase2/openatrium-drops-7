@@ -107,6 +107,8 @@ function oa_notifications_default_page_manager_pages() {
   $display->cache = array();
   $display->title = '';
   $display->uuid = '0605f9d8-dad2-40fc-ab36-65b50781d5ed';
+  $display->storage_type = 'page_manager';
+  $display->storage_id = 'page_user_subscribed_content_panel_context';
   $display->content = array();
   $display->panels = array();
   $pane = new stdClass();

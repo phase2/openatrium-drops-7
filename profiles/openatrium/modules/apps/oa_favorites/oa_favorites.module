@@ -30,7 +30,7 @@ function oa_favorites_get_spaces($account = NULL, $space_id = 0) {
   $items = array('ids' => array(), 'titles' => array(), 'links' => array());
   if ($flag = flag_get_flag('favorite_space')) {
     $query = db_select('node', 'n');
-    $query->join('flag_content', 'f', 'n.nid = f.content_id');
+    $query->join('flagging', 'f', 'n.nid = f.entity_id');
     $query
       ->fields('n', array('nid', 'title'))
       ->condition('f.uid', $account->uid)
@@ -57,10 +57,10 @@ function oa_favorites_get_spaces($account = NULL, $space_id = 0) {
  * @return boolean
  */
 function oa_favorites_is_favorite_space($uid, $gid) {
-  $query = db_select('flag_content', 'f')
+  $query = db_select('flagging', 'f')
     ->fields('f')
-    ->condition('content_type', 'node')
-    ->condition('content_id', $gid)
+    ->condition('entity_type', 'node')
+    ->condition('entity_id', $gid)
     ->condition('uid', $uid);
 
   $result = $query->execute()->fetch();

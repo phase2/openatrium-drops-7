@@ -59,7 +59,7 @@ function oa_core_get_groups_by_user($account = NULL, $group_type = NULL, $includ
 
   if (module_exists('flag') && !$include_archived) {
     if ($flag = flag_get_flag('trash')) {
-      $query->leftJoin('flag_content', 'a', "a.fid = :fid AND a.content_id = n.nid", array(':fid' => $flag->fid));
+      $query->leftJoin('flagging', 'a', "a.fid = :fid AND a.entity_id = n.nid", array(':fid' => $flag->fid));
       // This makes sure that archived content isn't included, because 'uid'
       // will be NULL if the join didn't connect anything.
       $query->isNull('a.uid');
@@ -188,7 +188,7 @@ function oa_core_get_groups_by_user_access($account = NULL, $include_archived = 
 
   if (module_exists('flag') && !$include_archived) {
     if ($flag = flag_get_flag('trash')) {
-      $query->leftJoin('flag_content', 'a', "a.fid = :fid AND a.content_id = n.nid", array(':fid' => $flag->fid));
+      $query->leftJoin('flagging', 'a', "a.fid = :fid AND a.entity_id = n.nid", array(':fid' => $flag->fid));
       // This makes sure that archived content isn't included, because 'uid'
       // will be NULL if the join didn't connect anything.
       $query->isNull('a.uid');
@@ -396,7 +396,7 @@ function oa_core_get_nids_title_matching($nids, $bundle = OA_SPACE_TYPE, $status
       ->addMetaData('account', $account);
     if (module_exists('oa_archive') && !$include_archived) {
       if ($flag = flag_get_flag('trash')) {
-        $query->leftJoin('flag_content', 'a', "a.fid = :fid AND a.content_id = n.nid", array(':fid' => $flag->fid));
+        $query->leftJoin('flagging', 'a', "a.fid = :fid AND a.entity_id = n.nid", array(':fid' => $flag->fid));
         // This makes sure that archived content isn't included, because 'uid'
         // will be NULL if the join didn't connect anything.
         $query->isNull('a.uid');
@@ -490,7 +490,7 @@ function oa_core_get_groups_by_parent($nids, $bundle = OA_SPACE_TYPE, $status = 
 
   if (module_exists('flag') && !$include_archived) {
     if ($flag = flag_get_flag('trash')) {
-      $query->leftJoin('flag_content', 'a', "a.fid = :fid AND a.content_id = n.nid", array(':fid' => $flag->fid));
+      $query->leftJoin('flagging', 'a', "a.fid = :fid AND a.entity_id = n.nid", array(':fid' => $flag->fid));
       // This makes sure that archived content isn't included, because 'uid'
       // will be NULL if the join didn't connect anything.
       $query->isNull('a.uid');
@@ -600,7 +600,7 @@ function oa_core_get_top_parents($bundle, $status = NULL, $include_archived = FA
 
   if (module_exists('flag') && !$include_archived) {
     if ($flag = flag_get_flag('trash')) {
-      $query->leftJoin('flag_content', 'a', "a.fid = :fid AND a.content_id = n.nid", array(':fid' => $flag->fid));
+      $query->leftJoin('flagging', 'a', "a.fid = :fid AND a.entity_id = n.nid", array(':fid' => $flag->fid));
       // This makes sure that archived content isn't included, because 'uid'
       // will be NULL if the join didn't connect anything.
       $query->isNull('a.uid');
@@ -917,7 +917,7 @@ function oa_core_get_public_spaces($group_types = array(OA_SPACE_TYPE => OA_SPAC
     }
     if (module_exists('flag') && !$include_archived) {
       if ($flag = flag_get_flag('trash')) {
-        $query->leftJoin('flag_content', 'a', "a.fid = :fid AND a.content_id = n.nid", array(':fid' => $flag->fid));
+        $query->leftJoin('flagging', 'a', "a.fid = :fid AND a.entity_id = n.nid", array(':fid' => $flag->fid));
         // This makes sure that archived content isn't included, because 'uid'
         // will be NULL if the join didn't connect anything.
         $query->isNull('a.uid');

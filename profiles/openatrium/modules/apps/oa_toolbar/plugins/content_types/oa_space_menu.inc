@@ -85,6 +85,9 @@ function oa_toolbar_oa_space_menu_content_type_render($subtype, $conf, $panel_ar
         $parent_section_id = $parent_section->nid;
       }
     }
+    elseif (isset($node) && $node->type == OA_SECTION_TYPE) {
+      $parent_section_id = $node->nid;
+    }
     // Iterate over the space menu items so we can prepend icons to their titles.
     foreach (element_children($space_menu->content) as $mlid) {
       // Render the links as Radix defaults.

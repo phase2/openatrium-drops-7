@@ -7,9 +7,9 @@ php = 5.1
 dependencies[] = token
 dependencies[] = diff
 
-; Information added by Drupal.org packaging script on 2016-10-21
-version = "7.x-2.80"
+; Information added by Drupal.org packaging script on 2016-11-03
+version = "7.x-2.81"
 core = "7.x"
 project = "oa_core"
-datestamp = "1477064208"
+datestamp = "1478194447"
 

@@ -23,9 +23,9 @@ features[panels_mini][] = oa_edit_minipanel
 features[panels_mini][] = oa_toolbar_modern_panel
 features[panels_mini][] = oa_toolbar_panel
 
-; Information added by Drupal.org packaging script on 2016-08-17
-version = "7.x-2.13"
+; Information added by Drupal.org packaging script on 2016-11-03
+version = "7.x-2.14"
 core = "7.x"
 project = "oa_toolbar"
-datestamp = "1471458843"
+datestamp = "1478194201"
 

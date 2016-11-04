@@ -128,14 +128,14 @@ function oa_notifications_get_notifications($node, $notifications = NULL) {
 
     if (isset($node)) {
       // Also grab users who flagged the content.
-      $flags = flag_get_content_flags('node', $node->nid, 'subscribe_section_content');
+      $flags = flag_get_entity_flags('node', $node->nid, 'subscribe_section_content');
       if (!empty($flags) && is_array($flags)) {
         $bucket += user_load_multiple(array_keys($flags));
       }
 
       // Get users who subscribed to entire section.
       if (isset($node->{OA_SECTION_FIELD}[LANGUAGE_NONE][0]['target_id'])) {
-        $flags = flag_get_content_flags('node', $node->{OA_SECTION_FIELD}[LANGUAGE_NONE][0]['target_id'], 'subscribe_section_content');
+        $flags = flag_get_entity_flags('node', $node->{OA_SECTION_FIELD}[LANGUAGE_NONE][0]['target_id'], 'subscribe_section_content');
         if (!empty($flags) && is_array($flags)) {
           $bucket += user_load_multiple(array_keys($flags));
         }
@@ -143,7 +143,7 @@ function oa_notifications_get_notifications($node, $notifications = NULL) {
 
       // Get users who subscribed to entire space.
       if (isset($node->{OA_SPACE_FIELD}[LANGUAGE_NONE][0]['target_id'])) {
-        $flags = flag_get_content_flags('node', $node->{OA_SPACE_FIELD}[LANGUAGE_NONE][0]['target_id'], 'subscribe_section_content');
+        $flags = flag_get_entity_flags('node', $node->{OA_SPACE_FIELD}[LANGUAGE_NONE][0]['target_id'], 'subscribe_section_content');
         if (!empty($flags) && is_array($flags)) {
           $bucket += user_load_multiple(array_keys($flags));
         }

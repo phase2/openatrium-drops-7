@@ -56,9 +56,8 @@ libraries[simplepie][download][filename] = simplepie.compiled.php
 libraries[simplepie][directory_name] = simplepie
 
 ; Flag
-projects[flag][version] = 2.2
+projects[flag][version] = 3.9
 projects[flag][subdir] = contrib
-projects[flag][patch][2027091] = http://drupal.org/files/flag-default-flags-alter-hook-2027091-03.patch
 
 ; HTML Mail
 projects[htmlmail][version] = 2.65

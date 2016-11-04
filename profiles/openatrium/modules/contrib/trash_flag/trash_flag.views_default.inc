@@ -79,7 +79,7 @@ function trash_flag_views_default_views() {
   $handler->display->display_options['fields']['changed']['oa_date'] = '0';
   /* Field: Flags: Flagged time */
   $handler->display->display_options['fields']['timestamp']['id'] = 'timestamp';
-  $handler->display->display_options['fields']['timestamp']['table'] = 'flag_content';
+  $handler->display->display_options['fields']['timestamp']['table'] = 'flagging';
   $handler->display->display_options['fields']['timestamp']['field'] = 'timestamp';
   $handler->display->display_options['fields']['timestamp']['relationship'] = 'flag_content_rel';
   $handler->display->display_options['fields']['timestamp']['label'] = 'Trashed Date';
@@ -87,7 +87,7 @@ function trash_flag_views_default_views() {
   $handler->display->display_options['fields']['timestamp']['oa_date'] = '0';
   /* Field: Flags: Flag link */
   $handler->display->display_options['fields']['ops']['id'] = 'ops';
-  $handler->display->display_options['fields']['ops']['table'] = 'flag_content';
+  $handler->display->display_options['fields']['ops']['table'] = 'flagging';
   $handler->display->display_options['fields']['ops']['field'] = 'ops';
   $handler->display->display_options['fields']['ops']['relationship'] = 'flag_content_rel';
   /* Sort criterion: Content: Post date */

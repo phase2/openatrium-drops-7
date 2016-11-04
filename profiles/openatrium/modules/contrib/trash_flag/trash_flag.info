@@ -2,7 +2,7 @@ name = Trash Flag
 description = Provides a trashbin functionality using the flag module
 core = 7.x
 package = Flags
-dependencies[] = flag
+dependencies[] = flag (3.x)
 dependencies[] = og_context
 dependencies[] = views
 features[ctools][] = views:views_default:3.0
@@ -13,9 +13,9 @@ features_exclude[dependencies][ctools] = ctools
 files[] = trash_flag.test
 project path = sites/all/modules
 
-; Information added by Drupal.org packaging script on 2015-11-04
-version = "7.x-1.0-beta5"
+; Information added by Drupal.org packaging script on 2016-11-03
+version = "7.x-1.0"
 core = "7.x"
 project = "trash_flag"
-datestamp = "1446650343"
+datestamp = "1478193863"
 
