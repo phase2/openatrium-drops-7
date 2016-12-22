@@ -5,7 +5,7 @@ core = 7.x
 
 ; Drupal Core
 projects[drupal][type] = core
-projects[drupal][version] = 7.44
+projects[drupal][version] = 7.52
 
 ; ***** Patches from Panopoly *******
 ; Bug with image styles on database update
@@ -40,10 +40,6 @@ projects[drupal][patch][2199001] = https://www.drupal.org/files/issues/node_acce
 
 ; Fix javascript error with angular
 projects[drupal][patch][2492993] = https://www.drupal.org/files/issues/2492993-drupal-hash-1.patch
-
-; Fixes an issue where _registry_check_code() gets called early in the bootstrap process. Stills throws a warning but
-; keeps it from throwing a fatal.
-projects[drupal][patch][412808] = https://www.drupal.org/files/issues/drupal-registry_fix-412808-32.patch
 
 ; Fixes sticky headers are not calculating the column widths properly.
 projects[drupal][patch][2097081] = https://www.drupal.org/files/2097081-fix-sticky-header-column-width-7.x-6.patch

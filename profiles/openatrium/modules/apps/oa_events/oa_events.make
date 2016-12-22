@@ -40,6 +40,7 @@ projects[geophp][patch][2144775] = https://www.drupal.org/files/issues/absolute-
 ; GeoField
 projects[geofield][version] = 2.3
 projects[geofield][subdir] = contrib
+projects[geofield][patch][2757953] = https://www.drupal.org/files/issues/geofield-google-api-key-2757953-42.patch
 
 ; GeoCoder
 projects[geocoder][version] = 1.x-dev
