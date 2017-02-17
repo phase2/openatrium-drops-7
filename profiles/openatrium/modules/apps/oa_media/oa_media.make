@@ -12,7 +12,7 @@ projects[media_colorbox][download][branch] = 7.x-1.x
 projects[media_colorbox][download][revision] = d01819
 projects[media_colorbox][patch][2087565] = http://drupal.org/files/media_colorbox_private-file-permission-2087565-1.patch
 
-projects[multiform][version] = 1.1
+projects[multiform][version] = 1.3
 projects[multiform][subdir] = contrib
 
 projects[plupload][version] = 1.7

@@ -11,7 +11,7 @@ include_once 'install_from_db/install_from_db.profile';
  * Implements hook_appstore_stores_info().
  */
 function openatrium_apps_servers_info() {
-  $info =  drupal_parse_info_file(dirname(__file__) . '/openatrium.info');
+  $info = drupal_parse_info_file(dirname(__file__) . '/openatrium.info');
   $version = !empty($info['version']) ? 'openatrium-stable' : 'openatrium-development';
   return array(
     'openatrium' => array(

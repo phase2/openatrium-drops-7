@@ -628,7 +628,7 @@ function _oa_clone_batch_space(&$batch, $space, $original_space_nid) {
   $not_orphan = array();
 
   // Clone all the Sections in this Space.
-  foreach (array_keys(oa_core_space_sections($original_space_nid, 1, $bypass_access_check)) as $original_section_nid) {
+  foreach (array_keys(oa_core_space_sections($original_space_nid, 1, $bypass_access_check, NULL, TRUE)) as $original_section_nid) {
     $not_orphan[$original_section_nid] = $original_section_nid;
     if ($clone_section = oa_clone($original_section_nid, $space->nid, NULL, $bypass_access_check)) {
       $not_orphan = array_merge($not_orphan, oa_clone_get_section_content($original_section_nid, $bypass_access_check));

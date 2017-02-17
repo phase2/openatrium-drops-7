@@ -175,4 +175,3 @@ resources on your web server. Be sure to follow the instructions in the System
 Requirements section shown above. If you still have trouble, try doing a plain 
 Drupal 7 installation using the links in the previous section to ensure that 
 your host is capable of installing Drupal itself.
-

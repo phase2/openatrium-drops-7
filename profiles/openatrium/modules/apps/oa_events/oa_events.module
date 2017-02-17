@@ -188,7 +188,7 @@ function oa_events_find_next_event($items) {
  */
 function oa_events_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $element = array();
-  if ($display['type'] == 'oa_events_addthis') {
+  if (($display['type'] == 'oa_events_addthis') && variable_get('oa_events_addthis', FALSE)) {
     if (isset($entity->panelizer_view_mode) && $entity->panelizer_view_mode == 'featured') {
       $element[0]['#markup'] = '';
     }
@@ -440,10 +440,22 @@ function oa_events_oa_settings_form(&$form_state) {
     '#default_value' => variable_get('oa_events_time_format', OA_EVENTS_TIME_FORMAT),
   );
 
+  $form['oa_events_addthis'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable the Add to Calendar button'),
+    '#description' => t('NOTE: Using the AddThisEvent service requires a license from addevent.com for non-personal use.'),
+    '#default_value' => variable_get('oa_events_addthis', FALSE),
+  );
+
   $form['oa_events_date_format'] = array(
     '#type' => 'textfield',
     '#title' => t('Date format for "Add to Calendar" ?'),
     '#default_value' => variable_get('oa_events_date_format', OA_EVENTS_DATE_FORMAT),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="oa_events_addthis"]' => array('checked' => TRUE),
+      ),
+    ),
   );
 
   $forms[] = array(

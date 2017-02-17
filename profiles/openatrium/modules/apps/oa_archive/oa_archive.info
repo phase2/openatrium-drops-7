@@ -34,9 +34,9 @@ features[features_overrides][] = views_view.trash_flag_bin.display|page_1|displa
 features[features_overrides][] = views_view.trash_flag_bin.display|page_1|display_options|path
 features[features_overrides][] = views_view.trash_flag_bin.display|page|display_options|path
 
-; Information added by Drupal.org packaging script on 2016-11-03
-version = "7.x-2.5"
+; Information added by Drupal.org packaging script on 2017-02-16
+version = "7.x-2.6"
 core = "7.x"
 project = "oa_archive"
-datestamp = "1478194441"
+datestamp = "1487259498"
 

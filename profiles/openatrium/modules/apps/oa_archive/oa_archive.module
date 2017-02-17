@@ -143,13 +143,27 @@ function oa_archive_views_query_alter(&$view, &$query) {
 }
 
 /**
- * Implements hook_flag().
+ * Implements hook_flag_flag().
+ */
+function oa_archive_flag_flag($flag, $content_id, $account, $flagging) {
+  oa_archive_trigger_flag('flag', $flag, $content_id, $account);
+}
+
+/**
+ * Implements hook_flag_unflag().
+ */
+function oa_archive_flag_unflag($flag, $content_id, $account, $flagging) {
+  oa_archive_trigger_flag('unflag', $flag, $content_id, $account);
+}
+
+/**
+ * Helper function for flag and unflag hooks.
  *
  * We need to archive/unarchive child content when archiving a Space or
  * Section. We handle unarchiving parents who had child content that was
  * already archived by storing a list of those nodes in a variable.
  */
-function oa_archive_flag($action, $flag, $content_id, $account) {
+function oa_archive_trigger_flag($action, $flag, $content_id, $account) {
   if ($flag->name == 'trash') {
     $node = node_load($content_id);
 
@@ -244,7 +258,7 @@ function _oa_archive_get_subspaces($nid) {
  *   An array of node IDs.
  */
 function _oa_archive_get_sections($nid) {
-  return array_keys(oa_core_space_sections($nid, NODE_PUBLISHED));
+  return array_keys(oa_core_space_sections($nid, NODE_PUBLISHED, NULL, array(), TRUE));
 }
 
 /**

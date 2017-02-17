@@ -8,9 +8,9 @@ core = 7.x
 files[] = tests/mailcomment_message_notify.test
 
 
-; Information added by drush on 2016-12-22
+; Information added by drush on 2017-02-17
 version = "7.x-2.4+13-dev"
 core = "7.x"
 project = "mailcomment"
-datestamp = "1482442427"
+datestamp = "1487363150"
 

@@ -1002,8 +1002,10 @@ function devel_switch_user_form_submit($form, &$form_state) {
     array(
       'query' => array(
         'destination' => '',
-        'token' => drupal_get_token($path . '|'),
-    )));
+        'token' => drupal_get_token($path),
+      ),
+    ),
+  );
 }
 
 /**

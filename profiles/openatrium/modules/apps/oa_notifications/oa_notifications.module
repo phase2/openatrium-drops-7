@@ -149,6 +149,13 @@ function oa_notifications_get_notifications($node, $notifications = NULL) {
         }
       }
 
+      // Only notify users who have access to this node
+      foreach ($bucket as $uid => $user) {
+        if (!node_access('view', $node, $user)) {
+          unset($bucket[$uid]);
+        }
+      }
+
       // Allow modules to alter users.
       drupal_alter('notifications_users', $bucket, $node);
     }
@@ -447,6 +454,8 @@ function oa_notifications_is_notification_type($node) {
 
   // No notifications on teams.
   unset($types[OA_TEAM_TYPE]);
+
+  drupal_alter('is_notification_type', $types);
 
   return (array_key_exists($node->type, $types));
 }

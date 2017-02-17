@@ -203,6 +203,10 @@ function views_content_views_panes_content_type_render($subtype, $conf, $panel_a
 function views_content_views_panes_add_defaults(&$conf, $view) {
   $pager = $view->display_handler->get_option('pager');
 
+  if (empty($conf)) {
+    $conf = array();
+  }
+
   $conf += array(
     'link_to_view' => $view->display_handler->get_option('link_to_view'),
     'more_link' => $view->display_handler->get_option('use_more'),
@@ -493,7 +497,7 @@ function views_content_views_panes_content_type_edit_form($form, &$form_state) {
 function views_content_views_panes_content_type_edit_form_submit(&$form, &$form_state) {
   // Copy everything from our defaults.
   $keys = array('link_to_view', 'more_link', 'feed_icons', 'use_pager',
-    'pager_id', 'items_per_page', 'offset', 'path_override', 'path', 'arguments', 'fields_override', 'exposed', 'show_exposed_form');
+    'pager_id', 'items_per_page', 'offset', 'path_override', 'path', 'arguments', 'fields_override', 'exposed');
 
   foreach ($keys as $key) {
     if (isset($form_state['values'][$key])) {

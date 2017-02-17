@@ -300,6 +300,10 @@ function oa_comment_views_default_views() {
   $handler->display->display_options['relationships']['uid_1']['field'] = 'uid';
   $handler->display->display_options['relationships']['uid_1']['relationship'] = 'cid';
   $handler->display->display_options['relationships']['uid_1']['label'] = 'commentuid';
+  /* Relationship: Comment: Last Comment */
+  $handler->display->display_options['relationships']['cid_1']['id'] = 'cid_1';
+  $handler->display->display_options['relationships']['cid_1']['table'] = 'node_comment_statistics';
+  $handler->display->display_options['relationships']['cid_1']['field'] = 'cid';
   /* Field: Content: Nid */
   $handler->display->display_options['fields']['nid']['id'] = 'nid';
   $handler->display->display_options['fields']['nid']['table'] = 'node';
@@ -463,7 +467,7 @@ function oa_comment_views_default_views() {
   $handler->display->display_options['fields']['name_1']['id'] = 'name_1';
   $handler->display->display_options['fields']['name_1']['table'] = 'comment';
   $handler->display->display_options['fields']['name_1']['field'] = 'name';
-  $handler->display->display_options['fields']['name_1']['relationship'] = 'cid';
+  $handler->display->display_options['fields']['name_1']['relationship'] = 'cid_1';
   $handler->display->display_options['fields']['name_1']['label'] = '';
   $handler->display->display_options['fields']['name_1']['element_label_colon'] = FALSE;
   /* Sort criterion: MAX(Comment: Last updated date) */

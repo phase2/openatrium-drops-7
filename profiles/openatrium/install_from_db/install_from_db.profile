@@ -9,32 +9,31 @@
  * CALL THIS from your profile_install_tasks_alter() hook function.
  */
 function install_from_db_install_tasks_alter(&$tasks, $install_state) {
-  // prevent cron from running when finished
+  // Prevent cron from running when finished.
   $tasks['install_finished']['function'] = 'install_from_db_install_finished';
-  // redirect the drupal install_profile_modules step to our own function
+  // Redirect the drupal install_profile_modules step to our own function.
   $tasks['install_profile_modules']['function'] = 'install_from_db_install_profile_modules';
 
-  // add the new quickstart step to the installer
+  // Add the new quickstart step to the installer.
   $quickstart = array(
-      'display_name' => st('Choose installation method'),
-      'type' => 'form',
-      'run' => INSTALL_TASK_RUN_IF_NOT_COMPLETED,
-    );
+    'display_name' => st('Choose installation method'),
+    'type' => 'form',
+    'run' => INSTALL_TASK_RUN_IF_NOT_COMPLETED,
+  );
   $tasks = _install_from_db_insert_before_key($tasks, 'install_profile_modules',
     'install_from_db_form', $quickstart);
 }
 
 /**
- * Helper function to insert a key/value pair before an existing key
- * Used to re-order the install tasks array
+ * Helper function to insert a key/value pair before an existing key used to re-order the install tasks array.
  */
 function _install_from_db_insert_before_key($originalArray, $originalKey, $insertKey, $insertValue) {
   $newArray = array();
-  $inserted = false;
+  $inserted = FALSE;
   foreach ($originalArray as $key => $value) {
     if (!$inserted && ($key === $originalKey)) {
       $newArray[$insertKey] = $insertValue;
-      $inserted = true;
+      $inserted = TRUE;
     }
     $newArray[$key] = $value;
   }
@@ -43,22 +42,21 @@ function _install_from_db_insert_before_key($originalArray, $originalKey, $inser
 
 /**
  * Prompt user to select normal or quick installation method
- * TODO: Check db to be sure it is mysql, or provide mechanism for
- * using dumps of other database types.
+ * TODO: Check db to be sure it is mysql, or provide mechanism for using dumps of other database types.
  *
  * @see install_from_db_form_validate()
  * @see install_from_db_form_submit()
  */
 function install_from_db_form($form, &$form_state, &$install_state) {
   $profile = $install_state['parameters']['profile'];
-  // find database dump in the /db folder within the profile
-  // TODO: support different database dump formats
+  // Find database dump in the /db folder within the profile
+  // TODO: support different database dump formats.
   $filename = DRUPAL_ROOT . '/profiles/' . $profile . '/db/' . $profile . '.mysql';
 
   $conn = Database::getConnection('default');
   if (!file_exists($filename) || !$conn || ($conn->driver() !== 'mysql')) {
     // can't do quickstart if no db dump exists
-    // also only allow quickstart for mysql databases currently
+    // also only allow quickstart for mysql databases currently.
     unset($install_state['parameters']['quickstart']);
     $form_state['executed'] = TRUE;
     return;
@@ -66,14 +64,14 @@ function install_from_db_form($form, &$form_state, &$install_state) {
   $install_state['parameters']['db_import_filename'] = $filename;
 
   if ($install_state['interactive'] && !empty($install_state['parameters']['quickstart'])) {
-    // if url argument is already specified, then just use it
+    // If url argument is already specified, then just use it.
     $form_state['input']['quickstart'] = $install_state['parameters']['quickstart'];
     $form_state['executed'] = TRUE;
     return;
   }
 
   if (!$install_state['interactive'] && !isset($form_state['values']['quickstart'])) {
-    // default non-interactive to quickstart
+    // Default non-interactive to quickstart.
     $install_state['parameters']['quickstart'] = 'quick';
     $form_state['input']['quickstart'] = 'quick';
   }
@@ -95,7 +93,7 @@ function install_from_db_form($form, &$form_state, &$install_state) {
     '#parents' => array('quickstart'),
   );
   $form['actions'] = array('#type' => 'actions');
-  $form['actions']['submit'] =  array(
+  $form['actions']['submit'] = array(
     '#type' => 'submit',
     '#value' => st('Save and continue'),
   );
@@ -120,11 +118,8 @@ function install_from_db_form_submit($form, &$form_state) {
   $install_state['parameters']['quickstart'] = $form_state['input']['quickstart'];
 }
 
-
 /**
- * overrides install_profile_modules()
- * For quick install, load database from sql dump
- * otherwise install normally
+ * Overrides install_profile_modules(). For quick install, load database from sql dump otherwise install normally.
  */
 function install_from_db_install_profile_modules(&$install_state) {
   if (!empty($install_state['parameters']['quickstart']) && ($install_state['parameters']['quickstart'] === 'quick') && !empty($install_state['parameters']['db_import_filename'])) {
@@ -132,10 +127,10 @@ function install_from_db_install_profile_modules(&$install_state) {
       watchdog('install', 'Installing from database import.', array(), WATCHDOG_INFO);
       print "Installing from database\n";
     }
-    // bypass normal module installation
+    // Bypass normal module installation
     // load database dump instead
     // uses batch because normal module install task uses batch
-    // and it's also good for this potentially time consuming db restore
+    // and it's also good for this potentially time consuming db restore.
     $operations = array();
     $defer_operations = array();
     $system_sql = '';
@@ -143,14 +138,20 @@ function install_from_db_install_profile_modules(&$install_state) {
     if (file_exists($filename)) {
       $file = fopen($filename, 'rb');
       if ($file) {
-        while (($line = _install_from_db_read_sql_batch($file, $table)) !== false) {
+        while (($line = _install_from_db_read_sql_batch($file, $table)) !== FALSE) {
           if (!empty($line)) {
-            // don't process blank lines
+            // don't process blank lines.
             if (in_array($table, array('system'))) {
-              $defer_operations[] = array('_install_from_db_install_db_import', array($line, $table));
+              $defer_operations[] = array(
+                '_install_from_db_install_db_import',
+                array($line, $table)
+              );
             }
             else {
-              $operations[] = array('_install_from_db_install_db_import', array($line, $table));
+              $operations[] = array(
+                '_install_from_db_install_db_import',
+                array($line, $table)
+              );
             }
           }
         }
@@ -174,12 +175,12 @@ function install_from_db_install_profile_modules(&$install_state) {
 }
 
 /**
- * 'Finished' callback for module installation batch.
+ * Finished callback for module installation batch.
  */
 function _install_from_db_install_db_import_finished($success, $results, $operations) {
   _install_from_db_cc_all();
-  // remove any field data added to user entity
-  // since we did not import any users
+  // Remove any field data added to user entity
+  // since we did not import any users.
   $fields_info = field_info_instances('user', 'user');
   foreach ($fields_info as $field_name => $info) {
     db_delete('field_data_' . $field_name)
@@ -194,11 +195,10 @@ function _install_from_db_install_db_import_finished($success, $results, $operat
 }
 
 /**
- * Aggressively clear the cache so new database will take affect
- * Do this right after importing the new system module as the last step
+ * Aggressively clear the cache so new database will take affect. Do this right after importing the new system module as the last step.
  */
 function _install_from_db_cc_all() {
-  // load the module files as if we just installed them
+  // Load the module files as if we just installed them.
   cache_clear_all('lookup_cache', 'cache_bootstrap');
   cache_clear_all('variables', 'cache_bootstrap');
   cache_clear_all('module_implements', 'cache_bootstrap');
@@ -219,8 +219,13 @@ function _install_from_db_install_db_import($lines, $table, &$context) {
   global $conf;
 
   if ($table === 'variable') {
-    // save/restore some variables needed by installer or unique to new site
-    $saved_vars = array('install_task', 'install_current_batch', 'cron_key', 'drupal_private_key');
+    // save/restore some variables needed by installer or unique to new site.
+    $saved_vars = array(
+      'install_task',
+      'install_current_batch',
+      'cron_key',
+      'drupal_private_key'
+    );
     foreach ($saved_vars as $var) {
       $value = variable_get($var);
       if (isset($value)) {
@@ -239,7 +244,7 @@ function _install_from_db_install_db_import($lines, $table, &$context) {
   }
 
   if ($table === 'variable') {
-    // restore saved variables
+    // Restore saved variables.
     foreach ($saved_values as $key => $value) {
       variable_set($key, $value);
     }
@@ -248,9 +253,14 @@ function _install_from_db_install_db_import($lines, $table, &$context) {
 
 /**
  * Read a batch of sql commands (ending in commit)
- * @param $file - name of file to read from
- * @param $table - name of table referenced in sql statements is returned
- * @return - an array of strings containing sql commands for a single table.
+ *
+ * @param string $file
+ *   Name of file to read from.
+ * @param string $table
+ *   Name of table referenced in sql statements is returned.
+ *
+ * @return array
+ *   An array of strings containing sql commands for a single table.
  */
 function _install_from_db_read_sql_batch($file, &$table) {
   $conn = Database::getConnection('default');
@@ -259,46 +269,47 @@ function _install_from_db_read_sql_batch($file, &$table) {
   $skip = FALSE;
   $skip_tables = array('batch', 'cache', 'sessions', 'queue', 'semaphore', 'users',
     'advagg_aggregates', 'advagg_aggregates_hashes',
-    'advagg_aggregates_versions', 'advagg_files');
-  while (($newline = _install_from_db_read_sql_command_from_file($file)) !== false) {
-    // process the line read.
+    'advagg_aggregates_versions', 'advagg_files',
+  );
+  while (($newline = _install_from_db_read_sql_command_from_file($file)) !== FALSE) {
+    // Process the line read.
     $newline_prefix = _install_from_db_replace_prefix($newline, $conn);
-    // block of SQL starts with a Table structure comment
+    // Block of SQL starts with a Table structure comment.
     if (preg_match('/Table structure for table `([^`]+)`/', $newline, $matches)) {
       $new_table = $matches[1];
       if (!empty($table) && ($new_table !== $table)) {
-        // close out the previous table
-        // put this line back into the read buffer for the next time
+        // Close out the previous table
+        // put this line back into the read buffer for the next time.
         _install_from_db_read_sql_command_from_file($file, $newline);
         break;
       }
       $table = $new_table;
       if (!$skip) {
         if (in_array($table, $skip_tables) || (strpos($table, 'cache_') === 0)) {
-          // skip listed tables, along with any cache_* table
+          // Skip listed tables, along with any cache_* table.
           $skip = TRUE;
         }
       }
     }
     if (preg_match('/\A(CREATE TABLE )`([^`]+)`/', $newline, $matches)) {
-      // always check first before creating tables
+      // Always check first before creating tables.
       $newline_prefix = preg_replace('/\ACREATE TABLE/', 'CREATE TABLE IF NOT EXISTS', $newline_prefix);
       if ($skip) {
-        // make sure skipped tables are still created
+        // Make sure skipped tables are still created.
         $line[] = $newline_prefix;
       }
     }
     if (!empty($newline) && substr($newline, 0, 2) == '--') {
-      // otherwise skip comments
+      // Otherwise skip comments.
       $newline_prefix = '';
     }
     if (!$skip && !empty($newline_prefix)) {
       $line[] = $newline_prefix;
     }
-    // block of SQL ends with a commit command.
+    // Block of SQL ends with a commit command.
     if ($newline === 'commit;') {
-      // be sure to turn autocommit back on for Drupal batch system and other database
-      // queries to work properly
+      // Be sure to turn autocommit back on for Drupal batch system and other database
+      // queries to work properly.
       $line[] = 'set autocommit=1;';
     }
   }
@@ -312,30 +323,30 @@ function _install_from_db_read_sql_batch($file, &$table) {
  * Read a multiline sql command from a file.
  *
  * Supports the formatting created by mysqldump, but won't handle multiline comments.
- * Taken from backup_migrate module
+ * Taken from backup_migrate module.
  */
 function _install_from_db_read_sql_command_from_file($file, $save_line = '') {
   static $save_for_later = '';
 
   if (!empty($save_for_later)) {
-    // check if a previous line was saved
+    // Check if a previous line was saved.
     $out = $save_for_later;
     $save_for_later = '';
     return trim($out);
   }
 
   if (!empty($save_line)) {
-    // save this text for the next time we read from file
-    // used to stuff the previous line back into the read buffer
+    // Save this text for the next time we read from file
+    // used to stuff the previous line back into the read buffer.
     $save_for_later = $save_line;
     return;
   }
 
   $out = '';
-  while (($line = fgets($file)) !== false) {
+  while (($line = fgets($file)) !== FALSE) {
     $line = trim($line);
     if (empty($out) && !empty($line) && substr($line, 0, 2) == '--') {
-      // return single line comments so we can parse what table this was later
+      // Return single line comments so we can parse what table this was later.
       return trim($line);
     }
     $first2 = substr($line, 0, 2);
@@ -362,7 +373,7 @@ function _install_from_db_read_sql_command_from_file($file, $save_line = '') {
 }
 
 /**
- * Apply the correct prefix to tables in the SQL statement
+ * Apply the correct prefix to tables in the SQL statement.
  */
 function _install_from_db_replace_prefix($line, $conn) {
   $patterns = array(
@@ -374,7 +385,7 @@ function _install_from_db_replace_prefix($line, $conn) {
     'UPDATE',
   );
   foreach ($patterns as $pattern) {
-    // handle lines like this:  /*!40000 ALTER TABLE `actions` ENABLE KEYS */;
+    // Handle lines like this:  /*!40000 ALTER TABLE `actions` ENABLE KEYS */;.
     $find = '#\A((/\*\!\d+ )?' . $pattern . ' )`([^`]+)`#';
     // NOTE: We need to replace `tablename` with the new prefixed table name
     // We cannot run $conn->prefixQuery on the entire $line because it will mess
@@ -395,13 +406,13 @@ function _install_from_db_replace_prefix($line, $conn) {
  * since we just installed the correct module versions for the distro
  * that we desire.
  *
- * @param $install_state
+ * @param array $install_state
  *   An array of information about the current installation state.
  *
- * @return
+ * @return string
  *   A message informing the user that the installation is complete.
  */
-function install_from_db_install_finished(&$install_state) {
+function install_from_db_install_finished(array &$install_state) {
   drupal_set_title(st('@drupal installation complete', array('@drupal' => drupal_install_profile_distribution_name())), PASS_THROUGH);
   $messages = drupal_set_message();
   $output = '<p>' . st('Congratulations, you installed @drupal!', array('@drupal' => drupal_install_profile_distribution_name())) . '</p>';
@@ -415,7 +426,7 @@ function install_from_db_install_finished(&$install_state) {
   // Remember the profile which was used.
   variable_set('install_profile', drupal_get_profile());
 
-  // Installation profiles are always loaded last
+  // Installation profiles are always loaded last.
   db_update('system')
     ->fields(array('weight' => 1000))
     ->condition('type', 'module')
@@ -434,7 +445,7 @@ function install_from_db_install_finished(&$install_state) {
   //
   // drupal_cron_run();
   //
-  // Mark cron as run so it doesn't run on next page load either
+  // Mark cron as run so it doesn't run on next page load either.
   variable_set('cron_last', REQUEST_TIME);
 
   return $output;

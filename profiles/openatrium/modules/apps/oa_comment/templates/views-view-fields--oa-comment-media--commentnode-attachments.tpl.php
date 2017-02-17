@@ -42,7 +42,7 @@
     </span>
     <span class="user-info">
       <?php print t(' by '); ?>
-      <?php print (!empty(strip_tags($name))) ? $name : $name_4; ?>
+      <?php print (strip_tags($name) != '') ? $name : $name_4; ?>
     </span>
   </div>
   <div class="comment-label">

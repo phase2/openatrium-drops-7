@@ -6,8 +6,6 @@ exclusive = TRUE
 
 base[] = panopoly
 
-files[] = openatrium.profile
-
 ; Drupal Core
 dependencies[] = menu
 dependencies[] = image
@@ -100,9 +98,9 @@ dependencies[] = variable
 dependencies[] = panels_customerror
 dependencies[] = ultimate_cron
 
-; Information added by Drupal.org packaging script on 2016-12-22
-version = "7.x-2.612"
+; Information added by Drupal.org packaging script on 2017-02-17
+version = "7.x-2.613"
 core = "7.x"
 project = "openatrium"
-datestamp = "1482442399"
+datestamp = "1487363122"
 
