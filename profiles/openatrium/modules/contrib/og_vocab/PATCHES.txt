@@ -1,5 +1,5 @@
 The following patches have been applied to this project:
-- https://www.drupal.org/files/issues/2039009-og_vocab-share-25.patch
+- https://www.drupal.org/files/issues/2039009-og_vocab-share-29.patch
 - https://www.drupal.org/files/issues/2399883-og_vocab-menuitem-4.patch
 - https://www.drupal.org/files/issues/og_vocab_support_custom_widget_settings-2503991-1.patch
 - https://www.drupal.org/files/issues/og_vocab_override_widget_settings-2242387-2.patch

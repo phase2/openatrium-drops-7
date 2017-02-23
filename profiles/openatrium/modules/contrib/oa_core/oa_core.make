@@ -37,7 +37,7 @@ projects[date_facets][version] = 1.0
 projects[date_facets][subdir] = contrib
 
 ; Diff
-projects[diff][version] = 3.2
+projects[diff][version] = 3.3
 projects[diff][subdir] = contrib
 
 ; Features Template
@@ -124,7 +124,7 @@ projects[og_variables][subdir] = contrib
 projects[og_vocab][version] = 1.2
 projects[og_vocab][subdir] = contrib
 ; patch to support subgroups
-projects[og_vocab][patch][2039009] = https://www.drupal.org/files/issues/2039009-og_vocab-share-25.patch
+projects[og_vocab][patch][2039009] = https://www.drupal.org/files/issues/2039009-og_vocab-share-29.patch
 projects[og_vocab][patch][2399883] = https://www.drupal.org/files/issues/2399883-og_vocab-menuitem-4.patch
 projects[og_vocab][patch][2503991] = https://www.drupal.org/files/issues/og_vocab_support_custom_widget_settings-2503991-1.patch
 projects[og_vocab][patch][2242387] = https://www.drupal.org/files/issues/og_vocab_override_widget_settings-2242387-2.patch
@@ -135,9 +135,9 @@ projects[panels_customerror][version] = 1.0
 projects[panels_customerror][subdir] = contrib
 
 ; Paragraphs
-projects[paragraphs][version] = 1.0-rc4
+projects[paragraphs][version] = 1.0-rc5
 projects[paragraphs][subdir] = contrib
-projects[paragraphs][patch][2458801] = https://www.drupal.org/files/issues/paragraphs-instructions_setting-2458801-9.patch
+projects[paragraphs][patch][2458801] = https://www.drupal.org/files/issues/paragraphs-instructions_setting-2458801-14.patch
 projects[paragraphs][patch][2481627] = https://www.drupal.org/files/issues/paragraphs-modal_targets_wrong_id-2481627-3.patch
 projects[paragraphs][patch][2560601] = https://www.drupal.org/files/issues/2560601-paragraphs-join_extra-2.patch
 
@@ -179,4 +179,3 @@ projects[views_load_more][subdir] = contrib
 ; Ultimate Cron
 projects[ultimate_cron][version] = 2.0
 projects[ultimate_cron][subdir] = contrib
-

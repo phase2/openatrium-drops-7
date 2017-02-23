@@ -1196,18 +1196,15 @@ function theme_paragraphs_field_multiple_value_form($variables) {
     if (empty($instance['settings']['hide_instructions'])) {
       // Check for custom instructions.
       if (!empty($instance['settings']['add_mode_instructions'])) {
-        $instructions = rtrim($instance['settings']['add_mode_instructions']);
+        $instructions = check_plain(rtrim($instance['settings']['add_mode_instructions']));
         $output .= '<p><em>' . t($instructions) . '</em></p>';
       }
       else {
-        $add_text = 'No !title_multiple added yet. Select a !title type and press the button below to add one.';
+        $add_text = 'No @title_multiple added yet. Select a @title type and press the button below to add one.';
         if ($add_mode == 'button') {
-          $add_text = 'No !title_multiple added yet. Select a !title type and press a button below to add one.';
+          $add_text = 'No @title_multiple added yet. Select a @title type and press a button below to add one.';
         }
-        $output .= '<p><em>' . t($add_text, array(
-            '!title_multiple' => t($instance['settings']['title_multiple']),
-            '!title' => t($instance['settings']['title'])
-          )) . '</em></p>';
+        $output .= '<p><em>' . t($add_text, array('@title_multiple' => t($instance['settings']['title_multiple']), '@title' => t($instance['settings']['title']))) . '</em></p>';
       }
     }
   }

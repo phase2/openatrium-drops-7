@@ -36,7 +36,7 @@ class SimpleTestCloneTestCase extends DrupalWebTestCase {
    */
   protected function setUp() {
     // Copy of parent::setUp();
-    global $user, $language, $conf;
+    global $user, $language, $language_url, $conf;
 
     // Generate a temporary prefixed database to ensure that tests have a clean starting point.
     $this->databasePrefix = 'simpletest' . mt_rand(1000, 1000000);
@@ -47,6 +47,7 @@ class SimpleTestCloneTestCase extends DrupalWebTestCase {
 
     // Store necessary current values before switching to prefixed database.
     $this->originalLanguage = $language;
+    $this->originalLanguageUrl = $language_url;
     $this->originalLanguageDefault = variable_get('language_default');
     $this->originalFileDirectory = variable_get('file_public_path', conf_path() . '/files');
     $this->originalProfile = drupal_get_profile();
@@ -112,7 +113,7 @@ class SimpleTestCloneTestCase extends DrupalWebTestCase {
 
     // Set up English language.
     unset($GLOBALS['conf']['language_default']);
-    $language = language_default();
+    $language_url = $language = language_default();
 
     // Use the test mail class instead of the default mail handler class.
     variable_set('mail_system', array('default-system' => 'TestingMailSystem'));

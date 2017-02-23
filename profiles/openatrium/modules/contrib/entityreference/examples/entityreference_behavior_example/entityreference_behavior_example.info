@@ -5,9 +5,9 @@ package = Fields
 dependencies[] = entityreference
 
 
-; Information added by drush on 2017-02-17
+; Information added by drush on 2017-02-23
 version = "7.x-1.1+4-dev"
 core = "7.x"
 project = "entityreference"
-datestamp = "1487363144"
+datestamp = "1487862627"
 

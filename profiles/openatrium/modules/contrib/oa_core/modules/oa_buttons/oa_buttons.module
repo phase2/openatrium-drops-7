@@ -268,6 +268,32 @@ function oa_buttons_node_update($node) {
 }
 
 /**
+ * Implements hook_flag_flag().
+ */
+function oa_buttons_flag_flag($flag, $content_id, $account, $flagging) {
+  oa_buttons_trigger_flag('flag', $flag, $content_id, $account);
+}
+
+/**
+ * Implements hook_flag_unflag().
+ */
+function oa_buttons_flag_unflag($flag, $content_id, $account, $flagging) {
+  oa_buttons_trigger_flag('unflag', $flag, $content_id, $account);
+}
+
+/**
+ * Helper function for flag and unflag hooks.
+ */
+function oa_buttons_trigger_flag($op, $flag, $content_id, $account) {
+  if ($flag->name == 'trash' && ($node = node_load($content_id)) && $node->type == OA_SECTION_TYPE) {
+    $gid = (!empty($node->{OG_AUDIENCE_FIELD}[LANGUAGE_NONE][0]['target_id']))
+      ? $node->{OG_AUDIENCE_FIELD}[LANGUAGE_NONE][0]['target_id']
+      : OA_BUTTONS_CLEAR_CACHE_ALL;
+    oa_buttons_clear_section_button_cache($gid);
+  }
+}
+
+/**
  * Implements hook_og_membership_insert().
  */
 function oa_buttons_og_membership_insert($og_membership) {

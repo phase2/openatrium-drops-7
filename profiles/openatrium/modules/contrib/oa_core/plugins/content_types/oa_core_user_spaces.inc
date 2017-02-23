@@ -196,7 +196,8 @@ function oa_core_build_space_display($spaces, $conf, $account,
       }
     }
     if ($conf['show_sections']) {
-      $sections = oa_core_space_sections($space->nid);
+      $include_archived = user_access('view trash content') || og_user_access('node', $space->nid, 'view trash content', $account);
+      $sections = oa_core_space_sections($space->nid, NODE_PUBLISHED, FALSE, array(), $include_archived);
       foreach ($sections as $id => $title) {
         $vars[$space->nid]['sections'][$id] = l($title, 'node/' . $id);
       }

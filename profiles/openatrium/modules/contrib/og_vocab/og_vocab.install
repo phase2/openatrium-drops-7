@@ -331,8 +331,8 @@ function og_vocab_update_7104() {
     ),
     'primary key' => array('vid'),
   ));
+
   // Convert old patches vawriables to vocabulary.
-  
   $rows = db_select('variable', 'v')
     ->fields('v', array('name'))
     ->condition('name', 'og_vocab_inherit_%', 'LIKE')

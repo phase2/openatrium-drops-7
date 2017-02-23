@@ -106,9 +106,23 @@ function oa_core_oa_clear_cache($node = NULL, $uid = NULL, $include_archived = F
 }
 
 /**
- * Implements hook_flag().
+ * Implements hook_flag_flag().
  */
-function oa_core_flag($op, $flag, $content_id, $account, $fcid) {
+function oa_core_flag_flag($flag, $content_id, $account, $flagging) {
+  oa_core_trigger_flag('flag', $flag, $content_id, $account);
+}
+
+/**
+ * Implements hook_flag_unflag().
+ */
+function oa_core_flag_unflag($flag, $content_id, $account, $flagging) {
+  oa_core_trigger_flag('unflag', $flag, $content_id, $account);
+}
+
+/**
+ * Helper function for flag and unflag hooks.
+ */
+function oa_core_trigger_flag($op, $flag, $content_id, $account) {
   if ($flag->name == 'trash') {
     if (empty($account)) {
       global $user;

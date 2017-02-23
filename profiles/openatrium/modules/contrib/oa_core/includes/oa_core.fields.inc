@@ -184,7 +184,7 @@ function oa_core_oa_section_ref_process($element, &$form_state, &$complete_form)
     // Gid == 0 is no group.
     $gid = isset($value) && ($value === 0 || $value != -1) ? $value : oa_core_get_space_context();
     // Add options based on current selected group.
-    if ($gid && $sections = oa_core_space_sections($gid, NODE_PUBLISHED)) {
+    if ($gid && $sections = oa_core_space_sections($gid, NODE_PUBLISHED, NULL, array(), TRUE)) {
       foreach($sections as $nid => $title) {
         $element['#options'][$nid] = check_plain($title);
       }

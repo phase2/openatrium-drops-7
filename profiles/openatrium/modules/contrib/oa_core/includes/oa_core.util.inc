@@ -938,10 +938,11 @@ function oa_core_get_public_spaces($group_types = array(OA_SPACE_TYPE => OA_SPAC
  * @param  bool $bypass_access_check, TRUE to bypass access control
  * @param  array $fields, array of additional fields to return, otherwise just title
  *   fields array has format fieldname|column.  e.g., field_oa_space|tid
+ * @param  bool $include_archived Whether to include archived nodes or not
  * @return array of section data: $array[$nid] = $title.  If $fields is specified
  *   the return array is the full associative array of nid, title, fields
  */
-function oa_core_space_sections($gid, $status = NULL, $bypass_access_check = FALSE, $fields = array()) {
+function oa_core_space_sections($gid, $status = NULL, $bypass_access_check = FALSE, $fields = array(), $include_archived = FALSE) {
   $query = db_select('node', 'n');
   $query->rightJoin('og_membership', 'og', 'n.nid = og.etid');
   $query->leftJoin('field_data_field_oa_section_weight', 'w',
@@ -973,6 +974,14 @@ function oa_core_space_sections($gid, $status = NULL, $bypass_access_check = FAL
     ->orderBy('n.title');
   if (!$bypass_access_check) {
     $query->addTag('node_access');
+  }
+  if (module_exists('flag') && !$include_archived) {
+    if ($flag = flag_get_flag('trash')) {
+      $query->leftJoin('flagging', 'a', "a.fid = :fid AND a.entity_id = n.nid", array(':fid' => $flag->fid));
+      // This makes sure that archived content isn't included, because 'uid'
+      // will be NULL if the join didn't connect anything.
+      $query->isNull('a.uid');
+    }
   }
   $result = $query->execute();
   if (empty($fields)) {

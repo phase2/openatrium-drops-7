@@ -256,7 +256,6 @@ function og_vocab_uri($og_vocab) {
       $url = array(
         'path' => "group/$relation->group_type/$relation->gid/admin/taxonomy/$vocab->machine_name/edit",
       );
-      break;
     }
   }
 
@@ -752,9 +751,9 @@ function og_vocab_relation_save($vid, $group_type, $gid, $settings = array(), $p
   $processed[$group_type . '_' . $gid] = TRUE;
 
   $is_owner = !$existing ||
-    (!empty($existing[$group_type . '_' .$gid])
-      && $existing[$group_type . '_' .$gid]->owner_group_type == $group_type
-      && $existing[$group_type . '_' .$gid]->owner_gid == $gid);
+    (!empty($existing[$group_type . '_' . $gid])
+      && $existing[$group_type . '_' . $gid]->owner_group_type == $group_type
+      && $existing[$group_type . '_' . $gid]->owner_gid == $gid);
 
   if (!variable_get('og_vocab_allow_shared_vocabularies', FALSE) && !$is_owner) {
     throw new OgVocabException('Vocabulary ID is already associated with another group.');

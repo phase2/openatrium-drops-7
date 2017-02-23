@@ -39,10 +39,14 @@
     <?php endif; ?>
     <div class='oa-news-posted'>
       <span class="user-info">
+        <?php if (!empty($name)): ?>
         <?php print t('By '); ?>
         <?php print $name; ?>
+        <?php endif; ?>
+        <?php if (!empty($created)): ?>
         <?php print t(' on '); ?>
         <span class="oa-date"><?php print $created; ?></span>
+        <?php endif; ?>
       </span>
       <?php if (!empty($edit_node)): ?>
         <span class="oa-edit-node">

@@ -28,7 +28,10 @@ function paragraphs_admin_bundle_overview() {
 
     $row = array(
       array(
-        'data' => $bundle->name . ' (' . $bundle->bundle . ')',
+        'data' => format_string('@bundle_name (@bundle_machine_name)', array(
+          '@bundle_name' => $bundle->name,
+          '@bundle_machine_name' => $bundle->bundle,
+        )),
       )
     );
 

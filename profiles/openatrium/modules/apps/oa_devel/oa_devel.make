@@ -20,6 +20,7 @@ projects[simpletest_clone][type] = module
 projects[simpletest_clone][download][type] = git
 projects[simpletest_clone][download][url] = http://git.drupal.org/project/simpletest_clone.git
 projects[simpletest_clone][download][branch] = 7.x-1.x
+projects[simpletest_clone][download][revision] = 3654fa0
 projects[simpletest_clone][subdir] = contrib
 projects[simpletest_clone][patch][1666560] = https://www.drupal.org/files/vars_refresh.patch
 
