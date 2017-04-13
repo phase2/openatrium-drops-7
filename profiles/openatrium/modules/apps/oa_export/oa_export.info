@@ -13,9 +13,9 @@ apps[package] = Core addons
 dependencies[] = oa_core
 dependencies[] = oa_clone
 
-; Information added by Drupal.org packaging script on 2016-06-16
-version = "7.x-2.2"
+; Information added by Drupal.org packaging script on 2017-03-22
+version = "7.x-2.3"
 core = "7.x"
 project = "oa_export"
-datestamp = "1466088030"
+datestamp = "1490201990"
 

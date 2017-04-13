@@ -30,9 +30,9 @@ files[] = views/views_handler_field_oa_comment_last_date.inc
 files[] = views/views_handler_argument_oa_comment_paragraph_and_current_ids.inc
 files[] = views/views_handler_sort_oa_comment_last_date.inc
 
-; Information added by Drupal.org packaging script on 2017-02-17
-version = "7.x-2.13"
+; Information added by Drupal.org packaging script on 2017-04-12
+version = "7.x-2.15"
 core = "7.x"
 project = "oa_comment"
-datestamp = "1487342291"
+datestamp = "1492029925"
 

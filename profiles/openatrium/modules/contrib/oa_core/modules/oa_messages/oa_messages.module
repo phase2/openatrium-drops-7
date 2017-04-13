@@ -102,10 +102,10 @@ function oa_messages_create($message_type, $entity = NULL, $entity_type = 'node'
 
     drupal_alter('oa_messages_create', $wrapper, $context);
 
-    if (!empty($entity_type)) {
+    if (!empty($entity_wrapper)) {
       // Since this can be called on node_update / insert, we clear the entity
       // cache so that it gets the values assigned by other modules.
-      entity_get_controller($entity_type)->resetCache(array($entity_wrapper->getIdentifier()));
+      entity_get_controller($entity_wrapper->type())->resetCache(array($entity_wrapper->getIdentifier()));
     }
 
     $wrapper->save();
@@ -383,7 +383,7 @@ function oa_messages_og_membership_prepare($og_membership, $action, $add_type = 
   $group = node_load($og_membership->gid);
   $user = user_load($og_membership->etid);
   $realname = oa_core_realname($user);
-  $text = l($realname, '/user/' . $user->uid) . ' ' . $action;
+  $text = l($realname, 'user/' . $user->uid) . ' ' . $action;
   if ($add_type && isset($group->type)) {
     $info = entity_get_info('node');
     $text .= $info['bundles'][$group->type]['label'];

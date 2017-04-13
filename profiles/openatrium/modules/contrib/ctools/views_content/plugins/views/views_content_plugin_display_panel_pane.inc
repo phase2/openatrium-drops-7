@@ -33,6 +33,7 @@ class views_content_plugin_display_panel_pane extends views_plugin_display {
         'path_override'   => array('default' => FALSE),
         'title_override'  => array('default' => FALSE),
         'exposed_form'    => array('default' => FALSE),
+        'exposed_form_configure'    => array('default' => FALSE),
         'fields_override' => array('default' => FALSE),
        ),
     );
@@ -172,6 +173,7 @@ class views_content_plugin_display_panel_pane extends views_plugin_display {
           'path_override' => t('Path override'),
           'title_override' => t('Title override'),
           'exposed_form' => t('Use exposed widgets form as pane configuration'),
+          'exposed_form_configure' => t('Exposed Form'),
           'fields_override' => t('Fields override'),
         );
 

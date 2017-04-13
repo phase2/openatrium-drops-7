@@ -101,7 +101,7 @@ function oa_export_preprocess_blueprint_download_page(&$variables) {
   // Path to download files, if needed.
   $variables['download_path'] = $_SESSION['oa_export']['download_path'];
   // Path to send user back to.
-  $variables['download_redirect'] = OA_EXPORT_REDIRECT;
+  $variables['download_redirect'] = url(OA_EXPORT_REDIRECT);
 }
 
 /**
@@ -283,6 +283,20 @@ function oa_export_cleanup($directory = NULL, $goto = NULL) {
   if (isset($goto)) {
     // Send the user somewhere else.
     drupal_goto($goto);
+  }
+}
+
+/**
+ * Verify that the specified blueprint taxonomy term can be exported.
+ * @param $blueprint
+ *   Fully loaded taxonomy term
+ */
+function oa_export_verify_blueprint($blueprint) {
+  $wrapper = entity_metadata_wrapper('taxonomy_term', $blueprint);
+  $export_enabled = $wrapper->field_oa_clone_enabled->value();
+  if (!$export_enabled) {
+    drupal_set_message(t('Can only export terms that clone a specific space.'), 'error');
+    oa_export_cleanup(NULL, OA_EXPORT_REDIRECT);
   }
 }
 

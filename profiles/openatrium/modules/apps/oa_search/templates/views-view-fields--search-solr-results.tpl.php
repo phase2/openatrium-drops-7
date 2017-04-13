@@ -32,7 +32,7 @@
  */
 ?>
 <div class='oa-list well oa_search_row clearfix oa-list-header'>
-  <h3><?php print $title; ?></h3>
+  <?php print $title; ?>
   <?php if (isset($field_featured_image)): ?>
     <div><?php print $field_featured_image; ?></div>
   <?php endif; ?>

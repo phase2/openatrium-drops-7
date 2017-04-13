@@ -25,6 +25,8 @@ require_once 'oa_export.module.module.inc';
  */
 function oa_export_generate_module_form($form, &$form_state, $blueprint) {
 
+  oa_export_verify_blueprint($blueprint);
+
   $form['#blueprint'] = $blueprint->tid;
 
   $form['module']['help'] = array(

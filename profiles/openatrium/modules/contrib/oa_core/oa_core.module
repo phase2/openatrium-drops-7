@@ -782,6 +782,8 @@ function oa_core_preprocess_views_view_fields(&$vars) {
         if (!strip_tags($field->content, '<img>')) {
           // Add the user placeholder image.
           $vars[$id] = oa_core_get_user_picture_for_views_fields($field);
+          // Also provide image to default views templates
+          $vars['fields'][$id]->content = $vars[$id];
         }
         break;
     }
@@ -1358,14 +1360,18 @@ function oa_core_form_views_exposed_form_alter(&$form, &$form_state) {
       }
     }
 
-    $space_id = $form_state['input']['og_group_ref_target_id'];
-    $include_archived = user_access('view trash content') || og_user_access('node', $space_id, 'view trash content', NULL, FALSE, TRUE);
+    $space_id = str_replace(OA_SPACE_CURRENT, oa_core_get_space_context(), $form_state['input']['og_group_ref_target_id']);
+    $include_archived = user_access('view trash content') ||
+      (is_numeric($space_id) && og_user_access('node', $space_id, 'view trash content', NULL, FALSE, TRUE));
 
     // reload section option list with sections from given space id
     $sections = array(
       ''    => t('- Active Section -'),
       'All' => t('- Any -')
-    ) + oa_core_space_sections($space_id, NULL, $bypass_access, array(), $include_archived);
+    );
+    if (is_numeric($space_id)) {
+      $sections += oa_core_space_sections($space_id, NULL, $bypass_access, array(), $include_archived);
+    }
     $form['oa_section_ref_target_id']['#options'] = $sections;
   }
 }

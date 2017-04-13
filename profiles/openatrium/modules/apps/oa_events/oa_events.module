@@ -114,22 +114,6 @@ function oa_events_field_add_to_calendar_markup($nid, $items, $title = 'Add to C
 }
 
 /**
- * Implements hook_field_formatter_settings_summary().
- */
-function oa_events_field_formatter_settings_summary($field, $instance, $view_mode) {
-  $display = $instance['display'][$view_mode];
-  $settings = $display['settings'];
-
-  if ($display['type'] == 'oa_events_media_formatter') {
-    $summary = t('Display first image with style: @style', array(
-      '@style'     => $settings['image_style'],
-    ));
-  }
-
-  return $summary;
-}
-
-/**
  * Find the next upcoming event or the last event in a series.
  *
  * @param  array $items

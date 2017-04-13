@@ -44,7 +44,7 @@ function oa_core_user_spaces_render($subtype, $conf, $args, $context = NULL) {
   $vars = array();
 
   if (isset($conf['types'])) {
-    $group_types = $conf['types'];
+    $group_types = array_filter($conf['types']);
   }
   else {
     $group_types = array(OA_SPACE_TYPE => OA_SPACE_TYPE);
@@ -436,4 +436,3 @@ function oa_core_user_spaces_edit_form_submit($form, &$form_state) {
     }
   }
 }
-

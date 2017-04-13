@@ -14,6 +14,8 @@
  */
 function oa_export_batch_export($blueprint, $export_type = 'file') {
 
+  oa_export_verify_blueprint($blueprint);
+
   switch ($export_type) {
     case 'file':
       // Start storing session variables for file download.
@@ -217,7 +219,7 @@ function oa_export_batch_file_download_finished($success, $results, $operations)
 
         // Copy the compressed file to a path we can download.
         if ($copy = file_unmanaged_copy($_SESSION['oa_export']['file'], $public, FILE_EXISTS_REPLACE)) {
-          $_SESSION['oa_export']['download_path'] = $copy;
+          $_SESSION['oa_export']['download_path'] = url($copy);
         }
         else {
           drupal_set_message(t('There was a problem copying the export to !public', array('!public' => $public), 'error'));
@@ -305,7 +307,7 @@ function oa_export_batch_file_download_finished_redirect() {
   }
 
   // Redirect to the download file.
-  $redirect = base_path() . $_SESSION['oa_export']['download_path'];
+  $redirect = $_SESSION['oa_export']['download_path'];
   drupal_add_js('setTimeout(function() { window.location.href = "' . $redirect . '"; }, 2000);', 'inline');
 
   // Remove the temporary directory we created.
