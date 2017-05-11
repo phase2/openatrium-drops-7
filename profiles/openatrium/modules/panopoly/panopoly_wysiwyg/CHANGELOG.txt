@@ -1,3 +1,11 @@
+7.x-1.45, 2017-05-11
+-------------------
+- Chrome v58 Cannot Edit Images - Tiny MCE Bug setBaseAndExtent.
+
+7.x-1.44, 2017-04-13
+-------------------
+- No changes since last release.
+
 7.x-1.43, 2017-02-22
 -------------------
 - No changes since last release.

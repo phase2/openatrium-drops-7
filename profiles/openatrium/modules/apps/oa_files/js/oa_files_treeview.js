@@ -625,13 +625,13 @@
       '        <div class = "modal-content" > ' +
       '          <div class = "modal-header" > ' +
       '            <button type="button" class = "close" data-dismiss="modal" aria-hidden="true" ng-click="cancel()" ><i class="icon-remove"></i></button>' +
-      '              <h3 id="modal-dialog-title">New Folder</h3 > ' +
+      '              <h3 id="modal-dialog-title">' + Drupal.t('New Folder') + '</h3 > ' +
       '          </div>' +
       '          <div class="modal-body">' +
-      '            <p>Enter the name of the new folder:</p>' +
+      '            <p>' + Drupal.t('Enter the name of the new folder:') + '</p>' +
       '            <input type="text" class="oa-files-foldername" ng-model="foldername" name="foldername"></input >' +
-      '            <input type="submit" class="btn btn-primary" id="submit" ng-click="submit()" value="Create Folder"></input >' +
-      '            <input type="button" class="btn btn-default" id="cancel" ng-click="cancel()" value="Cancel"></input >' +
+      '            <input type="submit" class="btn btn-primary" id="submit" ng-click="submit()" value="' + Drupal.t('Create Folder') + '"></input >' +
+      '            <input type="button" class="btn btn-default" id="cancel" ng-click="cancel()" value="' + Drupal.t('Cancel') + '"></input >' +
       '          </div>' +
       '        </div > ' +
       '      </form>' +

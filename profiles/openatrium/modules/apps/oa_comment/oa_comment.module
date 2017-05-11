@@ -431,11 +431,14 @@ function oa_comment_views_pre_build(&$view) {
   // (This alter could be done later in the execution process as well.)
   if ($view->name == 'oa_comment_media' && !empty($view->args[0])) {
     $ids = oa_comment_find_paragraph_ids($view->args[0]);
-    $view->display_handler->handlers['relationship']['reverse_field_oa_media_paragraphs_item']->definition['join_extra'][] = array(
-      'field' => 'entity_id',
-      'value' => array_merge($ids['node'], $ids['comment']),
-      'numeric' => TRUE,
-    );
+    $ids = array_merge($ids['node'], $ids['comment']);
+    if (!empty($ids)) {
+      $view->display_handler->handlers['relationship']['reverse_field_oa_media_paragraphs_item']->definition['join_extra'][] = array(
+        'field' => 'entity_id',
+        'value' => $ids,
+        'numeric' => TRUE,
+      );
+    }
     $view->display_handler->handlers['relationship']['reverse_field_oa_media_node']->definition['join_extra'][] = array(
       'field' => 'entity_id',
       'value' => $view->args[0],

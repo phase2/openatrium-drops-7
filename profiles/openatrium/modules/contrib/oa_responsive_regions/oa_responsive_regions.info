@@ -7,9 +7,9 @@ dependencies[] = ctools
 dependencies[] = panels
 
 
-; Information added by Drupal.org packaging script on 2016-06-16
-version = "7.x-1.1"
+; Information added by Drupal.org packaging script on 2017-05-10
+version = "7.x-1.2"
 core = "7.x"
 project = "oa_responsive_regions"
-datestamp = "1466088075"
+datestamp = "1494423803"
 

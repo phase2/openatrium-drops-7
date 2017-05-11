@@ -32,7 +32,7 @@ function theme_oa_responsive_regions_render_region($variables) {
   $settings = $variables['settings'];
 
   $output = theme('oa_responsive_region', array('panes' => $panes, 'settings' => $settings));
-  if ($settings['fixed'] && $settings['expand_always']) {
+  if (!empty($settings['fixed']) && $settings['expand_always']) {
     // When using a fixed top toolbar, duplicate the toolbar with a hidden version to handle the body offset
     // See http://codepen.io/parkerbennett/pen/hbzJm for Fixed Header Design Pattern
     $settings['hidden'] = TRUE;
@@ -53,17 +53,17 @@ function template_preprocess_oa_responsive_region(&$vars) {
     $vars['classes_array'][] = drupal_html_class('oa-hidden');
   }
   else {
-    $class = ($settings['mobile_only']) ? 'oa-responsive-mobile' : 'oa-responsive-desktop';
+    $class = !empty($settings['mobile_only']) ? 'oa-responsive-mobile' : 'oa-responsive-desktop';
     $vars['classes_array'][] = drupal_html_class($class);
     $class = in_array($settings['position'], array('center', 'fluid')) ? 'oa-responsive-primary' : 'oa-responsive-region-' . $vars['settings']['position'];
     $vars['classes_array'][] = drupal_html_class($class);
     if ($settings['position'] == 'fluid') {
       $vars['classes_array'][] = drupal_html_class('oa-responsive-fluid');
     }
-    if ($settings['fixed']) {
+    if (!empty($settings['fixed'])) {
       $vars['classes_array'][] = drupal_html_class('oa-responsive-fixed');
     }
-    if ($settings['expand_always']) {
+    if (!empty($settings['expand_always'])) {
       $vars['classes_array'][] = drupal_html_class('oa-responsive-expand');
     }
   }
@@ -120,5 +120,3 @@ function oa_responsive_regions_region_settings_form($style_settings) {
 
   return $form;
 }
-
-
