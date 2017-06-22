@@ -28,9 +28,9 @@ files[] = plugins/views/oa_wizard_handler_field_delete_entity.inc
 files[] = plugins/views/oa_wizard_handler_field_edit_entity.inc
 files[] = plugins/views/oa_wizard_handler_field_view_entity.inc
 
-; Information added by Drupal.org packaging script on 2015-10-20
-version = "7.x-2.2"
+; Information added by Drupal.org packaging script on 2017-06-22
+version = "7.x-2.3"
 core = "7.x"
 project = "oa_wizard"
-datestamp = "1445355549"
+datestamp = "1498140544"
 

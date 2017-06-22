@@ -129,6 +129,7 @@ function oa_wizard_modal_callback($wizard_name) {
     'name' => (isset($user->name) ? $user->name : ''),
     'type' => $node_type,
     'language' => LANGUAGE_NONE,
+    'is_new' => TRUE,
   );
 
   $form_state = array(

@@ -334,6 +334,7 @@ function oa_files_create_document($file, $title, $gid = NULL, $sid = NULL) {
     'language' => LANGUAGE_NONE,
     // Set the Title of the Document node to the same title.
     'title' => $title,
+    'is_new' => TRUE,
   );
 
   // Set the Space (og_group_ref) to the current Space Context.
@@ -786,6 +787,7 @@ function oa_files_addmenu_callback($parent = NULL) {
     'language' => LANGUAGE_NONE,
     // Set the Title of the Document node to the same title.
     'title' => $title,
+    'is_new' => TRUE,
   );
   if (($context = og_context()) && og_user_access($context['group_type'], $context['gid'], "create oa_wiki_page content")) {
     // @todo check access, e.g. can add to group/section.

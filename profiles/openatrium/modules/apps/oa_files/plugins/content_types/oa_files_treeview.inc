@@ -463,27 +463,38 @@ function oa_files_add_uncategorized(&$menu_tree, &$conf) {
   $result = $query->execute()->fetchAll();
   oa_files_add_other_nodes($result, $conf);
 
-  $weight = count($menu_tree)+1;
+  $nids = array();
   foreach ($result as $node) {
+    if (!isset($menu_tree[$node->nid])) {
+      $nids[] = $node->nid;
+    }
+  }
+
+  if (empty($nids)) {
+    return;
+  }
+
+  $weight = count($menu_tree) + 1;
+  foreach (node_load_multiple($nids) as $node) {
     $nid = $node->nid;
-    $full_node = node_load($nid);
     $body = '';
     if (oa_files_showfield($conf, 'body')) {
-      $body = oa_files_summary($full_node);
+      $body = oa_files_summary($node);
     }
 
     $treenode = array(
       "id" => $nid,
       "nid" => $nid,
       "parent" => array(0),
-      "name" => $full_node->title,
+      "name" => $node->title,
       "url" => 'node/' . $nid,
       "weight" => $weight,
-      "date" => format_date($full_node->created, 'short'),
-      "modified" => format_date($full_node->changed, 'short'),
-      "editor" => node_access("update", $full_node),
+      "date" => format_date($node->created, 'short'),
+      "modified" => format_date($node->changed, 'short'),
+      "editor" => node_access("update", $node),
       "body" => $body,
       "icon" => url($icon_directory . '/application-octet-stream.png'),
+      "isfolder" => FALSE,
     );
     $menu_tree[$nid] = $treenode;
     $weight++;

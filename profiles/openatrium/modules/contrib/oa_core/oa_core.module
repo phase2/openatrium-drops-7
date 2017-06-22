@@ -300,6 +300,7 @@ function oa_core_create_space_page_callback($type, $space_tid) {
       'name' => (isset($user->name) ? $user->name : ''),
       'type' => $type,
       'language' => LANGUAGE_NONE,
+      'is_new' => TRUE,
     );
 
     $title = t('Create @name', array('@name' => $space_type->name));

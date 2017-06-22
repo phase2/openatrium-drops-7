@@ -45,9 +45,10 @@ projects[features_template][version] = 1.0-beta2
 projects[features_template][subdir] = contrib
 
 ; Feeds
-projects[feeds][version] = 2.0-beta1
+projects[feeds][version] = 2.0-beta3
 projects[feeds][subdir] = contrib
 projects[feeds][patch][2127787] = https://www.drupal.org/files/issues/2127787-feeds-feed_nid-3.patch
+projects[feeds][patch][2828605] = https://www.drupal.org/files/issues/feeds-moved-module-2828605-7.patch
 
 ; SimplePie library used by Feeds
 libraries[simplepie][download][type] = file

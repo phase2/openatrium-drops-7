@@ -1,7 +1,7 @@
 The following patches have been applied to this project:
 - https://www.drupal.org/files/issues/2477347-panopoly_core-views-4.patch
 - https://www.drupal.org/files/issues/2477363-panopoly_core-ctools-21.patch
-- https://www.drupal.org/files/issues/2477369-panopoly_core-entity-5.patch
+- https://www.drupal.org/files/issues/2477369-panopoly_core-entity-6.patch
 - https://www.drupal.org/files/issues/2477375-panopoly_core-entityreference-1.patch
 - https://www.drupal.org/files/issues/2477379-panopoly_core-token-1.patch
 - https://www.drupal.org/files/issues/2592821-panopoly_core-apps-3.patch

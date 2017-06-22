@@ -59,9 +59,9 @@ features[variable][] = field_bundle_settings_message__oa_update
 files[] = plugins/message_notify/notifier/oa_email/OaEmail.class.php
 project path = sites/all/modules/contrib/oa_core/modules
 
-; Information added by Drupal.org packaging script on 2017-04-12
-version = "7.x-2.85"
+; Information added by Drupal.org packaging script on 2017-06-22
+version = "7.x-2.86"
 core = "7.x"
 project = "oa_core"
-datestamp = "1492030016"
+datestamp = "1498140557"
 

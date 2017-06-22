@@ -15,10 +15,9 @@ projects[ctools][patch][2448989] = https://www.drupal.org/files/issues/2448989-c
 projects[ctools][patch][2483415] = https://www.drupal.org/files/issues/ctools-more_than_one_comment_pager-2483415-1.patch
 projects[ctools][patch][2555469] = https://www.drupal.org/files/issues/2555469-ctools-comments-node_tag_new-2.patch
 
-projects[panels][version] = 3.8
+projects[panels][version] = 3.9
 projects[panels][subdir] = contrib
-projects[panels][patch][2790075] = https://www.drupal.org/files/issues/not_authorized_when-2790075-26.patch
-projects[panels][patch][2479879] = https://www.drupal.org/files/issues/panels-revert_allowed_types_to_variable-2479879-37.patch
+projects[panels][patch][1570120] = https://www.drupal.org/files/issues/move-image-1570120-31.patch
 
 projects[panels_breadcrumbs][version] = 2.2
 projects[panels_breadcrumbs][subdir] = contrib
@@ -28,8 +27,9 @@ projects[panelizer][subdir] = contrib
 projects[panelizer][patch][1549608] = https://www.drupal.org/files/issues/panelizer-n1549608-26.patch
 projects[panelizer][patch][2788851] = https://www.drupal.org/files/issues/panelizer-administer-panelizer-2788851-2.patch
 
-projects[fieldable_panels_panes][version] = 1.10
+projects[fieldable_panels_panes][version] = 1.11
 projects[fieldable_panels_panes][subdir] = contrib
+projects[fieldable_panels_panes][patch][2826205] = https://www.drupal.org/files/issues/fieldable_panels_panes-n2826205-39.patch
 
 projects[pm_existing_pages][version] = 1.4
 projects[pm_existing_pages][subdir] = contrib
@@ -65,7 +65,7 @@ projects[token][version] = 1.6
 projects[token][subdir] = contrib
 projects[token][patch][1999298] = http://drupal.org/files/1999298-disable-test-warnings.patch
 
-projects[entity][version] = 1.6
+projects[entity][version] = 1.8
 projects[entity][subdir] = contrib
 projects[entity][patch][1782134] = http://drupal.org/files/entity-translatable_fields_not_overriding_und_with_empty_values-1782134-5.patch
 ; related to Entity Reference revisions patch (1837650)
@@ -76,6 +76,8 @@ projects[entity][patch][2407905] = http://drupal.org/files/issues/entity_unsuppo
 projects[entity][patch][2236229] = https://www.drupal.org/files/issues/add_create_op_to_metadata_comment_access-2236229-1.patch
 ; fix for simpletext and entity
 projects[entity][patch][2289693] = https://www.drupal.org/files/issues/entity_undefined_entity_get_info-2289693-2.patch
+; fix for is_new not being set
+projects[entity][patch][2807275] = https://www.drupal.org/files/issues/op_update_should_be_create-2807275-2.patch
 
 projects[libraries][version] = 2.2
 projects[libraries][subdir] = contrib
@@ -103,8 +105,9 @@ projects[entityreference][patch][1492260] = https://www.drupal.org/files/issues/
 projects[field_group][version] = 1.5
 projects[field_group][subdir] = contrib
 
-projects[link][version] = 1.3
+projects[link][version] = 1.4
 projects[link][subdir] = contrib
+projects[link][patch][2666912] = https://www.drupal.org/files/issues/revert-url-validation-2666912.patch
 
 ; Harness the Power of Features and Apps with Default Content
 
