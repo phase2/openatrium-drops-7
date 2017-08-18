@@ -924,7 +924,7 @@ This is a list of all the values from the <code><b><?php echo realpath($ini_file
       //
       $_recursion_marker = krumo::_marker();
       (is_object($bee))
-        ? (empty($bee->$_recursion_marker) ? ($bee->$_recursion_marker = 1) : $bee->$_recursion_marker++)
+        ? @($bee->$_recursion_marker++)
         : @($bee[$_recursion_marker]++);
 
       $_[0][] =& $bee;
@@ -973,29 +973,6 @@ This is a list of all the values from the <code><b><?php echo realpath($ini_file
 <div class="krumo-nest" style="display:none;">
   <ul class="krumo-node">
   <?php
-
-  if ($_is_object && get_class($data) != 'stdClass') {
-    // this part for protected/private properties only
-    $refl = new ReflectionClass($data);
-    foreach ($refl->getProperties() as $property) {
-      $k = $property->getName();
-      if ($k === $_recursion_marker || $property->isPublic()) {
-        continue;
-      }
-
-      // add key indicators
-      if ($property->isProtected()) {
-        $k .= ':protected';
-      }
-      elseif ($property->isPrivate()) {
-        $k .= ':private';
-      }
-
-      $property->setAccessible(TRUE);
-      $v = $property->getValue($data);
-      krumo::_dump($v, $k);
-    }
-  }
 
   // keys ?
   //

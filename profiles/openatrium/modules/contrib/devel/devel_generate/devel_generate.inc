@@ -270,7 +270,6 @@ function devel_generate_terms($records, $vocabs, $maxlength = 12) {
     $term->format = filter_fallback_format();
     $term->weight = mt_rand(0, 10);
     $term->language = LANGUAGE_NONE;
-    $term->devel_generate = TRUE;
 
     // Populate all core fields on behalf of field.module
     module_load_include('inc', 'devel_generate', 'devel_generate.fields');
@@ -660,12 +659,8 @@ function devel_generate_content_pre_node(&$results) {
 /**
  * Create one node. Used by both batch and non-batch code branches.
  *
- * @param $results
- *   array of options obtained from devel_generate_content_form. If call
- *   this function directly, $results should contain at the very least:
- *     node_types => an associative array of node type machine names
- *     users => an array of UIDs
- *     title_length => max number of words in titles, for example 4.
+ * @param $num
+ *   array of options obtained from devel_generate_content_form.
  */
 function devel_generate_content_add_node(&$results) {
   $node = new stdClass();
@@ -680,7 +675,7 @@ function devel_generate_content_add_node(&$results) {
   $node->revision = mt_rand(0,1);
   $node->promote = mt_rand(0, 1);
 
-  if (!$type || $type->has_title) {
+  if ($type->has_title) {
     // We should not use the random function if the value is not random
     if ($results['title_length'] < 2) {
       $node->title = devel_create_greeking(1, TRUE);

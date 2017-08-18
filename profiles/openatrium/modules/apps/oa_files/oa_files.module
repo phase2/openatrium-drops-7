@@ -192,10 +192,10 @@ function oa_files_upload_create_documents_form($form, &$form_state, $files) {
   $form['#gid'] = $gid;
   $form['#sid'] = $sid;
 
-  if (empty($sid)) {
+  if (empty($sid) && module_exists('oa_sections')) {
     // Figure out best Section to create document page.
     // And prompt user to select section.
-    $sid = oa_related_get_best_section('oa_wiki_page', NULL, $gid);
+    $sid = oa_sections_get_best_section('oa_wiki_page', NULL, $gid);
 
     $form['oa_files_section'] = array(
       '#type' => 'oa_section_ref',
@@ -881,7 +881,7 @@ function oa_files_form_alter(&$form, &$form_state, $form_id) {
 
         if (isset($form[OA_SECTION_FIELD][LANGUAGE_NONE])) {
           // Figure out best Section to create document page.
-          $section = oa_related_get_best_section($node->type, $form[OA_SECTION_FIELD][LANGUAGE_NONE]['#options']);
+          $section = module_exists('oa_sections') ? oa_sections_get_best_section($node->type, $form[OA_SECTION_FIELD][LANGUAGE_NONE]['#options']) : NULL;
           if (!empty($section)) {
             $form[OA_SECTION_FIELD][LANGUAGE_NONE]['#default_value'] = $section;
             // when creating first item, menu_parent is zero, so change it to actual section

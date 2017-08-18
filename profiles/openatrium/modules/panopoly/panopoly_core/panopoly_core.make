@@ -39,13 +39,13 @@ projects[fape][subdir] = contrib
 
 ; Views Magic
 
-projects[views][version] = 3.15
+projects[views][version] = 3.17
 projects[views][subdir] = contrib
 projects[views][patch][2037469] = http://drupal.org/files/views-exposed-sorts-2037469-1.patch
 projects[views][patch][1979926] = http://drupal.org/files/1979926-views-reset_fetch_data-2.patch
 projects[views][patch][1735096] = https://www.drupal.org/files/issues/1735096-views-multiple-instance-exposed-form-15.patch
 projects[views][patch][2411922] = https://www.drupal.org/files/issues/2411922-views-group_name-3.patch
-projects[views][patch][2473389] = https://www.drupal.org/files/issues/2473389-views-exta-args-5.patch
+projects[views][patch][2473389] = https://www.drupal.org/files/issues/2473389-views-arg-15.patch
 
 projects[views_autocomplete_filters][version] = 1.2
 projects[views_autocomplete_filters][subdir] = contrib
@@ -91,16 +91,12 @@ projects[date][version] = 2.9
 projects[date][subdir] = contrib
 projects[date][patch][2375235] = https://www.drupal.org/files/issues/calendar_pager_broken-2375235-35.patch
 
-projects[entityreference][version] = 1.x-dev
+projects[entityreference][version] = 1.5
 projects[entityreference][subdir] = contrib
-projects[entityreference][download][type] = git
-projects[entityreference][download][branch] = 7.x-1.x
-projects[entityreference][download][revision] = c4bb9b
 ; Add revision support.  Related patches in Entity (1788568) and OG (2363599)
-projects[entityreference][patch][1837650] = http://drupal.org/files/issues/entityreference-n1837650-47.patch
+projects[entityreference][patch][1837650] = https://www.drupal.org/files/issues/1837650-142-entityreference-referencing-specific-revision-reroll-134_1.patch
 ; Add autocomplete ability for group filters.
 projects[entityreference][patch][1492260] = https://www.drupal.org/files/issues/1492260-54.patch
-
 
 projects[field_group][version] = 1.5
 projects[field_group][subdir] = contrib

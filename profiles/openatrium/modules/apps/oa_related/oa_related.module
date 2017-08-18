@@ -242,68 +242,7 @@ function oa_related_panelizer_pre_render_alter(&$panelizer, $display, $entity) {
  * @param $options array is optional to restrict return values
  */
 function oa_related_get_best_section($type, $options = array(), $space_id = NULL) {
-  $section = oa_core_get_section_context();
-
-  // Get all possible sections in the current space that can contain this content.
-  $space_id = !empty($space_id) ? $space_id : oa_core_get_space_context();
-  $space = node_load($space_id);
-  $commands = oa_buttons_get_command_buttons($space, TRUE);
-
-  $nids = array();
-  // Remove any commands that do not match the content type we are creating.
-  foreach ($commands as $key => $command) {
-    if ($command['value'] != $type) {
-      unset($commands[$key]);
-    }
-    else {
-      $nids[] = $command['id'];
-    }
-  }
-  // Restrict possible sections to $options list if given
-  if (!empty($options) && !empty($nids)) {
-    $nids = array_intersect($nids, array_keys($options));
-  }
-
-  if (!empty($nids) && in_array($section, $nids)) {
-    // First choice: Use the current section since it allows the content type.
-  }
-  elseif (count($nids) > 1) {
-    // If there is more than one match, find the one without access restrictions.
-    // Query the visibilities of our possible section nids.
-    $query = db_select('node', 'n');
-    $query->condition('n.nid', $nids, 'IN');
-    $query->leftJoin('field_data_field_oa_user_ref', 'u', "n.nid = u.entity_id AND u.entity_type = 'node'");
-    $query->leftJoin('field_data_field_oa_group_ref', 'o', "n.nid = o.entity_id AND o.entity_type = 'node'");
-    $query->leftJoin('field_data_field_oa_team_ref', 't', "n.nid = t.entity_id AND t.entity_type = 'node'");
-    $query->fields('n', array('nid'));
-    $query->fields('u', array('field_oa_user_ref_target_id'));
-    $query->fields('o', array('field_oa_group_ref_target_id'));
-    $query->fields('t', array('field_oa_team_ref_target_id'));
-    $result = $query->execute()->fetchAllAssoc('nid');
-
-    // loop through visibility and find sections with most visibility
-    $no_user = NULL;
-    $no_team = NULL;
-    $no_group = NULL;
-    foreach ($result as $row) {
-      if (!isset($row->field_oa_user_ref_target_id)) {
-        $no_user = $row->nid;
-        if (!isset($row->field_oa_team_ref_target_id)) {
-          $no_team = $row->nid;
-          if (!isset($row->field_oa_group_ref_target_id)) {
-            $no_group = $row->nid;
-          }
-        }
-      }
-    }
-    $section = isset($no_group) ? $no_group : (isset($no_team) ? $no_team : $no_user);
-  }
-  elseif (!empty($nids)) {
-    // Last resort is to use the first (or only) section allowing this content type.
-    $section = $nids[0];
-  }
-
-  return $section;
+  return module_exists('oa_sections') ? oa_sections_get_best_section($type, $options, $space_id) : NULL;
 }
 
 /**

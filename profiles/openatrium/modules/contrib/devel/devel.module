@@ -212,7 +212,7 @@ function devel_menu() {
   // Duplicate path in 2 different menus. See http://drupal.org/node/601788.
   $items['devel/settings'] = array(
     'title' => 'Devel settings',
-    'description' => 'Helper functions, pages, and blocks to assist Drupal developers. The devel blocks can be managed via the <a href="/admin/structure/block">block administration</a> page.',
+    'description' => 'Helper functions, pages, and blocks to assist Drupal developers. The devel blocks can be managed via the <a href="' . url('admin/structure/block') . '">block administration</a> page.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('devel_admin_settings'),
     'access arguments' => array('administer site configuration'),
@@ -221,7 +221,7 @@ function devel_menu() {
   );
   $items['admin/config/development/devel'] = array(
     'title' => 'Devel settings',
-    'description' => 'Helper functions, pages, and blocks to assist Drupal developers. The devel blocks can be managed via the <a href="/admin/structure/block">block administration</a> page.',
+    'description' => 'Helper functions, pages, and blocks to assist Drupal developers. The devel blocks can be managed via the <a href="' . url('admin/structure/block') . '">block administration</a> page.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('devel_admin_settings'),
     'file' => 'devel.admin.inc',
@@ -325,7 +325,7 @@ function devel_menu() {
  */
 function _devel_switch_user_access($name) {
   // Suppress notices when on other pages when menu system still checks access.
-  return user_access('switch users') && drupal_valid_token(@$_GET['token'], "devel/switch/$name", TRUE);
+  return user_access('switch users') && drupal_valid_token(@$_GET['token'], "devel/switch/$name|" . @$_GET['destination'], TRUE);
 }
 
 /**
@@ -602,11 +602,35 @@ function devel_silent() {
 }
 
 /**
+ * Enables xhprof.
+ */
+function devel_xhprof_enable() {
+  if (devel_xhprof_is_enabled()) {
+    if ($path = variable_get('devel_xhprof_directory', '')) {
+      include_once $path . '/xhprof_lib/utils/xhprof_lib.php';
+      include_once $path . '/xhprof_lib/utils/xhprof_runs.php';
+      // @todo: consider a variable per-flag instead.
+      xhprof_enable(XHPROF_FLAGS_CPU + XHPROF_FLAGS_MEMORY);
+    }
+  }
+}
+
+/**
+ * Checks if xhprof is enabled.
+ */
+function devel_xhprof_is_enabled() {
+  return extension_loaded('xhprof') && variable_get('devel_xhprof_enabled', FALSE);
+}
+
+/**
  * Implements hook_boot().
  *
  * Runs even for cached pages.
  */
 function devel_boot() {
+  // Initialize XHProf.
+  devel_xhprof_enable();
+
   if (!devel_silent()) {
     if (variable_get('devel_memory', 0)) {
       global $memory_init;
@@ -881,7 +905,7 @@ function devel_switch_user_list() {
       $links[$account->uid] = array(
         'title' => drupal_placeholder(format_username($account)),
         'href' => $path,
-        'query' => $dest + array('token' => drupal_get_token($path)),
+        'query' => $dest + array('token' => drupal_get_token($path . '|' . $dest['destination'])),
         'attributes' => array('title' => t('This user can switch back.')),
         'html' => TRUE,
         'last_access' => $account->access,
@@ -897,7 +921,7 @@ function devel_switch_user_list() {
         $links[$account->uid] = array(
           'title' => format_username($account),
           'href' => $path,
-          'query' => array('token' => drupal_get_token($path)),
+          'query' => $dest + array('token' => drupal_get_token($path . '|' . $dest['destination'])),
           'attributes' => array('title' => t('Caution: this user will be unable to switch back.')),
           'last_access' => $account->access,
         );
@@ -909,7 +933,7 @@ function devel_switch_user_list() {
       $link = array(
         'title' => format_username(drupal_anonymous_user()),
         'href' => $path,
-        'query' => $dest + array('token' => drupal_get_token($path)),
+        'query' => $dest + array('token' => drupal_get_token($path . '/|' . $dest['destination'])),
         'attributes' => array('title' => t('Caution: the anonymous user will be unable to switch back.')),
       );
       if (user_access('switch users', drupal_anonymous_user())) {
@@ -1002,10 +1026,8 @@ function devel_switch_user_form_submit($form, &$form_state) {
     array(
       'query' => array(
         'destination' => '',
-        'token' => drupal_get_token($path),
-      ),
-    ),
-  );
+        'token' => drupal_get_token($path . '|'),
+    )));
 }
 
 /**
@@ -1063,6 +1085,12 @@ function devel_shutdown() {
   // Register the real shutdown function so it runs after other shutdown
   // functions.
   drupal_register_shutdown_function('devel_shutdown_real');
+
+  global $devel_run_id;
+  $devel_run_id = devel_xhprof_is_enabled() ? devel_shutdown_xhprof() : NULL;
+  if ($devel_run_id && function_exists('drush_log')) {
+    drush_log('xhprof link: ' . devel_xhprof_link($devel_run_id, 'url'), 'notice');
+  }
 }
 
 /**
@@ -1098,7 +1126,7 @@ function devel_shutdown_real() {
   // Set $GLOBALS['devel_shutdown'] = FALSE in order to supress the
   // devel footer for a page.  Not necessary if your page outputs any
   // of the Content-type http headers tested below (e.g. text/xml,
-  // text/javascript, etc).  This is advised where applicable.
+  // text/javascript, etc).  This is is advised where applicable.
   if (!devel_silent() && !isset($GLOBALS['devel_shutdown']) && !isset($GLOBALS['devel_redirecting'])) {
     // Try not to break non html pages.
     if (function_exists('drupal_get_http_header')) {
@@ -1116,12 +1144,6 @@ function devel_shutdown_real() {
 
     if (isset($user) && user_access('access devel information')) {
       $queries = (devel_query_enabled() ? Database::getLog('devel', 'default') : NULL);
-      if (!empty($queries)) {
-        // Remove caller args to avoid recursion.
-        foreach ($queries as &$query) {
-          unset($query['caller']['args']);
-        }
-      }
       $output .= devel_shutdown_summary($queries);
       $output .= devel_shutdown_query($queries);
     }
@@ -1154,10 +1176,39 @@ function devel_shutdown_summary($queries) {
     $output .= devel_timer();
   }
 
+  if (devel_xhprof_is_enabled()) {
+    $output .= ' ' . devel_xhprof_link($GLOBALS['devel_run_id']);
+  }
+
   $output .= devel_shutdown_memory();
 
   if ($output) {
     return '<div class="dev-query">' . $output . '</div>';
+  }
+}
+
+/**
+ * Returns the XHProf run ID.
+ */
+function devel_shutdown_xhprof() {
+  // Namespace for your application.
+  $namespace = variable_get('site_name', '');
+  $xhprof_data = xhprof_disable();
+  $xhprof_runs = new XHProfRuns_Default();
+  return $xhprof_runs->save_run($xhprof_data, $namespace);
+}
+
+/**
+ * Returns the XHProf link.
+ */
+function devel_xhprof_link($run_id, $type = 'link') {
+  // @todo: render results from within Drupal.
+  $xhprof_url = variable_get('devel_xhprof_url', '');
+  // Namespace for your application.
+  $namespace = variable_get('site_name', '');
+  if ($xhprof_url) {
+    $url = $xhprof_url . '/index.php?run=' . urlencode($run_id) . '&source=' . urlencode($namespace);
+    return $type == 'url' ? $url : t('<a href="@xhprof">XHProf output</a>. ', array('@xhprof' => $url));
   }
 }
 
@@ -1578,7 +1629,6 @@ function devel_query_table($queries, $counts) {
   $header = array('ms', '#', 'where', 'ops', 'query', 'target');
   $i = 0;
   $api = variable_get('devel_api_url', 'api.drupal.org');
-  $conn = Database::getconnection();
   foreach ($queries as $query) {
     $function = !empty($query['caller']['class']) ? $query['caller']['class'] . '::' : '';
     $function .= $query['caller']['function'];
@@ -1616,19 +1666,8 @@ function devel_query_table($queries, $counts) {
     }
     $cell[$i][] = implode(' ', $ops);
     // 3 divs for each variation of the query. Last 2 are hidden by default.
-    if (variable_get('devel_show_query_args_first', FALSE)) {
-      $placeholders = '<div class="dev-placeholders" style="display: none;">' . check_plain($query['query']) . "</div>\n";
-      $quoted = array();
-      foreach ($query['args'] as $key => $val) {
-        $quoted[$key] = $conn->quote($val);
-      }
-      $output = strtr($query['query'], $quoted);
-      $args = '<div class="dev-arguments">' . $output . '</div>' . "\n";
-    }
-    else {
-      $placeholders = '<div class="dev-placeholders">' . check_plain($query['query']) . "</div>\n";
-      $args = '<div class="dev-arguments" style="display: none;"></div>' . "\n";
-    }
+    $placeholders = '<div class="dev-placeholders">' . check_plain($query['query']) . "</div>\n";
+    $args = '<div class="dev-arguments" style="display: none;"></div>' . "\n";
     $explain = '<div class="dev-explain" style="display: none;"></div>' . "\n";
     $cell[$i][] = array(
       'id' => "devel-query-$i",
@@ -1725,13 +1764,11 @@ function devel_timer() {
   return t_safe(' Page execution time was @time ms.', array('@time' => $time));
 }
 
-if (!function_exists('dd')) {
-  /**
-   * An alias for drupal_debug().
-   */
-  function dd($data, $label = NULL) {
-    return drupal_debug($data, $label);
-  }
+/**
+ * An alias for drupal_debug().
+ */
+function dd($data, $label = NULL) {
+  return drupal_debug($data, $label);
 }
 
 /**
@@ -2113,25 +2150,5 @@ function devel_form_system_modules_alter(&$form, &$form_state) {
         }
       }
     }
-  }
-}
-
-/**
- * Implements hook_query_TAG_alter().
- *
- * Makes debugging EntityFieldQuery much easier.
- *
- * Example usage:
- *   $q = new EntityFieldQuery;
- *   $q->entityCondition('entity_type', 'node')
- *     ->addTag('debug')
- *     ->execute();
- *
- * @param QueryAlterableInterface $query
- */
-function devel_query_debug_alter(QueryAlterableInterface $query) {
-  if (!$query->hasTag('debug-semaphore')) {
-    $query->addTag('debug-semaphore');
-    dpq($query);
   }
 }

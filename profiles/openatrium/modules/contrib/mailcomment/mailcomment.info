@@ -9,10 +9,7 @@ core = 7.x
 
 files[] = plugins/authenticate/MailcommentAuthenticate.class.php
 
-
-; Information added by drush on 2017-06-22
+; Information added by drush on 2014-02-17
 version = "7.x-2.4+13-dev"
-core = "7.x"
 project = "mailcomment"
-datestamp = "1498145097"
-
+datestamp = "1392658148"

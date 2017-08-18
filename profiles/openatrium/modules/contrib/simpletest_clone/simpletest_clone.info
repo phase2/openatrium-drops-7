@@ -6,10 +6,7 @@ dependencies[] = simpletest
 
 files[] = simpletest_clone_test_case.php
 
-
-; Information added by drush on 2017-06-22
+; Information added by drush on 2017-02-22
 version = "7.x-1.0-beta3+2-dev"
-core = "7.x"
 project = "simpletest_clone"
-datestamp = "1498145101"
-
+datestamp = "1487781898"
