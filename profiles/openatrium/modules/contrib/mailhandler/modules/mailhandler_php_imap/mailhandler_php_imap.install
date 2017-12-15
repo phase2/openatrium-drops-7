@@ -10,7 +10,7 @@
  * Check that the IMAP extension exists for PHP.
  */
 function mailhandler_php_imap_requirements($phase) {
-  // Ensure translations don't break at install time
+  // Ensure translations don't break at install time.
   $t = get_t();
   $has_imap = function_exists('imap_open');
 

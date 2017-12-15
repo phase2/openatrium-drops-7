@@ -3,7 +3,7 @@
 api = 2
 core = 7.x
 
-projects[mailhandler][version] = 2.9
+projects[mailhandler][version] = 2.11
 projects[mailhandler][subdir] = contrib
 
 projects[mailcomment][version] = 2.x-dev

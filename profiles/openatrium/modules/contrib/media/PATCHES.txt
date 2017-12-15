@@ -1,5 +1,5 @@
 The following patches have been applied to this project:
-- https://www.drupal.org/files/issues/media_dialog_appears_2272567-32.patch
+- https://www.drupal.org/files/issues/media-replace-fake-button-2372907-2.patch
 - https://www.drupal.org/files/issues/clicking_images_in-2473481-1.patch
 - https://www.drupal.org/files/issues/media_browser_view_javascript_not_loaded-2528428-4.patch
 

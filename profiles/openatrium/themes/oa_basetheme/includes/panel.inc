@@ -11,9 +11,9 @@ function oa_basetheme_preprocess_panelizer_view_mode(&$variables) {
   $element = $variables['element'];
 
   // Add some custom classes.
-  $variables['classes_array'] = array();
-  $variables['classes_array'][] = drupal_html_class($element['#entity_type'] . '-' . $element['#bundle']);
-  $variables['classes_array'][] = drupal_html_class('view-mode-' . $element['#view_mode']);
+  if (isset($element['#view_mode'])) {
+    $variables['classes_array'][] = drupal_html_class('view-mode-' . $element['#view_mode']);
+  }
 }
 
 /**

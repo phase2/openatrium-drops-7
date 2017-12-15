@@ -21,11 +21,11 @@ class MailhandlerPhpImapRetrieve extends MailhandlerRetrieve {
    * @return array
    *   Retrieved messages.
    */
-  function retrieve($mailbox, $filter_name = 'MailhandlerFilters') {
+  public function retrieve($mailbox, $filter_name = 'MailhandlerFilters') {
     extract($mailbox->settings);
     if (!($result = $this->open_mailbox($mailbox))) {
       mailhandler_report('error', 'Unable to connect to %mail. Please check the <a href="@mailbox-edit">connection settings</a> for this mailbox.', array('%mail' => $mailbox->mail, '@mailbox-edit' => url(MAILHANDLER_MENU_PREFIX . '/mailhandler/list/' . $mailbox->mail . '/edit')));
-      $this->report_errors();
+      $this->report_errors($mailbox);
     }
     $new = $this->get_unread_messages($result, $mailbox);
     $messages = array();
@@ -38,7 +38,7 @@ class MailhandlerPhpImapRetrieve extends MailhandlerRetrieve {
       $retrieved++;
     }
     mailhandler_report('status', 'Mailbox %mail was checked and contained %retrieved messages.', array('%mail' => $mailbox->admin_title, '%retrieved' => $retrieved));
-    $this->close_mailbox($result);
+    $this->close_mailbox($result, $mailbox);
     return $messages;
   }
 
@@ -51,7 +51,7 @@ class MailhandlerPhpImapRetrieve extends MailhandlerRetrieve {
    * @return array
    *   Test results.
    */
-  function test($mailbox) {
+  public function test($mailbox) {
     extract($mailbox->settings);
     $ret = array();
 
@@ -64,22 +64,23 @@ class MailhandlerPhpImapRetrieve extends MailhandlerRetrieve {
     if (($is_local && $folder_is_set) || (!$is_local && $connect_is_set)) {
       if (!($result = $this->open_mailbox($mailbox))) {
         $errors = imap_errors();
-	foreach ($errors as $error) {
-	  $ret[] = array('severity' => 'error', 'message' => t($error));
-	}
+        foreach ($errors as $error) {
+          $ret[] = array('severity' => 'error', 'message' => t($error));
+        }
         $ret[] = array('severity' => 'error', 'message' => t('Mailhandler could not access the mailbox using these settings'));
         return $ret;
       }
       $ret[] = array('severity' => 'status', 'message' => t('Mailhandler was able to connect to the mailbox.'));
       $box = $this->mailbox_string($mailbox);
+      $box = ltrim($box, '/');
       $status = imap_status($result, $box, SA_MESSAGES);
       if ($status) {
         $ret[] = array('severity' => 'status', 'message' => t('There are @messages messages in the mailbox folder.', array('@messages' => $status->messages)));
       }
       else {
-        $ret[] = array('severity' => 'warning', 'message' => t('Mailhandler could not open the specified folder'));
+        $ret[] = array('severity' => 'warning', 'message' => t('Mailhandler could not open the mailbox.'));
       }
-      $this->close_mailbox($result);
+      $this->close_mailbox($result, $mailbox);
     }
     return $ret;
   }
@@ -92,21 +93,21 @@ class MailhandlerPhpImapRetrieve extends MailhandlerRetrieve {
    * @param array $message
    *   Message to purge.
    */
-  function purge_message($mailbox, $message) {
+  public function purge_message($mailbox, $message) {
     if (!isset($message['imap_uid'])) {
       return;
     }
     if (!($result = $this->open_mailbox($mailbox))) {
       mailhandler_report('error', 'Unable to connect to %mail. Following errors may provide details.', array('%mail' => $mailbox->mail));
-      $this->report_errors();
+      $this->report_errors($mailbox);
     }
     if ($mailbox->settings['delete_after_read']) {
       imap_delete($result, $message['imap_uid'], FT_UID);
     }
     elseif (!isset($mailbox->settings['flag_after_read']) || ($mailbox->settings['flag_after_read'])) {
-      imap_setflag_full($result, (string)$message['imap_uid'], '\Seen', FT_UID);
+      imap_setflag_full($result, (string) $message['imap_uid'], '\Seen', FT_UID);
     }
-    $this->close_mailbox($result);
+    $this->close_mailbox($result, $mailbox);
   }
 
   /**
@@ -118,7 +119,7 @@ class MailhandlerPhpImapRetrieve extends MailhandlerRetrieve {
    * @return resource|false
    *   IMAP stream.
    */
-  function open_mailbox($mailbox) {
+  public function open_mailbox($mailbox) {
     extract($mailbox->settings);
 
     if (!function_exists('imap_open')) {
@@ -129,47 +130,66 @@ class MailhandlerPhpImapRetrieve extends MailhandlerRetrieve {
       $result = imap_open($box, $name, $pass, NULL, 1);
     }
     else {
+      // This is a local mbox.
+      // Change HOME to work around php_imap access restrictions.
       $orig_home = getenv('HOME');
-      if (strpos($folder, '/') === 0) {
-	$new_home = '/';
-      } else {
-	// This is hackish, but better than using $_SERVER['DOCUMENT_ROOT']
-	$new_home = realpath(drupal_get_path('module', 'node') . '/../../');
+      if (strpos($box, '/') === 0) {
+        $new_home = '/';
+        $box = ltrim($box, '/');
+      }
+      else {
+        // This is hackish, but better than using $_SERVER['DOCUMENT_ROOT']
+        $new_home = realpath(drupal_get_path('module', 'node') . '/../../');
       }
       if (!putenv("HOME=$new_home")) {
         mailhandler_error('error', 'Could not set home directory to %home.', array('%home' => $new_home));
       }
       $result = imap_open($box, '', '', NULL, 1);
+      // Restore HOME directory.
       putenv("HOME=$orig_home");
     }
     return $result;
   }
 
   /**
-   * Constructs a mailbox string based on mailbox object
+   * Constructs a mailbox string based on mailbox object.
    */
-  function mailbox_string($mailbox) {
+  public function mailbox_string($mailbox) {
     extract($mailbox->settings);
 
     switch ($type) {
       case 'imap':
         return '{' . $domain . ':' . $port . $extraimap . '}' . $folder;
+
       case 'pop3':
         return '{' . $domain . ':' . $port . '/pop3' . $extraimap . '}' . $folder;
+
       case 'local':
-        return ltrim($folder, '/');
+        $box = ltrim($folder, '/');
+        if ($readonly) {
+          // Copy mbox to avoid modifying original.
+          $source = $box;
+          $destination = 'temporary://';
+          $replace = FILE_EXISTS_REPLACE;
+          $path = file_unmanaged_copy($source, $destination, $replace);
+          $box = drupal_realpath($path);
+        }
+        return $box;
     }
   }
 
   /**
-   * Returns an array of parts as file objects
+   * Returns an array of parts as file objects.
    *
-   * @param $stream
-   * @param $msg_number
-   * @return
+   * @param object $stream
+   *   The IMAP stream.
+   * @param int $msg_number
+   *   The message number.
+   *
+   * @return array
    *   An array of message parts (text body, html body, and attachments).
    */
-  function get_parts($stream, $msg_number) {
+  public function get_parts($stream, $msg_number) {
     $parts = array('text_body' => '', 'html_body' => '', 'attachments' => array());
 
     // Load structure.
@@ -194,13 +214,18 @@ class MailhandlerPhpImapRetrieve extends MailhandlerRetrieve {
   /**
    * Gets a message part and adds it to $parts.
    *
-   * @param $stream
-   * @param $msg_number
-   * @param $structure
-   * @param $part_number
-   * @param $parts
+   * @param object $stream
+   *   The IMAP stream from which to fetch data.
+   * @param int $msg_number
+   *   The message number.
+   * @param object $structure
+   *   The structure definition.
+   * @param int $part_number
+   *   The part number to add.
+   * @param array $parts
+   *   The array of added parts.
    */
-  function get_part($stream, $msg_number, $structure, $part_number, &$parts) {
+  public function get_part($stream, $msg_number, $structure, $part_number, &$parts) {
     // Get data.
     $data = '';
     if ($part_number) {
@@ -233,16 +258,18 @@ class MailhandlerPhpImapRetrieve extends MailhandlerRetrieve {
       case ENCQUOTEDPRINTABLE:
         $data = quoted_printable_decode($data);
         // Properly decode most Microsoft encodings (Hotmail and Windows).
-        $data = mb_convert_encoding($data, "UTF-8", $charset);
+        $data = drupal_convert_to_utf8($data, $charset);
         break;
+
       case ENCBASE64:
         $data = base64_decode($data);
         break;
+
       case ENC7BIT:
       case ENC8BIT:
         $data = imap_utf8($data);
         // Properly decode most Microsoft encodings (Hotmail and Windows).
-        $data = mb_convert_encoding($data, "UTF-8", $charset);
+        $data = drupal_convert_to_utf8($data, $charset);
         break;
     }
 
@@ -289,7 +316,7 @@ class MailhandlerPhpImapRetrieve extends MailhandlerRetrieve {
   /**
    * Retrieve MIME type of the message structure.
    */
-  function get_mime_type(&$structure) {
+  public function get_mime_type(&$structure) {
     static $primary_mime_type = array('text', 'multipart', 'message', 'application', 'audio', 'image', 'video', 'other');
     $type_id = (int) $structure->type;
     if (isset($primary_mime_type[$type_id]) && !empty($structure->subtype)) {
@@ -299,20 +326,21 @@ class MailhandlerPhpImapRetrieve extends MailhandlerRetrieve {
   }
 
   /**
-   * Obtain the number of unread messages for an imap stream
+   * Obtain the number of unread messages for an imap stream.
    *
-   * @param $result
+   * @param object $result
    *   IMAP stream - as opened by imap_open
    * @param object $mailbox
    *   The mailbox to retrieve from.
+   *
    * @return array
    *   IMAP message numbers of unread messages.
    */
-  function get_unread_messages($result, $mailbox) {
+  public function get_unread_messages($result, $mailbox) {
     $unread_messages = array();
     $number_of_messages = imap_num_msg($result);
     for ($i = 1; $i <= $number_of_messages; $i++) {
-      $header = imap_header($result, $i);
+      $header = imap_headerinfo($result, $i);
       if ($header->Unseen == 'U' || $header->Recent == 'N') {
         $unread_messages[] = $i;
       }
@@ -323,7 +351,7 @@ class MailhandlerPhpImapRetrieve extends MailhandlerRetrieve {
   /**
    * Retrieve individual messages from an IMAP result.
    *
-   * @param $result
+   * @param object $result
    *   IMAP stream.
    * @param object $mailbox
    *   Mailbox to retrieve from.
@@ -335,10 +363,10 @@ class MailhandlerPhpImapRetrieve extends MailhandlerRetrieve {
    * @return array|false
    *   Retrieved message, or FALSE if message cannot / should not be retrieved.
    */
-  function retrieve_message($result, $mailbox, $msg_number, $filter_name) {
+  public function retrieve_message($result, $mailbox, $msg_number, $filter_name) {
     extract($mailbox->settings);
     $header = imap_headerinfo($result, $msg_number);
-    // Check to see if we should retrieve this message at all
+    // Check to see if we should retrieve this message at all.
     if ($filter = mailhandler_plugin_load_class('mailhandler', $filter_name, 'filters', 'handler')) {
       if (!$filter->fetch($header)) {
         return FALSE;
@@ -366,8 +394,8 @@ class MailhandlerPhpImapRetrieve extends MailhandlerRetrieve {
   /**
    * Close a mailbox.
    */
-  function close_mailbox($result) {
-    $this->report_errors();
+  public function close_mailbox($result, $mailbox) {
+    $this->report_errors($mailbox);
     imap_close($result, CL_EXPUNGE);
   }
 
@@ -376,7 +404,7 @@ class MailhandlerPhpImapRetrieve extends MailhandlerRetrieve {
    *
    * Taken from PHP.net.
    */
-  function fetch_uid($mailbox, $msg_number) {
+  public function fetch_uid($mailbox, $msg_number) {
     extract($mailbox->settings);
     $retval = 0;
     $fp = fsockopen($domain, $port);
@@ -387,7 +415,7 @@ class MailhandlerPhpImapRetrieve extends MailhandlerRetrieve {
       fwrite($fp, "PASS $pass\r\n");
       $buf = fgets($fp, 1024);
       fwrite($fp, "UIDL $msg_number\r\n");
-      $retval=fgets($fp, 1024);
+      $retval = fgets($fp, 1024);
       fwrite($fp, "QUIT\r\n");
       $buf = fgets($fp, 1024);
       fclose($fp);
@@ -398,15 +426,20 @@ class MailhandlerPhpImapRetrieve extends MailhandlerRetrieve {
   /**
    * Capture and report IMAP errors.
    */
-  function report_errors() {
+  public function report_errors($mailbox) {
+    // Need to be able to suppress errors when we are testing from an AJAX call.
+    // Otherwise we get nasty AJAX dialogs.
     if (!$this->suppress_errors) {
       $errors = imap_errors();
       if ($errors) {
-	list(, $caller) = debug_backtrace(false);
-	$function = $caller['function'];
-	foreach ($errors as $error) {
-	  mailhandler_report('error', 'IMAP error in %function: %error', array('%function' => $function, '%error' => $error));
-	}
+        list(, $caller) = debug_backtrace(FALSE);
+        $function = $caller['function'];
+        foreach ($errors as $error) {
+          if ($error == "SECURITY PROBLEM: insecure server advertised AUTH=PLAIN" && $mailbox->settings['insecure']) {
+            continue;
+          }
+          mailhandler_report('error', 'IMAP error in %function: %error', array('%function' => $function, '%error' => $error));
+        }
       }
     }
   }

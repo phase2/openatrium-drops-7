@@ -23,11 +23,14 @@
  */
 class MailhandlerAuthenticateTokenauth extends MailhandlerAuthenticate {
 
+  /**
+   * Implements authenticate().
+   */
   public function authenticate(&$message, $mailbox) {
-    list($fromaddress, $fromname) = _mailhandler_get_fromaddress($message['header'], $mailbox);
+    list($fromaddress, ) = _mailhandler_get_fromaddress($message['header'], $mailbox);
     $uid = 0;
     // If user with given email address exists and their token is in the toaddress, allow.
-    if (($from_user = array_shift(user_load_multiple(array(), array('mail' => $fromaddress)))) && strpos($header->to[0]->mailbox, tokenauth_get_token($from_user->uid)) !== FALSE) {
+    if (($from_user = user_load_by_mail($fromaddress)) && strpos($header->to[0]->mailbox, tokenauth_get_token($from_user->uid)) !== FALSE) {
       $uid = $from_user->uid;
     }
     return $uid;

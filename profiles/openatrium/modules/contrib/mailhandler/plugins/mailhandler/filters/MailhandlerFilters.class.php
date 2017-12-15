@@ -14,9 +14,10 @@ class MailhandlerFilters {
   /**
    * Whether or not to fetch message, based on headers.
    *
-   * @param $header
+   * @param array $header
    *   Message headers
-   * @return
+   *
+   * @return bool
    *   Always TRUE
    */
   public function fetch($header) {

@@ -9,6 +9,6 @@ $plugin = array(
   'description' => 'Authenticate messages using Multiple Email module',
   'handler' => array(
     'class' => 'MailhandlerMultipleEmailAuthenticate',
-    'parent' => 'MailhandlerAuthenticate'
+    'parent' => 'MailhandlerAuthenticate',
   ),
 );

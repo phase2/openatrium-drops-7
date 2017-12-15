@@ -21,7 +21,8 @@ function mailhandler_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE,
         'description' => 'Primary ID field for the table. Not used for anything except internal lookups.',
-        'no export' => TRUE, // Do not export database-only keys.
+        // Do not export database-only keys.
+        'no export' => TRUE,
       ),
       'admin_title' => array(
         'type' => 'varchar',
@@ -36,8 +37,9 @@ function mailhandler_schema() {
         'object default' => array(
           'type' => 'imap',
           'folder' => 'INBOX',
-          'port' => 143,
-          'extraimap' => '/notls',
+          'port' => 993,
+          'insecure' => 1,
+          'extraimap' => '',
           'limit' => 0,
           'encoding' => 'UTF-8',
           'fromheader' => 'From',
@@ -48,11 +50,12 @@ function mailhandler_schema() {
           'delete_after_read' => 0,
           'security' => 0,
           'replies' => 0,
+          'readonly' => 0,
         ),
       ),
     ),
     'primary key' => array('mid'),
-    'unique keys' => array('mail' => array('mail'), ),
+    'unique keys' => array('mail' => array('mail')),
     'export' => array(
       'key' => 'mail',
       'key name' => 'Email address',
@@ -97,7 +100,7 @@ function mailhandler_modules_enabled($modules) {
 function mailhandler_update_7201() {
   $result = db_query('SELECT * FROM {mailhandler_mailbox}');
   ctools_include('cleanstring');
-  // For each mailbox, convert mail to alphanumeric, and move existing value into settings
+  // For each mailbox, convert mail to alphanumeric, and move existing value into settings.
   while ($row = $result->fetchAssoc()) {
     $row['settings'] = unserialize($row['settings']);
     $row['settings']['mail'] = $row['mail'];
@@ -105,7 +108,7 @@ function mailhandler_update_7201() {
     drupal_write_record('mailhandler_mailbox', $row, 'mid');
   }
   $result = db_query('SELECT * FROM {feeds_source}');
-  // For existing feed sources, need to convert selected mailboxes to alphanumeric
+  // For existing feed sources, need to convert selected mailboxes to alphanumeric.
   while ($row = $result->fetchAssoc()) {
     $row['config'] = unserialize($row['config']);
     if (isset($row['config']['MailhandlerFetcher']['mailbox'])) {
@@ -209,6 +212,7 @@ function mailhandler_update_7206() {
         case '0':
           $row['settings']['type'] = 'pop3';
           break;
+
         case '1':
           $row['settings']['type'] = 'imap';
           break;
@@ -282,6 +286,7 @@ function mailhandler_update_7210() {
         case 'retry':
           $row['config']['MailhandlerParser']['auth_required'] = TRUE;
           break;
+
         case 'unpublish':
         case 'ignore':
           $row['config']['MailhandlerParser']['auth_required'] = FALSE;
@@ -331,13 +336,25 @@ function mailhandler_update_7212() {
 }
 
 /**
+ * Allow insecure authentication for existing mailboxes.
+ */
+function mailhandler_update_7213() {
+  $result = db_query('SELECT * FROM {mailhandler_mailbox}');
+  while ($row = $result->fetchAssoc()) {
+    $row['settings'] = unserialize($row['settings']);
+    $row['settings']['insecure'] = TRUE;
+    db_update('mailhandler_mailbox')->fields(array('settings' => serialize($row['settings'])))->condition('mid', $row['mid'])->execute();
+  }
+}
+
+/**
  * Implements hook_requirements().
  *
  * Check that a retrieval library exists.
  */
 function mailhandler_requirements($phase) {
   $requirements = array();
-  // Ensure translations don't break at install time
+  // Ensure translations don't break at install time.
   $t = get_t();
 
   $has_iconv = function_exists('iconv_mime_decode');

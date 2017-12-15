@@ -67,9 +67,9 @@ features_exclude[variable][comment_oa_ical_importer] = comment_oa_ical_importer
 features_exclude[variable][comment_preview_oa_ical_importer] = comment_preview_oa_ical_importer
 features_exclude[variable][comment_subject_field_oa_ical_importer] = comment_subject_field_oa_ical_importer
 
-; Information added by Drupal.org packaging script on 2015-10-20
-version = "7.x-2.27"
+; Information added by Drupal.org packaging script on 2017-12-14
+version = "7.x-2.28"
 core = "7.x"
 project = "oa_events_import"
-datestamp = "1445354064"
+datestamp = "1513285387"
 

@@ -7,7 +7,7 @@
 <?php if (!empty($space_label)): ?>
 <ul class="oa-space-nav oa_toolbar">
   <li class="btn-group oa-no-separator dropdown oa-space-list">
-    <a href="<?php print $space_url; ?>" class="dropdown-toggle btn <?php print $oa_toolbar_btn_class; ?>" data-toggle="dropdown" data-target="#">
+    <a href="<?php print $space_url; ?>" class="dropdown-toggle btn <?php print $oa_toolbar_btn_class; ?>" data-toggle="dropdown">
       <?php print $space_label; ?>
     </a>
     <ul class="dropdown-menu" id="oa-subspace-menu" role="menu" aria-labelledby="subspace-dropdown">
@@ -33,7 +33,7 @@
     <li class="btn-group oa-separator">
     </li>
     <li class="btn-group oa-no-separator dropdown oa-section-list">
-      <a href="<?php print $section_url; ?>" class="dropdown-toggle btn <?php print $oa_toolbar_btn_class; ?>" data-toggle="dropdown" data-target="#">
+      <a href="<?php print $section_url; ?>" class="dropdown-toggle btn <?php print $oa_toolbar_btn_class; ?>" data-toggle="dropdown">
         <?php print $section_label; ?>
       </a>
       <ul class="dropdown-menu" role="menu" aria-labelledby="subspace-dropdown">

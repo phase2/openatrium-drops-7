@@ -9,6 +9,7 @@ projects[ctools][version] = 1.12
 projects[ctools][subdir] = contrib
 projects[ctools][patch][2607626] = https://www.drupal.org/files/issues/ctools-close-modal-2607626-5.patch
 projects[ctools][patch][2787045] = https://www.drupal.org/files/issues/ctools-jquery_compatibility-2787045-14.patch
+projects[ctools][patch][2897965] = https://www.drupal.org/files/issues/ctools-wizard-destination-2897965-2.patch
 projects[ctools][patch][1901106] = https://www.drupal.org/files/issues/1901106-ctools-views_content-override-ajax-34.patch
 projects[ctools][patch][2023705] = https://www.drupal.org/files/issues/2023705-ctools-autosubmit-15.patch
 projects[ctools][patch][2448989] = https://www.drupal.org/files/issues/2448989-ctools-from_field_children-8.patch
@@ -18,6 +19,7 @@ projects[ctools][patch][2555469] = https://www.drupal.org/files/issues/2555469-c
 projects[panels][version] = 3.9
 projects[panels][subdir] = contrib
 projects[panels][patch][1570120] = https://www.drupal.org/files/issues/move-image-1570120-31.patch
+projects[panels][patch][2897658] = https://www.drupal.org/files/issues/panels-menu-block-ipe-2897658-3.patch
 
 projects[panels_breadcrumbs][version] = 2.2
 projects[panels_breadcrumbs][subdir] = contrib
@@ -61,7 +63,7 @@ projects[views_bulk_operations][subdir] = contrib
 projects[pathauto][version] = 1.3
 projects[pathauto][subdir] = contrib
 
-projects[token][version] = 1.6
+projects[token][version] = 1.7
 projects[token][subdir] = contrib
 projects[token][patch][1999298] = http://drupal.org/files/1999298-disable-test-warnings.patch
 
@@ -100,6 +102,7 @@ projects[entityreference][patch][1492260] = https://www.drupal.org/files/issues/
 
 projects[field_group][version] = 1.5
 projects[field_group][subdir] = contrib
+projects[field_group][patch][2649648] = https://www.drupal.org/files/issues/php7_uniform_variable-2649648-5.patch
 
 projects[link][version] = 1.4
 projects[link][subdir] = contrib

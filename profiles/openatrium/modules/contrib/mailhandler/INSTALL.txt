@@ -13,7 +13,7 @@ REQUIREMENTS
 
 You will need to have access to a dedicated mailbox (IMAP or POP3) to receive
 posts via email. You must also have the PHP IMAP library installed- see the
-documentation referenced at the bottom of this file for more information.
+documentation at https://drupal.org/node/300794.
 
 Dependencies:
 - ctools

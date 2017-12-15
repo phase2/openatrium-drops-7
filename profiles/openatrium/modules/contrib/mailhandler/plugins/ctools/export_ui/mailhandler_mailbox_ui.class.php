@@ -10,12 +10,13 @@
  * Intended to be used as a source for a Feeds Importer using the Mailhandler
  * Fetcher.
  */
+// @ignore style_class_names, comment_comment_docblock_missing
 class mailhandler_mailbox_ui extends ctools_export_ui {
 
   /**
    * Implements ctools_export_ui::edit_form().
    */
-  function edit_form(&$form, &$form_state) {
+  public function edit_form(&$form, &$form_state) {
     parent::edit_form($form, $form_state);
     $retrieve_plugins = mailhandler_get_plugins('mailhandler', 'retrieve');
     if (count($retrieve_plugins) == 1) {
@@ -25,7 +26,7 @@ class mailhandler_mailbox_ui extends ctools_export_ui {
     extract($form_state['item']->settings);
     $form['info']['admin_title']['#description'] = t('Suggested, but not required, to be the email address of the mailbox.');
     $form['connection']['#tree'] = FALSE;
-    $form['connection']['settings']= array(
+    $form['connection']['settings'] = array(
       '#type' => 'fieldset',
       '#title' => 'Mailbox connection settings',
       '#tree' => TRUE,
@@ -68,9 +69,15 @@ class mailhandler_mailbox_ui extends ctools_export_ui {
       '#size' => 5,
       '#maxlength' => 5,
       '#default_value' => $port,
-      '#description' => t('The mailbox port number (usually 110 for POP3, 143 for IMAP).'),
+      '#description' => t('The mailbox port number (usually 995 for POP3, 993 for IMAP).'),
       '#element_validate' => array('element_validate_integer_positive'),
       '#ajax' => $ajax_settings,
+    );
+    $form['connection']['settings']['insecure'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Allow insecure connections'),
+      '#default_value' => $insecure,
+      '#description' => 'Check to allow the username and password to be sent in plain text.',
     );
     $form['connection']['settings']['name'] = array(
       '#type' => 'textfield',
@@ -91,7 +98,7 @@ class mailhandler_mailbox_ui extends ctools_export_ui {
       '#type' => 'textfield',
       '#title' => t('Extra commands'),
       '#default_value' => $extraimap,
-      '#description' => t('In some circumstances you need to issue extra commands to connect to your mail server (e.g. "/notls", "/novalidate-cert" etc.). See documentation for <a href="@imap-open">imap_open</a>.', array('@imap-open' => url('http://php.net/imap_open'))),
+      '#description' => t('In some circumstances you need to issue extra commands to connect to your mail server (e.g., "/notls" or "/novalidate-cert"). See documentation for <a href="@imap-open">imap_open</a>.', array('@imap-open' => url('http://php.net/imap_open'))),
       '#ajax' => $ajax_settings,
     );
     $form['connection']['settings']['results'] = array(
@@ -101,7 +108,7 @@ class mailhandler_mailbox_ui extends ctools_export_ui {
       ),
     );
     $form['extra']['#tree'] = FALSE;
-    $form['extra']['settings']= array(
+    $form['extra']['settings'] = array(
       '#type' => 'fieldset',
       '#title' => 'More settings',
       '#tree' => TRUE,
@@ -163,12 +170,18 @@ class mailhandler_mailbox_ui extends ctools_export_ui {
       '#description' => t('The library that will be used to retrieve messages.'),
       '#required' => TRUE,
     );
+    $form['extra']['settings']['readonly'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Read-only access'),
+      '#description' => t('Do not make changes to source mailbox. Currently only works for local mbox files.'),
+      '#default_value' => $readonly,
+    );
   }
 
   /**
    * Implements ctools_export_ui::edit_form_validate().
    */
-  function edit_form_validate(&$form, &$form_state) {
+  public function edit_form_validate(&$form, &$form_state) {
     parent::edit_form_validate($form, $form_state);
 
     // If POP3 mailbox is chosen, messages should be deleted after processing.
@@ -183,7 +196,10 @@ class mailhandler_mailbox_ui extends ctools_export_ui {
     }
   }
 
-  function edit_form_submit(&$form, &$form_state) {
+  /**
+   * Implements edit_form_submit().
+   */
+  public function edit_form_submit(&$form, &$form_state) {
     parent::edit_form_submit($form, $form_state);
     if (module_exists('mailhandler_default')) {
       drupal_set_message(t("Now that you've created a mailbox, send it a test email and try to <a href='@import-page'>create a source node</a> to start importing messages.", array('@import-page' => url('node/add/mailhandler-source'))));
@@ -193,7 +209,10 @@ class mailhandler_mailbox_ui extends ctools_export_ui {
     }
   }
 
-  function list_header($form_state) {
+  /**
+   * Implements list_header().
+   */
+  public function list_header($form_state) {
     if (isset($form_state['input']['test_result'])) {
       return $form_state['input']['test_result'];
     }
@@ -202,7 +221,7 @@ class mailhandler_mailbox_ui extends ctools_export_ui {
   /**
    * Callback to test a mailbox connection.
    */
-  function test_page($js, $input, $mailbox) {
+  public function test_page($js, $input, $mailbox) {
     $input['test_result'] = _mailhandler_mailbox_test_output($mailbox);
     if (!$js) {
       drupal_goto(ctools_export_ui_plugin_base_path($this->plugin));

@@ -1,6 +1,7 @@
 The following patches have been applied to this project:
 - https://www.drupal.org/files/issues/ctools-close-modal-2607626-5.patch
 - https://www.drupal.org/files/issues/ctools-jquery_compatibility-2787045-14.patch
+- https://www.drupal.org/files/issues/ctools-wizard-destination-2897965-2.patch
 - https://www.drupal.org/files/issues/1901106-ctools-views_content-override-ajax-34.patch
 - https://www.drupal.org/files/issues/2023705-ctools-autosubmit-15.patch
 - https://www.drupal.org/files/issues/2448989-ctools-from_field_children-8.patch

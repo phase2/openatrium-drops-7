@@ -33,8 +33,7 @@ function bootstrap_library_requirements($phase) {
     }
     // Check if the site is running >= jQuery 1.7
     $library = drupal_get_library('system', 'jquery');
-    preg_match('/^(\d+)\.(\d+).*$/', $library['version'], $matches);
-    if ( floatval($matches[1] .'.'. $matches[2]) >= 1.7) {
+    if (version_compare($library['version'], '1.7', '>=')) {
       $requirements['boostrap_library_jquery'] = array(
         'title' => t('Bootstrap version'),
         'value' => t('jQuery @version', array('@version' => $library['version'])),

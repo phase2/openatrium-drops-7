@@ -9,7 +9,7 @@ $plugin = array(
   'description' => 'Uses the PHP IMAP library (imap_ functions) to retrieve messages from IMAP and POP mailboxes',
   'handler' => array(
     'class' => 'MailhandlerPhpImapRetrieve',
-    'parent' => 'MailhandlerRetrieve'
+    'parent' => 'MailhandlerRetrieve',
   ),
   'file' => 'MailhandlerPhpImapRetrieve.class.php',
 );

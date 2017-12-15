@@ -14,6 +14,7 @@ projects[radix][patch][2568163] = https://www.drupal.org/files/issues/radix_form
 ; Bootstrap Library
 projects[bootstrap_library][version] = 1.4
 projects[bootstrap_library][subdir] = contrib
+projects[bootstrap_library][patch][2244553] = https://www.drupal.org/files/issues/bootstrap_library-jquery_version_check-2244553-8.patch
 
 libraries[bootstrap][download][type] = get
 libraries[bootstrap][download][url] = https://github.com/twbs/bootstrap/releases/download/v3.1.1/bootstrap-3.1.1-dist.zip

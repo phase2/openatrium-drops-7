@@ -192,6 +192,9 @@ function _oa_sections_get_current_selected_space($entity, $set_value = NULL) {
     elseif (!empty($process[LANGUAGE_NONE][0]['default'])) {
       $value = $process[LANGUAGE_NONE][0]['default'];
     }
+    elseif (!empty($process[LANGUAGE_NONE][0]['admin'])) {
+      $value = $process[LANGUAGE_NONE][0]['admin'];
+    }
   }
   else {
     $value = oa_core_get_space_context();

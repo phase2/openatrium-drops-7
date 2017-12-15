@@ -697,8 +697,12 @@ function oa_toolbar_get_parent_list($space_id, $space_type = OA_SPACE_TYPE) {
     $parent = oa_core_get_parents_with_titles($parent_id, $space_type, NODE_PUBLISHED);
     if (!empty($parent)) {
       $keys = array_keys($parent);
-      $parents = array_merge($parents, $keys);
       $parent_id = current($keys);
+      // Check if we have recursive relations between spaces.
+      if (in_array($parent_id, $parents) || $parent_id === $space_id) {
+        break;
+      }
+      $parents = array_merge($parents, $keys);
     }
   } while (!empty($parent));
   $parents = array_reverse($parents);

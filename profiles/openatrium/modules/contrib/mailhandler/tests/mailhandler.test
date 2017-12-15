@@ -4,10 +4,16 @@
  * Tests for Mailhandler modules.
  */
 
+/**
+ * Mailhandler test cases.
+ */
 class MailhandlerTestCase extends DrupalWebTestCase {
   protected $mailhandler_user;
   protected $profile = 'testing';
 
+  /**
+   * Implements getInfo().
+   */
   public static function getInfo() {
     return array(
       'name' => 'Mailbox creation and import',
@@ -16,6 +22,9 @@ class MailhandlerTestCase extends DrupalWebTestCase {
     );
   }
 
+  /**
+   * Implements setUp().
+   */
   public function setUp() {
     parent::setUp('taxonomy', 'file', 'mailhandler', 'mailhandler_php_imap', 'mailhandler_default', 'text', 'multiple_email', 'mailhandler_multiple_email');
     $permissions = array('administer nodes', 'bypass node access', 'administer mailhandler', 'administer feeds', 'administer taxonomy', 'administer content types', 'use multiple emails');
@@ -31,6 +40,9 @@ class MailhandlerTestCase extends DrupalWebTestCase {
     shell_exec("cp -r $src $dest");
   }
 
+  /**
+   * Create a mailbox given a prefix.
+   */
   public function createMailbox($prefix) {
     $edit = array();
     $edit['admin_title'] = $prefix . '@example.com';
@@ -43,6 +55,9 @@ class MailhandlerTestCase extends DrupalWebTestCase {
     $this->assertText(t('@title has been created.', array('@title' => $prefix . '_example_com')));
   }
 
+  /**
+   * Create mailboxes for every mbox in directory.
+   */
   public function createMailboxes() {
     $dir = file_directory_temp() . '/mailhandler_test';
     $files = scandir($dir);
@@ -52,6 +67,9 @@ class MailhandlerTestCase extends DrupalWebTestCase {
     }
   }
 
+  /**
+   * Create a source node.
+   */
   public function createSource($prefix, $count = 0, $auth_required = FALSE) {
     $edit = array();
     $edit['feeds[MailhandlerFetcher][source]'] = $prefix . '_example_com';
@@ -68,10 +86,16 @@ class MailhandlerTestCase extends DrupalWebTestCase {
     $this->assertText(t($text));
   }
 
+  /**
+   * Get a node by title.
+   */
   public function getNodeByTitle($title) {
-    return $node = node_load(array('title' => $title));
+    return node_load(array('title' => $title));
   }
 
+  /**
+   * Create mapping in feeds processor.
+   */
   public function createMapping($source, $target) {
     $edit = array();
     $edit['source'] = $source;
@@ -79,11 +103,17 @@ class MailhandlerTestCase extends DrupalWebTestCase {
     $this->drupalPost(MAILHANDLER_MENU_PREFIX . '/feeds/mailhandler_nodes/mapping', $edit, t('Save'));
   }
 
+  /**
+   * Create a taxonomy term.
+   */
   public function createTerm($name) {
-    $edit = array('name' => $name,);
+    $edit = array('name' => $name);
     $this->drupalPost(MAILHANDLER_MENU_PREFIX . '/taxonomy/tags/add', $edit, t('Save'));
   }
 
+  /**
+   * Test case.
+   */
   public function testMailhandlerImport() {
     // Create article content type.
     $type = array(
@@ -117,7 +147,9 @@ class MailhandlerTestCase extends DrupalWebTestCase {
       'entity_type' => 'node',
       'bundle' => 'article',
       'required' => FALSE,
-      'settings' => array(),
+      'settings' => array(
+        'file_extensions' => 'txt png',
+      ),
       'widget' => array(
         'type' => 'file_generic',
         'settings' => array(),
@@ -217,7 +249,7 @@ class MailhandlerTestCase extends DrupalWebTestCase {
     $this->drupalPost(NULL, $edit, t('Save'));
     $this->createMapping('body_html', 'body');
     $this->createMapping('taxonomy', 'field_tags');
-    $this->createMapping('attachments', 'field_files');
+    $this->createMapping('attachments', 'field_files:uri');
     $this->createMapping('from-address', 'field_from_address');
     $this->createMapping('from-name', 'field_from_name');
     $this->createMapping('Nachname', 'field_text_test');
@@ -294,7 +326,7 @@ class MailhandlerTestCase extends DrupalWebTestCase {
     $this->assertTrue($node = $this->drupalGetNodeByTitle('This is a test message 4'));
     $this->assertEqual($node->uid, $this->mailhandler_user->uid);
 
-    // Test import of messages in ISO-8859 encoding
+    // Test import of messages in ISO-8859 encoding.
     $this->createSource('test5', 1, FALSE);
     $this->assertTrue($node = $this->drupalGetNodeByTitle('Deutscher Verband für Meeresmüll'));
 
@@ -314,13 +346,13 @@ class MailhandlerTestCase extends DrupalWebTestCase {
     $filestring_expected = fread($handle_expected, filesize($filename_expected));
     $this->assertTrue($filestring_expected === $filestring_actual);
 
-    // Test that URLs in the first line of an email don't get stripped (interpreted as command)
+    // Test that URLs in the first line of an email don't get stripped (interpreted as command).
     $this->createSource('firstline_url', 1, FALSE);
     $this->assertTrue($node = $this->drupalGetNodeByTitle('Test firstline URLS'));
     $this->drupalGet('node/' . $node->nid);
     $this->assertLinkByHref('http://example.com');
 
-    // Test that capitalized commands work
+    // Test that capitalized commands work.
     $this->createSource('capital_commands', 1, FALSE);
     $this->assertTrue($node = $this->drupalGetNodeByTitle('Test capital commands'));
     $text_test = field_get_items('node', $node, 'field_text_test', LANGUAGE_NONE);

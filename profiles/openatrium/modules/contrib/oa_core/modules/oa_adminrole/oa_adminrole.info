@@ -5,9 +5,9 @@ package = Open Atrium
 dependencies[] = oa_core
 project path = sites/all/modules/contrib/oa_core/modules
 
-; Information added by Drupal.org packaging script on 2017-08-16
-version = "7.x-2.87"
+; Information added by Drupal.org packaging script on 2017-12-14
+version = "7.x-2.88"
 core = "7.x"
 project = "oa_core"
-datestamp = "1502904978"
+datestamp = "1513285703"
 

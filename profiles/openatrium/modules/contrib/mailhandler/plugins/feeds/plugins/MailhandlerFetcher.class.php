@@ -34,6 +34,9 @@ class MailhandlerFetcherResult extends FeedsFetcherResult {
   }
 }
 
+/**
+ * Implementation of FeedsFetcher.
+ */
 class MailhandlerFetcher extends FeedsFetcher {
 
   /**

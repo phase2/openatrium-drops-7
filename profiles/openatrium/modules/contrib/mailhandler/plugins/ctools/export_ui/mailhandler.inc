@@ -24,7 +24,7 @@ $plugin = array(
         'access arguments' => array('administer mailhandler'),
         'type' => MENU_CALLBACK,
       ),
-    )
+    ),
   ),
   'title singular' => t('mailhandler mailbox'),
   'title singular proper' => t('Mailhandler Mailbox'),
