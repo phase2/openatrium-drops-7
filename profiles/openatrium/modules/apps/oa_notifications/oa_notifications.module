@@ -623,7 +623,7 @@ function oa_notifications_form_fields(&$form, &$form_state, $node) {
     $notifications = array_merge($default, $notifications);
   }
 
-  $form['subscribe'] = isset($form_state['want form']) ? '' : oa_notifications_subscribe_button($node);
+  $form['subscribe'] = isset($form_state['want form']) ? array() : oa_notifications_subscribe_button($node);
 
   $form['notify_list'] = oa_notifications_build_list_form(
     $node, $override, !empty($form_state['want form']), $notifications);
@@ -674,7 +674,7 @@ function oa_notifications_build_list_form($node, $override = FALSE, $editmode = 
 
   $element['data'] = oa_notifications_render_view($node, $editmode, $notifications);
 
-  $element['show_details'] = isset($node->nid) ? oa_notifications_show_details_button() : '';
+  $element['show_details'] = isset($node->nid) ? oa_notifications_show_details_button() : array();
 
   $element['notification_remove'] = array(
     '#type' => 'hidden',

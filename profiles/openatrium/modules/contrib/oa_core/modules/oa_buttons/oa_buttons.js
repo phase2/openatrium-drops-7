@@ -6,12 +6,21 @@
   Drupal.behaviors.oaButtons = {
     attach: function (context, settings) {
       $(document).on('oaCoreSpaceTypeChange', function (e) {
+        if (e.override) {
+          return;
+        }
+
         var type;
-        if (!e.override && e.options.layout) {
-          // Override allowed node types.
-          $('#edit-field-oa-node-types input:checkbox', context).attr({checked: false});
+        var root = $('#edit-field-oa-node-types', context);
+
+        // Find right property setter. jQuery < 1.6 use attr, newer use prop.
+        var setter = jQuery.fn.prop ? 'prop' : 'attr';
+
+        // Override allowed node types.
+        $('input:checkbox', root)[setter]({checked: false});
+        if (e.options.node_options) {
           for (type in e.options.node_options) {
-            $('#edit-field-oa-node-types input:checkbox:[value="' + e.options.node_options[type] + '"]', context).attr({checked: true});
+            $('input:checkbox[value="' + e.options.node_options[type] + '"]', root)[setter]({ checked: true });
           }
         }
       });

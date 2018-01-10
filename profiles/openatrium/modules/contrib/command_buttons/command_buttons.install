@@ -75,10 +75,11 @@ function command_buttons_schema() {
  * Create buttons for all node types.
  */
 function command_buttons_update_7002() {
-  $node_info = entity_get_info('node');
-  foreach ($node_info['bundles'] as $type => $defintiion) {
-    command_buttons_create_node_button($type, $definition['label']);
-  }
+// Commented out because of typo.  See update 7108
+//  $node_info = entity_get_info('node');
+//  foreach ($node_info['bundles'] as $type => $defintiion) {
+//    command_buttons_create_node_button($type, $definition['label']);
+//  }
 }
 
 /**
@@ -121,4 +122,31 @@ function command_buttons_update_7105() {
       'not null' => TRUE,
     )
   );
+}
+
+/**
+ * Create entitycache bin.
+ */
+function command_buttons_update_7106() {
+  entity_entitycache_installed_modules(array('command_buttons'));
+}
+
+/**
+ * Delete duplicate add_file buttons.
+ */
+function command_buttons_update_7107() {
+  $file_buttons = array_keys(command_buttons_load_multiple(FALSE, array('module' => 'oa_files')));
+  command_buttons_delete_multiple($file_buttons);
+}
+
+/**
+ * Create buttons for all node types.
+ *
+ * This was originally done in update 7002 but had a typo.
+ */
+function command_buttons_update_7108() {
+  $node_info = entity_get_info('node');
+  foreach ($node_info['bundles'] as $type => $definition) {
+    command_buttons_create_node_button($type, $definition['label']);
+  }
 }

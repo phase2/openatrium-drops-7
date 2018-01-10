@@ -1629,7 +1629,7 @@ function oa_core_panelizer_pre_render_alter(&$panelizer, $display, $entity) {
  *   (Optional) The field on the node which represents the current type.
  */
 function _oa_core_setup_node_space_type(&$form, $type = 'space_type', $field_name = 'field_oa_space_type') {
-  $selector = 'select:[name="' . $field_name . '[und]"]';
+  $selector = 'select[name="' . $field_name . '[und]"]';
   $space_type = !empty($form[$field_name]['und']['#default_value']) ? $form[$field_name]['und']['#default_value'][0] : NULL;
 
   $form['panelizer']['#states'] = array(

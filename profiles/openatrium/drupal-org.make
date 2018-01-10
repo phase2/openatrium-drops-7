@@ -7,7 +7,7 @@ core = 7.x
 ; ******************** RELEASE *******************
 
 projects[oa_core][subdir] = contrib
-projects[oa_core][version] = 2.88
+projects[oa_core][version] = 2.89
 
 ; ************************************************
 ; ************* Open Atrium Builtin Apps *********
@@ -80,7 +80,7 @@ projects[oa_home][subdir] = apps
 projects[oa_htmlmail][version] = 2.1
 projects[oa_htmlmail][subdir] = apps
 
-projects[oa_mailhandler][version] = 2.27
+projects[oa_mailhandler][version] = 2.28
 projects[oa_mailhandler][subdir] = apps
 
 projects[oa_markdown][version] = 2.2
@@ -93,12 +93,12 @@ projects[oa_messages_digest][version] = 2.1
 projects[oa_messages_digest][subdir] = apps
 
 projects[oa_notifications][subdir] = apps
-projects[oa_notifications][version] = 2.34
+projects[oa_notifications][version] = 2.35
 
 projects[oa_project][version] = 2.2
 projects[oa_project][subdir] = apps
 
-projects[oa_related][version] = 2.13
+projects[oa_related][version] = 2.14
 projects[oa_related][subdir] = apps
 
 projects[oa_sandbox][version] = 2.2
@@ -183,7 +183,7 @@ projects[panopoly_magic][patch][2611876] = https://www.drupal.org/files/issues/p
 projects[panopoly_widgets][version] = 1.49
 projects[panopoly_widgets][subdir] = panopoly
 projects[panopoly_widgets][patch][2473495] = https://www.drupal.org/files/issues/2473495-panopoly_widgets-media-21.patch
-projects[panopoly_widgets][patch][2477397] = https://www.drupal.org/files/issues/2477397-panopoly_widgets-file_entity-2.patch
+projects[panopoly_widgets][patch][2477397] = https://www.drupal.org/files/issues/2477397-panopoly_widgets-file_entity-6.patch
 
 projects[panopoly_admin][version] = 1.49
 projects[panopoly_admin][subdir] = panopoly
@@ -210,7 +210,7 @@ projects[panopoly_search][patch][2930863] = https://www.drupal.org/files/issues/
 projects[bootstrap_tour][version] = 2.5
 projects[bootstrap_tour][subdir] = contrib
 
-projects[command_buttons][version] = 1.13
+projects[command_buttons][version] = 1.14
 projects[command_buttons][subdir] = contrib
 
 projects[contextual_tabs][version] = 1.0

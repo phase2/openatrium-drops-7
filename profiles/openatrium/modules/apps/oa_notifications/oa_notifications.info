@@ -19,9 +19,9 @@ features[flag][] = subscribe_section_content
 features[page_manager_pages][] = user_subscribed_content
 project path = sites/all/modules/contrib
 
-; Information added by Drupal.org packaging script on 2017-02-16
-version = "7.x-2.34"
+; Information added by Drupal.org packaging script on 2018-01-10
+version = "7.x-2.35"
 core = "7.x"
 project = "oa_notifications"
-datestamp = "1487259530"
+datestamp = "1515595687"
 

@@ -11,28 +11,6 @@
 class ButtonController extends EntityAPIControllerExportable {
   public $entity;
 
-  /**
-   * Overrides DrupalDefaultEntityController::resetCache().
-   */
-  public function resetCache(array $ids = NULL) {
-    if (module_exists('entitycache')) {
-      EntityCacheControllerHelper::resetEntityCache($this, $ids);
-    }
-    parent::resetCache($ids);
-  }
-
-  /**
-   * Overrides DrupalDefaultEntityController::load().
-   */
-  public function load($ids = array(), $conditions = array()) {
-    if (module_exists('entitycache')) {
-      return EntityCacheControllerHelper::entityCacheLoad($this, $ids, $conditions);
-    }
-    else {
-      return parent::load($ids, $conditions);
-    }
-  }
-
   public function access($op, $entity = NULL, $account = NULL) {
     if ($op !== 'create' && !$entity) {
       return FALSE;

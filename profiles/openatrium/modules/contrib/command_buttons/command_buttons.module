@@ -345,6 +345,12 @@ function command_buttons_entity_info() {
     ),
   );
 
+  // Optional support for the entitycache module.
+  if (module_exists('entitycache')) {
+    $return['command_button']['field cache'] = FALSE;
+    $return['command_button']['entity cache'] = TRUE;
+  }
+
   return $return;
 }
 /**
@@ -734,7 +740,7 @@ function command_buttons_render_buttons($commands, $classes, $source = array()) 
     $vars['use_dropdowns'] = $classes['use_dropdowns'];
     $vars['wrapper_class'] = implode(' ', $classes['wrapper_class']);
     $vars['label'] = check_plain($classes['dropdown_label']);
-    $vars['btn_title'] = check_plain($classes['btn_title']);
+    $vars['btn_title'] = isset($classes['btn_title']) ? check_plain($classes['btn_title']) : '';
     $vars['direction'] = isset($classes['direction']) ? $classes['direction'] : '';
     return theme('command_buttons', $vars);
   }

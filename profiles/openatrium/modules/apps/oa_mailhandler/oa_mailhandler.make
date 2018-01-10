@@ -5,6 +5,8 @@ core = 7.x
 
 projects[mailhandler][version] = 2.11
 projects[mailhandler][subdir] = contrib
+projects[mailhandler][patch][2931124] = https://www.drupal.org/files/issues/2931124-remove-make-2.patch
+
 
 projects[mailcomment][version] = 2.x-dev
 projects[mailcomment][subdir] = contrib

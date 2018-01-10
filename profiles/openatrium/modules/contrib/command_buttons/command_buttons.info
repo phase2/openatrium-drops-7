@@ -48,9 +48,9 @@ files[] = plugins/views/command_buttons_handler_field_edit_entity.inc
 files[] = plugins/views/command_buttons_handler_field_view_entity.inc
 files[] = plugins/views/command_buttons_handler_filter_bundle.inc
 
-; Information added by Drupal.org packaging script on 2016-03-03
-version = "7.x-1.13"
+; Information added by Drupal.org packaging script on 2018-01-10
+version = "7.x-1.14"
 core = "7.x"
 project = "command_buttons"
-datestamp = "1457039049"
+datestamp = "1515596886"
 

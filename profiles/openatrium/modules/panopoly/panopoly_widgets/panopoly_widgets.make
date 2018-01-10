@@ -18,10 +18,11 @@ projects[menu_block][subdir] = contrib
 
 ; Panopoly - Contrib - Files & Media
 
-projects[file_entity][version] = 2.12
+projects[file_entity][version] = 2.15
 projects[file_entity][subdir] = contrib
 projects[file_entity][patch][2360043] = https://www.drupal.org/files/issues/file_entity-destination-token-decode-2360043-1.patch
 projects[file_entity][patch][2386015] = https://www.drupal.org/files/issues/2386015-file_entity-trigger-1.patch
+projects[file_entity][patch][2067671] = https://www.drupal.org/files/issues/file_entity-REVERT_2067671-EntityFieldQuery-altering-35.patch
  
 
 projects[media][version] = 2.13

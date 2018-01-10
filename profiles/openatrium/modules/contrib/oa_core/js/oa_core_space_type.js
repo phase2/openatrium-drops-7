@@ -10,26 +10,28 @@
       // The default response to oaCoreSpaceTypeChange: select the Panelizer
       // default for this space_type.
       $(document).on('oaCoreSpaceTypeChange', function (e) {
-        var $layout_selector = $('select:[name="panelizer[page_manager][name]"]', context);
-
-        if (!e.override && e.options.layout) {
-          // Override panelizer layout selector.
-          $layout_selector.val(e.options.layout);
+        if (e.override || !e.options.layout) {
+          return;
         }
+
+        // Override panelizer layout selector.
+        $('select[name="panelizer[page_manager][name]"]', context)
+          .val(e.options.layout)
+          .trigger('change');
       });
 
       // Setup controls to trigger the oaCoreSpaceTypeChange event.
       $(settings.oaCoreSpaceTypeSelector, context).change(function() {
         self.updateSection(context, settings);
       });
-      $('input:[name="field_oa_section_override[und]"]', context).change(function() {
+      $('input[name="field_oa_section_override[und]"]', context).change(function() {
         self.updateSection(context, settings);
         self.setLayoutVisibility(this);
       });
 
       // Trigger it immediately on page load.
       self.updateSection(context, settings);
-      self.setLayoutVisibility($('input:[name="field_oa_section_override[und]"]', context));
+      self.setLayoutVisibility($('input[name="field_oa_section_override[und]"]', context));
     },
 
     setLayoutVisibility: function(element) {
@@ -47,7 +49,7 @@
           type: 'oaCoreSpaceTypeChange',
           spaceType: spaceType,
           options: settings.oaCoreSpaceTypeOptions["tid" + spaceType],
-          override: $('input:[name="field_oa_section_override[und]"]:checked', context).length
+          override: $('input[name="field_oa_section_override[und]"]:checked', context).length
         });
       }
     }
