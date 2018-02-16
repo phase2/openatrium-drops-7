@@ -67,7 +67,7 @@ projects[token][version] = 1.7
 projects[token][subdir] = contrib
 projects[token][patch][1999298] = http://drupal.org/files/1999298-disable-test-warnings.patch
 
-projects[entity][version] = 1.8
+projects[entity][version] = 1.9
 projects[entity][subdir] = contrib
 projects[entity][patch][1782134] = http://drupal.org/files/entity-translatable_fields_not_overriding_und_with_empty_values-1782134-5.patch
 ; related to Entity Reference revisions patch (1837650)
@@ -78,8 +78,6 @@ projects[entity][patch][2407905] = http://drupal.org/files/issues/entity_unsuppo
 projects[entity][patch][2236229] = https://www.drupal.org/files/issues/add_create_op_to_metadata_comment_access-2236229-1.patch
 ; fix for simpletext and entity
 projects[entity][patch][2289693] = https://www.drupal.org/files/issues/entity_undefined_entity_get_info-2289693-2.patch
-; fix for is_new not being set
-projects[entity][patch][2807275] = https://www.drupal.org/files/issues/op_update_should_be_create-2807275-2.patch
 
 projects[libraries][version] = 2.2
 projects[libraries][subdir] = contrib

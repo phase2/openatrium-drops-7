@@ -14,9 +14,9 @@ apps[package] = Core addons
 dependencies[] = panels_everywhere
 dependencies[] = ctools
 
-; Information added by Drupal.org packaging script on 2016-04-14
-version = "7.x-2.2"
+; Information added by Drupal.org packaging script on 2018-02-15
+version = "7.x-2.3"
 core = "7.x"
 project = "oa_site_layout"
-datestamp = "1460652051"
+datestamp = "1518730394"
 

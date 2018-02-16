@@ -33,7 +33,7 @@ function geocoder_bing($address, $options = array()) {
       throw new Exception('You must specify a key.');
     }
 
-    if (isset($options['address'])) {
+    if (isset($options['address']) && is_array($options['address'])) {
       $query = array(
         'countryRegion' => (isset($options['address']['country']) ? $options['address']['country'] : ''),
         'adminDistrict' => (isset($options['address']['administrative_area']) ? $options['address']['administrative_area'] : ''),
@@ -75,7 +75,7 @@ function geocoder_bing($address, $options = array()) {
         '@code' => $result->code,
         '@error' => $result->error,
       );
-      $msg = t('HTTP request to google API failed.\nCode: @code\nError: @error', $args);
+      $msg = t('HTTP request to Bing API failed.\nCode: @code\nError: @error', $args);
       throw new Exception($msg);
     }
 
@@ -103,7 +103,7 @@ function geocoder_bing($address, $options = array()) {
       return;
     }
 
-    // The connonical geometry is the first result (best guesse)
+    // The canonical geometry is the first result (best guess)
     $geometry = array_shift($geometries);
 
     // If there are any other geometries, these are auxiliary geometries that represent "alternatives"
@@ -122,7 +122,7 @@ function geocoder_bing_field($field, $field_item) {
   if ($field['type'] == 'text' || $field['type'] == 'text_long' || $field['type'] == 'text_with_summary' || $field['type'] == 'computed') {
     return geocoder_bing($field_item['value']);
   }
-  if ($field['type'] == 'addressfield') {
+  if ($field['type'] == 'addressfield' && module_exists('addressfield') && !addressfield_field_is_empty($field_item, $field)) {
     $address = geocoder_widget_parse_addressfield($field_item);
     return geocoder_bing($address, array('address' => $address));
   }

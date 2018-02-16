@@ -8,12 +8,12 @@ $plugin = array(
   'field_callback' => 'geocoder_exif_field',
 );
 
-function geocoder_exif($url, $options = array()) {
+function geocoder_exif($uri, $options = array()) {
   // Invoke hook_file_download to check permissions
   // We are essentially duplicating the logic found in file.inc file_download()
   foreach (module_implements('file_download') as $module) {
     $function = $module . '_file_download';
-    $result = $function($url);
+    $result = $function($uri);
     if ($result == -1) {
       drupal_set_message(t('You do not have permission to access this file'), 'error');
       return FALSE;
@@ -22,7 +22,7 @@ function geocoder_exif($url, $options = array()) {
 
   // The user has permission to access the file. Geocode it.
   geophp_load();
-  if ($data = exif_read_data($url)) {
+  if ($data = exif_read_data(drupal_realpath($uri))) {
     if (!isset($data['GPSLatitudeRef'])) return FALSE;
     $lat = geocoder_exif_from($data['GPSLatitudeRef'], $data['GPSLatitude']);
     $lon = geocoder_exif_from($data['GPSLongitudeRef'], $data['GPSLongitude']);

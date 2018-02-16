@@ -29,7 +29,7 @@ function geocoder_yandex($address, $options = array()) {
     $consumer_key = $geocoder_settings["geocoder_apikey_yandex"];
   }
   else {
-    drupal_set_message("You must set up your Yandex API key. Click <a href='$base_path/admin/config/content/geocoder'>here</a>",'error');
+    drupal_set_message(t('You must set up your Yandex API key. Click !config', array('!config' => l(t('here'), $base_path .'admin/config/content/geocoder'))),'error');
     return;
   }
 
@@ -49,7 +49,7 @@ function geocoder_yandex_field($field, $field_item) {
   if ($field['type'] == 'text' || $field['type'] == 'text_long' || $field['type'] == 'text_with_summary' || $field['type'] == 'computed') {
     return geocoder_yandex($field_item['value']);
   }
-  if ($field['type'] == 'addressfield') {
+  if ($field['type'] == 'addressfield' && module_exists('addressfield') && !addressfield_field_is_empty($field_item, $field)) {
     $address = geocoder_widget_parse_addressfield($field_item);
     return geocoder_yandex($address);
   }
@@ -73,7 +73,7 @@ function _geocoder_yandex_geometry(&$data) {
         '@error' => $data->error->message,
       );
       $msg = t('Yandex API has reported an error.\nStatus: @status\nError: @error', $args);
-      throw new Exception($msg);
+      throw new Exception($msg, WATCHDOG_WARNING);
     }
 
     if($data->response->GeoObjectCollection->metaDataProperty->GeocoderResponseMetaData->found == 0) {
@@ -83,6 +83,6 @@ function _geocoder_yandex_geometry(&$data) {
     $loc = explode(' ', $data->response->GeoObjectCollection->featureMember[0]->GeoObject->Point->pos);
     return new Point ($loc[0], $loc[1]);
   } catch (Exception $e) {
-    watchdog_exception('geocoder', $e);
+    watchdog_exception('geocoder', $e, $e->getMessage(), array(), $e->getCode());
   }
 }

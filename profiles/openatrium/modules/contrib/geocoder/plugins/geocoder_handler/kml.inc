@@ -11,7 +11,7 @@
  */
 $plugin = array(
   'title' => t("KML"),
-  'description' => t('Get the geometry out of a KML string, file, or URL'),
+  'description' => t('Get the geometry out of a KML string, file, or URL. Supports KMZ files upload as well.'),
   'callback' => 'geocoder_kml',
   'field_types' => array('text', 'text_long', 'file', 'computed'),
   'field_callback' => 'geocoder_kml_field',
@@ -32,7 +32,11 @@ function geocoder_kml_field($field, $field_item) {
   if ($field['type'] == 'file') {
     if ($field_item['fid']) {
       $file = file_load($field_item['fid']);
-      $kml = file_get_contents($file->uri);
+      $path = $file->uri;
+      if ($file->filemime == 'application/vnd.google-earth.kmz' && extension_loaded('zip')) {
+        $path = 'zip://' . drupal_realpath($path) . '#doc.kml';
+      }
+      $kml = file_get_contents($path);
       return geocoder_kml($kml);
     }
   }

@@ -32,12 +32,71 @@ function geocoder_google($address, $options = array()) {
 
     geophp_load();
 
-    $query = array(
-      'address' => $address,
-      'sensor' => 'false',
-    );
+    $query = array('address' => $address);
 
-    $url = url("http://maps.googleapis.com/maps/api/geocode/json", array('query' => $query));
+    if (isset($options['extra_query']) && is_array($options['extra_query'])) {
+      $query += $options['extra_query'];
+    }
+
+    // Add any given biasing.
+    if (!empty($options['biasing']['bounds'])) {
+      $query['bounds'] = $options['biasing']['bounds'];
+    }
+    if (!empty($options['biasing']['region'])) {
+      $query['region'] = $options['biasing']['region'];
+    }
+    if (!empty($options['biasing']['components'])) {
+      $query['components'] = $options['biasing']['components'];
+    }
+
+    // Add Google API authentication parameters.
+    switch (variable_get('geocoder_google_auth_method')) {
+
+      // Google Geocoding API Key.
+      case GEOCODER_GOOGLE_AUTH_KEY:
+        $geocoder_settings = variable_get("geocoder_settings", array());
+        if (!empty($geocoder_settings['geocoder_apikey_google'])) {
+          $query['key'] = $geocoder_settings['geocoder_apikey_google'];
+        }
+        break;
+
+      // Google Maps for Work signature.
+      case GEOCODER_GOOGLE_AUTH_WORK:
+        $client_id   = variable_get('geocoder_google_client_id', FALSE);
+        $private_key = variable_get('geocoder_google_private_key', FALSE);
+        if (!empty($client_id) && !empty($private_key)) {
+          $google_maps_for_work = TRUE;
+          $query['client']      = $client_id;
+        }
+        break;
+    }
+
+    // Build the URL.
+    $url = url("https://maps.googleapis.com/maps/api/geocode/json", array(
+      'query' => $query,
+    ));
+
+    // If authenticating via Google Maps for Work, add signature.
+    // @see https://developers.google.com/maps/documentation/business/webservices/auth#generating_valid_signatures
+    if (!empty($google_maps_for_work)) {
+
+      // Strip off the protocol and host for signing.
+      $parsed      = parse_url($url);
+      $url_to_sign = $parsed['path'] . '?' . $parsed['query'];
+
+      // Decode the key in a URL-safe way (RFC 4648 Section 5).
+      // @see https://www.ietf.org/rfc/rfc4648.txt
+      $decoded_key = base64_decode(strtr($private_key, '-_', '+/'));
+
+      // Use HMAC SHA1 to sign the URL with the decoded key.
+      $signature = hash_hmac('sha1', $url_to_sign, $decoded_key, TRUE);
+
+      // Append the signature to the URL's query parameters. Do this manually to
+      // avoid URL encoding.
+      $url .= '&signature=' . strtr(base64_encode($signature), '+/', '-_');
+    }
+
+    // Send the request.
     $result = drupal_http_request($url);
     $delay_trigger = TRUE;
 
@@ -47,15 +106,20 @@ function geocoder_google($address, $options = array()) {
         '@error' => $result->error,
       );
       $msg = t('HTTP request to google API failed.\nCode: @code\nError: @error', $args);
-      throw new Exception($msg);
+      throw new Exception($msg, WATCHDOG_ERROR);
     }
 
     $data = json_decode($result->data);
 
-    if ($data->status != 'OK') {
+    if ($data->status == 'ZERO_RESULTS') {
+      $args = array('@status' => $data->status, '@address' => $address);
+      $msg = t('Google API returned zero results on @address status.\nStatus: @status', $args);
+      throw new Exception($msg, WATCHDOG_NOTICE);
+    }
+    elseif ($data->status != 'OK') {
       $args = array('@status' => $data->status);
       $msg = t('Google API returned bad status.\nStatus: @status', $args);
-      throw new Exception($msg);
+      throw new Exception($msg, WATCHDOG_WARNING);
     }
 
     $geometries = array();
@@ -112,7 +176,7 @@ function geocoder_google($address, $options = array()) {
         return geoPHP::geometryReduce($geometries);
       }
     }
-    // The connonical geometry is the first result (best guesse)
+    // The canonical geometry is the first result (best guess)
     $geometry = array_shift($geometries);
 
     // If there are any other geometries, these are auxiliary geometries that represent "alternatives"
@@ -122,8 +186,8 @@ function geocoder_google($address, $options = array()) {
 
     return $geometry;
   } catch (Exception $e) {
-    watchdog_exception('geocoder', $e);
-    return FALSE;
+    // Just rethrow the exception, the geocoder widget handles it.
+    throw $e;
   }
 }
 
@@ -131,7 +195,7 @@ function geocoder_google_field($field, $field_item, $options = array()) {
   if ($field['type'] == 'text' || $field['type'] == 'text_long' || $field['type'] == 'text_with_summary' || $field['type'] == 'computed') {
     return geocoder_google($field_item['value'], $options);
   }
-  if ($field['type'] == 'addressfield') {
+  if ($field['type'] == 'addressfield' && module_exists('addressfield') && !addressfield_field_is_empty($field_item, $field)) {
     $address = geocoder_widget_parse_addressfield($field_item);
     return geocoder_google($address, $options);
   }
@@ -141,7 +205,7 @@ function geocoder_google_field($field, $field_item, $options = array()) {
   }
   if ($field['type'] == 'taxonomy_term_reference') {
     $term = taxonomy_term_load($field_item['tid']);
-    return geocoder_google($term->name);
+    return geocoder_google($term->name, $options);
   }
 }
 
@@ -177,6 +241,34 @@ function geocoder_google_form($default_values = array()) {
     ),
     '#default_value' => isset($default_values['reject_results']) ? $default_values['reject_results'] : array(),
     '#description' => 'Reject results that do not meet a certain level of quality or precision. Check all types of results to reject.',
+  );
+
+  $form['biasing'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Result biasing'),
+    '#description' => t('To help reduce ambiguous results you can set give preference to or restrict results using viewports biasing, region biasing and component filtering. Please see !link for details on how to use these options.', array(
+      '!link' => l(t('The Google Geocoding API'), 'https://developers.google.com/maps/documentation/geocoding/'),
+    )),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['biasing']['bounds'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Viewport biasing'),
+    '#description' => t('Provide latitude/longitude coordinates of the southwest and northeast corners using a pipe (|) to separate the coordinates.'),
+    '#default_value' => isset($default_values['biasing']['bounds']) ? $default_values['biasing']['bounds']: NULL,
+  );
+  $form['biasing']['region'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Region biasing'),
+    '#description' => t('Provide a ccTLD for the desired region.'),
+    '#default_value' => isset($default_values['biasing']['region']) ? $default_values['biasing']['region']: NULL,
+  );
+  $form['biasing']['components'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Component filtering'),
+    '#description' => t('Provide a set of component:value pairs separated by a pipe (|) to filter results.'),
+    '#default_value' => isset($default_values['biasing']['components']) ? $default_values['biasing']['components']: NULL,
   );
 
   return $form;
