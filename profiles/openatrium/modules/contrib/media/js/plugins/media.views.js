@@ -21,8 +21,8 @@ Drupal.behaviors.mediaViews = {
         }
       });
     // Disable the links on media items list
-    $('.view-content ul.media-list-thumbnails a').click(function(e) {
-      e.preventDefault();
+    $('.view-content ul.media-list-thumbnails a').click(function() {
+      return false;
     });
 
     // Return focus to the correct part of the form.

@@ -25,11 +25,8 @@ projects[file_entity][patch][2386015] = https://www.drupal.org/files/issues/2386
 projects[file_entity][patch][2067671] = https://www.drupal.org/files/issues/file_entity-REVERT_2067671-EntityFieldQuery-altering-35.patch
  
 
-projects[media][version] = 2.13
+projects[media][version] = 2.19
 projects[media][subdir] = contrib
-projects[media][patch][2372907] = https://www.drupal.org/files/issues/media-replace-fake-button-2372907-2.patch
-projects[media][patch][2473481] = https://www.drupal.org/files/issues/clicking_images_in-2473481-1.patch
-projects[media][patch][2528428] = https://www.drupal.org/files/issues/media_browser_view_javascript_not_loaded-2528428-4.patch
 
 projects[media_youtube][version] = 3.0
 projects[media_youtube][subdir] = contrib
