@@ -8,10 +8,11 @@ class views_content_plugin_display_panel_pane extends views_plugin_display {
    * If this variable is true, this display counts as a panel pane. We use
    * this variable so that other modules can create alternate pane displays.
    */
-  var $panel_pane_display = TRUE;
-  var $has_pane_conf = NULL;
+  public $panel_pane_display = TRUE;
+  public $has_pane_conf = NULL;
 
-  function option_definition() {
+
+  public function option_definition() {
     $options = parent::option_definition();
 
     $options['pane_title'] = array('default' => '', 'translatable' => TRUE);
@@ -33,9 +34,9 @@ class views_content_plugin_display_panel_pane extends views_plugin_display {
         'path_override'   => array('default' => FALSE),
         'title_override'  => array('default' => FALSE),
         'exposed_form'    => array('default' => FALSE),
-        'exposed_form_configure'    => array('default' => FALSE),
+        'exposed_form_configure' => array('default' => FALSE),
         'fields_override' => array('default' => FALSE),
-       ),
+      ),
     );
 
     $options['exposed_form_overrides'] = array();
@@ -46,15 +47,34 @@ class views_content_plugin_display_panel_pane extends views_plugin_display {
     return $options;
   }
 
-  function has_pane_conf() {
+
+  public function has_pane_conf() {
     return isset($this->has_pane_conf);
   }
 
-  function set_pane_conf($conf = array(), $set_cache = TRUE) {
+  function get_conf_cid() {
+    global $user;
+    global $language;
+    return 'view_panel_pane:'
+      . md5($this->view->name . '_'
+      . $this->view->current_display . '_'
+      . serialize($this->view->args) . '_'
+      . $language->language . '_'
+      . $user->uid);
+  }
+
+  function get_cached_conf() {
+    if (($cache = cache_get($this->get_conf_cid(), 'cache_panel_conf'))) {
+      return $cache->data;
+    }
+    return array();
+  }
+
+  public function set_pane_conf($conf = array(), $set_cache = TRUE) {
     $this->set_option('pane_conf', $conf);
-    $this->view->dom_id = !empty($this->view->dom_id) ? $this->view->dom_id : md5($this->view->name . REQUEST_TIME . rand());
-    if ($set_cache) {
-      cache_set('view_panel_pane_' . $this->view->dom_id, $conf);
+    // If the config changed, overwrite the cache.
+    if ($set_cache || $conf != $this->get_cached_conf()) {
+      cache_set($this->get_conf_cid(), $conf, 'cache_panel_conf');
     }
     $this->has_pane_conf = TRUE;
   }
@@ -64,7 +84,7 @@ class views_content_plugin_display_panel_pane extends views_plugin_display {
    *
    * This output is returned as an array.
    */
-  function options_summary(&$categories, &$options) {
+  public function options_summary(&$categories, &$options) {
     // It is very important to call the parent function here:
     parent::options_summary($categories, $options);
 
@@ -153,7 +173,7 @@ class views_content_plugin_display_panel_pane extends views_plugin_display {
   /**
    * Provide the default form for setting options.
    */
-  function options_form(&$form, &$form_state) {
+  public function options_form(&$form, &$form_state) {
     // It is very important to call the parent function here:
     parent::options_form($form, $form_state);
 
@@ -217,6 +237,7 @@ class views_content_plugin_display_panel_pane extends views_plugin_display {
           }
         }
         break;
+
       case 'pane_title':
         $form['#title'] .= t('Administrative title');
 
@@ -358,7 +379,7 @@ class views_content_plugin_display_panel_pane extends views_plugin_display {
    * Perform any necessary changes to the form values prior to storage.
    * There is no need for this function to actually store the data.
    */
-  function options_submit(&$form, &$form_state) {
+  public function options_submit(&$form, &$form_state) {
     // It is very important to call the parent function here:
     parent::options_submit($form, $form_state);
     switch ($form_state['section']) {
@@ -381,7 +402,7 @@ class views_content_plugin_display_panel_pane extends views_plugin_display {
    * the arguments doesn't cause the argument input field to just
    * break.
    */
-  function get_argument_input() {
+  public function get_argument_input() {
     $arguments = $this->get_option('argument_input');
     $handlers = $this->get_handlers('argument');
 
@@ -409,7 +430,8 @@ class views_content_plugin_display_panel_pane extends views_plugin_display {
     return $output;
   }
 
-  function use_more() {
+
+  public function use_more() {
     $allow = $this->get_option('allow');
     if (!$allow['more_link'] || !$this->has_pane_conf()) {
       return parent::use_more();
@@ -418,21 +440,24 @@ class views_content_plugin_display_panel_pane extends views_plugin_display {
     return (bool) $conf['more_link'];
   }
 
-  function get_path() {
+
+  public function get_path() {
     if (empty($this->view->override_path)) {
       return parent::get_path();
     }
     return $this->view->override_path;
   }
 
-  function get_url() {
+
+  public function get_url() {
     if ($this->get_option('inherit_panels_path')) {
       return $this->get_path();
     }
     return parent::get_url();
   }
 
-  function uses_exposed_form_in_block() {
+
+  public function uses_exposed_form_in_block() {
     // We'll always allow the exposed form in a block, regardless of path.
     return TRUE;
   }
@@ -446,10 +471,10 @@ class views_content_plugin_display_panel_pane extends views_plugin_display {
    * returns, exposed filters will not be used nor
    * displayed unless uses_exposed() returns TRUE.
    */
-  function displays_exposed() {
+  public function displays_exposed() {
     $pane_conf = $this->get_option('pane_conf');
 
-    // Allow indivudal panes to disable exposed form.
+    // Allow individual panes to disable exposed form.
     if (isset($pane_conf['show_exposed_form']) && empty($pane_conf['show_exposed_form'])) {
       return FALSE;
     }
@@ -482,14 +507,12 @@ class views_content_plugin_display_panel_pane extends views_plugin_display {
     ctools_include('context');
     $conf = $this->get_option('pane_conf');
     if (!$conf) {
-      // See if dom id has been cached and get conf from there.
-      if (!empty($this->view->dom_id) && ($cache = cache_get('view_panel_pane_' . $this->view->dom_id))) {
-        $conf = $cache->data;
-      }
+      // Try to get conf from cache.
+      $conf = $this->get_cached_conf();
       if (!$conf) {
         return;
       }
-      $this->set_pane_conf($conf);
+      $this->set_pane_conf($conf, FALSE);
     }
     $contexts = $conf['pane_contexts'];
     $panel_args = $conf['panel_args'];
@@ -556,7 +579,12 @@ class views_content_plugin_display_panel_pane extends views_plugin_display {
       $this->view->override_path = $conf['path'];
     }
     else if ($path = $this->get_option('inherit_panels_path')) {
-      $this->view->override_path = $_GET['q'];
+      if (drupal_is_front_page()) {
+        $this->view->override_path = '';
+      }
+      else {
+        $this->view->override_path = $_GET['q'];
+      }
     }
 
     // more link
@@ -645,4 +673,3 @@ class views_content_plugin_display_panel_pane extends views_plugin_display {
   }
 
 }
-

@@ -5,16 +5,14 @@ core = 7.x
 
 ; Panels and Chaos Tools Magic
 
-projects[ctools][version] = 1.12
+projects[ctools][version] = 1.14
 projects[ctools][subdir] = contrib
-projects[ctools][patch][2607626] = https://www.drupal.org/files/issues/ctools-close-modal-2607626-5.patch
-projects[ctools][patch][2787045] = https://www.drupal.org/files/issues/ctools-jquery_compatibility-2787045-14.patch
-projects[ctools][patch][2897965] = https://www.drupal.org/files/issues/ctools-wizard-destination-2897965-2.patch
-projects[ctools][patch][1901106] = https://www.drupal.org/files/issues/1901106-ctools-views_content-override-ajax-34.patch
+projects[ctools][patch][1910608] = https://www.drupal.org/files/issues/2018-03-27/views_content-keyword-substitution-1910608-56.patch
+projects[ctools][patch][2843333] = https://www.drupal.org/files/issues/2018-03-28/2843333-ajax-settings-pane-rendering-fix-9.patch
+projects[ctools][patch][1901106] = https://www.drupal.org/files/issues/2018-03-28/1901106-ctools-views_content-override-ajax-40.patch
 projects[ctools][patch][2023705] = https://www.drupal.org/files/issues/2023705-ctools-autosubmit-15.patch
 projects[ctools][patch][2448989] = https://www.drupal.org/files/issues/2448989-ctools-from_field_children-8.patch
 projects[ctools][patch][2483415] = https://www.drupal.org/files/issues/ctools-more_than_one_comment_pager-2483415-1.patch
-projects[ctools][patch][2555469] = https://www.drupal.org/files/issues/2555469-ctools-comments-node_tag_new-2.patch
 
 projects[panels][version] = 3.9
 projects[panels][subdir] = contrib
@@ -41,11 +39,11 @@ projects[fape][subdir] = contrib
 
 ; Views Magic
 
-projects[views][version] = 3.17
+projects[views][version] = 3.20
 projects[views][subdir] = contrib
-projects[views][patch][2037469] = http://drupal.org/files/views-exposed-sorts-2037469-1.patch
+projects[views][patch][2037469] = https://www.drupal.org/files/issues/views-exposed-sorts-2037469-26.patch
 projects[views][patch][1979926] = http://drupal.org/files/1979926-views-reset_fetch_data-2.patch
-projects[views][patch][1735096] = https://www.drupal.org/files/issues/1735096-views-multiple-instance-exposed-form-15.patch
+projects[views][patch][1735096] = https://www.drupal.org/files/issues/1735096-views-multiple-instance-exposed-form-29.patch
 projects[views][patch][2411922] = https://www.drupal.org/files/issues/2411922-views-group_name-3.patch
 projects[views][patch][2473389] = https://www.drupal.org/files/issues/2473389-views-arg-15.patch
 
@@ -55,7 +53,7 @@ projects[views_autocomplete_filters][patch][2374709] = http://www.drupal.org/fil
 projects[views_autocomplete_filters][patch][2317351] = http://www.drupal.org/files/issues/views_autocomplete_filters-content-pane-2317351-4.patch
 projects[views_autocomplete_filters][patch][2404893] = https://www.drupal.org/files/issues/2404893-grammar_correction-11.patch
 
-projects[views_bulk_operations][version] = 3.3
+projects[views_bulk_operations][version] = 3.4
 projects[views_bulk_operations][subdir] = contrib
 
 ; The Usual Suspects
@@ -79,7 +77,7 @@ projects[entity][patch][2236229] = https://www.drupal.org/files/issues/add_creat
 ; fix for simpletext and entity
 projects[entity][patch][2289693] = https://www.drupal.org/files/issues/entity_undefined_entity_get_info-2289693-2.patch
 
-projects[libraries][version] = 2.2
+projects[libraries][version] = 2.3
 projects[libraries][subdir] = contrib
 
 projects[transliteration][version] = 3.2
@@ -87,9 +85,8 @@ projects[transliteration][subdir] = contrib
 
 ; Field modules
 
-projects[date][version] = 2.9
+projects[date][version] = 2.10
 projects[date][subdir] = contrib
-projects[date][patch][2375235] = https://www.drupal.org/files/issues/calendar_pager_broken-2375235-35.patch
 
 projects[entityreference][version] = 1.5
 projects[entityreference][subdir] = contrib
@@ -98,9 +95,8 @@ projects[entityreference][patch][1837650] = https://www.drupal.org/files/issues/
 ; Add autocomplete ability for group filters.
 projects[entityreference][patch][1492260] = https://www.drupal.org/files/issues/1492260-54.patch
 
-projects[field_group][version] = 1.5
+projects[field_group][version] = 1.6
 projects[field_group][subdir] = contrib
-projects[field_group][patch][2649648] = https://www.drupal.org/files/issues/php7_uniform_variable-2649648-5.patch
 
 projects[link][version] = 1.4
 projects[link][subdir] = contrib
@@ -108,9 +104,8 @@ projects[link][patch][2666912] = https://www.drupal.org/files/issues/revert-url-
 
 ; Harness the Power of Features and Apps with Default Content
 
-projects[apps][version] = 1.0
+projects[apps][version] = 1.1
 projects[apps][subdir] = contrib
-projects[apps][patch][2753413] = https://www.drupal.org/files/issues/apps-manifest-2753413-3.patch
 projects[apps][patch][2367191] = https://www.drupal.org/files/issues/apps_page_load_is_slow-2367191-5.patch
 
 projects[features][version] = 2.10
@@ -128,7 +123,7 @@ projects[defaultcontent][subdir] = contrib
 projects[defaultcontent][patch][1754428] = http://drupal.org/files/1754428-allow-node-export-alter.patch
 projects[defaultcontent][patch][1757782] = http://drupal.org/files/1757782-cannot-import-menu-hierarchy-8.patch
 
-projects[migrate][version] = "2.8"
+projects[migrate][version] = "2.9"
 projects[migrate][type] = "module"
 projects[migrate][subdir] = "contrib"
 
@@ -143,7 +138,7 @@ projects[jquery_update][version] = 2.7
 projects[jquery_update][subdir] = contrib
 
 ; Recommended Modules
-projects[devel][version] = 1.5
+projects[devel][version] = 1.6
 projects[devel][subdir] = contrib
 
 projects[distro_update][version] = 1.0-beta4
