@@ -41,7 +41,7 @@ class ButtonController extends EntityAPIControllerExportable {
     return FALSE;
   }
 
-  public function save($entity) {
+  public function save($entity, DatabaseTransaction $transaction = NULL) {
     $entity = (object) $entity;
 
     // Determine if we will be inserting a new entity.
@@ -120,7 +120,7 @@ class ButtonController extends EntityAPIControllerExportable {
    *   (optional) A language code to use for rendering. Defaults to the global
    *   content language of the current request.
    */
-  public function buildContent($entity, $view_mode = 'full', $langcode = NULL) {
+  public function buildContent($entity, $view_mode = 'full', $langcode = NULL, $content = array()) {
     if (!isset($langcode)) {
       $langcode = $GLOBALS['language_content']->language;
     }
@@ -153,12 +153,12 @@ class ButtonController extends EntityAPIControllerExportable {
   /**
    * Deletes the entities then rebuilds defaults if needed.
    *
-   * @param $bids
+   * @param $ids
    *  Can be an array of numeric BIDS, names, or combo as sutiable for load().
    */
-  public function delete($bids) {
+  public function delete($ids, DatabaseTransaction $transaction = NULL) {
     $transaction = db_transaction();
-    if (!empty($bids) && ($entities = command_buttons_load_multiple($bids, array()))) {
+    if (!empty($ids) && ($entities = command_buttons_load_multiple($ids, array()))) {
       try {
         foreach ($entities as $bid => $entity) {
           // Call the entity-specific callback (if any):

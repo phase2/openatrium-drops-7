@@ -339,8 +339,8 @@ function oa_core_get_parents($nid, $bundle = OA_SPACE_TYPE, $status = NULL, $inc
 /**
  * Get the nids => title matching criteria from a set of nids.
  *
- * @param int $nid
- *   The NID of the Space or Group to check.
+ * @param int[] $nids
+ *   The NIDs of the nodes to check.
  * @param string|NULL $bundle
  *   (optional) The node type (default: OA_SPACE_TYPE). If NULL is passed, it
  *   will include all node types.  Can also be an array of types.
@@ -351,6 +351,9 @@ function oa_core_get_parents($nid, $bundle = OA_SPACE_TYPE, $status = NULL, $inc
  * @param bool $include_archived
  *   (optional) Whether to include archived nodes or not. By default, archived
  *   items aren't included.
+ * @param stdClass|NULL $account
+ *   (optional) the account used to check access to the results. Defaults to
+ *   the current user.
  *
  * @return array
  *   Array of parent NIDs to title.
@@ -371,16 +374,12 @@ function oa_core_get_nids_title_matching($nids, $bundle = OA_SPACE_TYPE, $status
   elseif (!empty($bundle)) {
     $cid .= ':' . $bundle;
   }
+  $cid .= ':' . $status . ':' . $include_archived . ':' . $account->uid;
   $cache = &drupal_static(__FUNCTION__, array());
   if (!isset($cache[$cid])) {
     $query = db_select('node', 'n');
     if ($bundle) {
-      if (is_array($bundle)) {
-        $query->condition('n.type', $bundle, 'IN');
-      }
-      else {
-        $query->condition('n.type', $bundle);
-      }
+      $query->condition('n.type', $bundle);
     }
     if (isset($status)) {
       $query->condition('n.status', $status);
@@ -1153,14 +1152,15 @@ function oa_core_get_user_spaces($uid) {
  *  an array of content types that this node can be part of.
  *
  * @return
- *  An numberic NID that this content is part of.
+ *   A numeric NID of the group that this content is part of.
+ *   If $node is a group or not member of a group, its NID is returned.
  */
 function oa_core_get_group_from_node($node, $allowed_types = array(OA_SPACE_TYPE, OA_GROUP_TYPE)) {
   $cache = &drupal_static('oa_core_groups', array());
   // Find the NID in case a $node object was passed in..
   if (is_object($node) && !empty($node->nid)) {
     $nid = $node->nid;
-    if (!empty($node_type) && in_array($node->type, $allowed_types)) {
+    if (!empty($allowed_types) && in_array($node->type, $allowed_types)) {
       $cache[$nid] = $nid;
     }
   }
@@ -1173,14 +1173,14 @@ function oa_core_get_group_from_node($node, $allowed_types = array(OA_SPACE_TYPE
   }
 
   $query = db_select('og_membership', 'f');
-  $query->leftJoin('node', 'n', "n.nid = f.gid");
+  $query->leftJoin('node', 'n', 'n.nid = f.gid');
   $result = $query
     ->fields('f', array('gid'))
     ->condition('f.etid', $nid)
     ->condition('f.group_type', 'node')
     ->condition('f.entity_type', 'node')
     ->condition('f.field_name', OA_SPACE_FIELD)
-    ->condition('n.type', $allowed_types, 'IN')
+    ->condition('n.type', $allowed_types)
     ->execute()
     ->fetchAssoc();
 

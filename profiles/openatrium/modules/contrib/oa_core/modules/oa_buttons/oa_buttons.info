@@ -22,9 +22,8 @@ features[field_instance][] = node-oa_space-field_oa_node_types
 features[field_instance][] = taxonomy_term-section_type-field_oa_node_types
 features[field_instance][] = taxonomy_term-space_type-field_oa_node_types
 
-; Information added by Drupal.org packaging script on 2018-01-10
-version = "7.x-2.89"
+; Information added by Drupal.org packaging script on 2018-10-11
+version = "7.x-2.90"
 core = "7.x"
 project = "oa_core"
-datestamp = "1515597789"
-
+datestamp = "1539276206"

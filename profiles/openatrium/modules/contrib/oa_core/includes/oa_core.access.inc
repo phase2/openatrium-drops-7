@@ -564,8 +564,7 @@ function oa_core_visibility_data($node) {
   $data = array();
   $data['published'] = !empty($node->status);
   $data['archived'] = FALSE;
-  if (module_exists('flag')) {
-    $flag = flag_load('trash');
+  if (module_exists('flag') && $flag = flag_get_flag('trash')) {
     $data['archived'] = $flag->is_flagged($node->nid);
   }
   if ($node->type == OA_SPACE_TYPE || $node->type == OA_GROUP_TYPE) {

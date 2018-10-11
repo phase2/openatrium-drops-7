@@ -39,8 +39,8 @@ function oa_basetheme_table($variables) {
     'table-bordered',
   ));
 
-  $header = $variables['header'];
-  $rows = $variables['rows'];
+  $header = (array) $variables['header'];
+  $rows = (array) $variables['rows'];
   $attributes = $variables['attributes'];
   $caption = $variables['caption'];
   $colgroups = $variables['colgroups'];

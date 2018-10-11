@@ -27,29 +27,35 @@ function oa_widgets_content_visibility_render($subtype, $conf, $args, $context =
   if (!isset($node->type)) {
     return;
   }
-  $block = new stdClass();
-
-  $vars = oa_core_visibility_data($node);
 
   if (empty($conf['mode'])) {
     // Visibility block
     if (!variable_get('oa_show_visibility_panel', TRUE)) {
       return;
     }
+
+    $vars = oa_core_visibility_data($node);
+
+    $block = new stdClass();
     $block->title = t('Content Visibility');
     $block->content = theme('oa_widgets_content_visibility', $vars);
+    return $block;
   }
   else {
     // Visibility button
     if (!variable_get('oa_show_visibility_toolbar', TRUE)) {
       return;
     }
+
+    $vars = oa_core_visibility_data($node);
     $vars['oa_toolbar_btn_class'] = 'btn-small btn-sm btn-default';
     $vars['direction'] = 'dropup';
+
+    $block = new stdClass();
     $block->title = '';
     $block->content = theme('oa_widgets_visibility_toolbar', $vars);
+    return $block;
   }
-  return $block;
 }
 
 /**

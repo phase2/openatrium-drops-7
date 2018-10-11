@@ -3,7 +3,10 @@
  * Manage spacing for dashboard and navbar tray.
  */
 
-document.documentElement.className = 'js';
+// Test for js class existence before adding.
+if( document.documentElement.className.indexOf("js") === -1 ) {
+    document.documentElement.className += " js";
+}
 
 (function ($) {
 

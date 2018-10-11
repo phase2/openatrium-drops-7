@@ -25,7 +25,6 @@ dependencies[] = text
 dependencies[] = views
 dependencies[] = views_content
 dependencies[] = views_load_more
-stylesheets[all][] = oa_sections.css
 features[ctools][] = field_group:field_group:1
 features[ctools][] = page_manager:pages_default:1
 features[ctools][] = strongarm:strongarm:1
@@ -87,9 +86,8 @@ files[] = tests/oa_sectionsNodePrivateAccess.test
 files[] = tests/oa_sectionsNodePublicAccess.test
 files[] = tests/oa_sectionsNodeAccessBase.test
 
-; Information added by Drupal.org packaging script on 2018-01-10
-version = "7.x-2.89"
+; Information added by Drupal.org packaging script on 2018-10-11
+version = "7.x-2.90"
 core = "7.x"
 project = "oa_core"
-datestamp = "1515597789"
-
+datestamp = "1539276206"

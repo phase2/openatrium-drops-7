@@ -26,9 +26,8 @@ stylesheets[print][]   = assets/css/print.css
 scripts[] = assets/js/radix.script.js
 scripts[] = assets/js/oa_basetheme.script.min.js
 
-; Information added by Drupal.org packaging script on 2017-12-14
-version = "7.x-2.5"
+; Information added by Drupal.org packaging script on 2018-10-11
+version = "7.x-2.6"
 core = "7.x"
 project = "oa_basetheme"
-datestamp = "1513285687"
-
+datestamp = "1539276198"

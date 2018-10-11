@@ -84,13 +84,6 @@ function oa_diff_tokens($type, $tokens, array $data = array(), array $options = 
   return $replacements;
 }
 
-/**
- * Implements hook_init().
- */
-function oa_diff_init() {
-  drupal_add_css(drupal_get_path('module', 'oa_diff') . '/oa_diff.css');
-}
-
 function oa_diff_diff_field_settings_alter(&$settings, $context) {
   $field = $context['field'];
   if ($field['field_name'] == 'body') {

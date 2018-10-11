@@ -75,7 +75,7 @@ projects[job_scheduler][version] = 2.0-alpha3
 projects[job_scheduler][subdir] = contrib
 
 ; Mail System
-projects[mailsystem][version] = 2.34
+projects[mailsystem][version] = 2.35
 projects[mailsystem][subdir] = contrib
 
 ; Message
@@ -183,5 +183,5 @@ projects[views_load_more][version] = 1.5
 projects[views_load_more][subdir] = contrib
 
 ; Ultimate Cron
-projects[ultimate_cron][version] = 2.0
+projects[ultimate_cron][version] = 2.6
 projects[ultimate_cron][subdir] = contrib
