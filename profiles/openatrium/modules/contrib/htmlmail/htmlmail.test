@@ -1,0 +1,39 @@
+<?php
+
+/**
+ * @file
+ * Tests for the HTML Mail module.
+ */
+
+/**
+ * Test case for the HTML Mail module.
+ */
+class HtmlmailWebTestCase extends DrupalWebTestCase {
+
+  /**
+   * Implements getInfo().
+   *
+   * @return array
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'HTML Mail hello',
+      'description' => 'Dummy test to satisfy DrupalCI.',
+      'group' => 'HTML Mail',
+    );
+  }
+
+  /**
+   * Implements setUp().
+   */
+  public function setUp() {
+    parent::setUp('htmlmail');
+  }
+
+  /**
+   * Just an empty test.
+   */
+  public function testHello() {
+  }
+
+}

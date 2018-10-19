@@ -66,9 +66,8 @@ projects[flag][version] = 3.9
 projects[flag][subdir] = contrib
 
 ; HTML Mail
-projects[htmlmail][version] = 2.65
+projects[htmlmail][version] = 2.71
 projects[htmlmail][subdir] = contrib
-projects[htmlmail][patch][1692966] = https://www.drupal.org/files/1692966-htmlmail-mailsystem-html-to-text.patch
 
 ; Job Scheduler
 projects[job_scheduler][version] = 2.0-alpha3
@@ -97,10 +96,9 @@ projects[message_subscribe][version] = 1.0-rc2
 projects[message_subscribe][subdir] = contrib
 
 ; MimeMail
-projects[mimemail][version] = 1.0-beta4
+projects[mimemail][version] = 1.1
 projects[mimemail][subdir] = contrib
-projects[mimemail][patch][1568680] = https://www.drupal.org/files/issues/mimemail-1568680-message-var-for-theming.patch
-projects[mimemail][patch][2552613] = https://www.drupal.org/files/issues/mimemail_broken_images_urls-2552613-9.patch
+projects[mimemail][patch][2552613] = https://www.drupal.org/files/issues/mimemail.fix-itok.2552613-22.patch
 
 ; Organic Groups
 projects[og][version] = 2.9

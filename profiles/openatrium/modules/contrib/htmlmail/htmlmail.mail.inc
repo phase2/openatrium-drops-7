@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Formats and sends mail using the MailMIME class.
@@ -12,26 +13,27 @@
  * Implements MailSystemInterface.
  */
 class HTMLMailSystem implements MailSystemInterface {
+
   /**
    * Format emails according to module settings.
    *
-   * Parses the message headers and body into a MailMIME object.  If another module
-   * subsequently modifies the body, then format() should be called again before
-   * sending.  This is safe because the $message['body'] is not modified.
+   * Parses the message headers and body into a MailMIME object.  If another
+   * module subsequently modifies the body, then format() should be called again
+   * before sending.  This is safe because the $message['body'] is not modified.
    *
-   * @param $message
+   * @param array $message
    *   An associative array with at least the following parts:
    *   - headers: An array of (name => value) email headers.
    *   - body: The text/plain or text/html message part.
    *
-   * @return
+   * @return array
    *   The formatted $message, ready for sending.
    */
   public function format(array $message) {
     $eol = variable_get('mail_line_endings', MAIL_LINE_ENDINGS);
     // @todo Remove this when issue #209672 gets resolved.
     $default_from = variable_get('site_mail', ini_get('sendmail_from'));
-    if ( !empty($message['headers']['From'])
+    if (!empty($message['headers']['From'])
       && $message['headers']['From'] == $default_from
       && valid_email_address($default_from)
     ) {
@@ -46,7 +48,7 @@ class HTMLMailSystem implements MailSystemInterface {
     }
     else {
       if (is_array($message['body'])) {
-        $message['body'] = implode("<br />$eol<br />$eol", $message['body']);
+        $message['body'] = implode("$eol$eol", $message['body']);
       }
       $body = theme('htmlmail', $message);
       if ($message['body'] && !$body) {
@@ -107,11 +109,17 @@ class HTMLMailSystem implements MailSystemInterface {
       if (isset($message['MailMIME'])) {
         $mime = &$message['MailMIME'];
         $mime->setHTMLBody($body);
+        if (isset($message['params']['attachments'])) {
+          foreach ($message['params']['attachments'] as $attachment) {
+            $mime->addAttachment(drupal_realpath($attachment['uri']), $attachment['filemime'], $attachment['filename'],
+              TRUE, 'base64', 'attachment', 'UTF-8', '', '');
+          }
+        }
         list($message['headers'], $message['body']) = $mime->toEmail($message['headers']);
         if (!$message['body']) {
           watchdog(
             'htmlmail',
-            'The %toemail function did not return any text. Please report this errot to the %mailmime issue queue.',
+            'The %toemail function did not return any text. Please report this error to the %mailmime issue queue.',
             array('%toemail' => 'MailMIME::toEmail()', '%mailmime' => 'Mail MIME'),
             WATCHDOG_WARNING,
             'http://drupal.org/node/add/project-issue/mailmime'
@@ -121,6 +129,20 @@ class HTMLMailSystem implements MailSystemInterface {
       else {
         $message['headers']['Content-Type'] = 'text/html; charset=utf-8';
         $message['body'] = $body;
+        if (variable_get('htmlmail_html_with_plain', FALSE)) {
+          $boundary = uniqid('np');
+          $message['headers']['Content-Type'] = 'multipart/alternative;boundary="' . $boundary . '"';
+          $html = $message['body'];
+          $raw_message = 'This is a MIME encoded message.';
+          $raw_message .= $eol . $eol . "--" . $boundary . $eol;
+          $raw_message .= "Content-Type: text/plain;charset=utf-8" . $eol . $eol;
+          $raw_message .= mailsystem_html_to_text($html);
+          $raw_message .= $eol . $eol . "--" . $boundary . $eol;
+          $raw_message .= "Content-Type: text/html;charset=utf-8" . $eol . $eol;
+          $raw_message .= $html;
+          $raw_message .= $eol . $eol . "--" . $boundary . "--";
+          $message['body'] = $raw_message;
+        }
       }
     }
     else {
@@ -128,11 +150,17 @@ class HTMLMailSystem implements MailSystemInterface {
         $mime = &$message['MailMIME'];
         $mime->setHTMLBody('');
         $mime->setContentType('text/plain', array('charset' => 'utf-8'));
+        if (isset($message['params']['attachments'])) {
+          foreach ($message['params']['attachments'] as $attachment) {
+            $mime->addAttachment(drupal_realpath($attachment['uri']), $attachment['filemime'], $attachment['filename'],
+              TRUE, 'base64', 'attachment', 'UTF-8', '', '');
+          }
+        }
         list($message['headers'], $message['body']) = $mime->toEmail($message['headers']);
         if (!$message['body']) {
           watchdog(
             'htmlmail',
-            'The %toemail function did not return any text. Please report this errot to the %mailmime issue queue.',
+            'The %toemail function did not return any text. Please report this error to the %mailmime issue queue.',
             array('%toemail' => 'MailMIME::toEmail()', '%mailmime' => 'Mail MIME'),
             WATCHDOG_WARNING,
             'http://drupal.org/node/add/project-issue/mailmime'
@@ -169,16 +197,19 @@ class HTMLMailSystem implements MailSystemInterface {
     }
     // Work on a copy so that the original $message['body'] remains unchanged.
     $email = $message;
-    if ( !($email['body'] = $mime->getHTMLBody())
+    if (!($email['body'] = $mime->getHTMLBody())
       && !($email['body'] = $mime->getTXTBody())
     ) {
       $email['body'] = '';
     }
     else {
       // Wrap formatted plaintext in <pre> tags.
-      if ( $email['body'] === strip_tags($email['body']) // No html tags.
-        && preg_match('/.' . $eol . './', $email['body']) // At least one embedded newline.
+      if ($email['body'] === strip_tags($email['body'])
+        && preg_match('/.' . $eol . './', $email['body'])
       ) {
+        // In condition:
+        // No html tags.
+        // At least one embedded newline.
         $email['body'] = '<pre>' . $email['body'] . '</pre>';
       }
     }
@@ -195,7 +226,7 @@ class HTMLMailSystem implements MailSystemInterface {
   /**
    * Send an email message.
    *
-   * @param $message
+   * @param array $message
    *   An associative array containing at least:
    *   - headers: An associative array of (name => value) email headers.
    *   - body: The text/plain or text/html message body.
@@ -211,7 +242,7 @@ class HTMLMailSystem implements MailSystemInterface {
         watchdog(
           'HTMLMailSystem',
           'Cannot send email about %subject without a recipient.',
-          array('subject' => $message['subject']),
+          array('%subject' => $message['subject']),
           WATCHDOG_ERROR
         );
         return FALSE;
@@ -245,7 +276,7 @@ class HTMLMailSystem implements MailSystemInterface {
         $to,
         $subject,
         drupal_substr($body, 0, min(80, strpos("\n", $body))) . '...',
-        $txt_headers
+        $txt_headers,
       );
     }
     if (isset($message['headers']['Return-Path'])) {
@@ -264,7 +295,7 @@ class HTMLMailSystem implements MailSystemInterface {
         // if the parameter is NULL.
         $result = @mail($to, $subject, $body, $txt_headers);
       }
-      else {
+      elseif ((variable_get('site_mail', ini_get('sendmail_from')) === $message['headers']['Return-Path'] || self::_isShellSafe($message['headers']['Return-Path']))) {
         // On most non-Windows systems, the "-f" option to the sendmail command
         // is used to set the Return-Path.
         $extra = '-f' . $message['headers']['Return-Path'];
@@ -301,10 +332,10 @@ class HTMLMailSystem implements MailSystemInterface {
   /**
    * Converts an array of email headers to a text string.
    *
-   * @param $headers
+   * @param array $headers
    *   An associative array of ('HeaderName' => 'header value') pairs.
    *
-   * @return
+   * @return string
    *   The concatenated headers as a single string.
    */
   public function txtHeaders(array $headers) {
@@ -321,4 +352,35 @@ class HTMLMailSystem implements MailSystemInterface {
     }
     return implode("\n", $output);
   }
+
+  /**
+   * Disallows potentially unsafe shell characters.
+   *
+   * Functionally similar to PHPMailer::isShellSafe() which resulted from
+   * CVE-2016-10045. Note that escapeshellarg and escapeshellcmd are inadequate
+   * for this purpose.
+   * This method is copied from Core's DefaultMailSystem class.
+   *
+   * @param string $string
+   *   The string to be validated.
+   *
+   * @return bool
+   *   True if the string is shell-safe.
+   *
+   * @see https://github.com/PHPMailer/PHPMailer/issues/924
+   * @see https://github.com/PHPMailer/PHPMailer/blob/v5.2.21/class.phpmailer.php#L1430
+   *
+   * @todo Rename to ::isShellSafe() and/or discuss whether this is the correct
+   *   location for this helper.
+   */
+  protected static function _isShellSafe($string) {
+    if (escapeshellcmd($string) !== $string || !in_array(escapeshellarg($string), array("'$string'", "\"$string\""))) {
+      return FALSE;
+    }
+    if (preg_match('/[^a-zA-Z0-9@_\-.]/', $string) !== 0) {
+      return FALSE;
+    }
+    return TRUE;
+  }
+
 }

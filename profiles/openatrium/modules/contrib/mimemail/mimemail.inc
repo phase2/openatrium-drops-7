@@ -112,7 +112,7 @@ function mimemail_headers($headers, $from = NULL) {
  *     )
  */
 function mimemail_extract_files($html) {
-  $pattern = '/(<link[^>]+href=[\'"]?|<object[^>]+codebase=[\'"]?|@import |[\s]src=[\'"]?)([^\'>"]+)([\'"]?)/mis';
+  $pattern = '/(<link[^>]+href=[\'"]?|<object[^>]+codebase=[\'"]?|@import (?:url\()?[\'"]?|[\s]src=[\'"]?)([^\'>")]+)([\'"]?)/mis';
   $content = preg_replace_callback($pattern, '_mimemail_replace_files', $html);
 
   $encoding = '8Bit';
@@ -160,30 +160,38 @@ function _mimemail_replace_files($matches) {
  *   (optional) The content disposition. Defaults to inline.
  *
  * @return
- *   The Content-ID and/or an array of the files on success or the URL on failure.
+ *   If $url/$content can be embedded, return Content-ID, and add the file to the static list of accumulated files.
+ *   If $url/$content can't be embedded, return the URL.
+ *   If called with no parameters, return a list of accumulated files, and reset that list.
  */
 function _mimemail_file($url = NULL, $content = NULL, $name = '', $type = '', $disposition = 'inline') {
   static $files = array();
   static $ids = array();
 
   if ($url) {
-    $image = preg_match('!\.(png|gif|jpg|jpeg)$!i', $url);
+    // Keep track of a local path (used to embed) separately from the URL (used if embed fails).
+    $local_path = $url;
+
+    // Correctly format the URL in case we can't embed.
+    $url = _mimemail_url($url, TRUE);
+
+    // Check link-only settings.
+    $image = preg_match('!\.(png|gif|jpg|jpeg)(\?|$)!i', $url);
     $linkonly = variable_get('mimemail_linkonly', 0);
-    // The file exists on the server as-is. Allows for non-web-accessible files.
-    if (@is_file($url) && $image && !$linkonly) {
-      $file = $url;
+    if ($image && $linkonly) {
+      return $url;
     }
-    else {
-      $url = _mimemail_url($url, 'TRUE');
-      // The $url is absolute, we're done here.
-      $scheme = file_uri_scheme($url);
-      if ($scheme == 'http' || $scheme == 'https' || preg_match('!mailto:!', $url)) {
-        return $url;
-      }
-      // The $url is a non-local URI that needs to be converted to a URL.
-      else {
-        $file = (drupal_realpath($url)) ? drupal_realpath($url) : file_create_url($url);
-      }
+
+    // Remove the base path and query string (image style token).
+    $local_path = urldecode($local_path);
+    $local_path = preg_replace('!^' . base_path() . '!', '', $local_path, 1);
+    $local_path = preg_replace('/\\?itok=.*$/', '', $local_path);
+
+    // drupal_realpath can handle either a stream wrapper or a filepath.
+    $file = drupal_realpath($local_path);
+    if (!$file) {
+      // File does not exist.
+      return $url;
     }
   }
   // We have the actual content.
@@ -209,11 +217,11 @@ function _mimemail_file($url = NULL, $content = NULL, $name = '', $type = '', $d
       $type = $is_file ? file_get_mimetype($file) : file_get_mimetype($name);
     }
 
-    $id = md5($file) .'@'. $_SERVER['HTTP_HOST'];
+    $id = md5($file) . '@' . $_SERVER['HTTP_HOST'];
 
     // Prevent duplicate items.
     if (isset($ids[$id])) {
-      return 'cid:'. $ids[$id];
+      return 'cid:' . $ids[$id];
     }
 
     $new_file = array(
@@ -441,36 +449,33 @@ function mimemail_html_body($body, $subject, $plain = FALSE, $plaintext = NULL, 
  * Helper function to format URLs.
  *
  * @param string $url
- *   The file path.
+ *   Input URL.
  * @param boolean $to_embed
- *   (optional) Wheter the URL is used to embed the file. Defaults to NULL.
+ *   (optional) Whether the URL is used to embed the file. Defaults to NULL.
  *
  * @return string
- *   A processed URL.
+ *   A processed URL with absolute path ready to use in a mail message.
  */
 function _mimemail_url($url, $to_embed = NULL) {
   global $base_url;
   $url = urldecode($url);
 
-  $to_link = variable_get('mimemail_linkonly', 0);
-  $is_image = preg_match('!\.(png|gif|jpg|jpeg)!i', $url);
-  $is_absolute = file_uri_scheme($url) != FALSE || preg_match('!(mailto|callto|tel)\:!', $url);
+  if ($to_embed) {
+    // Convert to URL.
+    $url = file_create_url($url);
 
-  if (!$to_embed) {
-    if ($is_absolute) {
-      return str_replace(' ', '%20', $url);
+    if ($url[0] == '/') {
+      // file_create_url will leave a root-relative URL as is.  Convert this to an absolute path.
+      // Add on the $base_url.  However $base_url includes base_path, so remove that first if present.
+      $url = $base_url . '/' . preg_replace('!^' . base_path() . '!', '', $url);
     }
+
+    return str_replace(' ', '%20', $url);
   }
-  else {
-    $url = preg_replace('!^' . base_path() . '!', '', $url, 1);
-    if ($is_image) {
-      if ($to_link) {
-        // Exclude images from embedding if needed.
-        $url = file_create_url($url);
-        $url = str_replace(' ', '%20', $url);
-      }
-    }
-    return $url;
+
+  $is_absolute = file_uri_scheme($url) != FALSE || preg_match('!(mailto|callto|tel)\:!', $url);
+  if ($is_absolute) {
+    return str_replace(' ', '%20', $url);
   }
 
   $url = str_replace('?q=', '', $url);
@@ -538,7 +543,6 @@ function mimemail_address($address, $simplify = FALSE) {
   if (is_array($address)) {
     // It's an array containing 'mail' and/or 'name'.
     if (isset($address['mail'])) {
-      $output = '';
       if (empty($address['name']) || $simplify) {
         return $address['mail'];
       }

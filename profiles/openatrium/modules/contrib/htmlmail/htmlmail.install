@@ -12,6 +12,7 @@
  * that HTML Mail uses its own MailSystemInterface class.
  */
 function htmlmail_requirements($phase) {
+  $t = get_t();
   $result = array();
   if ($phase === 'install') {
     return $result;
@@ -26,9 +27,9 @@ function htmlmail_requirements($phase) {
     '!mailsystem' => 'http://drupal.org/project/mailsystem',
   );
   $result['htmlmail_mailsystem'] = array(
-    'title' => t('%mailsystem module', $args),
-    'value' => t('7.x-1.x'),
-    'description' => t(
+    'title' => $t('%mailsystem module', $args),
+    'value' => $t('7.x-1.x'),
+    'description' => $t(
       '<a href="!htmlmail">%htmlmail</a> new requires <a href="!mailsystem">%mailsystem</a> 7.x-2.6 or later.  Please download and install a recent version of <a href+"!mailsystem">%mailsystem</a>, then re-enable the <a href="!htmlmail">%htmlmail</a> module.', $args
     ),
     'severity' => REQUIREMENT_ERROR,
@@ -70,6 +71,9 @@ function htmlmail_update_7202() {
   db_query("UPDATE {system} SET weight = 10 WHERE type = 'module' AND name = 'htmlmail'");
 }
 
+/**
+ * Implements hook_update_N().
+ */
 function htmlmail_update_7203() {
   if ($requirements = htmlmail_requirements('runtime')) {
     $requirement = array_shift($requirements);

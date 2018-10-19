@@ -33,11 +33,13 @@ function htmlmail_help($path, $arg) {
   switch ($path) {
     case 'admin/config/system/htmlmail':
       return '<h2>' . t('Theming') . '</h2><p>' . t('The email message goes through three transformations before sending:') . '</p>';
+
     case 'admin/help#htmlmail':
       return '<p>'
         . t('<a href="!htmlmail">HTML Mail</a> lets you theme your messages the same way you theme the rest of your website.',
           array('!htmlmail' => 'http://drupal.org/project/htmlmail')
         ) . '</p>';
+
     default:
       return '';
   }
@@ -58,7 +60,7 @@ function htmlmail_menu() {
   $items['admin/config/system/htmlmail/settings'] = array(
     'title' => 'Settings',
     'type' => MENU_DEFAULT_LOCAL_TASK,
-    'weight' => '-2'
+    'weight' => '-2',
   );
   $items['admin/config/system/htmlmail/test'] = array(
     'title' => 'Send Test',
@@ -122,9 +124,8 @@ function template_preprocess_htmlmail(array &$variables) {
   else {
     $variables['theme_path'] = drupal_get_path('theme', $variables['theme']);
   }
-  $variables['theme_url'] = url(
-    $variables['theme_path'], array('absolute' => TRUE)
-  );
+  global $base_url;
+  $variables['theme_url'] = $base_url . base_path() . $variables['theme_path'];
   $variables['message_id'] = $variables['module'] . '_' . $variables['key'];
   $suggestion = 'htmlmail__' . $variables['module'];
   $variables['theme_hook_suggestions'][] = $suggestion;
@@ -143,6 +144,9 @@ function htmlmail_mail($key, &$message, $params) {
     MAIL_LINE_ENDINGS . MAIL_LINE_ENDINGS,
     $params['body']
   );
+  if (isset($params['headers'])) {
+    $message['headers'] = array_merge($message['headers'], $params['headers']);
+  }
   return $message;
 }
 
@@ -175,16 +179,22 @@ function htmlmail_form_user_profile_form_alter(&$form, &$form_state) {
  * Implements hook_user_presave().
  */
 function htmlmail_user_presave(&$edit, $account, $category) {
-  if (user_access('choose htmlmail_plaintext') || user_access('administer users')) {
-    $edit['data']['htmlmail_plaintext'] = empty($edit['htmlmail_plaintext']) ? 0 : 1;
-    unset($edit['htmlmail_plaintext']);
+  if (isset($account->uid) && $account->uid > 0) {
+    if (user_access('choose htmlmail_plaintext') || user_access('administer users')) {
+      $edit['data']['htmlmail_plaintext'] = empty($edit['htmlmail_plaintext']) ? 0 : 1;
+      unset($edit['htmlmail_plaintext']);
+    }
   }
 }
 
 /**
- * Returns an associative array of allowed themes.  The keys are the
- * machine-readable names and the values are the .info file names.
+ * Returns an associative array of allowed themes.
+ *
  * Based on code from the og_theme module.
+ *
+ * @return array
+ *   The keys are the machine-readable names and the values are the .info file
+ *   names.
  */
 function &htmlmail_get_allowed_themes() {
   $allowed = &drupal_static(__FUNCTION__);
@@ -204,6 +214,12 @@ function &htmlmail_get_allowed_themes() {
 
 /**
  * Returns the selected theme to use for outgoing emails.
+ *
+ * @param array $message
+ *   (optional) The message to be themed.
+ *
+ * @return string
+ *   The 'theme' key of $message if set and allowed, empty string otherwise.
  */
 function htmlmail_get_selected_theme(&$message = array()) {
   $selected = isset($message['theme'])
@@ -221,10 +237,10 @@ function htmlmail_get_selected_theme(&$message = array()) {
 /**
  * Checks whether a given recipient email prefers plaintext-only messages.
  *
- * @param $email
+ * @param string $email
  *   The recipient email address.
  *
- * @return
+ * @return bool
  *   FALSE if the recipient prefers plaintext-only messages; otherwise TRUE.
  */
 function htmlmail_is_allowed($email) {

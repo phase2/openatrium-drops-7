@@ -31,7 +31,7 @@ class MimeMailUnitTestCase extends DrupalUnitTestCase {
     $chars = array('-', '.', '+', '_');
     $name = $this->randomString();
     $local = $this->randomName() . $chars[array_rand($chars)] . $this->randomName();
-    $domain = $this->randomName() . '-' . $this->randomName() . '.' . $this->randomName(rand(2,4));
+    $domain = $this->randomName() . '-' . $this->randomName() . '.' . $this->randomName(rand(2, 4));
     $headers = mimemail_headers(array(), "$name <$local@$domain>");
     $result = $headers['Return-Path'];
     $expected = "<$local@$domain>";
@@ -39,17 +39,19 @@ class MimeMailUnitTestCase extends DrupalUnitTestCase {
   }
 
   function testUrl() {
+    global $base_url;
     $result = _mimemail_url('#');
     $this->assertIdentical($result, '#', 'Hash mark URL without fragment left intact.');
 
     $url = '/sites/default/files/styles/thumbnail/public/image.jpg?itok=Wrl6Qi9U';
     $result = _mimemail_url($url, TRUE);
-    $expected = 'sites/default/files/styles/thumbnail/public/image.jpg';
-    $this->assertIdentical($result, $expected, 'Security token removed from styled image URL.');
+    $expected = $base_url . $url;
+    $this->assertIdentical($result, $expected, 'Security token preserved on URL.');
 
-    $expected = $url = 'public://' . $this->randomName() . ' '. $this->randomName() . '.' . $this->randomName(3);
-    $result = _mimemail_url($url, TRUE);
-    $this->assertIdentical($result, $expected, 'Space in the filename of the attachment left intact.');
+    $file = $this->randomName() . ' '. $this->randomName() . '.' . $this->randomName(3);
+    $result = _mimemail_url('public://' . $file, TRUE);
+    $expected = file_create_url('public://') . str_replace(' ', '%20', $file);
+    $this->assertIdentical($result, $expected, 'Space in the filename converted in URL.');
   }
 
 }
@@ -89,8 +91,8 @@ class MimeMailWebTestCase extends DrupalWebTestCase {
       array('mimemail_linkonly' => TRUE),
       t('Save configuration'));
 
-    $url = 'public://' . $this->randomName() . ' '. $this->randomName() . '.jpg';
-    $result = _mimemail_url($url, TRUE);
+    $url = 'public://' . $this->randomName() . ' ' . $this->randomName() . '.jpg';
+    $result = _mimemail_file($url);
     $expected = str_replace(' ', '%20', file_create_url($url));
     $message = 'Stream wrapper converted to web accessible URL for linked image.';
     $this->assertIdentical($result, $expected, $message);
