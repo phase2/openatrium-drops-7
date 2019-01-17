@@ -52,29 +52,12 @@ class views_content_plugin_display_panel_pane extends views_plugin_display {
     return isset($this->has_pane_conf);
   }
 
-  function get_conf_cid() {
-    global $user;
-    global $language;
-    return 'view_panel_pane:'
-      . md5($this->view->name . '_'
-      . $this->view->current_display . '_'
-      . serialize($this->view->args) . '_'
-      . $language->language . '_'
-      . $user->uid);
-  }
-
-  function get_cached_conf() {
-    if (($cache = cache_get($this->get_conf_cid(), 'cache_panel_conf'))) {
-      return $cache->data;
-    }
-    return array();
-  }
 
   public function set_pane_conf($conf = array(), $set_cache = TRUE) {
     $this->set_option('pane_conf', $conf);
-    // If the config changed, overwrite the cache.
-    if ($set_cache || $conf != $this->get_cached_conf()) {
-      cache_set($this->get_conf_cid(), $conf, 'cache_panel_conf');
+    $this->view->dom_id = !empty($this->view->dom_id) ? $this->view->dom_id : md5($this->view->name . serialize($conf));
+    if ($set_cache) {
+      cache_set('view_panel_pane:' . $this->view->dom_id, $conf, 'cache_panel_conf');
     }
     $this->has_pane_conf = TRUE;
   }
@@ -507,8 +490,10 @@ class views_content_plugin_display_panel_pane extends views_plugin_display {
     ctools_include('context');
     $conf = $this->get_option('pane_conf');
     if (!$conf) {
-      // Try to get conf from cache.
-      $conf = $this->get_cached_conf();
+      // See if dom id has been cached and get conf from there.
+      if (!empty($this->view->dom_id) && ($cache = cache_get('view_panel_pane:' . $this->view->dom_id, 'cache_panel_conf'))) {
+        $conf = $cache->data;
+      }
       if (!$conf) {
         return;
       }

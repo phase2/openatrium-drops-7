@@ -20,11 +20,11 @@ projects[menu_block][subdir] = contrib
 
 ; Panopoly - Contrib - Files & Media
 
-projects[file_entity][version] = 2.21
+projects[file_entity][version] = 2.22
 projects[file_entity][subdir] = contrib
 projects[file_entity][patch][2360043] = https://www.drupal.org/files/issues/file_entity-destination-token-decode-2360043-1.patch
 
-projects[media][version] = 2.19
+projects[media][version] = 2.21
 projects[media][subdir] = contrib
 
 projects[media_youtube][version] = 3.7

@@ -1,6 +1,6 @@
 The following patches have been applied to this project:
 - https://www.drupal.org/files/issues/2018-03-27/views_content-keyword-substitution-1910608-56.patch
-- https://www.drupal.org/files/issues/2018-03-28/2843333-ajax-settings-pane-rendering-fix-9.patch
+- https://www.drupal.org/files/issues/2018-05-21/ctools-views_content-ajax-settings-pane-rendering-fix-2843333-16.patch
 - https://www.drupal.org/files/issues/2018-03-28/1901106-ctools-views_content-override-ajax-40.patch
 - https://www.drupal.org/files/issues/2023705-ctools-autosubmit-15.patch
 - https://www.drupal.org/files/issues/2448989-ctools-from_field_children-8.patch

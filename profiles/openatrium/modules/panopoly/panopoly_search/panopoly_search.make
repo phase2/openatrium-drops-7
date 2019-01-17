@@ -8,15 +8,14 @@ core = 7.x
 projects[facetapi][version] = 1.5
 projects[facetapi][subdir] = contrib
 
-projects[search_api][version] = 1.24
+projects[search_api][version] = 1.25
 projects[search_api][subdir] = contrib
 
 projects[search_api_solr][version] = 1.14
 projects[search_api_solr][subdir] = contrib
 
-projects[search_api_db][version] = 1.6
+projects[search_api_db][version] = 1.7
 projects[search_api_db][subdir] = contrib
-projects[search_api_db][patch][2855634] = https://www.drupal.org/files/issues/2855634-23--fix_update_7107_for_different_db.patch
 
 ; Solr PHP Client Library
 

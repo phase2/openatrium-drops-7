@@ -13,12 +13,12 @@ core = 7.x
 projects[panopoly_core][subdir] = panopoly
 projects[panopoly_core][download][type] = git
 projects[panopoly_core][download][branch] = 7.x-1.x
-projects[panopoly_core][patch][2477347] = https://www.drupal.org/files/issues/2018-05-10/2477347-panopoly_core-views-10.patch
-projects[panopoly_core][patch][2477363] = https://www.drupal.org/files/issues/2018-03-28/2477363-panopoly_core-ctools-25.patch
+projects[panopoly_core][patch][2477347] = https://www.drupal.org/files/issues/2018-12-12/2477347-panopoly_core-views-11.patch
+projects[panopoly_core][patch][2477363] = https://www.drupal.org/files/issues/2018-12-12/2477363-panopoly_core-ctools-28.patch
 projects[panopoly_core][patch][2477369] = https://www.drupal.org/files/issues/2477369-panopoly_core-entity-7.patch
 projects[panopoly_core][patch][2477375] = https://www.drupal.org/files/issues/2477375-panopoly_core-entityreference-9.patch
 projects[panopoly_core][patch][2477379] = https://www.drupal.org/files/issues/2477379-panopoly_core-token-1.patch
-projects[panopoly_core][patch][2592821] = https://www.drupal.org/files/issues/2018-05-08/2592821-panopoly_core-apps-4.patch
+projects[panopoly_core][patch][2592821] = https://www.drupal.org/files/issues/2018-12-12/2592821-panopoly_core-apps-5.patch
 
 projects[panopoly_images][subdir] = panopoly
 projects[panopoly_images][download][type] = git
@@ -58,7 +58,6 @@ projects[panopoly_wysiwyg][download][branch] = 7.x-1.x
 projects[panopoly_search][subdir] = panopoly
 projects[panopoly_search][download][type] = git
 projects[panopoly_search][download][branch] = 7.x-1.x
-projects[panopoly_search][patch][2930863] = https://www.drupal.org/files/issues/2930863-panopoly_search-2.patch
 
 ; ***************** End Panopoly *****************
 ; ************************************************
