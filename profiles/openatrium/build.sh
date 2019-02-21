@@ -10,7 +10,6 @@ PANOPOLY_DEV=0
 while getopts ":dp" opt; do
   case $opt in
     d) # dev arguments
-      DRUSH_OPTS='--working-copy --no-gitinfofile --no-cache'
       DEV_BUILD=1
       ;;
     p) # use panopoly-dev
@@ -25,6 +24,13 @@ while getopts ":dp" opt; do
 done
 shift $((OPTIND-1))
 TARGET=$1
+
+if [ "$ATRIUM_BUILD" = "dev" ]; then
+  DEV_BUILD=1
+  PANOPOLY_DEV=1
+  echo "In DEV"
+fi
+
 # Make sure we have a target directory
 if [ -z "$TARGET" ]; then
   echo "Usage $0 target_build_dir"
@@ -126,17 +132,20 @@ if [ -e "$TARGET/profiles/openatrium/modules/contrib/oa_core" ]; then
     exit 1
   fi
 
-  # Clear caches and Run updates
-  cd "$DRUPAL"
-  echo 'Running updates...'
-  drush updb -y;
-  # @TODO Figure out why this cc all is needed
-  drush cc drush;
-  echo 'Reverting all features...'
-  drush fra -y;
-  echo 'Clearing caches...'
-  drush cc all;
-  echo 'Build completed successfully!'
+  DRUPAL_DB=`drush status --fields=db-hostname`
+  if [ ! -z "$DRUPAL_DB" ]; then
+    # Clear caches and Run updates
+    cd "$DRUPAL"
+    echo 'Running updates...'
+    drush updb -y;
+    # @TODO Figure out why this cc all is needed
+    drush cc drush;
+    echo 'Reverting all features...'
+    drush fra -y;
+    echo 'Clearing caches...'
+    drush cc all;
+    echo 'Build completed successfully!'
+  fi
 else
   echo 'Error in build.'
   exit 2

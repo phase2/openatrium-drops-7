@@ -176,6 +176,18 @@ function panopoly_magic_configure_form($form, &$form_state) {
     '#description' => t('Do you want to automatically generate previews when adding existing panels panes through the IPE?'),
   );
 
+  $form['panopoly_magic_pane_show_description'] = array(
+    '#title' => t('Show pane descriptions when previews are in Single mode'),
+    '#type' => 'checkbox',
+    '#states' => array(
+      'visible' => array(
+        ':input[name="panopoly_magic_pane_add_preview"]' => array('value' => PANOPOLY_ADD_PREVIEW_SINGLE),
+      ),
+    ),
+    '#default_value' => variable_get('panopoly_magic_pane_show_description', 1),
+    '#description' => t('Do you want to show text descriptions for available panes in the Add Content dialog when previews are in Single mode?'),
+  );
+
   $form['panopoly_magic_show_panels_styles'] = array(
     '#title' => t('Show seldom used panels pane styles'),
     '#type' => 'select',
@@ -1806,12 +1818,13 @@ function panopoly_magic_process_panels_add_content_modal(&$vars) {
       $legend_title = !empty($title) ? $title : t('Select a widget to show its preview');
       $add_content_link = !empty($title) ? _panopoly_magic_render_add_content_link($vars, $content[$title], $title) : '';
       $preview = !empty($vars['preview_single']) ? $vars['preview_single'] : t('No Preview');
+      $description = !empty($content[$title]['description']) && variable_get('panopoly_magic_pane_show_description', 1) ? $content[$title]['description'] : '';
 
       $vars['columns'][0] = theme('panopoly_magic_preview', array(
         'title' => $legend_title,
         'add_link' => $add_content_link,
         'preview' => $preview,
-        'description' => !empty($content[$title]['description']) ? $content[$title]['description'] : '',
+        'description' => $description,
       ));
     }
 
@@ -1822,12 +1835,13 @@ function panopoly_magic_process_panels_add_content_modal(&$vars) {
 
       $legend_title = $content[$title]['title'];
       $add_content_link = _panopoly_magic_render_add_content_link($vars, $content[$title], $title);
+      $description = !empty($content[$title]['description']) && variable_get('panopoly_magic_pane_show_description', 1) ? $content[$title]['description'] : '';
 
       if ($use_preview == PANOPOLY_ADD_PREVIEW_SINGLE) {
         $vars['columns'][$which] .= theme('panopoly_magic_preview_link', array(
           'preview_link' => $legend_title,
           'add_link' => $add_content_link,
-          'description' => !empty($content[$title]['description']) ? $content[$title]['description'] : '',
+          'description' => $description,
         ));
       }
       else {
