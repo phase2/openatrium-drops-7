@@ -40,11 +40,11 @@ projects[fape][subdir] = contrib
 
 ; Views Magic
 
-projects[views][version] = 3.20
+projects[views][version] = 3.21
 projects[views][subdir] = contrib
 projects[views][patch][2037469] = https://www.drupal.org/files/issues/views-exposed-sorts-2037469-26.patch
 projects[views][patch][2885660] = https://www.drupal.org/files/issues/2018-06-28/2885660-13.patch
-projects[views][patch][2977851] = https://www.drupal.org/files/issues/2018-06-06/2977851-views-php72-count-2.patch
+projects[views][patch][2977851] = https://www.drupal.org/files/issues/2019-03-13/2977851-views-php72-count-8.patch
 projects[views][patch][1979926] = https://www.drupal.org/files/1979926-views-reset_fetch_data-2.patch
 projects[views][patch][1735096] = https://www.drupal.org/files/issues/1735096-views-multiple-instance-exposed-form-29.patch
 projects[views][patch][2411922] = https://www.drupal.org/files/issues/2411922-views-group_name-3.patch
