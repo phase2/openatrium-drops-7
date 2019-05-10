@@ -98,8 +98,8 @@ dependencies[] = variable
 dependencies[] = panels_customerror
 dependencies[] = ultimate_cron
 
-; Information added by Drupal.org packaging script on 2019-04-18
-version = "7.x-2.642"
+; Information added by Drupal.org packaging script on 2019-05-10
+version = "7.x-2.643"
 core = "7.x"
 project = "openatrium"
-datestamp = "1555621394"
+datestamp = "1557501416"
