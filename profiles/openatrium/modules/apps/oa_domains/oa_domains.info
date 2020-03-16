@@ -16,9 +16,8 @@ features[field_base][] = field_oa_space_domain
 features[field_instance][] = node-oa_space-field_oa_space_domain
 project path = profiles/openatrium/modules
 
-; Information added by Drupal.org packaging script on 2016-07-13
-version = "7.x-2.3"
+; Information added by Drupal.org packaging script on 2020-03-13
+version = "7.x-2.4"
 core = "7.x"
 project = "oa_domains"
-datestamp = "1468432014"
-
+datestamp = "1584127155"

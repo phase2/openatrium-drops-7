@@ -29,6 +29,7 @@ $plugin = array(
     'link_class' => 'btn',
     'num_per_page' => 15,
     'types' => array(OA_SPACE_TYPE => OA_SPACE_TYPE),
+    'only_published' => FALSE,
   ),
 );
 
@@ -49,10 +50,12 @@ function oa_core_user_spaces_render($subtype, $conf, $args, $context = NULL) {
   else {
     $group_types = array(OA_SPACE_TYPE => OA_SPACE_TYPE);
   }
-  $all_spaces_ids = oa_core_get_public_spaces($group_types);
+
+  $status = !empty($conf['only_published']) ? NODE_PUBLISHED : NULL;
+  $all_spaces_ids = oa_core_get_public_spaces($group_types, $status);
   $active_spaces_ids = array();
   foreach ($group_types as $type) {
-    $active_spaces_ids = array_merge($active_spaces_ids, oa_core_get_groups_by_user_access($account, FALSE, NULL, NULL, NULL, $type));
+    $active_spaces_ids = array_merge($active_spaces_ids, oa_core_get_groups_by_user_access($account, FALSE, $status, NULL, NULL, $type));
   }
   $active_spaces_ids = array_map(
     function($node) { return $node->nid; },
@@ -420,6 +423,11 @@ function oa_core_user_spaces_edit_form($form, &$form_state) {
     '#type' => 'textfield',
     '#default_value' => $conf['num_per_page'],
     '#description' => 'Number per page, zero for all.',
+  );
+  $form['only_published'] = array(
+    '#title' => t('Only show published spaces or groups'),
+    '#type' => 'checkbox',
+    '#default_value' => !empty($conf['only_published']),
   );
 
   return $form;

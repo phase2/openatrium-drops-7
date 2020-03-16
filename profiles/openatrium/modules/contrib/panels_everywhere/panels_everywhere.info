@@ -4,13 +4,21 @@ package = "Panels"
 core = 7.x
 
 ; Requires recent releases of both CTools and Panels.
-dependencies[] = panels (>=3.4)
-dependencies[] = ctools (>=1.4)
+dependencies[] = ctools
+dependencies[] = panels
 dependencies[] = page_manager
 
-; Information added by Drupal.org packaging script on 2015-01-17
-version = "7.x-1.0-rc2"
+; Tests
+files[] = tests/PanelsEverywhereTestHelper.test
+files[] = tests/PanelsEverywhereBasicsTestCase.test
+files[] = tests/PanelsEverywhereSettingsTestCase.test
+files[] = tests/PanelsEverywhereNodeEditTestCase.test
+files[] = tests/PanelsEverywhereNodeViewTestCase.test
+files[] = tests/PanelsEverywhereUserEditTestCase.test
+files[] = tests/PanelsEverywhereUserViewTestCase.test
+
+; Information added by Drupal.org packaging script on 2018-04-20
+version = "7.x-1.0"
 core = "7.x"
 project = "panels_everywhere"
-datestamp = "1421524381"
-
+datestamp = "1524187693"

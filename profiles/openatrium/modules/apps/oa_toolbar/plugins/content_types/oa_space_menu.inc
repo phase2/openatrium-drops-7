@@ -94,6 +94,15 @@ function oa_toolbar_oa_space_menu_content_type_render($subtype, $conf, $panel_ar
       $space_menu->content[$mlid]['#theme'] = 'menu_link__oa_navigation';
       // Get the router item for this link.
       $item = menu_get_item($space_menu->content[$mlid]['#href']);
+      // Check access for this menu item.
+      if (!$item['access']) {
+        $space_menu->content[$mlid]['#access'] = FALSE;
+        continue;
+      }
+      // Check if this menu item refers to a node.
+      if (!isset($item['map'][1]->nid)) {
+        continue;
+      }
       // The node for this menu item.
       $item_node = $item['map'][1];
       // If there is no icon class or image, we set the icon to nothing.

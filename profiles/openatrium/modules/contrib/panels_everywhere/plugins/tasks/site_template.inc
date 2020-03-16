@@ -130,7 +130,11 @@ function panels_everywhere_site_template_get_base_contexts($task, $subtask, $pla
     }
   }
 
-  $user = ctools_context_create('user', $GLOBALS['user']);
+  // Create a CTools context out of the current user - if the user is logged in
+  // then work off the full user object, otherwise just use the anonymous user
+  // object.
+  $user_object = user_is_logged_in() ? user_load($GLOBALS['user']->uid) : $GLOBALS['user'];
+  $user = ctools_context_create('user', $user_object);
 
   // First, the managed page. The id is weird because this was formerly an
   // object so we want to retain that so pre-existing templates don't just

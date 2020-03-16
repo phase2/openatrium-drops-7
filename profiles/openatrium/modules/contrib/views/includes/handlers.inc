@@ -1000,20 +1000,20 @@ class views_many_to_one_helper {
       // We do one join per selected value.
 
       // Clone the join for each table:
-      $this->handler->table_aliases = [];
+      $this->handler->table_aliases = array();
       foreach ($this->handler->value as $value) {
         $join = $this->get_join();
         if ($this->handler->operator == 'and') {
           $join->type = 'INNER';
         }
         if (empty($join->extra)) {
-          $join->extra = [];
+          $join->extra = array();
         }
-        $join->extra[] = [
+        $join->extra[] = array(
           'field' => $this->handler->real_field,
           'value' => $value,
           'numeric' => !empty($this->handler->definition['numeric']),
-        ];
+        );
         // The table alias needs to be unique to this value across the
         // multiple times the filter or argument is called by the view.
         if (!isset($this->handler->view->many_to_one_aliases[$field][$value])) {
@@ -1683,8 +1683,7 @@ class views_join {
             }
 
             $operator = !empty($info['operator']) ? $info['operator'] : 'IN';
-            $value_count = count($info['value']);
-            $placeholder = '( ' . implode(', ', array_slice(array_keys($arguments), count($arguments) - $value_count, $value_count)) . ' )';
+            $placeholder = '( ' . implode(', ', array_keys($arguments)) . ' )';
           }
           else {
             // With a single value, the '=' operator is implicit.

@@ -1,14 +1,14 @@
-#OA Basetheme Theme Walkthrough:
+# OA Basetheme Theme Walkthrough:
 
-###**NOTES** 
+### **NOTES** 
 
 *OA Basetheme uses Bower, Gulp and NodeJS/NPM.*
 
-###Requirements
+### Requirements
 * [NodeJS](https://nodejs.org) 
 * [NPM](https://www.npmjs.com/) - NPM comes as part of NodeJS
 
-##Creating a sub-theme from OA Basetheme
+## Creating a sub-theme from OA Basetheme
 * drush oa_basetheme new_theme_name
 * After creating a sub-theme, cd to your theme and run:
   * ```npm install```
@@ -23,7 +23,7 @@
      ```
   * ```npm run start```  
 
-##Theming
+## Theming
 
 During development of the theme we are utilizing Compass Mixins, Bootstrap,
 Fontawesome and SASS. Performing the above installation steps will install all

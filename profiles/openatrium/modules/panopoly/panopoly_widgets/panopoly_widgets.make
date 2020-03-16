@@ -21,12 +21,11 @@ projects[menu_block][subdir] = contrib
 
 projects[file_entity][version] = 2.25
 projects[file_entity][subdir] = contrib
-projects[file_entity][patch][2360043] = https://www.drupal.org/files/issues/file_entity-destination-token-decode-2360043-1.patch
 
 projects[media][version] = 2.21
 projects[media][subdir] = contrib
 
-projects[media_youtube][version] = 3.7
+projects[media_youtube][version] = 3.8
 projects[media_youtube][subdir] = contrib
 
 projects[media_vimeo][version] = 2.1

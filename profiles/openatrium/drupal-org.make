@@ -7,7 +7,7 @@ core = 7.x
 ; ******************** RELEASE *******************
 
 projects[oa_core][subdir] = contrib
-projects[oa_core][version] = 2.91
+projects[oa_core][version] = 2.92
 
 ; ************************************************
 ; ************* Open Atrium Builtin Apps *********
@@ -16,7 +16,7 @@ projects[oa_discussion][subdir] = apps
 projects[oa_discussion][version] = 2.41
 
 projects[oa_events][subdir] = apps
-projects[oa_events][version] = 2.47
+projects[oa_events][version] = 2.48
 
 projects[oa_wiki][subdir] = apps
 projects[oa_wiki][version] = 2.40
@@ -59,7 +59,7 @@ projects[oa_contextual_tabs][subdir] = apps
 projects[oa_devel][version] = 2.4
 projects[oa_devel][subdir] = apps
 
-projects[oa_domains][version] = 2.3
+projects[oa_domains][version] = 2.4
 projects[oa_domains][subdir] = apps
 
 projects[oa_export][version] = 2.3
@@ -98,7 +98,7 @@ projects[oa_notifications][version] = 2.35
 projects[oa_project][version] = 2.2
 projects[oa_project][subdir] = apps
 
-projects[oa_related][version] = 2.14
+projects[oa_related][version] = 2.15
 projects[oa_related][subdir] = apps
 
 projects[oa_sandbox][version] = 2.2
@@ -107,7 +107,7 @@ projects[oa_sandbox][subdir] = apps
 projects[oa_search][version] = 2.10
 projects[oa_search][subdir] = apps
 
-projects[oa_site_layout][version] = 2.3
+projects[oa_site_layout][version] = 2.4
 projects[oa_site_layout][subdir] = apps
 
 projects[oa_sitemap][version] = 2.12
@@ -119,7 +119,7 @@ projects[oa_styles][subdir] = apps
 projects[oa_subspaces][version] = 2.37
 projects[oa_subspaces][subdir] = apps
 
-projects[oa_toolbar][version] = 2.18
+projects[oa_toolbar][version] = 2.19
 projects[oa_toolbar][subdir] = apps
 
 projects[oa_tour][version] = 2.5
@@ -139,13 +139,15 @@ projects[oa_wizard][subdir] = apps
 ; ************** Open Atrium Themes **************
 
 projects[oa_basetheme][type] = theme
-projects[oa_basetheme][version] = 2.6
+projects[oa_basetheme][version] = 2.7
 
 projects[oa_theme][type] = theme
-projects[oa_theme][version] = 2.4
+projects[oa_theme][version] = 2.5
 
-projects[oa_radix][type] = theme
-projects[oa_radix][version] = 3.26
+; oa_radix is no longer installed by default due to issues with the Radix theme
+; You can install oa_radix manually if needed.
+;projects[oa_radix][type] = theme
+;projects[oa_radix][version] = 3.27
 
 ; *********** End Open Atrium Themes *************
 ; ************************************************
@@ -159,42 +161,41 @@ projects[oa_radix][version] = 3.26
 ; so we can patch or update certain projects fetched by Panopoly's makefiles.
 ; NOTE: If you are running Drush 6, this section should be placed at the TOP
 
-projects[panopoly_core][version] = 1.68
+projects[panopoly_core][version] = 1.72
 projects[panopoly_core][subdir] = panopoly
-projects[panopoly_core][patch][2477347] = https://www.drupal.org/files/issues/2019-03-14/2477347-panopoly_core-views-12.patch
+projects[panopoly_core][patch][2477347] = https://www.drupal.org/files/issues/2020-02-14/2477347-panopoly_core-views-15.patch
 projects[panopoly_core][patch][2477363] = https://www.drupal.org/files/issues/2018-12-12/2477363-panopoly_core-ctools-28.patch
 projects[panopoly_core][patch][2477369] = https://www.drupal.org/files/issues/2477369-panopoly_core-entity-7.patch
 projects[panopoly_core][patch][2477375] = https://www.drupal.org/files/issues/2477375-panopoly_core-entityreference-9.patch
 projects[panopoly_core][patch][2477379] = https://www.drupal.org/files/issues/2477379-panopoly_core-token-1.patch
 projects[panopoly_core][patch][2592821] = https://www.drupal.org/files/issues/2018-12-12/2592821-panopoly_core-apps-5.patch
 
-projects[panopoly_images][version] = 1.68
+projects[panopoly_images][version] = 1.72
 projects[panopoly_images][subdir] = panopoly
 
-projects[panopoly_theme][version] = 1.68
+projects[panopoly_theme][version] = 1.72
 projects[panopoly_theme][subdir] = panopoly
 projects[panopoly_theme][patch][2656920] = https://www.drupal.org/files/issues/2656920-panopoly-theme-radix-layouts-4.patch
 
-projects[panopoly_magic][version] = 1.68
+projects[panopoly_magic][version] = 1.72
 projects[panopoly_magic][subdir] = panopoly
 
-projects[panopoly_widgets][version] = 1.68
+projects[panopoly_widgets][version] = 1.72
 projects[panopoly_widgets][subdir] = panopoly
-projects[panopoly_widgets][patch][2477397] = https://www.drupal.org/files/issues/2018-05-08/2477397-panopoly_widgets-file_entity-7.patch
 
-projects[panopoly_admin][version] = 1.68
+projects[panopoly_admin][version] = 1.72
 projects[panopoly_admin][subdir] = panopoly
 
-projects[panopoly_users][version] = 1.68
+projects[panopoly_users][version] = 1.72
 projects[panopoly_users][subdir] = panopoly
 
-projects[panopoly_pages][version] = 1.68
+projects[panopoly_pages][version] = 1.72
 projects[panopoly_pages][subdir] = panopoly
 
-projects[panopoly_wysiwyg][version] = 1.68
+projects[panopoly_wysiwyg][version] = 1.72
 projects[panopoly_wysiwyg][subdir] = panopoly
 
-projects[panopoly_search][version] = 1.68
+projects[panopoly_search][version] = 1.72
 projects[panopoly_search][subdir] = panopoly
 
 ; ***************** End Panopoly *****************

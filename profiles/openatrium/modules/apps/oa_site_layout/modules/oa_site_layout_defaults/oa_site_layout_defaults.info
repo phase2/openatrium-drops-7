@@ -24,9 +24,8 @@ features[variable][] = panels_everywhere_site_template_enabled
 features[variable][] = panels_everywhere_site_template_enabled_admin
 features[variable][] = panels_everywhere_site_template_per_theme
 
-; Information added by Drupal.org packaging script on 2018-02-15
-version = "7.x-2.3"
+; Information added by Drupal.org packaging script on 2020-03-13
+version = "7.x-2.4"
 core = "7.x"
 project = "oa_site_layout"
-datestamp = "1518730394"
-
+datestamp = "1584127226"

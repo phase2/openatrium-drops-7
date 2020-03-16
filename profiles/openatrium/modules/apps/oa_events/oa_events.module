@@ -48,7 +48,9 @@ function oa_events_geocoder_geocode_values_alter(&$items, &$field_info, &$handle
 
   if ($field_info['field_name'] == 'field_oa_address') {
     foreach ($items as $delta => $item) {
-      $items[$delta]['value'] = preg_replace($search, PHP_EOL, $items[$delta]['value']);
+      if (!empty($items[$delta]['value'])) {
+        $items[$delta]['value'] = preg_replace($search, PHP_EOL, $items[$delta]['value']);
+      }
     }
   }
 }

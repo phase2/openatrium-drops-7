@@ -268,10 +268,10 @@ projects[contextual_tabs][subdir] = contrib
 projects[contextual_tabs][download][type] = git
 projects[contextual_tabs][download][branch] = 7.x-1.x
 
-projects[oa_angular][version] = 1.x-dev
+projects[oa_angular][version] = 2.x-dev
 projects[oa_angular][subdir] = contrib
 projects[oa_angular][download][type] = git
-projects[oa_angular][download][branch] = 7.x-1.x
+projects[oa_angular][download][branch] = 7.x-2.x
 
 projects[oa_responsive_regions][version] = 2.x-dev
 projects[oa_responsive_regions][subdir] = contrib

@@ -1,3 +1,17 @@
+Panels Everywhere 7.x-1.0, 2018-04-19
+-------------------------------------
+#2408973 by DamienMcKenna: Require the latest versions of CTools and Panels.
+#2443359 by DamienMcKenna: Default site template export updated for CTools 1.6.
+#2472505 by pontus_nilsson: Remove empty access plugin.
+#2551369 by ACF: Load the full user object when creating the user context.
+#2305533 by DamienMcKenna: Documented theming problem with form field errors.
+#2821532 by DamienMcKenna: Updated the default exported display.
+#2821534 by DamienMcKenna: Added the search box to the default display.
+#2804901 by DamienMcKenna: Added some initial tests.
+#2948040 by DamienMcKenna: Replace each(), it's deprecated in PHP 7.2.
+#2261183 by DamienMcKenna: Document that layouts can cause duplicate HTML.
+
+
 Panels Everywhere 7.x-1.0-rc2, 2015-01-17
 -----------------------------------------
 #2408973 by DamienMcKenna: Require recent versions of CTools, Panels.

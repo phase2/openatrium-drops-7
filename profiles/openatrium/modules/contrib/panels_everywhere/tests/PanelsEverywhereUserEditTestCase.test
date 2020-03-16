@@ -1,0 +1,60 @@
+<?php
+
+/**
+ * @file
+ * Confirm the user_edit Panels page works correctly with Panels Everywhere.
+ */
+
+class PanelsEverywhereUserEditTestCase extends PanelsEverywhereTestHelper {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Panels Everywhere: user_edit',
+      'description' => 'Ensure that the Panels user_edit page works correctly when using Panels Everywhere.',
+      'group' => 'panels_everywhere',
+    );
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  protected $perms = array(
+    // Access all published content.
+    'access content',
+
+    // Search for content.
+    'search content',
+  );
+
+  /**
+   * @todo Confirm the user form works correctly.
+   */
+
+  /**
+   * Confirm that the search form works from a user-edit page without Panels.
+   */
+  function testSearchWithoutPanels() {
+    // Enable PE for use on Bartik.
+    $this->enableBartik();
+
+    // Confirm that the search functionality works.
+    $this->checkSearch('user/' . $this->adminUser->uid . '/edit');
+  }
+
+  /**
+   * Confirm that the search form works from a Panels user-edit page.
+   */
+  function testSearchWithPanels() {
+    // Enable PE for use on Bartik.
+    $this->enableBartik();
+
+    // @todo Enable the Panels display.
+
+    // Confirm that the search functionality works.
+    $this->checkSearch('user/' . $this->adminUser->uid . '/edit');
+  }
+
+}

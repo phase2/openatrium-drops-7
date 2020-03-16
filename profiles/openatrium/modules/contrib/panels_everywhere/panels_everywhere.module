@@ -304,7 +304,7 @@ function panels_everywhere_page_manager_variant_operations_alter(&$operations, $
   // Use this obnoxious construct to safely insert our item.
   reset($operations['children']);
   $new = array();
-  while (list($key, $value) = each($operations['children'])) {
+  foreach ($operations['children'] as $key => $value) {
     $new[$key] = $value;
     if ($key == 'summary') {
       $new['panels_everywhere'] = array(

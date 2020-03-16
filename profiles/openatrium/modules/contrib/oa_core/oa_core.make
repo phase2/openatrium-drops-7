@@ -42,7 +42,7 @@ projects[date_facets][version] = 1.0
 projects[date_facets][subdir] = contrib
 
 ; Diff
-projects[diff][version] = 3.3
+projects[diff][version] = 3.4
 projects[diff][subdir] = contrib
 
 ; Features Template
@@ -144,6 +144,7 @@ projects[paragraphs][subdir] = contrib
 projects[paragraphs][patch][2458801] = https://www.drupal.org/files/issues/paragraphs-instructions_setting-2458801-14.patch
 projects[paragraphs][patch][2481627] = https://www.drupal.org/files/issues/paragraphs-modal_targets_wrong_id-2481627-3.patch
 projects[paragraphs][patch][2560601] = https://www.drupal.org/files/issues/2560601-paragraphs-join_extra-2.patch
+projects[paragraphs][patch][2951390] = https://www.drupal.org/files/issues/2018-03-08/deprecated_each-2951390-2.patch
 
 ; Real Name
 projects[realname][version] = 1.3

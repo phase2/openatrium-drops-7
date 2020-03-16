@@ -13,7 +13,7 @@ function panels_everywhere_default_page_manager_handlers() {
     return;
   }
 
-  $handler = new stdClass;
+  $handler = new stdClass();
   $handler->disabled = FALSE; /* Edit this to true to make a default handler disabled initially */
   $handler->api_version = 1;
   $handler->name = 'site_template_panel_context_basic';
@@ -25,14 +25,17 @@ function panels_everywhere_default_page_manager_handlers() {
     'title' => 'Sample variant',
     'no_blocks' => 1,
     'css_id' => 'page-wrapper',
-    'css' => '/* set a fixed overall width */
+    'css' => '/* Set a fixed overall width. */
   #page-wrapper > .panel-flexible-inside {
     width: 1020px;
     margin-left: auto;
     margin-right: auto;
   }
 
-  /* Add some margin to the main content row. This class was set in the layout designer. */
+  /**
+   * Add some margin to the default main content row. This class was set in the
+   * layout designer.
+   */
   #page-wrapper .main-content {
     padding: 0 10px;
   }',
@@ -44,7 +47,7 @@ function panels_everywhere_default_page_manager_handlers() {
     ),
     'pipeline' => 'standard',
   );
-  $display = new panels_display;
+  $display = new panels_display();
   $display->layout = 'flexible';
   $display->layout_settings = array(
     'items' => array(
@@ -128,124 +131,162 @@ function panels_everywhere_default_page_manager_handlers() {
   );
   $display->cache = array();
   $display->title = '';
+  $display->uuid = 'b7a19104-fe55-48c8-8595-cb4eec2bc950';
+  $display->storage_type = 'page_manager';
+  $display->storage_id = 'site_template_panel_context_basic';
   $display->content = array();
   $display->panels = array();
-    $pane = new stdClass;
-    $pane->pid = 'new-1';
-    $pane->panel = 'content';
-    $pane->type = 'pane_messages';
-    $pane->subtype = 'pane_messages';
-    $pane->shown = TRUE;
-    $pane->access = array();
-    $pane->configuration = array();
-    $pane->cache = array();
-    $pane->style = array(
-      'settings' => NULL,
-    );
-    $pane->css = array();
-    $pane->extras = array();
-    $pane->position = 0;
-    $display->content['new-1'] = $pane;
-    $display->panels['content'][0] = 'new-1';
-    $pane = new stdClass;
-    $pane->pid = 'new-2';
-    $pane->panel = 'content';
-    $pane->type = 'page_content';
-    $pane->subtype = 'page_content';
-    $pane->shown = TRUE;
-    $pane->access = array();
-    $pane->configuration = array(
-      'context' => 'argument_page_content_1',
-      'override_title' => 1,
-      'override_title_text' => '',
-    );
-    $pane->cache = array();
-    $pane->style = array(
-      'settings' => NULL,
-    );
-    $pane->css = array();
-    $pane->extras = array();
-    $pane->position = 1;
-    $display->content['new-2'] = $pane;
-    $display->panels['content'][1] = 'new-2';
-    $pane = new stdClass;
-    $pane->pid = 'new-3';
-    $pane->panel = 'header';
-    $pane->type = 'pane_header';
-    $pane->subtype = 'pane_header';
-    $pane->shown = TRUE;
-    $pane->access = array();
-    $pane->configuration = array();
-    $pane->cache = array();
-    $pane->style = array(
-      'settings' => NULL,
-    );
-    $pane->css = array();
-    $pane->extras = array();
-    $pane->position = 0;
-    $display->content['new-3'] = $pane;
-    $display->panels['header'][0] = 'new-3';
-    $pane = new stdClass;
-    $pane->pid = 'new-4';
-    $pane->panel = 'header';
-    $pane->type = 'pane_navigation';
-    $pane->subtype = 'pane_navigation';
-    $pane->shown = TRUE;
-    $pane->access = array();
-    $pane->configuration = array();
-    $pane->cache = array();
-    $pane->style = array(
-      'settings' => NULL,
-    );
-    $pane->css = array();
-    $pane->extras = array();
-    $pane->position = 1;
-    $display->content['new-4'] = $pane;
-    $display->panels['header'][1] = 'new-4';
-    $pane = new stdClass;
-    $pane->pid = 'new-5';
-    $pane->panel = 'sidebar';
-    $pane->type = 'block';
-    $pane->subtype = 'user-login';
-    $pane->shown = TRUE;
-    $pane->access = array();
-    $pane->configuration = array(
-      'override_title' => 0,
-      'override_title_text' => '',
-    );
-    $pane->cache = array();
-    $pane->style = array(
-      'settings' => NULL,
-    );
-    $pane->css = array();
-    $pane->extras = array();
-    $pane->position = 0;
-    $display->content['new-5'] = $pane;
-    $display->panels['sidebar'][0] = 'new-5';
-    $pane = new stdClass;
-    $pane->pid = 'new-6';
-    $pane->panel = 'sidebar';
-    $pane->type = 'block';
-    $pane->subtype = 'system-navigation';
-    $pane->shown = TRUE;
-    $pane->access = array();
-    $pane->configuration = array(
-      'override_title' => 0,
-      'override_title_text' => '',
-    );
-    $pane->cache = array();
-    $pane->style = array(
-      'settings' => NULL,
-    );
-    $pane->css = array();
-    $pane->extras = array();
-    $pane->position = 1;
-    $display->content['new-6'] = $pane;
-    $display->panels['sidebar'][1] = 'new-6';
+  $pane = new stdClass();
+  $pane->pid = 'new-615aebd8-d9c7-457c-bc0a-dcf6be768907';
+  $pane->panel = 'content';
+  $pane->type = 'pane_messages';
+  $pane->subtype = 'pane_messages';
+  $pane->shown = TRUE;
+  $pane->access = array();
+  $pane->configuration = array();
+  $pane->cache = array();
+  $pane->style = array(
+    'settings' => NULL,
+  );
+  $pane->css = array();
+  $pane->extras = array();
+  $pane->position = 0;
+  $pane->locks = '';
+  $pane->uuid = '615aebd8-d9c7-457c-bc0a-dcf6be768907';
+  $display->content['new-615aebd8-d9c7-457c-bc0a-dcf6be768907'] = $pane;
+  $display->panels['content'][0] = 'new-615aebd8-d9c7-457c-bc0a-dcf6be768907';
+  $pane = new stdClass();
+  $pane->pid = 'new-18fd043f-0b34-4c97-b877-bff0561a8210';
+  $pane->panel = 'content';
+  $pane->type = 'page_content';
+  $pane->subtype = 'page_content';
+  $pane->shown = TRUE;
+  $pane->access = array();
+  $pane->configuration = array(
+    'context' => 'argument_page_content_1',
+    'override_title' => 1,
+    'override_title_text' => '',
+  );
+  $pane->cache = array();
+  $pane->style = array(
+    'settings' => NULL,
+  );
+  $pane->css = array();
+  $pane->extras = array();
+  $pane->position = 1;
+  $pane->locks = '';
+  $pane->uuid = '18fd043f-0b34-4c97-b877-bff0561a8210';
+  $display->content['new-18fd043f-0b34-4c97-b877-bff0561a8210'] = $pane;
+  $display->panels['content'][1] = 'new-18fd043f-0b34-4c97-b877-bff0561a8210';
+  $pane = new stdClass();
+  $pane->pid = 'new-d3681816-70ae-421c-94e8-16d00253cef0';
+  $pane->panel = 'header';
+  $pane->type = 'pane_header';
+  $pane->subtype = 'pane_header';
+  $pane->shown = TRUE;
+  $pane->access = array();
+  $pane->configuration = array();
+  $pane->cache = array();
+  $pane->style = array(
+    'settings' => NULL,
+  );
+  $pane->css = array();
+  $pane->extras = array();
+  $pane->position = 0;
+  $pane->locks = '';
+  $pane->uuid = 'd3681816-70ae-421c-94e8-16d00253cef0';
+  $display->content['new-d3681816-70ae-421c-94e8-16d00253cef0'] = $pane;
+  $display->panels['header'][0] = 'new-d3681816-70ae-421c-94e8-16d00253cef0';
+  $pane = new stdClass();
+  $pane->pid = 'new-00309a3f-2206-481d-bf6d-4bde965688c7';
+  $pane->panel = 'header';
+  $pane->type = 'pane_navigation';
+  $pane->subtype = 'pane_navigation';
+  $pane->shown = TRUE;
+  $pane->access = array();
+  $pane->configuration = array();
+  $pane->cache = array();
+  $pane->style = array(
+    'settings' => NULL,
+  );
+  $pane->css = array();
+  $pane->extras = array();
+  $pane->position = 1;
+  $pane->locks = '';
+  $pane->uuid = '00309a3f-2206-481d-bf6d-4bde965688c7';
+  $display->content['new-00309a3f-2206-481d-bf6d-4bde965688c7'] = $pane;
+  $display->panels['header'][1] = 'new-00309a3f-2206-481d-bf6d-4bde965688c7';
+  $pane = new stdClass();
+  $pane->pid = 'new-d7888fba-06bb-4a7a-bd67-9f418c64d4a7';
+  $pane->panel = 'sidebar';
+  $pane->type = 'block';
+  $pane->subtype = 'search-form';
+  $pane->shown = TRUE;
+  $pane->access = array();
+  $pane->configuration = array(
+    'override_title' => 0,
+    'override_title_text' => '',
+    'override_title_heading' => 'h2',
+  );
+  $pane->cache = array();
+  $pane->style = array(
+    'settings' => NULL,
+  );
+  $pane->css = array();
+  $pane->extras = array();
+  $pane->position = 0;
+  $pane->locks = array();
+  $pane->uuid = 'd7888fba-06bb-4a7a-bd67-9f418c64d4a7';
+  $display->content['new-d7888fba-06bb-4a7a-bd67-9f418c64d4a7'] = $pane;
+  $display->panels['sidebar'][0] = 'new-d7888fba-06bb-4a7a-bd67-9f418c64d4a7';
+  $pane = new stdClass();
+  $pane->pid = 'new-25d4ff2c-197f-4849-843c-b3e73134c4e7';
+  $pane->panel = 'sidebar';
+  $pane->type = 'block';
+  $pane->subtype = 'user-login';
+  $pane->shown = TRUE;
+  $pane->access = array();
+  $pane->configuration = array(
+    'override_title' => 0,
+    'override_title_text' => '',
+  );
+  $pane->cache = array();
+  $pane->style = array(
+    'settings' => NULL,
+  );
+  $pane->css = array();
+  $pane->extras = array();
+  $pane->position = 1;
+  $pane->locks = '';
+  $pane->uuid = '25d4ff2c-197f-4849-843c-b3e73134c4e7';
+  $display->content['new-25d4ff2c-197f-4849-843c-b3e73134c4e7'] = $pane;
+  $display->panels['sidebar'][1] = 'new-25d4ff2c-197f-4849-843c-b3e73134c4e7';
+  $pane = new stdClass();
+  $pane->pid = 'new-7aa99e81-8eca-4507-89fc-0188cb996d2d';
+  $pane->panel = 'sidebar';
+  $pane->type = 'block';
+  $pane->subtype = 'system-navigation';
+  $pane->shown = TRUE;
+  $pane->access = array();
+  $pane->configuration = array(
+    'override_title' => 0,
+    'override_title_text' => '',
+  );
+  $pane->cache = array();
+  $pane->style = array(
+    'settings' => NULL,
+  );
+  $pane->css = array();
+  $pane->extras = array();
+  $pane->position = 2;
+  $pane->locks = '';
+  $pane->uuid = '7aa99e81-8eca-4507-89fc-0188cb996d2d';
+  $display->content['new-7aa99e81-8eca-4507-89fc-0188cb996d2d'] = $pane;
+  $display->panels['sidebar'][2] = 'new-7aa99e81-8eca-4507-89fc-0188cb996d2d';
   $display->hide_title = PANELS_TITLE_PANE;
-  $display->title_pane = 'new-2';
+  $display->title_pane = 'new-18fd043f-0b34-4c97-b877-bff0561a8210';
   $handler->conf['display'] = $display;
   $handlers[$handler->name] = $handler;
 
- return $handlers;
+  return $handlers;
 }

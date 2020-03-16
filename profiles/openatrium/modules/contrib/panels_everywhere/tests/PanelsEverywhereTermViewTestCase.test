@@ -1,0 +1,33 @@
+<?php
+
+/**
+ * @file
+ * Confirm the term_view Panels page works correctly with Panels Everywhere.
+ */
+
+class PanelsEverywhereTermViewTestCase extends PanelsEverywhereTestHelper {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Panels Everywhere: term_view',
+      'description' => 'Ensure that the Panels term_view page works correctly when using Panels Everywhere.',
+      'group' => 'panels_everywhere',
+    );
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  function setUp(array $modules = array()) {
+    $modules[] = 'panels_everywhere';
+    parent::setUp($modules);
+  }
+
+  /**
+   * @todo Confirm the term page loads correctly.
+   */
+
+}

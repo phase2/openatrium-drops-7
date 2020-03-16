@@ -1,0 +1,63 @@
+<?php
+
+/**
+ * @file
+ * Confirm the node_edit Panels page works correctly with Panels Everywhere.
+ */
+
+class PanelsEverywhereNodeEditTestCase extends PanelsEverywhereTestHelper {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Panels Everywhere: node_edit',
+      'description' => 'Ensure that the Panels node_edit page works correctly when using Panels Everywhere.',
+      'group' => 'panels_everywhere',
+    );
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  protected $perms = array(
+    // Access all published content.
+    'access content',
+
+    // Search for content.
+    'search content',
+
+    // Create content.
+    'create page content',
+  );
+
+  /**
+   * @todo Confirm the node form works correctly.
+   */
+
+  /**
+   * Confirm that the search form works from a node-add page.
+   */
+  function testSearchWithoutPanels() {
+    // Enable PE for use on Bartik.
+    $this->enableBartik();
+
+    // Confirm that the search functionality works.
+    $this->checkSearch('node/add/page');
+  }
+
+  /**
+   * Confirm that the search form works from a Panels node-add page.
+   */
+  function testSearchWithPanels() {
+    // Enable PE for use on Bartik.
+    $this->enableBartik();
+
+    // @todo Enable the Panels display.
+
+    // Confirm that the search functionality works.
+    $this->checkSearch('node/add/page');
+  }
+
+}

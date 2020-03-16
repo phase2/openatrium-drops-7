@@ -1,0 +1,175 @@
+<?php
+
+/**
+ * @file
+ * Some helper functions for the other tests.
+ */
+
+class PanelsEverywhereTestHelper extends DrupalWebTestCase {
+
+  /**
+   * {@inheritDoc}
+   */
+  function setUp(array $modules = array()) {
+    $modules[] = 'panels_everywhere';
+    parent::setUp($modules);
+
+    // Create a user with the necessary permissions and log them in.
+    $this->adminUser = $this->drupalCreateUser($this->perms);
+    $this->drupalLogin($this->adminUser);
+
+    // Clear the caches.
+    drupal_flush_all_caches();
+  }
+
+  /**
+   * The user account used for these tests.
+   *
+   * @var object
+   */
+  protected $adminUser = NULL;
+
+  /**
+   * The user account used for these tests.
+   *
+   * @var array
+   */
+  protected $perms = array();
+
+  /**
+   * Enable support for the core
+   */
+  protected function enableBartik() {
+    // Enable PE and limit it to just the Bartik theme.
+    variable_set('panels_everywhere_site_template_enabled', TRUE);
+    variable_set('panels_everywhere_provide_sample', TRUE);
+    variable_set('panels_everywhere_site_template_per_theme', TRUE);
+    variable_set('panels_everywhere_override_theme_bartik', TRUE);
+
+    // Clear the caches so that the default display kicks in.
+    drupal_flush_all_caches();
+  }
+
+  /**
+   * Create some sample content for testing nodes.
+   *
+   * @param string $keyword
+   *   The first word to be added to the title.
+   * @param int $number
+   *   How many items to create.
+   *
+   * @return array
+   *   All of the node objects that were created.
+   */
+  protected function createSampleNodes($keyword = 'test', $number = 5) {
+    $nodes = array();
+    for ($ctr = 1; $ctr <= $number; $ctr++) {
+      $nodes[] = $this->drupalCreateNode(array('title' => $keyword . ' #' . $number . '; ' . $this->randomName(8)));
+    }
+    return $nodes;
+  }
+
+  /**
+   * Abstracted test to ensure that core's search functionality works.
+   *
+   * @param string $path
+   *   The path to load to start the search from.
+   */
+  protected function checkSearch($path = '<front>') {
+    $keyword = 'Test';
+
+    // Create some sample content.
+    // $this->createSampleNodes('Test');
+
+    // Load a node-add page.
+    $this->drupalGet($path);
+    $this->assertResponse(200);
+
+    // Look for the search box.
+    $this->assertFieldByName('search_block_form');
+
+    // Submit the search box.
+    $edit = array(
+      'search_block_form' => $keyword,
+    );
+    $this->drupalPost(NULL, $edit, t('Search'));
+    $this->assertResponse(200);
+
+    // Confirm that the page was loaded.
+    $this->assertText(t('Your search yielded no results'));
+    $this->assertURL('search/node/' . $keyword);
+  }
+
+  /**
+   * Set a specific theme to be the default.
+   *
+   * @param string $theme
+   *   The theme to use as the default.
+   */
+  protected function setDefaultTheme($theme = 'bartik') {
+    db_query("UPDATE {system} SET status=1 WHERE name=:name", array(':name' => $theme));
+    variable_set('theme_default', $theme);
+    drupal_flush_all_caches();
+  }
+
+  /**
+   * Check if the Bartik theme is PE enabled.
+   */
+  protected function checkBartikThemeEnabled() {
+    // Make sure Bartik is set as the default theme.
+    $this->setDefaultTheme('bartik');
+
+    // Load the front page.
+    $this->drupalGet('<front>');
+    $this->assertResponse(200);
+
+    // Look for DOM structures that indicate that PE is being used.
+    $this->assertRaw('<div class="panel-flexible panels-flexible-new clearfix" id="page-wrapper">');
+  }
+
+  /**
+   * Check if the Bartik theme is not PE enabled.
+   */
+  protected function checkBartikThemeDisabled() {
+    // Make sure Bartik is set as the default theme.
+    $this->setDefaultTheme('bartik');
+
+    // Load the front page.
+    $this->drupalGet('<front>');
+    $this->assertResponse(200);
+
+    // Look for DOM structures that indicate that PE is not being used.
+    $this->assertNoRaw('<div class="panel-flexible panels-flexible-new clearfix" id="page-wrapper">');
+  }
+
+  /**
+   * Check if the Seven theme is PE enabled.
+   */
+  protected function checkSevenThemeEnabled() {
+    // Make sure Seven is set as the default theme.
+    $this->setDefaultTheme('seven');
+
+    // Load the front page.
+    $this->drupalGet('<front>');
+    $this->assertResponse(200);
+
+    // Look for DOM structures that indicate that PE is being used.
+    $this->assertRaw('<div class="panel-flexible panels-flexible-new clearfix" id="page-wrapper">');
+  }
+
+  /**
+   * Check if the Seven theme is not PE enabled.
+   */
+  protected function checkSevenThemeDisabled() {
+    // Make sure Seven is set as the default theme.
+    $this->setDefaultTheme('seven');
+
+    // Load the front page.
+    $this->drupalGet('<front>');
+    $this->assertResponse(200);
+
+    // Look for DOM structures that indicate that PE is not being used.
+    $this->assertNoRaw('<div class="panel-flexible panels-flexible-new clearfix" id="page-wrapper">');
+  }
+
+}

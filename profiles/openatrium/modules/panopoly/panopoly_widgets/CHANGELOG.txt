@@ -1,3 +1,26 @@
+Panopoly Widgets 7.x-1.72, 2019-12-19
+-------------------
+- Switch File widget to use Media Browser.
+- Add "Crop" tool to Spotlight widget.
+- Accessibility improvements for the mini pager on the Spotlight widget.
+- PHP notices when Piece of Content widget is empty.
+
+Panopoly Widgets 7.x-1.71, 2019-11-19
+-------------------
+- No changes since last release.
+
+Panopoly Widgets 7.x-1.70, 2019-06-28
+-------------------
+- Hide "Always display title" option on Submenu widget.
+- Getting ready for the 1.69 release.
+
+7.x-1.69, 2019-06-07
+-------------------
+- Update Panopoly Widgets to media_youtube-7.x-3.8.
+- Taking "Manage Fields" paths of content type like
+  "admin/structure/types/manage/article/fields" redirects to wrong non-existing
+  path.
+
 7.x-1.68, 2019-05-29
 -------------------
 - Update tablefield to 7.x-3.5 for SA-CONTRIB-2019-051.

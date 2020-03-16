@@ -90,9 +90,9 @@ function field_views_field_label($field_name) {
 function field_views_field_default_views_data($field) {
   $field_types = field_info_field_types();
 
-  // Check the field module is available and field has bundles.
-  if (!isset($field_types[$field['type']]) || empty($field['bundles'])) {
-    return array();
+  // Check the field module is available.
+  if (!isset($field_types[$field['type']])) {
+    return;
   }
 
   $data = array();

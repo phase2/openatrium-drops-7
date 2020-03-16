@@ -1,0 +1,33 @@
+<?php
+
+/**
+ * @file
+ * Confirm the user_view Panels page works correctly with Panels Everywhere.
+ */
+
+class PanelsEverywhereUserViewTestCase extends PanelsEverywhereTestHelper {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Panels Everywhere: user_view',
+      'description' => 'Ensure that the Panels user_view page works correctly when using Panels Everywhere.',
+      'group' => 'panels_everywhere',
+    );
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  function setUp(array $modules = array()) {
+    $modules[] = 'panels_everywhere';
+    parent::setUp($modules);
+  }
+
+  /**
+   * Confirm the user page loads correctly.
+   */
+
+}

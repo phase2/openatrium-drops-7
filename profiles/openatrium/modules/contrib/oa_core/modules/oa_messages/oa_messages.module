@@ -18,14 +18,14 @@ define('EMAIL_TYPE_HTML', 1);
  * @param string  $entity_type type of entity being referenced
  * @param string  $text optional text to be added to message
  * @param array   $args optional data to send to hooks
- * @param object  $uid optional user id assigned to message
+ * @param object  $account optional user id or user object assigned to message
  * @param boolean $send TRUE/FALSE to trigger notifications
  * @return object               the message entity created
  */
-function oa_messages_create($message_type, $entity = NULL, $entity_type = 'node', $text = '', $args = NULL, $uid = NULL, $send = TRUE) {
+function oa_messages_create($message_type, $entity = NULL, $entity_type = 'node', $text = '', $args = NULL, $account = NULL, $send = TRUE) {
   global $user;
 
-  // See if message creation is disbled.
+  // See if message creation is disabled.
   if (oa_messages_skip()) {
     return;
   }
@@ -42,9 +42,17 @@ function oa_messages_create($message_type, $entity = NULL, $entity_type = 'node'
     $entity_id = NULL;
   }
 
-  if (empty($uid)) {
+  if (empty($account)) {
     // uid of message is current user, not the user who created the node
     $uid = $user->uid;
+    $account = $user;
+  }
+  elseif (is_object($account)) {
+    $uid = $account->uid;
+  }
+  else {
+    $uid = $account;
+    $account = user_load($account);
   }
 
   if (isset($entity)) {
@@ -57,6 +65,7 @@ function oa_messages_create($message_type, $entity = NULL, $entity_type = 'node'
   // allow other modules to alter the message type to be created
   $context = array(
     'uid' => $uid,
+    'account' => $account,
     'entity' => $entity,
     'entity_type' => $entity_type,
     'entity_id' => $entity_id,
@@ -66,62 +75,64 @@ function oa_messages_create($message_type, $entity = NULL, $entity_type = 'node'
   );
   drupal_alter('oa_messages_type', $message_type, $context);
 
-  if (!empty($message_type)) {
-    $message = message_create($message_type, array('uid' => $uid, 'timestamp' => time()), user_load($uid));
-    if (!empty($entity->og_group_ref[LANGUAGE_NONE])) {
-      $message->gid = $entity->og_group_ref[LANGUAGE_NONE][0]['target_id'];
-    }
-
-    // Save reference to the node in the node reference field.
-    $wrapper = entity_metadata_wrapper('message', $message);
-    if (isset($entity_wrapper->{OA_SPACE_FIELD}) && isset($wrapper->field_oa_message_space)) {
-      $space = $entity_wrapper->{OA_SPACE_FIELD}->value();
-      if (is_array($space)) {
-        // if multi-value space field, just use first space for message
-        $space = array_shift($space);
-      }
-      $wrapper->field_oa_message_space = $space;
-    }
-    if (isset($entity_wrapper->{OA_SECTION_FIELD}) && isset($wrapper->field_oa_message_section)) {
-      $wrapper->field_oa_message_section = $entity_wrapper->{OA_SECTION_FIELD}->value();
-    }
-    if (isset($wrapper->field_oa_message_text)) {
-      $wrapper->field_oa_message_text->set(array('value' => $text, 'format' => 'full_html'));
-    }
-    if (isset($entity) && ($entity_type == 'node')) {
-      if (isset($wrapper->field_oa_node_ref)) {
-        $wrapper->field_oa_node_ref = $entity_id;
-      }
-    }
-
-    // allow other modules to add stuff to the wrapper
-    $context += array(
-      'message_type' => $message_type,
-      'message' => $message,
-    );
-
-    drupal_alter('oa_messages_create', $wrapper, $context);
-
-    if (!empty($entity_wrapper)) {
-      // Since this can be called on node_update / insert, we clear the entity
-      // cache so that it gets the values assigned by other modules.
-      entity_get_controller($entity_wrapper->type())->resetCache(array($entity_wrapper->getIdentifier()));
-    }
-
-    $wrapper->save();
-
-    if ($send && variable_get('oa_messages_notifications', TRUE) && module_exists('message_subscribe') && isset($entity) && ($entity_type == 'node')) {
-      $notify_options = oa_messages_build_notify_options();
-      $subscribe_options = oa_messages_build_subscribe_options($entity, $message);
-      if (!empty($subscribe_options['uids'])) {
-        message_subscribe_send_message('node', $entity, $message, $notify_options, $subscribe_options);
-        drupal_set_message(t('Notifications sent to ') .
-          format_plural(count($subscribe_options['uids']), '1 user', '@count users'));
-      }
-    }
-
-    return $message;
+  if (empty($message_type)) {
+    return;
   }
+
+  $message = message_create($message_type, array('uid' => $uid, 'timestamp' => time()), $account);
+  if (!empty($entity->og_group_ref[LANGUAGE_NONE])) {
+    $message->gid = $entity->og_group_ref[LANGUAGE_NONE][0]['target_id'];
+  }
+
+  // Save reference to the node in the node reference field.
+  $wrapper = entity_metadata_wrapper('message', $message);
+  if (isset($entity_wrapper->{OA_SPACE_FIELD}) && isset($wrapper->field_oa_message_space)) {
+    $space = $entity_wrapper->{OA_SPACE_FIELD}->value();
+    if (is_array($space)) {
+      // if multi-value space field, just use first space for message
+      $space = array_shift($space);
+    }
+    $wrapper->field_oa_message_space = $space;
+  }
+  if (isset($entity_wrapper->{OA_SECTION_FIELD}) && isset($wrapper->field_oa_message_section)) {
+    $wrapper->field_oa_message_section = $entity_wrapper->{OA_SECTION_FIELD}->value();
+  }
+  if (isset($wrapper->field_oa_message_text)) {
+    $wrapper->field_oa_message_text->set(array('value' => $text, 'format' => 'full_html'));
+  }
+  if (isset($entity) && ($entity_type == 'node')) {
+    if (isset($wrapper->field_oa_node_ref)) {
+      $wrapper->field_oa_node_ref = $entity_id;
+    }
+  }
+
+  // allow other modules to add stuff to the wrapper
+  $context += array(
+    'message_type' => $message_type,
+    'message' => $message,
+  );
+
+  drupal_alter('oa_messages_create', $wrapper, $context);
+
+  if (!empty($entity_wrapper)) {
+    // Since this can be called on node_update / insert, we clear the entity
+    // cache so that it gets the values assigned by other modules.
+    entity_get_controller($entity_wrapper->type())->resetCache(array($entity_wrapper->getIdentifier()));
+  }
+
+  $wrapper->save();
+
+  if ($send && variable_get('oa_messages_notifications', TRUE) && module_exists('message_subscribe') && isset($entity) && ($entity_type == 'node')) {
+    $notify_options = oa_messages_build_notify_options();
+    $subscribe_options = oa_messages_build_subscribe_options($entity, $message);
+    if (!empty($subscribe_options['uids'])) {
+      message_subscribe_send_message('node', $entity, $message, $notify_options, $subscribe_options);
+      drupal_set_message(t('Notifications sent to ') .
+        format_plural(count($subscribe_options['uids']), '1 user', '@count users'));
+    }
+  }
+
+  return $message;
 }
 
 /**
@@ -381,7 +392,7 @@ function oa_messages_comment_insert($comment) {
  */
 function oa_messages_og_membership_prepare($og_membership, $action, $add_type = TRUE) {
   $group = node_load($og_membership->gid);
-  $user = user_load($og_membership->etid);
+  $user = isset($og_membership->entity) ? $og_membership->entity : user_load($og_membership->etid);
   $realname = oa_core_realname($user);
   $text = l($realname, 'user/' . $user->uid) . ' ' . $action;
   if ($add_type && isset($group->type)) {

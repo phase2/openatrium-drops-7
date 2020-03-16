@@ -28,8 +28,8 @@ features[variable][] = pathauto_reduce_ascii
 features[variable][] = preprocess_css
 features[variable][] = select2_delay
 
-; Information added by Drupal.org packaging script on 2018-10-18
-version = "7.x-2.91"
+; Information added by Drupal.org packaging script on 2020-03-13
+version = "7.x-2.92"
 core = "7.x"
 project = "oa_core"
-datestamp = "1539884795"
+datestamp = "1584128649"

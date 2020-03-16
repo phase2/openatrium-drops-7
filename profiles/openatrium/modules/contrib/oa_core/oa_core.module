@@ -1417,28 +1417,31 @@ function oa_core_token_info() {
 /**
  * Return what the defined alias will eventually be for $nid
  */
-function oa_core_get_alias($nid) {
+function oa_core_get_alias($nid, $languagecode = NULL) {
   $cache = &drupal_static('oa_core_alias', array());
 
-  if (isset($cache[$nid])) {
-    return $cache[$nid];
+  $cachekey = $nid . ':' . $languagecode;
+
+  if (isset($cache[$cachekey])) {
+    return $cache[$cachekey];
   }
 
   if ($node = node_load($nid)) {
     $uri = entity_uri('node', $node);
-    $path = drupal_get_path_alias($uri['path']);
+    $path = drupal_get_path_alias($uri['path'], $languagecode);
     if (!isset($node->path['pathauto'])) {
       module_load_include('inc', 'pathauto');
       // return what the proper alias for this node will eventually be
       // don't use 'update' yet since the drupal_get_path_alias() will still be cached
-      $path = pathauto_create_alias('node', 'return', $uri['path'], array('node' => $node), $node->type, $node->language);
+      $path = pathauto_create_alias('node', 'return', $uri['path'], array('node' => $node), $node->type, $languagecode);
     }
-    $cache[$nid] = $path;
+    $cache[$cachekey] = $path;
   }
   else {
-    $cache[$nid] = FALSE;
+    $cache[$cachekey] = FALSE;
   }
-  return $path;
+
+  return $cache[$cachekey];
 }
 
 /**
@@ -1454,21 +1457,22 @@ function oa_core_tokens($type, $tokens, array $data = array(), array $options = 
     $section_id = !empty($section[0]['target_id']) ? $section[0]['target_id'] : 0;
     $space_id = !empty($space[0]['target_id']) ? $space[0]['target_id'] : 0;
     $default_path_alias = variable_get('oa_default_path_alias', 'content');
+    $languagecode = isset($options['language']) ? $options['language']->language : NULL;
     if ($section_id && node_load($section_id)) {
-      $path = drupal_get_path_alias('node/' . $section_id);
+      $path = drupal_get_path_alias('node/' . $section_id, $languagecode);
       if (module_exists('pathauto') && preg_match('#^node/(\d+)#', $path)) {
         // section alias not defined yet, so define it
-        $path = oa_core_get_alias($section_id);
+        $path = oa_core_get_alias($section_id, $languagecode);
       }
       if (!empty($path)) {
         $replacements[$original] = $path;
       }
     }
     elseif ($space_id && node_load($space_id)) {
-      $path = drupal_get_path_alias('node/' . $space_id);
+      $path = drupal_get_path_alias('node/' . $space_id, $languagecode);
       if (module_exists('pathauto') && preg_match('#^node/(\d+)#', $path)) {
         // space alias not defined yet, so define it
-        $path = oa_core_get_alias($space_id);
+        $path = oa_core_get_alias($space_id, $languagecode);
       }
       if (!empty($path)) {
         $replacements[$original] = $path;

@@ -128,8 +128,8 @@ files[] = plugins/views/oa_core_oa_section_ref_views_handler_filter_in_operator.
 files[] = plugins/views/oa_core_og_group_ref_views_handler_filter_entityreference_autocomplete.inc
 files[] = plugins/views/oa_core_views_handler_argument_numeric_og_membership_gid.inc
 
-; Information added by Drupal.org packaging script on 2018-10-18
-version = "7.x-2.91"
+; Information added by Drupal.org packaging script on 2020-03-13
+version = "7.x-2.92"
 core = "7.x"
 project = "oa_core"
-datestamp = "1539884795"
+datestamp = "1584128649"

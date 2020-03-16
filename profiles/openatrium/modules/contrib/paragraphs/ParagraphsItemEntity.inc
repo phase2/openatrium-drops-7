@@ -296,7 +296,8 @@ class ParagraphsItemEntity extends Entity {
           $query->age(FIELD_LOAD_REVISION);
         }
         $result = $query->execute();
-        list($this->hostEntityType, $data) = each($result);
+        $this->hostEntityType = key($result);
+        $data = current($result);
 
         if ($data) {
           $data_values = array_shift($data);

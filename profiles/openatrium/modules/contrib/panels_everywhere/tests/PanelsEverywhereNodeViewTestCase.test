@@ -1,0 +1,33 @@
+<?php
+
+/**
+ * @file
+ * Confirm the node_view Panels page works correctly with Panels Everywhere.
+ */
+
+class PanelsEverywhereNodeViewTestCase extends PanelsEverywhereTestHelper {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Panels Everywhere: node_view',
+      'description' => 'Ensure that the Panels node_view page works correctly when using Panels Everywhere.',
+      'group' => 'panels_everywhere',
+    );
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  function setUp(array $modules = array()) {
+    $modules[] = 'panels_everywhere';
+    parent::setUp($modules);
+  }
+
+  /**
+   * @todo Confirm the node page loads correctly.
+   */
+
+}

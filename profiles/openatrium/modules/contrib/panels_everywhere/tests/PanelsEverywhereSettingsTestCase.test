@@ -1,0 +1,102 @@
+<?php
+
+/**
+ * @file
+ * Tests for the Panels Everywhere module's different settings.
+ */
+
+class PanelsEverywhereSettingsTestCase extends PanelsEverywhereTestHelper {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Panels Everywhere: settings',
+      'description' => 'Ensure the main Panels Everywhere settings works.',
+      'group' => 'panels_everywhere',
+    );
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  protected $perms = array(
+    // Basic permisson to access all published content.
+    'access content',
+  );
+
+  /**
+   * Ensure the on/off variable works.
+   */
+  function testAllThemes() {
+    // @todo Confirm that the Bartik theme is not PE-enabled.
+    $this->checkBartikThemeDisabled();
+
+    // @todo Confirm that the Seven theme is not PE-enabled.
+    $this->checkSevenThemeDisabled();
+
+    // Enable PE and limit it to just the Bartik theme.
+    variable_set('panels_everywhere_site_template_enabled', TRUE);
+    variable_set('panels_everywhere_provide_sample', TRUE);
+    variable_set('panels_everywhere_site_template_per_theme', FALSE);
+
+    // Clear the caches so that the default display kicks in.
+    drupal_flush_all_caches();
+
+    // @todo Confirm that the Bartik theme is PE-enabled.
+    $this->checkBartikThemeEnabled();
+
+    // @todo Confirm that the Seven theme is PE-enabled.
+    $this->checkSevenThemeEnabled();
+  }
+
+  /**
+   * @todo Confirm what happens if the 'provide sample' option is toggled.
+   */
+  // function testSampleNotEnabled() {
+  // }
+
+  /**
+   * Ensure that the option for enabling PE for different themes works.
+   */
+  function testPerThemeOption() {
+    // Enable PE and limit it to just the Bartik theme.
+    variable_set('panels_everywhere_site_template_enabled', TRUE);
+    variable_set('panels_everywhere_provide_sample', TRUE);
+    variable_set('panels_everywhere_site_template_per_theme', TRUE);
+
+    // Enable Bartik, disable Seven.
+    variable_set('panels_everywhere_override_theme_bartik', TRUE);
+    variable_set('panels_everywhere_override_theme_seven', FALSE);
+
+    // Clear the caches so that the default display kicks in.
+    drupal_flush_all_caches();
+
+    // @todo Confirm that the Bartik theme is PE-enabled.
+    $this->checkBartikThemeEnabled();
+
+    // @todo Confirm that the Seven theme is not PE-enabled.
+    $this->checkSevenThemeDisabled();
+
+    // Disable Bartik, enable Seven.
+    variable_set('panels_everywhere_override_theme_bartik', FALSE);
+    variable_set('panels_everywhere_override_theme_seven', TRUE);
+
+    // Clear the caches so that the default display kicks in.
+    drupal_flush_all_caches();
+
+    // @todo Confirm that the Bartik theme is not PE-enabled.
+    $this->checkBartikThemeDisabled();
+
+    // @todo Confirm that the Seven theme is PE-enabled.
+    $this->checkSevenThemeEnabled();
+  }
+
+  /**
+   * @todo Confirm how the page title options work.
+   */
+  // function testPageTitleOptions() {
+  // }
+
+}

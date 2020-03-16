@@ -104,13 +104,16 @@ function oa_core_get_groups_by_user($account = NULL, $group_type = NULL, $includ
  *   (optional) Type of group.  Defaults to OA_SPACE_TYPE
  * @param string $sort
  *   (optional) Field to sort on.  Use 'history' to sort by most recently accessed.  Start with - to reverse sort direction
+ * @param int $limit
+ *   (optional) Limit number of results
  *
  * @return array
  *   An array with the group IDs or an empty array, or returns NULL if there was an error
  */
 function oa_core_get_groups_by_user_access($account = NULL, $include_archived = FALSE, $status = NULL, $page = NULL, $filter = NULL, $type = NULL, $sort = NULL, $limit = NULL) {
+  global $user;
+
   if (!isset($account)) {
-    global $user;
     $uid = $user->uid;
   }
   elseif (is_numeric($account)) {
@@ -124,9 +127,14 @@ function oa_core_get_groups_by_user_access($account = NULL, $include_archived = 
   $limit = !empty($limit) ? $limit : 0;
   $type = !empty($type) ? $type : OA_SPACE_TYPE;
 
-  $cid = oa_core_get_cache_id(OA_CACHE_GROUPS_BY_USER_ACCESS, $uid, $include_archived, array($status, $type, $sort, $limit));
-  if (!isset($page) && empty($filter) && ($sort != 'history') && oa_core_get_cache(OA_CACHE_GROUPS_BY_USER_ACCESS, $cid, $result)) {
-    return $result;
+  // Only cache invocations without paging or filtering or sorting on history.
+  // $user->uid is added to the cache key because the result also depends on the permissions of the viewing user.
+  $cid = NULL;
+  if (!isset($page) && empty($filter) && $sort !== 'history') {
+    $cid = oa_core_get_cache_id(OA_CACHE_GROUPS_BY_USER_ACCESS, $uid, $include_archived, array($status, $type, $sort, $limit, $user->uid));
+    if (oa_core_get_cache(OA_CACHE_GROUPS_BY_USER_ACCESS, $cid, $result)) {
+      return $result;
+    }
   }
 
   $query = db_select('node', 'n');
@@ -162,12 +170,7 @@ function oa_core_get_groups_by_user_access($account = NULL, $include_archived = 
   }
 
   if (isset($type)) {
-    if (is_array($type)) {
-      $query->condition('n.type', $type, 'IN');
-    }
-    else {
-      $query->condition('n.type', $type);
-    }
+    $query->condition('n.type', $type);
   }
 
   if (isset($status)) {
@@ -195,7 +198,7 @@ function oa_core_get_groups_by_user_access($account = NULL, $include_archived = 
     ->execute()
     ->fetchAll();
 
-  if (empty($filter)) {
+  if ($cid !== NULL) {
     oa_core_set_cache(OA_CACHE_GROUPS_BY_USER_ACCESS, $cid, $result);
   }
 
@@ -1219,7 +1222,7 @@ function oa_core_get_last_word($string) {
  * Return the name of a user
  */
 function oa_core_realname($user) {
-  return isset($user) ? (!empty($user->realname) ? $user->realname : $user->name) : '';
+  return !empty($user->realname) ? $user->realname : (!empty($user->name) ? $user->name : '');
 }
 
 /**

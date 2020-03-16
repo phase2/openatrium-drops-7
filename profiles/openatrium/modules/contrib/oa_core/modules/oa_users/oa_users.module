@@ -110,12 +110,12 @@ function oa_users_build_user_details($user, $image_style = 'oa_small_thumbnail')
   $details = array();
   $details['user'] = $user;
   $details['realname'] = oa_core_realname($user);
-  $details['name'] = isset($user) ? $user->name : '';
+  $details['name'] = !empty($user->name) ? $user->name : '';
   $details['picture'] = oa_users_picture($user, $image_style);
 
   //Build out links.
-  $details['links']['dashboard'] = isset($user) ? 'user/' . $user->uid . '/view' : '';
-  $details['links']['edit_profile'] = isset($user) ? 'user/' . $user->uid . '/edit' : '';
+  $details['links']['dashboard'] = !empty($user->uid) ? 'user/' . $user->uid . '/view' : '';
+  $details['links']['edit_profile'] = !empty($user->uid) ? 'user/' . $user->uid . '/edit' : '';
   $details['links']['logout'] = 'user/logout';
   return $details;
 }

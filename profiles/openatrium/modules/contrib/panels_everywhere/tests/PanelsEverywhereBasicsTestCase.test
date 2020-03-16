@@ -1,0 +1,110 @@
+<?php
+
+/**
+ * @file
+ * Basic tests for the Panels Everywhere module.
+ */
+
+class PanelsEverywhereBasicsTestCase extends PanelsEverywhereTestHelper {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Panels Everywhere: Basic tests',
+      'description' => 'Ensure the main Panels Everywhere functionality works.',
+      'group' => 'panels_everywhere',
+    );
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  function setUp(array $modules = array()) {
+    $modules[] = 'panels_everywhere';
+    parent::setUp($modules);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  protected $perms = array(
+    // Basic permisson to access all published content.
+    'access content',
+
+    // Permission to search for content.
+    'search content',
+  );
+
+  /**
+   * Confirm the default display loads the correct panes.
+   */
+  function testDefaultDisplay() {
+    // Enable PE for use on Bartik.
+    $this->enableBartik();
+
+    // Load the front page.
+    $this->drupalGet('<front>');
+    $this->assertResponse(200);
+
+    // Confirm the page is using Panels Everywhere.
+    $this->assertRaw('<div class="panel-flexible panels-flexible-new clearfix" id="page-wrapper">');
+
+    // Confirm each of the default panes is present. Note: the 'user' pane will
+    // not be visible as it's only shown to anonymous visitors.
+    $panes = array(
+      'pane-pane-header',
+      'pane-page-content',
+      'pane-block pane-search-form',
+      'pane-pane-navigation',
+    );
+    foreach ($panes as $pane) {
+      $xpath = $this->xpath("//div[@class='panel-pane {$pane}']");
+      $this->assertEqual(count($xpath), 1, "Found the {$pane} pane.");
+    }
+
+    // Log out and confirm the 'user' pane exists.
+    $this->drupalLogout();
+
+    // Load the front page again.
+    $this->drupalGet('<front>');
+    $this->assertResponse(200);
+
+    // Confirm the 'user' form is now present.
+    $panes = array(
+      'pane-user-login',
+    );
+    foreach ($panes as $pane) {
+      $xpath = $this->xpath("//div[@class='panel-pane pane-block {$pane}']");
+      $this->assertEqual(count($xpath), 1, "Found the {$pane} pane.");
+    }
+  }
+
+  /**
+   * Ensure the front page loads correctly when PE is enabled for a theme.
+   */
+  function testFrontPage() {
+    // Enable PE for use on Bartik.
+    $this->enableBartik();
+
+    // Load the frotn page.
+    $this->drupalGet('<front>');
+    $this->assertResponse(200);
+
+    // Confirm this is the front page.
+    $this->assertText(t('No front page content has been created yet.'));
+  }
+
+  /**
+   * Ensure the search form loads correctly when PE is enabled for a theme.
+   */
+  function testSearch() {
+    // Enable PE for use on Bartik.
+    $this->enableBartik();
+
+    // Check the search functionality from the front page.
+    $this->checkSearch('<front>');
+  }
+
+}

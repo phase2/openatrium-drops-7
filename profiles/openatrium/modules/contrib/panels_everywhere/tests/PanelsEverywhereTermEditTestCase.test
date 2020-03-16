@@ -1,0 +1,63 @@
+<?php
+
+/**
+ * @file
+ * Confirm the term_edit Panels page works correctly with Panels Everywhere.
+ */
+
+class PanelsEverywhereTermEditTestCase extends PanelsEverywhereTestHelper {
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Panels Everywhere: term_edit',
+      'description' => 'Ensure that the Panels term_edit page works correctly when using Panels Everywhere.',
+      'group' => 'panels_everywhere',
+    );
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  protected $perms = array(
+    // Access all published content.
+    'access content',
+
+    // Search for content.
+    'search content',
+
+    // Create taxonomy terms.
+    'administer taxonomy',
+  );
+
+  /**
+   * @todo Confirm the term form works correctly.
+   */
+
+  /**
+   * Confirm that the search form works from a term-add page without Panels.
+   */
+  function testSearchWithoutPanels() {
+    // Enable PE for use on Bartik.
+    $this->enableBartik();
+
+    // Confirm that the search functionality works.
+    $this->checkSearch('admin/structure/taxonomy/tags/add');
+  }
+
+  /**
+   * Confirm that the search form works from a Panels term-add page.
+   */
+  function testSearchWithPanels() {
+    // Enable PE for use on Bartik.
+    $this->enableBartik();
+
+    // @todo Enable the Panels display.
+
+    // Confirm that the search functionality works.
+    $this->checkSearch('admin/structure/taxonomy/tags/add');
+  }
+
+}

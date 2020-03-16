@@ -341,6 +341,7 @@ function oa_related_oa_paragraph_content_render(&$vars, $bundle, $field_name, $v
           $title = count($vars['field_oa_related_content']) == 1
             ? t('Related') . ' ' . node_type_get_name($vars['field_oa_related_content'][0]['entity'])
             : $vars['content']['field_oa_related_content']['#title'];
+          $vars['oa_related_content'] = array();
           foreach ($vars['field_oa_related_content'] as $key => $item) {
             $node = $item['entity'];
             if (node_access('view', $node)) {
@@ -366,7 +367,10 @@ function oa_related_oa_paragraph_content_render(&$vars, $bundle, $field_name, $v
               $vars['oa_related_content'][$key]['node'] = render($node_view);
             }
           }
-          $vars['title'] = $title;
+          // Only set title if at least one item can be viewed.
+          if (!empty($vars['oa_related_content'])) {
+            $vars['title'] = $title;
+          }
         }
         $vars['theme_hook_suggestions'][] = 'oa_related_paragraphs_content_render';
         break;
