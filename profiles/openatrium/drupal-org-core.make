@@ -5,7 +5,7 @@ core = 7.x
 
 ; Drupal Core
 projects[drupal][type] = core
-projects[drupal][version] = 7.70
+projects[drupal][version] = 7.72
 
 ; ***** Patches from Panopoly *******
 ; Bug with image styles on database update
@@ -13,9 +13,6 @@ projects[drupal][patch][1973278] = http://www.drupal.org/files/issues/image-acco
 ; ***** End of Panopoly patches *****
 
 ; *********** PATCHES ************
-
-; Patch for jQuery Ajax issue in Chrome 83
-projects[drupal][patch][3143016] = https://www.drupal.org/files/issues/2020-05-27/3143016-19.patch
 
 ; Patch for handling inherited profiles
 projects[drupal][patch][1356276] = http://drupal.org/files/1356276-make-D7-21.patch
