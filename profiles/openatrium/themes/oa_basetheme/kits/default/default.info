@@ -21,8 +21,8 @@ stylesheets[print][]   = assets/css/print.css
 ; Javascript
 scripts[] = assets/js/{{machine_name}}.script.min.js
 
-; Information added by Drupal.org packaging script on 2020-05-28
-version = "7.x-2.8"
+; Information added by Drupal.org packaging script on 2020-11-30
+version = "7.x-2.9"
 core = "7.x"
 project = "oa_basetheme"
-datestamp = "1590673491"
+datestamp = "1606751175"

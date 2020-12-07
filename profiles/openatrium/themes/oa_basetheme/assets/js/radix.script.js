@@ -13,8 +13,10 @@
 
         // Helper function to show the dropdown.
         function show() {
-          if (!$(dropdown).hasClass('open')) {
+          if (!$(dropdown).hasClass('open') && !$(dropdown).hasClass('radix-showing')) {
+            $(dropdown).addClass('radix-showing');
             $('>[data-toggle="dropdown"]', dropdown).trigger('click.bs.dropdown');
+            $(dropdown).removeClass('radix-showing');
           }
         }
 
