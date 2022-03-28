@@ -123,5 +123,5 @@ Drupal.behaviors.CToolsAutoSubmit = {
           });
       });
   }
-}
+};
 })(jQuery);

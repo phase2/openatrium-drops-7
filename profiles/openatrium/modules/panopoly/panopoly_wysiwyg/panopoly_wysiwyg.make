@@ -6,7 +6,7 @@ core = 7.x
 ; The WYSIWYG Module Family
 
 projects[wysiwyg][subdir] = contrib
-projects[wysiwyg][version] = 2.6
+projects[wysiwyg][version] = 2.9
 projects[wysiwyg][patch][1489096] = https://www.drupal.org/files/issues/2019-11-16/wysiwyg-table-format-1489096-10.patch
 projects[wysiwyg][patch][1786732] = https://www.drupal.org/files/issues/2019-11-16/wysiwyg-arbitrary_image_paths_markitup-1786732-6.patch
 
@@ -15,9 +15,8 @@ projects[wysiwyg_filter][subdir] = contrib
 
 ; The WYSIWYG Helpers
 
-projects[linkit][version] = 3.5
+projects[linkit][version] = 3.6
 projects[linkit][subdir] = contrib
-projects[linkit][patch][2651404] = https://www.drupal.org/files/issues/linkit-add-to-any-element-2651404-3.patch
 
 projects[image_resize_filter][version] = 1.16
 projects[image_resize_filter][subdir] = contrib

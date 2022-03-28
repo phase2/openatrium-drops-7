@@ -5,19 +5,18 @@ core = 7.x
 
 ; Panels and Chaos Tools Magic
 
-projects[ctools][version] = 1.15
+projects[ctools][version] = 1.19
 projects[ctools][subdir] = contrib
-projects[ctools][patch][1910608] = https://www.drupal.org/files/issues/2018-03-27/views_content-keyword-substitution-1910608-56.patch
+projects[ctools][patch][1910608] = https://www.drupal.org/files/issues/2020-12-01/views_content-keyword-substitution-1910608-83.patch
+projects[ctools][patch][1910608] = https://www.drupal.org/files/issues/2020-12-01/views_content-keyword-substitution-1910608-83.patch
 projects[ctools][patch][2843333] = https://www.drupal.org/files/issues/2018-05-21/ctools-views_content-ajax-settings-pane-rendering-fix-2843333-16.patch
 projects[ctools][patch][1901106] = https://www.drupal.org/files/issues/2018-03-28/1901106-ctools-views_content-override-ajax-40.patch
 projects[ctools][patch][2023705] = https://www.drupal.org/files/issues/2023705-ctools-autosubmit-15.patch
 projects[ctools][patch][2448989] = https://www.drupal.org/files/issues/2448989-ctools-from_field_children-8.patch
 projects[ctools][patch][2483415] = https://www.drupal.org/files/issues/ctools-more_than_one_comment_pager-2483415-1.patch
 
-projects[panels][version] = 3.9
+projects[panels][version] = 3.10
 projects[panels][subdir] = contrib
-projects[panels][patch][1570120] = https://www.drupal.org/files/issues/move-image-1570120-31.patch
-projects[panels][patch][2897658] = https://www.drupal.org/files/issues/panels-menu-block-ipe-2897658-3.patch
 
 projects[panels_breadcrumbs][version] = 2.4
 projects[panels_breadcrumbs][subdir] = contrib
@@ -53,7 +52,7 @@ projects[views_autocomplete_filters][patch][2374709] = http://www.drupal.org/fil
 projects[views_autocomplete_filters][patch][2317351] = http://www.drupal.org/files/issues/views_autocomplete_filters-content-pane-2317351-4.patch
 projects[views_autocomplete_filters][patch][2404893] = https://www.drupal.org/files/issues/2404893-grammar_correction-11.patch
 
-projects[views_bulk_operations][version] = 3.5
+projects[views_bulk_operations][version] = 3.6
 projects[views_bulk_operations][subdir] = contrib
 
 ; The Usual Suspects
@@ -61,7 +60,7 @@ projects[views_bulk_operations][subdir] = contrib
 projects[pathauto][version] = 1.3
 projects[pathauto][subdir] = contrib
 
-projects[token][version] = 1.7
+projects[token][version] = 1.8
 projects[token][subdir] = contrib
 projects[token][patch][1999298] = http://drupal.org/files/1999298-disable-test-warnings.patch
 
@@ -106,10 +105,8 @@ projects[field_group][subdir] = contrib
 projects[field_group][patch][3085340] = https://www.drupal.org/files/issues/2019-10-03/3085340-2.patch
 projects[field_group][patch][3083542] = https://www.drupal.org/files/issues/2020-06-09/field_group-php-7.2-compatible-3083542-5.patch
 
-projects[link][version] = 1.7
+projects[link][version] = 1.9
 projects[link][subdir] = contrib
-projects[link][patch][2666912] = https://www.drupal.org/files/issues/2019-11-18/link-revert-url-validation-2666912-54.patch
-projects[link][patch][3120382] = https://www.drupal.org/files/issues/2020-03-17/link-panopoly-magic-notice-3120382-2.patch
 
 ; Harness the Power of Features and Apps with Default Content
 
@@ -118,10 +115,8 @@ projects[apps][subdir] = contrib
 projects[apps][patch][2945929] = https://www.drupal.org/files/issues/apps-php7-compat-2945929.patch
 projects[apps][patch][2367191] = https://www.drupal.org/files/issues/apps_page_load_is_slow-2367191-5.patch
 
-projects[features][version] = 2.11
+projects[features][version] = 2.13
 projects[features][subdir] = contrib
-projects[features][patch][3075578] = https://www.drupal.org/files/issues/2019-10-20/features-7.x-2.x-3075578-4-implode-arg-order.patch
-projects[features][patch][3086633] = https://www.drupal.org/files/issues/2020-03-18/features-7.x-2.11-3086633-array-offset-7.patch
 
 projects[strongarm][version] = 2.0
 projects[strongarm][subdir] = contrib
