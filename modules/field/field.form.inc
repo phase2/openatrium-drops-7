@@ -30,7 +30,7 @@
  *   or an empty array to use default values.
  * @param $form
  *   An array representing the form that the editing element will be attached
- *   to. 
+ *   to.
  * @param $form_state
  *   An array containing the current state of the form.
  * @param $get_delta
@@ -223,7 +223,12 @@ function field_multiple_value_form($field, $instance, $langcode, $items, &$form,
       // For multiple fields, title and description are handled by the wrapping
       // table.
       if ($multiple) {
-        $element['#title'] = $title . ' ' . t('(value @number)', array('@number' => $delta + 1));
+        if ($delta == 0) {
+          $element['#title'] = $title;
+        }
+        else {
+          $element['#title'] = t('!title (value @number)', array('@number' => $delta + 1, '!title' => $title));
+        }
         $element['#title_display'] = 'invisible';
         $element['#description'] = '';
       }

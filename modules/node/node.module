@@ -3082,8 +3082,7 @@ function node_access($op, $node, $account = NULL) {
  * Helper function to create the or condition for a node grants check.
  *
  * @param $account
- *   The grants to add to the query, usually gotten via: 
- *   node_access_grants($op, $account).
+ *   The grants to add to the query, usually gotten via node_access_grants().
  * @param $table_alias
  *   Optional, the alias to the node access table.
  *
@@ -3470,7 +3469,7 @@ function _node_query_node_access_alter($query, $type) {
       // Otherwise attach it to the node query itself.
       else {
         if (empty($tableinfo['join type'])) {
-          // If we are looking at the main table of the query, apply the 
+          // If we are looking at the main table of the query, apply the
           // subquery directly.
           $query->exists($subquery);
         } else {
